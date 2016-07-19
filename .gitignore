@@ -1,0 +1,40 @@
+# 执行文件
+*.exe
+*.out
+*.app
+
+# Debug 文件夹
+Debug/*
+
+# Release 文件夹
+Release/*
+
+# 编译过程文件
+*.map
+*.lst
+*.d
+*.o
+
+# 平台相关隐藏文件
+.settings/*
+.cproject
+.project
+.DS_Store
+
+# gtags相关文件
+GPATH
+GRTAGS
+GTAGS
+
+# 编译结果
+build/target/
+
+# 编译结果
+tools/dist/
+tools/gcc-arm-none-eabi/
+tools/xtensa-lx106-elf/
+tools/esptool/
+tools/stlink/
+
+# tags
+tags
