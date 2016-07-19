@@ -2,7 +2,9 @@ INCLUDE_DIRS += $(BOARD_TYPE_PATH)/inc
 
 ifneq (,$(findstring board,$(MAKE_DEPENDENCIES)))
 
-LDFLAGS += -T$(COMMON_BUILD)/linker/arm/linker_$(STM32_DEVICE_LC).ld
+LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
+LDFLAGS += -L$(COMMON_BUILD)/linker/arm
+
 
 USE_PRINTF_FLOAT ?= y
 ifeq ("$(USE_PRINTF_FLOAT)","y")

@@ -96,16 +96,3 @@ int fifo__avaliable(fifo_t *fifo)
 {
 	return FIFO_AVALIABLE(fifo);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

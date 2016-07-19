@@ -28,7 +28,7 @@
 #include "variant.h"
 #include "lib_mqttclient.h"
 
-#define INTOROBOT_FIRMWARE_LIB_VER  "1.3.0.160625"
+#define INTOROBOT_FIRMWARE_LIB_VER  "1.3.1.160704"
 
 #define INTOROBOT_BOARD_TYPE1    "888001" //sevice info
 #define INTOROBOT_BOARD_TYPE2    "887001"

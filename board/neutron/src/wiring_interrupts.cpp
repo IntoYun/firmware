@@ -4,7 +4,7 @@
  * @author   : robin
  * @version	 : V1.0.0
  * @date     : 6-December-2014
- * @brief    : 
+ * @brief    :
  ******************************************************************************
   Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
@@ -49,13 +49,13 @@ const IRQn_Type GPIO_IRQn[] =
 };
 
 // Create a structure for user ISR function pointers
-typedef struct exti_channel 
+typedef struct exti_channel
 {
     void (*handler)();
 } exti_channel;
 
 //Array to hold user ISR function pointers
-static exti_channel exti_channels[] = 
+static exti_channel exti_channels[] =
 {
     { .handler = NULL },  // EXTI0
     { .handler = NULL },  // EXTI1
@@ -77,7 +77,7 @@ static exti_channel exti_channels[] =
 
 /*********************************************************************************
   *Function     : void attachInterrupt(uint16_t pin, voidFuncPtr handler, InterruptMode mode)
-  *Description  : IntoRobot compatible function to attach hardware interrupts to 
+  *Description  : IntoRobot compatible function to attach hardware interrupts to
 				  the Core pins
   *Input        : pin:port number
   				  handler:
@@ -86,7 +86,7 @@ static exti_channel exti_channels[] =
   *Return       : none
   *author       : lz
   *date         : 6-December-2014
-  *Others       :         
+  *Others       :
 **********************************************************************************/
 void attachInterrupt(uint16_t pin, voidFuncPtr handler, InterruptMode mode)
 {
@@ -196,7 +196,7 @@ void attachInterrupt(uint16_t pin, voidFuncPtr handler, InterruptMode mode)
   *Return       : none
   *author       : lz
   *date         : 6-December-2014
-  *Others       :         
+  *Others       :
 **********************************************************************************/
 void detachInterrupt(uint16_t pin)
 {
@@ -260,7 +260,7 @@ void detachInterrupt(uint16_t pin)
   *Return       : none
   *author       : lz
   *date         : 6-December-2014
-  *Others       :         
+  *Others       :
 **********************************************************************************/
 void noInterrupts(void)
 {
@@ -272,6 +272,7 @@ void noInterrupts(void)
     NVIC_DisableIRQ(EXTI4_IRQn);
     NVIC_DisableIRQ(EXTI9_5_IRQn);
     NVIC_DisableIRQ(EXTI15_10_IRQn);
+    osThreadSuspendAll();
 }
 
 /*********************************************************************************
@@ -282,7 +283,7 @@ void noInterrupts(void)
   *Return       : none
   *author       : lz
   *date         : 6-December-2014
-  *Others       :         
+  *Others       :
 **********************************************************************************/
 void interrupts(void)
 {
@@ -294,11 +295,12 @@ void interrupts(void)
     NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI9_5_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);
+    osThreadResumeAll();
 }
 
 /*********************************************************************************
   *Function     : void Wiring_EXTI_Interrupt_Handler(uint8_t EXTI_Line_Number)
-  *Description  : This function is called by any of the interrupt handlers. It 
+  *Description  : This function is called by any of the interrupt handlers. It
 				  essentially fetches the user function pointer from the array
 				  and calls it.
   *Input        : EXTI_Line_Number:interrupt number

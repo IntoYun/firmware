@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "lib_system_all.h"
+#include "variant.h"
 
 USBD_HandleTypeDef USBD_Device;
 /* Private typedef -----------------------------------------------------------*/
@@ -26,10 +27,9 @@ static osMutexId usb_mutex;	//transfer all mutex
  *******************************************************************************/
 void USB_USART_Init(uint32_t baudRate)
 {
-
-	//创建 usb mutex
-  osMutexDef(USB_MUT);
-  usb_mutex = osMutexCreate(osMutex(USB_MUT));
+    //创建 usb mutex
+    osMutexDef(USB_MUT);
+    usb_mutex = osMutexCreate(osMutex(USB_MUT));
 
     LineCoding.bitrate = baudRate;
     /* Init Device Library */
@@ -80,19 +80,15 @@ int32_t USB_USART_Read_Data(void)
  * Input          : Data.
  * Return         : None.
  *******************************************************************************/
-
- 
 void USB_USART_Send_Data(uint8_t Data)
 {
-
 	osMutexWait(usb_mutex, osWaitForever);
-	
+
 	USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
-	while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);
+	USBD_CDC_TransmitPacket(&USBD_Device);
+    delayMicroseconds(100);
+	//while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);
 
 	osMutexRelease(usb_mutex);
-	
 }
-
-
 

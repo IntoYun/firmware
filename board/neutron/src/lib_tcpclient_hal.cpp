@@ -206,7 +206,6 @@ int TcpClient_writen_hal(const unsigned char *p_dat,int len,unsigned char tcp_ha
         if(memcmp(temp_r,"SEND OK",7)==0)
         {
             MO_INFO(("OK TcpClient_writen_hal %d",tcp_handle));
-            //usleep(5000*1000);
             return ret;
         }
         else

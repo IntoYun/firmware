@@ -4,7 +4,7 @@
  * @author   : robin
  * @version  : V1.0.0
  * @date     : 6-December-2014
- * @brief    :   
+ * @brief    :
  ******************************************************************************
   Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 

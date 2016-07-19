@@ -33,9 +33,6 @@ WiFiUDP::WiFiUDP()
 
 }
 
-/* Start WiFiUDP socket, listening at local port PORT */
-extern volatile bool smartconfigStartFlag;
-extern volatile bool smartconfigStrFoundFlag;
 /*
 成功 1
 失败 0
@@ -43,10 +40,6 @@ extern volatile bool smartconfigStrFoundFlag;
 uint8_t WiFiUDP::begin(uint16_t port)
 {
   _port = port;
-  if (smartconfigStartFlag == true && smartconfigStrFoundFlag == false)// if start smartconfig but not found the back string
-  {
-    return 0;
-  }
   //repeat check
   if(_begin)
   {
@@ -79,18 +72,6 @@ uint8_t WiFiUDP::begin(uint16_t port)
 */
 int WiFiUDP::available()
 {
-  if (smartconfigStartFlag == true && smartconfigStrFoundFlag == false)// if start smartconfig but not found the back string
-  {
-    return 0;
-  }
-  if (smartconfigStartFlag == true && smartconfigStrFoundFlag == true)// if start smartconfig and found the back string
-  {
-    smartconfigStartFlag = false; // close the smartconfig
-    smartconfigStrFoundFlag = false;
-    mo_drv_wifi_run_cmd("AT+CWSTOPSMART","OK",5);
-    begin(_port);
-    MO_INFO(("Receive smartconfigstring, WiFiUDP start"));
-  }
   //初始化检查
   if(!_begin)
   {

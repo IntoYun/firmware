@@ -6,21 +6,21 @@
  * @date     : 6-December-2014
  * @brief    :
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
  */
 
 #include "wiring_i2c.h"
@@ -29,26 +29,6 @@
 #define TRANSMITTER             0x00
 #define RECEIVER                0x01
 
-#define useDMA 0
-/*
- * I2C mapping
- */
-// STM32_I2C_Info I2C_MAP[] =
-// {
-//     /*
-//      * i2c_peripheral (I2C1 and I2C3; not using others)
-//      * interrupt number (I2C1_EV_IRQn or I2C3_EV_IRQn)
-//      * dma tx interrupt number (DMA_Streamn_IRQn)
-//      * dma rx interrupt number (DMA_Streamn_IRQn)
-//      * scl pin info
-//      * sda pin info
-//      * i2c_handle
-//      * <tx_buffer pointer> used internally and does not appear below
-//      * <rx_buffer pointer> used internally and does not appear below
-//      */
-
-// };
-
 
 /* I2C3 DMA1 I2C3_RX: stream2 channel3;    I2C3_TX: stream4 channel3 */
 /* I2C1 DMA1 I2C1_RX: stream5 channel5;    I2C1_TX: stream6 channel1 */
@@ -56,176 +36,176 @@
 /* I2C3: SCL PA8, SDA PB4 */
 static void I2C_DMA_Init(I2C_HandleTypeDef *hi2c)
 {
-  if(hi2c->Instance == I2C1)
-  {
-      static DMA_HandleTypeDef hdma_tx1;
-      static DMA_HandleTypeDef hdma_rx1;
+    if(hi2c->Instance == I2C1)
+    {
+        static DMA_HandleTypeDef hdma_tx1;
+        static DMA_HandleTypeDef hdma_rx1;
 
-      GPIO_InitTypeDef  GPIO_InitStruct;
+        GPIO_InitTypeDef  GPIO_InitStruct;
 
-      /*##-1- Enable GPIO Clocks #################################################*/
-      /* Enable GPIO Tx/Rx clock */
-      __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C PB8, PB9
+        /*##-1- Enable GPIO Clocks #################################################*/
+        /* Enable GPIO Tx/Rx clock */
+        __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C PB8, PB9
 
-      /*##-2- Configure peripheral GPIO ##########################################*/
-      /* I2C TX GPIO pin configuration  */
-      GPIO_InitStruct.Pin       = GPIO_PIN_8;
-      GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-      GPIO_InitStruct.Pull      = GPIO_PULLUP;
-      GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-      GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        /*##-2- Configure peripheral GPIO ##########################################*/
+        /* I2C TX GPIO pin configuration  */
+        GPIO_InitStruct.Pin       = GPIO_PIN_8;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+        GPIO_InitStruct.Pull      = GPIO_PULLUP;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-      /* I2C RX GPIO pin configuration  */
-      GPIO_InitStruct.Pin = GPIO_PIN_9;
-      GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        /* I2C RX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = GPIO_PIN_9;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-      /*##-3- Enable DMA peripheral Clock ########################################*/
-      /* Enable DMA1 clock */
-      __HAL_RCC_DMA1_CLK_ENABLE();
+        /*##-3- Enable DMA peripheral Clock ########################################*/
+        /* Enable DMA1 clock */
+        __HAL_RCC_DMA1_CLK_ENABLE();
 
-      /*##-4- Configure the DMA streams ##########################################*/
-      /* Configure the DMA handler for Transmission process */
-      hdma_tx1.Instance                 = DMA1_Stream6;
+        /*##-4- Configure the DMA streams ##########################################*/
+        /* Configure the DMA handler for Transmission process */
+        hdma_tx1.Instance                 = DMA1_Stream6;
 
-      hdma_tx1.Init.Channel             = DMA_CHANNEL_1;
-      hdma_tx1.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-      hdma_tx1.Init.PeriphInc           = DMA_PINC_DISABLE;
-      hdma_tx1.Init.MemInc              = DMA_MINC_ENABLE;
-      hdma_tx1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-      hdma_tx1.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-      hdma_tx1.Init.Mode                = DMA_NORMAL;
-      hdma_tx1.Init.Priority            = DMA_PRIORITY_LOW;
-      hdma_tx1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-      hdma_tx1.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-      hdma_tx1.Init.MemBurst            = DMA_MBURST_INC4;
-      hdma_tx1.Init.PeriphBurst         = DMA_PBURST_INC4;
+        hdma_tx1.Init.Channel             = DMA_CHANNEL_1;
+        hdma_tx1.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+        hdma_tx1.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_tx1.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_tx1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_tx1.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_tx1.Init.Mode                = DMA_NORMAL;
+        hdma_tx1.Init.Priority            = DMA_PRIORITY_LOW;
+        hdma_tx1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_tx1.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_tx1.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_tx1.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-      HAL_DMA_Init(&hdma_tx1);
+        HAL_DMA_Init(&hdma_tx1);
 
-      /* Associate the initialized DMA handle to the the I2C handle */
-      __HAL_LINKDMA(hi2c, hdmatx, hdma_tx1);
+        /* Associate the initialized DMA handle to the the I2C handle */
+        __HAL_LINKDMA(hi2c, hdmatx, hdma_tx1);
 
-      /* Configure the DMA handler for Transmission process */
-      hdma_rx1.Instance                 = DMA1_Stream5;
+        /* Configure the DMA handler for Transmission process */
+        hdma_rx1.Instance                 = DMA1_Stream5;
 
-      hdma_rx1.Init.Channel             = DMA_CHANNEL_1;
-      hdma_rx1.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-      hdma_rx1.Init.PeriphInc           = DMA_PINC_DISABLE;
-      hdma_rx1.Init.MemInc              = DMA_MINC_ENABLE;
-      hdma_rx1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-      hdma_rx1.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-      hdma_rx1.Init.Mode                = DMA_NORMAL;
-      hdma_rx1.Init.Priority            = DMA_PRIORITY_HIGH;
-      hdma_rx1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-      hdma_rx1.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-      hdma_rx1.Init.MemBurst            = DMA_MBURST_INC4;
-      hdma_rx1.Init.PeriphBurst         = DMA_PBURST_INC4;
+        hdma_rx1.Init.Channel             = DMA_CHANNEL_1;
+        hdma_rx1.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+        hdma_rx1.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_rx1.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_rx1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_rx1.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_rx1.Init.Mode                = DMA_NORMAL;
+        hdma_rx1.Init.Priority            = DMA_PRIORITY_HIGH;
+        hdma_rx1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_rx1.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_rx1.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_rx1.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-      HAL_DMA_Init(&hdma_rx1);
+        HAL_DMA_Init(&hdma_rx1);
 
-      /* Associate the initialized DMA handle to the the I2C handle */
-      __HAL_LINKDMA(hi2c, hdmarx, hdma_rx1);
+        /* Associate the initialized DMA handle to the the I2C handle */
+        __HAL_LINKDMA(hi2c, hdmarx, hdma_rx1);
 
-      /*##-5- Enable peripheral Clock ############################################*/
-      /* Enable I2C1 clock */
-      __HAL_RCC_I2C1_CLK_ENABLE();
+        /*##-5- Enable peripheral Clock ############################################*/
+        /* Enable I2C1 clock */
+        __HAL_RCC_I2C1_CLK_ENABLE();
 
-      // /*##-6- Configure the NVIC for DMA #########################################*/
-      // /* NVIC configuration for DMA transfer complete interrupt (I2C1_TX) */
-      // HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 1, 0);
-      // HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
+        // /*##-6- Configure the NVIC for DMA #########################################*/
+        // /* NVIC configuration for DMA transfer complete interrupt (I2C1_TX) */
+        // HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 1, 0);
+        // HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 
-      // /* NVIC configuration for DMA transfer complete interrupt (I2C1_RX) */
-      // HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-      // HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
-  }
-  else if(hi2c->Instance == I2C3)
-  {
-      static DMA_HandleTypeDef hdma_tx3;
-      static DMA_HandleTypeDef hdma_rx3;
+        // /* NVIC configuration for DMA transfer complete interrupt (I2C1_RX) */
+        // HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+        // HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+    }
+    else if(hi2c->Instance == I2C3)
+    {
+        static DMA_HandleTypeDef hdma_tx3;
+        static DMA_HandleTypeDef hdma_rx3;
 
-      GPIO_InitTypeDef  GPIO_InitStruct;
+        GPIO_InitTypeDef  GPIO_InitStruct;
 
-      /*##-1- Enable GPIO Clocks #################################################*/
-      /* Enable GPIO Tx/Rx clock */
-      __HAL_RCC_GPIOA_CLK_ENABLE(); // I2C3 SCL PA8
-      __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C3 SDA PB4
-      /*##-2- Configure peripheral GPIO ##########################################*/
-      /* I2C TX GPIO pin configuration  */
-      GPIO_InitStruct.Pin       = GPIO_PIN_8;
-      GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-      GPIO_InitStruct.Pull      = GPIO_PULLUP;
-      GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-      GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-      HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        /*##-1- Enable GPIO Clocks #################################################*/
+        /* Enable GPIO Tx/Rx clock */
+        __HAL_RCC_GPIOA_CLK_ENABLE(); // I2C3 SCL PA8
+        __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C3 SDA PB4
+        /*##-2- Configure peripheral GPIO ##########################################*/
+        /* I2C TX GPIO pin configuration  */
+        GPIO_InitStruct.Pin       = GPIO_PIN_8;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+        GPIO_InitStruct.Pull      = GPIO_PULLUP;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-      /* I2C RX GPIO pin configuration  */
-      GPIO_InitStruct.Pin = GPIO_PIN_4;
-      GPIO_InitStruct.Alternate = GPIO_AF9_I2C3;
-      HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        /* I2C RX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = GPIO_PIN_4;
+        GPIO_InitStruct.Alternate = GPIO_AF9_I2C3;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-      /*##-3- Enable DMA peripheral Clock ########################################*/
-      /* Enable DMA1 clock */
-      __HAL_RCC_DMA1_CLK_ENABLE();
+        /*##-3- Enable DMA peripheral Clock ########################################*/
+        /* Enable DMA1 clock */
+        __HAL_RCC_DMA1_CLK_ENABLE();
 
-      /*##-4- Configure the DMA streams ##########################################*/
-      /* Configure the DMA handler for Transmission process */
-      hdma_tx3.Instance                 = DMA1_Stream4;
+        /*##-4- Configure the DMA streams ##########################################*/
+        /* Configure the DMA handler for Transmission process */
+        hdma_tx3.Instance                 = DMA1_Stream4;
 
-      hdma_tx3.Init.Channel             = DMA_CHANNEL_3;
-      hdma_tx3.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-      hdma_tx3.Init.PeriphInc           = DMA_PINC_DISABLE;
-      hdma_tx3.Init.MemInc              = DMA_MINC_ENABLE;
-      hdma_tx3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-      hdma_tx3.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-      hdma_tx3.Init.Mode                = DMA_NORMAL;
-      hdma_tx3.Init.Priority            = DMA_PRIORITY_MEDIUM;
-      hdma_tx3.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-      hdma_tx3.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-      hdma_tx3.Init.MemBurst            = DMA_MBURST_INC4;
-      hdma_tx3.Init.PeriphBurst         = DMA_PBURST_INC4;
+        hdma_tx3.Init.Channel             = DMA_CHANNEL_3;
+        hdma_tx3.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+        hdma_tx3.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_tx3.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_tx3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_tx3.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_tx3.Init.Mode                = DMA_NORMAL;
+        hdma_tx3.Init.Priority            = DMA_PRIORITY_MEDIUM;
+        hdma_tx3.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_tx3.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_tx3.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_tx3.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-      HAL_DMA_Init(&hdma_tx3);
+        HAL_DMA_Init(&hdma_tx3);
 
-      /* Associate the initialized DMA handle to the the I2C handle */
-      __HAL_LINKDMA(hi2c, hdmatx, hdma_tx3);
+        /* Associate the initialized DMA handle to the the I2C handle */
+        __HAL_LINKDMA(hi2c, hdmatx, hdma_tx3);
 
-      /* Configure the DMA handler for Transmission process */
-      hdma_rx3.Instance                 = DMA1_Stream2;
+        /* Configure the DMA handler for Transmission process */
+        hdma_rx3.Instance                 = DMA1_Stream2;
 
-      hdma_rx3.Init.Channel             = DMA_CHANNEL_3;
-      hdma_rx3.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-      hdma_rx3.Init.PeriphInc           = DMA_PINC_DISABLE;
-      hdma_rx3.Init.MemInc              = DMA_MINC_ENABLE;
-      hdma_rx3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-      hdma_rx3.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-      hdma_rx3.Init.Mode                = DMA_NORMAL;
-      hdma_rx3.Init.Priority            = DMA_PRIORITY_HIGH;  //DMA_PRIORITY_MEDIUM; //DMA_PRIORITY_HIGH;
-      hdma_rx3.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-      hdma_rx3.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-      hdma_rx3.Init.MemBurst            = DMA_MBURST_INC4;
-      hdma_rx3.Init.PeriphBurst         = DMA_PBURST_INC4;
+        hdma_rx3.Init.Channel             = DMA_CHANNEL_3;
+        hdma_rx3.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+        hdma_rx3.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_rx3.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_rx3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_rx3.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_rx3.Init.Mode                = DMA_NORMAL;
+        hdma_rx3.Init.Priority            = DMA_PRIORITY_HIGH;  //DMA_PRIORITY_MEDIUM; //DMA_PRIORITY_HIGH;
+        hdma_rx3.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_rx3.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_rx3.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_rx3.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-      HAL_DMA_Init(&hdma_rx3);
+        HAL_DMA_Init(&hdma_rx3);
 
-      /* Associate the initialized DMA handle to the the I2C handle */
-      __HAL_LINKDMA(hi2c, hdmarx, hdma_rx3);
+        /* Associate the initialized DMA handle to the the I2C handle */
+        __HAL_LINKDMA(hi2c, hdmarx, hdma_rx3);
 
-      /*##-5- Enable peripheral Clock ############################################*/
-      /* Enable I2C1 clock */
-      __HAL_RCC_I2C3_CLK_ENABLE();
+        /*##-5- Enable peripheral Clock ############################################*/
+        /* Enable I2C1 clock */
+        __HAL_RCC_I2C3_CLK_ENABLE();
 
-      // /*##-6- Configure the NVIC for DMA #########################################*/
-      // /* NVIC configuration for DMA transfer complete interrupt (I2C1_TX) */
-      // HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 1, 0);
-      // HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
+        // /*##-6- Configure the NVIC for DMA #########################################*/
+        // /* NVIC configuration for DMA transfer complete interrupt (I2C1_TX) */
+        // HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 1, 0);
+        // HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
 
-      // /* NVIC configuration for DMA transfer complete interrupt (I2C1_RX) */
-      // HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
-      // HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
-  }
+        // /* NVIC configuration for DMA transfer complete interrupt (I2C1_RX) */
+        // HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+        // HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+    }
 }
 
 
@@ -245,7 +225,7 @@ TwoWire::TwoWire(I2C_TypeDef *I2Cx):I2C_Type(I2Cx)
     txBufferLength = 0;
 
     transmitting = 0;
- }
+}
 
 void TwoWire::setSpeed(uint32_t clockSpeed)
 {
@@ -301,179 +281,82 @@ void TwoWire::init(uint8_t Type)
 #if 1
 void TwoWire::begin(void)
 {
-  if (I2C_Enabled)
-    return;
-  I2C_SetAsSlave = false;
+    if (I2C_Enabled)
+        return;
+    I2C_SetAsSlave = false;
 
-  I2CHandle.Instance = I2C1;
+    I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    I2CHandle.Init.ClockSpeed      = 400000;
+    I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    I2CHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+    I2CHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    I2CHandle.Init.OwnAddress1     = 0x00;
+    I2CHandle.Init.OwnAddress2     = 0x00;
+    GPIO_InitTypeDef  GPIO_InitStruct;
 
-  I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-  I2CHandle.Init.ClockSpeed      = 400000;
-  I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  I2CHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
-  I2CHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-  I2CHandle.Init.OwnAddress1     = 0x00;
-  I2CHandle.Init.OwnAddress2     = 0x00;
+    if (I2C_Type == I2C1)
+    {
 
-  GPIO_InitTypeDef  GPIO_InitStruct;
+        I2CHandle.Instance = I2C1;
 
-  /*##-1- Enable GPIO Clocks #################################################*/
-  /* Enable GPIO TX/RX clock */
-  __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C PB8, PB9
-#if(~useDMA)
-  __HAL_RCC_I2C1_CLK_ENABLE();
-#endif
+        /*##-1- Enable GPIO Clocks #################################################*/
+        /* Enable GPIO TX/RX clock */
+        __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C PB8, PB9
+        __HAL_RCC_I2C1_CLK_ENABLE();
 
-  /*##-2- Configure peripheral GPIO ##########################################*/
-  /* I2C TX GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = GPIO_PIN_8;
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        /*##-2- Configure peripheral GPIO ##########################################*/
+        /* I2C TX GPIO pin configuration  */
+        GPIO_InitStruct.Pin       = GPIO_PIN_8;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+        GPIO_InitStruct.Pull      = GPIO_PULLUP;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /* I2C RX GPIO pin configuration  */
-  GPIO_InitStruct.Pin = GPIO_PIN_9;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+        /* I2C RX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = GPIO_PIN_9;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  #if(useDMA)
-  {
-  static DMA_HandleTypeDef hdma_tx;
-  static DMA_HandleTypeDef hdma_rx;
-  /*##-3- Enable DMA peripheral Clock ########################################*/
-  /* Enable DMA1 clock */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+    }
+    else if (I2C_Type == I2C3)
+    {
+        I2CHandle.Instance = I2C3;
 
-  /*##-4- Configure the DMA streams ##########################################*/
-  /* Configure the DMA handler for Transmission process */
-  hdma_tx.Instance                 = DMA1_Stream6;
-
-  hdma_tx.Init.Channel             = DMA_CHANNEL_1;
-  hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-  hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-  hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-  hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-  hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-  hdma_tx.Init.Mode                = DMA_NORMAL;
-  hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-  hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-  hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
-  hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
-
-  HAL_DMA_Init(&hdma_tx);
-
-  /* Associate the initialized DMA handle to the the I2C handle */
-  __HAL_LINKDMA(&I2CHandle, hdmatx, hdma_tx);
-
-  /* Configure the DMA handler for Transmission process */
-  hdma_rx.Instance                 = DMA1_Stream5;
-
-  hdma_rx.Init.Channel             = DMA_CHANNEL_1;
-  hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-  hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-  hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-  hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-  hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-  hdma_rx.Init.Mode                = DMA_NORMAL;
-  hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-  hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-  hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
-  hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
-
-  HAL_DMA_Init(&hdma_rx);
-
-  /* Associate the initialized DMA handle to the the I2C handle */
-  __HAL_LINKDMA(&I2CHandle, hdmarx, hdma_rx);
-
-  /*##-5- Enable peripheral Clock ############################################*/
-  /* Enable I2C1 clock */
-  __HAL_RCC_I2C1_CLK_ENABLE();
+        /*##-1- Enable GPIO Clocks #################################################*/
+        /* Enable GPIO TX/RX clock */
+        __HAL_RCC_GPIOA_CLK_ENABLE(); // I2C SCL tx PA8
+        __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C SDA rx PB4
+        __HAL_RCC_I2C3_CLK_ENABLE();
 
 
-  }
-  #endif
+        /*##-2- Configure peripheral GPIO ##########################################*/
+        /* I2C TX GPIO pin configuration  */
+        GPIO_InitStruct.Pin       = GPIO_PIN_8;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+        GPIO_InitStruct.Pull      = GPIO_PULLUP;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+        GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* I2C RX GPIO pin configuration  */
+        GPIO_InitStruct.Pin = GPIO_PIN_4;
+        GPIO_InitStruct.Alternate = GPIO_AF9_I2C3;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    }
 
-  if(HAL_I2C_Init(&I2CHandle) != HAL_OK)
-  {
-    /* Initialization Error */
-    //Error_Handler();
-    while(1)
-    {}
-  }
-
+    if(HAL_I2C_Init(&I2CHandle) != HAL_OK)
+    {
+        /* Initialization Error */
+        //Error_Handler();
+        while(1)
+        {}
+    }
 
     I2C_Enabled = true;
-
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nbegin!\r\n");
-    // }
 }
 #endif
-
-#if 0
-void TwoWire::begin(void)
-{
-  I2C_SetAsSlave = false;
-
-  I2CHandle.Instance = I2C3;
-
-  I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-  I2CHandle.Init.ClockSpeed      = 400000;
-  I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  I2CHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
-  I2CHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-  I2CHandle.Init.OwnAddress1     = 0x00;
-  I2CHandle.Init.OwnAddress2     = 0x00;
-
-  GPIO_InitTypeDef  GPIO_InitStruct;
-
-  /*##-1- Enable GPIO Clocks #################################################*/
-  /* Enable GPIO TX/RX clock */
-  __HAL_RCC_GPIOA_CLK_ENABLE(); // I2C SCL tx PA8
-  __HAL_RCC_GPIOB_CLK_ENABLE(); // I2C SDA rx PB4
-  __HAL_RCC_I2C3_CLK_ENABLE();
-
-
-  /*##-2- Configure peripheral GPIO ##########################################*/
-  /* I2C TX GPIO pin configuration  */
-  GPIO_InitStruct.Pin       = GPIO_PIN_8;
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /* I2C RX GPIO pin configuration  */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Alternate = GPIO_AF9_I2C3;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  if(HAL_I2C_Init(&I2CHandle) != HAL_OK)
-  {
-    /* Initialization Error */
-    //Error_Handler();
-    while(1)
-    {}
-  }
-
-
-    I2C_Enabled = true;
-
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nbegin!\r\n");
-    // }
-}
-#endif
-
 
 void TwoWire::begin(uint8_t address)
 {
@@ -496,39 +379,31 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
         quantity = I2C_BUFFER_LENGTH;
     }
 
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nbegin requestFrom!\r\n");
-    // }
     address = address << 1;
     // address |= 0x01;
-    #if(useDMA)
+#if(useDMA)
     HAL_StatusTypeDef requestStatus = HAL_I2C_Master_Receive_DMA(&I2CHandle, address, rxBuffer, quantity);
     for ( int i=0; i < 10; ++i )
     {
-      Serial.printf("\r\nrequestStatus %d!\r\n", requestStatus);
+        Serial.printf("\r\nrequestStatus %d!\r\n", requestStatus);
     }
     while( requestStatus != HAL_OK);
-    #else
-        while(HAL_I2C_Master_Receive(&I2CHandle, address, rxBuffer, quantity, 100) != HAL_OK)
-    #endif
+#else
+    while(HAL_I2C_Master_Receive(&I2CHandle, address, rxBuffer, quantity, 100) != HAL_OK)
+#endif
     {
         /* Error_handler() function is called when Timeout error occurs. */
         if(HAL_I2C_GetError(&I2CHandle) != HAL_I2C_ERROR_AF)
         {
-           // Error_Handler();
-           while(1)
-           {}
+            // Error_Handler();
+            while(1)
+            {}
         }
     }
 
     rxBufferIndex = 0;
     rxBufferLength = quantity;
 
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nrequestFrom!\r\n");
-    // }
     return rxBufferLength;
 }
 
@@ -554,26 +429,8 @@ void TwoWire::beginTransmission(uint8_t address)
     // set address of targeted slave
     txAddress = address << 1;
 
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\naaaaaaaaaaa%d\r\n",txAddress);
-    // }
-    // txAddress = (txAddress << 1) & 0xFE;
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\n%d\r\n",txAddress);
-    // }
-    // reset tx buffer iterator vars
     txBufferIndex = 0;
     txBufferLength = 0;
-    // if(Serial.isEnabled() == false)
-    // {
-    //   Serial.begin();
-    // }
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nbeginTransmission!\r\n");
-    // }
 }
 
 void TwoWire::beginTransmission(int address)
@@ -583,26 +440,26 @@ void TwoWire::beginTransmission(int address)
 
 uint8_t TwoWire::endTransmission(uint8_t sendStop)
 {
-  #if(useDMA)
-  HAL_StatusTypeDef status = HAL_I2C_Master_Transmit_DMA( &I2CHandle, (uint16_t) txAddress, (uint8_t*)txBuffer, txBufferLength);
-  while( status != HAL_OK);
-  #else
-      while(HAL_I2C_Master_Transmit( &I2CHandle, (uint16_t)txAddress, &txBuffer[0], txBufferLength, 1000) != HAL_OK)
-  #endif
-  {
-    if( HAL_I2C_GetError(&I2CHandle) != HAL_I2C_ERROR_AF)
+#if(useDMA)
+    HAL_StatusTypeDef status = HAL_I2C_Master_Transmit_DMA( &I2CHandle, (uint16_t) txAddress, (uint8_t*)txBuffer, txBufferLength);
+    while( status != HAL_OK);
+#else
+    while(HAL_I2C_Master_Transmit( &I2CHandle, (uint16_t)txAddress, &txBuffer[0], txBufferLength, 1000) != HAL_OK)
+#endif
     {
-      Serial.printf("\r\n12345nendTransmission!\r\n");
+        if( HAL_I2C_GetError(&I2CHandle) != HAL_I2C_ERROR_AF)
+        {
+            Serial.printf("\r\n12345nendTransmission!\r\n");
 
-      while(1)
-      {}
-      // Error_Handler();
+            while(1)
+            {}
+            // Error_Handler();
+        }
+        for ( int i=0; i < 10; ++i )
+        {
+            Serial.printf("\r\nabcdefghidkalldjflaj!\r\n");
+        }
     }
-    for ( int i=0; i < 10; ++i )
-    {
-      Serial.printf("\r\nabcdefghidkalldjflaj!\r\n");
-    }
-  }
 
     // reset tx buffer iterator vars
     txBufferIndex = 0;
@@ -610,27 +467,13 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
 
     // indicate that we are done transmitting
     transmitting = 0;
-    // if(Serial.isEnabled() == false)
-    // {
-    //   Serial.begin();
-    // }
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nstatus %d\r\n", status);
-    // }
-
 
     while (HAL_I2C_GetState(&I2CHandle) != HAL_I2C_STATE_READY)
     {
-      HAL_I2C_StateTypeDef a = HAL_I2C_GetState(&I2CHandle);
+        HAL_I2C_StateTypeDef a = HAL_I2C_GetState(&I2CHandle);
 
-      Serial.printf("\r\n%d\r\n",a);
+        Serial.printf("\r\n%d\r\n",a);
     }
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nendTransmission!\r\n");
-    // }
-
     return 0;
 }
 
@@ -644,7 +487,7 @@ uint8_t TwoWire::endTransmission(void)
 
 size_t TwoWire::write(uint8_t data)
 {
-  //if(transmitting)
+    //if(transmitting)
     {
         // in master/slave transmitter mode
         // don't bother if buffer is full
@@ -660,20 +503,15 @@ size_t TwoWire::write(uint8_t data)
     }
     if(Serial.isEnabled() == false)
     {
-      Serial.begin();
+        Serial.begin();
     }
-    // for ( int i=0; i < 10; ++i )
-    // {
-    //   Serial.printf("\r\nwriten!\r\n");
-    // }
-
 
     return 1;
 }
 
 size_t TwoWire::write(const uint8_t *data, size_t quantity)
 {
-  //if(transmitting)
+    //if(transmitting)
     {
         // in master/slave transmitter mode
         for(size_t i = 0; i < quantity; ++i)
@@ -715,7 +553,7 @@ int TwoWire::peek(void)
 
 void TwoWire::flush(void)
 {
-  // XXX: to be implemented.
+    // XXX: to be implemented.
 }
 
 

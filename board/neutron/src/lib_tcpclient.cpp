@@ -182,7 +182,7 @@ int TcpClient::available(void)
 **********************************************************************************/
 int TcpClient::read(void)
 {
-  
+
     unsigned char temp;
     //read dat
     int ret;

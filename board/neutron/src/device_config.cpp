@@ -154,96 +154,97 @@ bool DeviceConfig::process( void )
 
         switch(type)
         {
-        case DeviceConfigType::CHECKDEVICE://获取设备信息
-            sendDeviceInfo();
-            break;
+            case DeviceConfigType::CHECKDEVICE://获取设备信息
+                sendDeviceInfo();
+                break;
 
-        case DeviceConfigType::GETWIFILIST://获取wifi 列表
-            sendApScanList();
-            break;
+            case DeviceConfigType::GETWIFILIST://获取wifi 列表
+                sendApScanList();
+                break;
 
-        case DeviceConfigType::SENDWIFIINFO://设置wifi
-            value_Object = aJson.getObjectItem(root, "value");
-            if (value_Object == NULL)
-            {break;}
-            setWifiCredentials(value_Object);
-            break;
+            case DeviceConfigType::SENDWIFIINFO://设置wifi
+                value_Object = aJson.getObjectItem(root, "value");
+                if (value_Object == NULL)
+                {break;}
+                setWifiCredentials(value_Object);
+                break;
 
-        case DeviceConfigType::SENDDEVICEINFO:
-            value_Object = aJson.getObjectItem(root, "value");
-            if (value_Object == NULL)
-            {break;}
-            setDeviceBoundInfo(value_Object);
-            sendComfirm(200);
-            sendComfirm(200);
-            _isConfigSuccessful=true;
-            close();
-            delay(500);
-            break;
+            case DeviceConfigType::SENDDEVICEINFO:
+                value_Object = aJson.getObjectItem(root, "value");
+                if (value_Object == NULL)
+                {break;}
+                setDeviceBoundInfo(value_Object);
+                sendComfirm(200);
+                _isConfigSuccessful=true;
+                close();
+                delay(500);
+                break;
 
-        case DeviceConfigType::INITDEVICEINFO:
-            value_Object = aJson.getObjectItem(root, "value");
-            if (value_Object == NULL)
-            {break;}
-            setDeviceBoundInfo(value_Object);
-            sendComfirm(200);
-            delay(500);
-            break;
+            case DeviceConfigType::INITDEVICEINFO:
+                value_Object = aJson.getObjectItem(root, "value");
+                if (value_Object == NULL)
+                {break;}
+                setDeviceBoundInfo(value_Object);
+                sendComfirm(200);
+                delay(500);
+                break;
 
-        case DeviceConfigType::CHECKWIFI:
-            sendWifiStatus();
-            break;
+            case DeviceConfigType::CHECKWIFI:
+                sendWifiStatus();
+                break;
 
-        case DeviceConfigType::RESTARTNETWORK:
-            RestartNetwork();
-            break;
+            case DeviceConfigType::RESTARTNETWORK:
+                RestartNetwork();
+                break;
 
-        case DeviceConfigType::GETINFO:
-            sendBoardInfo();
-            break;
+            case DeviceConfigType::GETINFO:
+                sendBoardInfo();
+                break;
 
-            // case DeviceConfigType::INITPARA:
-            //     initBoardPara();
-            //     break;
+                // case DeviceConfigType::INITPARA:
+                //     initBoardPara();
+                //     break;
 
-            // case DeviceConfigType::SETPARA:
-            //     value_Object = aJson.getObjectItem(root, "value");
-            //     if (value_Object == NULL)
-            //     {break;}
-            //     SetBoardPara(value_Object);
-            //     break;
+                // case DeviceConfigType::SETPARA:
+                //     value_Object = aJson.getObjectItem(root, "value");
+                //     if (value_Object == NULL)
+                //     {break;}
+                //     SetBoardPara(value_Object);
+                //     break;
 
-        case DeviceConfigType::SETINFO:
-            value_Object = aJson.getObjectItem(root, "value");
-            if (value_Object == NULL)
-            {break;}
-            SetBoardPara(value_Object);
-            break;
+            case DeviceConfigType::SETINFO:
+                value_Object = aJson.getObjectItem(root, "value");
+                if (value_Object == NULL)
+                {break;}
+                SetBoardPara(value_Object);
+                break;
 
-        case DeviceConfigType::RESET:
-            resetDeviceFactory();
-            break;
+            case DeviceConfigType::RESET:
+                resetDeviceFactory();
+                break;
 
-        case DeviceConfigType::REBOOT:
-            rebootDevice();
-            break;
+            case DeviceConfigType::REBOOT:
+                rebootDevice();
+                break;
 
-        case DeviceConfigType::CLEARKEY:
-            clearAccessToken();
-            break;
+            case DeviceConfigType::CLEARKEY:
+                clearAccessToken();
+                break;
 
-        case DeviceConfigType::TEST:
-            value_Object = aJson.getObjectItem(root, "value");
-            testNeutron(value_Object);
-            break;
+            case DeviceConfigType::TEST:
+                value_Object = aJson.getObjectItem(root, "value");
+                testNeutron(value_Object);
+                break;
 
-        case DeviceConfigType::ERROR: //错误
-            sendComfirm(201);
-            break;
+            case DeviceConfigType::ERROR: //错误
+                sendComfirm(201);
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
+        if(_isConfigSuccessful)
+        {break;}
     }
     if(root!=NULL)
     {
@@ -1221,7 +1222,7 @@ void UdpDeviceConfig::sendComfirm(int status)
     system_rgb_blink(255, 0, 0, 200);
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);
-    for(int i=0; i < 5; i++) //may be not enough
+    for(int i=0; i < 15; i++) //may be not enough
     {
         write((unsigned char *)string, strlen(string));
         delay(100);

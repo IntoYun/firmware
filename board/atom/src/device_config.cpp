@@ -178,6 +178,8 @@ bool DeviceConfig::process( void )
             default:
                 break;
         }
+        if(_isConfigSuccessful)
+        {break;}
     }
     if(root!=NULL)
     {
@@ -283,7 +285,7 @@ void DeviceConfig::sendApScanList(void)
     else  //direct send all ap list
     {
         char aplist[AP_LIST_MAX_LENGTH]; //can be a bug here
-        WiFi.getApList(aplist); 
+        WiFi.getApList(aplist);
         write((unsigned char *)aplist, strlen(aplist));
         DEBUG("sendApScanList: %s\r\n",aplist);
     }

@@ -5,10 +5,6 @@ include $(COMMON_BUILD)/macros.mk
 
 SOURCE_PATH ?= $(MODULE_PATH)
 
-# Recursive wildcard function - finds matching files in a directory tree
-target_files = $(patsubst $(SOURCE_PATH)/%,%,$(call rwildcard,$(SOURCE_PATH)/$1,$2))
-here_files = $(call wildcard,$(SOURCE_PATH)/$1$2)
-
 # import this module's symbols
 include $(MODULE_PATH)/import.mk
 
@@ -36,10 +32,12 @@ endif
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o)))
 
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o.d)))
 
 # All Target
@@ -171,6 +169,15 @@ $(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.cpp
 	$(call echo,'Invoking: ARM GCC CPP Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
+	$(call echo,)
+
+# CPP compiler to build .o from .ino in $(BUILD_DIR)
+# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
+$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.ino
+	$(call echo,'Building file: $<')
+	$(call echo,'Invoking: ARM GCC CPP Compiler')
+	$(VERBOSE)$(MKDIR) $(dir $@)
+	$(VERBOSE)$(CPP) -x c++ -include $(INO_INCLUDE_HEADER) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
 	$(call echo,)
 
 # Other Targets

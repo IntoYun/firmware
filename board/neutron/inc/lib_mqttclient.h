@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file     : lib_pubsubclient.h
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
- ******************************************************************************
   Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -21,21 +15,55 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
- */
+*/
 
-#ifndef  MQTT_CLIENT_H_
-#define  MQTT_CLIENT_H_
+#ifndef  LIB_MQTTCLIENT_H_
+#define  LIB_MQTTCLIENT_H_
 
+#include "wiring_ipaddress.h"
 #include "lib_tcpclient.h"
 
+#define MQTT_VERSION_3_1      3
+#define MQTT_VERSION_3_1_1    4
+
+// MQTT_VERSION : Pick the version
+//#define MQTT_VERSION MQTT_VERSION_3_1
+#ifndef MQTT_VERSION
+#define MQTT_VERSION MQTT_VERSION_3_1_1
+#endif
 
 // MQTT_MAX_PACKET_SIZE : Maximum packet size
+#ifndef MQTT_MAX_PACKET_SIZE
 #define MQTT_MAX_PACKET_SIZE 256
+#endif
 
 // MQTT_KEEPALIVE : keepAlive interval in Seconds
+#ifndef MQTT_KEEPALIVE
 #define MQTT_KEEPALIVE 60
+#endif
 
-#define MQTTPROTOCOLVERSION 3
+// MQTT_SOCKET_TIMEOUT: socket timeout interval in Seconds
+#ifndef MQTT_SOCKET_TIMEOUT
+#define MQTT_SOCKET_TIMEOUT 15
+#endif
+
+// MQTT_MAX_TRANSFER_SIZE : limit how much data is passed to the network client
+//  in each write call. Needed for the Arduino Wifi Shield. Leave undefined to
+//  pass the entire MQTT packet in each write call.
+//#define MQTT_MAX_TRANSFER_SIZE 80
+
+// Possible values for client.state()
+#define MQTT_CONNECTION_TIMEOUT     -4
+#define MQTT_CONNECTION_LOST        -3
+#define MQTT_CONNECT_FAILED         -2
+#define MQTT_DISCONNECTED           -1
+#define MQTT_CONNECTED               0
+#define MQTT_CONNECT_BAD_PROTOCOL    1
+#define MQTT_CONNECT_BAD_CLIENT_ID   2
+#define MQTT_CONNECT_UNAVAILABLE     3
+#define MQTT_CONNECT_BAD_CREDENTIALS 4
+#define MQTT_CONNECT_UNAUTHORIZED    5
+
 #define MQTTCONNECT     1 << 4  // Client request to connect to Server
 #define MQTTCONNACK     2 << 4  // Connect Acknowledgment
 #define MQTTPUBLISH     3 << 4  // Publish message
@@ -56,71 +84,67 @@
 #define MQTTQOS1        (1 << 1)
 #define MQTTQOS2        (2 << 1)
 
-/*
-class Stream
-{
-    public:
-        int write(unsigned char *a)
-        {
-           return 0;
-        }
+#define MQTT_CALLBACK_SIGNATURE void (*callback)(char*, uint8_t*, uint32_t)
 
-        int write(unsigned char a)
-        {
-           return 0;
-        }
+class MqttClientClass {
+private:
+   Client* _client;
+   uint8_t buffer[MQTT_MAX_PACKET_SIZE];
+   uint16_t nextMsgId;
+   unsigned long lastOutActivity;
+   unsigned long lastInActivity;
+   bool pingOutstanding;
+   MQTT_CALLBACK_SIGNATURE;
+   uint16_t readPacket(uint8_t*);
+   boolean readByte(uint8_t * result);
+   boolean readByte(uint8_t * result, uint16_t * index);
+   boolean write(uint8_t header, uint8_t* buf, uint16_t length);
+   uint16_t writeString(const char* string, uint8_t* buf, uint16_t pos);
+   IPAddress ip;
+   const char* domain;
+   uint16_t port;
+   Stream* stream;
+   int _state;
+public:
+   MqttClientClass();
+   MqttClientClass(Client& client);
+   MqttClientClass(IPAddress, uint16_t, Client& client);
+   MqttClientClass(IPAddress, uint16_t, Client& client, Stream&);
+   MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   MqttClientClass(uint8_t *, uint16_t, Client& client);
+   MqttClientClass(uint8_t *, uint16_t, Client& client, Stream&);
+   MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+   MqttClientClass(const char*, uint16_t, Client& client);
+   MqttClientClass(const char*, uint16_t, Client& client, Stream&);
+   MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+   MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+
+   MqttClientClass& setServer(IPAddress ip, uint16_t port);
+   MqttClientClass& setServer(uint8_t * ip, uint16_t port);
+   MqttClientClass& setServer(const char * domain, uint16_t port);
+   MqttClientClass& setCallback(MQTT_CALLBACK_SIGNATURE);
+   MqttClientClass& setClient(Client& client);
+   MqttClientClass& setStream(Stream& stream);
+
+   boolean connect(const char* id);
+   boolean connect(const char* id, const char* user, const char* pass);
+   boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+   boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+   void disconnect();
+   boolean publish(const char* topic, const char* payload);
+   boolean publish(const char* topic, const char* payload, boolean retained);
+   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength);
+   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
+   //boolean publish_P(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
+   boolean subscribe(const char* topic);
+   boolean subscribe(const char* topic, uint8_t qos);
+   boolean unsubscribe(const char* topic);
+   boolean loop();
+   boolean connected();
+   int state();
 };
 
-*/
 
-
-class MqttClientClass
-{
-    private:
-        uint8_t buffer[MQTT_MAX_PACKET_SIZE];
-        uint16_t nextMsgId;
-        unsigned long lastOutActivity;
-        unsigned long lastInActivity;
-        bool pingOutstanding;
-        uint8_t *ip;
-        char *domain;
-        uint16_t port;
-        Stream *stream;
-        TcpClient *_client;
-        void (*callback)(char*, uint8_t*, uint32_t);
-
-        uint8_t readByte(void);
-        uint16_t readPacket(uint8_t* lengthLength);
-        uint8_t write(uint8_t header, uint8_t* buf, uint16_t length);
-        uint16_t writeString(const char* string, uint8_t* buf, uint16_t pos);
-        uint8_t SendAckBag(uint16_t msgId, unsigned char bagtype);
-
-    public:
-        MqttClientClass(void);
-        MqttClientClass(uint8_t *ip, uint16_t port, void (*callback)(char*, uint8_t*, uint32_t), TcpClient& client);
-        MqttClientClass(char* domain, uint16_t port, void (*callback)(char*, uint8_t*, uint32_t), TcpClient& client);
-        MqttClientClass(uint8_t *ip, uint16_t port, void (*callback)(char*, uint8_t*, uint32_t), TcpClient& client, Stream& stream);
-        MqttClientClass(char* domain, uint16_t port, void (*callback)(char*, uint8_t*, uint32_t), TcpClient& client, Stream& stream);
-        void setMqtt(uint8_t *ip, uint16_t port);
-        void setMqtt(char* domain, uint16_t port);
-        uint8_t connect(const char *id);
-        uint8_t connect(const char *id, const char *user, const char *pass);
-        uint8_t connect(const char *id, const char* willTopic, uint8_t willQos, uint8_t willRetain, const char* willMessage);
-        uint8_t connect(const char *id, const char *user, const char *pass, const char* willTopic, uint8_t willQos, uint8_t willRetain, const char* willMessage);
-        void disconnect(void);
-        void stop(void);
-        uint8_t connected(void);
-        uint8_t loop(void);
-        uint8_t publish(const char* topic, char* payload);
-        uint8_t publish(const char* topic, uint8_t* payload, unsigned int plength);
-        uint8_t publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t retained);
-        uint8_t publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
-        uint8_t subscribe(const char* topic);
-        uint8_t subscribe(const char* topic, uint8_t qos);
-        uint8_t unsubscribe(const char* topic);
-};
-
-
-#endif /*PUB_SUB_CLIENT_H_*/
-
-
+#endif

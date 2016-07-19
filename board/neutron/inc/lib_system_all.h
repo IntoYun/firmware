@@ -38,9 +38,9 @@ print config
 //#define MO_ERROR_EN
 //#define MO_DEBUG_EN
 //#define MO_ASSERT_EN
-
-/* #define MO_PRINT_EN */
-/* #define MO_PRINTN_EN */
+//
+//#define MO_PRINT_EN
+//#define MO_PRINTN_EN
 
 
 /*

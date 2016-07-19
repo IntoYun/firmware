@@ -264,6 +264,7 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
             os_sprintf(output + (i * 2), "%02x", md5_calc[i]);
         }
         DEBUG("md5 = %s\n",output);
+        DEBUG("server->md5 = %s\n",server->md5);
         if(!os_strcmp(server->md5,output)){
             DEBUG("md5 check ok.\n");
             system_upgrade_flag_set(UPGRADE_FLAG_FINISH);

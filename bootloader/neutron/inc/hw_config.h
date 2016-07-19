@@ -85,7 +85,7 @@ void Load_BootParams(void);
 void Save_BootParams(void);
 
 void FLASH_Erase(void);
-void FLASH_Restore(Firmware_TypeDef FmType);
+bool FLASH_Restore(Firmware_TypeDef FmType);
 
 bool FACTORY_Flash_Reset(void);
 bool DEFAULT_Flash_Reset(void);

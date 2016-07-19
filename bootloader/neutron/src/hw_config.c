@@ -436,7 +436,7 @@ void FLASH_Erase()
     FLASH_Erase_Impl(CORE_FW_ADDRESS, (INTERNAL_FLASH_END_ADDRESS - CORE_FW_ADDRESS));
 }
 
-void FLASH_Restore(Firmware_TypeDef FmType)
+bool FLASH_Restore(Firmware_TypeDef FmType)
 {
     #define PACKAGE_UNIT 16384  //16k
     int PacketNum,Count;
@@ -452,35 +452,36 @@ void FLASH_Restore(Firmware_TypeDef FmType)
         HAL_FLASH_Unlock();
         for(Count = 0; Count < PacketNum; Count++)
         {
-            ESP8266_Firware_Packet(FmType, PACKAGE_UNIT, Count, 1000);
+            if(ESP8266_RSP_SUCCESS != ESP8266_Firware_Packet(FmType, PACKAGE_UNIT, Count, 1000))
+            {
+                return false;
+            }
         }
         HAL_FLASH_Lock();
+        return true;
     }
+    return false;
 }
 
 bool FACTORY_Flash_Reset(void)
 {
-    FLASH_Restore(DEFAULT_FIRWARE);
-    return true;
+    return FLASH_Restore(DEFAULT_FIRWARE);
 }
 
 bool DEFAULT_Flash_Reset(void)
 {
-    FLASH_Restore(DEFAULT_FIRWARE);
-    return true;
+    return FLASH_Restore(DEFAULT_FIRWARE);
 }
 
 bool OTA_Flash_Reset(void)
 {
-    FLASH_Restore(OTA_FIRWARE);
-    return true;
+    return FLASH_Restore(OTA_FIRWARE);
 }
 
 system_tick_t millis(void)
 {
     return HAL_GetTick();
 }
-
 
 void delay(uint32_t ms)
 {

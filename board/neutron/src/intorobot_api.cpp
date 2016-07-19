@@ -343,7 +343,7 @@ uint8_t IntorobotClass::publish(const char* topic, uint8_t* payload, unsigned in
     String fulltopic;
     fill_mqtt_topic(fulltopic, topic, NULL);
     MO_DEBUG(("%s",fulltopic.c_str()));
-    return ApiMqttClient.publish(fulltopic.c_str(), payload, plength, qos, retained);
+    return ApiMqttClient.publish(fulltopic.c_str(), payload, plength, retained);
 }
 
 
@@ -591,15 +591,13 @@ void IntorobotClass::process(void)
                 char temp[64];
 
                 //断开重连
-#if 0
+#if 1
                 if(ApiMqttClient.connected())
                 {
                     ApiMqttClient.disconnect();
                 }
+                //ApiMqttClient.stop();
 #endif
-
-                ApiMqttClient.stop();
-
                 //打印连接信息
                 intorobot_info_debug();
 
@@ -607,15 +605,15 @@ void IntorobotClass::process(void)
                 fill_mqtt_topic(fulltopic, INTOROBOT_MQTT_WILLTOPIC, NULL);
                 //set intorobot server
                 if ((char)0x01 == intorobot_system_param.sv_select)
-                { ApiMqttClient.setMqtt(intorobot_system_param.sv_domain, intorobot_system_param.sv_port); }
+                { ApiMqttClient.setServer(intorobot_system_param.sv_domain, intorobot_system_param.sv_port); }
                 else
-                { ApiMqttClient.setMqtt(INTOROBOT_SERVER_DOMAIN, INTOROBOT_SERVER_PORT); }
+                { ApiMqttClient.setServer(INTOROBOT_SERVER_DOMAIN, INTOROBOT_SERVER_PORT); }
                 // mqtt connect
                 memset(temp,0,sizeof(temp));
                 clientid = clientId();
-                strcpy(temp, clientid.c_str());
+                //strcpy(temp, clientid.c_str());
+                strcpy(temp, "");
                 MO_DEBUG(("clientid     =   %s", clientid.c_str()));
-
                 //mqtt连接平台
                 if(ApiMqttClient.connect(temp, intorobot_system_param.access_token, intorobot_system_param.device_id, fulltopic.c_str(), INTOROBOT_MQTT_WILLQOS, INTOROBOT_MQTT_WILLRETAIN, INTOROBOT_MQTT_WILLMESSAGE))
                 {
@@ -636,7 +634,7 @@ void IntorobotClass::process(void)
                     {
                         MO_DEBUG(("system is reset"));
                         firmwareupdate.st_system_clearreset();
-                        publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESMES_SRSETSUCC, strlen(INTOROBOT_MQTT_RESMES_SRSETSUCC),false);
+                        //publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESMES_SRSETSUCC, strlen(INTOROBOT_MQTT_RESMES_SRSETSUCC),false);
                     }
 
                     //重新订阅
@@ -1740,7 +1738,8 @@ void mo_intorobot_init()
 {
 
 #ifdef WIFI_HARDWARE_ENABLE
-    osThreadDef(INB_LOOP, task_mo_intorobot_loop, osPriorityNormal, 0, 1024);
+    //osThreadDef(INB_LOOP, task_mo_intorobot_loop, osPriorityNormal, 0, 1024);
+    osThreadDef(INB_LOOP, task_mo_intorobot_loop, osPriorityNormal, 0, 4096);
     handle_intorobot_loop = osThreadCreate(osThread(INB_LOOP),NULL);
     MO_ASSERT((handle_intorobot_loop!=NULL));
 #else

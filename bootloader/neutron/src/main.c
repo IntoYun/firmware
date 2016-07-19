@@ -80,7 +80,7 @@ int main(void)
 {
     Set_System();
     Set_RGB_LED_Color(0);
-    //usartA2A3begin(115200);
+//    usartA2A3begin(115200);
     Load_BootParams();
 
     if(BOOTLOADER_VERSION != intorobot_boot_params.boot_version)
@@ -286,10 +286,16 @@ void Enter_Default_Firmware_Update_Mode(void)
     Uart1_Init();
     ESP8266_Init();
 
-    DEFAULT_Flash_Reset();
-    intorobot_boot_params.boot_flag = 0;
-    Save_BootParams();
-    LED_Signaling_Stop();
+    if(true == DEFAULT_Flash_Reset())
+    {
+        intorobot_boot_params.boot_flag = 0;
+        Save_BootParams();
+        LED_Signaling_Stop();
+    }
+    else
+    {
+        HAL_NVIC_SystemReset();
+    }
 }
 
 void Enter_Factory_Update_Mode(char type)
@@ -301,16 +307,22 @@ void Enter_Factory_Update_Mode(char type)
     Uart1_Init();
     ESP8266_Init();
 
-    intorobot_boot_params.boot_flag = 0;
     if(type==0)
     {
-        FACTORY_Flash_Reset();
-        intorobot_boot_params.initparam_flag = 1;
+        if(true == FACTORY_Flash_Reset())
+        {
+            intorobot_boot_params.initparam_flag = 1;
+        }
+        else
+        {
+            HAL_NVIC_SystemReset();
+        }
     }
     else
     {
         intorobot_boot_params.initparam_flag = 2;
     }
+    intorobot_boot_params.boot_flag = 0;
     Save_BootParams();
 }
 
@@ -323,10 +335,15 @@ void Enter_OTA_Firmware_Update_Mode(void)
     Uart1_Init();
     ESP8266_Init();
 
-    OTA_Flash_Reset();
-    intorobot_boot_params.boot_flag = 0;
-    Save_BootParams();
-    //HAL_NVIC_SystemReset();
+    if(true == OTA_Flash_Reset())
+    {
+        intorobot_boot_params.boot_flag = 0;
+        Save_BootParams();
+    }
+    else
+    {
+        HAL_NVIC_SystemReset();
+    }
 }
 
 #ifdef  USE_FULL_ASSERT

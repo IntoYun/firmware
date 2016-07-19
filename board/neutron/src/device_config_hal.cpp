@@ -93,11 +93,11 @@ void mo_smartconfig_stop()
 void mo_smartconfig_start()
 {
     //设置为station
-    mo_drv_wifi_run_cmd("AT+CWMODE_DEF=1","OK",10);
-    mo_drv_wifi_run_cmd("AT+CWDHCP_DEF=1,1","OK",10);
-    mo_drv_wifi_run_cmd("AT+CWSTOPSMART","OK",10);
+    mo_drv_wifi_run_cmd("AT+CWMODE_DEF=1","OK",3);
+    mo_drv_wifi_run_cmd("AT+CWDHCP_DEF=1,1","OK",3);
+    mo_drv_wifi_run_cmd("AT+CWSTOPSMART","OK",3);
 
-    mo_drv_wifi_run_cmd("AT+CWSTARTSMART=1","smartconfig connected",0);
+    mo_drv_wifi_run_cmd("AT+CWSTARTSMART=1","OK",3);
 #if 0
     if( mo_drv_wifi_run_cmd("AT+CWSTARTSMART=1","smartconfig connected",600))
     {

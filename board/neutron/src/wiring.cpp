@@ -67,13 +67,8 @@ unsigned long micros(void)
  **********************************************************************************/
 void delay(unsigned long ms)
 {
-
-
-	osDelay(ms);
-
-
-	#if 0
-
+    //osDelay(ms);
+    #if 1
     volatile u32 delay_timer = timerGetId();
     while (1)
     {
@@ -83,10 +78,7 @@ void delay(unsigned long ms)
             break;
         }
     }
-
-	#endif
-
-    
+    #endif
 }
 
 void DWT_Init(void)

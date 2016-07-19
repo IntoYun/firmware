@@ -19,8 +19,8 @@ DFUSUFFIX = dfu-suffix
 CURL = curl
 CRC = crc32
 XXD = xxd
-ESP_TOOL = $(COMMON_BUILD)/tools/esptool
-ST-FLASH = $(COMMON_BUILD)/tools/st-flash
+ESP_TOOL = $(PROJECT_ROOT)/tools/esptool/esptool
+ST-FLASH = $(PROJECT_ROOT)/tools/stlink/st-flash
 
 CPPFLAGS +=
 

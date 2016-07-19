@@ -3,6 +3,7 @@
 
 
 # 定义编译工具前缀
+GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/gcc-arm-none-eabi/bin/
 GCC_PREFIX ?= arm-none-eabi-
 
 include $(COMMON_BUILD)/common-tools.mk
@@ -43,7 +44,7 @@ LDFLAGS += -flto -Os -fuse-linker-plugin
 endif
 
 
-INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem141131
+INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
 
 
 

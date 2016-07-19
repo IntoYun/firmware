@@ -70,8 +70,6 @@ extern void RTC_Init();
 
 static void task_setup_loop(void const *argument)
 {
-  delay(2000);
-
   if(NULL != setup)
   {
     setup();
@@ -92,7 +90,7 @@ static void task_setup_loop(void const *argument)
 void mo_setup_loop_init()
 {
   //setup_loop_init
-  osThreadDef(SETUP_LOOP, task_setup_loop, osPriorityNormal, 0, 1024);
+  osThreadDef(SETUP_LOOP, task_setup_loop, osPriorityNormal, 0, 2048);
   handle_setup_loop = osThreadCreate(osThread(SETUP_LOOP),NULL);
   MO_ASSERT((handle_setup_loop!=NULL));
 }
@@ -218,8 +216,8 @@ void mo_init()
 {
     DWT_Init();
     RTC_Init();
-    SerialUSB.begin();
-    Serial.begin();
+    //SerialUSB.begin();
+    //Serial.begin();
 	mo_display_start();
 }
 

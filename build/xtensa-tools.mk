@@ -3,6 +3,7 @@
 #
 
 # 定义编译器和工具的前缀
+GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-
 
 include $(COMMON_BUILD)/common-tools.mk
@@ -29,10 +30,18 @@ FLASH_MODE ?= qio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-#UPLOAD_SPEED ?= 230400
-#UPLOAD_PORT ?= /dev/cu.usbmodem1411
-UPLOAD_SPEED ?= 921600
-UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
+UPLOAD_SPEED ?= 230400
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    UPLOAD_PORT ?= /dev/ttyACM0
+endif
+ifeq ($(UNAME_S),Darwin)
+    UPLOAD_PORT ?= /dev/cu.usbmodem1411
+endif
+
+#UPLOAD_SPEED ?= 921600
+#UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= nodemcu
 

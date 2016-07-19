@@ -44,10 +44,6 @@ typedef struct tcpc_fifo_ctl_s
 }tcpc_fifo_ctl_t;
 
 
-// define flag to deal with smartconfig specially
-volatile bool smartconfigStartFlag = false;
-volatile bool smartconfigStrFoundFlag = false;
-
 /**/
 //p_cmd 必须为字符串并带结束符
 /**/
@@ -277,10 +273,10 @@ int mo_uart1_write(const char *p_buf,int len)
 {
 
     //debug
-#ifdef WIFI_DRV_DEBUG
+//#ifdef WIFI_DRV_DEBUG
     MO_PRINT(("w"));
     MO_PRINTN((p_buf,len));
-#endif
+//#endif
 
     HAL_StatusTypeDef ret;
 
@@ -395,8 +391,8 @@ void set_filter_en(const char *p_cmd)
     }
     else if(strncmp(p_cmd,"AT+CWSTARTSMART",strlen("AT+CWSTARTSMART"))==0)  // smartconfig 屏蔽 OK   AT+CWSTARTSMART=1
     {
-        filter_mask=0xffffffef;		//屏蔽OK返回
-        //filter_mask=0xffffffff;		//不屏蔽OK返回
+        //filter_mask=0xffffffef;		//屏蔽OK返回
+        filter_mask=0xffffffff;		//不屏蔽OK返回
     }
     else if(strncmp(p_cmd,"AT+IR_DOWNFILE",strlen("AT+IR_DOWNFILE"))==0)
     {
@@ -995,10 +991,8 @@ static int filter_stream(char *seach_buf,const char *p_filter,char en_send_signa
         if ((p_index=strstr(seach_buf,p_filter))!=NULL)
         {
             memset(p_index,'$',strlen(p_filter));  //clear data
-            smartconfigStrFoundFlag = true;
             return MO_SUCCESS;
         }
-
     }
 
 
@@ -1034,7 +1028,6 @@ static int filter_stream(char *seach_buf,const char *p_filter,char en_send_signa
 
 void task_mo_uart_filter(void const *argument)
 {
-
     mo_cmd_init();
     mo_uart1_init();
 
