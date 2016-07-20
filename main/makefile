@@ -23,14 +23,13 @@ USE_PRINTF_FLOAT ?= y
 ifeq ($(PLATFORM_ID),3)# neutron-net
 MAKE_DEPENDENCIES = platform board
 else
-#MAKE_DEPENDENCIES = newlib_nano user wiring hal system services platform
-MAKE_DEPENDENCIES = user wiring hal system services platform
+MAKE_DEPENDENCIES = newlib_nano user wiring hal system services platform
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)
 
 LIBS += $(MAKE_DEPENDENCIES)
-LIB_DEPS += $(PLATFORM_LIB_DEP) $(BOARD_LIB_DEP) $(USER_LIB_DEP)
+LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(HAL_LIB_DEP) $(PLATFORM_LIB_DEP)
 LIB_DIRS += $(dir $(LIB_DEPS))
 
 # Target this makefile is building.

@@ -17,7 +17,9 @@
  ******************************************************************************
  */
 
-#pragma once
+#ifndef SYSTEM_NETWORK_WIFI_H
+#define	SYSTEM_NETWORK_WIFI_H
+
 
 #include "system_network_internal.h"
 #include "wlan_hal.h"
@@ -190,3 +192,4 @@ public:
 
 };
 
+#endif

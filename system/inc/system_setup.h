@@ -32,6 +32,7 @@
 #define SETUP_OVER_SERIAL1 0
 #endif
 
+
 typedef int (*ConnectCallback)( void* data,
                                 const char *ssid,
                                 const char *password,

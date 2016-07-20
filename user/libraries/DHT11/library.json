@@ -1,9 +1,0 @@
-﻿{
-  "name": "DHT11",
-  "author": "IntoRobot",
-  "maintainer": "IntoRobot",
-  "license": "GNU",
-  "version": "0.0.1",
-  "description": "DHT11温湿度传感器库"
-}
-

@@ -17,29 +17,24 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_USBSERIAL_H_
-#define WIRING_USBSERIAL_H_
+#ifndef __SPARK_WIRING_USBSERIAL_H
+#define __SPARK_WIRING_USBSERIAL_H
 
 #include "wiring_stream.h"
-#include "wiring_platform.h"
 #include "usb_hal.h"
 #include "system_task.h"
-#include "wiring_startup.h"
 
 class USBSerial : public Stream
 {
 public:
 	// public methods
-    USBSerial();
-	USBSerial(HAL_USB_USART_Serial serial, const HAL_USB_USART_Config& conf);
+	USBSerial();
 
-    unsigned int baud();
+        unsigned int baud() { return USB_USART_Baud_Rate(); }
 
-    operator bool();
-    bool isEnabled();
-    bool isConnected();
+        operator bool() { return baud()!=0; }
 
-	void begin(long speed = 9600);
+	void begin(long speed);
 	void end();
 	int peek();
 
@@ -84,13 +79,11 @@ public:
 	using Print::write;
 
 private:
-    HAL_USB_USART_Serial _serial;
 	bool _blocking;
 };
 
-HAL_USB_USART_Config acquireSerialBuffer() __attribute__((weak));
+extern USBSerial& _fetch_global_serial();
 
-extern USBSerial& _fetch_usbserial();
-#define SerialUSB _fetch_usbserial()
+#define SerialUSB _fetch_global_serial()
 
 #endif

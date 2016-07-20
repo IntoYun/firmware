@@ -14,9 +14,8 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
-
+ ******************************************************************************
+ */
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
@@ -32,7 +31,7 @@
 
 // define to include __FILE__ information within the debug output
 #define INCLUDE_FILE_INFO_IN_DEBUG
-#define MAX_DEBUG_MESSAGE_LENGTH        120
+#define MAX_DEBUG_MESSAGE_LENGTH 120
 
 #define RESET_ON_CFOD                   1       // 1 Will do reset 0 will not
 #define MAX_SEC_WAIT_CONNECT            8       // Number of second a TCP, spark will wait

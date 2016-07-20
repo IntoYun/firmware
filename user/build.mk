@@ -48,8 +48,8 @@ LIBCSRC += $(call target_files_dirs,$(MODULE_LIBS)/,src/,*.c)
 LIBCPPSRC += $(call target_files_dirs,$(MODULE_PATH)/libraries,,*.cpp)
 LIBCSRC += $(call target_files_dirs,$(MODULE_PATH)/libraries,,*.c)
 
-$(info LIBCPPSRC $(LIBCPPSRC))
-$(info LIBCSRC $(LIBCSRC))
+#$(info LIBCPPSRC $(LIBCPPSRC))
+#$(info LIBCSRC $(LIBCSRC))
 
 CPPSRC += $(LIBCPPSRC)
 CSRC += $(LIBCSRC)

@@ -1,9 +1,0 @@
-﻿{
-  "name": "Adafruit_DHT",
-  "author": "RussGrue <rstockhammer@hotmail.com>",
-  "maintainer": "IntoRobot Team",
-  "license": "MIT",
-  "version": "0.0.1",
-  "description": "DHT11/21/22和AM2301温湿度传感器库"
-}
-

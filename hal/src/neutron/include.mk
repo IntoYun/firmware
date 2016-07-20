@@ -11,11 +11,11 @@ HAL_LINK ?= $(findstring hal,$(MAKE_DEPENDENCIES))
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(HAL_LINK))
 
-LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
+LDFLAGS += -Tlinker_$(STM32_DEVICE_LC)_dfu.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm
-LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
+#LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
 #LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
-LDFLAGS += --specs=nano.specs
+LDFLAGS += --specs=nosys.specs
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 
 # support for external linker file

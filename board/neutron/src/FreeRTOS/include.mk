@@ -1,7 +1,0 @@
-TARGET_FREERTOS_PATH = $(BOARD_TYPE_PATH)/src/FreeRTOS
-
-# Add include to all objects built for this target
-INCLUDE_DIRS += $(TARGET_FREERTOS_PATH)/Source/include
-INCLUDE_DIRS += $(TARGET_FREERTOS_PATH)/Source/CMSIS_RTOS
-INCLUDE_DIRS += $(TARGET_FREERTOS_PATH)/Source/portable/GCC/ARM_CM4F
-

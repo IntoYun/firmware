@@ -142,7 +142,7 @@ public:
 };
 
 extern UsbDeviceConfig DeviceConfigUsb;
-extern TcpDeviceConfig DeviceConfigTcp;
+//extern TcpDeviceConfig DeviceConfigTcp;
 extern UdpDeviceConfig DeviceConfigUdp;
 
 

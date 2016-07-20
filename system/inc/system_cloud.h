@@ -93,8 +93,6 @@ int intorobot_debug_info_available(void);
 
 void cloud_disconnect(bool closeSocket=true);
 
-
-
 #ifdef __cplusplus
 }
 #endif

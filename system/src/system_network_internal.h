@@ -28,7 +28,7 @@
 #include "system_network.h"
 #include "system_threading.h"
 #include "system_rgbled.h"
-
+#include "system_cloud.h"
 
 enum eWanTimings
 {

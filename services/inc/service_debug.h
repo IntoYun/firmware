@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#ifndef SERVICE_DEBUG_H_
+#define SERVICE_DEBUG_H_
 
 #include "config.h"
 
@@ -51,7 +51,7 @@
 typedef enum LoggerOutputLevel {
     DEFAULT_LEVEL   = 0,        // used to select the default logging level
     ALL_LEVEL       = 1,
-    TRACE_LEVEL       = 1,
+    TRACE_LEVEL     = 1,
     LOG_LEVEL       = 10,
     DEBUG_LEVEL     = 20,
     INFO_LEVEL      = 30,

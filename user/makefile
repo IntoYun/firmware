@@ -5,7 +5,7 @@ BUILD_PATH_EXT = $(USER_BUILD_PATH_EXT)
 
 include ../build/platform-id.mk
 
-DEPENDENCIES = platform board
+DEPENDENCIES = wiring system services hal
 
 WARNINGS_AS_ERRORS ?= n
 

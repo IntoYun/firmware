@@ -16,27 +16,25 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
 #if 0
 #include "wiring_platform.h"
 #include "wiring_system.h"
 #include "wiring_usbserial.h"
 #include "system_task.h"
 #include "system_cloud.h"
-#include "system_cloud_internal.h"
+//#include "system_cloud_internal.h"
 #include "system_mode.h"
 #include "system_network.h"
 #include "system_network_internal.h"
 #include "system_update.h"
-#include "spark_macros.h"
+#include "intorobot_macros.h"
 #include "string.h"
-#include "core_hal.h"
 #include "system_tick_hal.h"
 #include "watchdog_hal.h"
 #include "wlan_hal.h"
 #include "delay_hal.h"
 #include "timer_hal.h"
-#include "rgbled.h"
+#include "rgbled_hal.h"
 #include "service_debug.h"
 
 #include "wiring_network.h"
@@ -168,20 +166,21 @@ void handle_cloud_errors()
 
 void handle_cfod()
 {
-    if (cfod_count < 255)
-        ++cfod_count;
-
-    uint8_t reset = 0;
-    system_get_flag(SYSTEM_FLAG_RESET_NETWORK_ON_CLOUD_ERRORS, &reset, nullptr);
-    if (reset && cfod_count >= MAX_FAILED_CONNECTS)
+    if ((cfod_count += RESET_ON_CFOD) == MAX_FAILED_CONNECTS)
     {
         SPARK_WLAN_RESET = RESET_ON_CFOD;
-        ERROR("Resetting WLAN due to %d failed connect attempts", MAX_FAILED_CONNECTS);
+        ERROR("Resetting CC3000 due to %d failed connect attempts", MAX_FAILED_CONNECTS);
     }
 
     if (Internet_Test() < 0)
     {
         // No Internet Connection
+        if ((cfod_count += RESET_ON_CFOD) == MAX_FAILED_CONNECTS)
+        {
+            SPARK_WLAN_RESET = RESET_ON_CFOD;
+            ERROR("Resetting CC3000 due to %d failed connect attempts", MAX_FAILED_CONNECTS);
+        }
+
         Spark_Error_Count = 2;
     }
     else
@@ -408,8 +407,8 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
 	// if not threading, or we are the application thread, then implement delay
 	// as a background message pump
-    if ((!system_thread_get_state(NULL) || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
-    {
+    if (!system_thread_get_state(NULL) ||
+        APPLICATION_THREAD_CURRENT()) {
     		system_delay_pump(ms, force_no_background_loop);
     }
     else
@@ -445,3 +444,32 @@ void cloud_disconnect(bool closeSocket)
 #endif
 }
 #endif
+
+void cloud_disconnect(bool closeSocket)
+{
+#if 0
+#ifndef SPARK_NO_CLOUD
+
+    if (SPARK_CLOUD_SOCKETED || SPARK_CLOUD_CONNECTED)
+    {
+        INFO("Cloud: disconnecting");
+        if (closeSocket)
+        spark_cloud_socket_disconnect();
+
+        SPARK_FLASH_UPDATE = 0;
+        SPARK_CLOUD_CONNECTED = 0;
+        SPARK_CLOUD_SOCKETED = 0;
+
+        if (!network.manual_disconnect() && !network.listening())
+        {
+            LED_SetRGBColor(RGB_COLOR_GREEN);
+            LED_On(LED_RGB);
+        }
+        INFO("Cloud: disconnected");
+    }
+    Spark_Error_Count = 0;  // this is also used for CFOD/WiFi reset, and blocks the LED when set.
+
+#endif
+#endif
+}
+

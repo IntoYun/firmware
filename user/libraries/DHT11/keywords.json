@@ -1,6 +1,0 @@
-{
-  "Class": "DHT11",
-  "DataTypes": "",
-  "MethodsAndFunctions": "DHT11|begin|StartSignal|ReadTemperature|ReadHumidity|ConvertCtoF|ConvertFtoC|ReadByte",
-  "Constants": ""
-}

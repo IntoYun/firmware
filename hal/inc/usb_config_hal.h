@@ -17,42 +17,23 @@
   ******************************************************************************
 */
 
-#ifndef __USB_CONFIG_HAL_H
-#define __USB_CONFIG_HAL_H
+#ifndef USB_CONFIG_HAL_H
+#define	USB_CONFIG_HAL_H
 
 /* We are temporary defining this macro over here */
 /* This could also be passed via -D option in build script */
 #define INTOROBOT_USB_SERIAL        //Default is Virtual COM Port
+//#define INTOROBOT_USB_MOUSE
+//#define INTOROBOT_USB_KEYBOARD
 
-#if PLATFORM_ID >= 6
-# define INTOROBOT_USB_MOUSE
-# define INTOROBOT_USB_KEYBOARD
-
-# if !defined (INTOROBOT_USB_SERIAL) && !defined (INTOROBOT_USB_MOUSE) && !defined (INTOROBOT_USB_KEYBOARD)
-#  define USB_CDC_ENABLE  //Use USB Serial feature by default if none is defined
-# else
-#  if defined(INTOROBOT_USB_SERIAL)
-#   define USB_CDC_ENABLE  //Enable USB CDC code
-#  endif
-#  if defined (INTOROBOT_USB_MOUSE) || defined (INTOROBOT_USB_KEYBOARD)
-#   define USB_HID_ENABLE  //Enable USB HID code
-#  endif
-# endif
-
-#else
-
-# if !defined (INTOROBOT_USB_SERIAL) && !defined (INTOROBOT_USB_MOUSE) && !defined (INTOROBOT_USB_KEYBOARD)
-#  define USB_CDC_ENABLE	//Use USB Serial feature by default if none is defined
-# elif defined (INTOROBOT_USB_SERIAL)
-#  define USB_CDC_ENABLE	//Enable USB CDC code
-# elif defined (INTOROBOT_USB_MOUSE) || defined (INTOROBOT_USB_KEYBOARD)
-#  define USB_HID_ENABLE	//Enable USB HID code
-# endif
+#if !defined (INTOROBOT_USB_SERIAL) && !defined (INTOROBOT_USB_MOUSE) && !defined (INTOROBOT_USB_KEYBOARD)
+#define USB_CDC_ENABLE	//Use USB Serial feature by default if none is defined
+#elif defined (INTOROBOT_USB_SERIAL)
+#define USB_CDC_ENABLE	//Enable USB CDC code
+#elif defined (INTOROBOT_USB_MOUSE) || defined (INTOROBOT_USB_KEYBOARD)
+#define USB_HID_ENABLE	//Enable USB HID code
 #endif
 
-#if PLATFORM_ID == 6 || PLATFORM_ID == 8 || PLATFORM_ID == 10
-# define USB_VENDOR_REQUEST_ENABLE
-#endif // PLATFORM_ID == 6 || 8 || 10
 
 #endif	/* USB_CONFIG_HAL_H */
 

@@ -17,7 +17,8 @@
  ******************************************************************************
  */
 
-#pragma once
+#ifndef SYSTEM_NETWORK_CELLULAR_H
+#define	SYSTEM_NETWORK_CELLULAR_H
 
 #include "system_network_internal.h"
 #include "cellular_hal.h"

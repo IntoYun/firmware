@@ -20,7 +20,6 @@
 #ifndef WIRING_SYSTEM_H_
 #define WIRING_SYSTEM_H_
 
-#include "stm32f4xx.h"
 #include "wiring_ticks.h"
 #include "wiring_string.h"
 #include "wiring_version.h"

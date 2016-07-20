@@ -1,6 +1,0 @@
-﻿{
-  "Class": "Adafruit_DHT",
-  "DataTypes": "",
-  "MethodsAndFunctions": "Adafruit_DHT|begin|getHumidity|getTempCelcius|getTempFarenheit|getTempKelvin|getHeatIndex|getDewPoint",
-  "Constants": "DHT11|DHT22|DHT21|AM2301"
-}

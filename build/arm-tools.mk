@@ -35,7 +35,9 @@ endif
 
 ASFLAGS += -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
 
-LDFLAGS += -mlittle-endian -Xlinker --gc-sections --specs=nano.specs --specs=nosys.specs -lc -lnosys
+#LDFLAGS += -mlittle-endian -Xlinker --gc-sections --specs=nano.specs --specs=nosys.specs -lc -lnosys
+#LDFLAGS += -mlittle-endian -Xlinker --gc-sections --specs=nano.specs -lc -lnosys
+LDFLAGS += -mlittle-endian -Xlinker --gc-sections
 LDFLAGS += -Wl,--start-group -lgcc -lc -Wl,--end-group
 
 ifeq ($(COMPILE_LTO),y)
