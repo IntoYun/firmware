@@ -31,6 +31,7 @@ ASFLAGS += -mcpu=cortex-m3
 LDFLAGS += -nostartfiles
 else
 ASFLAGS += -mcpu=cortex-m4
+LDFLAGS += -nostartfiles
 endif
 
 ASFLAGS += -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0

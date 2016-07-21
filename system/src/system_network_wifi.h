@@ -126,9 +126,9 @@ public:
         WiFiSetupConsoleConfig config;
         config.connect_callback = wifi_add_profile_callback;
         config.connect_callback_data = this;
-        WiFiSetupConsole console(config);
+        //WiFiSetupConsole console(config);
 
-        ManagedNetworkInterface::start_listening(console);
+        //ManagedNetworkInterface::start_listening(console);
     }
 
 

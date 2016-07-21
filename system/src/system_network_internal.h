@@ -327,7 +327,7 @@ public:
             WLAN_CONNECTED = 0;
             WLAN_DHCP = 0;
 
-            cloud_disconnect();
+            //cloud_disconnect();
             disconnect_now();
             config_clear();
         }

@@ -31,7 +31,6 @@
 // components of the platform. (I.e. platform  defines comes from the HAL)
 
 
-#define Wiring_WiFi 1
 #if PLATFORM_ID==0 || PLATFORM_ID==1     // atom / neutron
 #define Wiring_WiFi 1
 #define Wiring_IPv6 0
@@ -113,7 +112,7 @@
 #endif
 
 #ifndef Wiring_WiFi
-//#define Wiring_WiFi 0
+#define Wiring_WiFi 0
 #endif
 
 #ifndef Wiring_Cellular

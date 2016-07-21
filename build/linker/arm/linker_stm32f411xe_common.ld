@@ -113,6 +113,9 @@ SECTIONS
    	 _ebss = . ;
     } >RAM
 
+    link_heap_location = end;
+    link_heap_location_end = __Stack_Init;
+
     PROVIDE ( end = _ebss );
     PROVIDE ( _end = _ebss );
 

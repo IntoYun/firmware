@@ -27,7 +27,7 @@
 #include <malloc.h>
 /* Define abort() */
 #include <stdlib.h>
-#include "debug.h"
+#include "service_debug.h"
 extern "C" {
   void _exit(int status);
 } /* extern "C" */
@@ -110,7 +110,7 @@ int _getpid(void)
 }
 
 void _exit(int status) {
-	PANIC(Exit,"Exit Called");
+	//PANIC(Exit,"Exit Called");
 	while (1);
 }
 

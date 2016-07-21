@@ -124,7 +124,7 @@ bool os_thread_current_within_stack()
  */
 os_result_t os_thread_join(os_thread_t thread)
 {
-#if PLATFORM_ID!=10
+#if PLATFORM_ID!=1
     while (xTaskIsTaskFinished(thread) != pdTRUE)
     {
         HAL_Delay_Milliseconds(10);
