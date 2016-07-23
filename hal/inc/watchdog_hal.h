@@ -20,14 +20,18 @@
 #ifndef WATCHDOG_HAL_H
 #define	WATCHDOG_HAL_H
 
+#include <stdint.h>
 #include <stdbool.h>
+
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-bool HAL_watchdog_reset_flagged();
-void HAL_Notify_WDT();
+void HAL_IWDG_Initial(void);
+void HAL_IWDG_Config(uint8_t State);
+void HAL_IWDG_SetReload(uint32_t msTimeout);
+void HAL_IWDG_Feed(void);
 
 
 #ifdef	__cplusplus

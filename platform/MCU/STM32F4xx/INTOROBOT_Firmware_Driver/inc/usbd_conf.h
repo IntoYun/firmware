@@ -86,6 +86,7 @@
 #endif
 /* Exported functions ------------------------------------------------------- */
 
+
 #endif /* __USBD_CONF_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

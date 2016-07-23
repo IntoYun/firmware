@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-void HAL_RNG_Configuration(void);
+void HAL_RNG_Initial(void);
 uint32_t HAL_RNG_GetRandomNumber(void);
 
 #ifdef __cplusplus

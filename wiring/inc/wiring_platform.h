@@ -34,7 +34,6 @@
 #if PLATFORM_ID==0 || PLATFORM_ID==1     // atom / neutron
 #define Wiring_WiFi 1
 #define Wiring_IPv6 0
-#define Wiring_Serial2 1
 #endif
 
 #if PLATFORM_ID==2     // gcc

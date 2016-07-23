@@ -146,4 +146,3 @@ bool sdkGetQueueData(SDK_QUEUE * const pstQueue, u8 *pucOut)
     return false;
 }
 
-

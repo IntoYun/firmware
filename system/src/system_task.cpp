@@ -16,7 +16,6 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-#if 0
 #include "wiring_platform.h"
 #include "wiring_system.h"
 #include "wiring_usbserial.h"
@@ -42,7 +41,7 @@
 #include "wiring_cloud.h"
 #include "system_threading.h"
 
-using spark::Network;
+using intorobot::Network;
 
 volatile system_tick_t spark_loop_total_millis = 0;
 
@@ -71,7 +70,7 @@ void Network_Setup(bool threaded)
 
 #ifndef SPARK_NO_CLOUD
     //Initialize spark protocol callbacks for all System modes
-    Spark_Protocol_Init();
+    //Spark_Protocol_Init();
 #endif
 }
 
@@ -111,7 +110,7 @@ void manage_network_connection()
     }
     else
     {
-        if (!SPARK_WLAN_STARTED || (spark_cloud_flag_auto_connect() && !network.connected()))
+        if (!SPARK_WLAN_STARTED || (intorobot_cloud_flag_auto_connect() && !network.connected()))
         {
             INFO("Network Connect: %s", (!SPARK_WLAN_STARTED) ? "!SPARK_WLAN_STARTED" : "SPARK_CLOUD_CONNECT && !network.connected()");
             network.connect();
@@ -146,6 +145,7 @@ inline uint8_t in_cloud_backoff_period()
 
 void handle_cloud_errors()
 {
+#if 0
     // cfod resets in orange since they are soft errors
     LED_SetRGBColor(Spark_Error_Count > 1 ? RGB_COLOR_ORANGE : RGB_COLOR_RED);
 
@@ -162,10 +162,12 @@ void handle_cloud_errors()
 
     // Reset Error Count
     network.set_error_count(0);
+#endif
 }
 
 void handle_cfod()
 {
+#if 0
     if ((cfod_count += RESET_ON_CFOD) == MAX_FAILED_CONNECTS)
     {
         SPARK_WLAN_RESET = RESET_ON_CFOD;
@@ -188,6 +190,7 @@ void handle_cfod()
         // Cloud not Reachable
         Spark_Error_Count = 3;
     }
+#endif
 }
 
 /**
@@ -201,6 +204,7 @@ void handle_cfod()
 
 void establish_cloud_connection()
 {
+#if 0
     if (network.ready() && !SPARK_WLAN_SLEEP && !SPARK_CLOUD_SOCKETED)
     {
         if (Spark_Error_Count)
@@ -234,14 +238,17 @@ void establish_cloud_connection()
             network.set_error_count(Spark_Error_Count);
         }
     }
+#endif
 }
 
 int cloud_handshake()
 {
+#if 0
 	bool udp = HAL_Feature_Get(FEATURE_CLOUD_UDP);
 	bool presence_announce = !udp;
 	int err = Spark_Handshake(presence_announce);
 	return err;
+#endif
 }
 
 /**
@@ -250,6 +257,7 @@ int cloud_handshake()
  */
 void handle_cloud_connection(bool force_events)
 {
+#if 0
     if (SPARK_CLOUD_SOCKETED)
     {
         if (!SPARK_CLOUD_CONNECTED)
@@ -290,11 +298,12 @@ void handle_cloud_connection(bool force_events)
             Spark_Process_Events();
         }
     }
+#endif
 }
 
 void manage_cloud_connection(bool force_events)
 {
-    if (spark_cloud_flag_auto_connect() == 0)
+    if (intorobot_cloud_flag_auto_connect() == 0)
     {
         cloud_disconnect();
     }
@@ -313,7 +322,109 @@ extern void system_handle_button_click();
 
 void Spark_Idle_Events(bool force_events/*=false*/)
 {
-    HAL_Notify_WDT();
+    HAL_IWDG_Feed();
+
+    ON_EVENT_DELTA();
+    spark_loop_total_millis = 0;
+
+    if (!SYSTEM_POWEROFF) {
+
+#if Wiring_SetupButtonUX
+        system_handle_button_click();
+#endif
+        manage_serial_flasher();
+
+        manage_network_connection();
+
+        manage_smart_config();
+
+        manage_ip_config();
+
+        CLOUD_FN(manage_cloud_connection(force_events), (void)0);
+    }
+    else
+    {
+        system_pending_shutdown();
+    }
+    system_shutdown_if_needed();
+}
+
+
+
+/*
+ * @brief This should block for a certain number of milliseconds and also execute spark_wlan_loop
+ */
+void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
+{
+    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
+
+    while (1)
+    {
+        HAL_IWDG_Feed();
+
+        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
+
+        if (elapsed_millis > ms)
+        {
+            break;
+        }
+    }
+}
+
+/**
+ * On a non threaded platform, or when called from the application thread, then
+ * run the background loop so that application events are processed.
+ */
+void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
+{
+    system_delay_pump(ms, force_no_background_loop);
+#if 0
+	// if not threading, or we are the application thread, then implement delay
+	// as a background message pump
+    if (!system_thread_get_state(NULL) ||
+        APPLICATION_THREAD_CURRENT()) {
+    		system_delay_pump(ms, force_no_background_loop);
+    }
+    else
+    {
+        HAL_Delay_Milliseconds(ms);
+    }
+#endif
+}
+
+
+void cloud_disconnect(bool closeSocket)
+{
+#if 0
+#ifndef SPARK_NO_CLOUD
+
+    if (SPARK_CLOUD_SOCKETED || SPARK_CLOUD_CONNECTED)
+    {
+        INFO("Cloud: disconnecting");
+        if (closeSocket)
+        intorobot_cloud_socket_disconnect();
+
+        SPARK_FLASH_UPDATE = 0;
+        SPARK_CLOUD_CONNECTED = 0;
+        SPARK_CLOUD_SOCKETED = 0;
+
+        if (!network.manual_disconnect() && !network.listening())
+        {
+            LED_SetRGBColor(RGB_COLOR_GREEN);
+            LED_On(LED_RGB);
+        }
+        INFO("Cloud: disconnected");
+    }
+    Spark_Error_Count = 0;  // this is also used for CFOD/WiFi reset, and blocks the LED when set.
+
+#endif
+#endif
+}
+
+#if 0
+void IntoRobot_Idle_Events(bool force_events/*=false*/)
+{
+    HAL_IWDG_Feed();
 
     ON_EVENT_DELTA();
     spark_loop_total_millis = 0;
@@ -355,8 +466,7 @@ void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
 
     while (1)
     {
-        HAL_Notify_WDT();
-
+        HAL_IWDG_Feed();
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
 
         if (elapsed_millis > ms)
@@ -399,6 +509,8 @@ void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
     }
 }
 
+
+
 /**
  * On a non threaded platform, or when called from the application thread, then
  * run the background loop so that application events are processed.
@@ -416,34 +528,6 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
         HAL_Delay_Milliseconds(ms);
     }
 }
-
-
-void cloud_disconnect(bool closeSocket)
-{
-#ifndef SPARK_NO_CLOUD
-
-    if (SPARK_CLOUD_SOCKETED || SPARK_CLOUD_CONNECTED)
-    {
-        INFO("Cloud: disconnecting");
-        if (closeSocket)
-        spark_cloud_socket_disconnect();
-
-        SPARK_FLASH_UPDATE = 0;
-        SPARK_CLOUD_CONNECTED = 0;
-        SPARK_CLOUD_SOCKETED = 0;
-
-        if (!network.manual_disconnect() && !network.listening())
-        {
-            LED_SetRGBColor(RGB_COLOR_GREEN);
-            LED_On(LED_RGB);
-        }
-        INFO("Cloud: disconnected");
-    }
-    Spark_Error_Count = 0;  // this is also used for CFOD/WiFi reset, and blocks the LED when set.
-
-#endif
-}
-#endif
 
 void cloud_disconnect(bool closeSocket)
 {
@@ -472,4 +556,4 @@ void cloud_disconnect(bool closeSocket)
 #endif
 #endif
 }
-
+#endif

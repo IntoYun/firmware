@@ -88,6 +88,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A7 37
 
 // Uart pins
+#define CTS A0
+#define RTS A1
+
 #define RX A2
 #define TX A3
 
@@ -122,6 +125,12 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RXD_UC              69
 
 #define LED_USER  D7
+
+#define TOTAL_USARTS        2
+
+
+
+
 
 #define TIM_PWM_FREQ 500 //500Hz
 

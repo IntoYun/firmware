@@ -84,6 +84,6 @@ private:
 
 extern USBSerial& _fetch_global_serial();
 
-#define SerialUSB _fetch_global_serial()
+#define Serial _fetch_global_serial()
 
 #endif

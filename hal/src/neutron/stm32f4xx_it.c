@@ -28,6 +28,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 //#include "cmsis_os.h"
 
@@ -39,7 +40,7 @@ extern ADC_HandleTypeDef ADC_HandleStruct;
 
 extern I2S_HandleTypeDef I2sHandle;
 
-extern PCD_HandleTypeDef hpcd;
+//extern PCD_HandleTypeDef hpcd;
 
 /* UART handler declared in "usbd_cdc_interface.c" file */
 extern UART_HandleTypeDef UartHandle;
@@ -155,8 +156,12 @@ void DebugMon_Handler(void)
 void SysTick_Handler(void)
 {
     HAL_IncTick();
-    HAL_SYSTICK_IRQHandler();
-//    osSystickHandler();
+    //System1MsTick();
+    //HAL_GPIO_Write(7, 1);
+    /* Handle short and generic tasks for the device HAL on 1ms ticks */
+    //HAL_1Ms_Tick();
+    //HAL_SysTick_Handler();
+    //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }
 
 /******************************************************************************/
@@ -174,7 +179,7 @@ void DMA2_Stream0_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
 }
-
+#if 0
 /**
  * @brief  This function handles USB-On-The-Go FS global interrupt request.
  * @param  None
@@ -206,6 +211,7 @@ void USART2_IRQHandler(void)
     //HAL_UART_IRQHandler(&UartHandle);
 }
 
+#endif
 /*******************************************************************************
  * Function Name  : EXTI0_IRQHandler
  * Description    : This function handles EXTI0 interrupt request.
@@ -462,7 +468,7 @@ void EXTI15_10_IRQHandler(void)
  */
 void DMA1_Stream3_IRQHandler(void)
 {
-    HAL_DMA_IRQHandler(I2sHandle.hdmarx);
+    //HAL_DMA_IRQHandler(I2sHandle.hdmarx);
 }
 
 extern TIM_HandleTypeDef Timer2Handle;
@@ -475,37 +481,37 @@ extern TIM_HandleTypeDef Timer11Handle;
 
 void TIM1_BRK_TIM9_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer9Handle);
+//    HAL_TIM_IRQHandler(&Timer9Handle);
 }
 
 void TIM1_UP_TIM10_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer10Handle);
+//    HAL_TIM_IRQHandler(&Timer10Handle);
 }
 
 void TIM1_TRG_COM_TIM11_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer11Handle);
+ //   HAL_TIM_IRQHandler(&Timer11Handle);
 }
 
 void TIM2_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer2Handle);
+//    HAL_TIM_IRQHandler(&Timer2Handle);
 }
 
 void TIM3_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer3Handle);
+//    HAL_TIM_IRQHandler(&Timer3Handle);
 }
 
 void TIM4_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer4Handle);
+//    HAL_TIM_IRQHandler(&Timer4Handle);
 }
 
 void TIM5_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&Timer5Handle);
+//    HAL_TIM_IRQHandler(&Timer5Handle);
 }
 
 

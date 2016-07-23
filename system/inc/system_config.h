@@ -95,7 +95,7 @@ public:
 	USBSerial &serialusb;
 
 public:
-	UsbDeviceConfig(USBSerial &_s = SerialUSB):serialusb(_s){}
+	UsbDeviceConfig(USBSerial &_s = Serial):serialusb(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);

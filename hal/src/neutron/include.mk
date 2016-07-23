@@ -11,11 +11,13 @@ HAL_LINK ?= $(findstring hal,$(MAKE_DEPENDENCIES))
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(HAL_LINK))
 
-LDFLAGS += -Tlinker_$(STM32_DEVICE_LC)_dfu.ld
+#LDFLAGS += -Tlinker_$(STM32_DEVICE_LC)_dfu.ld
+LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm
 #LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
 #LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
-LDFLAGS += --specs=nosys.specs
+LDFLAGS += --specs=nano.specs
+#LDFLAGS += --specs=nosys.specs
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 
 # support for external linker file
@@ -31,6 +33,6 @@ LDFLAGS += -u uxTopUsedPriority
 # assembler startup script
 ASRC += $(COMMON_BUILD)/startup/arm/startup_$(STM32_DEVICE_LC).S
 ASFLAGS += -I$(COMMON_BUILD)/startup/arm
-ASFLAGS +=  -Wa,--defsym -Wa,SPARK_INIT_STARTUP=1
+ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
 #
 endif

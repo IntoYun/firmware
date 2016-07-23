@@ -46,7 +46,7 @@ Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
 
 MEMORY
 {
-    RAM (xrw)         : ORIGIN = 0x20000000, LENGTH = 128K
+    SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 128K
     APP_FLASH (rx)    : ORIGIN = 0x08020000, LENGTH = 512K-0x20000
 }
 

@@ -1,65 +1,4 @@
 #if 0
-/*该头文件引用由IntoRobot自动添加.*/
-#include "application.h"
-
-void setup()
-{
-    pinMode(D1, INPUT);
-    pinMode(D0, OUTPUT);
-}
-
-void loop()
-{
-	noInterrupts();
-    digitalWrite(D0, HIGH);     // 打开灯泡
-    digitalWrite(D0, LOW);     // 打开灯泡
-    digitalWrite(D0, HIGH);     // 打开灯泡
-    digitalRead(D1);
-	//delayMicroseconds(1);
-    digitalWrite(D0, LOW);     // 打开灯泡
-    digitalWrite(D0, HIGH);     // 打开灯泡
-    digitalWrite(D0, LOW);     // 打开灯泡
-	interrupts();
-}
-
-#endif
-
-#if 0
-/*该头文件引用由IntoRobot自动添加.*/
-#include "Adafruit_DHT.h"
-
-//温湿度计控件topic定义
-#define HUMITURE_DATA_TEMPERATURE    "channel/humiture_0/data/temperature"   //空气温度
-#define HUMITURE_DATA_HUMIDITY       "channel/humiture_0/data/humidity"      //空气湿度
-
-//传感器通讯引脚
-#define DHTPIN D0
-
-//选择传感器类型
-#define DHTTYPE DHT11		// DHT 11
-//#define DHTTYPE DHT22		// DHT 22 (AM2302)
-//#define DHTTYPE DHT21		// DHT 21 (AM2301)
-float tmp,hum;
-Adafruit_DHT dht(DHTPIN, DHTTYPE, 40);
-
-void setup()
-{
-    //初始化
-    dht.begin();
-}
-
-void loop()
-{
-    tmp=dht.getTempCelcius();
-    hum=dht.getHumidity();
-    SerialUSB.printf("tmp=%f hum=%f\r\n",tmp, hum);
-	IntoRobot.publish(HUMITURE_DATA_TEMPERATURE, tmp); //上送温度值
-	IntoRobot.publish(HUMITURE_DATA_HUMIDITY, hum);        //上送湿度值
-	delay(2000);
-	IntoRobot.printf("11111\r\n");
-}
-#endif
-#if 1
 /*
  * Atom 默认程序
  */
@@ -97,30 +36,27 @@ void loop()
 }
 #endif
 
-#if 0
-#include "dht11.h"
+#if 1
 
-//温湿度计控件topic定义
-#define HUMITURE_DATA_TEMPERATURE    "channel/humiture_0/data/temperature"   //空气温度
-#define HUMITURE_DATA_HUMIDITY       "channel/humiture_0/data/humidity"      //空气湿度
-#define DHT11_PIN   D0
-char tmp;
-u8 hum;
-DHT11 dht11 = DHT11(DHT11_PIN);
+// ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
+//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
+
+
+#define LED_PIN D7
 
 void setup()
 {
-    //初始化
-    dht11.begin();
+    // initialize digital pin 13 as an output.
+    pinMode(LED_PIN, OUTPUT);
 }
 
+// the loop function runs over and over again forever
 void loop()
 {
-    tmp=dht11.ReadTemperature(0); //上送温度值
-    hum=dht11.ReadHumidity();        //上送湿度值
-    IntoRobot.publish(HUMITURE_DATA_TEMPERATURE, tmp); //上送温度值
-    IntoRobot.publish(HUMITURE_DATA_HUMIDITY, hum);    //上送湿度值
-	delay(1000);
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);              // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);              // wait for a second
 }
 #endif
 
