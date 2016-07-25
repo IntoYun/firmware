@@ -1,0 +1,5 @@
+TARGET_INTOROBOT_PATH = $(PLATFORM_MCU_PATH)/IntoRobot_Firmware_Driver
+INCLUDE_DIRS += $(TARGET_INTOROBOT_PATH)/inc
+
+#include $(PLATFORM_MODULE_PATH)/MCU/shared/STM32/inc/include.mk
+
