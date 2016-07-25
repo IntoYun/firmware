@@ -115,10 +115,10 @@ void HAL_USART_Initial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buf
     }
 
     usartMap[serial]->usart_rx_buffer = rx_buffer;
-    usartMap[serial]->usart_tx_buffer = tx_buffer;
+    //usartMap[serial]->usart_tx_buffer = tx_buffer;
 
     memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
-    memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
+    //memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
 
     usartMap[serial]->usart_enabled = false;
     usartMap[serial]->usart_transmitting = false;
@@ -212,7 +212,6 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     usartMap[serial]->usart_transmitting = false;
 }
 
-
 void HAL_USART_End(HAL_USART_Serial serial)
 {
     // Wait for transmission of outgoing data
@@ -231,12 +230,6 @@ void HAL_USART_End(HAL_USART_Serial serial)
         __HAL_RCC_USART1_RELEASE_RESET();
     }
 
-	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    /* Configure UART Tx as alternate function */
-    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
-    /* Configure UART Rx as alternate function */
-    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
-
     //Disable the NVIC for UART ##########################################*/
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
 
@@ -245,9 +238,14 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
     // Undo any pin re-mapping done for this USART
     // ...
+	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    /* Configure UART Tx as alternate function */
+    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
+    /* Configure UART Rx as alternate function */
+    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
 
     memset(usartMap[serial]->usart_rx_buffer, 0, sizeof(Ring_Buffer));
-    memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
+    //memset(usartMap[serial]->usart_tx_buffer, 0, sizeof(Ring_Buffer));
 
     usartMap[serial]->usart_enabled = false;
     usartMap[serial]->usart_transmitting = false;
@@ -257,46 +255,11 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
     HAL_UART_Transmit(&UartHandle, &data, 1, 5);//5ms
     return 1;
-    //return HAL_USART_Write_NineBitData(serial, data);
 }
 
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
-    // interrupts are off and data in queue;
-    if (( __HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) == RESET)
-            && usartMap[serial]->usart_tx_buffer->head != usartMap[serial]->usart_tx_buffer->tail) {
-        // Get him busy
-        __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TXE);
-    }
-
-    unsigned i = (usartMap[serial]->usart_tx_buffer->head + 1) % SERIAL_BUFFER_SIZE;
-
-    // If the output buffer is full, there's nothing for it other than to
-    // wait for the interrupt handler to empty it a bit
-    //         no space so       or  Called Off Panic with interrupt off get the message out!
-    //         make space                     Enter Polled IO mode
-    while (i == usartMap[serial]->usart_tx_buffer->tail || ((__get_PRIMASK() & 1) && usartMap[serial]->usart_tx_buffer->head != usartMap[serial]->usart_tx_buffer->tail) ) {
-        // Interrupts are on but they are not being serviced because this was called from a higher
-        // Priority interrupt
-
-        // interrupts are off and data in queue;
-        if((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) != RESET) && (__HAL_UART_GET_IT_SOURCE(&UartHandle, UART_IT_TXE) != RESET))
-        {
-            // protect for good measure
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
-            // Write out a byte
-            USART_SendData(&UartHandle, usartMap[serial]->usart_tx_buffer->buffer[usartMap[serial]->usart_tx_buffer->tail++]);
-            usartMap[serial]->usart_tx_buffer->tail %= SERIAL_BUFFER_SIZE;
-            // unprotect
-            __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TXE);
-        }
-    }
-
-    usartMap[serial]->usart_tx_buffer->buffer[usartMap[serial]->usart_tx_buffer->head] = data;
-    usartMap[serial]->usart_tx_buffer->head = i;
-    usartMap[serial]->usart_transmitting = true;
-    __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TXE);
-
+    HAL_UART_Transmit(&UartHandle, &data, 1, 5);//5ms
     return 1;
 }
 
@@ -307,7 +270,7 @@ int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 
 int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
 {
-    return (unsigned int)(SERIAL_BUFFER_SIZE + usartMap[serial]->usart_tx_buffer->head - usartMap[serial]->usart_tx_buffer->tail) % SERIAL_BUFFER_SIZE;
+    return 1;
 }
 
 int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
@@ -339,10 +302,6 @@ int32_t HAL_USART_Peek_Data(HAL_USART_Serial serial)
 
 void HAL_USART_Flush_Data(HAL_USART_Serial serial)
 {
-    // Loop until USART DR register is empty
-    while ( usartMap[serial]->usart_tx_buffer->head != usartMap[serial]->usart_tx_buffer->tail );
-    // Loop until last frame transmission complete
-    while (usartMap[serial]->usart_transmitting && (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) == RESET));
     usartMap[serial]->usart_transmitting = false;
 }
 
@@ -364,22 +323,6 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
         // Read byte from the receive data register
         unsigned char c = USART_ReceiveData(&UartHandle);
         store_char(c, usartMap[serial]->usart_rx_buffer);
-    }
-
-    if((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) != RESET) && (__HAL_UART_GET_IT_SOURCE(&UartHandle, UART_IT_TXE) != RESET))
-    {
-        // Write byte to the transmit data register
-        if (usartMap[serial]->usart_tx_buffer->head == usartMap[serial]->usart_tx_buffer->tail)
-        {
-            // Buffer empty, so disable the USART Transmit interrupt
-            __HAL_UART_DISABLE_IT(&UartHandle, UART_IT_TXE);
-        }
-        else
-        {
-            // There is more data in the output buffer. Send the next byte
-            USART_SendData(&UartHandle, usartMap[serial]->usart_tx_buffer->buffer[usartMap[serial]->usart_tx_buffer->tail++]);
-            usartMap[serial]->usart_tx_buffer->tail %= SERIAL_BUFFER_SIZE;
-        }
     }
 
     if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_ORE) != RESET)

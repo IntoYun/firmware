@@ -84,15 +84,11 @@ void USARTSerial::flush()
 
 size_t USARTSerial::write(uint8_t c)
 {
-    return HAL_USART_Write_Data(_serial, c);
-#if 0
   // attempt a write if blocking, or for non-blocking if there is room.
   if (_blocking || HAL_USART_Available_Data_For_Write(_serial) > 0) {
     // the HAL always blocks.
 	  return HAL_USART_Write_Data(_serial, c);
   }
-  return 0;
-#endif
 }
 
 size_t USARTSerial::write(uint16_t c)
@@ -111,11 +107,11 @@ bool USARTSerial::isEnabled() {
 #ifndef INTOROBOT_WIRING_NO_USART_SERIAL
 // Preinstantiate Objects //////////////////////////////////////////////////////
 static Ring_Buffer serial1_rx_buffer;
-static Ring_Buffer serial1_tx_buffer;
+//static Ring_Buffer serial1_tx_buffer;
 
 USARTSerial& __fetch_global_Serial1()
 {
-	static USARTSerial serial1(HAL_USART_SERIAL1, &serial1_rx_buffer, &serial1_tx_buffer);
+	static USARTSerial serial1(HAL_USART_SERIAL1, &serial1_rx_buffer, NULL);
 	return serial1;
 }
 

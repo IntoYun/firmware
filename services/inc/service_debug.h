@@ -70,7 +70,6 @@ typedef enum LoggerOutputLevel {
 #if defined(DEBUG_BUILD)
 #define LOG_LEVEL_AT_COMPILE_TIME LOG_LEVEL
 #define LOG_LEVEL_AT_RUN_TIME LOG_LEVEL         // Set to allow all LOG_LEVEL and above messages to be displayed conditionally by levels.
-#define USE_ONLY_PANIC // Define to remove all Logging and only have Panic
 #endif
 
 #if defined(RELEASE_BUILD)
@@ -112,7 +111,7 @@ extern void HAL_Delay_Microseconds(uint32_t delay);
 #if defined(USE_ONLY_PANIC)
 #define LOG(fmt, ...)
 #define DEBUG(fmt, ...) do { if ( __LOG_LEVEL_TEST(DEBUG_LEVEL))  {log_print_(DEBUG_LEVEL,__LINE__,__PRETTY_FUNCTION__,_FILE_PATH,fmt,##__VA_ARGS__);}}while(0)
-//#define DEBUG(fmt, ...)
+#define DEBUG(fmt, ...)
 #define INFO(fmt, ...)
 #define WARN(fmt, ...)
 #define ERROR(fmt, ...)

@@ -90,6 +90,4 @@ USBSerial& _fetch_global_serial()
 	return _globalSerial;
 }
 
-
 #endif
-
