@@ -25,14 +25,14 @@
 #include "watchdog_hal.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
-//#include "hw_config.h"
-//#include "syshealth_hal.h"
+#include "hw_config.h"
+#include "syshealth_hal.h"
 #include "rtc_hal.h"
 #include "stm32f4xx_it.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-
+#include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -43,6 +43,11 @@
 /* Private variables --------------------------------------------------------*/
 
 /* Extern variables ----------------------------------------------------------*/
+/**
+ * Updated by HAL_1Ms_Tick()
+ */
+extern volatile uint32_t TimingDelay;
+
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -73,7 +78,8 @@ void __malloc_unlock(void* ptr)
 
 void application_task_start(void* arg)
 {
-	//application_start();
+    HAL_Core_Setup();
+    app_setup_and_loop();
 }
 
 /**
@@ -81,6 +87,11 @@ void application_task_start(void* arg)
  */
 int main(void)
 {
+    HAL_Core_Setup();
+    app_setup_and_loop();
+    while(1);
+    return 0;
+#if 0
     init_malloc_mutex();
     xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
 
@@ -88,78 +99,76 @@ int main(void)
 
     /* we should never get here */
     while (1);
-
     return 0;
-}
-
-void SysTickChain()
-{
-    /*
-    void (*chain)(void) = (void (*)(void))((uint32_t*)&link_interrupt_vectors_location)[SysTick_Handler_Idx];
-
-    chain();
-
-    SysTickOverride();
-    */
+#endif
 }
 
 void HAL_1Ms_Tick()
 {
-    /*
     if (TimingDelay != 0x00)
     {
         __sync_sub_and_fetch(&TimingDelay, 1);
     }
-    */
-}
-/**
- * Called by HAL_Core_Init() to pre-initialize any low level hardware before
- * the main loop runs.
- */
-void HAL_Core_Init_finalize(void)
-{
-}
-
-
-/**
- * Called by HAL_Core_Setup() to perform any post-setup config after the
- * watchdog has been disabled.
- */
-void HAL_Core_Setup_finalize(void)
-{
-    /*
-    uint32_t* isrs = (uint32_t*)&link_ram_interrupt_vectors_location;
-    isrs[SysTick_Handler_Idx] = (uint32_t)SysTickChain;
-    // retained memory is critical for efficient data use on the electron
-    HAL_Feature_Set(FEATURE_RETAINED_MEMORY, ENABLE);
-    */
 }
 
 void HAL_Core_Init(void)
 {
+
 }
 
 void HAL_Core_Config(void)
 {
+    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
+    Set_System();
 
+#ifdef DFU_BUILD_ENABLE
+    //Currently this is done through WICED library API so commented.
+    //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
+    USE_SYSTEM_FLAGS = 1;
+#endif
+
+    //Wiring pins default to inputs
+#if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
+    for (pin_t pin=0; pin<=7; pin++)
+//        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin=30; pin<=37; pin++)
+//        HAL_Pin_Mode(pin, INPUT);
+#endif
+
+    HAL_RTC_Initial();
+    HAL_RNG_Initial();
+
+    HAL_IWDG_Initial();
+    HAL_LED_Initial();
+
+#ifdef DFU_BUILD_ENABLE
+    //Load_SystemFlags();
+#endif
+
+    HAL_LED_RGB_Color(255, 255, 255);
 }
 
-uint16_t HAL_Core_Mode_Button_Pressed_Time()
+void HAL_Core_Setup(void)
 {
-    return 0;
-}
-
-bool HAL_Core_Mode_Button_Pressed(uint16_t pressedMillisDuration)
-{
-    return false;
-}
-
-void HAL_Core_Mode_Button_Reset(void)
-{
+    HAL_IWDG_Config(DISABLE);
+    bootloader_update_if_needed();
+    HAL_Bootloader_Lock(true);
 }
 
 void HAL_Core_System_Reset(void)
 {
+    NVIC_SystemReset();
+}
+
+void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
+{
+    if (HAL_Feature_Get(FEATURE_RESET_INFO))
+    {
+        // Save reset info to backup registers
+        //RTC_WriteBackupRegister(RTC_BKP_DR2, reason);
+        //RTC_WriteBackupRegister(RTC_BKP_DR3, data);
+    }
+    HAL_Core_System_Reset();
 }
 
 void HAL_Core_Factory_Reset(void)
@@ -195,47 +204,14 @@ uint32_t HAL_Core_Compute_CRC32(const uint8_t *pBuffer, uint32_t bufferSize)
     return 0;
 }
 
-int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
-{
-    return 0;
-}
-
-void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
-{
-}
-
-uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
-{
-    return 0;
-}
-
-// todo find a technique that allows accessor functions to be inlined while still keeping
-// hardware independence.
-bool HAL_watchdog_reset_flagged()
-{
-    return false;
-}
-
-void HAL_Notify_WDT()
-{
-}
-
 void HAL_Bootloader_Lock(bool lock)
 {
 }
-
 
 unsigned HAL_Core_System_Clock(HAL_SystemClock clock, void* reserved)
 {
     return 1;
 }
-
-/*
-int main()
-{
-    while(1);
-}
-*/
 
 int HAL_Feature_Set(HAL_Feature feature, bool enabled)
 {
@@ -250,4 +226,18 @@ bool HAL_Feature_Get(HAL_Feature feature)
 int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length)
 {
     return -1;
+}
+
+/**
+ * @brief  This function handles SysTick Handler.
+ * @param  None
+ * @retval None
+ */
+void SysTick_Handler(void)
+{
+    System1MsTick();
+    /* Handle short and generic tasks for the device HAL on 1ms ticks */
+    HAL_1Ms_Tick();
+    HAL_SysTick_Handler();
+    //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }

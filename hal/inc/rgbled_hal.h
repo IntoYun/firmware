@@ -26,12 +26,14 @@ extern "C" {
 
 #include <stdint.h>
 
-// This is the low-level api to the LED
-void Set_RGB_LED_Values(uint16_t r, uint16_t g, uint16_t b);
-void Get_RGB_LED_Values(uint16_t* rgb);
-void Set_User_LED(uint8_t state);
-void Toggle_User_LED(void);
-uint16_t Get_RGB_LED_Max_Value(void);
+
+void HAL_LED_Initial(void);
+int HAL_LED_RGB_Color(uint8_t red, uint8_t green, uint8_t blue);
+int HAL_LED_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+int HAL_LED_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+void HAL_LED_User(uint8_t state);
+void HAL_LED_Toggle_User(void);
+
 
 #ifdef	__cplusplus
 }

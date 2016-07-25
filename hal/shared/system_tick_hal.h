@@ -24,8 +24,8 @@
  */
 
 
-#ifndef system_tick_h_
-#define system_tick_h_
+#ifndef system_tick_hal_h_
+#define system_tick_hal_h_
 
 #include <stdint.h>
 

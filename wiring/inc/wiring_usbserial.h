@@ -21,8 +21,11 @@
 #define __SPARK_WIRING_USBSERIAL_H
 
 #include "wiring_stream.h"
+#include "wiring_platform.h"
 #include "usb_hal.h"
 #include "system_task.h"
+#include "wiring_startup.h"
+#include "concurrent_hal.h"
 
 class USBSerial : public Stream
 {
@@ -30,9 +33,9 @@ public:
 	// public methods
 	USBSerial();
 
-        unsigned int baud() { return USB_USART_Baud_Rate(); }
+    unsigned int baud() { return USB_USART_Baud_Rate(); }
 
-        operator bool() { return baud()!=0; }
+    operator bool() { return baud()!=0; }
 
 	void begin(long speed);
 	void end();
@@ -84,6 +87,6 @@ private:
 
 extern USBSerial& _fetch_global_serial();
 
-#define SerialUSB _fetch_global_serial()
+#define Serial _fetch_global_serial()
 
 #endif

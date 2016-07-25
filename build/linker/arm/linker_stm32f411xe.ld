@@ -34,15 +34,15 @@ _Minimum_Stack_Size = 0x1400;
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
+Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 */
 
 /* Memory Spaces Definitions */
 
 MEMORY
 {
-    RAM (xrw)         : ORIGIN = 0x20000000, LENGTH = 128K
-    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 32K
+    SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 128K
+    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K
 }
 
 INCLUDE linker_stm32f411xe_common.ld

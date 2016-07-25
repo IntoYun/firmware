@@ -110,6 +110,7 @@ extern void HAL_Delay_Microseconds(uint32_t delay);
 
 #if defined(USE_ONLY_PANIC)
 #define LOG(fmt, ...)
+#define DEBUG(fmt, ...) do { if ( __LOG_LEVEL_TEST(DEBUG_LEVEL))  {log_print_(DEBUG_LEVEL,__LINE__,__PRETTY_FUNCTION__,_FILE_PATH,fmt,##__VA_ARGS__);}}while(0)
 #define DEBUG(fmt, ...)
 #define INFO(fmt, ...)
 #define WARN(fmt, ...)

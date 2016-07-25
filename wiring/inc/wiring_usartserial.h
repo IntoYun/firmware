@@ -44,6 +44,7 @@ public:
   virtual int peek(void);
   virtual int read(void);
   virtual void flush(void);
+  size_t write(uint16_t);
   virtual size_t write(uint8_t);
 
   inline size_t write(unsigned long n) { return write((uint8_t)n); }
@@ -88,11 +89,11 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 
 
 #ifndef INTOROBOT_WIRING_NO_USART_SERIAL
-#define Serial __fetch_global_Serial1()
+#define Serial1 __fetch_global_Serial1()
 extern USARTSerial& __fetch_global_Serial1();
 
 #if Wiring_Serial2
-#define Serial1 __fetch_global_Serial2()
+#define Serial2 __fetch_global_Serial2()
 extern USARTSerial& __fetch_global_Serial2();
 #endif
 

@@ -40,7 +40,7 @@
 #include "system_update.h"
 #include "core_hal.h"
 #include "delay_hal.h"
-//#include "syshealth_hal.h"
+#include "syshealth_hal.h"
 #include "watchdog_hal.h"
 #include "usb_hal.h"
 #include "system_mode.h"
@@ -117,76 +117,6 @@ uint16_t system_button_pushed_duration(uint8_t button, void*)
 static volatile uint8_t button_final_clicks = 0;
 static uint8_t button_current_clicks = 0;
 
-#if Wiring_SetupButtonUX
-void system_prepare_display_bars()
-{
-	led_state.save();
-	LED_Signaling_Stop();
-	SYSTEM_LED_COUNT = 255;
-	TimingLED = 0;	// todo - should use a mutex around these shared vars
-}
-
-void system_display_bars(int bars)
-{
-    if (bars>=0)
-    {
-		SYSTEM_LED_COUNT = ((bars<<1)+2) | 128;
-    }
-    else
-    {
-    		SYSTEM_LED_COUNT = 1;
-    }
-}
-
-/* displays RSSI value on system LED */
-void system_display_rssi() {
-    /*   signal strength (u-Blox Sara U2 and G3 modules)
-     *   0: < -105 dBm
-     *   1: < -93 dBm
-     *   2: < -81 dBm
-     *   3: < -69 dBm
-     *   4: < - 57 dBm
-     *   5: >= -57 dBm
-     */
-    system_prepare_display_bars();
-    int rssi = 0;
-    int bars = 0;
-#if Wiring_WiFi == 1
-    rssi = WiFi.RSSI();
-#elif Wiring_Cellular == 1
-    CellularSignal sig = Cellular.RSSI();
-    rssi = sig.rssi;
-#endif
-    if (rssi < 0) {
-        if (rssi >= -57) bars = 5;
-        else if (rssi > -68) bars = 4;
-        else if (rssi > -80) bars = 3;
-        else if (rssi > -92) bars = 2;
-        else if (rssi > -104) bars = 1;
-    }
-    DEBUG("RSSI: %ddB BARS: %d\r\n", rssi, bars);
-
-    system_display_bars(bars);
-}
-
-void system_handle_button_click()
-{
-    const uint8_t clicks = button_final_clicks;
-    button_final_clicks = 0;
-    switch (clicks) {
-    case 1: // Single click
-        system_display_rssi();
-        break;
-    case 2: // Double click
-        SYSTEM_POWEROFF = 1;
-        network.connect_cancel(true);
-        break;
-    default:
-        break;
-    }
-}
-#endif // #if Wiring_SetupButtonUX
-
 void reset_button_click()
 {
     const uint8_t clicks = button_current_clicks;
@@ -247,82 +177,6 @@ void HAL_Notify_Button_State(uint8_t button, uint8_t pressed)
         }
     }
 }
-
-#if Wiring_Cellular == 1
-/* flag used to initiate system_power_management_update() from main thread */
-static volatile bool SYSTEM_POWER_MGMT_UPDATE = false;
-
-/*******************************************************************************
- * Function Name  : Power_Management_Handler
- * Description    : Sets default power management IC charging rate when USB
-                    input power source changes or low battery indicated by
-                    fuel gauge IC.
- * Output         : SYSTEM_POWER_MGMT_UPDATE is set to true.
- *******************************************************************************/
-extern "C" void Power_Management_Handler(void)
-{
-    SYSTEM_POWER_MGMT_UPDATE = true;
-}
-
-void system_power_management_init()
-{
-    INFO("Power Management Initializing.");
-    PMIC power;
-    power.begin();
-    power.disableWatchdog();
-    power.disableDPDM();
-    // power.setInputVoltageLimit(4360); // default
-    power.setInputCurrentLimit(900);     // 900mA
-    power.setChargeCurrent(0,0,0,0,0,0); // 512mA
-    power.setChargeVoltage(4112);        // 4.112V termination voltage
-    FuelGauge fuel;
-    fuel.wakeup();
-    fuel.setAlertThreshold(10); // Low Battery alert at 10% (about 3.6V)
-    fuel.clearAlert(); // Ensure this is cleared, or interrupts will never occur
-    INFO("State of Charge: %-6.2f%%", fuel.getSoC());
-    INFO("Battery Voltage: %-4.2fV", fuel.getVCell());
-    attachInterrupt(LOW_BAT_UC, Power_Management_Handler, FALLING);
-}
-
-void system_power_management_update()
-{
-    if (SYSTEM_POWER_MGMT_UPDATE) {
-        SYSTEM_POWER_MGMT_UPDATE = false;
-        PMIC power;
-        power.begin();
-        power.setInputCurrentLimit(900);     // 900mA
-        power.setChargeCurrent(0,0,0,0,0,0); // 512mA
-        FuelGauge fuel;
-        bool LOWBATT = fuel.getAlert();
-        if (LOWBATT) {
-            fuel.clearAlert(); // Clear the Low Battery Alert flag if set
-        }
-//        if (LOG_ENABLED(INFO)) {
-//        		INFO(" %s", (LOWBATT)?"Low Battery Alert":"PMIC Interrupt");
-//        }
-#if defined(DEBUG_BUILD) && 0
-        if (LOG_ENABLED(TRACE)) {
-			uint8_t stat = power.getSystemStatus();
-			uint8_t fault = power.getFault();
-			uint8_t vbus_stat = stat >> 6; // 0 – Unknown (no input, or DPDM detection incomplete), 1 – USB host, 2 – Adapter port, 3 – OTG
-			uint8_t chrg_stat = (stat >> 4) & 0x03; // 0 – Not Charging, 1 – Pre-charge (<VBATLOWV), 2 – Fast Charging, 3 – Charge Termination Done
-			bool dpm_stat = stat & 0x08;   // 0 – Not DPM, 1 – VINDPM or IINDPM
-			bool pg_stat = stat & 0x04;    // 0 – Not Power Good, 1 – Power Good
-			bool therm_stat = stat & 0x02; // 0 – Normal, 1 – In Thermal Regulation
-			bool vsys_stat = stat & 0x01;  // 0 – Not in VSYSMIN regulation (BAT > VSYSMIN), 1 – In VSYSMIN regulation (BAT < VSYSMIN)
-			bool wd_fault = fault & 0x80;  // 0 – Normal, 1- Watchdog timer expiration
-			uint8_t chrg_fault = (fault >> 4) & 0x03; // 0 – Normal, 1 – Input fault (VBUS OVP or VBAT < VBUS < 3.8 V),
-													  // 2 - Thermal shutdown, 3 – Charge Safety Timer Expiration
-			bool bat_fault = fault & 0x08;    // 0 – Normal, 1 – BATOVP
-			uint8_t ntc_fault = fault & 0x07; // 0 – Normal, 5 – Cold, 6 – Hot
-			DEBUG_D("[ PMIC STAT ] VBUS:%d CHRG:%d DPM:%d PG:%d THERM:%d VSYS:%d\r\n", vbus_stat, chrg_stat, dpm_stat, pg_stat, therm_stat, vsys_stat);
-			DEBUG_D("[ PMIC FAULT ] WATCHDOG:%d CHRG:%d BAT:%d NTC:%d\r\n", wd_fault, chrg_fault, bat_fault, ntc_fault);
-			delay(50);
-        }
-#endif
-    }
-}
-#endif
 
 inline bool system_led_override()
 {
@@ -426,7 +280,7 @@ extern "C" void HAL_SysTick_Handler(void)
         if (TimingFlashUpdateTimeout >= TIMING_FLASH_UPDATE_TIMEOUT)
         {
             //Reset is the only way now to recover from stuck OTA update
-            HAL_Core_System_Reset_Ex(RESET_REASON_UPDATE_TIMEOUT, 0, nullptr);
+            HAL_Core_System_Reset();
         }
         else
         {
@@ -498,26 +352,36 @@ void manage_safe_mode()
 
 void app_loop(bool threaded)
 {
-#if 0 
+    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
+    if ((INTOROBOT_WIRING_APPLICATION != 1))
+    {
+        //Execute user application setup only once
+        setup();
+        INTOROBOT_WIRING_APPLICATION = 1;
+        //_post_loop();
+    }
+
+    //Execute user application loop
+    loop();
+    //_post_loop();
+#if 0
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
     if (!threaded)
         Spark_Idle();
 
-    static uint8_t SPARK_WIRING_APPLICATION = 0;
-    if(threaded || SPARK_WLAN_SLEEP || !spark_cloud_flag_auto_connect() || spark_cloud_flag_connected() || SPARK_WIRING_APPLICATION || (system_mode()!=AUTOMATIC))
+    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
+    if(threaded || SPARK_WLAN_SLEEP || !intorobot_cloud_flag_auto_connect() || intorobot_cloud_flag_connected() || INTOROBOT_WIRING_APPLICATION || (system_mode()!=AUTOMATIC))
     {
         if(threaded || !SPARK_FLASH_UPDATE)
         {
-            if ((SPARK_WIRING_APPLICATION != 1))
+            if ((INTOROBOT_WIRING_APPLICATION != 1))
             {
                 //Execute user application setup only once
                 DECLARE_SYS_HEALTH(ENTERED_Setup);
                 if (system_mode()!=SAFE_MODE)
-                 setup();
-                SPARK_WIRING_APPLICATION = 1;
-#if !MODULAR_FIRMWARE
+                    setup();
+                INTOROBOT_WIRING_APPLICATION = 1;
                 _post_loop();
-#endif
             }
 
             //Execute user application loop
@@ -525,12 +389,7 @@ void app_loop(bool threaded)
             if (system_mode()!=SAFE_MODE) {
                 loop();
                 DECLARE_SYS_HEALTH(RAN_Loop);
-#if !MODULAR_FIRMWARE
                 _post_loop();
-#endif
-#if Wiring_Cellular == 1
-                system_power_management_update();
-#endif
             }
         }
     }
@@ -557,13 +416,6 @@ ActiveObjectCurrentThreadQueue ApplicationThread(ActiveObjectConfiguration(app_t
 
 #endif
 
-extern "C" void system_part2_post_init() __attribute__((weak));
-
-// this is overridden for modular firmware
-void system_part2_post_init()
-{
-}
-
 /*******************************************************************************
  * Function Name  : main.
  * Description    : main routine.
@@ -573,40 +425,23 @@ void system_part2_post_init()
  *******************************************************************************/
 void app_setup_and_loop(void)
 {
-#if 0
-    system_part2_post_init();
     HAL_Core_Init();
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
 
-#if Wiring_Cellular == 1
-    system_power_management_init();
-#endif
+    DEBUG_D("welcome from IntoRobot!\r\n");
+    //String s = intorobot_deviceID();
+    //INFO("Device %s started", s.c_str());
 
-    DEBUG("Hello from Particle!");
-    String s = spark_deviceID();
-    INFO("Device %s started", s.c_str());
-
-    if (LOG_ENABLED(TRACE)) {
-        int reason = RESET_REASON_NONE;
-        uint32_t data = 0;
-        if (HAL_Core_Get_Last_Reset_Info(&reason, &data, nullptr) == 0 && reason != RESET_REASON_NONE) {
-            LOG(TRACE, "Last reset reason: %d (data: 0x%02x)", reason, (unsigned)data); // TODO: Use LOG_ATTR()
-        }
-    }
-
+#if 0
     manage_safe_mode();
-
-#if defined(USB_CDC_ENABLE) || defined(USB_HID_ENABLE)
-    HAL_USB_Init();
-#endif
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
 
-    bool threaded = system_thread_get_state(NULL) != spark::feature::DISABLED &&
-      (system_mode()!=SAFE_MODE);
+    bool threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED &&
+        (system_mode()!=SAFE_MODE);
 
     Network_Setup(threaded);
 
@@ -629,6 +464,9 @@ void app_setup_and_loop(void)
         }
     }
 #endif
+    while (1) {
+        app_loop(false);
+    }
 }
 
 #ifdef USE_FULL_ASSERT

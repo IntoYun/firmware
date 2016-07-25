@@ -30,8 +30,8 @@
 static UART_HandleTypeDef UartHandle;
 
 extern "C" {
-void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data);
-uint16_t USART_ReceiveData(UART_HandleTypeDef *huart);
+static void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data);
+static uint16_t USART_ReceiveData(UART_HandleTypeDef *huart);
 }
 
 Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
@@ -181,12 +181,12 @@ void Esp8266SerialPipe::rxIrqBuf(void)
         /* overflow */;
 }
 
-void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data)
+static void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data)
 {
     huart->Instance->DR = (uint16_t)(Data & (uint16_t)0x01FF);
 }
 
-uint16_t USART_ReceiveData(UART_HandleTypeDef *huart)
+static uint16_t USART_ReceiveData(UART_HandleTypeDef *huart)
 {
     return (uint16_t)(huart->Instance->DR & (uint16_t)0x01FF);
 }

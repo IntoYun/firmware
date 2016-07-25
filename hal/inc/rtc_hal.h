@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-void HAL_RTC_Configuration(void);
+void HAL_RTC_Initial(void);
 
 time_t HAL_RTC_Get_UnixTime(void);
 void HAL_RTC_Set_UnixTime(time_t value);

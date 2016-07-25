@@ -36,34 +36,13 @@ extern "C" {
 
 #include "usb_config_hal.h"
 
-
-    /* USB Config : IMR_MSK */
-/* mask defining which events has to be handled */
-/* by the device application software */
-#define IMR_MSK (CNTR_CTRM  | \
-                 CNTR_WKUPM | \
-                 CNTR_SUSPM | \
-                 CNTR_ERRM  | \
-                 CNTR_SOFM  | \
-                 CNTR_ESOFM | \
-                 CNTR_RESETM  \
-)
-
-#define USART_RX_DATA_SIZE      256
-
-/* Exported functions ------------------------------------------------------- */
-#if defined (USB_CDC_ENABLE) || defined (USB_HID_ENABLE)
-void SPARK_USB_Setup(void);
-void Get_SerialNum(void);
-#endif
-
 #ifdef USB_CDC_ENABLE
 /**
  * Initialize or deinitialize USB serial
  * @param baudRate  The data rate of the connection. If 0, the connection is
  * uninitialized.
  */
-void USB_USART_Init(uint32_t baudRate);
+void USB_USART_Initial(uint32_t baudRate);
 
 unsigned int USB_USART_Baud_Rate(void);
 

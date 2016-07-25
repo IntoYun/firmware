@@ -33,12 +33,12 @@ USBSerial::USBSerial()
 
 void USBSerial::begin(long speed)
 {
-    USB_USART_Init((unsigned)speed);
+    USB_USART_Initial((unsigned)speed);
 }
 
 void USBSerial::end()
 {
-    USB_USART_Init(0);
+    USB_USART_Initial(0);
 }
 
 
@@ -90,6 +90,4 @@ USBSerial& _fetch_global_serial()
 	return _globalSerial;
 }
 
-
 #endif
-

@@ -10,7 +10,7 @@ endif
 include $(COMMON_BUILD)/platform-id.mk
 
 ifneq ($(PLATFORM_ID),0) #atom
-MAKE_DEPENDENCIES += bootloader
+#MAKE_DEPENDENCIES += bootloader
 endif
 
 MAKE_DEPENDENCIES += main

@@ -7,6 +7,7 @@ WARNINGS_AS_ERRORS ?= y
 TARGET_TYPE = a
 BUILD_PATH_EXT = $(PLATFORM_BUILD_PATH_EXT)
 
-DEPENDENCIES = services hal
+# 不依靠其他模块
+DEPENDENCIES =
 
 include ../build/arm-tlm.mk

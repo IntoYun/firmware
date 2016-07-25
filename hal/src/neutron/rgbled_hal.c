@@ -19,7 +19,8 @@
 
 #include "rgbled_hal.h"
 
-void HAL_LED_Init(void)
+
+void HAL_LED_Initial(void)
 {
 
 }

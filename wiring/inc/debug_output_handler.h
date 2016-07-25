@@ -36,7 +36,7 @@ struct SerialDebugOutput
 
     static void log_output(const char* msg)
     {
-        SerialUSB.print(msg);
+        Serial.print(msg);
         //Serial.flush();
         //HAL_Delay_Milliseconds(10);
     }
@@ -47,13 +47,13 @@ struct Serial1DebugOutput
 {
     Serial1DebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
     {
-        Serial.begin(baud);
+        Serial1.begin(baud);
         set_logger_output(log_output, level);
     }
 
     static void log_output(const char* msg)
     {
-        Serial.print(msg);
+        Serial1.print(msg);
     }
 
 };

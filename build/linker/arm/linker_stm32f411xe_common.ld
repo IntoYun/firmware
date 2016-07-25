@@ -3,14 +3,16 @@ PROVIDE ( _Stack_Size = __Stack_Size ) ;
 /*"PROVIDE" allows to easily override these values from an object file or the commmand line.*/
 PROVIDE ( _Stack_Init = __Stack_Init ) ;
 
+ENTRY(Reset_Handler)
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
+Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 */
 
 /* higher address of the user mode stack */
-_estack = 0x20020000;	/* end of 128K SRAM */
+/*_estack = ORIGIN(SRAM)+LENGTH(SRAM);*/  /* end of 128K SRAM */
+_estack = 0x2001FFFF;    /* end of RAM */
 
 /* include the sections management sub-script for FLASH mode */
 
@@ -21,62 +23,95 @@ SECTIONS
     INCLUDE module_start.ld
 
     /* for Cortex devices, the beginning of the startup code is stored in the .isr_vector section, which goes to FLASH */
-    .isr_vector :
+    .interrupt_vector_table :
+    /*.vectors :*/
     {
-	. = ALIGN(4);
-        KEEP(*(.interrupt_vector_table))            /* Startup code */
-	. = ALIGN(4);
+        . = ALIGN(4);
+        link_interrupt_vectors_location = .;
+        KEEP(*(.interrupt_vector_table))           /* Startup code */
+        link_interrupt_vectors_location_end = .;
+        . = ALIGN(4);
     } >APP_FLASH
 
+    interrupt_vectors_length = link_interrupt_vectors_location_end - link_interrupt_vectors_location;
+/*
     INCLUDE module_info.ld
-
-    .flashtext :
-    {
-	. = ALIGN(4);
-        *(.flashtext)            /* Startup code */
-	. = ALIGN(4);
-    } >APP_FLASH
-
+*/
     /* the program code is stored in the .text section, which goes to Flash */
     .text :
     {
-	    . = ALIGN(4);
+        . = ALIGN(4);
 
-        *(.text)                   /* remaining code */
-        *(.text.*)                   /* remaining code */
-        *(.rodata)                 /* read-only data (constants) */
-        *(.rodata*)
+        KEEP(*(.text.irq ))
+        *(.text .text.* .gnu.linkonce.t.*)
+        *(.rodata .rodata.* .gnu.linkonce.r.*)
         *(.glue_7)
         *(.glue_7t)
-
+/*
+        link_constructors_location = .;
+        KEEP(*(.preinit_array))
+        KEEP(*(.init_array))
+        KEEP(*crtbegin.o(.ctors))
+        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP(*(SORT(.ctors.*)))
+        KEEP(*crtend.o(.ctors))
+        link_constructors_end = .;
+*/
         link_constructors_location = .;
         chk_system_pre_init_start = .;
-        KEEP (*(.module_pre_init))
+        KEEP(*(.module_pre_init))
         chk_system_pre_init_end = .;
         KEEP(*(.preinit_array))
         KEEP(*(.init_array))
-        KEEP (*crtbegin.o(.ctors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP (*(SORT(.ctors.*)))
-        KEEP (*crtend.o(.ctors))
+        KEEP(*crtbegin.o(.ctors))
+        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP(*(SORT(.ctors.*)))
+        KEEP(*crtend.o(.ctors))
         chk_system_init_start = .;
-        KEEP (*(.module_init))
+        KEEP(*(.module_init))
         chk_system_init_end = .;
         link_constructors_end = .;
 
-	    . = ALIGN(4);
-   	  _etext = .;
-	    /* This is used by the startup in order to initialize the .data secion */
+        . = ALIGN(4);
+        _etext = .;
+    } >APP_FLASH AT> APP_FLASH
 
-    } >APP_FLASH
-
-    .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >APP_FLASH
-    .ARM : {
-        __exidx_start = .;
-        *(.ARM.exidx*)
+    /*
+     * The .ARM.exidx and .ARM.extab sections are used for C++ exception handling.
+     * It is located here for completeness. Bare-metal ARM projects
+     * typically cannot afford the overhead associated with C++
+     * exceptions handling.
+     */
+    .ARM.exidx :
+    {
+        __exidx_start = ALIGN(4);
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
         __exidx_end = .;
-    } >APP_FLASH
+    } > APP_FLASH  AT> APP_FLASH
 
+    .ARM.extab :
+    {
+        __extab_start = ALIGN(4);
+        *(.ARM.extab*)
+        __extab_end = .;
+    } > APP_FLASH  AT> APP_FLASH
+
+    /* Ram VTOR table - must be 512 byte-aligned */
+    .ram_vectors :
+    {
+        link_ram_interrupt_vectors_location = .;
+        . = . + interrupt_vectors_length;
+        link_ram_interrupt_vectors_location_end = .;
+    }> SRAM
+
+    /* This section contains code that is run from RAM after being loaded from flash - functions can be put in this section with the C attribute: __attribute__ ((section (".fast"))) */
+    .fast :
+    {
+        link_run_from_ram_code_flash_location = LOADADDR( .fast );
+        link_run_from_ram_code_ram_location = .;
+        *(.fast .fast.* .text.fastcode)
+        link_run_from_ram_code_ram_end = .;
+    }> SRAM AT> APP_FLASH
 
     /* This is the initialized data section
     The program executes knowing that the data is in the RAM
@@ -85,104 +120,95 @@ SECTIONS
     .data  :
     {
         _sidata = LOADADDR(.data);
-	    . = ALIGN(4);
+        . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _sdata = . ;
-
         *(.data)
         *(.data.*)
-
-	    . = ALIGN(4);
-	    /* This is used by the startup in order to initialize the .data secion */
-   	 _edata = . ;
-    } >RAM AT>APP_FLASH
+        . = ALIGN(4);
+        /* This is used by the startup in order to initialize the .data secion */
+        _edata = . ;
+    } >SRAM AT>APP_FLASH
 
     /* This is the uninitialized data section */
     .bss :
     {
-	    . = ALIGN(4);
+        . = ALIGN(4);
         /* This is used by the startup in order to initialize the .bss secion */
         _sbss = .;
-
         *(.bss)
         *(.bss*)
         *(COMMON)
+        . = ALIGN(4);
+        /* This is used by the startup in order to initialize the .bss secion */
+        _ebss = . ;
+    }> SRAM AT> SRAM
 
-	    . = ALIGN(4);
-	    /* This is used by the startup in order to initialize the .bss secion */
-   	 _ebss = . ;
-    } >RAM
-
-    link_heap_location = end;
+    link_heap_location = _ebss;
     link_heap_location_end = __Stack_Init;
 
     PROVIDE ( end = _ebss );
     PROVIDE ( _end = _ebss );
 
-    /* This is the user stack section
-    This is just to check that there is enough RAM left for the User mode stack
-    It should generate an error if it's full.
-     */
-    ._usrstack :
+    /* Contains the initial stack */
+    .stack :
     {
-	    . = ALIGN(4);
-        _susrstack = . ;
+        link_stack_location = ALIGN(., 4);
+        *(.stack)
+        . = ALIGN(MAX(link_stack_location + __STACKSIZE__ , .), 4);
+        link_stack_end = .;
+    }> SRAM AT> SRAM
 
-        . = . + _Minimum_Stack_Size ;
-
-	    . = ALIGN(4);
-        _eusrstack = . ;
-    } >RAM
-
-    /* after that it's only debugging information. */
-
-    /* remove the debugging information from the standard libraries */
-    DISCARD :
+    /DISCARD/ :
     {
-     libc.a ( * )
-     libm.a ( * )
-     libgcc.a ( * )
-     }
-
-    /* Stabs debugging sections.  */
-    .stab          0 : { *(.stab) }
-    .stabstr       0 : { *(.stabstr) }
-    .stab.excl     0 : { *(.stab.excl) }
-    .stab.exclstr  0 : { *(.stab.exclstr) }
-    .stab.index    0 : { *(.stab.index) }
-    .stab.indexstr 0 : { *(.stab.indexstr) }
-    .comment       0 : { *(.comment) }
-    /* DWARF debug sections.
-       Symbols in the DWARF debugging sections are relative to the beginning
-       of the section so we begin them at 0.  */
-    /* DWARF 1 */
-    .debug          0 : { *(.debug) }
-    .line           0 : { *(.line) }
-    /* GNU DWARF 1 extensions */
-    .debug_srcinfo  0 : { *(.debug_srcinfo) }
-    .debug_sfnames  0 : { *(.debug_sfnames) }
-    /* DWARF 1.1 and DWARF 2 */
-    .debug_aranges  0 : { *(.debug_aranges) }
-    .debug_pubnames 0 : { *(.debug_pubnames) }
-    /* DWARF 2 */
-    .debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }
-    .debug_abbrev   0 : { *(.debug_abbrev) }
-    .debug_line     0 : { *(.debug_line) }
-    .debug_frame    0 : { *(.debug_frame) }
-    .debug_str      0 : { *(.debug_str) }
-    .debug_loc      0 : { *(.debug_loc) }
-    .debug_macinfo  0 : { *(.debug_macinfo) }
-    /* SGI/MIPS DWARF 2 extensions */
-    .debug_weaknames 0 : { *(.debug_weaknames) }
-    .debug_funcnames 0 : { *(.debug_funcnames) }
-    .debug_typenames 0 : { *(.debug_typenames) }
-    .debug_varnames  0 : { *(.debug_varnames) }
+        *(.ARM.attributes*)
+        *(.comment)
+        *(.init)
+        *(.preinit)
+        *(.fini)
+        *(.fini_array)
+        *(.ARM.exidx*)
+        *(.gnu.linkonce.armexidx.*)
+        *(.eh_frame_hdr)
+        *(.eh_frame)
+        *(.gnu.linkonce.armextab.*)
+        *(.v4_bx)
+        *(.vfp11_veneer)
+        *(.gcc_except_table)
+        *(.eh_frame_hdr)
+        *(.eh_frame)
+        *(.glue*)
+    }
 
     INCLUDE module_end.ld
 }
+
+
+/* Declare libc Heap to start at end of allocated RAM */
+PROVIDE( _heap = link_stack_end );
+
+/* End of the heap is top of RAM, aligned 8 byte */
+PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
+
+/* ThreadX aliases */
+
+PROVIDE( __RAM_segment_used_end__ = link_stack_end );
+PROVIDE( __tx_free_memory_start = link_stack_end );
+PROVIDE( __tx_vectors = link_interrupt_vectors_location );
+
+PROVIDE( VTOR_Length = interrupt_vectors_length );
+
+/*
+ASSERT( link_ram_interrupt_vectors_location == ORIGIN( SRAM ), "RAM Interrupt table should be at start of RAM" );
+ASSERT( ( link_ram_interrupt_vectors_location_end - link_ram_interrupt_vectors_location ) == VTOR_Length, "Expected RAM VTOR table to be same length as VTOR Flash" );
+*/
+/*INCLUDE module_export.ld*/
 /*
 ASSERT ( link_module_info_start < link_module_info_end, "module info not linked" );
-ASSERT ( link_module_info_start - ORIGIN(APP_FLASH) == 0x184,  "module info not where expected" )
 ASSERT ( link_module_info_suffix_start < link_module_info_suffix_end, "module info suffix not linked" );
 ASSERT ( link_module_info_crc_start < link_module_info_crc_end, "module info crc not linked" );
+
+ASSERT ( mono_module_info == link_module_info_start, "module info start not where expected" );
+ASSERT ( mono_module_info_end == link_module_info_end, "module info end not where expected" );
 */
+/*ASSERT ( link_early_startup_begin != link_early_startup_end, "no early startup functions linked" );*/

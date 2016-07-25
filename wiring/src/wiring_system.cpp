@@ -27,7 +27,7 @@ void SystemClass::dfu(bool persist)
 
 void SystemClass::reset(void)
 {
-    reset(0);
+    HAL_Core_System_Reset();
 }
 
 void SystemClass::reset(uint32_t data)

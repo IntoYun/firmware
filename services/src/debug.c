@@ -62,7 +62,7 @@ void log_print_(int level, int line, const char *func, const char *file, const c
 	{
 		debug_output_("...");
 	}
-    trunc = vsnprintf(_buffer,arraySize(_buffer), msg, args);
+    trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
 	debug_output_(_buffer);
 	if (trunc > arraySize(_buffer))
 	{

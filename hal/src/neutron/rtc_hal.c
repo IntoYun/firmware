@@ -18,8 +18,15 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "rtc_hal.h"
 
+RTC_HandleTypeDef RtcHandle;
+
+void HAL_RTC_Initial(void)
+{
+
+}
 
 time_t HAL_RTC_Get_UnixTime(void)
 {
