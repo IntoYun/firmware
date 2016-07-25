@@ -3,14 +3,16 @@ PROVIDE ( _Stack_Size = __Stack_Size ) ;
 /*"PROVIDE" allows to easily override these values from an object file or the commmand line.*/
 PROVIDE ( _Stack_Init = __Stack_Init ) ;
 
+ENTRY(Reset_Handler)
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
+Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 */
 
 /* higher address of the user mode stack */
-_estack = ORIGIN(SRAM)+LENGTH(SRAM);  /* end of 128K SRAM */
+/*_estack = ORIGIN(SRAM)+LENGTH(SRAM);*/  /* end of 128K SRAM */
+_estack = 0x2001FFFF;    /* end of RAM */
 
 /* include the sections management sub-script for FLASH mode */
 
@@ -21,19 +23,20 @@ SECTIONS
     INCLUDE module_start.ld
 
     /* for Cortex devices, the beginning of the startup code is stored in the .isr_vector section, which goes to FLASH */
-    .vectors :
+    .interrupt_vector_table :
+    /*.vectors :*/
     {
         . = ALIGN(4);
         link_interrupt_vectors_location = .;
         KEEP(*(.interrupt_vector_table))           /* Startup code */
         link_interrupt_vectors_location_end = .;
         . = ALIGN(4);
-    } >APP_FLASH  AT> APP_FLASH
+    } >APP_FLASH
 
     interrupt_vectors_length = link_interrupt_vectors_location_end - link_interrupt_vectors_location;
-
+/*
     INCLUDE module_info.ld
-
+*/
     /* the program code is stored in the .text section, which goes to Flash */
     .text :
     {
@@ -44,19 +47,28 @@ SECTIONS
         *(.rodata .rodata.* .gnu.linkonce.r.*)
         *(.glue_7)
         *(.glue_7t)
-
+/*
+        link_constructors_location = .;
+        KEEP(*(.preinit_array))
+        KEEP(*(.init_array))
+        KEEP(*crtbegin.o(.ctors))
+        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP(*(SORT(.ctors.*)))
+        KEEP(*crtend.o(.ctors))
+        link_constructors_end = .;
+*/
         link_constructors_location = .;
         chk_system_pre_init_start = .;
-        KEEP (*(.module_pre_init))
+        KEEP(*(.module_pre_init))
         chk_system_pre_init_end = .;
         KEEP(*(.preinit_array))
         KEEP(*(.init_array))
-        KEEP (*crtbegin.o(.ctors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP (*(SORT(.ctors.*)))
-        KEEP (*crtend.o(.ctors))
+        KEEP(*crtbegin.o(.ctors))
+        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP(*(SORT(.ctors.*)))
+        KEEP(*crtend.o(.ctors))
         chk_system_init_start = .;
-        KEEP (*(.module_init))
+        KEEP(*(.module_init))
         chk_system_init_end = .;
         link_constructors_end = .;
 
@@ -84,16 +96,18 @@ SECTIONS
         __extab_end = .;
     } > APP_FLASH  AT> APP_FLASH
 
-    .ram_vectors : /* Ram VTOR table - must be 512 byte-aligned */
+    /* Ram VTOR table - must be 512 byte-aligned */
+    .ram_vectors :
     {
         link_ram_interrupt_vectors_location = .;
         . = . + interrupt_vectors_length;
         link_ram_interrupt_vectors_location_end = .;
     }> SRAM
 
-    .fast : /* This section contains code that is run from RAM after being loaded from flash - functions can be put in this section with the C attribute: __attribute__ ((section (".fast"))) */
+    /* This section contains code that is run from RAM after being loaded from flash - functions can be put in this section with the C attribute: __attribute__ ((section (".fast"))) */
+    .fast :
     {
-        link_run_from_ram_code_flash_location = LOADADDR( .fast ); /* This is the location in flash of the code */
+        link_run_from_ram_code_flash_location = LOADADDR( .fast );
         link_run_from_ram_code_ram_location = .;
         *(.fast .fast.* .text.fastcode)
         link_run_from_ram_code_ram_end = .;
@@ -109,10 +123,8 @@ SECTIONS
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _sdata = . ;
-
-        /**(.data)*/
+        *(.data)
         *(.data.*)
-
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _edata = . ;
@@ -124,23 +136,22 @@ SECTIONS
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .bss secion */
         _sbss = .;
-
         *(.bss)
         *(.bss*)
         *(COMMON)
-
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .bss secion */
         _ebss = . ;
     }> SRAM AT> SRAM
 
-    link_heap_location = end;
+    link_heap_location = _ebss;
     link_heap_location_end = __Stack_Init;
 
     PROVIDE ( end = _ebss );
     PROVIDE ( _end = _ebss );
 
-    .stack : /* Contains the initial stack */
+    /* Contains the initial stack */
+    .stack :
     {
         link_stack_location = ALIGN(., 4);
         *(.stack)
@@ -180,15 +191,17 @@ PROVIDE( _heap = link_stack_end );
 PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
 
 /* ThreadX aliases */
+
 PROVIDE( __RAM_segment_used_end__ = link_stack_end );
 PROVIDE( __tx_free_memory_start = link_stack_end );
 PROVIDE( __tx_vectors = link_interrupt_vectors_location );
 
 PROVIDE( VTOR_Length = interrupt_vectors_length );
 
+/*
 ASSERT( link_ram_interrupt_vectors_location == ORIGIN( SRAM ), "RAM Interrupt table should be at start of RAM" );
 ASSERT( ( link_ram_interrupt_vectors_location_end - link_ram_interrupt_vectors_location ) == VTOR_Length, "Expected RAM VTOR table to be same length as VTOR Flash" );
-
+*/
 /*INCLUDE module_export.ld*/
 /*
 ASSERT ( link_module_info_start < link_module_info_end, "module info not linked" );

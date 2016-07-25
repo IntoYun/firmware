@@ -147,7 +147,7 @@ void DebugMon_Handler(void)
 /*void PendSV_Handler(void)
   {
   }*/
-
+#if 0
 /**
  * @brief  This function handles SysTick Handler.
  * @param  None
@@ -155,15 +155,13 @@ void DebugMon_Handler(void)
  */
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
-    //System1MsTick();
-    //HAL_GPIO_Write(7, 1);
+    System1MsTick();
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
-    //HAL_1Ms_Tick();
-    //HAL_SysTick_Handler();
+    HAL_1Ms_Tick();
+    HAL_SysTick_Handler();
     //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }
-
+#endif
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

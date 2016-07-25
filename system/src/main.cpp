@@ -358,12 +358,12 @@ void app_loop(bool threaded)
         //Execute user application setup only once
         setup();
         INTOROBOT_WIRING_APPLICATION = 1;
-        _post_loop();
+        //_post_loop();
     }
 
     //Execute user application loop
     loop();
-    _post_loop();
+    //_post_loop();
 #if 0
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
     if (!threaded)
@@ -426,7 +426,6 @@ ActiveObjectCurrentThreadQueue ApplicationThread(ActiveObjectConfiguration(app_t
 void app_setup_and_loop(void)
 {
     HAL_Core_Init();
-#if 0
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
 
@@ -434,6 +433,7 @@ void app_setup_and_loop(void)
     //String s = intorobot_deviceID();
     //INFO("Device %s started", s.c_str());
 
+#if 0
     manage_safe_mode();
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)

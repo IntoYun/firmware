@@ -44,6 +44,7 @@ public:
   virtual int peek(void);
   virtual int read(void);
   virtual void flush(void);
+  size_t write(uint16_t);
   virtual size_t write(uint8_t);
 
   inline size_t write(unsigned long n) { return write((uint8_t)n); }

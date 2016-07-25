@@ -17,4 +17,3 @@ ASRC +=
 
 CPPFLAGS += -std=gnu++11
 
-LOG_MODULE_CATEGORY = system

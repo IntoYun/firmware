@@ -53,7 +53,6 @@ void USB_USART_Initial(uint32_t baudRate)
     USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
     /* Start Device Process */
     USBD_Start(&USBD_Device);
-
 }
 
 unsigned USB_USART_Baud_Rate(void)

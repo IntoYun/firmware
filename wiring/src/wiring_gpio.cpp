@@ -115,12 +115,12 @@ void digitalWrite(pin_t pin, uint8_t value)
     PinMode mode = HAL_Get_Pin_Mode(pin);
     if (mode==PIN_MODE_NONE || is_input_mode(mode))
         return;
-  // Safety check
-  if( !pinAvailable(pin) ) {
-    return;
-  }
+    // Safety check
+    if( !pinAvailable(pin) ) {
+        return;
+    }
 
-  HAL_GPIO_Write(pin, value);
+    HAL_GPIO_Write(pin, value);
 }
 
 inline bool is_af_output_mode(PinMode mode) {

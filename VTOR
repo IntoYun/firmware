@@ -1,0 +1,117 @@
+bootloader/neutron/src/system_stm32f4xx.c:169:5:    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+bootloader/neutron/src/system_stm32f4xx.c:196:5:    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+bootloader/neutron/src/system_stm32f4xx.c:198:5:    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+hal/src/neutron/concurrent_hal.cpp:38:10:	return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1269:56:  The parameter PriorityGroup is assigned to the field SCB->AIRCR [10:8] PRIGROUP field.
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1281:17:  reg_value  =  SCB->AIRCR;                                                   /* read old register configuration    */
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1286:3:  SCB->AIRCR =  reg_value;
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1294:53:    \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1298:12:  return ((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos);   /* read priority grouping field */
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1393:5:    SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] = ((priority << (8 - __NVIC_PRIO_BITS)) & 0xff); } /* set Priority for Cortex-M  System Interrupts */
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1414:23:    return((uint32_t)(SCB->SHP[((uint32_t)(IRQn) & 0xF)-4] >> (8 - __NVIC_PRIO_BITS)));  } /* get priority for Cortex-M  system interrupts */
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1482:3:  SCB->AIRCR  = ((0x5FA << SCB_AIRCR_VECTKEY_Pos)      |
+platform/MCU/STM32F1xx/CMSIS/Include/core_cm3.h:1483:19:                 (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+platform/MCU/STM32F1xx/IntoRobot_Firmware_Driver/src/system_stm32f10x.c:202:3:  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+platform/MCU/STM32F1xx/IntoRobot_Firmware_Driver/src/system_stm32f10x.c:204:3:  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/misc.c:105:3:  SCB->AIRCR = AIRCR_VECTKEY_MASK | NVIC_PriorityGroup;
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/misc.c:127:30:    tmppriority = (0x700 - ((SCB->AIRCR) & (uint32_t)0x700))>> 0x08;
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/misc.c:165:3:  SCB->VTOR = NVIC_VectTab | (Offset & (uint32_t)0x1FFFFF80);
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/misc.c:186:5:    SCB->SCR |= LowPowerMode;
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/misc.c:190:5:    SCB->SCR &= (uint32_t)(~(uint32_t)LowPowerMode);
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/stm32f10x_pwr.c:215:3:  SCB->SCR |= SCB_SCR_SLEEPDEEP;
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/stm32f10x_pwr.c:230:3:  SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP);  
+platform/MCU/STM32F1xx/STM32_StdPeriph_Driver/src/stm32f10x_pwr.c:245:3:  SCB->SCR |= SCB_SCR_SLEEPDEEP;
+platform/MCU/STM32F4xx/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c:171:5:    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+platform/MCU/STM32F4xx/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c:198:3:  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+platform/MCU/STM32F4xx/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c:200:3:  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0.h:692:5:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0.h:692:44:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0.h:717:25:    return((uint32_t)(((SCB->SHP[_SHP_IDX(IRQn)] >> _BIT_SHIFT(IRQn) ) & (uint32_t)0xFFUL) >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0.h:734:3:  SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0plus.h:808:5:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0plus.h:808:44:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0plus.h:833:25:    return((uint32_t)(((SCB->SHP[_SHP_IDX(IRQn)] >> _BIT_SHIFT(IRQn) ) & (uint32_t)0xFFUL) >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm0plus.h:850:3:  SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1416:65:           The parameter PriorityGroup is assigned to the field SCB->AIRCR [10:8] PRIGROUP field.
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1427:17:  reg_value  =  SCB->AIRCR;                                                   /* read old register configuration    */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1432:3:  SCB->AIRCR =  reg_value;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1439:51:  \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1443:23:  return ((uint32_t)((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1528:5:    SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1551:23:    return(((uint32_t)SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1620:3:  SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm3.h:1621:29:                           (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1590:65:           The parameter PriorityGroup is assigned to the field SCB->AIRCR [10:8] PRIGROUP field.
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1601:17:  reg_value  =  SCB->AIRCR;                                                   /* read old register configuration    */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1606:3:  SCB->AIRCR =  reg_value;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1613:51:  \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1617:23:  return ((uint32_t)((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1702:5:    SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1725:23:    return(((uint32_t)SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1794:3:  SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm4.h:1795:29:                           (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1798:65:           The parameter PriorityGroup is assigned to the field SCB->AIRCR [10:8] PRIGROUP field.
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1809:17:  reg_value  =  SCB->AIRCR;                                                   /* read old register configuration    */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1814:3:  SCB->AIRCR =  reg_value;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1821:51:  \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1825:23:  return ((uint32_t)((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1910:5:    SCB->SHPR[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:1933:23:    return(((uint32_t)SCB->SHPR[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2002:3:  SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2003:29:                           (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2036:11:  mvfr0 = SCB->MVFR0;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2078:5:    SCB->ICIALLU = 0UL;                     /* invalidate I-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2079:5:    SCB->CCR |=  (uint32_t)SCB_CCR_IC_Msk;  /* enable I-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2095:5:    SCB->CCR &= ~(uint32_t)SCB_CCR_IC_Msk;  /* disable I-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2096:5:    SCB->ICIALLU = 0UL;                     /* invalidate I-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2112:5:    SCB->ICIALLU = 0UL;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2130:5:    SCB->CSSELR = (0U << 1U) | 0U;          /* Level 1 data cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2133:14:    ccsidr = SCB->CCSIDR;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2140:9:        SCB->DCISW = (((sets << SCB_DCISW_SET_Pos) & SCB_DCISW_SET_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2149:5:    SCB->CCR |=  (uint32_t)SCB_CCR_DC_Msk;  /* enable D-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2168:5:    SCB->CSSELR = (0U << 1U) | 0U;          /* Level 1 data cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2171:14:    ccsidr = SCB->CCSIDR;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2173:5:    SCB->CCR &= ~(uint32_t)SCB_CCR_DC_Msk;  /* disable D-Cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2180:9:        SCB->DCCISW = (((sets << SCB_DCCISW_SET_Pos) & SCB_DCCISW_SET_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2205:5:    SCB->CSSELR = (0U << 1U) | 0U;          /* Level 1 data cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2208:14:    ccsidr = SCB->CCSIDR;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2215:9:        SCB->DCISW = (((sets << SCB_DCISW_SET_Pos) & SCB_DCISW_SET_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2240:5:    SCB->CSSELR = (0U << 1U) | 0U;          /* Level 1 data cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2243:14:    ccsidr = SCB->CCSIDR;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2250:9:        SCB->DCCSW = (((sets << SCB_DCCSW_SET_Pos) & SCB_DCCSW_SET_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2275:5:    SCB->CSSELR = (0U << 1U) | 0U;          /* Level 1 data cache */
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2278:14:    ccsidr = SCB->CCSIDR;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2285:9:        SCB->DCCISW = (((sets << SCB_DCCISW_SET_Pos) & SCB_DCCISW_SET_Msk) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2315:7:      SCB->DCIMVAC = op_addr;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2342:7:      SCB->DCCMVAC = op_addr;
+platform/MCU/STM32F4xx/CMSIS/Include/core_cm7.h:2369:7:      SCB->DCCIMVAC = op_addr;
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc000.h:820:5:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc000.h:820:44:    SCB->SHP[_SHP_IDX(IRQn)] = ((uint32_t)(SCB->SHP[_SHP_IDX(IRQn)] & ~(0xFFUL << _BIT_SHIFT(IRQn))) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc000.h:845:25:    return((uint32_t)(((SCB->SHP[_SHP_IDX(IRQn)] >> _BIT_SHIFT(IRQn) ) & (uint32_t)0xFFUL) >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc000.h:862:3:  SCB->AIRCR  = ((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1398:65:           The parameter PriorityGroup is assigned to the field SCB->AIRCR [10:8] PRIGROUP field.
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1409:17:  reg_value  =  SCB->AIRCR;                                                   /* read old register configuration    */
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1414:3:  SCB->AIRCR =  reg_value;
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1421:51:  \return                Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field).
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1425:23:  return ((uint32_t)((SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) >> SCB_AIRCR_PRIGROUP_Pos));
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1510:5:    SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1533:23:    return(((uint32_t)SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] >> (8U - __NVIC_PRIO_BITS)));
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1602:3:  SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
+platform/MCU/STM32F4xx/CMSIS/Include/core_sc300.h:1603:29:                           (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+platform/MCU/STM32F4xx/IntoRobot_Firmware_Driver/src/hw_config.c:167:3:  SCB->VTOR = NVIC_VectTab | (Offset & (uint32_t)0x1FFFFF80);
+platform/MCU/STM32F4xx/IntoRobot_Firmware_Driver/src/system_stm32f4xx.c:170:5:    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+platform/MCU/STM32F4xx/IntoRobot_Firmware_Driver/src/system_stm32f4xx.c:197:5:    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+platform/MCU/STM32F4xx/IntoRobot_Firmware_Driver/src/system_stm32f4xx.c:199:5:    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h:421:3:  SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h:444:3:  SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c:320:38:  * @retval Priority grouping field (SCB->AIRCR [10:8] PRIGROUP field)
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:390:13:  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:436:11:  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:452:13:  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));  
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:471:11:  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:524:11:  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:536:13:  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:548:11:  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c:560:13:  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c:611:3:  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+platform/MCU/STM32F4xx/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c:625:3:  SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk);

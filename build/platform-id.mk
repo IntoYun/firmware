@@ -126,7 +126,7 @@ ifeq ("$(PLATFORM_NAME)","atom")
 else
 ifeq ("$(PLATFORM_NAME)","neutron")
     PLATFORM_DFU ?= 0x08020000
-    #PLATFORM_THREADING=1
+#    PLATFORM_THREADING=1
 endif
 endif
 

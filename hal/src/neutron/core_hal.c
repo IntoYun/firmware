@@ -87,22 +87,10 @@ void application_task_start(void* arg)
  */
 int main(void)
 {
-/*
-    HAL_Pin_Mode(D7, OUTPUT);
-    HAL_GPIO_Write(D7, 1);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-    while(1)
-    {
-    for(uint32_t n=0; n<2000000; n++);
-   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
-    HAL_GPIO_Write(D7, 1);
-for(uint32_t n=0; n<2000000000; n++);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
-HAL_GPIO_Write(D7, 0);
-   }
-   */
     HAL_Core_Setup();
     app_setup_and_loop();
+    while(1);
+    return 0;
 #if 0
     init_malloc_mutex();
     xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
@@ -111,8 +99,8 @@ HAL_GPIO_Write(D7, 0);
 
     /* we should never get here */
     while (1);
-#endif
     return 0;
+#endif
 }
 
 void HAL_1Ms_Tick()
@@ -130,9 +118,8 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-    Set_System();
-    /*
     DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
+    Set_System();
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
@@ -140,14 +127,12 @@ void HAL_Core_Config(void)
     USE_SYSTEM_FLAGS = 1;
 #endif
 
-    Set_System();
-
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     for (pin_t pin=0; pin<=7; pin++)
-        HAL_Pin_Mode(pin, INPUT);
+//        HAL_Pin_Mode(pin, INPUT);
     for (pin_t pin=30; pin<=37; pin++)
-        HAL_Pin_Mode(pin, INPUT);
+//        HAL_Pin_Mode(pin, INPUT);
 #endif
 
     HAL_RTC_Initial();
@@ -161,7 +146,6 @@ void HAL_Core_Config(void)
 #endif
 
     HAL_LED_RGB_Color(255, 255, 255);
-    */
 }
 
 void HAL_Core_Setup(void)
@@ -242,4 +226,18 @@ bool HAL_Feature_Get(HAL_Feature feature)
 int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length)
 {
     return -1;
+}
+
+/**
+ * @brief  This function handles SysTick Handler.
+ * @param  None
+ * @retval None
+ */
+void SysTick_Handler(void)
+{
+    System1MsTick();
+    /* Handle short and generic tasks for the device HAL on 1ms ticks */
+    HAL_1Ms_Tick();
+    HAL_SysTick_Handler();
+    //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }

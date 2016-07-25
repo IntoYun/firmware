@@ -43,6 +43,9 @@ extern "C" {
 #endif
 
 /* Exported types ------------------------------------------------------------*/
+#define NVIC_VectTab_RAM             SRAM_BASE
+#define NVIC_VectTab_FLASH           FLASH_BASE
+
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -50,6 +53,7 @@ extern "C" {
 
 /* Exported functions ------------------------------------------------------- */
 void Set_System(void);
+void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset);
 
 /* External variables --------------------------------------------------------*/
 extern uint8_t USE_SYSTEM_FLAGS;

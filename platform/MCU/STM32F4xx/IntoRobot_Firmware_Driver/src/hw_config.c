@@ -148,3 +148,23 @@ void Set_System(void)
     DWT_Init();
 }
 
+/**
+  * @brief  Sets the vector table location and Offset.
+  * @param  NVIC_VectTab: specifies if the vector table is in RAM or FLASH memory.
+  *   This parameter can be one of the following values:
+  *     @arg NVIC_VectTab_RAM
+  *     @arg NVIC_VectTab_FLASH
+  * @param  Offset: Vector Table base offset field. This value must be a multiple 
+  *         of 0x200.
+  * @retval None
+  */
+void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset)
+{
+  /* Check the parameters */
+  assert_param(IS_NVIC_VECTTAB(NVIC_VectTab));
+  assert_param(IS_NVIC_OFFSET(Offset));
+
+  SCB->VTOR = NVIC_VectTab | (Offset & (uint32_t)0x1FFFFF80);
+}
+
+

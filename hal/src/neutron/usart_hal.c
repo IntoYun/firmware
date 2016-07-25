@@ -20,7 +20,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "usart_hal.h"
-
+#include "pinmap_impl.h"
+#include <string.h>
 
 extern void USART1_IRQHandler(void);
 extern void USART2_IRQHandler(void);
@@ -32,14 +33,12 @@ typedef enum USART_Num_Def {
 } USART_Num_Def;
 
 /* Private macro -------------------------------------------------------------*/
-#define USE_USART1_HARDWARE_FLOW_CONTROL_RTS_CTS 0  //Enabling this => 1 is not working at present
 // IS_USART_CONFIG_VALID(config) - returns true for 8 data bit, any flow control, any parity, any stop byte configurations
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
 
 /* Private variables ---------------------------------------------------------*/
 typedef struct STM32_USART_Info {
     USART_TypeDef* usart_peripheral;
-    GPIO_TypeDef* gpio_peripheral;
     uint32_t* usart_Alternate;
     int32_t usart_int_n;
     uint16_t usart_tx_pin;
@@ -70,9 +69,9 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART1, GPIOA, GPIO_AF7_USART1, USART1_IRQHandler, TX, RX } // USART 1
+    { USART2, GPIO_AF7_USART2, USART2_IRQHandler, TX, RX } // USART 1
 #if PLATFORM_ID == 1 // neutron
-    ,{ USART2, GPIOA, GPIO_AF7_USART2, USART2_IRQHandler, TXD_UC, RXD_UC } // USART 2
+    ,{ USART1, GPIO_AF7_USART1, USART1_IRQHandler, TXD_UC, RXD_UC } // USART 2
 #endif
 };
 
@@ -143,25 +142,26 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     __HAL_RCC_GPIOA_CLK_ENABLE();
     if(HAL_USART_SERIAL1 == serial)
     {
-        __HAL_RCC_USART1_CLK_ENABLE();
+        __HAL_RCC_USART2_CLK_ENABLE();
     }
     else
     {
-        __HAL_RCC_USART2_CLK_ENABLE();
+        __HAL_RCC_USART1_CLK_ENABLE();
     }
 
+	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     GPIO_InitTypeDef  GPIO_InitStruct;
     /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = usartMap[serial]->usart_tx_pin;
+    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
     GPIO_InitStruct.Alternate = usartMap[serial]->usart_Alternate;
-    HAL_GPIO_Init(usartMap[serial]->gpio_peripheral, &GPIO_InitStruct);
+    HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, &GPIO_InitStruct);
     /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin = usartMap[serial]->usart_rx_pin;
+    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
     GPIO_InitStruct.Alternate = usartMap[serial]->usart_Alternate;
-    HAL_GPIO_Init(usartMap[serial]->gpio_peripheral, &GPIO_InitStruct);
+    HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_peripheral, &GPIO_InitStruct);
 
     UartHandle.Instance          = usartMap[serial]->usart_peripheral;
     UartHandle.Init.BaudRate     = baud;
@@ -222,19 +222,20 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
     if(HAL_USART_SERIAL1 == serial)
     {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-    }
-    else
-    {
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
     }
+    else
+    {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
+    }
 
+	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     /* Configure UART Tx as alternate function */
-    HAL_GPIO_DeInit(usartMap[serial]->gpio_peripheral, usartMap[serial]->usart_tx_pin);
+    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
     /* Configure UART Rx as alternate function */
-    HAL_GPIO_DeInit(usartMap[serial]->gpio_peripheral, usartMap[serial]->usart_rx_pin);
+    HAL_GPIO_DeInit(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin);
 
     //Disable the NVIC for UART ##########################################*/
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
@@ -254,7 +255,9 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
 uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
-    return HAL_USART_Write_NineBitData(serial, data);
+    HAL_UART_Transmit(&UartHandle, &data, 1, 5);//5ms
+    return 1;
+    //return HAL_USART_Write_NineBitData(serial, data);
 }
 
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
@@ -296,8 +299,6 @@ uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 
     return 1;
 }
-
-
 
 int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
@@ -396,7 +397,7 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
  * Output         : None.
  * Return         : None.
  *******************************************************************************/
-void USART1_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
 }
@@ -410,9 +411,8 @@ void USART1_IRQHandler(void)
  * Output         : None.
  * Return         : None.
  *******************************************************************************/
-void USART2_IRQHandler(void)
+void USART1_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL2);
 }
 #endif
-

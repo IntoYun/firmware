@@ -91,8 +91,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define CTS A0
 #define RTS A1
 
-#define RX A2
-#define TX A3
+#define TX A2
+#define RX A3
 
 // SPI pins
 #define SS   A4
