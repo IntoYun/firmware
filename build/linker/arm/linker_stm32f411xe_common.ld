@@ -11,8 +11,7 @@ Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 */
 
 /* higher address of the user mode stack */
-/*_estack = ORIGIN(SRAM)+LENGTH(SRAM);*/  /* end of 128K SRAM */
-_estack = 0x2001FFFF;    /* end of RAM */
+_estack = ORIGIN(SRAM)+LENGTH(SRAM);  /* end of 128K SRAM */
 
 /* include the sections management sub-script for FLASH mode */
 
@@ -22,18 +21,14 @@ SECTIONS
 {
     INCLUDE module_start.ld
 
-    /* for Cortex devices, the beginning of the startup code is stored in the .isr_vector section, which goes to FLASH */
-    .interrupt_vector_table :
-    /*.vectors :*/
+    /* for Cortex devices, the beginning of the startup code is stored in the .vectors section, which goes to FLASH */
+    .vectors :
     {
         . = ALIGN(4);
-        link_interrupt_vectors_location = .;
         KEEP(*(.interrupt_vector_table))           /* Startup code */
-        link_interrupt_vectors_location_end = .;
         . = ALIGN(4);
     } >APP_FLASH
 
-    interrupt_vectors_length = link_interrupt_vectors_location_end - link_interrupt_vectors_location;
 /*
     INCLUDE module_info.ld
 */
@@ -47,16 +42,7 @@ SECTIONS
         *(.rodata .rodata.* .gnu.linkonce.r.*)
         *(.glue_7)
         *(.glue_7t)
-/*
-        link_constructors_location = .;
-        KEEP(*(.preinit_array))
-        KEEP(*(.init_array))
-        KEEP(*crtbegin.o(.ctors))
-        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP(*(SORT(.ctors.*)))
-        KEEP(*crtend.o(.ctors))
-        link_constructors_end = .;
-*/
+
         link_constructors_location = .;
         chk_system_pre_init_start = .;
         KEEP(*(.module_pre_init))
@@ -95,14 +81,6 @@ SECTIONS
         *(.ARM.extab*)
         __extab_end = .;
     } > APP_FLASH  AT> APP_FLASH
-
-    /* Ram VTOR table - must be 512 byte-aligned */
-    .ram_vectors :
-    {
-        link_ram_interrupt_vectors_location = .;
-        . = . + interrupt_vectors_length;
-        link_ram_interrupt_vectors_location_end = .;
-    }> SRAM
 
     /* This section contains code that is run from RAM after being loaded from flash - functions can be put in this section with the C attribute: __attribute__ ((section (".fast"))) */
     .fast :
@@ -144,7 +122,7 @@ SECTIONS
         _ebss = . ;
     }> SRAM AT> SRAM
 
-    link_heap_location = _ebss;
+    link_heap_location = end;
     link_heap_location_end = __Stack_Init;
 
     PROVIDE ( end = _ebss );
@@ -194,14 +172,7 @@ PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
 
 PROVIDE( __RAM_segment_used_end__ = link_stack_end );
 PROVIDE( __tx_free_memory_start = link_stack_end );
-PROVIDE( __tx_vectors = link_interrupt_vectors_location );
 
-PROVIDE( VTOR_Length = interrupt_vectors_length );
-
-/*
-ASSERT( link_ram_interrupt_vectors_location == ORIGIN( SRAM ), "RAM Interrupt table should be at start of RAM" );
-ASSERT( ( link_ram_interrupt_vectors_location_end - link_ram_interrupt_vectors_location ) == VTOR_Length, "Expected RAM VTOR table to be same length as VTOR Flash" );
-*/
 /*INCLUDE module_export.ld*/
 /*
 ASSERT ( link_module_info_start < link_module_info_end, "module info not linked" );

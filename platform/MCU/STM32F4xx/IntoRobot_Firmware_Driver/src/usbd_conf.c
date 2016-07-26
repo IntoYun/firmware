@@ -28,6 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "usbd_core.h"
+#include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -51,6 +52,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
     GPIO_InitTypeDef  GPIO_InitStruct;
     if(hpcd->Instance == USB_OTG_FS)
     {
+        DEBUG("HAL_PCD_MspInit");
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**USB_OTG_FS GPIO Configuration
           PA11     ------> USB_OTG_FS_DM

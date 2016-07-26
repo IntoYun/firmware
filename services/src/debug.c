@@ -40,6 +40,7 @@ void set_logger_output(debug_output_fn output, LoggerOutputLevel level)
 
 void log_print_(int level, int line, const char *func, const char *file, const char *msg, ...)
 {
+    /*
     if (level<log_level_at_run_time || !debug_output_)
         return;
 
@@ -57,12 +58,13 @@ void log_print_(int level, int line, const char *func, const char *file, const c
     va_start(args, msg);
     file = file ? strrchr(file,'/') + 1 : "";
     int trunc = snprintf(_buffer, arraySize(_buffer), "%010u:%s: %s %s(%d):", (unsigned)HAL_Timer_Get_Milli_Seconds(), levels[level/10], func, file, line);
-	debug_output_(_buffer);
+    //int trunc = 2;
+    debug_output_(_buffer);
 	if (trunc > arraySize(_buffer))
 	{
 		debug_output_("...");
 	}
-    trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
+    //trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
 	debug_output_(_buffer);
 	if (trunc > arraySize(_buffer))
 	{
@@ -70,6 +72,13 @@ void log_print_(int level, int line, const char *func, const char *file, const c
 	}
 	debug_output_("\r\n");
 	va_end(args);
+    */
+
+    if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
+        return;
+
+	debug_output_(msg);
+
 }
 
 void log_print_direct_(int level, void* reserved, const char *msg, ...)

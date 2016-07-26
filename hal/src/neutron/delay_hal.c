@@ -19,7 +19,7 @@
 
 #include "delay_hal.h"
 #include "hw_config.h"
-#include <limits.h>
+#include "watchdog_hal.h"
 
 
 /**
@@ -49,19 +49,19 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
  *******************************************************************************/
 void HAL_Delay_Microseconds(uint32_t uSec)
 {
-  volatile uint32_t DWT_START = DWT->CYCCNT;
-  // keep DWT_TOTAL from overflowing (max 59.652323s w/72MHz SystemCoreClock)
-  if (uSec > (UINT_MAX / SYSTEM_US_TICKS))
-  {
-    uSec = (UINT_MAX / SYSTEM_US_TICKS);
-  }
+    volatile uint32_t DWT_START = DWT->CYCCNT;
+    // keep DWT_TOTAL from overflowing (max 59.652323s w/72MHz SystemCoreClock)
+    if (uSec > (UINT_MAX / SYSTEM_US_TICKS))
+    {
+        uSec = (UINT_MAX / SYSTEM_US_TICKS);
+    }
 
-  volatile uint32_t DWT_TOTAL = (SYSTEM_US_TICKS * uSec);
+    volatile uint32_t DWT_TOTAL = (SYSTEM_US_TICKS * uSec);
 
-  while((DWT->CYCCNT - DWT_START) < DWT_TOTAL)
-  {
-    HAL_Notify_WDT();
-  }
+    while((DWT->CYCCNT - DWT_START) < DWT_TOTAL)
+    {
+        HAL_IWDG_Feed();
+    }
 
 }
 

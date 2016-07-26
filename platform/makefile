@@ -8,6 +8,6 @@ TARGET_TYPE = a
 BUILD_PATH_EXT = $(PLATFORM_BUILD_PATH_EXT)
 
 # 不依靠其他模块
-DEPENDENCIES =
+DEPENDENCIES = services newlib_nano
 
 include ../build/arm-tlm.mk

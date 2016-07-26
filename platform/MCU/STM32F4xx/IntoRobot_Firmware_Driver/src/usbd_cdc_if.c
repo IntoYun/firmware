@@ -31,6 +31,7 @@
 #include "usbd_cdc_desc.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
+#include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -40,7 +41,7 @@
 /* Private variables ---------------------------------------------------------*/
 USBD_CDC_LineCodingTypeDef LineCoding =
 {
-    115200, /* baud rate*/
+    0x00,   /* baud rate*/
     0x00,   /* stop bits-1*/
     0x00,   /* parity - none*/
     0x08    /* nb. of bits 8*/
@@ -83,6 +84,7 @@ void SetLineCodingBitRateHandler(linecoding_bitrate_handler handler)
  */
 static int8_t CDC_Itf_Init(void)
 {
+    DEBUG("CDC_Itf_Init");
     sdkClearQueue(&USB_Rx_Queue);
     /*##-5- Set Application Buffers ############################################*/
     USBD_CDC_SetRxBuffer(&USBD_Device, UserRxBuffer);
@@ -111,6 +113,7 @@ static int8_t CDC_Itf_DeInit(void)
  */
 static int8_t CDC_Itf_Control (uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
+    uint32_t bitrate;
     switch (cmd)
     {
         case CDC_SEND_ENCAPSULATED_COMMAND:
@@ -134,15 +137,21 @@ static int8_t CDC_Itf_Control (uint8_t cmd, uint8_t* pbuf, uint16_t length)
             break;
 
         case CDC_SET_LINE_CODING:
-            LineCoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
+            bitrate = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
                     (pbuf[2] << 16) | (pbuf[3] << 24));
-            LineCoding.format     = pbuf[4];
-            LineCoding.paritytype = pbuf[5];
-            LineCoding.datatype   = pbuf[6];
 
+            /*            LineCoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
+                          (pbuf[2] << 16) | (pbuf[3] << 24));
+                          LineCoding.format     = pbuf[4];
+                          LineCoding.paritytype = pbuf[5];
+                          LineCoding.datatype   = pbuf[6];*/
+
+            DEBUG("2222");
             //Callback handler when the host sets a specific linecoding
             if (NULL != APP_LineCodingBitRateHandler)
             {
+
+                DEBUG("3333");
                 APP_LineCodingBitRateHandler(LineCoding.bitrate);
             }
             break;
