@@ -429,8 +429,7 @@ void app_setup_and_loop(void)
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
 
-    Serial.begin(115200);
-    DEBUG("welcome from IntoRobot!\r\n");
+    DEBUG_D("welcome from IntoRobot!\r\n");
     //String s = intorobot_deviceID();
     //INFO("Device %s started", s.c_str());
 

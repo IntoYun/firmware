@@ -46,7 +46,6 @@ Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 void setup()
 {
-    Serial.begin(115200);
     // initialize digital pin 13 as an output.
     pinMode(LED_PIN, OUTPUT);
 }
@@ -54,13 +53,6 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
-    char _buffer[200];
-    //int trunc = snprintf(_buffer, arraySize(_buffer), "%010u:%s: %s %s(%d):", (unsigned)HAL_Timer_Get_Milli_Seconds(), "111", "222", "333", 333);
-    //int trunc = sprintf(_buffer, "%d:%s: %s %s(%d):", 22, "111", "222", "333", 333);
-    //int trunc = snprintf(_buffer, arraySize(_buffer), "1111111111111111111\r\n");
-    //DEBUG(_buffer);
-    Serial.print("intorobot-intorobot-intobot");
-    //Serial.print("i");
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);              // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW

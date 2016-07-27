@@ -37,6 +37,7 @@
 #include "usbd_dfu_desc.h"
 #include "usbd_dfu_if.h"
 #include "hw_ticks.h"
+#include "service_debug.h"
 
 #ifdef __cplusplus
 extern "C" {

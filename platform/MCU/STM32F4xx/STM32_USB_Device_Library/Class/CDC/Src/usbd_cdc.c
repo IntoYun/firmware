@@ -515,12 +515,10 @@ static uint8_t  USBD_CDC_Init (USBD_HandleTypeDef *pdev,
                  CDC_CMD_PACKET_SIZE);
   
     
-    DEBUG("usbd_malloc\r\n");
   pdev->pClassData = USBD_malloc(sizeof (USBD_CDC_HandleTypeDef));
   
   if(pdev->pClassData == NULL)
   {
-    DEBUG("usbd_malloc fail\r\n");
     ret = 1; 
   }
   else

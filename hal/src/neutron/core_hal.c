@@ -66,7 +66,6 @@ static void init_malloc_mutex(void)
 
 void __malloc_lock(void* ptr)
 {
-    DEBUG("__malloc_lock\r\n");
 #if 0
     if (malloc_mutex)
         while (!xSemaphoreTakeRecursive(malloc_mutex, 0xFFFFFFFF)) {}
@@ -75,7 +74,6 @@ void __malloc_lock(void* ptr)
 
 void __malloc_unlock(void* ptr)
 {
-    DEBUG("__malloc_unlock\r\n");
 #if 0
     if (malloc_mutex)
         xSemaphoreGiveRecursive(malloc_mutex);

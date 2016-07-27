@@ -36,7 +36,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "service_debug.h"
 
 #define INTERNAL_NEWLIB
 #define DEFINE_MALLOC
@@ -261,7 +260,6 @@ void * nano_malloc(RARG malloc_size_t s)
 
     malloc_size_t alloc_size;
 
-    DEBUG("nano_malloc\r\n");
     alloc_size = ALIGN_TO(s, CHUNK_ALIGN); /* size of aligned data load */
     alloc_size += MALLOC_PADDING; /* padding */
     alloc_size += CHUNK_OFFSET; /* size of chunk head */
@@ -269,7 +267,6 @@ void * nano_malloc(RARG malloc_size_t s)
 
     if (alloc_size >= MAX_ALLOC_SIZE || alloc_size < s)
     {
-        DEBUG("nano_malloc exit\r\n");
         RERRNO = ENOMEM;
         return NULL;
     }

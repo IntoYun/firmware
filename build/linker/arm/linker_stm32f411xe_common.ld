@@ -27,7 +27,7 @@ SECTIONS
         . = ALIGN(4);
         KEEP(*(.interrupt_vector_table))           /* Startup code */
         . = ALIGN(4);
-    } >APP_FLASH
+    } >APP_FLASH AT> APP_FLASH
 
 /*
     INCLUDE module_info.ld
@@ -36,25 +36,33 @@ SECTIONS
     .text :
     {
         . = ALIGN(4);
-
-        KEEP(*(.text.irq ))
-        *(.text .text.* .gnu.linkonce.t.*)
-        *(.rodata .rodata.* .gnu.linkonce.r.*)
+        *(.text)           /* .text sections (code) */
+        *(.text*)          /* .text* sections (code) */
+        *(.gnu.linkonce.t.*) 
         *(.glue_7)
         *(.glue_7t)
 
+        . = ALIGN(4);
+        *(.rodata)         /* .rodata sections (constants, strings, etc.) */
+        *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
+        *(.gnu.linkonce.r.*) 
+        . = ALIGN(4);
+
         link_constructors_location = .;
         chk_system_pre_init_start = .;
-        KEEP(*(.module_pre_init))
+        KEEP (*(.module_pre_init))
         chk_system_pre_init_end = .;
         KEEP(*(.preinit_array))
-        KEEP(*(.init_array))
-        KEEP(*crtbegin.o(.ctors))
-        KEEP(*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP(*(SORT(.ctors.*)))
-        KEEP(*crtend.o(.ctors))
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array*))
+        KEEP (*(SORT(.fini_array.*)))
+        KEEP (*(.fini_array*))
+        KEEP (*crtbegin.o(.ctors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*crtend.o(.ctors))
         chk_system_init_start = .;
-        KEEP(*(.module_init))
+        KEEP (*(.module_init))
         chk_system_init_end = .;
         link_constructors_end = .;
 
