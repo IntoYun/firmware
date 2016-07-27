@@ -41,7 +41,6 @@ void USBSerial::end()
     USB_USART_Initial(0);
 }
 
-
 // Read data from buffer
 int USBSerial::read()
 {

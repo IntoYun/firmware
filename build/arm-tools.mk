@@ -23,23 +23,18 @@ endif
 CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
 
 # C++ 编译参数
-#CPPFLAGS += -fno-exceptions -fno-rtti -std=gnu++11 -fcheck-new
 CPPFLAGS += $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++11 -fcheck-new
 
 ifeq ($(PLATFORM_ID),0)
 ASFLAGS += -mcpu=cortex-m3
-LDFLAGS += -nostartfiles
 else
 ASFLAGS += -mcpu=cortex-m4
-LDFLAGS += -nostartfiles
 endif
 
 ASFLAGS += -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
 
-#LDFLAGS += -mlittle-endian -Xlinker --gc-sections --specs=nano.specs --specs=nosys.specs -lc -lnosys
-#LDFLAGS += -mlittle-endian -Xlinker --gc-sections --specs=nano.specs -lc -lnosys
-LDFLAGS += -mlittle-endian -Xlinker --gc-sections
-LDFLAGS += -Wl,--start-group -lgcc -lc -Wl,--end-group
+LDFLAGS += -nostartfiles -mlittle-endian -Xlinker --gc-sections
+
 
 ifeq ($(COMPILE_LTO),y)
 CFLAGS += -flto
@@ -48,7 +43,6 @@ endif
 
 
 INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
-
 
 
 

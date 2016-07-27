@@ -69,10 +69,8 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQHandler, TX, RX } // USART 1
-#if PLATFORM_ID == 1 // neutron
-    ,{ USART1, GPIO_AF7_USART1, USART1_IRQHandler, TXD_UC, RXD_UC } // USART 2
-#endif
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },        // USART 2
+    { USART1, GPIO_AF7_USART1, USART1_IRQn, TXD_UC, RXD_UC } // USART 1
 };
 
 UART_HandleTypeDef UartHandle;
@@ -91,11 +89,6 @@ inline void store_char(unsigned char c, Ring_Buffer *buffer)
         buffer->buffer[buffer->head] = c;
         buffer->head = i;
     }
-}
-
-static void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data)
-{
-    huart->Instance->DR = (uint16_t)(Data & (uint16_t)0x01FF);
 }
 
 static uint16_t USART_ReceiveData(UART_HandleTypeDef *huart)
@@ -140,26 +133,20 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     HAL_UART_DeInit(&UartHandle);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    if(HAL_USART_SERIAL1 == serial)
-    {
+    if(HAL_USART_SERIAL1 == serial){
         __HAL_RCC_USART2_CLK_ENABLE();
     }
-    else
-    {
+    else{
         __HAL_RCC_USART1_CLK_ENABLE();
     }
 
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     GPIO_InitTypeDef  GPIO_InitStruct;
-    /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin;
+    /* UART TX RX GPIO pin configuration  */
+    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin|PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Alternate = usartMap[serial]->usart_Alternate;
-    HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_peripheral, &GPIO_InitStruct);
-    /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
     GPIO_InitStruct.Alternate = usartMap[serial]->usart_Alternate;
     HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_peripheral, &GPIO_InitStruct);
 
@@ -219,13 +206,11 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
     HAL_UART_DeInit(&UartHandle);
 
-    if(HAL_USART_SERIAL1 == serial)
-    {
+    if(HAL_USART_SERIAL1 == serial){
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
     }
-    else
-    {
+    else{
         __HAL_RCC_USART1_FORCE_RESET();
         __HAL_RCC_USART1_RELEASE_RESET();
     }
@@ -332,7 +317,7 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
     }
 }
 
-// Serial1 interrupt handler
+// Serial interrupt handler
 /*******************************************************************************
  * Function Name  : HAL_USART1_Handler
  * Description    : This function handles USART1 global interrupt request.
@@ -345,8 +330,7 @@ void USART2_IRQHandler(void)
     HAL_USART_Handler(HAL_USART_SERIAL1);
 }
 
-#if PLATFORM_ID == 1 // Only neutron
-// Serial2 interrupt handler
+// Serial1 interrupt handler
 /*******************************************************************************
  * Function Name  : HAL_USART2_Handler
  * Description    : This function handles USART2 global interrupt request.
@@ -358,4 +342,4 @@ void USART1_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL2);
 }
-#endif
+

@@ -53,6 +53,8 @@
 #define USBD_DFU_APP_DEFAULT_ADD               0x08020000 /* The first 3 sectors (48 KB) are reserved for DFU code */
 
 /* Exported macro ------------------------------------------------------------*/
+extern PCD_HandleTypeDef hpcd;
+
 /* Memory management macros */
 #define USBD_malloc               malloc
 #define USBD_free                 free

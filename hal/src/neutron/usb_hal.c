@@ -18,6 +18,7 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "service_debug.h"
 #include "hw_config.h"
 #include "usb_hal.h"
 #include <stdint.h>
@@ -26,7 +27,6 @@
 #ifdef USB_CDC_ENABLE
 
 /* Private define ------------------------------------------------------------*/
-extern PCD_HandleTypeDef hpcd;
 
 //TODO
 //static osMutexId usb_mutex;	//transfer all mutex
@@ -43,16 +43,27 @@ void USB_USART_Initial(uint32_t baudRate)
     //create usb mutex
     //osMutexDef(USB_MUT);
     //usb_mutex = osMutexCreate(osMutex(USB_MUT));
-
-    LineCoding.bitrate = baudRate;
-    /* Init Device Library */
-    USBD_Init(&USBD_Device, &VCP_Desc, 0);
-    /* Add Supported Class */
-    USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
-    /* Add CDC Interface Class */
-    USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
-    /* Start Device Process */
-    USBD_Start(&USBD_Device);
+    if (LineCoding.bitrate != baudRate)
+    {
+        if (!baudRate && LineCoding.bitrate > 0)
+        {
+            USBD_Stop(&USBD_Device);
+            USBD_DeInit(&USBD_Device);
+        }
+        else if (!LineCoding.bitrate)
+        {
+           /* Init Device Library */
+            USBD_Init(&USBD_Device, &VCP_Desc, 0);
+            /* Add Supported Class */
+            USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+            /* Add CDC Interface Class */
+            USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+            /* Start Device Process */
+            USBD_Start(&USBD_Device);
+        }
+        //LineCoding.bitrate will be overwritten by USB Host
+        LineCoding.bitrate = baudRate;
+    }
 }
 
 unsigned USB_USART_Baud_Rate(void)
@@ -119,7 +130,7 @@ int32_t USB_USART_Available_Data_For_Write(void)
 {
     if (USB_USART_Connected())
     {
-        return 256;
+        return 1;
     }
     return -1;
 }
@@ -136,7 +147,9 @@ void USB_USART_Send_Data(uint8_t Data)
     //osMutexWait(usb_mutex, osWaitForever);
 
     USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
-	while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);
+    //	while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
+    USBD_CDC_TransmitPacket(&USBD_Device);
+    HAL_Delay_Microseconds(100);
 
     //TODO
 	//osMutexRelease(usb_mutex);

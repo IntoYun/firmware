@@ -66,14 +66,18 @@ static void init_malloc_mutex(void)
 
 void __malloc_lock(void* ptr)
 {
+#if 0
     if (malloc_mutex)
         while (!xSemaphoreTakeRecursive(malloc_mutex, 0xFFFFFFFF)) {}
+#endif
 }
 
 void __malloc_unlock(void* ptr)
 {
+#if 0
     if (malloc_mutex)
         xSemaphoreGiveRecursive(malloc_mutex);
+#endif
 }
 
 void application_task_start(void* arg)
@@ -235,6 +239,7 @@ int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, uns
  */
 void SysTick_Handler(void)
 {
+    HAL_IncTick();
     System1MsTick();
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();

@@ -1,21 +1,21 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
 
 #include <stdio.h>
 #include <stdint.h>
@@ -45,31 +45,31 @@ void log_print_(int level, int line, const char *func, const char *file, const c
 
     char _buffer[MAX_DEBUG_MESSAGE_LENGTH];
     static char * levels[] = {
-            "",
-            "LOG  ",
-            "DEBUG",
-            "INFO ",
-            "WARN ",
-            "ERROR",
-            "PANIC",
+        "",
+        "LOG  ",
+        "DEBUG",
+        "INFO ",
+        "WARN ",
+        "ERROR",
+        "PANIC",
     };
     va_list args;
     va_start(args, msg);
     file = file ? strrchr(file,'/') + 1 : "";
     int trunc = snprintf(_buffer, arraySize(_buffer), "%010u:%s: %s %s(%d):", (unsigned)HAL_Timer_Get_Milli_Seconds(), levels[level/10], func, file, line);
-	debug_output_(_buffer);
-	if (trunc > arraySize(_buffer))
-	{
-		debug_output_("...");
-	}
+    debug_output_(_buffer);
+    if (trunc > arraySize(_buffer))
+    {
+        debug_output_("...");
+    }
     trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
-	debug_output_(_buffer);
-	if (trunc > arraySize(_buffer))
-	{
-		debug_output_("...");
-	}
-	debug_output_("\r\n");
-	va_end(args);
+    debug_output_(_buffer);
+    if (trunc > arraySize(_buffer))
+    {
+        debug_output_("...");
+    }
+    debug_output_("\r\n");
+    va_end(args);
 }
 
 void log_print_direct_(int level, void* reserved, const char *msg, ...)
@@ -81,12 +81,12 @@ void log_print_direct_(int level, void* reserved, const char *msg, ...)
     va_list args;
     va_start(args, msg);
     int trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
-	debug_output_(_buffer);
-	if (trunc > arraySize(_buffer))
-	{
-		debug_output_("...");
-	}
-	va_end(args);
+    debug_output_(_buffer);
+    if (trunc > arraySize(_buffer))
+    {
+        debug_output_("...");
+    }
+    va_end(args);
 }
 
 void log_direct_(const char* s) {
@@ -94,13 +94,11 @@ void log_direct_(const char* s) {
     if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
         return;
 
-	debug_output_(s);
+    debug_output_(s);
 }
 
 int log_level_active(LoggerOutputLevel level, void* reserved)
 {
-	return (level>=log_level_at_run_time && debug_output_);
+    return (level>=log_level_at_run_time && debug_output_);
 }
-
-
 
