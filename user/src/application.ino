@@ -85,17 +85,17 @@ void loop()
 }
 #endif
 
-#if 1
-#define LED_PIN D7
+#if 0
 #include "gy30.h"
+
+#define LED_PIN D7
 
 GY30 gy30;
 void setup()
 {
     DEBUG("I2C Test\r\n");
-    Wire.begin();
     pinMode(LED_PIN, OUTPUT);
-    //gy30.begin();
+    gy30.begin();
 }
 
 // the loop function runs over and over again forever
@@ -105,12 +105,12 @@ void loop()
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
-    //DEBUG("GY30 value: %d\r\n", gy30.Read());
-    DEBUG("Runing !");
+    DEBUG("GY30 value: %f", gy30.Read());
+    //DEBUG("Runing !");
 }
 #endif
 
-#if 0
+#if 1
 // adc_test
 #define testA A0
 #define LED_PIN D7
@@ -131,7 +131,6 @@ void loop()
     delay(1000);              // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);              // wait for a second
-
 }
 
 #endif
