@@ -220,15 +220,15 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
-    DEBUG("Enter HAL_I2C_Initial...\r\n");
+    //DEBUG("Enter HAL_I2C_Initial...\r\n");
     if(i2c == HAL_I2C_INTERFACE2) // for sensors
     {
-        DEBUG("HAL_I2C_Initial, choose sensors configuration!");
+        //DEBUG("HAL_I2C_Initial, choose sensors configuration!");
         i2cMap[i2c] = &I2C_MAP[I2C1_SENSOR_SDA_SCL];
     }
     else if(i2c == HAL_I2C_INTERFACE1) // for users
     {
-        DEBUG("HAL_I2C_Initial, choose users configuration!");
+        //DEBUG("HAL_I2C_Initial, choose users configuration!");
         i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1];
     }
 

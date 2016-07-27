@@ -21,6 +21,7 @@
 #include "interrupts_hal.h"
 #include "stm32f4xx.h"
 #include "pinmap_impl.h"
+#include "service_debug.h"
 //Interrupts
 static const uint8_t GPIO_IRQn[] = {
     EXTI0_IRQn,     //0
@@ -62,6 +63,8 @@ static exti_state exti_saved_state;
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode,
         HAL_InterruptExtraConfiguration* config)
 {
+    DEBUG("Enter HAL_Interrupt_Attach...\r\n");
+    DEBUG("Pin: %d", pin);
     uint8_t GPIO_PortSource = 0;    //variable to hold the port number
 
     //Map the Spark pin to the appropriate port and pin on the STM32
@@ -115,7 +118,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     }
 
     /* Enable and set EXTI line Interrupt to the lowest priority */
-    HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource],13, 0); // 14 or 13, which one
+    HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource], 13, 0); // 14 or 13, which one
     HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );
 }
 
@@ -147,7 +150,8 @@ void HAL_Interrupts_Enable_All(void)
     NVIC_EnableIRQ(EXTI4_IRQn);
     NVIC_EnableIRQ(EXTI9_5_IRQn);
     NVIC_EnableIRQ(EXTI15_10_IRQn);
-    osThreadResumeAll();
+    // TODO add osThreadResumeAll()
+    //osThreadResumeAll();
 }
 
 void HAL_Interrupts_Disable_All(void)
@@ -160,7 +164,8 @@ void HAL_Interrupts_Disable_All(void)
     NVIC_DisableIRQ(EXTI4_IRQn);
     NVIC_DisableIRQ(EXTI9_5_IRQn);
     NVIC_DisableIRQ(EXTI15_10_IRQn);
-    osThreadSuspendAll();
+    // TODO add osThreadSuspendAll
+    //osThreadSuspendAll();
 }
 
 void HAL_Interrupts_Suspend(void)
@@ -216,3 +221,250 @@ void HAL_enable_irq(int is)
 {
 }
 
+/*******************************************************************************
+ * Function Name  : EXTI0_IRQHandler
+ * Description    : This function handles EXTI0 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI0_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(0);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI1_IRQHandler
+ * Description    : This function handles EXTI1 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI1_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(1);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI2_IRQHandler
+ * Description    : This function handles EXTI2 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI2_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(2);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI3_IRQHandler
+ * Description    : This function handles EXTI3 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI3_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(3);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI4_IRQHandler
+ * Description    : This function handles EXTI4 interrupt request.
+ * Input          : None
+ * Output         : Nbone
+ * Return         : None
+ *******************************************************************************/
+void EXTI4_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(4);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI9_5_IRQHandler
+ * Description    : This function handles EXTI9_5 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI9_5_IRQHandler(void)
+{
+    //GPIO_PIN_8 and GPIO_PIN_9 support is not required for CORE_V02
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_5) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(5);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(6);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(7);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(8);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(9);
+        }
+    }
+}
+
+/*******************************************************************************
+ * Function Name  : EXTI15_10_IRQHandler
+ * Description    : This function handles EXTI15_10 interrupt request.
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *******************************************************************************/
+void EXTI15_10_IRQHandler(void)
+{
+    //GPIO_PIN_10 and GPIO_PIN_12 support is not required for CORE_V02
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_10) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_10);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(10);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_11) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_11);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(11);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_12) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_12);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(12);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_13) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_13);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(13);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_14) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_14);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(14);
+        }
+    }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_15) != RESET)
+    {
+        /* Clear the EXTI line pending bit */
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_15);
+
+        if(NULL != HAL_EXTI_Handler)
+        {
+            HAL_EXTI_Handler(15);
+        }
+    }
+}

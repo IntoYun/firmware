@@ -111,26 +111,64 @@ void loop()
 #endif
 
 #if 1
-// adc_test
-#define testA A0
 #define LED_PIN D7
+#define testPinPWM A0
+#define INTERRUPT_PIN D0
+
+uint8_t flag = 0;
+void Blink(void)
+{
+	if(flag == 0)
+	{
+		flag = 1;
+		digitalWrite(LED_PIN,HIGH);
+	}
+	else
+	{
+		flag = 0;
+		digitalWrite(LED_PIN,LOW);
+	}
+}
 
 void setup()
 {
-   pinMode(testA, INPUT);
-   pinMode(LED_PIN, OUTPUT);
-   DEBUG("AnalogRead Test\r\n");
+    DEBUG("Interrupt Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+
+	pinMode(INTERRUPT_PIN, INPUT_PULLUP);
+	pinMode(testPinPWM, OUTPUT);
+	attachInterrupt(INTERRUPT_PIN, Blink, FALLING);
+    DEBUG("After setup\r\n");
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
-    uint16_t value = analogRead(testA);
-    DEBUG("analogRead value: %d", value);
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);              // wait for a second
-    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);              // wait for a second
+    DEBUG("Enter loop\r\n");
+    attachInterrupt(INTERRUPT_PIN, Blink, FALLING);
+
+	for(uint8_t i = 0; i < 5; i++)
+	{
+		digitalWrite(testPinPWM, HIGH);
+		delay(500);
+		digitalWrite(testPinPWM, LOW);
+		delay(500);
+	}
+
+	detachInterrupt(INTERRUPT_PIN);
+	delay(1000);
+	attachInterrupt(INTERRUPT_PIN,Blink, FALLING);
+
+	for(uint8_t i = 0; i < 5; i++) // ledÉÁË¸
+	{
+		digitalWrite(testPinPWM, HIGH);
+		delay(500);
+		digitalWrite(testPinPWM, LOW);
+		delay(500);
+	}
+	noInterrupts();
+	delay(1000);
+	interrupts();
 }
 
 #endif
