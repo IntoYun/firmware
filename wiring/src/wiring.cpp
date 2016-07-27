@@ -29,24 +29,24 @@
  * @param  ADC_SampleTime: The sample time value to be set.
  *
  * On Core, this parameter can be one of the following values:
- * @arg ADC_SampleTime_1Cycles5: Sample time equal to 1.5 cycles
- * @arg ADC_SampleTime_7Cycles5: Sample time equal to 7.5 cycles
- * @arg ADC_SampleTime_13Cycles5: Sample time equal to 13.5 cycles
- * @arg ADC_SampleTime_28Cycles5: Sample time equal to 28.5 cycles
- * @arg ADC_SampleTime_41Cycles5: Sample time equal to 41.5 cycles
- * @arg ADC_SampleTime_55Cycles5: Sample time equal to 55.5 cycles
- * @arg ADC_SampleTime_71Cycles5: Sample time equal to 71.5 cycles
- * @arg ADC_SampleTime_239Cycles5: Sample time equal to 239.5 cycles
+ * @arg ADC_SAMPLETIME_1CYCLES5: Sample time equal to 1.5 cycles
+ * @arg ADC_SAMPLETIME_7CYCLES5: Sample time equal to 7.5 cycles
+ * @arg ADC_SAMPLETIME_13CYCLES5: Sample time equal to 13.5 cycles
+ * @arg ADC_SAMPLETIME_28CYCLES5: Sample time equal to 28.5 cycles
+ * @arg ADC_SAMPLETIME_41CYCLES5: Sample time equal to 41.5 cycles
+ * @arg ADC_SAMPLETIME_55CYCLES5: Sample time equal to 55.5 cycles
+ * @arg ADC_SAMPLETIME_71CYCLES5: Sample time equal to 71.5 cycles
+ * @arg ADC_SAMPLETIME_239CYCLES5: Sample time equal to 239.5 cycles
  *
  * On Photon, this parameter can be one of the following values:
- * @arg ADC_SampleTime_3Cycles: Sample time equal to 3 cycles
- * @arg ADC_SampleTime_15Cycles: Sample time equal to 15 cycles
- * @arg ADC_SampleTime_28Cycles: Sample time equal to 28 cycles
- * @arg ADC_SampleTime_56Cycles: Sample time equal to 56 cycles
- * @arg ADC_SampleTime_84Cycles: Sample time equal to 84 cycles
- * @arg ADC_SampleTime_112Cycles: Sample time equal to 112 cycles
- * @arg ADC_SampleTime_144Cycles: Sample time equal to 144 cycles
- * @arg ADC_SampleTime_480Cycles: Sample time equal to 480 cycles
+ * @arg ADC_SAMPLETIME_3CYCLES: Sample time equal to 3 cycles
+ * @arg ADC_SAMPLETIME_15CYCLES: Sample time equal to 15 cycles
+ * @arg ADC_SAMPLETIME_28CYCLES: Sample time equal to 28 cycles
+ * @arg ADC_SAMPLETIME_56CYCLES: Sample time equal to 56 cycles
+ * @arg ADC_SAMPLETIME_84CYCLES: Sample time equal to 84 cycles
+ * @arg ADC_SAMPLETIME_112CYCLES: Sample time equal to 112 cycles
+ * @arg ADC_SAMPLETIME_144CYCLES: Sample time equal to 144 cycles
+ * @arg ADC_SAMPLETIME_480CYCLES: Sample time equal to 480 cycles
  *
  * @retval None
  */

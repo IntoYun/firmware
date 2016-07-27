@@ -19,7 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "servo_hal.h"
-
+#include "pinmap_impl.h"
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -27,22 +27,208 @@
 /* Extern variables ----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
+// Default min/max pulse widths (in microseconds) and angles (in
+// degrees).  Values chosen for Arduino compatibility.  These values
+// are part of the public API; DO NOT CHANGE THEM.
+#define SERVO_DEFAULT_MIN_PW            544
+#define SERVO_DEFAULT_MAX_PW            2400
+#define SERVO_DEFAULT_MIN_ANGLE         0
+#define SERVO_DEFAULT_MAX_ANGLE         180
+
+
+#define SERVO_TIM_PWM_FREQ	50                                              //20ms = 50Hz
+#define SERVO_TIM_PRESCALER	(uint16_t)(SystemCoreClock / 1000000) - 1		//To get TIM counter clock = 1MHz
+#define SERVO_TIM_ARR		(uint16_t)(1000000 / SERVO_TIM_PWM_FREQ) - 1	//To get PWM period = 20ms
+
+#define ANGLE_TO_US(a)    ((uint16_t)(map((a), SERVO_DEFAULT_MIN_ANGLE, SERVO_DEFAULT_MAX_ANGLE, \
+                                          SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE)))
+#define US_TO_ANGLE(us)   ((int16_t)(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE, \
+                                         SERVO_DEFAULT_MIN_ANGLE, SERVO_DEFAULT_MAX_ANGLE )))
+
 
 void HAL_Servo_Attach(uint16_t pin)
 {
+    //Map the Spark pin to the appropriate port and pin on the STM32
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+   if(PIN_MAP[pin].timer_peripheral != NULL || PIN_MAP[pin].timer_peripheral != TIM1)
+    {
+        /* Common configruation for all channels */
+        GPIO_InitTypeDef GPIO_InitStruct;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+        GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+
+        HAL_Pin_Mode(pin, AF_OUTPUT_PUSHPULL);
+
+        if(PIN_MAP[pin].timer_peripheral == TIM2)
+        {
+            __HAL_RCC_TIM2_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
+            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
+            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
+            {
+                __HAL_RCC_GPIOA_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            }
+            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
+            {
+                __HAL_RCC_GPIOB_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            }
+        }
+        else if(PIN_MAP[pin].timer_peripheral == TIM3)
+        {
+            __HAL_RCC_TIM3_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
+            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
+            {
+                __HAL_RCC_GPIOA_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            }
+            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
+            {
+                __HAL_RCC_GPIOB_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            }
+        }
+        else if(PIN_MAP[pin].timer_peripheral == TIM4)
+        {
+            __HAL_RCC_TIM4_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
+            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
+            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
+            {
+                __HAL_RCC_GPIOA_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            }
+            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
+            {
+                __HAL_RCC_GPIOB_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            }
+        }
+        else if(PIN_MAP[pin].timer_peripheral == TIM5)
+        {
+
+            __HAL_RCC_TIM5_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
+            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
+            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
+            {
+                __HAL_RCC_GPIOA_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            }
+            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
+            {
+                __HAL_RCC_GPIOB_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            }
+        }
+
+
+        TIM_HandleTypeDef TimHandle;
+        TIM_OC_InitTypeDef sConfig;
+
+        TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
+
+        TimHandle.Init.Prescaler         = SERVO_TIM_PRESCALER;
+        TimHandle.Init.Period            = SERVO_TIM_ARR;
+        TimHandle.Init.ClockDivision     = 0;
+        TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+        TimHandle.Init.RepetitionCounter = 0;
+        if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK)
+        {
+            // Error
+        }
+
+        sConfig.OCMode       = TIM_OCMODE_PWM1;
+        sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+        sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+        sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+
+        /* Set the pulse value for channel 1 */
+        sConfig.Pulse = 0x00; // no pwm at start point
+        if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
+        {
+            /* Configuration Error */
+            //Error_Handler();
+        }
+
+        /* Start channel */
+        if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
+        {
+            /* PWM Generation Error */
+            //Error_Handler();
+        }
+    }
+    else
+    {
+        // debug error
+        //
+    }
+
 }
 
 void HAL_Servo_Detach(uint16_t pin)
 {
+   STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    // TIM disable counter
+    TIM_HandleTypeDef TimHandle;
+    TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
+
+    HAL_TIM_PWM_Stop(&TimHandle,TIM_CHANNEL_ALL);
 }
 
 void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pulseWidth = constrain(pulseWidth, SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE);
+
+    //SERVO_TIM_CCR = pulseWidth * (SERVO_TIM_ARR + 1) * SERVO_TIM_PWM_FREQ / 1000000;
+    uint16_t SERVO_TIM_CCR = pulseWidth;
+
+    TIM_OC_InitTypeDef sConfig;
+
+    sConfig.OCMode       = TIM_OCMODE_PWM1;
+    sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+    sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+    sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+
+    /* Set the pulse value for channel 1 */
+    sConfig.Pulse = SERVO_TIM_CCR;
+
+    TIM_HandleTypeDef TimHandle;
+
+    TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
+
+    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
+    {
+        /* Configuration Error */
+        //Error_Handler();
+    }
+
+    /* Start channel */
+    if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
+    {
+        /* PWM Generation Error */
+        //Error_Handler();
+    }
 }
 
 uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
 {
-    return 0;
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    uint16_t SERVO_TIM_CCR = 0x0000;
+
+    TIM_HandleTypeDef htim;
+    htim.Instance = PIN_MAP[pin].timer_peripheral;
+
+    SERVO_TIM_CCR = HAL_TIM_ReadCapturedValue(&htim, PIN_MAP[pin].timer_ch);
+
+    //pulseWidth = (SERVO_TIM_CCR * 1000000) / ((SERVO_TIM_ARR + 1) * SERVO_TIM_PWM_FREQ);
+    return SERVO_TIM_CCR;
 }
 
 uint16_t HAL_Servo_Read_Frequency(uint16_t pin)

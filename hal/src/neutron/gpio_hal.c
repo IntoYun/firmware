@@ -176,6 +176,7 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
     //If the pin is used by analogWrite, we need to change the mode
     if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL)
     {
@@ -250,15 +251,16 @@ int32_t HAL_GPIO_Read(uint16_t pin)
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
     STM32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
-    #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
-
+#define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
+#define TIMEOUTCOUNTER (SystemCoreClock * 3UL)// 3 seconds
     volatile uint32_t timeoutStart = SYSTEM_TICK_COUNTER; // total 3 seconds for entire function!
+
 
     /* If already on the value we want to measure, wait for the next one.
      * Time out after 3 seconds so we don't block the background tasks
      */
     while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (SYSTEM_TICK_COUNTER - timeoutStart > TIMEOUTCOUNTER) {
             return 0;
         }
     }
@@ -267,7 +269,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
      * Time out after 3 seconds so we don't block the background tasks
      */
     while (pinReadFast(pin) != value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (SYSTEM_TICK_COUNTER - timeoutStart > TIMEOUTCOUNTER) {
             return 0;
         }
     }
@@ -277,7 +279,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
      */
     volatile uint32_t pulseStart = SYSTEM_TICK_COUNTER;
     while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (SYSTEM_TICK_COUNTER - timeoutStart > TIMEOUTCOUNTER) {
             return 0;
         }
     }
