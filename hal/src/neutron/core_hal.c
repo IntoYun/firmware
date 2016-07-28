@@ -75,7 +75,7 @@ static void init_malloc_mutex(void)
 
 void __malloc_lock(void* ptr)
 {
-#if 0
+#if 1
     if (malloc_mutex)
         while (!xSemaphoreTakeRecursive(malloc_mutex, 0xFFFFFFFF)) {}
 #endif
@@ -83,7 +83,7 @@ void __malloc_lock(void* ptr)
 
 void __malloc_unlock(void* ptr)
 {
-#if 0
+#if 1
     if (malloc_mutex)
         xSemaphoreGiveRecursive(malloc_mutex);
 #endif
@@ -101,13 +101,13 @@ void application_task_start(void* arg)
  */
 int main(void)
 {
-#if 1
+#if 0
     HAL_Core_Setup();
     app_setup_and_loop();
     while(1);
     return 0;
 #endif
-#if 0
+#if 1
     init_malloc_mutex();
     xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
 
@@ -254,7 +254,7 @@ void SysTick_Handler(void)
     System1MsTick();
 
     if (1 == is_os_running){
-       // xPortSysTickHandler();
+        xPortSysTickHandler();
     }
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();

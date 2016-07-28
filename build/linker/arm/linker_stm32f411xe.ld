@@ -23,7 +23,7 @@
 These are used by the startup in order to allocate stacks for the different modes.
 */
 
-__Stack_Size = 8192 ;
+__Stack_Size = 2048 ;
 
 __Stack_Init = _estack - __Stack_Size ;
 

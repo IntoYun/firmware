@@ -36,7 +36,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
 SerialDebugOutput debugOutput(115200, ALL_LEVEL);
@@ -69,6 +69,34 @@ void loop()
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
+}
+#endif
+
+#if 1
+
+#define LED_PIN D7
+
+void setup()
+{
+    pinMode(D7, OUTPUT);
+    digitalWrite(D7, HIGH);   // turn the LED on (HIGH is the voltage level)
+    Serial.begin(115200);
+    Serial1.begin(115200);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+  int c = Serial.read();              // read from USB-CDC
+  if (c != -1) {                      // got anything?
+        Serial1.write(c);             //    otherwise write char to UART
+  }
+
+  // copy from UART to USB-CDC
+  c = Serial1.read();                 // read from UART
+  if (c != -1) {                      // got anything?
+    Serial.write(c);                  //    write to USB-CDC
+  }
 }
 #endif
 

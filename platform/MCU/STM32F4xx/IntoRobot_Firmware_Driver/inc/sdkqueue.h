@@ -15,7 +15,7 @@ extern "C"{
 #define SDK_TIME_OUT                 (-2)
 #define SDK_PARA_ERR                 (-3)
 
-#define SDK_MAX_QUEUE_SIZE              (1024)
+#define SDK_MAX_QUEUE_SIZE              (256)
 
 typedef struct
 {

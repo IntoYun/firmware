@@ -17,8 +17,8 @@ ifneq (,$(HAL_LINK))
 LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm
 LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
-#LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
-LDFLAGS += --specs=nano.specs
+LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
+#LDFLAGS += --specs=nano.specs
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 
 # support for external linker file
@@ -30,7 +30,7 @@ LDFLAGS += -u _printf_float
 endif
 
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
-#LDFLAGS += -u uxTopUsedPriority
+LDFLAGS += -u uxTopUsedPriority
 #
 # assembler startup script
 ASRC += $(COMMON_BUILD)/startup/arm/startup_$(STM32_DEVICE_LC).S

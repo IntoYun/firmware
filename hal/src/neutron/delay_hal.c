@@ -39,7 +39,8 @@ volatile uint32_t TimingDelay;
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
-//    vTaskDelay(nTime);
+    vTaskDelay(nTime);
+#if 0
     system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
 
     while (1)
@@ -53,7 +54,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
             break;
         }
     }
-
+#endif
 }
 
 /*******************************************************************************

@@ -52,8 +52,7 @@ SECTIONS
         chk_system_pre_init_start = .;
         KEEP (*(.module_pre_init))
         chk_system_pre_init_end = .;
-        KEEP(*(.preinit_array))
-        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.preinit_array))
         KEEP (*(.init_array*))
         KEEP (*crtbegin.o(.ctors))
         KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
