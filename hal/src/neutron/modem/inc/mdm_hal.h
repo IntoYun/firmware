@@ -34,6 +34,14 @@
 /* Include for debug capabilty */
 #define MDM_DEBUG
 
+#define MDM_ESP8266_RESET_DELAY  4000
+
+
+#undef putc
+#undef getc
+
+
+
 /** basic modem parser class
 */
 class MDMParser
@@ -406,8 +414,8 @@ public:
     /* clear the pending input data */
     virtual void purge(void)
     {
-       // while (readable())
-       //     getc();
+        while (readable())
+            getc();
     }
 protected:
     /** Write bytes to the physical interface.

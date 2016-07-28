@@ -20,10 +20,12 @@ CFLAGS += -mcpu=cortex-m4 -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 
 # 如果程序没有按预期工作   尝试去掉-fdata-sections
-CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
+#CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
+CFLAGS += -g3 -gdwarf-2 -O0 -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
+#CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wall -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
 
 # C++ 编译参数
-CPPFLAGS += $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++11 -fcheck-new
+CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new
 
 ifeq ($(PLATFORM_ID),0)
 ASFLAGS += -mcpu=cortex-m3

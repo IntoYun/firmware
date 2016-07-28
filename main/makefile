@@ -23,7 +23,8 @@ USE_PRINTF_FLOAT ?= y
 ifeq ($(PLATFORM_ID),3)# neutron-net
 MAKE_DEPENDENCIES = platform board
 else
-MAKE_DEPENDENCIES = newlib_nano user wiring hal system services platform
+#MAKE_DEPENDENCIES = newlib_nano user wiring hal system services platform
+MAKE_DEPENDENCIES = user wiring hal system services platform
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)

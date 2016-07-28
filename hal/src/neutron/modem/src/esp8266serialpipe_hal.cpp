@@ -18,14 +18,16 @@
 */
 
 #include "esp8266serialpipe_hal.h"
-#include "stm32f4xx.h"
+#include "hw_config.h"
 #include "usart_hal.h"
 #include "pinmap_impl.h"
 #include "gpio_hal.h"
 #include "mdm_hal.h"
 
+#ifdef putc
 #undef putc
 #undef getc
+#endif
 
 static UART_HandleTypeDef UartHandle;
 
@@ -42,6 +44,7 @@ Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
 
 Esp8266SerialPipe::~Esp8266SerialPipe(void)
 {
+#if 0
     // wait for transmission of outgoing data
     while (_pipeTx.readable())
     {
@@ -49,30 +52,73 @@ Esp8266SerialPipe::~Esp8266SerialPipe(void)
         HAL_UART_Transmit(&UartHandle,(uint8_t *)&c,1,5);//5ms
     }
 
-    __HAL_RCC_USART2_FORCE_RESET();
-    __HAL_RCC_USART2_RELEASE_RESET();
+    __HAL_RCC_USART1_FORCE_RESET();
+    __HAL_RCC_USART1_RELEASE_RESET();
 
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9);
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_10);
 
     HAL_NVIC_DisableIRQ(USART1_IRQn);
+#endif
+#if 1
+    // wait for transmission of outgoing data
+    while (_pipeTx.readable())
+    {
+        char c = _pipeTx.getc();
+        USART_SendData(&UartHandle, c);
+    }
+
+    __HAL_RCC_USART2_FORCE_RESET();
+    __HAL_RCC_USART2_RELEASE_RESET();
+
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
+
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+#endif
 }
 
 void Esp8266SerialPipe::begin(unsigned int baud)
 {
+#if 1
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_USART2_CLK_ENABLE();
+
+    GPIO_InitTypeDef  GPIO_InitStruct;
+    /* UART TX GPIO pin configuration  */
+    GPIO_InitStruct.Pin       = GPIO_PIN_2|GPIO_PIN_3;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    UartHandle.Instance          = USART2;
+    //UartHandle.Init.BaudRate     = baud;
+    UartHandle.Init.BaudRate     = 115200;
+    UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandle.Init.StopBits     = UART_STOPBITS_1;
+    UartHandle.Init.Parity       = UART_PARITY_NONE;
+    UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_Init(&UartHandle);
+
+    //Configure the NVIC for UART
+    HAL_NVIC_SetPriority(USART2_IRQn, 0x05, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+    //__HAL_UART_ENABLE_IT(&UartHandle, UART_IT_RXNE);
+#endif
+#if 0
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_USART1_CLK_ENABLE();
 
     GPIO_InitTypeDef  GPIO_InitStruct;
     /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = GPIO_PIN_9;
+    GPIO_InitStruct.Pin       = GPIO_PIN_9|GPIO_PIN_10;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -90,6 +136,7 @@ void Esp8266SerialPipe::begin(unsigned int baud)
     HAL_NVIC_SetPriority(USART1_IRQn, 0x05, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
     __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_RXNE);
+#endif
 }
 
 // tx channel
@@ -107,12 +154,14 @@ int Esp8266SerialPipe::putc(int c)
 
 int Esp8266SerialPipe::put(const void* buffer, int length, bool blocking)
 {
+    USART_SendData(&UartHandle, 1);
     int count = length;
     const char* ptr = (const char*)buffer;
     if (count)
     {
         do
         {
+DEBUG_D("11");
             int written = _pipeTx.put(ptr, count, false);
             if (written) {
                 ptr += written;
@@ -183,7 +232,7 @@ void Esp8266SerialPipe::rxIrqBuf(void)
 
 static void USART_SendData(UART_HandleTypeDef *huart, uint16_t Data)
 {
-    huart->Instance->DR = (uint16_t)(Data & (uint16_t)0x01FF);
+    huart->Instance->DR = (Data & (uint16_t)0x01FF);
 }
 
 static uint16_t USART_ReceiveData(UART_HandleTypeDef *huart)
@@ -192,13 +241,6 @@ static uint16_t USART_ReceiveData(UART_HandleTypeDef *huart)
 }
 
 
-/*******************************************************************************
- * Function Name  : HAL_USART3_Handler
- * Description    : This function handles USART3 global interrupt request.
- * Input          : None.
- * Output         : None.
- * Return         : None.
- *******************************************************************************/
 extern "C" void HAL_USART1_Handler(UART_HandleTypeDef *huart)
 {
     if((__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET)
@@ -214,3 +256,9 @@ extern "C" void HAL_USART1_Handler(UART_HandleTypeDef *huart)
     }
 }
 
+// Serial1 interrupt handler
+void USART2_IRQHandler(void)
+{
+    DEBUG_D("22\r\n");
+    HAL_USART1_Handler(&UartHandle);
+}

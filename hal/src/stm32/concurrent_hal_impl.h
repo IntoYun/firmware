@@ -25,10 +25,8 @@ typedef void* os_mutex_recursive_t;
 typedef void* condition_variable_t;
 typedef void* os_timer_t;
 
-typedef int __gthread_mutex_t;
-typedef int __gthread_recursive_mutex_t;
-//typedef os_mutex_t __gthread_mutex_t;
-//typedef os_mutex_recursive_t __gthread_recursive_mutex_t;
+typedef os_mutex_t __gthread_mutex_t;
+typedef os_mutex_recursive_t __gthread_recursive_mutex_t;
 
 
 /**

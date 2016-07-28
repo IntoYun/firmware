@@ -23,6 +23,9 @@
 #include <string.h>
 #include "core_hal.h"
 #include "watchdog_hal.h"
+#include "rng_hal.h"
+#include "rgbled_hal.h"
+#include "bootloader.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "hw_config.h"
@@ -37,6 +40,7 @@
 /* Private typedef ----------------------------------------------------------*/
 
 /* Private define -----------------------------------------------------------*/
+void HAL_Core_Setup(void);
 
 /* Private macro ------------------------------------------------------------*/
 
@@ -50,6 +54,11 @@ extern volatile uint32_t TimingDelay;
 
 
 /* Private function prototypes -----------------------------------------------*/
+/**
+ * 当freertos没有运行起来的时候 xPortSysTickHandler(); 在SysTick_Handler中不能调用,否则会出现异常
+ * 例如：用户程序调用SerialDebugOutput debugOutput(115200, ALL_LEVEL);程序将卡死.
+ */
+static uint8_t  is_os_running=0;
 
 static TaskHandle_t  app_thread_handle;
 #define APPLICATION_STACK_SIZE 6144
@@ -82,6 +91,7 @@ void __malloc_unlock(void* ptr)
 
 void application_task_start(void* arg)
 {
+    is_os_running = 1;
     HAL_Core_Setup();
     app_setup_and_loop();
 }
@@ -91,16 +101,17 @@ void application_task_start(void* arg)
  */
 int main(void)
 {
+#if 1
     HAL_Core_Setup();
     app_setup_and_loop();
     while(1);
     return 0;
+#endif
 #if 0
     init_malloc_mutex();
     xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
 
     vTaskStartScheduler();
-
     /* we should never get here */
     while (1);
     return 0;
@@ -122,7 +133,7 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
+//    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
     Set_System();
 
 #ifdef DFU_BUILD_ENABLE
@@ -241,6 +252,10 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
+
+    if (1 == is_os_running){
+       // xPortSysTickHandler();
+    }
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();

@@ -81,6 +81,9 @@ void log_print_direct_(int level, void* reserved, const char *msg, ...)
     va_list args;
     va_start(args, msg);
     int trunc = vsnprintf(_buffer, arraySize(_buffer), msg, args);
+    if (level<log_level_at_run_time || !debug_output_)
+        return;
+
     debug_output_(_buffer);
     if (trunc > arraySize(_buffer))
     {

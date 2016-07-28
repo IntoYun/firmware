@@ -31,7 +31,7 @@ void HAL_BUTTON_Initial(void)
 
 uint8_t HAL_BUTTON_GetState(Button_TypeDef Button)
 {
-
+return 0;
 }
 
 

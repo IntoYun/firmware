@@ -33,14 +33,14 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-
+/*
 __IO uint16_t ADC_ConvertedValues[ADC_DMA_BUFFERSIZE];
 uint8_t adcInitFirstTime = true;
 uint8_t adcChannelConfigured = ADC_CHANNEL_NONE;
 static uint8_t ADC_Sample_Time = ADC_SAMPLING_TIME;
 ADC_HandleTypeDef ADC_HandleStruct;
 DMA_HandleTypeDef DMA_HandleStruct;
-
+*/
 /* Extern variables ----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
@@ -160,6 +160,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
     // Return ADC averaged value
     return ADC_AveragedValue;
 #endif
+    return 0;
 }
 
 /*

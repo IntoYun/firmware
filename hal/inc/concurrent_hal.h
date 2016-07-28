@@ -202,12 +202,12 @@ typedef enum os_timer_change_t
     OS_TIMER_CHANGE_START,
     OS_TIMER_CHANGE_RESET,
     OS_TIMER_CHANGE_STOP,
-	OS_TIMER_CHANGE_PERIOD
+	  OS_TIMER_CHANGE_PERIOD
 } os_timer_change_t;
 
 int os_timer_change(os_timer_t timer, os_timer_change_t change, bool fromISR, unsigned period, unsigned block, void* reserved);
 int os_timer_destroy(os_timer_t timer, void* reserved);
-
+int os_timer_is_active(os_timer_t timer, void* reserved);
 
 #ifdef __cplusplus
 }

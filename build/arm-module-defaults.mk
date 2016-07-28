@@ -22,6 +22,8 @@ ifdef START_YMODEM_FLASHER_SERIAL_SPEED
 CDEFINES += -DSTART_YMODEM_FLASHER_SERIAL_SPEED=$(START_YMODEM_FLASHER_SERIAL_SPEED)
 endif
 
+CDEFINES += -DSPARK=1 -DPARTICLE=1
+
 # disable COMPILE_LTO when JTAG is enabled since it obfuscates the symbol mapping
 # breaking step debugging
 ifeq ($(USE_SWD),y)
@@ -38,7 +40,7 @@ CFLAGS += -Werror
 endif
 
 # add include directories
-CINCLUDES += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I/usr/local/include -I.
+CINCLUDES += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
 

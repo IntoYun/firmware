@@ -152,7 +152,8 @@ inline bool is_valid(sock_handle_t handle) {
 }
 
 uint8_t socket_handle_valid(sock_handle_t handle) {
-    return is_valid(handle);
+//    return is_valid(handle);
+return true;
 }
 
 sock_handle_t socket_handle_invalid()

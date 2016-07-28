@@ -28,9 +28,9 @@ extern "C" {
 
 
 void HAL_LED_Initial(void);
-int HAL_LED_RGB_Color(uint8_t red, uint8_t green, uint8_t blue);
-int HAL_LED_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
-int HAL_LED_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+void HAL_LED_RGB_Color(uint8_t red, uint8_t green, uint8_t blue);
+void HAL_LED_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+void HAL_LED_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
 void HAL_LED_User(uint8_t state);
 void HAL_LED_Toggle_User(void);
 

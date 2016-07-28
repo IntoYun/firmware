@@ -55,8 +55,6 @@ SECTIONS
         KEEP(*(.preinit_array))
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array*))
-        KEEP (*(SORT(.fini_array.*)))
-        KEEP (*(.fini_array*))
         KEEP (*crtbegin.o(.ctors))
         KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
         KEEP (*(SORT(.ctors.*)))

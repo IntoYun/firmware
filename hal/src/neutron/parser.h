@@ -1,6 +1,5 @@
 /**
- ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -14,36 +13,18 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ ******************************************************************************
+ */
 
-#include "rgbled_hal.h"
+#ifndef PARSER_H
+#define	PARSER_H
+
+#include "modem/inc/mdm_hal.h"
 
 
-void HAL_LED_Initial(void)
-{
+extern MDMEsp8266Serial esp8266MDM;
 
-}
 
-void HAL_LED_RGB_Color(uint8_t red, uint8_t green, uint8_t blue)
-{
-}
 
-void HAL_LED_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
-{
-}
-
-void HAL_LED_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
-{
-}
-
-void HAL_LED_User(uint8_t state)
-{
-
-}
-
-void HAL_LED_Toggle_User(void)
-{
-
-}
+#endif	/* PARSER_H */
 

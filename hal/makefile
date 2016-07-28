@@ -7,7 +7,8 @@ TARGET_TYPE = a
 BUILD_PATH_EXT = $(HAL_BUILD_PATH_EXT)
 
 #DEPENDENCIES = newlib_nano platform services bootloader
-DEPENDENCIES = newlib_nano platform services
+#DEPENDENCIES = newlib_nano platform services
+DEPENDENCIES = platform services
 
 # ensure PLATFORM_NAME is defined
 include ../build/platform-id.mk

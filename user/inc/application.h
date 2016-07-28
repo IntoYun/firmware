@@ -65,6 +65,7 @@
 #include "fast_pin.h"
 #include "string_convert.h"
 #include "debug_output_handler.h"
+#include "parser.h"
 
 // this was being implicitly pulled in by some of the other headers
 // adding here for backwards compatibility.

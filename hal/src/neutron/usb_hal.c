@@ -52,7 +52,7 @@ void USB_USART_Initial(uint32_t baudRate)
         }
         else if (!LineCoding.bitrate)
         {
-           /* Init Device Library */
+            /* Init Device Library */
             USBD_Init(&USBD_Device, &VCP_Desc, 0);
             /* Add Supported Class */
             USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
@@ -157,7 +157,6 @@ void USB_USART_Send_Data(uint8_t Data)
 
 void USB_USART_Flush_Data(void)
 {
-    return 0;
 }
 
 /**

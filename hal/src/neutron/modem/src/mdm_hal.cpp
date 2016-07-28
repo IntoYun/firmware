@@ -36,6 +36,13 @@
 #include <mutex>
 #include "net_hal.h"
 
+
+#ifdef putc
+#undef putc
+#undef getc
+#endif
+
+
 std::recursive_mutex mdm_mutex;
 
 /* Private typedef ----------------------------------------------------------*/
@@ -53,7 +60,8 @@ std::recursive_mutex mdm_mutex;
 //! check for timeout
 #define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
 //! helper to make sure that lock unlock pair is always balanced
-#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
+//#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
+#define LOCK()
 //! helper to make sure that lock unlock pair is always balanced
 #define UNLOCK()
 
@@ -171,18 +179,23 @@ void MDMParser::resume(void) {
 
 int MDMParser::send(const char* buf, int len)
 {
+    DEBUG_D("send\r\n");
 #ifdef MDM_DEBUG
     if (_debugLevel >= 3) {
-        DEBUG_D("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001);
+        float i= (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001;
+        DEBUG_D("%10.3f AT send    ", i);
+        //DEBUG_D("%10.3f AT send    ", 0.1111);
         dumpAtCmd(buf,len);
     }
 #endif
+    DEBUG_D("send22222\r\n");
     return _send(buf, len);
 }
 
 int MDMParser::sendFormated(const char* format, ...) {
     if (_cancel_all_operations) return 0;
 
+    DEBUG_D("sendFormated\r\n");
     char buf[MAX_SIZE];
     va_list args;
     va_start(args, format);
@@ -201,6 +214,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Timer_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
+        DEBUG_D("buf:%s ",buf);
 #ifdef MDM_DEBUG
         if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
         {
@@ -311,11 +325,14 @@ int MDMParser::_cbInt(int type, const char* buf, int len, int* val)
 void MDMParser::reset(void)
 {
     MDM_INFO("[ Modem reset ]");
+    HAL_Pin_Mode(ESP_BOOT_UC, OUTPUT);
+    HAL_Pin_Mode(ESP_RESET_UC, OUTPUT);
     HAL_GPIO_Write(ESP_BOOT_UC, 1);
 
     HAL_GPIO_Write(ESP_RESET_UC, 0);
     HAL_Delay_Milliseconds(200);
     HAL_GPIO_Write(ESP_RESET_UC, 1);
+    MDM_INFO("[ Modem reset over]");
 }
 
 bool MDMParser::init(void)
@@ -323,8 +340,10 @@ bool MDMParser::init(void)
     LOCK();
 
     if (!_init) {
-        MDM_INFO("[ NeutronSerialPipe::begin ] = = = = = = = =");
+        MDM_INFO("[ Esp8266SerialPipe::begin ] = = = = = = = =");
+        reset();
 
+        HAL_Delay_Milliseconds(MDM_ESP8266_RESET_DELAY);
         /* Instantiate the USART1 hardware */
         esp8266MDM.begin(460800);
 
@@ -339,11 +358,11 @@ bool MDMParser::init(void)
     int i = 10;
     while (i--) {
         //hardware reset esp8266
-        reset();
+        //reset();
 
-        HAL_Delay_Milliseconds(1000);
+        //HAL_Delay_Milliseconds(MDM_ESP8266_RESET_DELAY);
         // purge any messages
-        purge();
+        //purge();
 
         // Save desire to cancel, but since we are already here
         // trying to power up the modem when we received a cancel
@@ -591,9 +610,11 @@ failure:
 
 int MDMParser::_cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result)
 {
+    int rst;
     if (result && (type == TYPE_UNKNOWN)) {
-        if (sscanf(buf, "\r\nSTATUS:%d\r\n", result) == 1)
-            /*nothing*/;
+        if (sscanf(buf, "\r\nSTATUS:%d\r\n", &rst) == 1) {
+            *result = (ip_status_t)rst;
+        }
     }
     return WAIT;
 }
@@ -615,8 +636,11 @@ ip_status_t MDMParser::getIpStatus(void)
 
 int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t* result)
 {
+    int rst;
     if (result && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "\r\n+CWJAP:%d\r\n", result) == 1)
+        if (sscanf(buf, "\r\n+CWJAP:%d\r\n", &rst) == 1) {
+            *result = (wifi_join_ap_t)rst;
+        }
             /*nothing*/;
     }
     return WAIT;
@@ -732,7 +756,6 @@ int MDMParser::socketSocket(IpProtocol ipproto, int port)
 bool MDMParser::socketConnect(int socket, const char * host, int port)
 {
     bool ok = false;
-    char tmp[8];
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
         DEBUG_D("socketConnect(%d,port:%d)\r\n", socket,port);
@@ -747,7 +770,6 @@ bool MDMParser::socketConnect(int socket, const char * host, int port)
 bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
 {
     bool ok = false;
-    char tmp[8];
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
         DEBUG_D("socketConnect(%d,port:%d)\r\n", socket,port);
@@ -924,9 +946,11 @@ int MDMParser::_findSocket(int handle) {
 
 int MDMParser::_cbDownOtaFile(int type, const char* buf, int len, deal_status_t* result)
 {
+    int rst;
     if (type == TYPE_PLUS) {
-        if (sscanf(buf, "\r\n+IR_DOWNFILE:%d\r\n", result) == 1)
-        /*nothing*/;
+        if (sscanf(buf, "\r\n+IR_DOWNFILE:%d\r\n", &rst) == 1) {
+            *result = (deal_status_t)rst;
+        }
     }
     return WAIT;
 }
@@ -957,10 +981,11 @@ deal_status_t MDMParser::getDownOtafileStatus(void)
 
 int MDMParser::_cbDownNetFile(int type, const char* buf, int len, deal_status_t* result)
 {
+    int rst;
     if (type == TYPE_PLUS) {
-        int a,b,c,d;
-        if (sscanf(buf, "\r\n+IR_NETDOWN:%d\r\n", result) == 1)
-        /*nothing*/;
+        if (sscanf(buf, "\r\n+IR_NETDOWN:%d\r\n", &rst) == 1) {
+            *result = (deal_status_t)rst;
+        }
     }
     return WAIT;
 }
@@ -1013,7 +1038,6 @@ deal_status_t MDMParser::getDownNetfileStatus(void)
 int MDMParser::_cbGetDownFileProgress(int type, const char* buf, int len, int* result)
 {
     if (type == TYPE_PLUS) {
-        int a,b,c,d;
         if (sscanf(buf, "\r\nAT+IR_DOWNPROGRESS:%d\r\n", result) == 1)
         /*nothing*/;
     }

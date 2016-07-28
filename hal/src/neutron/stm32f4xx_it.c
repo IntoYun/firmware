@@ -175,7 +175,7 @@ void SysTick_Handler(void)
 */
 void DMA2_Stream0_IRQHandler(void)
 {
-    HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
+    //HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
 }
 #if 0
 /**

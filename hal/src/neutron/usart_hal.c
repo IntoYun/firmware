@@ -29,7 +29,6 @@ extern void USART2_IRQHandler(void);
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
     USART_A2_A3 = 0,
-    USART_TXD_UC_RXD_UC = 1
 } USART_Num_Def;
 
 /* Private macro -------------------------------------------------------------*/
@@ -39,7 +38,7 @@ typedef enum USART_Num_Def {
 /* Private variables ---------------------------------------------------------*/
 typedef struct STM32_USART_Info {
     USART_TypeDef* usart_peripheral;
-    uint32_t* usart_Alternate;
+    uint32_t usart_Alternate;
     int32_t usart_int_n;
     uint16_t usart_tx_pin;
     uint16_t usart_rx_pin;
@@ -69,8 +68,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },        // USART 2
-    { USART1, GPIO_AF7_USART1, USART1_IRQn, TXD_UC, RXD_UC } // USART 1
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX }        // USART 2
 };
 
 UART_HandleTypeDef UartHandle;
@@ -101,10 +99,6 @@ void HAL_USART_Initial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buf
     if(serial == HAL_USART_SERIAL1)
     {
         usartMap[serial] = &USART_MAP[USART_A2_A3];
-    }
-    else if(serial == HAL_USART_SERIAL2)
-    {
-        usartMap[serial] = &USART_MAP[USART_TXD_UC_RXD_UC];
     }
 
     usartMap[serial]->usart_rx_buffer = rx_buffer;
@@ -210,10 +204,6 @@ void HAL_USART_End(HAL_USART_Serial serial)
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
     }
-    else{
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-    }
 
     //Disable the NVIC for UART ##########################################*/
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
@@ -238,13 +228,13 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
 uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
-    HAL_UART_Transmit(&UartHandle, &data, 1, 5);//5ms
+    HAL_UART_Transmit(&UartHandle, (uint8_t *)&data, 1, 5);//5ms
     return 1;
 }
 
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
-    HAL_UART_Transmit(&UartHandle, &data, 1, 5);//5ms
+    HAL_UART_Transmit(&UartHandle, (uint8_t *)&data, 2, 5);//5ms
     return 1;
 }
 
@@ -325,21 +315,8 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
  * Output         : None.
  * Return         : None.
  *******************************************************************************/
-void USART2_IRQHandler(void)
+/*void USART2_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
-}
-
-// Serial1 interrupt handler
-/*******************************************************************************
- * Function Name  : HAL_USART2_Handler
- * Description    : This function handles USART2 global interrupt request.
- * Input          : None.
- * Output         : None.
- * Return         : None.
- *******************************************************************************/
-void USART1_IRQHandler(void)
-{
-    HAL_USART_Handler(HAL_USART_SERIAL2);
-}
+}*/
 
