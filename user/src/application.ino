@@ -110,7 +110,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 #define LED_PIN D7
 #define testPinPWM A0
 #define INTERRUPT_PIN D0
@@ -171,6 +171,37 @@ void loop()
 	interrupts();
 }
 
+#endif
+
+
+#if 1
+
+#define LED_PIN D7
+#define PWM_PIN D0
+#define PWM_FRE_PIN D2
+
+void setup()
+{
+    DEBUG("PWM Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(PWM_PIN, OUTPUT);
+    pinMode(PWM_FRE_PIN, OUTPUT);
+    uint32_t duty  = 125;
+    uint32_t freq = 300;
+    analogWrite(PWM_PIN, duty);
+    // analogWrite(PWM_FRE_PIN, duty, freq);
+    // analogWrite(PWM_FRE_PIN, duty);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(5000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(5000);                   // wait for a second
+    DEBUG("Runing !");
+}
 #endif
 
 
