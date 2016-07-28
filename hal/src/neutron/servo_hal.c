@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "servo_hal.h"
 #include "pinmap_impl.h"
+#include "service_debug.h"
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -27,27 +28,15 @@
 /* Extern variables ----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-// Default min/max pulse widths (in microseconds) and angles (in
-// degrees).  Values chosen for Arduino compatibility.  These values
-// are part of the public API; DO NOT CHANGE THEM.
-#define SERVO_DEFAULT_MIN_PW            544
-#define SERVO_DEFAULT_MAX_PW            2400
-#define SERVO_DEFAULT_MIN_ANGLE         0
-#define SERVO_DEFAULT_MAX_ANGLE         180
-
-
-#define SERVO_TIM_PWM_FREQ	50                                              //20ms = 50Hz
-#define SERVO_TIM_PRESCALER	(uint16_t)(SystemCoreClock / 1000000) - 1		//To get TIM counter clock = 1MHz
-#define SERVO_TIM_ARR		(uint16_t)(1000000 / SERVO_TIM_PWM_FREQ) - 1	//To get PWM period = 20ms
-
-#define ANGLE_TO_US(a)    ((uint16_t)(map((a), SERVO_DEFAULT_MIN_ANGLE, SERVO_DEFAULT_MAX_ANGLE, \
-                                          SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE)))
-#define US_TO_ANGLE(us)   ((int16_t)(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE, \
-                                         SERVO_DEFAULT_MIN_ANGLE, SERVO_DEFAULT_MAX_ANGLE )))
-
+#define SERVO_TIM_PWM_FREQ  50
+// XXX: SytemCoreClock = TIM_CLK here, Other board need to be changed.
+// or set the CLK in the code below
+#define SERVO_TIM_PRESCALER (uint16_t)(SystemCoreClock / 1000000) - 1       // To get TIM counter clock = 1MHz, TIM2-5 CLK = SystemCoreClock
+#define SERVO_TIM_ARR       (uint16_t)(1000000 / SERVO_TIM_PWM_FREQ) - 1    // To get PWM period = 20ms
 
 void HAL_Servo_Attach(uint16_t pin)
 {
+    DEBUG("Enter HAL_Servo_Attach...");
     //Map the Spark pin to the appropriate port and pin on the STM32
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -153,20 +142,20 @@ void HAL_Servo_Attach(uint16_t pin)
         if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            //Error_Handler();
+            DEBUG("Servo PWM Configuaration Error!");
         }
 
         /* Start channel */
         if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* PWM Generation Error */
-            //Error_Handler();
+            DEBUG("Servo PWM Generation Error!");
         }
     }
     else
     {
         // debug error
-        //
+        DEBUG("Servo PWM First Error!");
     }
 
 }
@@ -183,8 +172,9 @@ void HAL_Servo_Detach(uint16_t pin)
 
 void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
+    DEBUG("Enter HAL_Servo_Write_Pulse_Width ...");
+
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pulseWidth = constrain(pulseWidth, SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_ANGLE);
 
     //SERVO_TIM_CCR = pulseWidth * (SERVO_TIM_ARR + 1) * SERVO_TIM_PWM_FREQ / 1000000;
     uint16_t SERVO_TIM_CCR = pulseWidth;
@@ -200,20 +190,18 @@ void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
     sConfig.Pulse = SERVO_TIM_CCR;
 
     TIM_HandleTypeDef TimHandle;
-
     TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
 
     if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
     {
         /* Configuration Error */
-        //Error_Handler();
+        DEBUG("Servo write pulse Configuration Error!");
     }
-
     /* Start channel */
     if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
     {
         /* PWM Generation Error */
-        //Error_Handler();
+        DEBUG("Servo PWM Generation Error!");
     }
 }
 

@@ -174,7 +174,7 @@ void loop()
 #endif
 
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 #define PWM_PIN D0
@@ -205,13 +205,33 @@ void loop()
 #endif
 
 
+#if 1
 
+#define LED_PIN D7
+#define SERVO_CONTROL_PIN    A0 //定义舵机控制引脚
 
+Servo myservo;
+void setup()
+{
+    DEBUG("Servo Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    myservo.attach(SERVO_CONTROL_PIN);
+}
 
-
-
-
-
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+    DEBUG("Runing !");
+    myservo.write(30);
+    delay(3000);
+    myservo.write(140);
+    delay(3000);
+}
+#endif
 
 
 
