@@ -400,7 +400,6 @@ void app_loop(bool threaded)
 #if PLATFORM_THREADING
 
 // This is the application loop ActiveObject.
-
 void app_thread_idle()
 {
     app_loop(true);
@@ -429,11 +428,10 @@ void app_setup_and_loop(void)
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
 
-    DEBUG_D("welcome from IntoRobot!\r\n");
-    //String s = intorobot_deviceID();
-    //INFO("Device %s started", s.c_str());
+    DEBUG("welcome from IntoRobot!\r\n");
+    String s = intorobot_deviceID();
+    INFO("Device %s started", s.c_str());
 
-#if 0
     manage_safe_mode();
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
@@ -458,14 +456,11 @@ void app_setup_and_loop(void)
     }
 #endif
     if(!threaded) {
+        DEBUG_D("threaded=%d\r\n", threaded);
         /* Main loop */
         while (1) {
             app_loop(false);
         }
-    }
-#endif
-    while (1) {
-        app_loop(false);
     }
 }
 

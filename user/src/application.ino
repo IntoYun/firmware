@@ -39,7 +39,7 @@ void loop()
 #if 0
 
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
-SerialDebugOutput debugOutput(115200, ALL_LEVEL);
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 /*
 static void log_output(const char* msg)
 {
@@ -47,6 +47,9 @@ static void log_output(const char* msg)
 }
 */
 #define LED_PIN D7
+
+char _buffer[256]={0};
+
 
 void setup()
 {
@@ -56,6 +59,8 @@ void setup()
     // initialize digital pin 13 as an output.
     pinMode(LED_PIN, OUTPUT);
     esp8266MDM.init();
+
+    //Serial1.begin(115200);
     //esp8266MDM.getNetVersion(version);
     //DEBUG_D("%s\r\n", version);
 }
@@ -63,8 +68,16 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
-    //DEBUG("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds())*0.001);
-    //DEBUG("1111");
+    //Serial.printf("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds())*0.001);
+    DEBUG_D("%d\r\n", HAL_Timer_Get_Milli_Seconds());
+    int a = HAL_Timer_Get_Milli_Seconds();
+    float i = a*0.34;
+    sprintf(_buffer, "%f\r\n", i);
+    Serial.printf("buffer=%s", _buffer);
+    Serial1.printf("buffer=%s", _buffer);
+    //DEBUG_D("%10.3f AT send    \r\n", HAL_Timer_Get_Milli_Seconds()*0.001);
+    //DEBUG_D("%f AT send    \r\n", HAL_Timer_Get_Milli_Seconds()*0.001);
+    DEBUG_D(_buffer);
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
@@ -72,7 +85,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 
@@ -99,4 +112,28 @@ void loop()
   }
 }
 #endif
+
+#if 1
+
+// ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+
+#define LED_PIN D7
+
+void setup()
+{
+    pinMode(LED_PIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    Serial1.printf("%f", 1.234);
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+}
+#endif
+
 

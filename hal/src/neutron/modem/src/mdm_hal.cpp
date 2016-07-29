@@ -60,8 +60,8 @@ std::recursive_mutex mdm_mutex;
 //! check for timeout
 #define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
 //! helper to make sure that lock unlock pair is always balanced
-//#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
-#define LOCK()
+#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
+//#define LOCK()
 //! helper to make sure that lock unlock pair is always balanced
 #define UNLOCK()
 
@@ -179,23 +179,18 @@ void MDMParser::resume(void) {
 
 int MDMParser::send(const char* buf, int len)
 {
-    DEBUG_D("send\r\n");
 #ifdef MDM_DEBUG
     if (_debugLevel >= 3) {
-        float i= (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001;
-        DEBUG_D("%10.3f AT send    ", i);
-        //DEBUG_D("%10.3f AT send    ", 0.1111);
+        DEBUG_D("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001);
         dumpAtCmd(buf,len);
     }
 #endif
-    DEBUG_D("send22222\r\n");
     return _send(buf, len);
 }
 
 int MDMParser::sendFormated(const char* format, ...) {
     if (_cancel_all_operations) return 0;
 
-    DEBUG_D("sendFormated\r\n");
     char buf[MAX_SIZE];
     va_list args;
     va_start(args, format);
@@ -214,7 +209,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Timer_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
-        DEBUG_D("buf:%s ",buf);
+        //DEBUG_D("buf:%s ",buf);
 #ifdef MDM_DEBUG
         if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
         {
@@ -332,7 +327,6 @@ void MDMParser::reset(void)
     HAL_GPIO_Write(ESP_RESET_UC, 0);
     HAL_Delay_Milliseconds(200);
     HAL_GPIO_Write(ESP_RESET_UC, 1);
-    MDM_INFO("[ Modem reset over]");
 }
 
 bool MDMParser::init(void)
@@ -340,41 +334,27 @@ bool MDMParser::init(void)
     LOCK();
 
     if (!_init) {
-        MDM_INFO("[ Esp8266SerialPipe::begin ] = = = = = = = =");
+        MDM_INFO("[ Esp8266 init ]");
         reset();
-
         HAL_Delay_Milliseconds(MDM_ESP8266_RESET_DELAY);
         /* Instantiate the USART1 hardware */
         esp8266MDM.begin(460800);
-
+        //esp8266MDM.begin(115200);
         /* Initialize only once */
         _init = true;
     }
 
-    MDM_INFO("\r\n[ Modem::powerOn ] = = = = = = = = = = = = = =");
     bool continue_cancel = false;
     bool retried_after_reset = false;
 
     int i = 10;
     while (i--) {
-        //hardware reset esp8266
-        //reset();
-
-        //HAL_Delay_Milliseconds(MDM_ESP8266_RESET_DELAY);
-        // purge any messages
-        //purge();
-
-        // Save desire to cancel, but since we are already here
-        // trying to power up the modem when we received a cancel
-        // resume AT parser to ensure it's ready to receive
-        // power down commands.
         if (_cancel_all_operations) {
             continue_cancel = true;
             resume(); // make sure we can talk to the modem
         }
-
-        // check interface
-        sendFormated("AT\r\n");
+        // echo off
+        sendFormated("ATE0\r\n");
         int r = waitFinalResp(NULL,NULL,1000);
         if(RESP_OK == r) {
             break;
@@ -385,6 +365,7 @@ bool MDMParser::init(void)
             reset();
         }
     }
+
     if (i < 0) {
         MDM_ERROR("[ No Reply from Modem ]\r\n");
     }
@@ -394,10 +375,6 @@ bool MDMParser::init(void)
         goto failure;
     }
 
-    // echo off
-    sendFormated("ATE0\r\n");
-    if(RESP_OK != waitFinalResp())
-        goto failure;
     // enable mulit connect
     sendFormated("AT+CIPMUX=1\r\n");
     if(RESP_OK != waitFinalResp())

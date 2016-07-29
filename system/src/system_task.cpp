@@ -358,12 +358,12 @@ void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
 {
     system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
 
+    DEBUG_D("system_delay_pump\r\n");
     while (1)
     {
         HAL_IWDG_Feed();
-
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-
+        DEBUG_D("elapsed_millis=%d, ms =%d\r\n", elapsed_millis, ms);
         if (elapsed_millis > ms)
         {
             break;
@@ -377,19 +377,17 @@ void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
  */
 void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
-    system_delay_pump(ms, force_no_background_loop);
-#if 0
-	// if not threading, or we are the application thread, then implement delay
-	// as a background message pump
+    DEBUG_D("system_delay_ms\r\n");
+    // if not threading, or we are the application thread, then implement delay
+    // as a background message pump
     if (!system_thread_get_state(NULL) ||
-        APPLICATION_THREAD_CURRENT()) {
-    		system_delay_pump(ms, force_no_background_loop);
+            APPLICATION_THREAD_CURRENT()) {
+        system_delay_pump(ms, force_no_background_loop);
     }
     else
     {
         HAL_Delay_Milliseconds(ms);
     }
-#endif
 }
 
 

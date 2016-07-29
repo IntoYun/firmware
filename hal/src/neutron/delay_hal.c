@@ -79,6 +79,5 @@ void HAL_Delay_Microseconds(uint32_t uSec)
     {
         HAL_IWDG_Feed();
     }
-
 }
 

@@ -36,7 +36,6 @@
 #include "task.h"
 #include "semphr.h"
 #include "service_debug.h"
-
 /* Private typedef ----------------------------------------------------------*/
 
 /* Private define -----------------------------------------------------------*/
@@ -101,6 +100,15 @@ void application_task_start(void* arg)
  */
 int main(void)
 {
+    /*
+    char _buffer[256]={0};
+
+    //int a = HAL_Timer_Get_Milli_Seconds();
+    int a = 12242;
+    float i = a*0.34;
+    sprintf(_buffer, "%f\r\n", i);
+    while(1);
+    */
 #if 0
     HAL_Core_Setup();
     app_setup_and_loop();
@@ -252,7 +260,7 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-
+#if 1
     if (1 == is_os_running){
         xPortSysTickHandler();
     }
@@ -260,4 +268,5 @@ void SysTick_Handler(void)
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();
     //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
+#endif
 }

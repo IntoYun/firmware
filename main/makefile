@@ -16,7 +16,7 @@ endif
 PLATFORM_DFU_LEAVE = y
 BUILD_PATH_EXT = $(BUILD_TARGET_PLATFORM)$(USER_FLAVOR)
 
-USE_PRINTF_FLOAT ?= n
+USE_PRINTF_FLOAT ?= y
 
 # It's critical that user comes before wiring so that the setup()/loop() functions are linked in preference
 # to the weak functions from wiring

@@ -30,6 +30,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
+#include "service_debug.h"
 //#include "cmsis_os.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -173,6 +174,16 @@ void SysTick_Handler(void)
 * @param  None
 * @retval None
 */
+void WWDG_IRQHandler(void)
+{
+
+DEBUG("wwdg\r\n");
+    while (1)
+    {
+    }
+
+}
+
 void DMA2_Stream0_IRQHandler(void)
 {
     //HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
@@ -512,7 +523,16 @@ void TIM5_IRQHandler(void)
 //    HAL_TIM_IRQHandler(&Timer5Handle);
 }
 
+void USART6_IRQHandler(void)
+{
 
+DEBUG("wwdg\r\n");
+    while (1)
+    {
+    }
+
+
+}
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

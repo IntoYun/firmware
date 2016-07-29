@@ -17,7 +17,6 @@
   ******************************************************************************
 */
 
-#if 0
 
 #include "system_threading.h"
 #include "system_task.h"
@@ -123,7 +122,7 @@ namespace std {
         startup.call = base.get();
         startup.started = false;
         if (os_thread_create(&_M_id._M_thread, "std::thread", OS_THREAD_PRIORITY_DEFAULT, invoke_thread, &startup, THREAD_STACK_SIZE)) {
-            PANIC(AssertionFailure, "%s %s", __FILE__, __LINE__);
+            //PANIC(AssertionFailure, "%s %s", __FILE__, __LINE__);
         }
         else {  // C++ ensure the thread has started execution, as required by the standard
             while (!startup.started) os_thread_yield();
@@ -167,4 +166,3 @@ void* system_internal(int item, void* reserved)
     }
     return nullptr;
 }
-#endif

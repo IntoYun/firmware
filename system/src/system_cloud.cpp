@@ -176,7 +176,7 @@ String intorobot_deviceID(void)
     HAL_device_ID(id, len);
     return bytes2hex(id, len);
     */
-    return 0;
+    return "0";
 }
 
 bool intorobot_cloud_init(void)

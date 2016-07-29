@@ -398,7 +398,7 @@ public:
         \param rxSize the size of the serial rx buffer
         \param txSize the size of the serial tx buffer
     */
-    MDMEsp8266Serial( int rxSize = 1024, int txSize = 1024 );
+    MDMEsp8266Serial( int rxSize = 1024, int txSize = 10 );
     //! Destructor
     virtual ~MDMEsp8266Serial(void);
 

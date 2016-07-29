@@ -27,9 +27,6 @@
 UART_HandleTypeDef UartHandle_A2A3;
 SDK_QUEUE Usart_Rx_Queue_A2A3;
 
-UART_HandleTypeDef UartHandle_ESP8266;
-SDK_QUEUE Usart_Rx_Queue_ESP8266;
-
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
     USART_A2_A3 = 0,
@@ -93,11 +90,13 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
         //sdkClearQueue(usartMap[serial]->usart_tx_queue);
     }
     else {
+        /*
         usartMap[serial] = &USART_MAP[USART_ESP8266];
         usartMap[serial]->uart_handle = &UartHandle_ESP8266;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_ESP8266;
         sdkClearQueue(usartMap[serial]->usart_rx_queue);
         //sdkClearQueue(usartMap[serial]->usart_tx_queue);
+        */
     }
 
     usartMap[serial]->usart_enabled = false;
@@ -124,8 +123,10 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         __HAL_RCC_USART2_CLK_ENABLE();
     }
     else{
+        /*
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_USART1_CLK_ENABLE();
+        */
     }
 
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -196,10 +197,11 @@ void HAL_USART_End(HAL_USART_Serial serial)
         __HAL_RCC_USART2_RELEASE_RESET();
     }
     else{
+        /*
         __HAL_RCC_USART1_FORCE_RESET();
         __HAL_RCC_USART1_RELEASE_RESET();
+        */
     }
-
 
     //Disable the NVIC for UART ##########################################*/
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
@@ -294,10 +296,4 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
 void USART2_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
-}
-
-// Serial1 interrupt handler
-void USART1_IRQHandler(void)
-{
-    HAL_USART_Handler(HAL_USART_SERIAL2);
 }
