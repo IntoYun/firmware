@@ -27,26 +27,22 @@
  */
 volatile uint32_t TimingDelay;
 
-
-/*******************************************************************************
-* Function Name  : Delay
-* Description    : Inserts a delay time.
-* Input          : nTime: specifies the delay time length, in milliseconds.
-* Output         : None
-* Return         : None
-*******************************************************************************/
+/**
+  * @brief  Delay milliseconds
+  *         This should consider OS used case.
+  * @param  nTime: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
     vTaskDelay(nTime);
 }
 
-/*******************************************************************************
- * Function Name  : Delay_Microsecond
- * Description    : Inserts a delay time in microseconds using 32-bit DWT->CYCCNT
- * Input          : uSec: specifies the delay time length, in microseconds.
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
+  * @param  uSec: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
 void HAL_Delay_Microseconds(uint32_t uSec)
 {
     volatile uint32_t DWT_START = DWT->CYCCNT;
@@ -64,4 +60,3 @@ void HAL_Delay_Microseconds(uint32_t uSec)
     }
 
 }
-

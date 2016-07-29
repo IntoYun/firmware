@@ -205,7 +205,7 @@ void loop()
 #endif
 
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 #define SERVO_CONTROL_PIN    A0 //定义舵机控制引脚
@@ -233,5 +233,155 @@ void loop()
 }
 #endif
 
+#if 0
+#include "Adafruit_SSD1306.h"
+#define SSD1307
+// Hareware SPI
+// MOSI SPI MOSI
+// CLK SPI CLK
 
+#define LED_PIN D7
+// // the vcc 3.3v
+#define OLED_DC     D3
+#define OLED_CS     D1
+#define OLED_RESET  D4
+Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);  // Hareware SPI
+
+// #define OLED_MOSI   A7
+// #define OLED_CLK    A5
+// #define OLED_DC     D3
+// #define OLED_CS     D1
+// #define OLED_RESET  D4
+// Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);//  Software SPI
+
+// #define OLED_MOSI   D0
+// #define OLED_CLK    D3
+// #define OLED_DC     D3
+// #define OLED_CS     D1
+// #define OLED_RESET  D5
+// Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);//  Software SPI
+char temp[128] = {'a', 'b', 'c','3', '2', '1', '0'};
+
+void setup()
+{
+    DEBUG("SPI Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(5000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(5000);                   // wait for a second
+#ifdef SSD1307
+    display.begin(SSD1306_SWITCHCAPVCC);
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.println(temp);
+    display.display();
+    delay(1000);
+    display.clearDisplay();
+    display.display();
+    DEBUG("SPI Test Setup end\r\n");
+#else
+    //SPI.setClockDivider(SPI_CLOCK_DIV64);
+    SPI.setClockDivider(SPI_CLOCK_DIV128);
+    SPI.begin();
+#endif
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    DEBUG("Runing !");
+#ifdef SSD1307
+    display.setTextSize(0);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.println(temp);
+    display.display();
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+#else
+    SPI.transfer(0xAA);
+    SPI.transfer(0x55);
+    SPI.transfer(0x00);
+    SPI.transfer(0xFF);
+    delay(100);
+#endif
+}
+#endif
+
+#if 1
+#include <time.h>
+#define LED_PIN D7
+
+void setup()
+{
+    DEBUG("RTC Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+
+    DEBUG("\r\n");
+    DEBUG("\r\n");
+    DEBUG("\r\n");
+    DEBUG("Runing !");
+
+#if 1
+    DEBUG("time   : %d", Time.now() );
+    DEBUG("year   : %d", Time.year() );
+    DEBUG("month  : %d", Time.month() );
+    DEBUG("day    : %d", Time.day() );
+    DEBUG("hour   : %d", Time.hour() );
+    DEBUG("minute : %d", Time.minute() );
+    DEBUG("second : %d", Time.second() );
+    DEBUG("weekday: %d", Time.weekday() );
+#endif
+    delay(3000);
+
+    DEBUG("\r\n");
+    /*Time.setTime(0);*/
+    // Time.setTime(1451606400UL); //20160101000000
+    Time.setTime(1454284800UL); //20160201000000
+#if 0
+    DEBUG("time   : %d", Time.now() );
+    DEBUG("year   : %d", Time.year() );
+    DEBUG("month  : %d", Time.month() );
+    DEBUG("day    : %d", Time.day() );
+    DEBUG("hour   : %d", Time.hour() );
+    DEBUG("minute : %d", Time.minute() );
+    DEBUG("second : %d", Time.second() );
+    DEBUG("weekday: %d", Time.weekday() );
+
+    struct tm tmstruct;
+    tmstruct.tm_year = 1970 - 1900;
+    tmstruct.tm_mon  = 1 - 1;
+    tmstruct.tm_mday = 1;
+    tmstruct.tm_hour = 0;
+    tmstruct.tm_min  = 0;
+    tmstruct.tm_sec  = 0;
+    time_t t = mktime(&tmstruct);
+    DEBUG("\r\n");
+    DEBUG("time   : %d", t );
+    struct tm *calend = gmtime(&t);
+    DEBUG("year   : %d", calend->tm_year + 1900 );
+    DEBUG("month  : %d", calend->tm_mon + 1);
+    DEBUG("day    : %d", calend->tm_mday );
+    DEBUG("hour   : %d", calend->tm_hour );
+    DEBUG("minute : %d", calend->tm_min );
+    DEBUG("second : %d", calend->tm_sec );
+    DEBUG("\r\n");
+    delay(1000);
+#endif
+}
+#endif
 

@@ -45,7 +45,6 @@ DMA_HandleTypeDef DMA_HandleStruct;
 /* Extern variables ----------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-
 /*
  * @brief  Override the default ADC Sample time depending on requirement
  * @param  ADC_SampleTime: The sample time value to be set.
@@ -60,7 +59,6 @@ DMA_HandleTypeDef DMA_HandleStruct;
  * @arg ADC_SAMPLETIME_480CYCLES: Sample time equal to 480 cycles
  * @retval None
  */
-
 void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
 {
     if(ADC_SampleTime < ADC_SAMPLETIME_3CYCLES || ADC_SampleTime > ADC_SAMPLETIME_480CYCLES)
@@ -76,6 +74,8 @@ void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
 /*
  * @brief Read the analog value of a pin.
  * Should return a 16-bit value, 0-65536 (0 = LOW, 65536 = HIGH)
+ * @param pin: pins define in pinmap_hal.c
+ * @retval ADC read value
  * Note: ADC is 12-bit. Currently it returns 0-4096
  */
 int32_t HAL_ADC_Read(uint16_t pin)
@@ -162,6 +162,8 @@ int32_t HAL_ADC_Read(uint16_t pin)
 
 /*
  * @brief Initialize the ADC peripheral.
+ * @param None
+ * @retral None
  */
 void HAL_ADC_DMA_Init(void)
 {

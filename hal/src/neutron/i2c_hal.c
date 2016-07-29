@@ -91,6 +91,7 @@ typedef struct STM32_I2C_Info {
 
 /* Private variables ---------------------------------------------------------*/
 // XXX: Change
+// I2C mapping
 STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
 {
     /* I2C1, PB9, PB8  for sensors*/
@@ -101,6 +102,11 @@ STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
 
 static STM32_I2C_Info *i2cMap[TOTAL_I2C]; // pointer to I2C_MAP[] containing I2C peripheral info
 
+/*
+ * @brief De-Initialize the I2C peripheral.
+ * @param i2c: i2c number chosed
+ * @retral None
+ */
 void HAL_I2C_GPIO_DeInit(HAL_I2C_Interface i2c)
 {
     DEBUG("Enter HAL_I2C_GPIO_DeInit...\r\n");
@@ -125,6 +131,11 @@ void HAL_I2C_GPIO_DeInit(HAL_I2C_Interface i2c)
     HAL_NVIC_DisableIRQ(i2cMap[i2c]->I2C_EV_IRQn);
 }
 
+/*
+ * @brief Initialize the I2C peripheral.
+ * @param i2c: i2c number chosed
+ * @retral None
+ */
 void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
 {
     DEBUG("Enter HAL_I2C_GPIO_Init...\r\n");
@@ -207,6 +218,13 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
 
     HAL_I2C_Init(&(i2cMap[i2c]->I2CHandle));
 }
+
+/*
+ * @brief Reset the I2C Pripheral in the software method.
+ *        This fuction is used when I2C works timeout.
+ * @param i2c: i2c number chosed
+ * @retral None
+ */
 static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
 {
     DEBUG("Enter HAL_I2C_SoftwareReset...\r\n");
@@ -218,6 +236,11 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
     i2cMap[i2c]->prevEnding = I2C_ENDING_UNKNOWN;
 }
 
+/*
+ * @brief Initial the I2C, include setup which I2C used, and some flags.
+ * @param i2c: i2c number chosed
+ * @retral None
+ */
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Initial...\r\n");
@@ -244,12 +267,26 @@ void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
     i2cMap[i2c]->clkStretchingEnabled = 1;
 }
 
+/*
+ * @brief Set he I2C speed.
+ * @param i2c:   i2c number chosed
+ * @param speed: i2c number chosed
+ *     @arg CLOCK_SPEED_100KHZ
+ *     @arg CLOCK_SPEED_400KHZ
+ * @retral None
+ */
 void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
 {
     DEBUG("Enter HAL_I2C_Set_Speed...\r\n");
     i2cMap[i2c]->I2C_ClockSpeed = speed;
 }
 
+/*
+ * @brief Strech the I2C clock or not.
+ * @param i2c: i2c number chosed
+ * @param stretch: if true, strech the I2C clock, if false, don't strech the I2C clock.
+ * @retral None
+ */
 void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 {
     // TODO: to be check
@@ -264,6 +301,13 @@ void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 //    i2cMap[i2c]->clkStretchingEnabled = stretch;
 }
 
+/*
+ * @brief Begin the I2C
+ * @param i2c: i2c number chosed
+ * @param mode: I2C mode, I2C_MODE_MASTER, I2C_MODE_SLAVE
+ * @param address: I2C host address.
+ * @retral None
+ */
 void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
 {
     DEBUG("Enter HAL_I2C_Begin...\r\n");
@@ -274,6 +318,11 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     i2cMap[i2c]->I2C_Enabled = true;
 }
 
+/*
+ * @brief End the I2C
+ * @param i2c: i2c number chosed
+ * @retral None
+ */
 void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
 {
     DEBUG("Enter HAL_I2C_End...\r\n");
@@ -284,6 +333,13 @@ void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
     }
 }
 
+/*
+ * @brief Recieve the Data.
+ * @param i2c: i2c number chosed.
+ * @param address: client address.
+ * @param quntity: Number of bytes to read.
+ * @retral The number of bytes I2C receive.
+ */
 uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop,void* reserved)
 {
     DEBUG("Enter HAL_I2C_Request_Data...\r\n");
@@ -319,6 +375,12 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
     return bytesRead;
 }
 
+/*
+ * @brief Begin transmission, setup the begin transmission flags.
+ * @param i2c: i2c number chosed
+ * @param address: client address
+ * @retral None
+ */
 void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* reserved)
 {
     DEBUG("Enter HAL_I2C_Begin_Transmission...\r\n");
@@ -332,6 +394,12 @@ void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* res
     i2cMap[i2c]->txBufferLength = 0;
 }
 
+/*
+ * @brief End transmission, the true transmit funtion.
+ * @param i2c: i2c number chosed
+ * @param stop: stop bit, not used.
+ * @retral Success flag: 0 success, 1, failure.
+ */
 uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reserved)
 {
     DEBUG("Enter HAL_I2C_End_Transmission...\r\n");
@@ -361,6 +429,12 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
     return 0;
 }
 
+/*
+ * @brief Write the data in the buffer. not actually transmit the data.
+ * @param i2c: i2c number chosed.
+ * @param data: the data in bytes.
+ * @retral Success flag: 0 success, 1, failure.
+ */
 uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
 {
     DEBUG("Enter HAL_I2C_Write_Data...\r\n");
@@ -370,22 +444,34 @@ uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
         // don't bother if buffer is full
         if(i2cMap[i2c]->txBufferLength >= BUFFER_LENGTH)
         {
-            return 0;
+            return 1;
         }
         // put byte in tx buffer
         i2cMap[i2c]->txBuffer[i2cMap[i2c]->txBufferIndex++] = data;
         // update amount in buffer
         i2cMap[i2c]->txBufferLength = i2cMap[i2c]->txBufferIndex;
         DEBUG("=====data: %d", data);
+        return 0;
     }
     return 1;
 }
 
+/*
+ * @brief The available data number in bytes in the received buffer.
+ * @param i2c: i2c number chosed.
+ * @retral The available data number
+ */
 int32_t HAL_I2C_Available_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     return i2cMap[i2c]->rxBufferLength - i2cMap[i2c]->rxBufferIndex;
 }
 
+/*
+ * @brief Read the data in the received buffer.
+ *        The function will increase index of buffer data.
+ * @param i2c: i2c number chosed.
+ * @retral The data.
+ */
 int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     DEBUG("Enter HAL_I2C_Read_Data...\r\n");
@@ -398,6 +484,12 @@ int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
     return value;
 }
 
+/*
+ * @brief Read the data in the received buffer.
+ *        The function will stay index of buffer data (not increase the index).
+ * @param i2c: i2c number chosed.
+ * @retral The data.
+ */
 int32_t HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int value = -1;
@@ -413,6 +505,11 @@ void HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
     // TODO: to be implemented.
 }
 
+/*
+ * @brief Check whether I2C is enabled or not.
+ * @param i2c: i2c number chosed.
+ * @retral The enabled flag: true, i2c have begin; false, the i2c not working.
+ */
 bool HAL_I2C_Is_Enabled(HAL_I2C_Interface i2c,void* reserved)
 {
     return i2cMap[i2c]->I2C_Enabled;

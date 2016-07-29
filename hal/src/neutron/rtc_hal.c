@@ -23,7 +23,7 @@
 
 RTC_HandleTypeDef RtcHandle;
 
-void HAL_RTC_Initial(void)
+void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
 {
     RCC_OscInitTypeDef        RCC_OscInitStruct;
     RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
@@ -79,41 +79,35 @@ static void RTC_CalendarConfig(void)
 
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year = 0x16;
-    sdatestructure.Month = RTC_MONTH_JANUARY;
-    sdatestructure.Date = 0x01;
+    sdatestructure.Year    = 0x16;
+    sdatestructure.Month   = RTC_MONTH_JANUARY;
+    sdatestructure.Date    = 0x01;
     sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        /* Initialization Error */
-        //Error_Handler();
-        while(1)
-        {}
+        DEBUG("RTC CalendarConfig SetDate Error!");
     }
 
     /*##-2- Configure the Time #################################################*/
     /* Set Time: 00:00:00 */
-    stimestructure.Hours = 0x00;
-    stimestructure.Minutes = 0x00;
-    stimestructure.Seconds = 0x00;
-    stimestructure.TimeFormat = RTC_HOURFORMAT12_AM;
+    stimestructure.Hours          = 0x00;
+    stimestructure.Minutes        = 0x00;
+    stimestructure.Seconds        = 0x00;
+    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
     stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
     stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        /* Initialization Error */
-        //Error_Handler();
-        while(1)
-        {}
+        DEBUG("RTC CalendarConfig SetTime Error!");
     }
 
     /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
     HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
 }
 
-void RTC_Init()
+void HAL_RTC_Initial()
 {
     /*##-1- Configure the RTC peripheral #######################################*/
     /* Configure RTC prescaler and RTC data registers */
@@ -124,20 +118,17 @@ void RTC_Init()
        - OutPut         = Output Disable
        - OutPutPolarity = High Polarity
        - OutPutType     = Open Drain */
-    RtcHandle.Instance = RTC;
-    RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv = 0x7F;
-    RtcHandle.Init.SynchPrediv = 0x00FF;
-    RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
+    RtcHandle.Instance            = RTC;
+    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
+    RtcHandle.Init.AsynchPrediv   = 0x7F;
+    RtcHandle.Init.SynchPrediv    = 0x00FF;
+    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
     {
-        /* Initialization Error */
-        //Error_Handler();
-        while(1)
-        {}
+        DEBUG("RTC Init Error!");
     }
     RTC_CalendarConfig();
 }
@@ -163,36 +154,57 @@ time_t HAL_RTC_Get_UnixTime(void)
     return t;
 }
 
+/*
+ * @brief Direct transform dec data to hex data, for the Set_UnixTime function.
+ *        This function not convert the data. Example: dec:16 -> hex:0x16
+ * @param decData: The input decimal data
+ * @retral The output hexadecimal data
+ */
+static uint8_t dec2hex_direct(uint8_t decData)
+{
+    uint8_t hexData  = 0;
+    uint8_t iCount   = 0;
+    uint8_t leftData = 0;
+    while(leftData = decData % 10)
+    {
+        hexData = hexData +  leftData * pow(16, iCount);
+        decData = decData / 10;
+        iCount++;
+    }
+    //DEBUG("hexData: %d", hexData);
+    return hexData;
+}
+
 void HAL_RTC_Set_UnixTime(time_t value)
 {
-   struct tm *tmTemp = gmtime( &value );//localtime( &unix_time);
-
+    struct tm *tmTemp = gmtime( &value );
     RTC_DateTypeDef sdatestructure;
     RTC_TimeTypeDef stimestructure;
 
     /*##-1- Configure the Date #################################################*/
-    sdatestructure.Year  = tmTemp->tm_year + 1904;
-    sdatestructure.Month = tmTemp->tm_mon + 1;
-    sdatestructure.Date  = tmTemp->tm_mday;
+    /* Set Date: Friday January 1st 2016 */
+    sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
+    sdatestructure.Month   = dec2hex_direct(tmTemp->tm_mon + 1);
+    sdatestructure.Date    = dec2hex_direct(tmTemp->tm_mday);
+    sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        /* Initialization Error */
-        //Error_Handler();
+        DEBUG("RTC Set_UnixTime SetDate failed!");
     }
 
     /*##-2- Configure the Time #################################################*/
-    stimestructure.Hours   = tmTemp->tm_hour;
-    stimestructure.Minutes = tmTemp->tm_min;
-    stimestructure.Seconds = tmTemp->tm_sec;
-    stimestructure.TimeFormat = RTC_HOURFORMAT12_AM;
+    /* Set Time: 00:00:00 */
+    stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
+    stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
+    stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
+    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
     stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
     stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        /* Initialization Error */
-        //Error_Handler();
+        DEBUG("RTC Set_UnixTime SetTime failed!");
     }
 
     /*##-3- Writes a data in a RTC Backup data Register1 #######################*/

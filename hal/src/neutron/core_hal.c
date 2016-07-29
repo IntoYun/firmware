@@ -92,6 +92,7 @@ void application_task_start(void* arg)
 int main(void)
 {
     HAL_Core_Setup();
+    HAL_RTC_Initial();
     app_setup_and_loop();
     while(1);
     return 0;
