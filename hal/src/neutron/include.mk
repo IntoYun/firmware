@@ -17,8 +17,8 @@ ifneq (,$(HAL_LINK))
 LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm
 LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
-LDFLAGS += --specs=$(NEWLIB_TWEAK_SPECS)
-#LDFLAGS += --specs=nano.specs
+#LDFLAGS += --specs=$(NEWLIB_TWEAK_SPECS)
+LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 
 # support for external linker file

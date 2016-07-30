@@ -23,7 +23,7 @@ endif
 CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
 #CFLAGS += -g3 -gdwarf-2 -O0 -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
 #CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wall -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
-CFLAGS += --specs=nano.specs
+#CFLAGS += --specs=nano.specs
 
 # C++ 编译参数
 CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new

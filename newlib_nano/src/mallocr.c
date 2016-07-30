@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include "service_debug.h"
 
 #define INTERNAL_NEWLIB
 #define DEFINE_MALLOC
@@ -259,25 +260,29 @@ void * nano_malloc(RARG malloc_size_t s)
     int offset;
 
     malloc_size_t alloc_size;
-
+    //DEBUG("nano_malloc");
     alloc_size = ALIGN_TO(s, CHUNK_ALIGN); /* size of aligned data load */
     alloc_size += MALLOC_PADDING; /* padding */
     alloc_size += CHUNK_OFFSET; /* size of chunk head */
     alloc_size = MAX(alloc_size, MALLOC_MINCHUNK);
 
+    //DEBUG("0");
     if (alloc_size >= MAX_ALLOC_SIZE || alloc_size < s)
     {
+        //DEBUG("0 alloc_size=%d",alloc_size);
         RERRNO = ENOMEM;
         return NULL;
     }
 
     MALLOC_LOCK;
 
+    //DEBUG("--");
     p = free_list;
     r = p;
 
     while (r)
     {
+        //DEBUG("r=%d",r);
         int rem = r->size - alloc_size;
         if (rem >= 0)
         {
@@ -316,6 +321,7 @@ void * nano_malloc(RARG malloc_size_t s)
         /* sbrk returns -1 if fail to allocate */
         if (r == (void *)-1)
         {
+            //DEBUG("11111");
             RERRNO = ENOMEM;
             MALLOC_UNLOCK;
             return NULL;
@@ -335,6 +341,8 @@ void * nano_malloc(RARG malloc_size_t s)
     }
 
     assert(align_ptr + size <= (char *)r + alloc_size);
+
+    //DEBUG("nano_malloc align_ptr=%x",align_ptr);
     return align_ptr;
 }
 #endif /* DEFINE_MALLOC */

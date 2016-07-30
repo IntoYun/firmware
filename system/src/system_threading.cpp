@@ -36,7 +36,7 @@
 
 void system_thread_idle()
 {
-    Spark_Idle_Events(true);
+    IntoRobot_Idle_Events(true);
 }
 
 ActiveObjectThreadQueue SystemThread(ActiveObjectConfiguration(system_thread_idle,

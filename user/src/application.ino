@@ -114,7 +114,7 @@ void loop()
 #endif
 
 #if 1
-
+SYSTEM_THREAD(ENABLED);
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
@@ -128,7 +128,7 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
-    Serial1.printf("%f", 1.234);
+    //Serial1.printf("%f", 1.234);
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW

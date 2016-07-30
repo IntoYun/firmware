@@ -352,6 +352,7 @@ void manage_safe_mode()
 
 void app_loop(bool threaded)
 {
+#if 0
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1))
     {
@@ -364,10 +365,11 @@ void app_loop(bool threaded)
     //Execute user application loop
     loop();
     //_post_loop();
-#if 0
+#endif
+#if 1
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
     if (!threaded)
-        Spark_Idle();
+        IntoRobot_Idle();
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if(threaded || SPARK_WLAN_SLEEP || !intorobot_cloud_flag_auto_connect() || intorobot_cloud_flag_connected() || INTOROBOT_WIRING_APPLICATION || (system_mode()!=AUTOMATIC))
@@ -398,10 +400,10 @@ void app_loop(bool threaded)
 
 
 #if PLATFORM_THREADING
-
 // This is the application loop ActiveObject.
 void app_thread_idle()
 {
+    DEBUG_D("app_thread_idle\r\n");
     app_loop(true);
 }
 

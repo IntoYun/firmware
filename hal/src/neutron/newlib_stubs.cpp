@@ -27,6 +27,7 @@
 #include <malloc.h>
 /* Define abort() */
 #include <stdlib.h>
+#include "service_debug.h"
 
 
 extern "C" {
@@ -85,7 +86,7 @@ extern "C" {
     caddr_t _sbrk(int incr)
     {
         char* prev_heap;
-
+        //DEBUG_D("sbrk_heap_top=%x  link_heap_location_end=%x ",sbrk_heap_top, &link_heap_location_end);
         if (sbrk_heap_top + incr > &link_heap_location_end)
         {
             volatile struct mallinfo mi = mallinfo();

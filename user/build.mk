@@ -60,7 +60,7 @@ INCLUDE_DIRS += $(addsuffix /src,$(shell find $(MODULE_PATH)/libraries -maxdepth
 
 CPPFLAGS += -std=gnu++11
 
-#BUILTINS_EXCLUDE = malloc free realloc
-#CFLAGS += $(addprefix -fno-builtin-,$(BUILTINS_EXCLUDE))
+BUILTINS_EXCLUDE = malloc free realloc
+CFLAGS += $(addprefix -fno-builtin-,$(BUILTINS_EXCLUDE))
 
 CFLAGS += $(EXTRA_CFLAGS)

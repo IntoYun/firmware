@@ -309,7 +309,7 @@ extern SystemClass System;
 
 #define SYSTEM_MODE(mode)  SystemClass SystemMode(mode);
 
-#define SYSTEM_THREAD(state) STARTUP(system_thread_set_state(spark::feature::state, NULL));
+#define SYSTEM_THREAD(state) STARTUP(system_thread_set_state(intorobot::feature::state, NULL));
 
 #define waitFor(condition, timeout) System.waitCondition([]{ return (condition)(); }, (timeout))
 #define waitUntil(condition) System.waitCondition([]{ return (condition)(); })
