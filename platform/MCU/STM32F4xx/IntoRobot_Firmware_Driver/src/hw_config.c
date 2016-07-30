@@ -86,7 +86,7 @@ static void SystemClock_Config(void)
     /* The voltage scaling allows optimizing the power consumption when the device is
        clocked below the maximum system frequency, to update the voltage scaling value
        regarding system frequency refer to product datasheet.  */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     /* Enable HSI Oscillator and activate PLL with HSI as source */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
@@ -154,7 +154,7 @@ void Set_System(void)
   *   This parameter can be one of the following values:
   *     @arg NVIC_VectTab_RAM
   *     @arg NVIC_VectTab_FLASH
-  * @param  Offset: Vector Table base offset field. This value must be a multiple 
+  * @param  Offset: Vector Table base offset field. This value must be a multiple
   *         of 0x200.
   * @retval None
   */
@@ -166,5 +166,6 @@ void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset)
 
   SCB->VTOR = NVIC_VectTab | (Offset & (uint32_t)0x1FFFFF80);
 }
+
 
 

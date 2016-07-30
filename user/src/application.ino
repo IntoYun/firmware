@@ -320,22 +320,23 @@ void setup()
 {
     DEBUG("RTC Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-
+    digitalWrite(LED_PIN, LOW);   // turn the LED on (HIGH is the voltage level)
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                   // wait for a second
-    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);                   // wait for a second
+    //digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //delay(1000);                   // wait for a second
+    //digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    //delay(1000);                   // wait for a second
 
     DEBUG("\r\n");
     DEBUG("\r\n");
     DEBUG("\r\n");
     DEBUG("Runing !");
 
+    delay(3000);
 #if 1
     DEBUG("time   : %d", Time.now() );
     DEBUG("year   : %d", Time.year() );
@@ -346,12 +347,12 @@ void loop()
     DEBUG("second : %d", Time.second() );
     DEBUG("weekday: %d", Time.weekday() );
 #endif
-    delay(3000);
 
     DEBUG("\r\n");
     /*Time.setTime(0);*/
     // Time.setTime(1451606400UL); //20160101000000
-    Time.setTime(1454284800UL); //20160201000000
+    // Time.setTime(1454284800UL); //20160201000000
+    delay(1000);
 #if 0
     DEBUG("time   : %d", Time.now() );
     DEBUG("year   : %d", Time.year() );
