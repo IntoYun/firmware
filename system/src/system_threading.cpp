@@ -19,11 +19,60 @@
 
 
 #include "system_threading.h"
+#include "cmsis_os.h"
 #include "system_task.h"
 #include <time.h>
 #include <string.h>
 
 
+#if PLATFORM_THREADING
+
+static osThreadId handle_system_task;   //系统任务ID
+#define SYSTEM_TREAD_STACK_SIZE         6144
+
+
+static void system_task_start(void const *argument)
+{
+    system_process_loop();
+}
+
+void create_system_task(void)
+{
+    /*system_tread*/
+    osThreadDef(SYSTEM_THEARD, system_task_start, osPriorityNormal, 0, SYSTEM_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
+    handle_system_task = osThreadCreate(osThread(SYSTEM_THEARD),NULL);
+}
+
+void close_system_task(void)
+{
+    osThreadTerminate(handle_system_task);
+}
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 #if PLATFORM_THREADING
 
 #if HAL_PLATFORM_CLOUD_UDP
@@ -166,3 +215,4 @@ void* system_internal(int item, void* reserved)
     }
     return nullptr;
 }
+#endif

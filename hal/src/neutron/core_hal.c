@@ -36,6 +36,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "service_debug.h"
+#include "cmsis_os.h"
 /* Private typedef ----------------------------------------------------------*/
 
 /* Private define -----------------------------------------------------------*/
@@ -60,37 +61,39 @@ extern volatile uint32_t TimingDelay;
 static uint8_t  is_os_running=0;
 
 static TaskHandle_t  app_thread_handle;
-#define APPLICATION_STACK_SIZE 6144
+
+#define APP_TREAD_STACK_SIZE            6144
+#define SYSTEM_TREAD_STACK_SIZE         6144
+#define UI_TREAD_STACK_SIZE             configMINIMAL_STACK_SIZE
 
 /**
  * The mutex to ensure only one thread manipulates the heap at a given time.
  */
-xSemaphoreHandle malloc_mutex = 0;
 
-static void init_malloc_mutex(void)
+static osSemaphoreId malloc_protect_sem;     //申请释放内存保护信号量
+
+static void init_malloc_semaphore(void)
 {
-    malloc_mutex = xSemaphoreCreateRecursiveMutex();
+    //创建信号量
+    osSemaphoreDef(MALLOC_SEM);
+    malloc_protect_sem = osSemaphoreCreate(osSemaphore(MALLOC_SEM) , 1);
 }
 
 void __malloc_lock(void* ptr)
 {
-    DEBUG("__malloc_lock=%d",malloc_mutex);
-#if 0
-    if (malloc_mutex)
-        while (!xSemaphoreTakeRecursive(malloc_mutex, 0xFFFFFFFF)) {}
-#endif
+    //DEBUG("__malloc_lock=%d",malloc_protect_sem);
+    if (malloc_protect_sem)
+      while(osSemaphoreWait(malloc_protect_sem, 0) != osOK) {}
 }
 
 void __malloc_unlock(void* ptr)
 {
-#if 0
-    if (malloc_mutex)
-xSemaphoreGiveRecursive(malloc_mutex);
-#endif
-    DEBUG("__malloc_unlock=%d",malloc_mutex);
+    if (malloc_protect_sem)
+        osSemaphoreRelease(malloc_protect_sem);
+    //DEBUG("__malloc_unlock=%d",malloc_protect_sem);
 }
 
-void application_task_start(void* arg)
+static void app_task_start(void const *argument)
 {
     is_os_running = 1;
     HAL_Core_Setup();
@@ -103,7 +106,7 @@ void application_task_start(void* arg)
 int main(void)
 {
     /*
-    char _buffer[256]={0};
+       char _buffer[256]={0};
 
     //int a = HAL_Timer_Get_Milli_Seconds();
     int a = 12242;
@@ -118,8 +121,30 @@ int main(void)
     return 0;
 #endif
 #if 1
+    init_malloc_semaphore();
+    init_modem_semaphore();
+    /*app_tread*/
+    osThreadDef(APP_THREAD, app_task_start, osPriorityNormal,0,APP_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
+    osThreadCreate(osThread(APP_THREAD),NULL);
+#if 0
+    /*system_tread*/
+    osThreadDef(SYSTEM_THEARD, system_task_start, osPriorityNormal, 0, SYSTEM_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
+    osThreadCreate(osThread(SYSTEM_THEARD),NULL);
+
+    /*user_interface_thread   rgb and button*/
+    osThreadDef(UI_THREAD, ui_task_start, osPriorityNormal, 0, UI_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
+    osThreadCreate(osThread(UI_THREAD),NULL);
+#endif
+    /* Start scheduler */
+    osKernelStart();
+    /* we should never get here */
+    while (1);
+    return 0;
+#endif
+
+#if 0
     init_malloc_mutex();
-    xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
+    xTaskCreate( app_task_start, "app_thread", APP_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
 
     vTaskStartScheduler();
     /* we should never get here */
@@ -253,6 +278,12 @@ int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, uns
     return -1;
 }
 
+void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
+{
+   //APP_LineCodingBitRateHandler = handler;
+}
+
+
 /**
  * @brief  This function handles SysTick Handler.
  * @param  None
@@ -264,7 +295,7 @@ void SysTick_Handler(void)
     System1MsTick();
 #if 1
     if (1 == is_os_running){
-        xPortSysTickHandler();
+        osSystickHandler();
     }
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();

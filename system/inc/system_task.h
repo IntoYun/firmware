@@ -35,6 +35,9 @@
 extern "C" {
 #endif
 
+void system_process_loop(void);
+void ui_process_loop(void);
+
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS);
 void Network_Setup(bool threaded);
 

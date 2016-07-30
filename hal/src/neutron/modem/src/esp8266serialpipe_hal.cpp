@@ -40,7 +40,6 @@ Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
 
 Esp8266SerialPipe::~Esp8266SerialPipe(void)
 {
-#if 1
     // wait for transmission of outgoing data
     __HAL_RCC_USART1_FORCE_RESET();
     __HAL_RCC_USART1_RELEASE_RESET();
@@ -49,51 +48,10 @@ Esp8266SerialPipe::~Esp8266SerialPipe(void)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_10);
 
     HAL_NVIC_DisableIRQ(USART1_IRQn);
-#endif
-#if 0
-    // wait for transmission of outgoing data
-    __HAL_RCC_USART2_FORCE_RESET();
-    __HAL_RCC_USART2_RELEASE_RESET();
-
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
-
-    HAL_NVIC_DisableIRQ(USART2_IRQn);
-#endif
 }
 
 void Esp8266SerialPipe::begin(unsigned int baud)
 {
-#if 0
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_USART2_CLK_ENABLE();
-
-    GPIO_InitTypeDef  GPIO_InitStruct;
-    /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = GPIO_PIN_2|GPIO_PIN_3;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    UartHandle_ESP8266.Instance          = USART2;
-    //UartHandle_ESP8266.Init.BaudRate     = baud;
-    UartHandle_ESP8266.Init.BaudRate     = 115200;
-    UartHandle_ESP8266.Init.WordLength   = UART_WORDLENGTH_8B;
-    UartHandle_ESP8266.Init.StopBits     = UART_STOPBITS_1;
-    UartHandle_ESP8266.Init.Parity       = UART_PARITY_NONE;
-    UartHandle_ESP8266.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    UartHandle_ESP8266.Init.Mode         = UART_MODE_TX_RX;
-    UartHandle_ESP8266.Init.OverSampling = UART_OVERSAMPLING_16;
-    HAL_UART_Init(&UartHandle_ESP8266);
-
-    //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(USART2_IRQn, 0x05, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
-    __HAL_UART_ENABLE_IT(&UartHandle_ESP8266, UART_IT_RXNE);
-#endif
-#if 1
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_USART1_CLK_ENABLE();
 
@@ -125,7 +83,6 @@ void Esp8266SerialPipe::begin(unsigned int baud)
     HAL_NVIC_SetPriority(USART1_IRQn, 0x05, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
     __HAL_UART_ENABLE_IT(&UartHandle_ESP8266, UART_IT_RXNE);
-#endif
 }
 
 // tx channel
@@ -137,7 +94,6 @@ int Esp8266SerialPipe::writeable(void)
 int Esp8266SerialPipe::putc(int c)
 {
     uint8_t data = c;
-    //DEBUG_D("%c\r\n",data);
     HAL_UART_Transmit(&UartHandle_ESP8266, &data, 1, 5);//5ms  带操作系统待验证
     return c;
 }
@@ -149,7 +105,6 @@ int Esp8266SerialPipe::put(const void* buffer, int length, bool blocking)
 
     for(n=0; n<length; n++)
     {
-        //DEBUG_D("%c\r\n",ptr[n]);
         putc(ptr[n]);
     }
     return length;
@@ -182,18 +137,20 @@ void Esp8266SerialPipe::rxIrqBuf(void)
         /* overflow */;
 }
 
-extern "C" void HAL_USART1_Handler(UART_HandleTypeDef *huart)
+extern "C" 
 {
-    if((__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET)
-            && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET))
+    void HAL_USART1_Handler(UART_HandleTypeDef *huart)
     {
-        esp8266MDM.rxIrqBuf();
+        if((__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET)
+                && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET))
+        {
+            esp8266MDM.rxIrqBuf();
+        }
+    }
+
+    // Serial1 interrupt handler
+    void USART1_IRQHandler(void)
+    {
+        HAL_USART1_Handler(&UartHandle_ESP8266);
     }
 }
-
-// Serial1 interrupt handler
-void USART1_IRQHandler(void)
-{
-    HAL_USART1_Handler(&UartHandle_ESP8266);
-}
-

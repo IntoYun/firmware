@@ -41,6 +41,26 @@
 #include "wiring_cloud.h"
 #include "system_threading.h"
 
+
+void system_process_loop(void)
+{
+    DEBUG_D("system_process_loop\r\n");
+    while (1) {
+        //DEBUG_D("process_loop");
+    }
+}
+
+void ui_process_loop(void)
+{
+    DEBUG_D("ui_process_loop\r\n");
+
+}
+
+#if 0
+
+
+
+
 using intorobot::Network;
 
 volatile system_tick_t spark_loop_total_millis = 0;
@@ -351,43 +371,12 @@ void IntoRobot_Idle_Events(bool force_events/*=false*/)
     system_shutdown_if_needed();
 #endif
 }
+#endif
+#if 1
 
-/*
- * @brief This should block for a certain number of milliseconds and also execute spark_wlan_loop
- */
-void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
-{
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-
-    //DEBUG_D("system_delay_pump\r\n");
-    while (1)
-    {
-        HAL_IWDG_Feed();
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-        //DEBUG_D("elapsed_millis=%d, ms =%d\r\n", elapsed_millis, ms);
-        if (elapsed_millis > ms)
-        {
-            break;
-        }
-    }
-}
-
-/**
- * On a non threaded platform, or when called from the application thread, then
- * run the background loop so that application events are processed.
- */
 void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
-    // if not threading, or we are the application thread, then implement delay
-    // as a background message pump
-    if (!system_thread_get_state(NULL) ||
-            APPLICATION_THREAD_CURRENT()) {
-        system_delay_pump(ms, force_no_background_loop);
-    }
-    else
-    {
-        HAL_Delay_Milliseconds(ms);
-    }
+    HAL_Delay_Milliseconds(ms);
 }
 
 
@@ -418,4 +407,4 @@ void cloud_disconnect(bool closeSocket)
 #endif
 #endif
 }
-
+#endif

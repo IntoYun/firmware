@@ -41,6 +41,11 @@
 #undef getc
 
 
+extern "C"
+{
+    void init_modem_semaphore(void);
+}
+
 
 /** basic modem parser class
 */

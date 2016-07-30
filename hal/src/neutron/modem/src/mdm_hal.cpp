@@ -23,17 +23,13 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "hw_config.h"
 #include "mdm_hal.h"
 #include "timer_hal.h"
 #include "delay_hal.h"
-#include "pinmap_hal.h"
-#include "pinmap_impl.h"
 #include "gpio_hal.h"
-//#include "mdmapn_hal.h"
-#include "stm32f4xx.h"
 #include "service_debug.h"
-#include "concurrent_hal.h"
-#include <mutex>
+#include "cmsis_os.h"
 #include "net_hal.h"
 
 
@@ -42,8 +38,11 @@
 #undef getc
 #endif
 
-
-std::recursive_mutex mdm_mutex;
+extern "C"
+{
+    static void __modem_lock(void);
+    static void __modem_unlock(void);
+}
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -60,10 +59,31 @@ std::recursive_mutex mdm_mutex;
 //! check for timeout
 #define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
 //! helper to make sure that lock unlock pair is always balanced
-#define LOCK()      std::lock_guard<std::recursive_mutex> __mdm_guard(mdm_mutex);
-//#define LOCK()
+#define LOCK()      __modem_lock()
 //! helper to make sure that lock unlock pair is always balanced
-#define UNLOCK()
+#define UNLOCK()    __modem_unlock()
+
+
+static osSemaphoreId modem_protect_sem;     //申请释放内存保护信号量
+
+void init_modem_semaphore(void)
+{
+    //创建信号量
+    osSemaphoreDef(MODEM_SEM);
+    modem_protect_sem = osSemaphoreCreate(osSemaphore(MODEM_SEM) , 1);
+}
+
+static void __modem_lock(void)
+{
+    if (modem_protect_sem)
+      while(osSemaphoreWait(modem_protect_sem, 0) != osOK) {}
+}
+
+static void __modem_unlock(void)
+{
+    if (modem_protect_sem)
+        osSemaphoreRelease(modem_protect_sem);
+}
 
 
 #ifdef MDM_DEBUG
@@ -335,11 +355,8 @@ bool MDMParser::init(void)
 
     if (!_init) {
         MDM_INFO("[ Esp8266 init ]");
-        reset();
-        HAL_Delay_Milliseconds(MDM_ESP8266_RESET_DELAY);
-        /* Instantiate the USART1 hardware */
         esp8266MDM.begin(460800);
-        //esp8266MDM.begin(115200);
+        reset();
         /* Initialize only once */
         _init = true;
     }
@@ -353,6 +370,7 @@ bool MDMParser::init(void)
             continue_cancel = true;
             resume(); // make sure we can talk to the modem
         }
+        HAL_Delay_Milliseconds(1000);
         // echo off
         sendFormated("ATE0\r\n");
         int r = waitFinalResp(NULL,NULL,1000);

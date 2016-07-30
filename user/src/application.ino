@@ -114,15 +114,16 @@ void loop()
 #endif
 
 #if 1
-SYSTEM_THREAD(ENABLED);
+//SYSTEM_THREAD(ENABLED);
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
-Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
 #define LED_PIN D7
 
 void setup()
 {
     pinMode(LED_PIN, OUTPUT);
+    esp8266MDM.init();
 }
 
 // the loop function runs over and over again forever

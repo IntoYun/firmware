@@ -33,6 +33,7 @@
 #include "interrupts_hal.h"
 #include <mutex>
 
+#if 1
 inline bool isISR()
 {
 	return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
@@ -480,3 +481,4 @@ int os_timer_is_active(os_timer_t timer, void* reserved)
 {
     return xTimerIsTimerActive(timer) != pdFALSE;
 }
+#endif
