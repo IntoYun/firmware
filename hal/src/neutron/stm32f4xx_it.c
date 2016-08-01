@@ -234,26 +234,6 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void)
  //   HAL_TIM_IRQHandler(&Timer11Handle);
 }
 
-void TIM2_IRQHandler(void)
-{
-//    HAL_TIM_IRQHandler(&Timer2Handle);
-}
-
-void TIM3_IRQHandler(void)
-{
-//    HAL_TIM_IRQHandler(&Timer3Handle);
-}
-
-void TIM4_IRQHandler(void)
-{
-//    HAL_TIM_IRQHandler(&Timer4Handle);
-}
-
-void TIM5_IRQHandler(void)
-{
-//    HAL_TIM_IRQHandler(&Timer5Handle);
-}
-
 
 
 

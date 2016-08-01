@@ -24,22 +24,8 @@
 #include "service_debug.h"
 
 #define TONE_TIM_COUNTER_CLOCK_FREQ 1000000 ////TIM Counter clock = 1MHz
-extern void (*TIM2_IRQHandler)(void);
-extern void (*TIM3_IRQHandler)(void);
-extern void (*TIM4_HIRQandler)(void);
-extern void (*TIM5_HIRQandler)(void);
 
-/*void (*TIM2_IRQHandler)(void);*/
-/*void (*TIM3_IRQHandler)(void);*/
-/*void (*TIM4_HIRQandler)(void);*/
-/*void (*TIM5_HIRQandler)(void);*/
-
-//static void Tone_TIM2_Handler(void);
-//static void Tone_TIM3_Handler(void);
-//static void Tone_TIM4_Handler(void);
-//static void Tone_TIM5_Handler(void);
 TIM_HandleTypeDef TimHandleTone;
-
 /*
  * @brief Tone start with frequency and  duration
  * @param pin: The select pin
@@ -83,8 +69,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
                 __HAL_RCC_GPIOB_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
-            HAL_NVIC_SetPriority(TIM2_CC_IRQn, 0x0E, 0);
-            HAL_NVIC_EnableIRQ(TIM2_CC_IRQn);
+            HAL_NVIC_SetPriority(TIM2_IRQn, 0x0E, 0);
+            HAL_NVIC_EnableIRQ(TIM2_IRQn);
             //HAL_TIM2_Handler = Tone_TIM2_Handler;
 
         }
@@ -117,8 +103,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
                 __HAL_RCC_GPIOB_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
-            HAL_NVIC_SetPriority(TIM3_CC_IRQn, 0x0E, 0);
-            HAL_NVIC_EnableIRQ(TIM3_CC_IRQn);
+            HAL_NVIC_SetPriority(TIM3_IRQn, 0x0E, 0);
+            HAL_NVIC_EnableIRQ(TIM3_IRQn);
 
             //HAL_TIM3_Handler = Tone_TIM3_Handler;
         }
@@ -140,8 +126,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
                 __HAL_RCC_GPIOB_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
-            HAL_NVIC_SetPriority(TIM4_CC_IRQn, 0x0E, 0);
-            HAL_NVIC_EnableIRQ(TIM4_CC_IRQn);
+            HAL_NVIC_SetPriority(TIM4_IRQn, 0x0E, 0);
+            HAL_NVIC_EnableIRQ(TIM4_IRQn);
             //HAL_TIM4_Handler = Tone_TIM4_Handler;
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM5) )
@@ -163,8 +149,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
                 __HAL_RCC_GPIOB_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
-            HAL_NVIC_SetPriority(TIM5_CC_IRQn, 0x0E, 0);
-            HAL_NVIC_EnableIRQ(TIM5_CC_IRQn);
+            HAL_NVIC_SetPriority(TIM5_IRQn, 0x0E, 0);
+            HAL_NVIC_EnableIRQ(TIM5_IRQn);
             //HAL_TIM5_Handler = Tone_TIM5_Handler;
         }
 
@@ -292,66 +278,43 @@ bool HAL_Tone_Is_Stopped(uint8_t pin)
 }
 
 /**
- * @brief  This function handles TIMx_INSTANCE Interrupt.
+ * @brief  This function handles TIM2_INSTANCE Interrupt.
+ * @param  None
+ * @retval None
+ */
+void TIM2_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandleTone);
+}
+/**
+ * @brief  This function handles TIM3_INSTANCE Interrupt.
  * @param  None
  * @retval None
  */
 void TIM3_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&TimHandle);
+    HAL_TIM_IRQHandler(&TimHandleTone);
 }
 
-
-void TIM2_CC_IRQHandler(void)
+/**
+ * @brief  This function handles TIM4_INSTANCE Interrupt.
+ * @param  None
+ * @retval None
+ */
+void TIM4_IRQHandler(void)
 {
-    uint16_t capture;
-
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
-    if (TIM_GetITStatus(TIM1, TIM_IT_CC2) != RESET)
-    {
-        TIM_ClearITPendingBit(TIM1, TIM_IT_CC2);
-        capture = TIM_GetCapture2(TIM1);
-        TIM_SetCompare2(TIM1, capture + PIN_MAP[19].timer_ccr);
-        if(PIN_MAP[19].user_property != -1)
-        {
-            if (PIN_MAP[19].user_property > 0)
-            {
-                PIN_MAP[19].user_property -= 1;
-            }
-            else
-            {
-                HAL_Tone_Stop(19);
-            }
-        }
-    }
-
-
-    /* TIM1_CH1 toggling with frequency = 244.13 Hz */
-    if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-    {
-        uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-        /* Set the Capture Compare Register value */
-        __HAL_TIM_SET_COMPARE(&TimHandle, TIM_CHANNEL_1, (uhCapture + uhCCR1_Val));
-    }
-
-
-
+    HAL_TIM_IRQHandler(&TimHandleTone);
 }
 
-void TIM3_CC_IRQHandler(void)
+/**
+ * @brief  This function handles TIM5_INSTANCE Interrupt.
+ * @param  None
+ * @retval None
+ */
+void TIM5_IRQHandler(void)
 {
-
+    HAL_TIM_IRQHandler(&TimHandleTone);
 }
-void TIM4_CC_IRQHandler(void)
-{
-
-}
-void TIM5_CC_IRQHandler(void)
-{
-
-}
-
 
 /**
  * @brief  Output Compare callback in non blocking mode
@@ -360,33 +323,8 @@ void TIM5_CC_IRQHandler(void)
  */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
-        TimHandleTone.Instance = PIN_MAP[pin].timer_peripheral;
-        TimHandleTone.Init.Period            = 0xFFFF; // 16 bit timer 65535
-        TimHandleTone.Init.Prescaler         = TIM_Prescaler;
-        TimHandleTone.Init.ClockDivision     = 0;
-        TimHandleTone.Init.CounterMode       = TIM_COUNTERMODE_UP;
-        HAL_TIM_OC_Init(&TimHandleTone);
-
-    uint16_t capture;
+    uint32_t uhCapture = 0;
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    /* TIM1_CH1 toggling with frequency = 244.13 Hz */
-    if(htim->Instance == TIM2)
-    {
-        if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-        {
-            uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-            /* Set the Capture Compare Register value */
-            __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_1, (uhCapture + uhCCR1_Val));
-        }
-        if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
-        {
-            uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-            /* Set the Capture Compare Register value */
-            __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_2, (uhCapture + uhCCR2_Val));
-        }
-
-    }
-
     // CHANNEL_1: TIM2(A5), TIM3(D2, A6), TIM4(D7), TIM5(A0)
     // CHANNEL_2: TIM2(D3), TIM3(D0, A7),           TIM5(A1)
     // CHANNEL_3:                                   TIM5(A2)
@@ -394,13 +332,12 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
     if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
     {
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-        /* Set the Capture Compare Register value */
-        __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_1, (uhCapture + uhCCR1_Val));
-
         if(htim->Instance == TIM2)
         {
             if(PIN_MAP[A5].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[A5].timer_ccr));
                 if (PIN_MAP[A5].user_property > 0)
                 {
                     PIN_MAP[A5].user_property -= 1;
@@ -415,6 +352,9 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         {
             if(PIN_MAP[D2].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[D2].timer_ccr));
+
                 if (PIN_MAP[D2].user_property > 0)
                 {
                     PIN_MAP[D2].user_property -= 1;
@@ -426,6 +366,9 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
             }
             else if(PIN_MAP[A6].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[A6].timer_ccr));
+
                 if (PIN_MAP[A6].user_property > 0)
                 {
                     PIN_MAP[A6].user_property -= 1;
@@ -440,6 +383,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         {
             if(PIN_MAP[D7].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[D7].timer_ccr));
                 if (PIN_MAP[D7].user_property > 0)
                 {
                     PIN_MAP[D7].user_property -= 1;
@@ -452,6 +397,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         }
         else if(htim->Instance == TIM5)
         {
+            /* Set the Capture Compare Register value */
+            __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[A0].timer_ccr));
             if(PIN_MAP[A0].user_property != -1)
             {
                 if (PIN_MAP[A0].user_property > 0)
@@ -469,12 +416,12 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
     else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
     {
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-        /* Set the Capture Compare Register value */
-        __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_2, (uhCapture + uhCCR2_Val));
         if(htim->Instance == TIM2)
         {
             if(PIN_MAP[D3].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[D3].timer_ccr));
                 if (PIN_MAP[D3].user_property > 0)
                 {
                     PIN_MAP[D3].user_property -= 1;
@@ -489,6 +436,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         {
             if(PIN_MAP[D0].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[D0].timer_ccr));
                 if (PIN_MAP[D0].user_property > 0)
                 {
                     PIN_MAP[D0].user_property -= 1;
@@ -500,6 +449,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
             }
             else if(PIN_MAP[A7].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[A7].timer_ccr));
                 if (PIN_MAP[A7].user_property > 0)
                 {
                     PIN_MAP[A7].user_property -= 1;
@@ -514,6 +465,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         {
             if(PIN_MAP[A1].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[A1].timer_ccr));
                 if (PIN_MAP[A1].user_property > 0)
                 {
                     PIN_MAP[A1].user_property -= 1;
@@ -524,18 +477,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
                 }
             }
         }
-
     }
     // CHANNEL_3:                                   TIM5(A2)
     else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3)
     {
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
-        /* Set the Capture Compare Register value */
-        __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_3, (uhCapture + uhCCR3_Val));
         if(htim->Instance == TIM5)
         {
             if(PIN_MAP[A2].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, (uhCapture + PIN_MAP[A2].timer_ccr));
                 if (PIN_MAP[A2].user_property > 0)
                 {
                     PIN_MAP[A2].user_property -= 1;
@@ -546,18 +498,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
                 }
             }
         }
-
     }
     // CHANNEL_4:                                   TIM5(A3)
     else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
     {
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
-        /* Set the Capture Compare Register value */
-        __HAL_TIM_SET_COMPARE(&htim, TIM_CHANNEL_4, (uhCapture + uhCCR4_Val));
         if(htim->Instance == TIM5)
         {
             if(PIN_MAP[A3].user_property != -1)
             {
+                /* Set the Capture Compare Register value */
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, (uhCapture + PIN_MAP[A3].timer_ccr));
                 if (PIN_MAP[A3].user_property > 0)
                 {
                     PIN_MAP[A3].user_property -= 1;
@@ -568,6 +519,5 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
                 }
             }
         }
-
     }
 }
