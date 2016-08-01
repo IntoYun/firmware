@@ -37,6 +37,8 @@
 #include "semphr.h"
 #include "service_debug.h"
 #include "cmsis_os.h"
+#include "parser.h"
+
 /* Private typedef ----------------------------------------------------------*/
 
 /* Private define -----------------------------------------------------------*/
@@ -63,8 +65,6 @@ static uint8_t  is_os_running=0;
 static TaskHandle_t  app_thread_handle;
 
 #define APP_TREAD_STACK_SIZE            6144
-#define SYSTEM_TREAD_STACK_SIZE         6144
-#define UI_TREAD_STACK_SIZE             configMINIMAL_STACK_SIZE
 
 /**
  * The mutex to ensure only one thread manipulates the heap at a given time.
@@ -105,52 +105,16 @@ static void app_task_start(void const *argument)
  */
 int main(void)
 {
-    /*
-       char _buffer[256]={0};
-
-    //int a = HAL_Timer_Get_Milli_Seconds();
-    int a = 12242;
-    float i = a*0.34;
-    sprintf(_buffer, "%f\r\n", i);
-    while(1);
-    */
-#if 0
-    HAL_Core_Setup();
-    app_setup_and_loop();
-    while(1);
-    return 0;
-#endif
-#if 1
     init_malloc_semaphore();
-    init_modem_semaphore();
+    //init_modem_semaphore();
     /*app_tread*/
     osThreadDef(APP_THREAD, app_task_start, osPriorityNormal,0,APP_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
     osThreadCreate(osThread(APP_THREAD),NULL);
-#if 0
-    /*system_tread*/
-    osThreadDef(SYSTEM_THEARD, system_task_start, osPriorityNormal, 0, SYSTEM_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
-    osThreadCreate(osThread(SYSTEM_THEARD),NULL);
-
-    /*user_interface_thread   rgb and button*/
-    osThreadDef(UI_THREAD, ui_task_start, osPriorityNormal, 0, UI_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
-    osThreadCreate(osThread(UI_THREAD),NULL);
-#endif
     /* Start scheduler */
     osKernelStart();
     /* we should never get here */
     while (1);
     return 0;
-#endif
-
-#if 0
-    init_malloc_mutex();
-    xTaskCreate( app_task_start, "app_thread", APP_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
-
-    vTaskStartScheduler();
-    /* we should never get here */
-    while (1);
-    return 0;
-#endif
 }
 
 void HAL_1Ms_Tick()
@@ -200,6 +164,7 @@ void HAL_Core_Config(void)
 
 void HAL_Core_Setup(void)
 {
+    esp8266MDM.init();
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
     HAL_Bootloader_Lock(true);
@@ -293,7 +258,6 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-#if 1
     if (1 == is_os_running){
         osSystickHandler();
     }
@@ -301,5 +265,4 @@ void SysTick_Handler(void)
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();
     //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
-#endif
 }

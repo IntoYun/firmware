@@ -174,16 +174,6 @@ void SysTick_Handler(void)
 * @param  None
 * @retval None
 */
-void WWDG_IRQHandler(void)
-{
-
-DEBUG("wwdg\r\n");
-    while (1)
-    {
-    }
-
-}
-
 void DMA2_Stream0_IRQHandler(void)
 {
     //HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
@@ -522,17 +512,5 @@ void TIM5_IRQHandler(void)
 {
 //    HAL_TIM_IRQHandler(&Timer5Handle);
 }
-
-void USART6_IRQHandler(void)
-{
-
-DEBUG("wwdg\r\n");
-    while (1)
-    {
-    }
-
-
-}
-
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

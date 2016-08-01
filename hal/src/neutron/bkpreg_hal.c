@@ -7,12 +7,12 @@ int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
 {
     switch (BKP_DR)
     {
-    case BKP_DR_01:
-        return RTC_BKP_DR1;
-        break;
-    case BKP_DR_10:
-        return RTC_BKP_DR10;
-        break;
+        case BKP_DR_01:
+            return RTC_BKP_DR1;
+            break;
+        case BKP_DR_10:
+            return RTC_BKP_DR10;
+            break;
     }
     return -1;
 }

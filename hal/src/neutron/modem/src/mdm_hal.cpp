@@ -68,7 +68,6 @@ static osSemaphoreId modem_protect_sem;     //申请释放内存保护信号量
 
 void init_modem_semaphore(void)
 {
-    //创建信号量
     osSemaphoreDef(MODEM_SEM);
     modem_protect_sem = osSemaphoreCreate(osSemaphore(MODEM_SEM) , 1);
 }
@@ -351,8 +350,8 @@ void MDMParser::reset(void)
 
 bool MDMParser::init(void)
 {
+    init_modem_semaphore();
     LOCK();
-
     if (!_init) {
         MDM_INFO("[ Esp8266 init ]");
         esp8266MDM.begin(460800);

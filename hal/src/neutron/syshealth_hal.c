@@ -3,7 +3,7 @@
 
 
 eSystemHealth HAL_Get_Sys_Health() {
-    return  HAL_Core_Read_Backup_Register(BKP_DR_01);
+    return  (eSystemHealth)HAL_Core_Read_Backup_Register(BKP_DR_01);
     //return 0;
 }
 

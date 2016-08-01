@@ -19,7 +19,7 @@
 
 
 #include "inet_hal.h"
-
+#include "parser.h"
 
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,
         network_interface_t nif, void* reserved)

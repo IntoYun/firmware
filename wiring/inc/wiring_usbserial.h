@@ -32,6 +32,7 @@ class USBSerial : public Stream
 public:
 	// public methods
 	USBSerial();
+    virtual ~USBSerial() {};
 
     unsigned int baud() { return USB_USART_Baud_Rate(); }
 

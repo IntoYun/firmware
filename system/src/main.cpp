@@ -372,7 +372,7 @@ void app_loop(bool threaded)
 #if !PLATFORM_THREADING
     system_process_loop();
 #endif
-    DEBUG_D("app_loop\r\n");
+    //DEBUG_D("app_loop\r\n");
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1))
     {

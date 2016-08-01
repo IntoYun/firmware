@@ -206,7 +206,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     if(PIN_MAP[pin].pin_mode == AN_INPUT)
     {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
+        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
         if(pm == PIN_MODE_NONE)
         {
             return 0;
@@ -219,7 +219,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     }
     else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
     {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
+        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
         if(pm == PIN_MODE_NONE)
         {
             return 0;

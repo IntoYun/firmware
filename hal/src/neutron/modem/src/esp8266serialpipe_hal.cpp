@@ -137,7 +137,7 @@ void Esp8266SerialPipe::rxIrqBuf(void)
         /* overflow */;
 }
 
-extern "C" 
+extern "C"
 {
     void HAL_USART1_Handler(UART_HandleTypeDef *huart)
     {

@@ -18,6 +18,7 @@
 */
 
 #include "wlan_hal.h"
+#include "parser.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {

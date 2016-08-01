@@ -18,6 +18,8 @@
 */
 
 #include "socket_hal.h"
+#include "parser.h"
+
 
 const sock_handle_t SOCKET_MAX = (sock_handle_t)7; // 7 total sockets, handle 0-6
 const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
