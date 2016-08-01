@@ -123,27 +123,6 @@ static void RTC_CalendarAlarmConfig(void)
 
     /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
     HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
-
-    /*##-4- Configure the RTC Alarm peripheral #################################*/
-    /* Set Alam to 00:00:10
-       RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
-    RTC_AlarmTypeDef salarmstructure;
-    salarmstructure.Alarm                = RTC_ALARM_A;
-    salarmstructure.AlarmDateWeekDay     = RTC_WEEKDAY_FRIDAY;
-    salarmstructure.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY;
-    salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE;
-    salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    salarmstructure.AlarmTime.Hours      = 0x00;
-    salarmstructure.AlarmTime.Minutes    = 0x00;
-    salarmstructure.AlarmTime.Seconds    = 0x10;
-    salarmstructure.AlarmTime.SubSeconds = 0x00;
-
-    if(HAL_RTC_SetAlarm_IT(&RtcHandle, &salarmstructure, RTC_FORMAT_BCD) != HAL_OK)
-    {
-        /* Initialization Error */
-        DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
-    }
 }
 
 /*

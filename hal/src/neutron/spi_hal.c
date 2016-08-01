@@ -23,7 +23,7 @@
 #include "service_debug.h"
 
 #define TOTAL_SPI 2
-//#define useDMA
+//#define useDMASPI
 
 typedef enum SPI_Num_Def {
     SPI1_A5_A6_A7 = 0,
@@ -74,6 +74,11 @@ STM32_SPI_Info SPI_MAP[TOTAL_SPI] =
 static STM32_SPI_Info *spiMap[TOTAL_SPI];
 /* Private typedef -----------------------------------------------------------*/
 
+/*
+ * @brief Initialize the SPI peripheral and DMA.
+ * @param spi: spi number chosed
+ * @retral None
+ */
 void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 {
     DEBUG("Enter HAL_SPI_GPIO_DMA_Init...");
@@ -86,7 +91,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
         DEBUG("Select SPI1, and Enable Clock...");
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
-#ifdef useDMA
+#ifdef useDMASPI
         // DMA2 clock
         __HAL_RCC_DMA2_CLK_ENABLE();
 #endif
@@ -96,7 +101,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
         DEBUG("Select SPI3, and Enable Clock...");
         __HAL_RCC_SPI3_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
-#ifdef useDMA
+#ifdef useDMASPI
         // DMA1 clock
         __HAL_RCC_DMA1_CLK_ENABLE();
 #endif
@@ -123,7 +128,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 
     HAL_GPIO_Init( spiMap[spi]->SPI_MOSI_Port, &GPIO_InitStruct);
 
-#ifdef useDMA
+#ifdef useDMASPI
     static DMA_HandleTypeDef hdma_tx;
     static DMA_HandleTypeDef hdma_rx;
 
@@ -182,6 +187,11 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
 }
 
+/*
+ * @brief De-Initialize the SPI peripheral and DMA.
+ * @param spi: spi number chosed
+ * @retral None
+ */
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
     DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
@@ -206,7 +216,7 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
     /* Configure SPI MOSI as alternate function  */
     HAL_GPIO_DeInit(spiMap[spi]->SPI_MOSI_Port, spiMap[spi]->SPI_MOSI_Pin);
 
-#ifdef useDMA
+#ifdef useDMASPI
     static DMA_HandleTypeDef hdma_tx;
     static DMA_HandleTypeDef hdma_rx;
     /*##-3- Disable the DMA Streams ############################################*/
@@ -221,9 +231,14 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 #endif
 }
 
+/*
+ * @brief Initial the SPI, include setup which SPI used, and some flags.
+ * @param spi: spi number chosed
+ * @retral None
+ */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_Initial...");
+    //DEBUG("Enter HAL_SPI_Initial...");
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
     spiMap[spi]->SPI_Clock_Divider_Set = false;
@@ -231,6 +246,12 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
     spiMap[spi]->SpiHandle.Init.Mode   = SPI_MODE_MASTER;
 }
 
+/*
+ * @brief Begin the SPI
+ * @param spi: spi number chosed
+ * @param pin: NSS pin, not used
+ * @retral None
+ */
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     // Default to Master mode
@@ -290,6 +311,11 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
 
 }
 
+/*
+ * @brief End the SPI.
+ * @param spi: spi number chosed
+ * @retral None
+ */
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
     DEBUG("Enter HAL_SPI_End...");
@@ -297,6 +323,12 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
     spiMap[spi]->SPI_Enabled = false;
 }
 
+/*
+ * @brief Set the SPI bit order.
+ * @param spi: spi number chosed.
+ * @param order: LSBFIRST or MSBFIRST.
+ * @retral None
+ */
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
     DEBUG("Enter HAL_SPI_Set_Bit_Order...");
@@ -313,6 +345,12 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
+/*
+ * @brief Set the SPI data mode.
+ * @param spi: spi number chosed.
+ * @param mode: SPI mode.
+ * @retral None
+ */
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 {
     DEBUG("Enter HAL_SPI_Set_Data_Mode...");
@@ -344,6 +382,12 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
     DEBUG("Leave HAL_SPI_Set_Data_Mode...");
 }
 
+/*
+ * @brief Set the SPI clock divider.
+ * @param spi: spi number chosed.
+ * @param order: spi baudrateprescaler.
+ * @retral None
+ */
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
     DEBUG("Enter HAL_SPI_Set_Clock_Divider...");
@@ -353,6 +397,12 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 
 }
 
+/*
+ * @brief SPI send and recieve data.
+ * @param spi: spi number chosed.
+ * @param data: The data to be transmitted.
+ * @retral The received data.
+ */
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
     //DEBUG("Enter HAL_SPI_Send_Receive_Data...");
@@ -362,7 +412,7 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
     uint8_t rxDataTrans = 0;
     /*DEBUG("The Input Data: %d", dataTrans);*/
     //DEBUG("Before TransmitReceive...");
-#ifdef useDMA
+#ifdef useDMASPI
     HAL_SPI_TransmitReceive_DMA(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1);
 #else
     HAL_SPI_TransmitReceive(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1, 5);
@@ -376,6 +426,11 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
     return rxData;
 }
 
+/*
+ * @brief Check whether SPI is enabled or not.
+ * @param spi: spi number chosed.
+ * @retral The enabled flag: true, spi have begin; false, the spi not working.
+ */
 bool HAL_SPI_Is_Enabled(HAL_SPI_Interface spi)
 {
     //DEBUG("Enter HAL_SPI_Is_Enabled...");
@@ -407,3 +462,49 @@ int32_t HAL_SPI_DMA_Transfer_Status(HAL_SPI_Interface spi, HAL_SPI_TransferStatu
 {
     return 0;
 }
+
+#ifdef useDMASPI
+/**
+  * @brief  This function handles SPI1 DMA Rx interrupt request.
+  * @param  None
+  * @retval None
+  */
+void DMA2_Stream0_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spiMap[SPI1_A5_A6_A7]->SpiHandle.hdmarx);
+}
+
+/**
+  * @brief  This function handles SPI1 DMA Tx interrupt request.
+  * @param  None
+  * @retval None
+  */
+void DMA2_Stream5_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spiMap[SPI1_A5_A6_A7]->SpiHandle.hdmatx);
+}
+
+/**
+  * @brief  This function handles SPI2 DMA Rx interrupt request.
+  * @param  None
+  * @retval None
+  */
+void DMA1_Stream0_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spiMap[SPI3_D3_D2_D1]->SpiHandle.hdmarx);
+}
+
+/**
+  * @brief  This function handles SPI2 DMA Tx interrupt request.
+  * @param  None
+  * @retval None
+  */
+void DMA1_Stream5_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(spiMap[SPI3_D3_D2_D1]->SpiHandle.hdmatx);
+}
+#endif
+
+
+
+

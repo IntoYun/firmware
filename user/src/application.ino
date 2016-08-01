@@ -189,8 +189,8 @@ void setup()
     uint32_t duty  = 125;
     uint32_t freq = 300;
     analogWrite(PWM_PIN, duty);
-    // analogWrite(PWM_FRE_PIN, duty, freq);
-    // analogWrite(PWM_FRE_PIN, duty);
+    analogWrite(PWM_FRE_PIN, duty, freq);
+    //analogWrite(PWM_FRE_PIN, duty);
 }
 
 // the loop function runs over and over again forever
@@ -200,6 +200,29 @@ void loop()
     delay(5000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(5000);                   // wait for a second
+    DEBUG("Runing !");
+}
+#endif
+
+#if 1
+
+#define LED_PIN D7
+#define TONE_PIN D0
+
+void setup()
+{
+    DEBUG("Tone Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    tone(TONE_PIN, 800, 1000);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
     DEBUG("Runing !");
 }
 #endif
@@ -235,7 +258,7 @@ void loop()
 
 #if 0
 #include "Adafruit_SSD1306.h"
-#define SSD1307
+//#define SSD1307
 // Hareware SPI
 // MOSI SPI MOSI
 // CLK SPI CLK
@@ -266,10 +289,6 @@ void setup()
 {
     DEBUG("SPI Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(5000);                   // wait for a second
-    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(5000);                   // wait for a second
 #ifdef SSD1307
     display.begin(SSD1306_SWITCHCAPVCC);
     display.setTextSize(1);
@@ -312,7 +331,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 #include <time.h>
 #define LED_PIN D7
 

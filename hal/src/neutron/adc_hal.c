@@ -134,17 +134,11 @@ int32_t HAL_ADC_Read(uint16_t pin)
 
     /* Start the conversion process */
     HAL_ADC_Start_DMA(&ADC_HandleStruct, (uint32_t*)&ADC_ConvertedValues, ADC_DMA_BUFFERSIZE);
-
-    /* Wait for the end of conversion */
-    //HAL_ADC_PollForConversion(&ADC_HandleStruct, 10);
-
-    /* Check if the continuous conversion of regular channel is finished */
-    //while((HAL_ADC_GetState(&ADC_HandleStruct) & HAL_ADC_STATE_EOC_REG) != HAL_ADC_STATE_EOC_REG);
-
     // FIXME: if not DEBUG line below, it will not work right.
-    DEBUG("Miss the DEBUG line, it don't work right!\r\n");
+    HAL_Delay(1);
+    //DEBUG("Miss the DEBUG line, it don't work right!\r\n");
     HAL_ADC_Stop_DMA(&ADC_HandleStruct);
-    //HAL_ADC_Stop(&ADC_HandleStruct);
+    HAL_ADC_Stop(&ADC_HandleStruct);
 
     uint32_t ADC_SummatedValue = 0;
     uint16_t ADC_AveragedValue = 0;
@@ -167,13 +161,13 @@ int32_t HAL_ADC_Read(uint16_t pin)
  */
 void HAL_ADC_DMA_Init(void)
 {
-    /* A0 - A7: ADC1_IN0 - ADC_IN7, DMA2 Stream0 Channel0 */
+    /* A0 - A7: ADC1_IN0 - ADC_IN7, DMA2 Stream4 Channel0 */
     /* Enable DMA2 clock */
     __HAL_RCC_DMA2_CLK_ENABLE();
     DMA_HandleTypeDef DMA_HandleStruct;
 
     /* Configure the DMA streams */
-    DMA_HandleStruct.Instance                 = DMA2_Stream0;
+    DMA_HandleStruct.Instance                 = DMA2_Stream4;
 
     DMA_HandleStruct.Init.Channel             = DMA_CHANNEL_0;
     DMA_HandleStruct.Init.Direction           = DMA_PERIPH_TO_MEMORY;
@@ -195,6 +189,17 @@ void HAL_ADC_DMA_Init(void)
 
     // NOTE: Don't configure the priority of NVIC here
     /* Configure the NVIC for DMA */
-    //HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 6, 0);
-    //HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+    //HAL_NVIC_SetPriority(DMA2_Stream4_IRQn, 6, 0);
+    //HAL_NVIC_EnableIRQ(DMA2_Stream4_IRQn);
 }
+
+/**
+* @brief  This function handles ADC DMA interrupt request.
+* @param  None
+* @retval None
+*/
+void DMA2_Stream4_IRQHandler(void)
+{
+    HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
+}
+

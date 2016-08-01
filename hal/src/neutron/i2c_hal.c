@@ -186,26 +186,6 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
         __HAL_RCC_I2C3_CLK_ENABLE();
     }
 
-    /*##-4- Configure the NVIC for I2C #########################################*/
-    /* NVIC for I2C */
-    /*HAL_NVIC_SetPriority(i2cMap[i2c]->I2C_ER_IRQn, 5, 0);*/
-    /*HAL_NVIC_EnableIRQ(i2cMap[i2c]->I2C_ER_IRQn);*/
-    /*HAL_NVIC_SetPriority(i2cMap[i2c]->I2C_EV_IRQn, 6, 0);*/
-    /*HAL_NVIC_EnableIRQ(i2cMap[i2c]->I2C_EV_IRQn);*/
-
-    /*##-5- Configure the I2C   #################################################*/
-    //I2C_HandleTypeDef I2CHandle;
-    //I2CHandle.Instance             = i2cMap[i2c]->I2C_Peripheral;
-    //I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-    //I2CHandle.Init.ClockSpeed      = i2cMap[i2c]->I2C_ClockSpeed; //400000;
-    //I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-    //I2CHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
-    //I2CHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    //I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-    //I2CHandle.Init.OwnAddress1     = i2cMap[i2c]->I2C_Ownaddress1;//0x00;
-    //I2CHandle.Init.OwnAddress2     = 0x00;
-    //i2cMap[i2c]->I2CHandle = I2CHandle;
-
     i2cMap[i2c]->I2CHandle.Instance             = i2cMap[i2c]->I2C_Peripheral;
     i2cMap[i2c]->I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
     i2cMap[i2c]->I2CHandle.Init.ClockSpeed      = i2cMap[i2c]->I2C_ClockSpeed; //400000;

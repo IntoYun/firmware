@@ -60,6 +60,19 @@ typedef struct exti_state {
 
 static exti_state exti_saved_state;
 
+/*
+ * @brief Attach the pin external interrupt with the defined handler and mode
+ * @param pin: Pin to attach
+ * @param handler: Call back function, when interrupt occurs, the handler will be call
+ * @param data: The input data of handler
+ * @param mode: The interrupt mode
+ * This parameter can be one of following values:
+ * @arg CHANGE
+ * @arg RISING
+ * @arg FALLING
+ * @param config: not used
+ * @retral None
+ */
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode,
         HAL_InterruptExtraConfiguration* config)
 {
@@ -122,6 +135,11 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );
 }
 
+/*
+ * @brief Detch the interrupts pin.
+ * @param pin: Pin to be detched.
+ * @retral None
+ */
 void HAL_Interrupts_Detach(uint16_t pin)
 {
     //Map the Spark Core pin to the appropriate pin on the STM32
@@ -140,6 +158,11 @@ void HAL_Interrupts_Detach(uint16_t pin)
     exti_channels[GPIO_PinSource].data = NULL;
 }
 
+/*
+ * @brief Enable all the interrupts.
+ * @param None
+ * @retral None
+ */
 void HAL_Interrupts_Enable_All(void)
 {
     //Only enable the interrupts that are exposed to the user
@@ -154,6 +177,11 @@ void HAL_Interrupts_Enable_All(void)
     //osThreadResumeAll();
 }
 
+/*
+ * @brief Disable all the interrupts.
+ * @param None
+ * @retral None
+ */
 void HAL_Interrupts_Disable_All(void)
 {
     //Only disable the interrupts that are exposed to the user
@@ -168,6 +196,11 @@ void HAL_Interrupts_Disable_All(void)
     //osThreadSuspendAll();
 }
 
+/*
+ * @brief Suspend the interrupts.
+ * @param None
+ * @retral None
+ */
 void HAL_Interrupts_Suspend(void)
 {
     exti_saved_state.imr = EXTI->IMR;
@@ -182,6 +215,11 @@ void HAL_Interrupts_Suspend(void)
     EXTI->PR = 0x007FFFFF;
 }
 
+/*
+ * @brief Restore the interrupts.
+ * @param None
+ * @retral None
+ */
 void HAL_Interrupts_Restore(void)
 {
     EXTI->IMR = exti_saved_state.imr;
@@ -190,15 +228,13 @@ void HAL_Interrupts_Restore(void)
     EXTI->FTSR = exti_saved_state.ftsr;
 }
 
-/*******************************************************************************
- * Function Name  : HAL_EXTI_Handler (Declared as weak in stm32_it.cpp)
- * Description    : This function is called by any of the interrupt handlers. It
-                                                 essentially fetches the user function pointer from the array
-                                                 and calls it.
- * Input          : EXTI_Line (Supported: 0, 1, 3, 4, 5, 6, 7, 13, 14 and 15)
- * Output         : None.
- * Return         : None.
- *******************************************************************************/
+/*
+ * @brief EXTI Handler
+ *        This function is called by any of the interrupt handlers.
+ *        It essentially fetches the user function pointer from the array.
+ * @param EXTI_Line: EXTI line
+ * @retral None
+ */
 void HAL_EXTI_Handler(uint8_t EXTI_Line)
 {
     //fetch the user function pointer from the array
@@ -221,13 +257,11 @@ void HAL_enable_irq(int is)
 {
 }
 
-/*******************************************************************************
- * Function Name  : EXTI0_IRQHandler
- * Description    : This function handles EXTI0 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 0 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI0_IRQHandler(void)
 {
     if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET)
@@ -242,13 +276,11 @@ void EXTI0_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI1_IRQHandler
- * Description    : This function handles EXTI1 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 1 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI1_IRQHandler(void)
 {
     if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
@@ -263,13 +295,11 @@ void EXTI1_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI2_IRQHandler
- * Description    : This function handles EXTI2 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 2 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI2_IRQHandler(void)
 {
     if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET)
@@ -284,13 +314,11 @@ void EXTI2_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI3_IRQHandler
- * Description    : This function handles EXTI3 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 3 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI3_IRQHandler(void)
 {
     if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_3) != RESET)
@@ -304,13 +332,11 @@ void EXTI3_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI4_IRQHandler
- * Description    : This function handles EXTI4 interrupt request.
- * Input          : None
- * Output         : Nbone
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 4 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI4_IRQHandler(void)
 {
     if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET)
@@ -325,13 +351,11 @@ void EXTI4_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI9_5_IRQHandler
- * Description    : This function handles EXTI9_5 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 5-9 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI9_5_IRQHandler(void)
 {
     //GPIO_PIN_8 and GPIO_PIN_9 support is not required for CORE_V02
@@ -392,13 +416,11 @@ void EXTI9_5_IRQHandler(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : EXTI15_10_IRQHandler
- * Description    : This function handles EXTI15_10 interrupt request.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+  * @brief  This function handles External line 10-15 interrupt request.
+  * @param  None
+  * @retval None
+  */
 void EXTI15_10_IRQHandler(void)
 {
     //GPIO_PIN_10 and GPIO_PIN_12 support is not required for CORE_V02

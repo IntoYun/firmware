@@ -167,15 +167,6 @@ void SysTick_Handler(void)
 /*  available peripheral interrupt handler's name please refer to the startup */
 /*  file (startup_stm32f4xx.s).                                               */
 /******************************************************************************/
-/**
-* @brief  This function handles DMA interrupt request.
-* @param  None
-* @retval None
-*/
-void DMA2_Stream0_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
-}
 #if 0
 /**
  * @brief  This function handles USB-On-The-Go FS global interrupt request.
