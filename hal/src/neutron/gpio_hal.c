@@ -150,7 +150,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         default:
             break;
     }
-
     HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
 }
 
@@ -254,7 +253,6 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
 #define TIMEOUTCOUNTER (SystemCoreClock * 3UL)// 3 seconds
     volatile uint32_t timeoutStart = SYSTEM_TICK_COUNTER; // total 3 seconds for entire function!
-
 
     /* If already on the value we want to measure, wait for the next one.
      * Time out after 3 seconds so we don't block the background tasks

@@ -40,9 +40,10 @@
 
 // XXX: Change
 /* Private typedef -----------------------------------------------------------*/
+// I2Cnum_SDA_SCL
 typedef enum I2C_Num_Def {
-    I2C1_SENSOR_SDA_SCL = 0,
-    I2C3_D2_D1 = 1
+    I2C3_D2_D1_USER = 0,
+    I2C1_SDA_SCL_SENSOR = 1 
 } I2C_Num_Def;
 
 typedef enum I2C_Transaction_Ending_Condition {
@@ -94,10 +95,10 @@ typedef struct STM32_I2C_Info {
 // I2C mapping
 STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
 {
-    /* I2C1, PB9, PB8  for sensors*/
     /* I2C3, PB4, PA8  for usrs*/
-    { I2C1, GPIOB, GPIOB, GPIO_PIN_9, GPIO_PIN_8, GPIO_AF4_I2C1, GPIO_AF4_I2C1, I2C1_ER_IRQn, I2C1_EV_IRQn},
-    { I2C3, GPIOB, GPIOA, GPIO_PIN_4, GPIO_PIN_8, GPIO_AF9_I2C3, GPIO_AF4_I2C3, I2C3_ER_IRQn, I2C3_EV_IRQn}
+    /* I2C1, PB9, PB8  for sensors*/
+    { I2C3, GPIOB, GPIOA, GPIO_PIN_4, GPIO_PIN_8, GPIO_AF9_I2C3, GPIO_AF4_I2C3, I2C3_ER_IRQn, I2C3_EV_IRQn},
+    { I2C1, GPIOB, GPIOB, GPIO_PIN_9, GPIO_PIN_8, GPIO_AF4_I2C1, GPIO_AF4_I2C1, I2C1_ER_IRQn, I2C1_EV_IRQn}
 };
 
 static STM32_I2C_Info *i2cMap[TOTAL_I2C]; // pointer to I2C_MAP[] containing I2C peripheral info
@@ -224,15 +225,15 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Initial...\r\n");
-    if(i2c == HAL_I2C_INTERFACE2) // for sensors
+  if(i2c == HAL_I2C_INTERFACE1) // for users
     {
         //DEBUG("HAL_I2C_Initial, choose sensors configuration!");
-        i2cMap[i2c] = &I2C_MAP[I2C1_SENSOR_SDA_SCL];
-    }
-    else if(i2c == HAL_I2C_INTERFACE1) // for users
+      i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1_USER];
+    } 
+  else if(i2c == HAL_I2C_INTERFACE2)// for sensors 
     {
         //DEBUG("HAL_I2C_Initial, choose users configuration!");
-        i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1];
+      i2cMap[i2c] = &I2C_MAP[I2C1_SDA_SCL_SENSOR];
     }
 
     i2cMap[i2c]->I2C_ClockSpeed       = CLOCK_SPEED_400KHZ;
