@@ -50,6 +50,7 @@ PinMode HAL_Get_Pin_Mode(pin_t pin)
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
+    /*
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     if (!is_valid_pin(pin))
@@ -60,6 +61,7 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
         return PF_DAC;
     if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral!=NULL)
         return PF_TIMER;
+        */
     return PF_DIO;
 }
 
@@ -69,6 +71,7 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
  */
 void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
+/*
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
@@ -152,6 +155,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     }
 
     HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
+    */
 }
 
 /*
@@ -175,6 +179,7 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
  */
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
+    /*
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     //If the pin is used by analogWrite, we need to change the mode
     if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL)
@@ -196,6 +201,7 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
     {
         HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_SET);
     }
+    */
 }
 
 /*
@@ -203,6 +209,7 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
  */
 int32_t HAL_GPIO_Read(uint16_t pin)
 {
+    /*
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     if(PIN_MAP[pin].pin_mode == AN_INPUT)
     {
@@ -240,6 +247,8 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     }
 
     return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
+    */
+    return 0;
 }
 
 /*
@@ -249,6 +258,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
+#if 0
     STM32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
     #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
 
@@ -283,4 +293,6 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     }
 
     return (SYSTEM_TICK_COUNTER - pulseStart)/SYSTEM_US_TICKS;
+#endif
+    return 0;
 }

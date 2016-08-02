@@ -664,7 +664,7 @@ void DeviceConfig::resetDeviceFactory(void)
     //MO_DEBUG(("Start reboot!!"));
     delay(1000);
     // restart stm32
-    HAL_NVIC_SystemReset();
+    //HAL_NVIC_SystemReset();
 }
 
 void DeviceConfig::rebootDevice(void)
@@ -674,7 +674,7 @@ void DeviceConfig::rebootDevice(void)
     restartNetwork(); // contain sendComfirm(200)
 
     // restart stm32
-    HAL_NVIC_SystemReset();
+    //HAL_NVIC_SystemReset();
 }
 
 void DeviceConfig::clearAccessToken(void)

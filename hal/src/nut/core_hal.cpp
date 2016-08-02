@@ -18,21 +18,32 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdint.h>
-//#include <stdatomic.h>
 #include <string.h>
+#include "hw_config.h"
 #include "core_hal.h"
-#include "watchdog_hal.h"
 #include "rng_hal.h"
 #include "rgbled_hal.h"
 #include "bootloader.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
-#include "hw_config.h"
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
-#include "stm32l1xx_it.h"
 #include "service_debug.h"
+
+//#include <Arduino.h>
+#include "Schedule.h"
+extern "C" {
+#include "ets_sys.h"
+#include "os_type.h"
+#include "osapi.h"
+#include "mem.h"
+#include "user_interface.h"
+#include "cont.h"
+}
+#include <core_version.h>
+
+
+
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -64,13 +75,50 @@ void HAL_Hook_Main()
     // nada
 }
 
+static void loop_wrapper() {
+    /*
+    static bool setup_done = false;
+    preloop_update_frequency();
+    if(!setup_done) {
+        setup();
+        setup_done = true;
+    }
+    loop();
+    run_scheduled_functions();
+    esp_schedule();
+    */
+}
+
+static void loop_task(os_event_t *events) {
+    /*
+    g_micros_at_task_start = system_get_time();
+    cont_run(&g_cont, &loop_wrapper);
+    if (cont_check(&g_cont) != 0) {
+        panic();
+    }
+    */
+}
+
+extern "C" void user_init(void) {
+    /*
+    struct rst_info *rtc_info_ptr = system_get_rst_info();
+    memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
+    uart_div_modify(0, UART_CLK_FREQ / (115200));
+    init();
+    initVariant();
+    cont_init(&g_cont);
+    ets_task(loop_task, LOOP_TASK_PRIORITY, g_loop_queue, LOOP_QUEUE_SIZE);
+    system_init_done_cb(&init_done);
+    */
+}
+/*
 int main() {
     // the rtos systick can only be enabled after the system has been initialized
     systick_hook_enabled = true;
     HAL_Hook_Main();
     app_setup_and_loop();
     return 0;
-}
+}*/
 
 void HAL_Core_Init(void)
 {
@@ -80,12 +128,10 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
 //    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
-    Set_System();
-
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
     //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
-    USE_SYSTEM_FLAGS = 1;
+    //USE_SYSTEM_FLAGS = 1;
 #endif
 
     //Wiring pins default to inputs
@@ -118,7 +164,7 @@ void HAL_Core_Setup(void)
 
 void HAL_Core_System_Reset(void)
 {
-    NVIC_SystemReset();
+    //NVIC_SystemReset();
 }
 
 void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
@@ -203,8 +249,8 @@ void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
  *******************************************************************************/
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
-    System1MsTick();
+    //HAL_IncTick();
+    //System1MsTick();
 
     if (TimingDelay != 0x00)
     {

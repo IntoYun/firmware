@@ -209,14 +209,11 @@ void loop()
 
 #if 1
 
-#define LED_PIN D7
-#define TONE_PIN D0
+#define LED_PIN D6
 
 void setup()
 {
-    DEBUG("Tone Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-    //tone(TONE_PIN, 800, 10000);
 }
 
 // the loop function runs over and over again forever
@@ -226,7 +223,6 @@ void loop()
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
-    DEBUG("Runing !");
 }
 #endif
 

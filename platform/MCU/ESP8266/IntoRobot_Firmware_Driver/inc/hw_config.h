@@ -1,10 +1,10 @@
 /**
  ******************************************************************************
- * @file    rtc_hal.c
- * @author  Satish Nair, Brett Walach
+ * @file    hw_config.h
+ * @author  Satish Nair
  * @version V1.0.0
- * @date    12-Sept-2014
- * @brief
+ * @date    22-Oct-2014
+ * @brief   Hardware Configuration & Setup
  ******************************************************************************
   Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
 
@@ -20,38 +20,24 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+  ******************************************************************************
  */
 
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef HW_CONFIG_H_
+#define HW_CONFIG_H_
+
+
 /* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
-#include "rtc_hal.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "sdkqueue.h"
+#include "hw_ticks.h"
+#include "service_debug.h"
 
-void HAL_RTC_Initial(void)
-{
+typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
-}
+#define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
+#define     __IO    volatile             /*!< Defines 'read / write' permissions              */
 
-time_t HAL_RTC_Get_UnixTime(void)
-{
-    return 0;
-}
-
-void HAL_RTC_Set_UnixTime(time_t value)
-{
-
-}
-
-void HAL_RTC_Set_Alarm(uint32_t value)
-{
-}
-
-void HAL_RTC_Set_UnixAlarm(time_t value)
-{
-
-}
-
-void HAL_RTC_Cancel_UnixAlarm(void)
-{
-
-}
+#endif  /*HW_CONFIG_H_*/

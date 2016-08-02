@@ -36,10 +36,12 @@ endif
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o)))
 
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o.d)))
 
 # All Target
@@ -102,7 +104,7 @@ $(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.c
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: XTENSA GCC C Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CC) $(CFLAGS) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
+	$(VERBOSE)$(CC) $(CFLAGS) $(CDEFINES) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
 	$(call echo,)
 
 # Assember to build .o from .S in $(BUILD_DIR)
@@ -119,7 +121,16 @@ $(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.cpp
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: XTENSA GCC CPP Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CPP) $(CINCLUDE) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
+	$(call echo,)
+
+# CPP compiler to build .o from .ino in $(BUILD_DIR)
+# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
+$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.ino
+	$(call echo,'Building file: $<')
+	$(call echo,'Invoking: ARM GCC CPP Compiler')
+	$(VERBOSE)$(MKDIR) $(dir $@)
+	$(VERBOSE)$(CPP) -x c++ -include $(INO_INCLUDE_HEADER) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
 	$(call echo,)
 
 # Other Targets

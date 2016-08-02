@@ -1,12 +1,8 @@
 /**
- ******************************************************************************
- * @file    rtc_hal.c
- * @author  Satish Nair, Brett Walach
- * @version V1.0.0
- * @date    12-Sept-2014
- * @brief
- ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+
+  Copyright 2012 STMicroelectronics
+  http://www.st.com/software_license_agreement_liberty_v2
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -23,35 +19,23 @@
  ******************************************************************************
  */
 
-/* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
-#include "rtc_hal.h"
+#pragma once
 
-void HAL_RTC_Initial(void)
-{
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
+#include <limits.h>
+
+typedef uint32_t system_tick_t;
+
+#define SYSTEM_US_TICKS		    10
+#define SYSTEM_TICK_COUNTER     10
+
+
+#ifdef	__cplusplus
 }
+#endif
 
-time_t HAL_RTC_Get_UnixTime(void)
-{
-    return 0;
-}
 
-void HAL_RTC_Set_UnixTime(time_t value)
-{
 
-}
-
-void HAL_RTC_Set_Alarm(uint32_t value)
-{
-}
-
-void HAL_RTC_Set_UnixAlarm(time_t value)
-{
-
-}
-
-void HAL_RTC_Cancel_UnixAlarm(void)
-{
-
-}

@@ -10,21 +10,11 @@ INCLUDE_DIRS += $(TARGET_HAL_SRC_INC_PATH)
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
 
-LDFLAGS += -Tlinker_$(STM32_DEVICE_LC).ld
-#LDFLAGS += -Tlinker_$(STM32_DEVICE_LC)_dfu.ld
-LDFLAGS += -L$(COMMON_BUILD)/linker/arm
-LDFLAGS += --specs=nano.specs -lc -lnosys
-LDFLAGS += -Wl,--defsym,__STACKSIZE__=400
+LDFLAGS += -Tlinker_esp8266-net.ld
+LDFLAGS += -L$(COMMON_BUILD)/linker/esp8266
 
-USE_PRINTF_FLOAT ?= y
-ifeq ("$(USE_PRINTF_FLOAT)","y")
-LDFLAGS += -u _printf_float
-endif
-LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
+#LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
+LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -Wl,--gc-sections
+LIBS += c gcc hal phy net80211 lwip wpa main pp smartconfig wps crypto axtls airkiss
 
-# assembler startup script
-ASRC += $(COMMON_BUILD)/startup/arm/startup_$(STM32_DEVICE_LC).S
-ASFLAGS += -I$(COMMON_BUILD)/startup/arm
-ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
-#
 endif

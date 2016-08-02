@@ -9,14 +9,15 @@ GCC_PREFIX ?= xtensa-lx106-elf-
 include $(COMMON_BUILD)/common-tools.mk
 
 
+CDEFINES += -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DESP8266
+
 # C 编译参数
-ifeq ("$(MODULE)","bootloader")
-#CFLAGS += -O0 -g -mno-text-section-literals
-CFLAGS += -O0 -g -mtext-section-literals -D__ets__ -DICACHE_FLASH
-else
-CFLAGS += -Os -g -mtext-section-literals -ffunction-sections -fdata-sections -DICACHE_FLASH
+CFLAGS += -O0 -g -mlongcalls -mtext-section-literals -falign-functions=4 -MMD
+ifneq ("$(MODULE)","bootloader")
+CFLAGS += -ffunction-sections -fdata-sections
 endif
-CFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -falign-functions=4 -MMD -std=gnu99
+
+CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
 
 # C++ 编译参数
 CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11

@@ -27,7 +27,7 @@ int32_t sdkClearQueue(SDK_QUEUE * const pstQueue)
     {
         return SDK_PARA_ERR;
     }
-    memset(pstQueue , 0 , sizeof(*pstQueue));
+    memset(pstQueue, 0 , sizeof(*pstQueue));
     return SDK_OK;
 }
 

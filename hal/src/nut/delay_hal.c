@@ -42,6 +42,7 @@ volatile uint32_t TimingDelay;
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
+    /*
     system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
 
     while (1)
@@ -55,6 +56,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
             break;
         }
     }
+    */
 }
 
 /*******************************************************************************
@@ -66,6 +68,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
  *******************************************************************************/
 void HAL_Delay_Microseconds(uint32_t uSec)
 {
+    /*
     volatile uint32_t DWT_START = DWT->CYCCNT;
     // keep DWT_TOTAL from overflowing (max 59.652323s w/72MHz SystemCoreClock)
     if (uSec > (UINT_MAX / SYSTEM_US_TICKS))
@@ -79,5 +82,6 @@ void HAL_Delay_Microseconds(uint32_t uSec)
     {
         HAL_IWDG_Feed();
     }
+    */
 }
 

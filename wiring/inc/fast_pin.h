@@ -24,7 +24,7 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
+#if 0
 #include "pinmap_hal.h"
 
 /* Disabling USE_BIT_BAND since bitbanding is much slower! as per comment
@@ -151,7 +151,7 @@ inline void digitalWriteFast(pin_t pin, uint8_t value)
     else
         pinResetFast(pin);
 }
-
+#endif
 #ifdef	__cplusplus
 }
 #endif

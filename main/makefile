@@ -20,10 +20,14 @@ USE_PRINTF_FLOAT ?= y
 
 # It's critical that user comes before wiring so that the setup()/loop() functions are linked in preference
 # to the weak functions from wiring
+ifeq ($(PLATFORM_THREADING),1)
+MAKE_DEPENDENCIES = newlib_nano
+endif
+
 ifeq ($(PLATFORM_ID),3)# neutron-net
-MAKE_DEPENDENCIES = platform board
+MAKE_DEPENDENCIES += platform board
 else
-MAKE_DEPENDENCIES = newlib_nano user wiring hal system services platform
+MAKE_DEPENDENCIES += user wiring hal system services platform
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)
