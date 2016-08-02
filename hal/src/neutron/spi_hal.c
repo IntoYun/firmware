@@ -51,6 +51,8 @@ typedef struct STM32_SPI_Info {
     uint8_t SPI_MOSI_Pin;
     uint8_t SPI_SS_Pin;
     uint8_t SPI_AF_Mapping;
+    DMA_HandleTypeDef hdma_tx;
+    DMA_HandleTypeDef hdma_rx;
     SPI_HandleTypeDef SpiHandle;
 
     bool SPI_Bit_Order_Set;
@@ -129,51 +131,48 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     HAL_GPIO_Init( spiMap[spi]->SPI_MOSI_Port, &GPIO_InitStruct);
 
 #ifdef useDMASPI
-    static DMA_HandleTypeDef hdma_tx;
-    static DMA_HandleTypeDef hdma_rx;
-
     /*##-3- Configure the DMA streams ##########################################*/
     /* Configure the DMA handler for Transmission process */
-    hdma_tx.Instance                 = spiMap[spi]->SPI_TX_DMA_Stream;
+    spiMap[spi]->hdma_tx.Instance                 = spiMap[spi]->SPI_TX_DMA_Stream;
 
-    hdma_tx.Init.Channel             = spiMap[spi]->SPI_DMA_Channel;
-    hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-    hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_tx.Init.Mode                = DMA_NORMAL;
-    hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-    hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-    hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-    hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
-    hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+    spiMap[spi]->hdma_tx.Init.Channel             = spiMap[spi]->SPI_DMA_Channel;
+    spiMap[spi]->hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    spiMap[spi]->hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    spiMap[spi]->hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    spiMap[spi]->hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    spiMap[spi]->hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    spiMap[spi]->hdma_tx.Init.Mode                = DMA_NORMAL;
+    spiMap[spi]->hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+    spiMap[spi]->hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    spiMap[spi]->hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    spiMap[spi]->hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+    spiMap[spi]->hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-    HAL_DMA_Init(&hdma_tx);
+    HAL_DMA_Init(&spiMap[spi]->hdma_tx);
 
     /* Associate the initialized DMA handle to the the SPI handle */
-    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmatx, hdma_tx);
+    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmatx, &spiMap[spi]->hdma_tx);
 
     /* Configure the DMA handler for Transmission process */
-    hdma_rx.Instance                 = spiMap[spi]->SPI_RX_DMA_Stream;
+    spiMap[spi]->hdma_rx.Instance                 = spiMap[spi]->SPI_RX_DMA_Stream;
 
-    hdma_rx.Init.Channel             = spiMap[spi]->SPI_DMA_Channel;
-    hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_rx.Init.Mode                = DMA_NORMAL;
-    hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-    hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-    hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-    hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
-    hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
+    spiMap[spi]->hdma_rx.Init.Channel             = spiMap[spi]->SPI_DMA_Channel;
+    spiMap[spi]->hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+    spiMap[spi]->hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    spiMap[spi]->hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    spiMap[spi]->hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    spiMap[spi]->hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    spiMap[spi]->hdma_rx.Init.Mode                = DMA_NORMAL;
+    spiMap[spi]->hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+    spiMap[spi]->hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    spiMap[spi]->hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    spiMap[spi]->hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
+    spiMap[spi]->hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-    HAL_DMA_Init(&hdma_rx);
+    HAL_DMA_Init(&spiMap[spi]->hdma_rx);
 
     /* Associate the initialized DMA handle to the the SPI handle */
-    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmarx, hdma_rx);
+    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmarx, spiMap[spi]->hdma_rx);
 
     ///*##-4- Configure the NVIC for DMA #########################################*/
     ///* NVIC configuration for DMA transfer complete interrupt (SPI_TX) */
@@ -217,13 +216,11 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
     HAL_GPIO_DeInit(spiMap[spi]->SPI_MOSI_Port, spiMap[spi]->SPI_MOSI_Pin);
 
 #ifdef useDMASPI
-    static DMA_HandleTypeDef hdma_tx;
-    static DMA_HandleTypeDef hdma_rx;
     /*##-3- Disable the DMA Streams ############################################*/
     /* De-Initialize the DMA Stream associate to transmission process */
-    HAL_DMA_DeInit(&hdma_tx);
+    HAL_DMA_DeInit(&spiMap[spi]->hdma_tx);
     /* De-Initialize the DMA Stream associate to reception process */
-    HAL_DMA_DeInit(&hdma_rx);
+    HAL_DMA_DeInit(&spiMap[spi]->hdma_rx);
 
     /*##-4- Disable the NVIC for DMA ###########################################*/
     HAL_NVIC_DisableIRQ(spiMap[spi]->SPI_DMA_TX_IRQn);
