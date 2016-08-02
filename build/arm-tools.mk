@@ -13,25 +13,19 @@ include $(COMMON_BUILD)/common-tools.mk
 #
 
 # C 编译参数
-ifeq ($(PLATFORM_ID),0) # atom
-CFLAGS += -mcpu=cortex-m3
-else
-CFLAGS += -mcpu=cortex-m4 -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+CFLAGS += -mcpu=$(MCU_CORE)
+ifeq ($(PLATFORM_ID),1) # neutron
+CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 
 # 如果程序没有按预期工作   尝试去掉-fdata-sections
 CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-common -ffunction-sections -fdata-sections -Wno-switch -Wno-error=deprecated-declarations -fmessage-length=0
+#CFLAGS += --specs=nano.specs
 
 # C++ 编译参数
-CPPFLAGS += $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++11 -fcheck-new
+CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new
 
-ifeq ($(PLATFORM_ID),0)
-ASFLAGS += -mcpu=cortex-m3
-else
-ASFLAGS += -mcpu=cortex-m4
-endif
-
-ASFLAGS += -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
+ASFLAGS += -mcpu=$(MCU_CORE) -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
 
 LDFLAGS += -nostartfiles -mlittle-endian -Xlinker --gc-sections
 

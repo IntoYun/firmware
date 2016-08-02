@@ -20,11 +20,14 @@
 #ifndef WIRING_WATCHDOG_H_
 #define WIRING_WATCHDOG_H_
 
+
+
 #include "wiring_thread.h"
 #include "delay_hal.h"
 #include "timer_hal.h"
 
-#if PLATFORM_THREADING
+#if 0
+//#if PLATFORM_THREADING
 
 
 class ApplicationWatchdog

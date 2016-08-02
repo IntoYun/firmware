@@ -55,8 +55,8 @@ if [ $sysType = "Linux" ]; then
 elif [ $sysType = "Darwin" ]; then
     echo -e "\033[40;32m 1. install arm gnu toolchain\033[0m"
     wget -nc https://launchpad.net/gcc-arm-embedded/4.9/4.9-2015-q2-update/+download/gcc-arm-none-eabi-4_9-2015q2-20150609-mac.tar.bz2
-    tar -jxf gcc-arm-none-eabi-4_9-2015q2-20150609-mac.tar.bz2
-    mv gcc-arm-none-eabi-4_9-2015q2 ../gcc-arm-none-eabi
+    tar -jxf gcc-arm-none-eabi-5_4-2016q2-20160622-mac.tar.bz2
+    mv gcc-arm-none-eabi-5_4-2016q2 ../gcc-arm-none-eabi
     rm -rf gcc-arm-none-eabi-4_9-2015q2
 
     echo -e "\033[40;32m 2. install st-flash\033[0m"

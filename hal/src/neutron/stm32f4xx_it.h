@@ -60,6 +60,8 @@ void UsageFault_Handler(void);
 void DebugMon_Handler(void);
 //void PendSV_Handler(void);
 void SysTick_Handler(void);
+
+void WWDG_IRQHandler(void);
 void ADCx_DMA_IRQHandler(void);
 void OTG_FS_IRQHandler(void);
 void USART1_IRQHandler(void);
@@ -73,6 +75,7 @@ void TIM3_IRQHandler(void);
 void TIM4_IRQHandler(void);
 void TIM5_IRQHandler(void);
 
+void USART6_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif

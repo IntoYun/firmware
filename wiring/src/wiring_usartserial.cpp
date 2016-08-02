@@ -22,12 +22,12 @@
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-USARTSerial::USARTSerial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buffer *tx_buffer)
+USARTSerial::USARTSerial(HAL_USART_Serial serial)
 {
   _serial = serial;
   // Default is blocking mode
   _blocking = true;
-  HAL_USART_Initial(serial, rx_buffer, tx_buffer);
+  HAL_USART_Initial(serial);
 }
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -89,6 +89,7 @@ size_t USARTSerial::write(uint8_t c)
     // the HAL always blocks.
 	  return HAL_USART_Write_Data(_serial, c);
   }
+  return 0;
 }
 
 size_t USARTSerial::write(uint16_t c)
@@ -106,12 +107,10 @@ bool USARTSerial::isEnabled() {
 
 #ifndef INTOROBOT_WIRING_NO_USART_SERIAL
 // Preinstantiate Objects //////////////////////////////////////////////////////
-static Ring_Buffer serial1_rx_buffer;
-//static Ring_Buffer serial1_tx_buffer;
 
 USARTSerial& __fetch_global_Serial1()
 {
-	static USARTSerial serial1(HAL_USART_SERIAL1, &serial1_rx_buffer, NULL);
+	static USARTSerial serial1(HAL_USART_SERIAL1);
 	return serial1;
 }
 

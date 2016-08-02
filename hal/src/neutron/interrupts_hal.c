@@ -19,9 +19,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "interrupts_hal.h"
-#include "stm32f4xx.h"
+#include "hw_config.h"
 #include "pinmap_impl.h"
 #include "service_debug.h"
+
 //Interrupts
 static const uint8_t GPIO_IRQn[] = {
     EXTI0_IRQn,     //0
@@ -488,5 +489,64 @@ void EXTI15_10_IRQHandler(void)
         {
             HAL_EXTI_Handler(15);
         }
+    }
+}
+
+inline bool isISR()
+{
+	return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0;
+}
+
+uint8_t HAL_IsISR()
+{
+	return isISR();
+}
+
+/* For now, we remember only one handler, but in future this may be extended to a
+ * dynamically linked list to allow for multiple handlers.
+ */
+static HAL_InterruptCallback SystemInterruptHandlers[__Last_irq];
+
+
+inline bool is_valid_irq(hal_irq_t irq)
+{
+    return irq<__Last_irq;
+}
+
+uint8_t HAL_Set_System_Interrupt_Handler(hal_irq_t irq, const HAL_InterruptCallback* callback, HAL_InterruptCallback* previous, void* reserved)
+{
+    if (!is_valid_irq(irq))
+        return false;
+    HAL_InterruptCallback cb = SystemInterruptHandlers[irq];
+    if (previous)
+        *previous = cb;
+    if (callback)
+        cb = *callback;
+    else
+        cb.handler = 0;
+
+    return true;
+}
+
+uint8_t HAL_Get_System_Interrupt_Handler(hal_irq_t irq, HAL_InterruptCallback* callback, void* reserved)
+{
+    if (!is_valid_irq(irq))
+        return false;
+
+    if (callback) {
+        HAL_InterruptCallback cb = SystemInterruptHandlers[irq];
+        *callback = cb;
+    }
+
+    return true;
+}
+
+void HAL_System_Interrupt_Trigger(hal_irq_t irq, void* reserved)
+{
+    if (is_valid_irq(irq))
+    {
+        HAL_InterruptCallback cb = SystemInterruptHandlers[irq];
+        if (cb.handler)
+            cb.handler(cb.data);
     }
 }

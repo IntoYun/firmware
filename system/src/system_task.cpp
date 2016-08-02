@@ -41,6 +41,28 @@
 #include "wiring_cloud.h"
 #include "system_threading.h"
 
+
+void system_process_loop(void)
+{
+    DEBUG_D("system_process_loop\r\n");
+#if PLATFORM_THREADING
+    while (1) {
+        //DEBUG_D("process_loop");
+    }
+#endif
+}
+
+void ui_process_loop(void)
+{
+    DEBUG_D("ui_process_loop\r\n");
+
+}
+
+#if 0
+
+
+
+
 using intorobot::Network;
 
 volatile system_tick_t spark_loop_total_millis = 0;
@@ -320,8 +342,10 @@ void manage_cloud_connection(bool force_events)
 extern void system_handle_button_click();
 #endif
 
-void Spark_Idle_Events(bool force_events/*=false*/)
+void IntoRobot_Idle_Events(bool force_events/*=false*/)
 {
+    DEBUG_D("IntoRobot_Idle_Events\r\n");
+#if 0
     HAL_IWDG_Feed();
 
     ON_EVENT_DELTA();
@@ -347,49 +371,14 @@ void Spark_Idle_Events(bool force_events/*=false*/)
         system_pending_shutdown();
     }
     system_shutdown_if_needed();
+#endif
 }
+#endif
+#if 1
 
-
-
-/*
- * @brief This should block for a certain number of milliseconds and also execute spark_wlan_loop
- */
-void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
-{
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-
-    while (1)
-    {
-        HAL_IWDG_Feed();
-
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-
-        if (elapsed_millis > ms)
-        {
-            break;
-        }
-    }
-}
-
-/**
- * On a non threaded platform, or when called from the application thread, then
- * run the background loop so that application events are processed.
- */
 void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
-    system_delay_pump(ms, force_no_background_loop);
-#if 0
-	// if not threading, or we are the application thread, then implement delay
-	// as a background message pump
-    if (!system_thread_get_state(NULL) ||
-        APPLICATION_THREAD_CURRENT()) {
-    		system_delay_pump(ms, force_no_background_loop);
-    }
-    else
-    {
-        HAL_Delay_Milliseconds(ms);
-    }
-#endif
+    HAL_Delay_Milliseconds(ms);
 }
 
 
@@ -403,142 +392,6 @@ void cloud_disconnect(bool closeSocket)
         INFO("Cloud: disconnecting");
         if (closeSocket)
         intorobot_cloud_socket_disconnect();
-
-        SPARK_FLASH_UPDATE = 0;
-        SPARK_CLOUD_CONNECTED = 0;
-        SPARK_CLOUD_SOCKETED = 0;
-
-        if (!network.manual_disconnect() && !network.listening())
-        {
-            LED_SetRGBColor(RGB_COLOR_GREEN);
-            LED_On(LED_RGB);
-        }
-        INFO("Cloud: disconnected");
-    }
-    Spark_Error_Count = 0;  // this is also used for CFOD/WiFi reset, and blocks the LED when set.
-
-#endif
-#endif
-}
-
-#if 0
-void IntoRobot_Idle_Events(bool force_events/*=false*/)
-{
-    HAL_IWDG_Feed();
-
-    ON_EVENT_DELTA();
-    spark_loop_total_millis = 0;
-
-    if (!SYSTEM_POWEROFF) {
-
-#if Wiring_SetupButtonUX
-        system_handle_button_click();
-#endif
-        manage_serial_flasher();
-
-        manage_network_connection();
-
-        manage_smart_config();
-
-        manage_ip_config();
-
-        CLOUD_FN(manage_cloud_connection(force_events), (void)0);
-    }
-    else
-    {
-        system_pending_shutdown();
-    }
-    system_shutdown_if_needed();
-}
-
-/*
- * @brief This should block for a certain number of milliseconds and also execute spark_wlan_loop
- */
-void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
-{
-    if (ms==0) return;
-
-    system_tick_t spark_loop_elapsed_millis = SPARK_LOOP_DELAY_MILLIS;
-    spark_loop_total_millis += ms;
-
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-    system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
-
-    while (1)
-    {
-        HAL_IWDG_Feed();
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-
-        if (elapsed_millis > ms)
-        {
-            break;
-        }
-        else if (elapsed_millis >= (ms-1)) {
-            // on the last millisecond, resolve using millis - we don't know how far in that millisecond had come
-            // have to be careful with wrap around since start_micros can be greater than end_micros.
-
-            for (;;)
-            {
-                system_tick_t delay = end_micros-HAL_Timer_Get_Micro_Seconds();
-                if (delay>100000)
-                    return;
-                HAL_Delay_Microseconds(min(delay/2, 1u));
-            }
-        }
-        else
-        {
-            HAL_Delay_Milliseconds(1);
-        }
-
-        if (SPARK_WLAN_SLEEP || force_no_background_loop)
-        {
-            //Do not yield for Spark_Idle()
-        }
-        else if ((elapsed_millis >= spark_loop_elapsed_millis) || (spark_loop_total_millis >= SPARK_LOOP_DELAY_MILLIS))
-        {
-        		bool threading = system_thread_get_state(nullptr);
-            spark_loop_elapsed_millis = elapsed_millis + SPARK_LOOP_DELAY_MILLIS;
-            //spark_loop_total_millis is reset to 0 in Spark_Idle()
-            do
-            {
-                //Run once if the above condition passes
-                spark_process();
-            }
-            while (!threading && SPARK_FLASH_UPDATE); //loop during OTA update
-        }
-    }
-}
-
-
-
-/**
- * On a non threaded platform, or when called from the application thread, then
- * run the background loop so that application events are processed.
- */
-void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
-{
-	// if not threading, or we are the application thread, then implement delay
-	// as a background message pump
-    if (!system_thread_get_state(NULL) ||
-        APPLICATION_THREAD_CURRENT()) {
-    		system_delay_pump(ms, force_no_background_loop);
-    }
-    else
-    {
-        HAL_Delay_Milliseconds(ms);
-    }
-}
-
-void cloud_disconnect(bool closeSocket)
-{
-#if 0
-#ifndef SPARK_NO_CLOUD
-
-    if (SPARK_CLOUD_SOCKETED || SPARK_CLOUD_CONNECTED)
-    {
-        INFO("Cloud: disconnecting");
-        if (closeSocket)
-        spark_cloud_socket_disconnect();
 
         SPARK_FLASH_UPDATE = 0;
         SPARK_CLOUD_CONNECTED = 0;

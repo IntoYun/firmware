@@ -44,6 +44,9 @@ Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 void setup()
 {
+    //Serial.begin(115200);
+    //set_logger_output(log_output, ALL_LEVEL);
+    //char version[32];
     // initialize digital pin 13 as an output.
     pinMode(LED_PIN, OUTPUT);
     pinMode(A0, OUTPUT);
@@ -78,7 +81,7 @@ void loop()
     uint16_t value = analogRead(testA);
     DEBUG("analogRead value: %d", value);
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);              // wait for a second
+    delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);              // wait for a second
 
@@ -404,4 +407,5 @@ void loop()
 #endif
 }
 #endif
+
 

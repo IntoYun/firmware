@@ -22,6 +22,27 @@
 
 #if PLATFORM_THREADING
 
+
+void create_system_task(void);
+void close_system_task(void);
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+#if PLATFORM_THREADING
+
+
 #include "concurrent_hal.h"
 #include "active_object.h"
 #include <stddef.h>
@@ -130,6 +151,6 @@ FFL(F const &func)
 #define APPLICATION_THREAD_CURRENT() (1)
 #endif
 
+#endif
 
 #endif	/* SYSTEM_THREADING_H_ */
-

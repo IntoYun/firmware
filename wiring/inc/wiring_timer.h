@@ -20,7 +20,7 @@
 #ifndef WIRING_TIMER_H_
 #define WIRING_TIMER_H_
 
-
+#if 0
 #if PLATFORM_ID!=3
 #include "stddef.h"
 #include "concurrent_hal.h"
@@ -126,5 +126,5 @@ private:
 };
 
 #endif
-
+#endif
 #endif

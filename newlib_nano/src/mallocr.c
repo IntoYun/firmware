@@ -259,7 +259,6 @@ void * nano_malloc(RARG malloc_size_t s)
     int offset;
 
     malloc_size_t alloc_size;
-
     alloc_size = ALIGN_TO(s, CHUNK_ALIGN); /* size of aligned data load */
     alloc_size += MALLOC_PADDING; /* padding */
     alloc_size += CHUNK_OFFSET; /* size of chunk head */
@@ -335,6 +334,7 @@ void * nano_malloc(RARG malloc_size_t s)
     }
 
     assert(align_ptr + size <= (char *)r + alloc_size);
+
     return align_ptr;
 }
 #endif /* DEFINE_MALLOC */

@@ -30,7 +30,7 @@ private:
   HAL_USART_Serial _serial;
   bool _blocking;
 public:
-  USARTSerial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_Buffer *tx_buffer);
+  USARTSerial(HAL_USART_Serial serial);
   virtual ~USARTSerial() {};
   void begin(unsigned long);
   void begin(unsigned long, uint8_t);

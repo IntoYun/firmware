@@ -38,6 +38,7 @@ public:
 
 	static uint8_t brightness() {
 		//return Get_LED_Brightness();
+        return 0;
 	}
 
 	static void onChange(wiring_rgb_change_handler_t handler);

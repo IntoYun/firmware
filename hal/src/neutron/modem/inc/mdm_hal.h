@@ -34,6 +34,19 @@
 /* Include for debug capabilty */
 #define MDM_DEBUG
 
+#define MDM_ESP8266_RESET_DELAY  4000
+
+
+#undef putc
+#undef getc
+
+
+extern "C"
+{
+    void init_modem_semaphore(void);
+}
+
+
 /** basic modem parser class
 */
 class MDMParser
@@ -390,7 +403,7 @@ public:
         \param rxSize the size of the serial rx buffer
         \param txSize the size of the serial tx buffer
     */
-    MDMEsp8266Serial( int rxSize = 1024, int txSize = 1024 );
+    MDMEsp8266Serial( int rxSize = 1024, int txSize = 10 );
     //! Destructor
     virtual ~MDMEsp8266Serial(void);
 
@@ -406,8 +419,8 @@ public:
     /* clear the pending input data */
     virtual void purge(void)
     {
-       // while (readable())
-       //     getc();
+        while (readable())
+            getc();
     }
 protected:
     /** Write bytes to the physical interface.

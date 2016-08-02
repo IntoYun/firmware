@@ -35,6 +35,9 @@
 extern "C" {
 #endif
 
+void system_process_loop(void);
+void ui_process_loop(void);
+
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS);
 void Network_Setup(bool threaded);
 
@@ -42,8 +45,8 @@ void Network_Setup(bool threaded);
  * Run background processing. This function should be called as often as possible by user code.
  * @param force_events when true, runs cloud event pump in addition to maintaining the wifi and cloud connection.
  */
-void Spark_Idle_Events(bool force_events);
-inline void Spark_Idle() { Spark_Idle_Events(false); }
+void IntoRobot_Idle_Events(bool force_events);
+inline void IntoRobot_Idle() { IntoRobot_Idle_Events(false); }
 
 /**
  * The old method

@@ -20,6 +20,7 @@
 #include "delay_hal.h"
 #include "hw_config.h"
 #include "watchdog_hal.h"
+#include "concurrent_hal.h"
 
 
 /**
@@ -35,7 +36,23 @@ volatile uint32_t TimingDelay;
   */
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
-    vTaskDelay(nTime);
+    osDelay(nTime);
+    //vTaskDelay(nTime);
+#if 0
+    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
+
+    while (1)
+    {
+        HAL_IWDG_Feed();
+
+        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
+
+        if (elapsed_millis > nTime)
+        {
+            break;
+        }
+    }
+#endif
 }
 
 /**
@@ -58,5 +75,4 @@ void HAL_Delay_Microseconds(uint32_t uSec)
     {
         HAL_IWDG_Feed();
     }
-
 }

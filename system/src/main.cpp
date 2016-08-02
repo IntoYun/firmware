@@ -352,6 +352,7 @@ void manage_safe_mode()
 
 void app_loop(bool threaded)
 {
+#if 0
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1))
     {
@@ -364,10 +365,39 @@ void app_loop(bool threaded)
     //Execute user application loop
     loop();
     //_post_loop();
+#endif
+#if 1
+    DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
+
+#if !PLATFORM_THREADING
+    system_process_loop();
+#endif
+    //DEBUG_D("app_loop\r\n");
+    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
+    if ((INTOROBOT_WIRING_APPLICATION != 1))
+    {
+        //Execute user application setup only once
+        DECLARE_SYS_HEALTH(ENTERED_Setup);
+        if (system_mode()!=SAFE_MODE)
+            setup();
+        INTOROBOT_WIRING_APPLICATION = 1;
+        _post_loop();
+    }
+
+    //Execute user application loop
+    DECLARE_SYS_HEALTH(ENTERED_Loop);
+    if (system_mode()!=SAFE_MODE) {
+        loop();
+        DECLARE_SYS_HEALTH(RAN_Loop);
+        _post_loop();
+    }
+#endif
+
 #if 0
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
+
     if (!threaded)
-        Spark_Idle();
+        system_process_loop();
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if(threaded || SPARK_WLAN_SLEEP || !intorobot_cloud_flag_auto_connect() || intorobot_cloud_flag_connected() || INTOROBOT_WIRING_APPLICATION || (system_mode()!=AUTOMATIC))
@@ -396,26 +426,6 @@ void app_loop(bool threaded)
 #endif
 }
 
-
-#if PLATFORM_THREADING
-
-// This is the application loop ActiveObject.
-
-void app_thread_idle()
-{
-    app_loop(true);
-}
-
-// don't wait to get items from the queue, so the application loop is processed as often as possible
-// timeout after attempting to put calls into the application queue, so the system thread does not deadlock  (since the application may also
-// be trying to put events in the system queue.)
-ActiveObjectCurrentThreadQueue ApplicationThread(ActiveObjectConfiguration(app_thread_idle,
-		0, /* take time */
-		5000, /* put time */
-		20 /* queue size */));
-
-#endif
-
 /*******************************************************************************
  * Function Name  : main.
  * Description    : main routine.
@@ -430,10 +440,36 @@ void app_setup_and_loop(void)
     DECLARE_SYS_HEALTH(ENTERED_Main);
 
     DEBUG_D("welcome from IntoRobot!\r\n");
-    //String s = intorobot_deviceID();
-    //INFO("Device %s started", s.c_str());
+    String s = intorobot_deviceID();
+    DEBUG_D("Device %s started\r\n", s.c_str());
+
+    manage_safe_mode();
+
+#if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
+    USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
+#endif
+
+    //Network_Setup(threaded);
+
+#if PLATFORM_THREADING
+    create_system_task();
+#else
+    HAL_Core_Set_System_Loop_Handler(&system_process_loop);
+#endif
+    /* Main loop */
+    while (1) {
+        app_loop(false);
+    }
 
 #if 0
+    HAL_Core_Init();
+    // We have running firmware, otherwise we wouldn't have gotten here
+    DECLARE_SYS_HEALTH(ENTERED_Main);
+
+    DEBUG("welcome from IntoRobot!\r\n");
+    String s = intorobot_deviceID();
+    INFO("Device %s started", s.c_str());
+
     manage_safe_mode();
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
@@ -458,15 +494,13 @@ void app_setup_and_loop(void)
     }
 #endif
     if(!threaded) {
+        DEBUG_D("threaded=%d\r\n", threaded);
         /* Main loop */
         while (1) {
             app_loop(false);
         }
     }
 #endif
-    while (1) {
-        app_loop(false);
-    }
 }
 
 #ifdef USE_FULL_ASSERT
