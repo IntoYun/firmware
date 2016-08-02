@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 #include <limits.h>
-#include "stm32f4xx.h"
+#include "stm32l1xx.h"
 
 typedef uint32_t system_tick_t;
 

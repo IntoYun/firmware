@@ -26,7 +26,8 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32l1xx.h"
+#include "usbd_cdc.h"
 #include "usbd_core.h"
 #include "service_debug.h"
 
@@ -50,31 +51,30 @@ PCD_HandleTypeDef hpcd;
 void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 {
     GPIO_InitTypeDef  GPIO_InitStruct;
-    if(hpcd->Instance == USB_OTG_FS)
-    {
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        /**USB_OTG_FS GPIO Configuration
-          PA11     ------> USB_OTG_FS_DM
-          PA12     ------> USB_OTG_FS_DP
-          */
-        GPIO_InitStruct.Pin = GPIO_PIN_11;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin = GPIO_PIN_12;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /* Enable the GPIOA clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+    /* Configure USB DM/DP pin. This is optional, and maintained only for user guidance.
+       For the STM32L products there is no need to configure the PA12/PA11 pins couple
+       as Alternate Function */
+    GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        /* Peripheral interrupt init*/
-        HAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
-    }
+    /* Enable USB Clock */
+    __HAL_RCC_USB_CLK_ENABLE();
+
+    /* Enable SYSCFG Clock */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+
+    /* Set USB FS Interrupt priority */
+    HAL_NVIC_SetPriority(USB_LP_IRQn, 5, 0);
+
+    /* Enable USB Interrupt */
+    HAL_NVIC_EnableIRQ(USB_LP_IRQn);
 }
 /**
  * @brief  DeInitializes the PCD MSP.
@@ -83,14 +83,12 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
  */
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
 {
-    if(hpcd->Instance == USB_OTG_FS)
-    {
-        /* Disable USB FS Clock */
-        __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-        __HAL_RCC_SYSCFG_CLK_DISABLE();
-        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
-        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
-    }
+    /* Disable USB FS Clock */
+    __HAL_RCC_USB_CLK_DISABLE();
+
+    /* Disable SYSCFG Clock */
+    __HAL_RCC_SYSCFG_CLK_DISABLE();
+    HAL_NVIC_DisableIRQ(USB_LP_IRQn);
 }
 
 /*******************************************************************************
@@ -147,24 +145,7 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
  */
 void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
-
-    /* Set USB Current Speed */
-    switch(hpcd->Init.speed)
-    {
-        case PCD_SPEED_HIGH:
-            speed = USBD_SPEED_HIGH;
-            break;
-
-        case PCD_SPEED_FULL:
-            speed = USBD_SPEED_FULL;
-            break;
-
-        default:
-            speed = USBD_SPEED_FULL;
-            break;
-    }
-    USBD_LL_SetSpeed(hpcd->pData, speed);
+    USBD_LL_SetSpeed(hpcd->pData, USBD_SPEED_FULL);
 
     /* Reset Device */
     USBD_LL_Reset(hpcd->pData);
@@ -243,28 +224,24 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 {
     /* Set LL Driver parameters */
-    hpcd.Instance = USB_OTG_FS;
-    hpcd.Init.dev_endpoints = 4;
-    hpcd.Init.use_dedicated_ep1 = 0;
-    hpcd.Init.ep0_mps = 0x40;
-    hpcd.Init.dma_enable = 0;
-    hpcd.Init.low_power_enable = 0;
+    hpcd.Instance = USB;
+    hpcd.Init.dev_endpoints = 8;
+    hpcd.Init.ep0_mps = PCD_EP0MPS_64;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
-    hpcd.Init.Sof_enable = 0;
     hpcd.Init.speed = PCD_SPEED_FULL;
-    hpcd.Init.vbus_sensing_enable = 0;
-    hpcd.Init.lpm_enable = 0;
-
-    /* Link the driver to the stack */
+    hpcd.Init.low_power_enable = 0;
+    /* Link The driver to the stack */
     hpcd.pData = pdev;
     pdev->pData = &hpcd;
-
     /* Initialize LL Driver */
-    HAL_PCD_Init(&hpcd);
+    HAL_PCD_Init(pdev->pData);
 
-    HAL_PCDEx_SetRxFiFo(&hpcd, 0x80);
-    HAL_PCDEx_SetTxFiFo(&hpcd, 0, 0x40);
-    HAL_PCDEx_SetTxFiFo(&hpcd, 1, 0x80);
+    HAL_PCDEx_PMAConfig(pdev->pData , 0x00 , PCD_SNG_BUF, 0x40);
+    HAL_PCDEx_PMAConfig(pdev->pData , 0x80 , PCD_SNG_BUF, 0x80);
+    HAL_PCDEx_PMAConfig(pdev->pData , CDC_IN_EP , PCD_SNG_BUF, 0xC0);
+    HAL_PCDEx_PMAConfig(pdev->pData , CDC_OUT_EP , PCD_SNG_BUF, 0x110);
+    HAL_PCDEx_PMAConfig(pdev->pData , CDC_CMD_EP , PCD_SNG_BUF, 0x100);
+
     return USBD_OK;
 }
 
@@ -451,6 +428,45 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t  ep_addr)
 void  USBD_LL_Delay(uint32_t Delay)
 {
     HAL_Delay(Delay);
+}
+/**
+ * @brief  static single allocation.
+ * @param  size: size of allocated memory
+ * @retval None
+ */
+void *USBD_static_malloc(uint32_t size)
+{
+    static uint32_t mem[MAX_STATIC_ALLOC_SIZE];
+    return mem;
+}
+
+/**
+ * @brief  Dummy memory free
+ * @param  *p pointer to allocated  memory address
+ * @retval None
+ */
+void USBD_static_free(void *p)
+{
+}
+
+/**
+ * @brief  Software Device Connection
+ * @param  hpcd: PCD handle
+ * @param  state: connection state (0 : disconnected / 1: connected)
+ * @retval None
+ */
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
+{
+    if (state == 1)
+    {
+        /*  DP Pull-Down is Internal */
+        __HAL_SYSCFG_USBPULLUP_ENABLE();
+    }
+    else
+    {
+        /*  DP Pull-Down is Internal */
+        __HAL_SYSCFG_USBPULLUP_DISABLE();
+    }
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

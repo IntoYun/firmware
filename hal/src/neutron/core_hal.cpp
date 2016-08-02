@@ -32,11 +32,8 @@
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
 #include "stm32f4xx_it.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
 #include "service_debug.h"
-#include "cmsis_os.h"
+#include "concurrent_hal.h"
 #include "parser.h"
 
 /* Private typedef ----------------------------------------------------------*/

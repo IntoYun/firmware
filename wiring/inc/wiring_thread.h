@@ -24,7 +24,8 @@
 #ifndef SPARK_WIRING_THREAD_H
 #define	SPARK_WIRING_THREAD_H
 
-#if PLATFORM_THREADING
+#if 0
+//#if PLATFORM_THREADING
 
 #include "concurrent_hal.h"
 #include <stddef.h>

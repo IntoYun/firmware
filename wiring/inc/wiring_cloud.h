@@ -165,7 +165,7 @@ class CloudClass: public Print{
         static void connect(void) { intorobot_cloud_flag_connect(); }
         static void disconnect(void) { intorobot_cloud_flag_disconnect(); }
         static void process(void) {
-            application_checkin();
+            //application_checkin();
             intorobot_process();
         }
         static String deviceID(void) { return SystemClass::deviceID(); }

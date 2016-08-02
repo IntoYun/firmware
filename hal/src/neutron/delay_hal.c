@@ -20,8 +20,7 @@
 #include "delay_hal.h"
 #include "hw_config.h"
 #include "watchdog_hal.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "concurrent_hal.h"
 
 
 /**

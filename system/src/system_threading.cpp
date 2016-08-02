@@ -19,7 +19,7 @@
 
 
 #include "system_threading.h"
-#include "cmsis_os.h"
+#include "concurrent_hal.h"
 #include "system_task.h"
 #include <time.h>
 #include <string.h>

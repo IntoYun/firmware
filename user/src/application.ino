@@ -85,7 +85,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 
@@ -113,10 +113,10 @@ void loop()
 }
 #endif
 
-#if 0
+#if 1
 //SYSTEM_THREAD(ENABLED);
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
-Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+//Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #define LED_PIN D7
 

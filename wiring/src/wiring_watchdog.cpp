@@ -19,7 +19,8 @@
 
 #include "wiring_watchdog.h"
 
-#if PLATFORM_THREADING
+#if 0
+//#if PLATFORM_THREADING
 
 volatile system_tick_t ApplicationWatchdog::last_checkin;
 

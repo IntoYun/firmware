@@ -30,7 +30,8 @@
 #define __USBD_CONF_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+
+#include "stm32l1xx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,20 +50,27 @@
 /* DFU Class Config */
 #define USBD_DFU_MAX_ITF_NUM                   1
 #define USBD_DFU_XFER_SIZE                     1024   /* Max DFU Packet Size   = 1024 bytes */
-/* #define USBD_DFU_APP_DEFAULT_ADD               0x0800C000 /\* The first 3 sectors (48 KB) are reserved for DFU code *\/ */
-#define USBD_DFU_APP_DEFAULT_ADD               0x08020000 /* The first 3 sectors (48 KB) are reserved for DFU code */
+#define USBD_DFU_APP_DEFAULT_ADD               0x08007000 /*ADDR_FLASH_PAGE_14*/
+#define USBD_DFU_APP_END_ADD                   0x08020000 /*ADDR_FLASH_PAGE_64*/
 
-/* Exported macro ------------------------------------------------------------*/
+//* Exported macro ------------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;
 
 /* Memory management macros */
-#define USBD_malloc               malloc
-#define USBD_free                 free
-#define USBD_memset               memset
-#define USBD_memcpy               memcpy
-#define USBD_Delay                HAL_Delay
 
-/* DEBUG macros */
+/* For footprint reasons and since only one allocation is handled in the CDC class
+   driver, the malloc/free is changed into a static allocation method */
+
+void *USBD_static_malloc(uint32_t size);
+void USBD_static_free(void *p);
+
+#define MAX_STATIC_ALLOC_SIZE     140 /*CDC Class Driver Structure size*/
+
+#define USBD_malloc               (uint32_t *)USBD_static_malloc
+#define USBD_free                 USBD_static_free
+#define USBD_memset               /* Not used */
+#define USBD_memcpy               /* Not used */
+ /* DEBUG macros */
 #if (USBD_DEBUG_LEVEL > 0)
 #define  USBD_UsrLog(...)   printf(__VA_ARGS__);\
                             printf("\n");

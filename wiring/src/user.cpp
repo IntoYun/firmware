@@ -84,7 +84,7 @@ void serialEvent5() __attribute__((weak));
 void _post_loop()
 {
 	serialEventRun();
-	application_checkin();
+	//application_checkin();
 }
 
 /**

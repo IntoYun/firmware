@@ -29,7 +29,7 @@
 #include "delay_hal.h"
 #include "gpio_hal.h"
 #include "service_debug.h"
-#include "cmsis_os.h"
+#include "concurrent_hal.h"
 #include "net_hal.h"
 
 

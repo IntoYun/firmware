@@ -57,7 +57,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu.h"
-#include "usbd_desc.h"
+#include "usbd_dfu_desc.h"
 #include "usbd_ctlreq.h"
 
 
