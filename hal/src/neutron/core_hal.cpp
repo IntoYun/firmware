@@ -42,8 +42,10 @@
 void HAL_Core_Setup(void);
 
 /* Private macro ------------------------------------------------------------*/
+#define APP_TREAD_STACK_SIZE            6144
 
 /* Private variables --------------------------------------------------------*/
+static TaskHandle_t  app_thread_handle;
 
 /* Extern variables ----------------------------------------------------------*/
 /**
@@ -53,16 +55,6 @@ extern volatile uint32_t TimingDelay;
 
 
 /* Private function prototypes -----------------------------------------------*/
-/**
- * 当freertos没有运行起来的时候 xPortSysTickHandler(); 在SysTick_Handler中不能调用,否则会出现异常
- * 例如：用户程序调用SerialDebugOutput debugOutput(115200, ALL_LEVEL);程序将卡死.
- */
-static uint8_t  is_os_running=0;
-
-static TaskHandle_t  app_thread_handle;
-
-#define APP_TREAD_STACK_SIZE            6144
-
 /**
  * The mutex to ensure only one thread manipulates the heap at a given time.
  */
@@ -78,7 +70,7 @@ static void init_malloc_semaphore(void)
 
 void __malloc_lock(void* ptr)
 {
-    //DEBUG("__malloc_lock=%d",malloc_protect_sem);
+    DEBUG("__malloc_lock=%d",malloc_protect_sem);
     if (malloc_protect_sem)
       while(osSemaphoreWait(malloc_protect_sem, 0) != osOK) {}
 }
@@ -87,12 +79,11 @@ void __malloc_unlock(void* ptr)
 {
     if (malloc_protect_sem)
         osSemaphoreRelease(malloc_protect_sem);
-    //DEBUG("__malloc_unlock=%d",malloc_protect_sem);
+    DEBUG("__malloc_unlock=%d",malloc_protect_sem);
 }
 
 static void app_task_start(void const *argument)
 {
-    is_os_running = 1;
     HAL_Core_Setup();
     app_setup_and_loop();
 }
@@ -103,9 +94,8 @@ static void app_task_start(void const *argument)
 int main(void)
 {
     init_malloc_semaphore();
-    //init_modem_semaphore();
     /*app_tread*/
-    osThreadDef(APP_THREAD, app_task_start, osPriorityNormal,0,APP_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ));
+    osThreadDef(APP_THREAD, app_task_start, osPriorityNormal,0,APP_TREAD_STACK_SIZE/sizeof(portSTACK_TYPE));
     osThreadCreate(osThread(APP_THREAD),NULL);
     /* Start scheduler */
     osKernelStart();
@@ -255,9 +245,7 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-    if (1 == is_os_running){
-        osSystickHandler();
-    }
+    osSystickHandler();
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();

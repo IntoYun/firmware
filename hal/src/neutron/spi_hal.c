@@ -238,12 +238,14 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
+    /*
     //DEBUG("Enter HAL_SPI_Initial...");
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
     spiMap[spi]->SPI_Clock_Divider_Set = false;
     spiMap[spi]->SPI_Enabled           = false;
     spiMap[spi]->SpiHandle.Init.Mode   = SPI_MODE_MASTER;
+    */
 }
 
 /*
@@ -504,7 +506,4 @@ void DMA1_Stream5_IRQHandler(void)
   HAL_DMA_IRQHandler(spiMap[SPI3_D3_D2_D1]->SpiHandle.hdmatx);
 }
 #endif
-
-
-
 

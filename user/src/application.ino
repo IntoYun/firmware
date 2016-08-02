@@ -216,7 +216,7 @@ void setup()
 {
     DEBUG("Tone Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-    tone(TONE_PIN, 800, 10000);
+    //tone(TONE_PIN, 800, 10000);
 }
 
 // the loop function runs over and over again forever
