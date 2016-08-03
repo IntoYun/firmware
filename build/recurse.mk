@@ -19,5 +19,3 @@ clean_deps: $(CLEAN_DEPENDENCIES)
 make_deps: $(MAKE_DEPENDENCIES)
 
 .PHONY: make_deps clean_deps $(MAKE_DEPENDENCIES) $(CLEAN_DEPENDENCIES)
-
-

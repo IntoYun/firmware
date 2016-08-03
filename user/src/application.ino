@@ -207,7 +207,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 #define TONE_PIN D0
@@ -259,9 +259,9 @@ void loop()
 }
 #endif
 
-#if 0
+#if 1
 #include "Adafruit_SSD1306.h"
-//#define SSD1307
+#define SSD1307
 // Hareware SPI
 // MOSI SPI MOSI
 // CLK SPI CLK
