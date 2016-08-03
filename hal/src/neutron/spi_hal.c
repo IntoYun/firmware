@@ -151,7 +151,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     HAL_DMA_Init(&spiMap[spi]->hdma_tx);
 
     /* Associate the initialized DMA handle to the the SPI handle */
-    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmatx, &spiMap[spi]->hdma_tx);
+    __HAL_LINKDMA(&spiMap[spi]->SpiHandle, hdmatx, spiMap[spi]->hdma_tx);
 
     /* Configure the DMA handler for Transmission process */
     spiMap[spi]->hdma_rx.Instance                 = spiMap[spi]->SPI_RX_DMA_Stream;
@@ -235,14 +235,21 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    /*
-    //DEBUG("Enter HAL_SPI_Initial...");
+    DEBUG("Enter HAL_SPI_Initial...");
+    if(spi == HAL_SPI_INTERFACE1)
+    {
+        spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
+    }
+    else if(spi == HAL_SPI_INTERFACE2)
+    {
+        spiMap[spi] = &SPI_MAP[SPI3_D3_D2_D1];
+    }
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
     spiMap[spi]->SPI_Clock_Divider_Set = false;
     spiMap[spi]->SPI_Enabled           = false;
     spiMap[spi]->SpiHandle.Init.Mode   = SPI_MODE_MASTER;
-    */
+
 }
 
 /*
@@ -260,16 +267,6 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
     DEBUG("Enter HAL_SPI_Begin_Ext...");
-    if(spi == HAL_SPI_INTERFACE1)
-    {
-        DEBUG("HAL_SPI_Begin_Ext Select SPI1...");
-        spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
-    }
-    else if(spi == HAL_SPI_INTERFACE2)
-    {
-        DEBUG("HAL_SPI_Begin_Ext Select SPI3...");
-        spiMap[spi] = &SPI_MAP[SPI3_D3_D2_D1];
-    }
 
     if (pin == SPI_DEFAULT_SS)
         pin = spiMap[spi]->SPI_SS_Pin;
@@ -317,7 +314,7 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
  */
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_End...");
+    //DEBUG("Enter HAL_SPI_End...");
     HAL_SPI_GPIO_DMA_DeInit(spi);
     spiMap[spi]->SPI_Enabled = false;
 }
@@ -330,7 +327,7 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
-    DEBUG("Enter HAL_SPI_Set_Bit_Order...");
+    //DEBUG("Enter HAL_SPI_Set_Bit_Order...");
     if(order == LSBFIRST)
     {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_LSB;
@@ -352,7 +349,7 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
  */
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 {
-    DEBUG("Enter HAL_SPI_Set_Data_Mode...");
+    //DEBUG("Enter HAL_SPI_Set_Data_Mode...");
     switch(mode)
     {
         case SPI_MODE0:
@@ -378,7 +375,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 
     HAL_SPI_Init(&spiMap[spi]->SpiHandle);
     spiMap[spi]->SPI_Data_Mode_Set = true;
-    DEBUG("Leave HAL_SPI_Set_Data_Mode...");
+    //DEBUG("Leave HAL_SPI_Set_Data_Mode...");
 }
 
 /*
@@ -389,7 +386,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
  */
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-    DEBUG("Enter HAL_SPI_Set_Clock_Divider...");
+    //DEBUG("Enter HAL_SPI_Set_Clock_Divider...");
     spiMap[spi]->SpiHandle.Init.BaudRatePrescaler = rate;
     HAL_SPI_Init(&spiMap[spi]->SpiHandle);
     spiMap[spi]->SPI_Clock_Divider_Set = true;
@@ -409,7 +406,7 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
         return 0;
     uint8_t dataTrans = data;
     uint8_t rxDataTrans = 0;
-    /*DEBUG("The Input Data: %d", dataTrans);*/
+    //DEBUG("The Input Data: %d", dataTrans);
     //DEBUG("Before TransmitReceive...");
 #ifdef useDMASPI
     HAL_SPI_TransmitReceive_DMA(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1);
@@ -462,6 +459,7 @@ int32_t HAL_SPI_DMA_Transfer_Status(HAL_SPI_Interface spi, HAL_SPI_TransferStatu
     return 0;
 }
 
+#if 0
 #ifdef useDMASPI
 /**
   * @brief  This function handles SPI1 DMA Rx interrupt request.
@@ -502,5 +500,6 @@ void DMA1_Stream5_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(spiMap[SPI3_D3_D2_D1]->SpiHandle.hdmatx);
 }
+#endif
 #endif
 
