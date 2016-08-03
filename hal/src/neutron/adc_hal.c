@@ -202,4 +202,3 @@ void DMA2_Stream4_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(ADC_HandleStruct.DMA_Handle);
 }
-

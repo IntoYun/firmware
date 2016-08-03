@@ -202,15 +202,6 @@ void USART2_IRQHandler(void)
 
 #endif
 
-/**
- * @brief  This function handles I2S IT Stream interrupt request.
- * @param  None
- * @retval None
- */
-void DMA1_Stream3_IRQHandler(void)
-{
-    //HAL_DMA_IRQHandler(I2sHandle.hdmarx);
-}
 
 extern TIM_HandleTypeDef Timer2Handle;
 extern TIM_HandleTypeDef Timer3Handle;
