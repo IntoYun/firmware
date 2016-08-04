@@ -85,14 +85,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     {
         __HAL_RCC_GPIOB_CLK_ENABLE();
     }
-    else if (gpio_port == GPIOC)
-    {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-    else if (gpio_port == GPIOD)
-    {
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-    }
 
     GPIO_InitStructure.Pin = gpio_pin;
 
