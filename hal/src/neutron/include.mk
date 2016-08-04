@@ -33,5 +33,8 @@ LDFLAGS += -u uxTopUsedPriority
 ASRC += $(COMMON_BUILD)/startup/arm/startup_$(STM32_DEVICE_LC).S
 ASFLAGS += -I$(COMMON_BUILD)/startup/arm
 ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
+
+LIB_DIRS += $(TARGET_HAL_SRC_INC_PATH)/lib/
+LIBS += PDMFilter_CM4_GCC
 #
 endif

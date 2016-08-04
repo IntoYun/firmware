@@ -151,7 +151,7 @@ void HAL_Core_Config(void)
 
 void HAL_Core_Setup(void)
 {
-    esp8266MDM.init();
+    //esp8266MDM.init();
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
     HAL_Bootloader_Lock(true);
