@@ -37,9 +37,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-extern ADC_HandleTypeDef ADC_HandleStruct;
 
-extern I2S_HandleTypeDef I2sHandle;
 
 //extern PCD_HandleTypeDef hpcd;
 
@@ -69,6 +67,7 @@ void NMI_Handler(void)
 {
 }
 
+
 /**
  * @brief  This function handles Hard Fault exception.
  * @param  None
@@ -76,6 +75,9 @@ void NMI_Handler(void)
  */
 void HardFault_Handler(void)
 {
+    //__asm ("bx lr\n");
+    //__asm__ __volatile__("BX lr");
+    //wait();
     /* Go to infinite loop when Hard Fault exception occurs */
     while (1)
     {

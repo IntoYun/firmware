@@ -259,7 +259,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 #include "Adafruit_SSD1306.h"
 #define SSD1307
 // Hareware SPI
@@ -408,4 +408,26 @@ void loop()
 }
 #endif
 
+#if 1
+
+#define LED_PIN D7
+
+void setup()
+{
+    DEBUG("I2S Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    //Audio.begin();
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+    DEBUG("Runing !");
+    //Audio.receive();
+}
+#endif
 

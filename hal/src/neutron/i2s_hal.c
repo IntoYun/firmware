@@ -23,7 +23,6 @@
 #include "service_debug.h"
 
 #define TOTAL_I2S 2
-
 // I2Snum_SD_CK
 typedef enum I2S_Num_Def {
     I2S1_D3_D0_USER = 0,
@@ -62,7 +61,7 @@ typedef struct STM32_I2S_Info {
 STM32_I2S_Info I2S_MAP[TOTAL_I2S] =
 {
     { SPI3, DMA_CHANNEL_0, DMA1_Stream0, DMA1_Stream0_IRQn, GPIOB, GPIOB, GPIO_PIN_3, GPIO_PIN_5, GPIO_AF6_SPI3},
-    { SPI2, DMA_CHANNEL_0, DMA1_Stream3, DMA1_Stream3_IRQn, GPIOB, GPIOB, GPIO_PIN_10, GPIO_PIN_15, GPIO_AF6_SPI3}
+    { SPI2, DMA_CHANNEL_0, DMA1_Stream3, DMA1_Stream3_IRQn, GPIOB, GPIOB, GPIO_PIN_10, GPIO_PIN_15, GPIO_AF5_SPI2}
 };
 
 static STM32_I2S_Info *i2sMap[TOTAL_I2S];
@@ -78,7 +77,6 @@ I2S_HandleTypeDef *sensorI2SHandle = (I2S_HandleTypeDef *)&I2S_MAP[I2S2_CK_SD_SE
 void HAL_I2S_GPIO_DMA_Init(HAL_I2S_Interface i2s)
 {
     DEBUG("Enter HAL_I2S_GPIO_DMA_Init...");
-    GPIO_InitTypeDef  GPIO_InitStruct;
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO SK  SD clock and DMA clock */
@@ -87,21 +85,18 @@ void HAL_I2S_GPIO_DMA_Init(HAL_I2S_Interface i2s)
         DEBUG("Select I2S1, and Enable Clock...");
         __HAL_RCC_SPI3_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
-#ifdef useDMAI2S
         // DMA2 clock
         __HAL_RCC_DMA1_CLK_ENABLE();
-#endif
     }
     else if(i2sMap[i2s]->I2S_Peripheral == SPI2)
     {
         DEBUG("Select I2S2, and Enable Clock...");
         __HAL_RCC_SPI2_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
-#ifdef useDMAI2S
         // DMA1 clock
         __HAL_RCC_DMA1_CLK_ENABLE();
-#endif
     }
+    GPIO_InitTypeDef  GPIO_InitStruct;
     /*##-2- Configure peripheral GPIO ##########################################*/
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -127,16 +122,14 @@ void HAL_I2S_GPIO_DMA_Init(HAL_I2S_Interface i2s)
     i2sMap[i2s]->hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
     i2sMap[i2s]->hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     i2sMap[i2s]->hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
-
     if(i2sMap[i2s]->I2S_Peripheral == SPI3) // for user
     {
-        i2sMap[i2s]->hdma_rx.Init.Mode                = DMA_NORMAL;//DMA_NORMAL; DMA_CIRCULAR
+        i2sMap[i2s]->hdma_rx.Init.Mode            = DMA_NORMAL;//DMA_NORMAL; DMA_CIRCULAR
     }
     else if(i2sMap[i2s]->I2S_Peripheral == SPI2) // for sensor
     {
-        i2sMap[i2s]->hdma_rx.Init.Mode                = DMA_CIRCULAR;//DMA_NORMAL; DMA_CIRCULAR
+        i2sMap[i2s]->hdma_rx.Init.Mode            = DMA_CIRCULAR;//DMA_NORMAL; DMA_CIRCULAR
     }
-
     i2sMap[i2s]->hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
     i2sMap[i2s]->hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
     i2sMap[i2s]->hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
@@ -154,8 +147,11 @@ void HAL_I2S_GPIO_DMA_Init(HAL_I2S_Interface i2s)
 
     /*##-4- Configure the NVIC for DMA #########################################*/
     /* NVIC configuration for DMA transfer complete interrupt (I2S_RX) */
-    HAL_NVIC_SetPriority(i2sMap[i2s]->I2S_DMA_RX_IRQn, 0x06, 0);
-    HAL_NVIC_EnableIRQ(i2sMap[i2s]->I2S_DMA_RX_IRQn);
+    //HAL_NVIC_SetPriority(i2sMap[i2s]->I2S_DMA_RX_IRQn, 0x06, 0);
+    //HAL_NVIC_EnableIRQ(i2sMap[i2s]->I2S_DMA_RX_IRQn);
+    HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0x08, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+
     DEBUG("Leave HAL_I2S_GPIO_DMA_Init...");
 }
 
@@ -186,14 +182,12 @@ void HAL_I2S_GPIO_DMA_DeInit(HAL_I2S_Interface i2s)
     /* Configure I2S SD as alternate function  */
     HAL_GPIO_DeInit(i2sMap[i2s]->I2S_SD_Port, i2sMap[i2s]->I2S_SD_Pin);
 
-#ifdef useDMAI2S
     /*##-3- Disable the DMA Streams ############################################*/
     /* De-Initialize the DMA Stream associate to reception process */
-    HAL_DMA_DeInit(&i2sMap[spi]->hdma_rx);
+    HAL_DMA_DeInit(&i2sMap[i2s]->hdma_rx);
 
     /*##-4- Disable the NVIC for DMA ###########################################*/
     HAL_NVIC_DisableIRQ(i2sMap[i2s]->I2S_DMA_RX_IRQn);
-#endif
 }
 
 /*
@@ -203,6 +197,17 @@ void HAL_I2S_GPIO_DMA_DeInit(HAL_I2S_Interface i2s)
  */
 void HAL_I2S_Initial(HAL_I2S_Interface i2s)
 {
+    if(i2s == HAL_I2S_INTERFACE1)
+    {
+        DEBUG("HAL_I2S_Initial Select I2S1...");
+        i2sMap[i2s] = &I2S_MAP[I2S1_D3_D0_USER];
+    }
+    else if(i2s == HAL_I2S_INTERFACE2)
+    {
+        DEBUG("HAL_I2S_Intial Select I2S2...");
+        i2sMap[i2s] = &I2S_MAP[I2S2_CK_SD_SENSOR];
+    }
+
     //DEBUG("Enter HAL_I2S_Initial...");
     i2sMap[i2s]->I2S_Enabled = false;
 }
@@ -216,18 +221,7 @@ void HAL_I2S_Initial(HAL_I2S_Interface i2s)
 void HAL_I2S_Begin(HAL_I2S_Interface i2s, uint32_t audioFreq)
 {
     DEBUG("Enter HAL_I2S_Begin...");
-    if(i2s == HAL_I2S_INTERFACE1)
-    {
-        DEBUG("HAL_I2S_Begin Select I2S1...");
-        i2sMap[i2s] = &I2S_MAP[I2S1_D3_D0_USER];
-    }
-    else if(i2s == HAL_I2S_INTERFACE2)
-    {
-        DEBUG("HAL_I2S_Begin Select I2S2...");
-        i2sMap[i2s] = &I2S_MAP[I2S2_CK_SD_SENSOR];
-    }
 
-    HAL_I2S_GPIO_DMA_Init(i2s);
     /* I2S configuration */
     i2sMap[i2s]->I2SHandle.Instance            = i2sMap[i2s]->I2S_Peripheral;
 
@@ -251,7 +245,7 @@ void HAL_I2S_Begin(HAL_I2S_Interface i2s, uint32_t audioFreq)
     HAL_I2S_Init(&i2sMap[i2s]->I2SHandle);
     i2sMap[i2s]->I2S_Enabled = true;
 
-    //TODO slave mode
+    DEBUG("Leave HAL_I2S_Begin...");
 }
 
 /*
