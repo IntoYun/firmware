@@ -98,7 +98,7 @@ $(TARGET_BASE).a : $(ALLOBJ)
 	$(call echo,'Building target: $@')
 	$(call echo,'Invoking: XTENSA GCC Archiver')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(AR) ru $@ $^
+	$(VERBOSE)$(AR) cru $@ $^
 	$(call echo,)
 
 # C compiler to build .o from .c in $(BUILD_DIR)
