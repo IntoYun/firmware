@@ -209,24 +209,35 @@ void loop()
 
 #if 1
 
-#define LED_PIN D7
-#define TONE_PIN D0
+#define LED_PIN  36
+#define TEST_PIN A2
+
 
 void setup()
 {
     DEBUG("Tone Test\r\n");
-    pinMode(LED_PIN, OUTPUT);
-    //tone(TONE_PIN, 800, 10000);
+   pinMode(LED_PIN, OUTPUT);
+pinMode(TEST_PIN,INPUT_PULLUP); 
+Serial.begin(115200);
 }
+
 
 // the loop function runs over and over again forever
 void loop()
 {
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                   // wait for a second
-    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);                   // wait for a second
-    DEBUG("Runing !");
+//   if(digitalRead(TEST_PIN)== 1)
+//    {
+//        digitalWrite(LED_PIN,HIGH);
+//    }
+//    else
+//    {
+//        digitalWrite(LED_PIN,LOW);
+//    }
+     // digitalWrite(LED_PIN,LOW);
+      delay(100);
+     // digitalWrite(LED_PIN,HIGH);
+      delay(1000);
+      Serial.println("asdfgh");
 }
 #endif
 
