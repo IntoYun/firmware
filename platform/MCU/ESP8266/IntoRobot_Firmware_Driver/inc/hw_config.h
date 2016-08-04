@@ -33,6 +33,8 @@
 #include <stdbool.h>
 #include "sdkqueue.h"
 #include "hw_ticks.h"
+#include "esp8266_timer.h"
+#include "esp8266_peri.h"
 #include "service_debug.h"
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;

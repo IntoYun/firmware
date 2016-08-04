@@ -37,12 +37,14 @@ endif
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o)))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o)))
 
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC:.S=.o.d)))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o.d)))
 
 # All Target
 all: $(MAKE_DEPENDENCIES) $(TARGET) postbuild
@@ -105,6 +107,14 @@ $(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.c
 	$(call echo,'Invoking: XTENSA GCC C Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CC) $(CFLAGS) $(CDEFINES) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
+	$(call echo,)
+
+# Assember to build .o from .S in $(BUILD_DIR)
+$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.S
+	$(call echo,'Building file: $<')
+	$(call echo,'Invoking: XTENSA GCC Assembler')
+	$(VERBOSE)$(MKDIR) $(dir $@)
+	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
 # Assember to build .o from .S in $(BUILD_DIR)

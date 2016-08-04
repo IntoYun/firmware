@@ -12,9 +12,11 @@ include $(COMMON_BUILD)/common-tools.mk
 CDEFINES += -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DESP8266
 
 # C 编译参数
-CFLAGS += -O0 -g -mlongcalls -mtext-section-literals -falign-functions=4 -MMD
+CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD
 ifneq ("$(MODULE)","bootloader")
-CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -Os -ffunction-sections -fdata-sections
+else
+CFLAGS += -O0
 endif
 
 CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
@@ -31,20 +33,18 @@ FLASH_MODE ?= qio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_SPEED ?= 230400
+#UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 921600
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
     UPLOAD_PORT ?= /dev/ttyACM0
 endif
 ifeq ($(UNAME_S),Darwin)
-    UPLOAD_PORT ?= /dev/cu.usbmodem1411
+    #UPLOAD_PORT ?= /dev/cu.usbmodem1411
+	UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 endif
 
-#UPLOAD_SPEED ?= 921600
-#UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= nodemcu
-
-#
 

@@ -38,7 +38,7 @@ void loop()
 
 
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
-Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+//Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 #if 0
 #define LED_PIN D7
 

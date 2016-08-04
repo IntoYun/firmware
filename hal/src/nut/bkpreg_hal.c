@@ -38,6 +38,7 @@ uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
     }
     return 0xFFFFFFFF;
     */
+    return 0xFFFFFFFF;
 }
 
 

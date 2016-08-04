@@ -66,7 +66,7 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS 70
+#define TOTAL_PINS 31
 #define TOTAL_ANALOG_PINS 1
 #define TOTAL_DIGITAL_PINS 9
 #define FIRST_ANALOG_PIN 30

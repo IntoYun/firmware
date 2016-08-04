@@ -350,23 +350,8 @@ void manage_safe_mode()
 #endif
 }
 
-void app_loop(bool threaded)
+void app_loop(void)
 {
-#if 0
-    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
-    if ((INTOROBOT_WIRING_APPLICATION != 1))
-    {
-        //Execute user application setup only once
-        setup();
-        INTOROBOT_WIRING_APPLICATION = 1;
-        //_post_loop();
-    }
-
-    //Execute user application loop
-    loop();
-    //_post_loop();
-#endif
-#if 1
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
 
 #if !PLATFORM_THREADING
@@ -391,39 +376,6 @@ void app_loop(bool threaded)
         DECLARE_SYS_HEALTH(RAN_Loop);
         _post_loop();
     }
-#endif
-
-#if 0
-    DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
-
-    if (!threaded)
-        system_process_loop();
-
-    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
-    if(threaded || SPARK_WLAN_SLEEP || !intorobot_cloud_flag_auto_connect() || intorobot_cloud_flag_connected() || INTOROBOT_WIRING_APPLICATION || (system_mode()!=AUTOMATIC))
-    {
-        if(threaded || !SPARK_FLASH_UPDATE)
-        {
-            if ((INTOROBOT_WIRING_APPLICATION != 1))
-            {
-                //Execute user application setup only once
-                DECLARE_SYS_HEALTH(ENTERED_Setup);
-                if (system_mode()!=SAFE_MODE)
-                    setup();
-                INTOROBOT_WIRING_APPLICATION = 1;
-                _post_loop();
-            }
-
-            //Execute user application loop
-            DECLARE_SYS_HEALTH(ENTERED_Loop);
-            if (system_mode()!=SAFE_MODE) {
-                loop();
-                DECLARE_SYS_HEALTH(RAN_Loop);
-                _post_loop();
-            }
-        }
-    }
-#endif
 }
 
 /*******************************************************************************
@@ -433,7 +385,7 @@ void app_loop(bool threaded)
  * Output         : None.
  * Return         : None.
  *******************************************************************************/
-void app_setup_and_loop(void)
+void app_setup_and_loop_initial(void)
 {
     HAL_Core_Init();
     // We have running firmware, otherwise we wouldn't have gotten here
@@ -456,55 +408,25 @@ void app_setup_and_loop(void)
 #else
     HAL_Core_Set_System_Loop_Handler(&system_process_loop);
 #endif
+}
+
+/*******************************************************************************
+ * Function Name  : main.
+ * Description    : main routine.
+ * Input          : None.
+ * Output         : None.
+ * Return         : None.
+ *******************************************************************************/
+void app_setup_and_loop(void)
+{
+    app_setup_and_loop_initial();
     /* Main loop */
     while (1) {
-        app_loop(false);
+        app_loop();
     }
-
-#if 0
-    HAL_Core_Init();
-    // We have running firmware, otherwise we wouldn't have gotten here
-    DECLARE_SYS_HEALTH(ENTERED_Main);
-
-    DEBUG("welcome from IntoRobot!\r\n");
-    String s = intorobot_deviceID();
-    INFO("Device %s started", s.c_str());
-
-    manage_safe_mode();
-
-#if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
-    USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
-#endif
-
-    bool threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED &&
-        (system_mode()!=SAFE_MODE);
-
-    Network_Setup(threaded);
-
-#if PLATFORM_THREADING
-    if (threaded)
-    {
-        SystemThread.start();
-        ApplicationThread.start();
-    }
-    else
-    {
-        SystemThread.setCurrentThread();
-        ApplicationThread.setCurrentThread();
-    }
-#endif
-    if(!threaded) {
-        DEBUG_D("threaded=%d\r\n", threaded);
-        /* Main loop */
-        while (1) {
-            app_loop(false);
-        }
-    }
-#endif
 }
 
 #ifdef USE_FULL_ASSERT
-
 /*******************************************************************************
  * Function Name  : assert_failed
  * Description    : Reports the name of the source file and the source line number
