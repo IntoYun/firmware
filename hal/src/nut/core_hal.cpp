@@ -29,10 +29,10 @@
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
 #include "service_debug.h"
+#include "delay_hal.h"
 
 #include <Arduino.h>
 #include "Schedule.h"
-#include "uart.h"
 extern "C" {
 #include "ets_sys.h"
 #include "os_type.h"
@@ -122,7 +122,6 @@ extern "C" void optimistic_yield(uint32_t interval_us) {
 }
 
 static void loop_wrapper() {
-
     preloop_update_frequency();
     app_loop();
     run_scheduled_functions();
@@ -153,27 +152,6 @@ void init_done() {
 }
 
 extern "C" void user_init(void) {
-    uart_t* _uart = uart_init(UART1, 115200, UART_8N1, 0, 1);
-    uart_set_debug(UART_NO);
-    for(int n=0; n<10; n++)
-    {
-        HAL_Delay_Microseconds(100);
-        uart_write_char(_uart, 'a');
-    }
-    os_printf("SDK version:%s\n", system_get_sdk_version());
-
-    GPF16 = GP16FFS(GPFFS_GPIO(16));//Set mode to GPIO
-    GPC16 = 0;
-    GP16E |= 1;
-    GP16O &= ~1;
-
-/*
-    uart_init(UART1, 115200, UART_8N1, 0, 1);
-    uart_set_debug(UART1);
-    os_printf("1111\r\n");
-    DEBUG_D("app_loop\r\n");
-    */
-    /*
     struct rst_info *rtc_info_ptr = system_get_rst_info();
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
@@ -183,7 +161,6 @@ extern "C" void user_init(void) {
     cont_init(&g_cont);
     ets_task(loop_task, LOOP_TASK_PRIORITY, g_loop_queue, LOOP_QUEUE_SIZE);
     system_init_done_cb(&init_done);
-    */
 }
 
 void HAL_Core_Init(void)

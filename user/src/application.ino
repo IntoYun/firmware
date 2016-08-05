@@ -205,7 +205,7 @@ void loop()
 #endif
 
 #if 1
-
+#include "esp8266_peri.h"
 // ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
@@ -213,15 +213,29 @@ Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 void setup()
 {
-    pinMode(LED_PIN, OUTPUT);
+   pinMode(LED_PIN, OUTPUT);
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    /*
+    DEBUG_D("1111111\r\n");
+    GPF16 = GP16FFS(GPFFS_GPIO(16));//Set mode to GPIO
+    GPC16 = 0;
+    GP16E |= 1;
+    GP16O |= 1;
+*/
     delay(1000);                   // wait for a second
+
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    /*
+    GPF16 = GP16FFS(GPFFS_GPIO(16));//Set mode to GPIO
+    GPC16 = 0;
+    GP16E |= 1;
+    GP16O &= ~1;
+*/
     delay(1000);                   // wait for a second
 }
 #endif

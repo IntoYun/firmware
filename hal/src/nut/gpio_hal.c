@@ -77,12 +77,14 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
                 GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
                 GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
                 GPES = (1 << pin); //Enable
+                PIN_MAP[pin].pin_mode = OUTPUT;
                 break;
 
             case INPUT:
                 GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
                 GPEC = (1 << gpio_pin); //Disable
                 GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+                PIN_MAP[pin].pin_mode = INPUT;
                 break;
 
             case INPUT_PULLUP:
@@ -90,6 +92,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
                 GPEC = (1 << gpio_pin); //Disable
                 GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
                 GPF(gpio_pin) |= (1 << GPFPU);  // Enable  Pullup
+                PIN_MAP[pin].pin_mode = INPUT_PULLUP;
                 break;
 
             default:
@@ -104,12 +107,14 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
                 GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
                 GPC16 = 0;
                 GP16E |= 1;
+                PIN_MAP[pin].pin_mode = OUTPUT;
                 break;
 
             case INPUT:
                 GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
                 GPC16 = 0;
                 GP16E &= ~1;
+                PIN_MAP[pin].pin_mode = INPUT;
                 break;
 
             case INPUT_PULLDOWN:
@@ -117,6 +122,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
                 GPC16 = 0;
                 GPF16 |= (1 << GP16FPD);//Enable Pulldown
                 GP16E &= ~1;
+                PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
                 break;
 
             default:

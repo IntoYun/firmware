@@ -55,7 +55,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         free(_uart);
     }
 
-    _uart = uart_init(UART1, baud, config, 0, 1);
+    _uart = uart_init(UART1, baud, UART_8N1, 0, 1);
 
     if(uart_tx_enabled(_uart)) {
         uart_set_debug(UART1);

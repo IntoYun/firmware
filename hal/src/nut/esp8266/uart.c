@@ -185,7 +185,10 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
         uart->rx_pin = 255;
         uart->tx_pin = (uart->tx_enabled)?2:255;  // GPIO7 as TX not possible! See GPIO pins used by UART
         if(uart->tx_enabled) {
-            pinMode(uart->tx_pin, SPECIAL);
+            GPC(uart->tx_pin) = (GPC(uart->tx_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+            GPEC = (1 << uart->tx_pin); //Disable
+            GPF(uart->tx_pin) = GPFFS(GPFFS_BUS(uart->tx_pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+            //pinMode(uart->tx_pin, SPECIAL);
         }
         break;
     case UART_NO:
