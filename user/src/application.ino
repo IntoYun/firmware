@@ -205,12 +205,8 @@ void loop()
 #endif
 
 #if 0
-<<<<<<< HEAD
-=======
-
 #define LED_PIN  36
 #define TEST_PIN A2
->>>>>>> develop
 
 
 void setup()
@@ -419,13 +415,38 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 #define LED_PIN D7
 
 void setup()
 {
     DEBUG("I2S Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    //Audio.begin();
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+    DEBUG("Runing !");
+    //Audio.receive();
+}
+#endif
+
+
+
+#if 1
+
+#define LED_PIN D6
+
+void setup()
+{
+    DEBUG("Nut GPIO Test\r\n");
     pinMode(LED_PIN, OUTPUT);
     //Audio.begin();
 }
