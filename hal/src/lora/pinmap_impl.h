@@ -55,4 +55,3 @@ extern PinMode HAL_GPIO_Recall_Pin_Mode();
 #endif
 
 #endif	/* PINMAP_IMPL_H */
-

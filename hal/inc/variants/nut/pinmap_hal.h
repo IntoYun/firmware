@@ -56,17 +56,19 @@ typedef enum {
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
 
-typedef struct STM32_Pin_Info  STM32_Pin_Info;
+typedef struct EESP82666_Pin_Info  EESP82666_Pin_Info;
 
-STM32_Pin_Info* HAL_Pin_Map(void);
+EESP82666_Pin_Info* HAL_Pin_Map(void);
 
 /* Exported macros -----------------------------------------------------------*/
 
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS 70
-#define TOTAL_ANALOG_PINS 8
+
+#define TOTAL_PINS 31
+#define TOTAL_ANALOG_PINS 1
+#define TOTAL_DIGITAL_PINS 9
 #define FIRST_ANALOG_PIN 30
 
 #define D0 0
@@ -76,61 +78,30 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define D4 4
 #define D5 5
 #define D6 6
-#define D7 7
+#define TX 7
+#define RX 8
 
 #define A0 30
-#define A1 31
-#define A2 32
-#define A3 33
-#define A4 34
-#define A5 35
-#define A6 36
-#define A7 37
-
-// Uart pins
-#define CTS A0
-#define RTS A1
-
-#define TX A2
-#define RX A3
 
 // SPI pins
-#define SS   A4
-#define SCK  A5
-#define MISO A6
-#define MOSI A7
-
-#define SS1   D4
-#define SCK1  D3
-#define MISO1 D2
-#define MOSI1 D0
+#define SS   D5
+#define SCK  D2
+#define MISO D3
+#define MOSI D4
 
 // I2C pins
-#define SDA  D2
-#define SCL  D1
+#define SDA  D1
+#define SCL  D0
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define ESP_BOOT_UC         60
-#define ESP_RESET_UC        61
-#define RGBR_UC             62
-#define RGBG_UC             63
-#define RGBB_UC             64
+#define RGB_UC             9
+#define BUTTON_UC          10
 
-#define LIGHT_SENSOR_UC     65
-#define SENSOR_SDA_UC       66
-#define SENSOR_SCL_UC       67
+#define LED_USER  D6
 
-#define ESP8266_TXD_UC      68
-#define ESP8266_RXD_UC      69
-
-
-#define LED_USER  D7
-
-#define TOTAL_USARTS        2
-
-
+#define TOTAL_USARTS        1
 
 
 #define TIM_PWM_FREQ 500 //500Hz

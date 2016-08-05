@@ -5,18 +5,14 @@
 
 #ifndef _C_TYPES_H_
 #define _C_TYPES_H_
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdarg.h>
 
-typedef unsigned char       uint8_t;
 typedef signed char         sint8_t;
-typedef signed char         int8_t;
-typedef unsigned short      uint16_t;
 typedef signed short        sint16_t;
-typedef signed short        int16_t;
-typedef unsigned long       uint32_t;
 typedef signed long         sint32_t;
-typedef signed long         int32_t;
 typedef signed long long    sint64_t;
-typedef unsigned long long  uint64_t;
 typedef unsigned long long  u_int64_t;
 typedef float               real32_t;
 typedef double              real64_t;
@@ -44,8 +40,6 @@ typedef double              real64;
 
 #define __le16      u16
 
-typedef unsigned int        size_t;
-
 #define __packed        __attribute__((packed))
 
 #define LOCAL       static
@@ -72,20 +66,17 @@ typedef enum {
 #define SHMEM_ATTR
 
 #ifdef ICACHE_FLASH
-#define ICACHE_FLASH_ATTR __attribute__((section(".irom0.text")))
-#define ICACHE_RODATA_ATTR __attribute__((section(".irom.text")))
+#define ICACHE_FLASH_ATTR   __attribute__((section(".irom0.text")))
+#define ICACHE_RAM_ATTR     __attribute__((section(".iram.text")))
+#define ICACHE_RODATA_ATTR  __attribute__((section(".irom.text")))
 #else
 #define ICACHE_FLASH_ATTR
+#define ICACHE_RAM_ATTR
 #define ICACHE_RODATA_ATTR
 #endif /* ICACHE_FLASH */
 
-#define STORE_ATTR __attribute__((aligned(4)))
-
 #ifndef __cplusplus
-typedef unsigned char   bool;
 #define BOOL            bool
-#define true            (1)
-#define false           (0)
 #define TRUE            true
 #define FALSE           false
 

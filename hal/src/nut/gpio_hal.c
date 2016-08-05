@@ -21,8 +21,6 @@
 #include "hw_config.h"
 #include "gpio_hal.h"
 #include "pinmap_impl.h"
-#include <stddef.h>
-#include "dac_hal.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -32,6 +30,7 @@
 
 /* Private variables --------------------------------------------------------*/
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
+uint8_t esp8266_gpioToFn[16] = {0x34, 0x18, 0x38, 0x14, 0x3C, 0x40, 0x1C, 0x20, 0x24, 0x28, 0x2C, 0x30, 0x04, 0x08, 0x0C, 0x10};
 
 /* Extern variables ---------------------------------------------------------*/
 
@@ -50,15 +49,13 @@ PinMode HAL_Get_Pin_Mode(pin_t pin)
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     if (!is_valid_pin(pin))
         return PF_NONE;
     if (pinFunction==PF_ADC && PIN_MAP[pin].adc_channel!=ADC_CHANNEL_NONE)
         return PF_ADC;
-    if (pinFunction==PF_DAC && PIN_MAP[pin].dac_channel!=DAC_CHANNEL_NONE)
-        return PF_DAC;
-    if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral!=NULL)
+    if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral!=NONE)
         return PF_TIMER;
     return PF_DIO;
 }
@@ -69,89 +66,69 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
  */
 void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    // Initialize GPIO_InitStructure to fix system wake up from pin function.
-    GPIO_InitTypeDef GPIO_InitStructure = {0};
-
-    if (gpio_port == GPIOA)
+    if(gpio_pin < 16)
     {
-        __HAL_RCC_GPIOA_CLK_ENABLE();
+        switch (setMode)
+        {
+            case OUTPUT:
+                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+                GPES = (1 << pin); //Enable
+                PIN_MAP[pin].pin_mode = OUTPUT;
+                break;
+
+            case INPUT:
+                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPEC = (1 << gpio_pin); //Disable
+                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+                PIN_MAP[pin].pin_mode = INPUT;
+                break;
+
+            case INPUT_PULLUP:
+                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPEC = (1 << gpio_pin); //Disable
+                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+                GPF(gpio_pin) |= (1 << GPFPU);  // Enable  Pullup
+                PIN_MAP[pin].pin_mode = INPUT_PULLUP;
+                break;
+
+            default:
+                break;
+        }
     }
-    else if (gpio_port == GPIOB)
+    else if(gpio_pin == 16)
     {
-        __HAL_RCC_GPIOB_CLK_ENABLE();
+        switch (setMode)
+        {
+            case OUTPUT:
+                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPC16 = 0;
+                GP16E |= 1;
+                PIN_MAP[pin].pin_mode = OUTPUT;
+                break;
+
+            case INPUT:
+                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPC16 = 0;
+                GP16E &= ~1;
+                PIN_MAP[pin].pin_mode = INPUT;
+                break;
+
+            case INPUT_PULLDOWN:
+                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
+                GPC16 = 0;
+                GPF16 |= (1 << GP16FPD);//Enable Pulldown
+                GP16E &= ~1;
+                PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
+                break;
+
+            default:
+                break;
+        }
     }
-    else if (gpio_port == GPIOC)
-    {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-    else if (gpio_port == GPIOD)
-    {
-        __HAL_RCC_GPIOH_CLK_ENABLE();
-    }
-
-    GPIO_InitStructure.Pin = gpio_pin;
-
-    switch (setMode)
-    {
-        case OUTPUT:
-            GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-            GPIO_InitStructure.Pull = GPIO_PULLUP;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = OUTPUT;
-            break;
-
-        case INPUT:
-            GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-            GPIO_InitStructure.Pull = GPIO_NOPULL;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = INPUT;
-            break;
-
-        case INPUT_PULLUP:
-            GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-            GPIO_InitStructure.Pull = GPIO_PULLUP;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = INPUT_PULLUP;
-            break;
-
-        case INPUT_PULLDOWN:
-            GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-            GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
-            break;
-
-        case AF_OUTPUT_PUSHPULL:  //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
-            GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-            GPIO_InitStructure.Pull = GPIO_NOPULL;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = AF_OUTPUT_PUSHPULL;
-            break;
-
-        case AF_OUTPUT_DRAIN:   //Used internally for Alternate Function Output Drain(I2C etc)
-            GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
-            GPIO_InitStructure.Pull = GPIO_PULLUP;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = AF_OUTPUT_DRAIN;
-            break;
-
-        case AN_INPUT:        //Used internally for ADC Input
-            GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
-            GPIO_InitStructure.Pull = GPIO_NOPULL;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-            PIN_MAP[pin].pin_mode = AN_INPUT;
-            break;
-
-        default:
-            break;
-    }
-
-    HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
 }
 
 /*
@@ -175,26 +152,15 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
  */
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    //If the pin is used by analogWrite, we need to change the mode
-    if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL)
-    {
-        HAL_Pin_Mode(pin, OUTPUT);
-    }
-    else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
-    {
-        if (HAL_DAC_Is_Enabled(pin))
-            HAL_DAC_Enable(pin, 0);
-        HAL_Pin_Mode(pin, OUTPUT);
-    }
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    if(value == 0)
-    {
-        HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_RESET);
-    }
-    else
-    {
-        HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_SET);
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if(gpio_pin < 16){
+        if(value) GPOS = (1 << gpio_pin);
+        else GPOC = (1 << gpio_pin);
+    } else if(gpio_pin == 16){
+        if(value) GP16O |= 1;
+        else GP16O &= ~1;
     }
 }
 
@@ -203,43 +169,16 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
  */
 int32_t HAL_GPIO_Read(uint16_t pin)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    if(PIN_MAP[pin].pin_mode == AN_INPUT)
-    {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
-        if(pm == PIN_MODE_NONE)
-        {
-            return 0;
-        }
-        else
-        {
-            // Restore the PinMode after calling analogRead() on same pin earlier
-            HAL_Pin_Mode(pin, pm);
-        }
-    }
-    else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
-    {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
-        if(pm == PIN_MODE_NONE)
-        {
-            return 0;
-        }
-        else
-        {
-            // Disable DAC
-            if (HAL_DAC_Is_Enabled(pin))
-                HAL_DAC_Enable(pin, 0);
-            // Restore pin mode
-            HAL_Pin_Mode(pin, pm);
-        }
-    }
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    if(PIN_MAP[pin].pin_mode == OUTPUT)
-    {
-        return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
-    }
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
-    return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
+    if(gpio_pin < 16){
+        return GPIP(gpio_pin);
+    } else if(gpio_pin == 16){
+        return GP16I & 0x01;
+    }
+    return 0;
 }
 
 /*
@@ -249,6 +188,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
+#if 0
     STM32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
     #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
 
@@ -283,4 +223,6 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     }
 
     return (SYSTEM_TICK_COUNTER - pulseStart)/SYSTEM_US_TICKS;
+#endif
+    return 0;
 }

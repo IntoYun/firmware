@@ -9,23 +9,13 @@ else
 CDEFINES += -DRELEASE_BUILD
 endif
 
-# disable COMPILE_LTO when JTAG is enabled since it obfuscates the symbol mapping
-# breaking step debugging
-ifeq ($(USE_SWD),y)
-COMPILE_LTO ?= n
-endif
-
-ifeq ($(USE_SWD_JTAG),y)
-COMPILE_LTO ?= n
-endif
-
 WARNINGS_AS_ERRORS ?= y
 ifeq ($(WARNINGS_AS_ERRORS),y)
 CFLAGS += -Werror
 endif
 
 # add include directories
-CINCLUDES += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I/usr/local/include -I.
+CINCLUDES += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
 

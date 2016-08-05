@@ -27,8 +27,6 @@
 #include "hw_config.h"
 #include "rtc_hal.h"
 
-RTC_HandleTypeDef RtcHandle;
-
 void HAL_RTC_Initial(void)
 {
 

@@ -83,7 +83,7 @@ wlan_result_t wlan_disconnect_now()
     return 0;
 }
 
-wlan_result_t wlan_connected_rssi(char* ssid)
+int wlan_connected_rssi(void)
 {
     return 0;
 }
@@ -150,4 +150,13 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
     return -1;
+}
+
+/**
+ * Lists all WLAN credentials currently stored on the device
+ */
+int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
+{
+    // Reading credentials from the CC3000 is not possible
+    return 0;
 }

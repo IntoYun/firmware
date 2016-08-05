@@ -44,7 +44,7 @@
 
 void system_process_loop(void)
 {
-    DEBUG_D("system_process_loop\r\n");
+    //DEBUG_D("system_process_loop\r\n");
 #if PLATFORM_THREADING
     while (1) {
         //DEBUG_D("process_loop");
