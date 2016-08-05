@@ -42,13 +42,13 @@
 #define Wiring_SPI1 1
 #endif
 
-#if PLATFORM_ID==4      // photon dev
+#if PLATFORM_ID==4      // nut
 #define Wiring_WiFi 1
 #define Wiring_IPv6 1
 #define Wiring_SPI1 1
 #endif
 
-#if PLATFORM_ID==5
+#if PLATFORM_ID==5      //lora
 #define Wiring_WiFi 1
 #define Wiring_IPv6 1
 #define Wiring_SPI1 1

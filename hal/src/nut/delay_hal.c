@@ -25,13 +25,27 @@
 
 #include "delay_hal.h"
 #include "hw_config.h"
-#include "watchdog_hal.h"
+#include "ets_sys.h"
+#include "osapi.h"
+#include "user_interface.h"
+#include "cont.h"
+
+extern void esp_schedule();
+extern void esp_yield();
+
+#define ONCE 0
+#define REPEAT 1
 
 /**
  * Updated by HAL_1Ms_Tick()
  */
 volatile uint32_t TimingDelay;
 
+static os_timer_t delay_timer;
+
+void delay_end(void* arg) {
+    esp_schedule();
+}
 
 /*******************************************************************************
 * Function Name  : Delay
@@ -42,18 +56,15 @@ volatile uint32_t TimingDelay;
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-
-    while (1)
-    {
-        HAL_IWDG_Feed();
-
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-
-        if (elapsed_millis > nTime)
-        {
-            break;
-        }
+    if(nTime) {
+        os_timer_setfn(&delay_timer, (os_timer_func_t*) &delay_end, 0);
+        os_timer_arm(&delay_timer, nTime, ONCE);
+    } else {
+        esp_schedule();
+    }
+    esp_yield();
+    if(nTime) {
+        os_timer_disarm(&delay_timer);
     }
 }
 
@@ -66,18 +77,6 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
  *******************************************************************************/
 void HAL_Delay_Microseconds(uint32_t uSec)
 {
-    volatile uint32_t DWT_START = DWT->CYCCNT;
-    // keep DWT_TOTAL from overflowing (max 59.652323s w/72MHz SystemCoreClock)
-    if (uSec > (UINT_MAX / SYSTEM_US_TICKS))
-    {
-        uSec = (UINT_MAX / SYSTEM_US_TICKS);
-    }
-
-    volatile uint32_t DWT_TOTAL = (SYSTEM_US_TICKS * uSec);
-
-    while((DWT->CYCCNT - DWT_START) < DWT_TOTAL)
-    {
-        HAL_IWDG_Feed();
-    }
+    os_delay_us(uSec);
 }
 

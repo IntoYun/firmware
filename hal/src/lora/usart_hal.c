@@ -240,6 +240,11 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
     return 1;
 }
 
+uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
+{
+    return 1;
+}
+
 int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
     return sdkGetQueueDataLen(usartMap[serial]->usart_rx_queue);

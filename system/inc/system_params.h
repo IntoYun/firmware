@@ -20,6 +20,7 @@
 #ifndef SYSTEM_PARAMS_H_
 #define SYSTEM_PARAMS_H_
 
+#include <stdint.h>
 #include <stdio.h>
 
 #define  BOOT_PARAMS_HEADER    0x5aa5f66f    // bootloader参数区

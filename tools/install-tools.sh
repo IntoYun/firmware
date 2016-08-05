@@ -28,9 +28,9 @@ if [ $sysType = "Linux" ]; then
         mv  xtensa-lx106-elf ../xtensa-lx106-elf
 
         echo -e "\033[40;32m 4. install esptool\033[0m"
-        wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.9/esptool-0.4.9-linux64.tar.gz
-        tar -zxf esptool-0.4.9-linux64.tar.gz
-        mv  esptool-0.4.9-linux64 ../esptool
+        wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-linux64.tar.gz
+        tar -zxf esptool-0.4.11-linux64.tar.gz
+        mv  esptool-0.4.11-linux64 ../esptool
 
     else
         echo -e "\033[40;32m 2. install st-flash\033[0m"
@@ -44,9 +44,9 @@ if [ $sysType = "Linux" ]; then
         mv  xtensa-lx106-elf ../xtensa-lx106-elf
 
         echo -e "\033[40;32m 4. install esptool\033[0m"
-        wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.9/esptool-0.4.9-linux32.tar.gz
-        tar -zxf esptool-0.4.9-linux32.tar.gz
-        mv  esptool-0.4.9-linux32 ../esptool
+        wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-linux64.tar.gz
+        tar -zxf esptool-0.4.11-linux64.tar.gz
+        mv  esptool-0.4.11-linux64 ../esptool
 
     fi
     echo -e "\033[40;32m 5. install dfu-util\033[0m"
@@ -70,10 +70,10 @@ elif [ $sysType = "Darwin" ]; then
     mv xtensa-lx106-elf ../xtensa-lx106-elf
 
     echo -e "\033[40;32m 4. install esptool\033[0m"
-    wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.9/esptool-0.4.9-osx.tar.gz
-    tar -zxf esptool-0.4.9-osx.tar.gz
-    mv esptool-0.4.9-osx ../esptool
-    rm -rf esptool-0.4.9-osx
+    wget -nc https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-osx.tar.gz
+    tar -zxf esptool-0.4.11-osx.tar.gz
+    mv esptool-0.4.11-osx ../esptool
+    rm -rf esptool-0.4.11-osx
 
     echo -e "\033[40;32m 5. install dfu-util\033[0m"
     brew install dfu-util

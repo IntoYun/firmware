@@ -5,11 +5,13 @@
 # Note: The name must be unique within this build and should be
 #       based on the root of the project
 
+TARGET_INTOROBOT_SRC_PATH = $(TARGET_INTOROBOT_PATH)/src
+
 # C source files included in this build.
-CSRC +=
+CSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.c)
 
 # C++ source files included in this build.
-CPPSRC +=
+CPPSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.cpp)
 
 # ASM source files included in this build.
 ASRC +=

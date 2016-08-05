@@ -2,5 +2,3 @@
 # HAL-specific defines
 
 DEPENDENCIES += newlib_nano
-
-CPPFLAGS += -std=gnu++11

@@ -44,8 +44,6 @@ CINCLUDES += $(patsubst %,-I%,$(INCLUDE_DIRS)) -I.
 # Generate dependency files automatically.
 CFLAGS += -MD -MP -MF $@.d
 
-CONLYFLAGS += -Wno-pointer-sign -std=gnu99
-
 LDFLAGS += $(LIBS_EXT)
 LDFLAGS += $(patsubst %,-L%,$(LIB_DIRS))
 

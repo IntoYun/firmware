@@ -19,6 +19,7 @@
 
 #include "sdkqueue.h"
 #include <stdlib.h>
+#include <string.h>
 
 int32_t sdkClearQueue(SDK_QUEUE * const pstQueue)
 {

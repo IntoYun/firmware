@@ -9,14 +9,17 @@ GCC_PREFIX ?= xtensa-lx106-elf-
 include $(COMMON_BUILD)/common-tools.mk
 
 
+CDEFINES += -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DESP8266
+
 # C 编译参数
-ifeq ("$(MODULE)","bootloader")
-#CFLAGS += -O0 -g -mno-text-section-literals
-CFLAGS += -O0 -g -mtext-section-literals -D__ets__ -DICACHE_FLASH
+CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD
+ifneq ("$(MODULE)","bootloader")
+CFLAGS += -Os -ffunction-sections -fdata-sections
 else
-CFLAGS += -Os -g -mtext-section-literals -ffunction-sections -fdata-sections -DICACHE_FLASH
+CFLAGS += -O0
 endif
-CFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -falign-functions=4 -MMD -std=gnu99
+
+CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
 
 # C++ 编译参数
 CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11
@@ -30,20 +33,18 @@ FLASH_MODE ?= qio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_SPEED ?= 230400
+#UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 921600
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
     UPLOAD_PORT ?= /dev/ttyACM0
 endif
 ifeq ($(UNAME_S),Darwin)
-    UPLOAD_PORT ?= /dev/cu.usbmodem1411
+    #UPLOAD_PORT ?= /dev/cu.usbmodem1411
+	UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 endif
 
-#UPLOAD_SPEED ?= 921600
-#UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= nodemcu
-
-#
 

@@ -116,6 +116,8 @@ typedef enum System_Reset_Reason
 extern "C" {
 #endif
 
+int atexit(void (*func)()) __attribute__((weak));
+
 void HAL_Core_Init(void);
 void HAL_Core_Config(void);
 bool HAL_Core_Validate_User_Module(void);
@@ -181,10 +183,9 @@ typedef struct runtime_info_t {
 
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved);
 
-extern void app_setup_and_loop();
-extern void system_process_loop(void);
-extern void ui_process_loop(void);
-
+extern void app_setup_and_loop(void);
+extern void app_setup_and_loop_initial(void);
+extern void app_loop(void);
 
 typedef enum HAL_SystemClock
 {
