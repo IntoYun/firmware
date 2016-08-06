@@ -170,13 +170,9 @@ void intorobot_process(void)
 
 String intorobot_deviceID(void)
 {
-    /*
-    unsigned len = HAL_device_ID(NULL, 0);
-    uint8_t id[len];
-    HAL_device_ID(id, len);
-    return bytes2hex(id, len);
-    */
-    return "0";
+    char temp[36] = {0};
+    HAL_device_ID(temp, sizeof(temp));
+    return temp;
 }
 
 bool intorobot_cloud_init(void)

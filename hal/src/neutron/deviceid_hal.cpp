@@ -19,28 +19,48 @@
 
 
 #include "deviceid_hal.h"
+#include "params_hal.h"
 #include <stddef.h>
 
 //board type
-#define INTOROBOT_BOARD_TYPE1    "888002"
-#define INTOROBOT_BOARD_TYPE2    "887002"
+#define INTOROBOT_BOARD_TYPE    "888002"
+#define INTOROBOT_BOARD_TYPE1    "887002"
 
 
-unsigned HAL_device_ID(uint8_t* dest, unsigned destLen)
+uint32_t HAL_device_ID(uint8_t* dest, uint32_t destLen)
 {
-    if (dest!=NULL && destLen>0)
-        *dest = 0;
+    uint32_t len = strlen(HAL_System_Param().device_id);
+
+    if (dest!=NULL && destLen>0) {
+        if(len >= destlen) {
+            len = destlen-1;
+        }
+        memcpy(dest, HAL_System_Param().device_id, len);
+        return len;
+    }
     return 0;
 }
 
-unsigned HAL_Board_TYPE(uint8_t* dest, unsigned destLen)
+uint32_t HAL_Board_Type(uint8_t* dest, uint32_t destLen, uint8_t type)
 {
-    if (dest!=NULL && destLen>0)
-        *dest = 0;
+    uint32_t len = strlen(INTOROBOT_BOARD_TYPE1);
+
+    if (dest!=NULL && destLen>0) {
+        if(len >= destlen) {
+            len = destlen-1;
+        }
+        if(0==type) {
+            memcpy(dest, INTOROBOT_BOARD_TYPE, len);
+        }
+        else{
+            memcpy(dest, INTOROBOT_BOARD_TYPE1, len);
+        }
+        return len;
+    }
     return 0;
 }
 
-unsigned HAL_Platform_ID()
+uint32_t HAL_Platform_ID(void)
 {
     return PLATFORM_ID;
 }

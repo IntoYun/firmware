@@ -91,53 +91,16 @@ public:
 
 };
 
-/**
- * Describes a target device and an address region.
- */
-struct MemoryDeviceRegion {
-    MemoryDevice& memory;
-    mem_addr_t start;
-    mem_addr_t end;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    void set(MemoryDevice& memory, mem_addr_t start, mem_addr_t end)
-    {
-        this->memory = memory;
-        this->start = start;
-        this->end = end;
-    }
-};
+void HAL_FLASH_Interminal_Erase(uint32_t address, uint32_t length);
+void HAL_FLASH_Interminal_Read(uint32_t address, uint16_t *pdata, uint32_t datalen);
+int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datalen);
 
-class MemoryDeviceWriter : public MemoryDeviceRegion {
-
-
-    void begin(mem_addr_t offset, mem_addr_t length)
-    {
-        start += offset;
-        end = start + length;
-    }
-
-    void write(void* buffer, mem_addr_t length)
-    {
-
-    }
-};
-
-/**
- * Access the various memory store regions in the system.
- */
-class MemoryDevices
-{
-public:
-
-    /**
-     * Retrieves the store for the internal program.
-     * @return
-     */
-    static void internalFirmware(MemoryDeviceRegion& region);
-    static void factoryDefaultFirmware(MemoryDeviceRegion& region);
-    static void backupFirmware(MemoryDeviceRegion& region);
-    static void OTAFlashFirmware(MemoryDeviceRegion& region);
-
-};
+#ifdef __cplusplus
+}
+#endif
 
 

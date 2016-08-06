@@ -18,33 +18,39 @@
 */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __EEPROM_HAL_H
-#define __EEPROM_HAL_H
-
-#include <stdint.h>
-#include <stddef.h>
+#ifndef PARAMS_HAL_H_
+#define PARAMS_HAL_H_
 
 /* Includes ------------------------------------------------------------------*/
-
 /* Exported types ------------------------------------------------------------*/
 
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported macros -----------------------------------------------------------*/
-/* Internal Flash Page size = 1KByte */
+
 /* Exported functions --------------------------------------------------------*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void HAL_EEPROM_Init(void);
-uint8_t HAL_EEPROM_Read(uint32_t address);
-void HAL_EEPROM_Write(uint32_t address, uint8_t data);
-size_t HAL_EEPROM_Length();
+
+void HAL_PARAMS_Init_System_Params(void);
+void HAL_PARAMS_Init_Fac_System_Params(void);
+void HAL_PARAMS_Init_Boot_Params(void);
+void HAL_PARAMS_Load_System_Params(void);
+void HAL_PARAMS_Load_Boot_Params(void);
+void HAL_PARAMS_Save_System_Params(void);
+void HAL_PARAMS_Save_Boot_Params(void);
+boot_params_t &HAL_Boot_Param(void);
+system_params_t &HAL_System_Param(void);
+
+extern boot_params_t intorobot_boot_params;         //bootloader参数
+extern system_params_t intorobot_system_params;     //设备参数
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* __EEPROM_HAL_H */
+#endif

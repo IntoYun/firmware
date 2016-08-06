@@ -417,7 +417,11 @@ void loop()
 
 #if 0
 
-#define LED_PIN D7
+// ALL_LEVEL, TRACE_LEVEL, DEBUG_LEVEL, WARN_LEVEL, ERROR_LEVEL, PANIC_LEVEL, NO_LOG_LEVEL
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+
+
+#define LED_PIN D6
 
 void setup()
 {

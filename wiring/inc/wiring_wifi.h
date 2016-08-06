@@ -217,7 +217,7 @@ public:
 
 extern WiFiClass WiFi;
 
-}   // namespace Spark
+}   // namespace intorobot
 
 #endif // Wiring_WiFi
 

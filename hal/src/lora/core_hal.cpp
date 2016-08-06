@@ -85,7 +85,6 @@ void HAL_Core_Config(void)
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
     //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
-    USE_SYSTEM_FLAGS = 1;
 #endif
 
     //Wiring pins default to inputs

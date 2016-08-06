@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef SYSTEM_PARAMS_H_
-#define SYSTEM_PARAMS_H_
+#ifndef PARAMS_IMPL_H_
+#define PARAMS_IMPL_H_
 
 #include <stdint.h>
 #include <stdio.h>
@@ -61,27 +61,6 @@ typedef struct __attribute__((packed))
     uint8_t  reserved2[599];       // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;
 } system_params_t;
-
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-
-void initBootParams(boot_params_t *pboot_params);
-void loadBootParams(boot_params_t *pboot_params);
-void saveBootParams(boot_params_t *pboot_params);
-void initSystemParams(system_params_t *psystem_params);
-void loadSystemParams(system_params_t *psystem_params);
-void saveSystemParams(system_params_t *psystem_params);
-void initFacSystemParams(system_params_t *psystem_params);
-
-#ifdef __cplusplus
-}
-#endif
-
-extern boot_params_t intorobot_boot_param;         //bootloader参数
-extern system_params_t intorobot_system_param;     //设备参数
 
 #endif /*SYSTEM_PARAMS_H_*/
 

@@ -390,18 +390,32 @@ void app_setup_and_loop_initial(void)
     HAL_Core_Init();
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
-
+    // load params
+    HAL_PARAMS_Load_System_Params();
+    HAL_PARAMS_Load_Boot_Params();
+    // check if need init params
+    if(HAL_Boot_Param().initparam_flag == 1) //初始化参数 保留密钥
+    {
+        DEBUG_D(("init params fac\r\n"));
+        HAL_PARAMS_Init_Fac_System_Params();
+    }
+    else if(HAL_Boot_Param().initparam_flag == 2) //初始化所有参数
+    {
+        DEBUG_D(("init params all\r\n"));
+        HAL_PARAMS_Init_System_Params();
+    }
+    if(HAL_Boot_Param().initparam_flag != 0) //初始化参数 保留密钥
+    {
+        HAL_Boot_Param().initparam_flag = 0;
+        HAL_PARAMS_Save_Boot_Params();
+    }
     DEBUG_D("welcome from IntoRobot!\r\n");
     String s = intorobot_deviceID();
     DEBUG_D("Device %s started\r\n", s.c_str());
 
-    manage_safe_mode();
-
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
-
-    //Network_Setup(threaded);
 
 #if PLATFORM_THREADING
     create_system_task();
