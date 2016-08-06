@@ -164,7 +164,7 @@ void HAL_ADC_DMA_Init(void)
     /* A0 - A7: ADC1_IN0 - ADC_IN7, DMA2 Stream4 Channel0 */
     /* Enable DMA2 clock */
     __HAL_RCC_DMA2_CLK_ENABLE();
-    DMA_HandleTypeDef DMA_HandleStruct;
+    //DMA_HandleTypeDef DMA_HandleStruct;
 
     /* Configure the DMA streams */
     DMA_HandleStruct.Instance                 = DMA2_Stream4;

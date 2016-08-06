@@ -188,17 +188,17 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
-#if 0
-    STM32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
-    #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
+    EESP82666_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
+#define pinReadFast(_pin) ( SOLO_PIN_MAP[_pin].gpio_pin < 16 ? GPIP(SOLO_PIN_MAP[_pin].gpio_pin) : (GP16I&0x01))
 
-    volatile uint32_t timeoutStart = SYSTEM_TICK_COUNTER; // total 3 seconds for entire function!
+    // FIXME: SYTME_TICK_COUNTER change to system_get_time which return the micro seconds
+    volatile uint32_t timeoutStart = system_get_time(); // total 3 seconds for entire function!
 
     /* If already on the value we want to measure, wait for the next one.
      * Time out after 3 seconds so we don't block the background tasks
      */
     while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (sytem_get_time() - timeoutStart > 3000000UL) {
             return 0;
         }
     }
@@ -207,7 +207,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
      * Time out after 3 seconds so we don't block the background tasks
      */
     while (pinReadFast(pin) != value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (system_get_time() - timeoutStart > 3000000UL) {
             return 0;
         }
     }
@@ -215,14 +215,12 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     /* Wait until this value changes, this will be our elapsed pulse width.
      * Time out after 3 seconds so we don't block the background tasks
      */
-    volatile uint32_t pulseStart = SYSTEM_TICK_COUNTER;
+    volatile uint32_t pulseStart = system_get_time();
     while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
+        if (system_get_time()- timeoutStart > 3000000UL) {
             return 0;
         }
     }
 
-    return (SYSTEM_TICK_COUNTER - pulseStart)/SYSTEM_US_TICKS;
-#endif
-    return 0;
+    return (system_get_time() - pulseStart);
 }

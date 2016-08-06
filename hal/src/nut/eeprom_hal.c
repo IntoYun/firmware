@@ -40,7 +40,7 @@ void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
 }
 
-size_t HAL_EEPROM_Length() 
+size_t HAL_EEPROM_Length()
 {
     return 0;
 }

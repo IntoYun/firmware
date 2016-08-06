@@ -213,7 +213,7 @@ void setup()
 {
     DEBUG("Tone Test\r\n");
    pinMode(LED_PIN, OUTPUT);
-pinMode(TEST_PIN,INPUT_PULLUP); 
+pinMode(TEST_PIN,INPUT_PULLUP);
 Serial.begin(115200);
 }
 
@@ -438,9 +438,9 @@ void loop()
 }
 #endif
 
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
-
-#if 1
+#if 0
 
 #define LED_PIN D6
 
@@ -460,6 +460,59 @@ void loop()
     delay(1000);                   // wait for a second
     DEBUG("Runing !");
     //Audio.receive();
+}
+#endif
+
+
+#if 0
+
+#define LED_PIN D6
+
+void setup()
+{
+    DEBUG("Nut analogRead digitalRead Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(D1, INPUT);
+    pinMode(A0, INPUT);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //DEBUG("%d", digitalRead(D1));
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+    DEBUG("Runing !");
+    uint16_t ad_value = analogRead(A0);
+    DEBUG("%d", ad_value);
+}
+#endif
+
+#if 1
+
+#define LED_PIN D6
+
+void setup()
+{
+    DEBUG("Nut Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(D1, INPUT);
+    pinMode(A0, INPUT);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //DEBUG("%d", digitalRead(D1));
+    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+    DEBUG("Runing !");
+    uint16_t ad_value = analogRead(A0);
+    DEBUG("%d", ad_value);
 }
 #endif
 
