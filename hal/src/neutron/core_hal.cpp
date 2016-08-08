@@ -129,9 +129,9 @@ void HAL_Core_Config(void)
 
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
-    for (pin_t pin=0; pin<=7; pin++)
+    for (pin_t pin=D0; pin<=D7; pin++)
 //        HAL_Pin_Mode(pin, INPUT);
-    for (pin_t pin=30; pin<=37; pin++)
+    for (pin_t pin=A0; pin<=A7; pin++)
 //        HAL_Pin_Mode(pin, INPUT);
 #endif
 

@@ -36,5 +36,8 @@ tools/xtensa-lx106-elf/
 tools/esptool/
 tools/stlink/
 
+#用户例子
+user/src/application.ino
+
 # tags
 tags

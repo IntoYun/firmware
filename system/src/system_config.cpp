@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "system_config.h"
-#include "system_params.h"
+#include "params_hal.h"
 #include "wiring_wifi.h"
 
 
@@ -348,6 +348,7 @@ return true;
 
 void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
 {
+    /*
     int valueint;
     char len, *valuestring, at_mode;
     float valuefloat;
@@ -413,6 +414,7 @@ void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
         intorobot_system_param.sv_select = (char)0x01;
     }
     saveSystemParams(&intorobot_system_param);
+    */
 }
 
 void DeviceConfig::sendWifiStatus(void)
@@ -520,9 +522,11 @@ void DeviceConfig::sendBoardInfo(void)
 /*初始化参数*/
 void DeviceConfig::initBoardPara(void)
 {
+    /*
     intorobot_system_param.at_mode = (char)0x00;
     intorobot_system_param.sv_select = (char)0x00;
     saveSystemParams(&intorobot_system_param);
+    */
 }
 
 /*设置板子信息*/
@@ -659,12 +663,14 @@ void DeviceConfig::SetBoardPara(aJsonObject* value_object)
 
 void DeviceConfig::resetDeviceFactory(void)
 {
+    /*
     intorobot_boot_param.boot_flag = 3;
     saveBootParams(&intorobot_boot_param);
     //MO_DEBUG(("Start reboot!!"));
     delay(1000);
     // restart stm32
     //HAL_NVIC_SystemReset();
+    */
 }
 
 void DeviceConfig::rebootDevice(void)
@@ -679,10 +685,12 @@ void DeviceConfig::rebootDevice(void)
 
 void DeviceConfig::clearAccessToken(void)
 {
+    /*
     memcpy(intorobot_system_param.access_token, "FFFFFFFFFFFFFFFFFFFFFFFF", 24);
     intorobot_system_param.at_mode = (char)0x0;
     saveSystemParams(&intorobot_system_param);
     sendComfirm(200);
+    */
 }
 
 void DeviceConfig::testNeutron(aJsonObject* value_object)// uart

@@ -95,7 +95,7 @@ public:
 extern "C" {
 #endif
 
-void HAL_FLASH_Interminal_Erase(uint32_t address, uint32_t length);
+void HAL_FLASH_Interminal_Erase(uint32_t address);
 void HAL_FLASH_Interminal_Read(uint32_t address, uint16_t *pdata, uint32_t datalen);
 int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datalen);
 

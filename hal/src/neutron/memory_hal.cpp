@@ -18,56 +18,7 @@
  */
 
 #include "memory_hal.h"
-
-MemoryDevice::~MemoryDevice()
-{
-}
-
-class ExternalFlashDevice : public MemoryDevice {
-
-    /**
-     * @return The size of each page in this flash device.
-     */
-    virtual mem_page_size_t pageSize() const {
-        return sFLASH_PAGESIZE;
-    }
-
-    /**
-     * @return The number of pages in this flash device.
-     */
-    virtual mem_page_count_t pageCount() const {
-        return 512;
-    }
-
-    virtual bool erasePage(mem_addr_t address) {
-        bool success = false;
-        if (address < pageAddress(pageCount()) && (address % pageSize()) == 0) {
-            sFLASH_EraseSector(address);
-            success = true;
-        }
-        return success;
-    }
-
-    /**
-     * Writes directly to the flash. Depending upon the state of the flash, the
-     * write may provide the data required or it may not.
-     * @param data
-     * @param address
-     * @param length
-     * @return
-     */
-    virtual bool write(const void* data, mem_addr_t address, mem_page_size_t length) {
-        // TODO: SPI interface shouldn't need mutable data buffer to write?
-        sFLASH_WriteBuffer(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(data)), address, length);
-        return true;
-    }
-
-    virtual bool read(void* data, mem_addr_t address, mem_page_size_t length) const {
-        sFLASH_ReadBuffer((uint8_t*) data, address, length);
-        return true;
-    }
-
-};
+#include "hw_config.h"
 
 /**
  * @brief  Gets the sector of a given address
@@ -113,19 +64,18 @@ static uint32_t FLASH_Interminal_Get_Sector(uint32_t address)
     return sector;
 }
 
-static void HAL_FLASH_Interminal_Erase(uint32_t address, uint32_t length)
+void HAL_FLASH_Interminal_Erase(uint32_t address)
 {
     FLASH_EraseInitTypeDef EraseInitStruct;
-    uint32_t FirstSector = 0, NbOfSectors = 0, SECTORError = 0;
+    uint32_t FirstSector = 0, SECTORError = 0;
 
     HAL_FLASH_Unlock();
     FirstSector = FLASH_Interminal_Get_Sector(address);
-    NbOfSectors = FLASH_Interminal_Get_Sector(address + length) - FirstSector + 1;
 
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
     EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     EraseInitStruct.Sector = FirstSector;
-    EraseInitStruct.NbSectors = NbOfSectors;
+    EraseInitStruct.NbSectors = 1;
     HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError);
     HAL_FLASH_Lock();
 }
@@ -148,7 +98,7 @@ int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datal
     uint16_t i = 0;
 
     HAL_StatusTypeDef flashStatus = HAL_OK;
-    FLASH_Erase_Impl(ARGUMENT_PAGE0_BASE_ADDRESS, ARGUMENT_PAGE_SIZE);
+    HAL_FLASH_Interminal_Erase(address);
     HAL_FLASH_Unlock();
     while((address < endAddress) && (flashStatus == HAL_OK))
     {

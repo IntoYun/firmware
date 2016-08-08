@@ -45,6 +45,14 @@
 #define __stringify(x) #x
 #endif
 
+#ifndef MIN
+#define MIN(x,y)  ((x) < (y) ? (x) : (y))
+#endif /* ifndef MIN */
+
+#ifndef MAX
+#define MAX(x,y)  ((x) > (y) ? (x) : (y))
+#endif /* ifndef MAX */
+
 // Seconds to Us
 #define S2u(s) ((s)*1000000)
 // Mili Seconds to Us

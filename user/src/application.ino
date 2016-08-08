@@ -421,7 +421,7 @@ void loop()
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 
-#define LED_PIN D6
+#define LED_PIN D7
 
 void setup()
 {

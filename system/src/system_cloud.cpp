@@ -26,8 +26,8 @@
 #include "system_task.h"
 #include "system_threading.h"
 #include "system_update.h"
-#include "system_params.h"
 #include "deviceid_hal.h"
+#include "params_hal.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -170,9 +170,10 @@ void intorobot_process(void)
 
 String intorobot_deviceID(void)
 {
-    char temp[36] = {0};
-    HAL_device_ID(temp, sizeof(temp));
-    return temp;
+    char device_id[48]={0};
+
+    HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+    return device_id;
 }
 
 bool intorobot_cloud_init(void)
@@ -259,17 +260,20 @@ int intorobot_debug_info_available(void)
 pCallBack get_subscribe_callback(char * fulltopic)
 {
     char topictmp[128]={0};
+    char device_id[48]={0};
 
     for (int i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
         memset(topictmp, 0, sizeof(topictmp));
-        if(g_callback_list.callback_node[i].device_id == NULL)
-        {sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, intorobot_system_param.device_id);}
-        else
-        {sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.callback_node[i].device_id);}
+        if(g_callback_list.callback_node[i].device_id == NULL) {
+            HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, device_id);
+        }
+        else {
+            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.callback_node[i].device_id);
+        }
         strcat(topictmp,g_callback_list.callback_node[i].topic);
-        if (strcmp(fulltopic, topictmp) == 0)
-        {
+        if (strcmp(fulltopic, topictmp) == 0) {
             return g_callback_list.callback_node[i].callback;
         }
     }
@@ -315,14 +319,18 @@ void add_subscribe_callback(char *topic, char *device_id, void (*callback)(uint8
 WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic)
 {
     char topictmp[128]={0};
+    char device_id[48]={0};
 
     for (int i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
         memset(topictmp, 0, sizeof(topictmp));
-        if(g_callback_list.widget_callback_node[i].device_id == NULL)
-        {sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, intorobot_system_param.device_id);}
-        else
-        {sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.widget_callback_node[i].device_id);}
+        if(g_callback_list.widget_callback_node[i].device_id == NULL) {
+            HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, device_id);
+        }
+        else {
+            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.widget_callback_node[i].device_id);
+        }
         strcat(topictmp,g_callback_list.widget_callback_node[i].topic);
         if (strcmp(fulltopic, topictmp) == 0)
         {

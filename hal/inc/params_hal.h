@@ -40,13 +40,14 @@ void HAL_PARAMS_Init_Fac_System_Params(void);
 void HAL_PARAMS_Init_Boot_Params(void);
 void HAL_PARAMS_Load_System_Params(void);
 void HAL_PARAMS_Load_Boot_Params(void);
-void HAL_PARAMS_Save_System_Params(void);
-void HAL_PARAMS_Save_Boot_Params(void);
-boot_params_t &HAL_Boot_Param(void);
-system_params_t &HAL_System_Param(void);
 
-extern boot_params_t intorobot_boot_params;         //bootloader参数
-extern system_params_t intorobot_system_params;     //设备参数
+uint16_t HAL_PARAMS_Get_InitParam_Flag(void);
+int HAL_PARAMS_Set_InitParam_Flag(uint16_t flag);
+
+uint16_t HAL_PARAMS_Get_DeviceID(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_DeviceID(const char* buffer);
+uint16_t HAL_PARAMS_Get_AccessToken(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_AccessToken(const char* buffer);
 
 
 #ifdef __cplusplus

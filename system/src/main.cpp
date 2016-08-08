@@ -45,6 +45,7 @@
 #include "usb_hal.h"
 #include "system_mode.h"
 #include "rgbled_hal.h"
+#include "params_hal.h"
 //#include "ledcontrol.h"
 //#include "wiring_power.h"
 //#include "wiring_fuel.h"
@@ -394,20 +395,19 @@ void app_setup_and_loop_initial(void)
     HAL_PARAMS_Load_System_Params();
     HAL_PARAMS_Load_Boot_Params();
     // check if need init params
-    if(HAL_Boot_Param().initparam_flag == 1) //初始化参数 保留密钥
+    if(1 == HAL_PARAMS_Get_InitParam_Flag()) //初始化参数 保留密钥
     {
         DEBUG_D(("init params fac\r\n"));
         HAL_PARAMS_Init_Fac_System_Params();
     }
-    else if(HAL_Boot_Param().initparam_flag == 2) //初始化所有参数
+    else if(1 == HAL_PARAMS_Get_InitParam_Flag()) //初始化所有参数
     {
         DEBUG_D(("init params all\r\n"));
         HAL_PARAMS_Init_System_Params();
     }
-    if(HAL_Boot_Param().initparam_flag != 0) //初始化参数 保留密钥
+    if(0 != HAL_PARAMS_Get_InitParam_Flag()) //初始化参数 保留密钥
     {
-        HAL_Boot_Param().initparam_flag = 0;
-        HAL_PARAMS_Save_Boot_Params();
+        HAL_PARAMS_Set_InitParam_Flag(0);
     }
     DEBUG_D("welcome from IntoRobot!\r\n");
     String s = intorobot_deviceID();

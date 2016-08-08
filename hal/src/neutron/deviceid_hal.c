@@ -16,11 +16,10 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
-
+#include <string.h>
 #include "deviceid_hal.h"
 #include "params_hal.h"
-#include <stddef.h>
+#include "intorobot_macros.h"
 
 //board type
 #define INTOROBOT_BOARD_TYPE    "888002"
@@ -29,26 +28,15 @@
 
 uint32_t HAL_device_ID(uint8_t* dest, uint32_t destLen)
 {
-    uint32_t len = strlen(HAL_System_Param().device_id);
-
-    if (dest!=NULL && destLen>0) {
-        if(len >= destlen) {
-            len = destlen-1;
-        }
-        memcpy(dest, HAL_System_Param().device_id, len);
-        return len;
-    }
-    return 0;
+    return HAL_PARAMS_Get_DeviceID((char *)dest, destLen);
 }
 
 uint32_t HAL_Board_Type(uint8_t* dest, uint32_t destLen, uint8_t type)
 {
-    uint32_t len = strlen(INTOROBOT_BOARD_TYPE1);
+    uint32_t len;
 
     if (dest!=NULL && destLen>0) {
-        if(len >= destlen) {
-            len = destlen-1;
-        }
+        len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
         if(0==type) {
             memcpy(dest, INTOROBOT_BOARD_TYPE, len);
         }
