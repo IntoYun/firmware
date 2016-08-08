@@ -38,13 +38,13 @@ UPLOAD_SPEED ?= 921600
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-    UPLOAD_PORT ?= /dev/ttyUSB0
-	SUDO=sudo
+UPLOAD_PORT ?= /dev/ttyUSB0
+SUDO ?= sudo
 endif
+
 ifeq ($(UNAME_S),Darwin)
-    #UPLOAD_PORT ?= /dev/cu.usbmodem1411
-	UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
-	SUDO=''
+#UPLOAD_PORT ?= /dev/cu.usbmodem1411
+UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 endif
 
 UPLOAD_VERB ?= -v

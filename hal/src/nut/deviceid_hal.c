@@ -27,14 +27,35 @@
 #include "deviceid_hal.h"
 #include <stddef.h>
 
-unsigned HAL_device_ID(uint8_t* dest, unsigned destLen)
+//board type
+#define INTOROBOT_BOARD_TYPE    "888003"
+#define INTOROBOT_BOARD_TYPE1    "887003"
+
+
+uint32_t HAL_device_ID(uint8_t* dest, uint32_t destLen)
 {
-    if (dest!=NULL && destLen>0)
-        *dest = 0;
+    return HAL_PARAMS_Get_DeviceID((char *)dest, destLen);
+}
+
+uint32_t HAL_Board_Type(uint8_t* dest, uint32_t destLen, uint8_t type)
+{
+    uint32_t len;
+
+    if (dest!=NULL && destLen>0) {
+        len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
+        if(0==type) {
+            memcpy(dest, INTOROBOT_BOARD_TYPE, len);
+        }
+        else{
+            memcpy(dest, INTOROBOT_BOARD_TYPE1, len);
+        }
+        return len;
+    }
     return 0;
 }
 
-unsigned HAL_Platform_ID()
+uint32_t HAL_Platform_ID(void)
 {
     return PLATFORM_ID;
 }
+

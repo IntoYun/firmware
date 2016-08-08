@@ -22,7 +22,7 @@
 #include "params_hal.h"
 #include "wiring_wifi.h"
 
-
+#if 0
 volatile uint8_t  smartconfig_over_flag = 0;
 volatile uint8_t  udp_read_flag = 0;
 
@@ -1014,3 +1014,4 @@ void UdpDeviceConfig::close(void)
 UsbDeviceConfig DeviceConfigUsb;
 //TcpDeviceConfig DeviceConfigTcp;
 UdpDeviceConfig DeviceConfigUdp;
+#endif
