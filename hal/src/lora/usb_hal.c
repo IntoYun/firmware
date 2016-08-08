@@ -24,6 +24,8 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "service_debug.h"
+#include "hw_config.h"
 #include "usb_hal.h"
 #include <stdint.h>
 
@@ -38,6 +40,50 @@
  *******************************************************************************/
 void USB_USART_Initial(uint32_t baudRate)
 {
+    //TODO
+    //create usb mutex
+    //osMutexDef(USB_MUT);
+    //usb_mutex = osMutexCreate(osMutex(USB_MUT));
+    if (LineCoding.bitrate != baudRate)
+    {
+        if (!baudRate && LineCoding.bitrate > 0)
+        {
+            USBD_Stop(&USBD_Device);
+            USBD_DeInit(&USBD_Device);
+        }
+        else if (!LineCoding.bitrate)
+        {
+            /* Init Device Library */
+            USBD_Init(&USBD_Device, &VCP_Desc, 0);
+            /* Add Supported Class */
+            USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+            /* Add CDC Interface Class */
+            USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+            /* Start Device Process */
+            USBD_Start(&USBD_Device);
+        }
+        //LineCoding.bitrate will be overwritten by USB Host
+        LineCoding.bitrate = baudRate;
+    }
+}
+
+unsigned USB_USART_Baud_Rate(void)
+{
+    return LineCoding.bitrate;
+}
+
+void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
+{
+    //Init USB Serial first before calling the linecoding handler
+    USB_USART_Initial(115200);
+
+    //Set the system defined custom handler
+    SetLineCodingBitRateHandler(handler);
+}
+
+static inline bool USB_USART_Connected()
+{
+    return LineCoding.bitrate > 0;
 }
 
 /*******************************************************************************
@@ -48,7 +94,7 @@ void USB_USART_Initial(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-  return 0;
+    return sdkGetQueueDataLen(&USB_Rx_Queue);
 }
 
 /*******************************************************************************
@@ -59,7 +105,22 @@ uint8_t USB_USART_Available_Data(void)
  *******************************************************************************/
 int32_t USB_USART_Receive_Data(uint8_t peek)
 {
-  return -1;
+    uint8_t data;
+
+    if(USB_USART_Available_Data())
+    {
+        if(peek)
+        {
+            sdkTryQueueData(&USB_Rx_Queue, sdkGetQueueHead(&USB_Rx_Queue) , &data);
+        }
+        else
+        {
+            sdkGetQueueData(&USB_Rx_Queue, &data);
+        }
+        return data;
+    }
+    return -1;
+
 }
 
 /*******************************************************************************
@@ -70,7 +131,12 @@ int32_t USB_USART_Receive_Data(uint8_t peek)
  *******************************************************************************/
 int32_t USB_USART_Available_Data_For_Write(void)
 {
-  return 0;
+    if (USB_USART_Connected())
+    {
+        return 1;
+    }
+    return -1;
+
 }
 
 /*******************************************************************************
@@ -81,6 +147,16 @@ int32_t USB_USART_Available_Data_For_Write(void)
  *******************************************************************************/
 void USB_USART_Send_Data(uint8_t Data)
 {
+    //TODO
+    //osMutexWait(usb_mutex, osWaitForever);
+
+    USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
+    //	while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
+    USBD_CDC_TransmitPacket(&USBD_Device);
+    HAL_Delay_Microseconds(100);
+
+    //TODO
+	//osMutexRelease(usb_mutex);
 
 }
 
@@ -94,6 +170,17 @@ void USB_USART_Flush_Data(void)
 {
 
 }
+
+/**
+ * @brief  This function handles USB-On-The-Go HS/FS global interrupt request.
+ * @param  None
+ * @retval None
+ */
+void USB_LP_IRQHandler(void)
+{
+    HAL_PCD_IRQHandler(&hpcd);
+}
+
 #endif
 
 #ifdef USB_HID_ENABLE
@@ -109,16 +196,6 @@ void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 }
 #endif
 
-
-
-unsigned int USB_USART_Baud_Rate(void)
-{
-    return 0;
-}
-
-void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
-{
-}
 
 int32_t USB_USART_Flush_Output(unsigned timeout, void* reserved)
 {
