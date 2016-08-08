@@ -491,14 +491,12 @@ void loop()
 }
 #endif
 
-#if 0
-#define LED_PIN D6
+#if 1
+#define LED_PIN D7
 void setup()
 {
     DEBUG("Nut AnalogRead Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-    pinMode(D1, INPUT);
-    pinMode(A0, INPUT);
 }
 // the loop function runs over and over again forever
 void loop()
@@ -509,39 +507,6 @@ void loop()
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
     DEBUG("Runing !");
-    uint16_t ad_value = analogRead(A0);
-    DEBUG("%d", ad_value);
 }
 #endif
 
-
-
-
-#if 1
-#define LED_PIN D6
-#define PWM_PIN D1
-#define PWM_FRE_PIN D2
-
-void setup()
-{
-    DEBUG("Nut anlogWrite PWM Test\r\n");
-    pinMode(LED_PIN, OUTPUT);
-    pinMode(PWM_PIN, OUTPUT);
-    pinMode(PWM_FRE_PIN, OUTPUT);
-    uint32_t duty  = 125;
-    uint32_t freq = 300;
-    analogWrite(PWM_PIN, (uint32_t)duty);
-    analogWrite(PWM_FRE_PIN, (uint32_t)duty, (uint32_t)freq);
-}
-
-// the loop function runs over and over again forever
-void loop()
-{
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                   // wait for a second
-    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);                   // wait for a second
-    DEBUG("Runing !");
-}
-
-#endif
