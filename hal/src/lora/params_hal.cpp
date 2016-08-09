@@ -26,7 +26,6 @@
 #include "intorobot_macros.h"
 
 
-
 #define FLASH_SYSTEM_PARAMS_START_ADDRESS              ((uint32_t)0x08010000)
 #define FLASH_SYSTEM_PARAMS_END_ADDRESS          ((uint32_t)0x0801FFFF)
 
@@ -207,5 +206,4 @@ int HAL_PARAMS_Set_AccessToken(const char* buffer) {
     }
     return -1;
 }
-
 
