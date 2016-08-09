@@ -516,17 +516,43 @@ void loop()
 #define PWM_PIN D1
 #define PWM_FRE_PIN D2
 
+uint32_t duty  = 125;
+uint32_t freq = 300;
 void setup()
 {
     DEBUG("Nut analogWrite Test\r\n");
     pinMode(LED_PIN, OUTPUT);
     pinMode(PWM_PIN, OUTPUT);
     pinMode(PWM_FRE_PIN, OUTPUT);
-    uint32_t duty  = 125;
-    uint32_t freq = 300;
-    //analogWrite(PWM_PIN, duty);
+    analogWrite(PWM_PIN, duty);
     //analogWrite(PWM_FRE_PIN, duty, freq);
     //analogWrite(PWM_FRE_PIN, duty);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    analogWrite(PWM_PIN, duty);
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(3000);                   // wait for a second
+    digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(3000);                   // wait for a second
+    DEBUG("Runing !");
+}
+#endif
+
+
+#if 0
+#include "gy30.h"
+
+#define LED_PIN D6
+
+GY30 gy30;
+void setup()
+{
+    DEBUG("I2C Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    gy30.begin();
 }
 
 // the loop function runs over and over again forever
@@ -536,9 +562,57 @@ void loop()
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
-    DEBUG("Runing !");
+    DEBUG("GY30 value: %f", gy30.Read());
+    //DEBUG("Runing !");
 }
 #endif
 
+#if 0
+#define LED_PIN  D6
+#define TEST_PIN D1
+
+void setup()
+{
+    DEBUG("Nut Tone Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(TEST_PIN, OUTPUT);
+    tone(TEST_PIN, 1000, 10000);
+}
+
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, LOW);
+    delay(100);
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
+}
+#endif
+
+#if 0
+#define LED_PIN  D6
+#define TEST_PIN D1
+
+void setup()
+{
+    DEBUG("Nut timer hal millis micro Test\r\n");
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(TEST_PIN, OUTPUT);
+    //tone(TEST_PIN, 1000, 10000);
+}
+
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, LOW);
+    delay(1000);
+    DEBUG("micros: %ld", micros());
+    DEBUG("millis: %ld", millis());
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
+}
+#endif
 
 

@@ -57,9 +57,9 @@ lst: $(TARGET_BASE).lst
 esptool: $(TARGET_BASE).bin
 	@echo Flashing $< using esptool to address
 ifeq ("$(MODULE)","bootloader")
-	sudo $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $^
+	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $^
 else
-	sudo $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x08000 -cf $^
+	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x08000 -cf $^
 endif
 	$(call echo,)
 

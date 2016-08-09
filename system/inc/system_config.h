@@ -34,16 +34,16 @@
 
 //data type
 typedef enum{
-    DEVICE_CONFIG_CHECK_EXIST,          //检查设备
+    DEVICE_CONFIG_GET_BASE_INFO,        //获取设备基础信息
     DEVICE_CONFIG_GET_WIFI_LIST,        //获取wifi列表
-    DEVICE_CONFIG_SET_WIFI_INFO,        //设置wifi列表
+    DEVICE_CONFIG_SET_WIFI_INFO,        //设置wifi信息
     DEVICE_CONFIG_SET_BOUND_INFO,       //设置设备绑定信息
-    DEVICE_CONFIG_CHECK_WIFI,           //检查wifi链接状态
+    DEVICE_CONFIG_CHECK_WIFI,           //查询wifi连接状态
     DEVICE_CONFIG_RESTART_NETWORK,      //重启网络
     DEVICE_CONFIG_INIT_DEFAULT_INFO,    //初始化设备默认参数
     DEVICE_CONFIG_GET_INFO,             //获取设备信息
     DEVICE_CONFIG_SET_INFO,             //设置设备信息
-    DEVICE_CONFIG_RESET,                //设备复位
+    DEVICE_CONFIG_RESET_FAC,            //设备恢复出厂设置
     DEVICE_CONFIG_REBOOT,               //设备重启
     DEVICE_CONFIG_CLEARKEY,             //设备清除密钥
     DEVICE_CONFIG_TEST,                 //设备测试
@@ -69,19 +69,20 @@ public:
 	DeviceConfigCmdType getMessageType(char *s);
 
 	bool process(void);
-	void sendDeviceExistInfo(void);
-	void sendApScanList(void);
+	void getDeviceBaseInfo(void);
+	void getApScanList(void);
 	bool setWifiCredentials(aJsonObject* value_Object);
 	bool setWrtTimezone(float time_zone);
     void setDeviceBoundInfo(aJsonObject* value_Object);
-    void sendWifiStatus(void);
+    void getWifiStatus(void);
     void restartNetwork(void);
-    void sendDeviceInfo(void);
     void initDeviceInfo(void);
+
+    void sendDeviceInfo(void);
     void initBoardPara(void);
     void sendBoardInfo(void);
-    void SetDeviceInfo(aJsonObject* value_Object);
-    void SetBoardPara(aJsonObject* value_object);
+    void setDeviceInfo(aJsonObject* value_Object);
+    void setBoardPara(aJsonObject* value_object);
     void resetDeviceFactory(void);
     void rebootDevice(void);
     void clearAccessToken(void);
