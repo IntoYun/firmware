@@ -28,10 +28,12 @@
 #include "pinmap_impl.h"
 #include "service_debug.h"
 #include "hw_config.h"
+#include "ets_sys.h"
+#include "Arduino.h"
 
-#define PWMRANGE 1023
-#define HIGH 0x1
-#define LOW  0x0
+//#define PWMRANGE 1023
+//#define HIGH 0x1
+//#define LOW  0x0
 
 uint32_t pwm_mask = 0;
 uint16_t pwm_values[17] = {0,};
@@ -130,6 +132,10 @@ void pwm_start_timer(){
 }
 
 void __analogWrite(uint8_t pin, int value) {
+    DEBUG("Enter __analogWrite...");
+    DEBUG("Pin number: %d", pin);
+    DEBUG("value: %d", value);
+    DEBUG("pwm_mask: %d", pwm_mask);
 	bool start_timer = false;
 	if(value == 0){
 		pwm_mask &= ~(1 << pin);
@@ -141,12 +147,13 @@ void __analogWrite(uint8_t pin, int value) {
 	if((pwm_mask & (1 << pin)) == 0){
 		if(pwm_mask == 0) start_timer = true;
 		pwm_mask |= (1 << pin);
-		pinMode(pin, OUTPUT);
+		HAL_Pin_Mode(pin, OUTPUT);
 		HAL_GPIO_Write(pin, LOW);
 	}
 	pwm_values[pin] = value % (pwm_range + 1);
 	prep_pwm_steps();
 	if(start_timer){
+        DEBUG("Start timer ...");
 		pwm_start_timer();
 	}
 }
@@ -160,8 +167,6 @@ void __analogWriteRange(uint32_t range){
   pwm_range = range;
   prep_pwm_steps();
 }
-
-
 
 /*
  * @brief Should take an integer 0-255 and create a PWM signal with a duty cycle from 0-100%.
@@ -197,6 +202,7 @@ void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_freq
  */
 void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
 {
+    DEBUG("HAL_PWM_Write_Ext...");
     HAL_PWM_Write_With_Frequency_Ext(pin, value, TIM_PWM_FREQ);
 }
 
@@ -211,6 +217,9 @@ void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
  */
 void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm_frequency)
 {
+    DEBUG("Enter HAL_PWM_Write_With_Frequency_Ext!");
+    DEBUG("Pin: %d", pin);
+    DEBUG("value: %d", value);
     __analogWriteFreq(pwm_frequency);
     __analogWriteRange(255);
     __analogWrite(pin, value);

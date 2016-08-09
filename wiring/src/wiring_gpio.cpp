@@ -190,6 +190,7 @@ void analogWrite(pin_t pin, uint16_t value)
     else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
     {
         PinMode mode = HAL_Get_Pin_Mode(pin);
+        DEBUG("mode: %d", mode);
 
         if (mode != OUTPUT && mode != AF_OUTPUT_PUSHPULL)
         {

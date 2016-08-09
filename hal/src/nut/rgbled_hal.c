@@ -18,6 +18,20 @@
 */
 
 #include "rgbled_hal.h"
+//RGB Basic Colors
+//in SK6812 GRB
+#define RGB_COLOR_RED		0x00FF00
+#define RGB_COLOR_GREEN		0xFF0000
+#define RGB_COLOR_BLUE		0x0000FF
+#define RGB_COLOR_YELLOW	0xFFFF00
+#define RGB_COLOR_CYAN		0xFF00FF
+#define RGB_COLOR_MAGENTA	0x00FFFF
+#define RGB_COLOR_WHITE		0xFFFFFF
+#define RGB_COLOR_ORANGE    0x60FF00
+#define RGB_COLOR_GREY      0x1F1F1F
+//Extended LED Types
+#define LED_RGB				LED3_LED4_LED2
+#define LED_USER			LED1
 
 
 void HAL_LED_Initial(void)
