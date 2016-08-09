@@ -28,7 +28,7 @@
 #include "stm32l1xx.h"
 #include "stm32l1xx_hal_def.h"
 
-//#if 0
+#if 0
 /* Define the size of the sectors to be used */
 #define PAGE_SIZE               (uint32_t)0x4000  /* Page size = 16KByte */
 
@@ -752,28 +752,31 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
     return FlashStatus;
 }
 
+#endif
+
 void HAL_EEPROM_Init(void)
 {
-    EE_Init();
+  //  EE_Init();
 }
 
 uint8_t HAL_EEPROM_Read(uint32_t address)
 {
-    uint16_t data;
-    if (EE_ReadVariable(address, &data) == 0)
-    {
-        return data;
-    }
-    return 0;
+   // uint16_t data;
+   // if (EE_ReadVariable(address, &data) == 0)
+   // {
+   //     return data;
+   // }
+   // return 0;
 }
 
 void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
-    EE_WriteVariable(address, data);
+   // EE_WriteVariable(address, data);
 }
 
 size_t HAL_EEPROM_Length()
 {
-    return NB_OF_VAR;
+  //  return NB_OF_VAR;
+  return 0;
 }
 

@@ -25,6 +25,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "tone_hal.h"
+#include "pinmap_impl.h"
+#include "stm32l1xx.h"
+#include "service_debug.h"
+
 
 void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
 {

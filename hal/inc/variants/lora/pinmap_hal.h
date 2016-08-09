@@ -95,15 +95,15 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RX A1
 
 // SPI pins
-#define SS   D2
-#define SCK  D3
-#define MISO D4
-#define MOSI D5
+#define SS   A2
+#define SCK  A3
+#define MISO A4
+#define MOSI A5
 
-//#define SS1   D4
-//#define SCK1  D3
-//#define MISO1 D2
-//#define MOSI1 D0
+#define SS1   D2
+#define SCK1  D3
+#define MISO1 D4
+#define MOSI1 D5
 
 // I2C pins
 #define SDA  D2

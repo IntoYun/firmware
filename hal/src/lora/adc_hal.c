@@ -90,6 +90,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
     //    adcInitFirstTime = false;
     //}
     HAL_ADC_DMA_Init();
+
     if (adcChannelConfigured != PIN_MAP[pin].adc_channel)
     {
         adcChannelConfigured = PIN_MAP[pin].adc_channel;
