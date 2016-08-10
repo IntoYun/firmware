@@ -78,8 +78,9 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define D4 4
 #define D5 5
 #define D6 6
-#define TX 7
-#define RX 8
+#define D7 8
+#define TX 9
+#define RX 10
 
 #define A0 30
 

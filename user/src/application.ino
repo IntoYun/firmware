@@ -1,4 +1,4 @@
-
+#if 0
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #include "application.h"
@@ -26,7 +26,7 @@ void loop()
     delay(900);              // wait for a second
     DEBUG("count = %d",count);
 }
-
+#endif
 
 #if 0
 //舵机
@@ -681,26 +681,19 @@ void loop()
 }
 #endif
 
-#if 0
-#define LED_PIN  D6
-#define TEST_PIN D1
+#if 1
+#define LED_PIN  D7
 
 void setup()
 {
-    DEBUG("Nut timer hal millis micro Test\r\n");
     pinMode(LED_PIN, OUTPUT);
-    pinMode(TEST_PIN, OUTPUT);
-    //tone(TEST_PIN, 1000, 10000);
 }
-
 
 // the loop function runs over and over again forever
 void loop()
 {
     digitalWrite(LED_PIN, LOW);
     delay(1000);
-    DEBUG("micros: %ld", micros());
-    DEBUG("millis: %ld", millis());
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
 }
