@@ -111,12 +111,11 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
         }
-#if 0
-        else if( (PIN_MAP[pin].timer_peripheral == TIM4) )
+        else if( (PIN_MAP[pin].timer_peripheral == TIM9) )
         {
             //DEBUG("PWM TIM4  Configuration...");
-            __HAL_RCC_TIM4_CLK_ENABLE();
-            GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
+            __HAL_RCC_TIM9_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF3_TIM9;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
 
             /* Port Clock enable */
@@ -131,12 +130,12 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
         }
-        else if( (PIN_MAP[pin].timer_peripheral == TIM5) )
+        else if( (PIN_MAP[pin].timer_peripheral == TIM10) )
         {
             //DEBUG("PWM TIM5  Configuration...");
-            __HAL_RCC_TIM5_CLK_ENABLE();
+            __HAL_RCC_TIM10_CLK_ENABLE();
 
-            GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
+            GPIO_InitStruct.Alternate = GPIO_AF3_TIM10;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
 
             /* Port Clock enable */
@@ -151,7 +150,26 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
         }
-#endif
+        else if( (PIN_MAP[pin].timer_peripheral == TIM11) )
+        {
+            //DEBUG("PWM TIM5  Configuration...");
+            __HAL_RCC_TIM11_CLK_ENABLE();
+
+            GPIO_InitStruct.Alternate = GPIO_AF3_TIM11;
+            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
+
+            /* Port Clock enable */
+            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
+            {
+                __HAL_RCC_GPIOA_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+            }
+            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
+            {
+                __HAL_RCC_GPIOB_CLK_ENABLE();
+                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+            }
+        }
         //DEBUG("SystemCoreClock: %ld", SystemCoreClock);
         //DEBUG("pwm_frequency: %ld", pwm_frequency);
         //DEBUG("value: %ld", value);

@@ -54,7 +54,7 @@ float GY30::Read(void)
  	lxData = dat[0];
     lxData = (lxData << 8)+dat[1];
     return (float)lxData/1.2;
-
+}
 
 //Write register address
 void GY30::Write(uint8_t regAddress)
