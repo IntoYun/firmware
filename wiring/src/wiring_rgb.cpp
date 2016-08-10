@@ -18,7 +18,7 @@
 */
 
 #include "wiring_rgb.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 
 bool RGBClass::controlled(void)
 {

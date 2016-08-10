@@ -23,7 +23,6 @@
 
 #include <stdint.h>
 #include <functional>
-#include "rgbled_hal.h"
 
 typedef void (raw_rgb_change_handler_t)(uint8_t, uint8_t, uint8_t);
 typedef std::function<raw_rgb_change_handler_t> wiring_rgb_change_handler_t;

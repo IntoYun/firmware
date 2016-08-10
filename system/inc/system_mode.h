@@ -43,7 +43,6 @@ namespace intorobot {
     }
 
 }
-
 void system_thread_set_state(intorobot::feature::State feature, void* reserved);
 intorobot::feature::State system_thread_get_state(void*);
 uint16_t system_button_pushed_duration(uint8_t button, void* reserved);

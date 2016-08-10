@@ -76,11 +76,6 @@ struct CloudDebugBuffer
 extern "C" {
 #endif
 
-void intorobot_cloud_flag_connect(void);
-void intorobot_cloud_flag_disconnect(void);
-bool intorobot_cloud_flag_auto_connect();
-bool intorobot_cloud_flag_connected(void);
-void intorobot_process(void);
 String intorobot_deviceID(void);
 uint8_t intorobot_publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
 uint8_t intorobot_subscribe(const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
@@ -91,7 +86,16 @@ size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
 
-void cloud_disconnect(bool closeSocket=true);
+bool intorobot_cloud_flag_connected(void);
+void intorobot_cloud_disconnect(void);
+int intorobot_cloud_connect(void);
+int intorobot_cloud_handle(void);
+void intorobot_process(void);
+
+void intorobot_cloud_flag_connect(void);
+void intorobot_cloud_flag_disconnect(void);
+bool intorobot_cloud_flag_auto_connect();
+
 
 #ifdef __cplusplus
 }

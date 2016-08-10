@@ -32,7 +32,7 @@
 #include "system_network.h"
 #include "system_ymodem.h"
 #include "system_task.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 //#include "module_info.h"
 //#include "spark_protocol_functions.h"
 #include "string_convert.h"
@@ -185,7 +185,7 @@ void system_lineCodingBitRateHandler(uint32_t bitrate)
 #ifdef START_DFU_FLASHER_SERIAL_SPEED
     if (bitrate == start_dfu_flasher_serial_speed)
     {
-        network.connect_cancel(true);
+        //network.connect_cancel(true);
         //Reset device and briefly enter DFU bootloader mode
         System.dfu(false);
     }

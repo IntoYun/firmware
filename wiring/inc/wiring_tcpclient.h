@@ -67,7 +67,6 @@ class TCPClient : public Client {
         uint16_t _total;
         IPAddress _remoteIP;
         inline int bufferCount();
-
 };
 
 #endif //__WIRING_TCPCLIENT_H

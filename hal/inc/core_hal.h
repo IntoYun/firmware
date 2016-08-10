@@ -110,7 +110,6 @@ typedef enum System_Reset_Reason
 
 /* Exported functions --------------------------------------------------------*/
 #include "watchdog_hal.h"
-#include "core_subsys_hal.h"
 
 #ifdef __cplusplus
 extern "C" {

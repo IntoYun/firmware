@@ -19,50 +19,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "system_config.h"
+#include "system_rgbled.h"
 #include "params_hal.h"
+#include "core_hal.h"
 #include "wiring_wifi.h"
 
-#if 0
+using namespace intorobot;
+
 volatile uint8_t  smartconfig_over_flag = 0;
 volatile uint8_t  udp_read_flag = 0;
 
-
 DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
     if(!strcmp(s,"hello")) {
-        return DEVICE_CONFIG_CHECK_EXIST;
+        return DEVICE_CONFIG_GET_BASE_INFO;
     }
     else if(!strcmp(s,"getWifiList")) {
         return DEVICE_CONFIG_GET_WIFI_LIST;
     }
     else if(!strcmp(s,"sendWifiInfo")) {
-        return DEVICE_CONFIG_SET_WIFI_INFO;
+        return DEVICE_CONFIG_SET_WIFI_CREDENTIALS;
     }
     else if(!strcmp(s,"sendDeviceInfo")) {
         return DEVICE_CONFIG_SET_BOUND_INFO;
     }
+    else if(!strcmp(s,"checkWifi")) {
+        return DEVICE_CONFIG_GET_WIFI_STATUS;
+    }
     else if(!strcmp(s,"restartNetwork")) {
         return DEVICE_CONFIG_RESTART_NETWORK;
     }
-    else if(!strcmp(s,"checkWifi")) {
-        return DEVICE_CONFIG_CHECK_WIFI;
-    }
     else if(!strcmp(s,"getInfo")) {
         return DEVICE_CONFIG_GET_INFO;
-    }
-    else if(!strcmp(s,"initInfo")) {
-        return DEVICE_CONFIG_INIT_DEFAULT_INFO;
     }
     else if(!strcmp(s,"setInfo")) {
         return DEVICE_CONFIG_SET_INFO;
     }
     else if(!strcmp(s,"reset")) {
-        return DEVICE_CONFIG_RESET;
+        return DEVICE_CONFIG_RESET_FAC;
     }
     else if(!strcmp(s,"reboot")) {
         return DEVICE_CONFIG_REBOOT;
     }
     else if(!strcmp(s,"clearKey")) {
-        return DEVICE_CONFIG_CLEARKEY;
+        return DEVICE_CONFIG_CLEAR_SECURITY_INFO;
     }
     else if(!strcmp(s,"test")) {
         return DEVICE_CONFIG_TEST;
@@ -90,25 +89,24 @@ bool DeviceConfig::process(void)
         {break;}
 
         DeviceConfigCmdType type = getMessageType(command_Object->valuestring);
-
         switch(type)
         {
-            case DEVICE_CONFIG_CHECK_EXIST://获取设备信息
-                sendDeviceInfo();
+            case DEVICE_CONFIG_GET_BASE_INFO: //获取设备基础信息
+                getDeviceBaseInfo();
                 break;
 
-            case DEVICE_CONFIG_GET_WIFI_LIST://获取wifi 列表
-                sendApScanList();
+            case DEVICE_CONFIG_GET_WIFI_LIST: //获取wifi列表
+                getApScanList();
                 break;
 
-            case DEVICE_CONFIG_SET_WIFI_INFO://设置wifi
+            case DEVICE_CONFIG_SET_WIFI_CREDENTIALS: //设置wifi信息
                 value_Object = aJson.getObjectItem(root, "value");
                 if (value_Object == NULL)
                 {break;}
                 setWifiCredentials(value_Object);
                 break;
 
-            case DEVICE_CONFIG_SET_BOUND_INFO:
+            case DEVICE_CONFIG_SET_BOUND_INFO:       //设置设备绑定信息
                 value_Object = aJson.getObjectItem(root, "value");
                 if (value_Object == NULL)
                 {break;}
@@ -118,61 +116,42 @@ bool DeviceConfig::process(void)
                 close();
                 delay(500);
                 break;
-#if 0
-            case INITDEVICEINFO:
-                value_Object = aJson.getObjectItem(root, "value");
-                if (value_Object == NULL)
-                {break;}
-                setDeviceBoundInfo(value_Object);
-                sendComfirm(200);
-                delay(500);
-                break;
-#endif
-            case DEVICE_CONFIG_CHECK_WIFI:
-                sendWifiStatus();
+
+            case DEVICE_CONFIG_GET_WIFI_STATUS:      //查询wifi连接状态
+                getWifiStatus();
                 break;
 
-            case DEVICE_CONFIG_RESTART_NETWORK:
+            case DEVICE_CONFIG_RESTART_NETWORK:      //重启网络
                 restartNetwork();
                 break;
-#if 0
-            case GETINFO:
-                sendBoardInfo();
+
+            case DEVICE_CONFIG_GET_INFO:             //获取设备信息
+                GETINFO:
+                getDeviceInfo();
                 break;
 
-                // case DeviceConfigType::INITPARA:
-                //     initBoardPara();
-                //     break;
-
-                // case DeviceConfigType::SETPARA:
-                //     value_Object = aJson.getObjectItem(root, "value");
-                //     if (value_Object == NULL)
-                //     {break;}
-                //     SetBoardPara(value_Object);
-                //     break;
-
-            case SETINFO:
+            case DEVICE_CONFIG_SET_INFO:             //设置设备信息
                 value_Object = aJson.getObjectItem(root, "value");
                 if (value_Object == NULL)
                 {break;}
-                SetBoardPara(value_Object);
-                break;
-#endif
-            case DEVICE_CONFIG_RESET:
-                resetDeviceFactory();
+                setDeviceInfo(value_Object);
                 break;
 
-            case DEVICE_CONFIG_REBOOT:
+            case DEVICE_CONFIG_RESET_FAC:            //设备恢复出厂设置
+                resetDeviceFac();
+                break;
+
+            case DEVICE_CONFIG_REBOOT:               //设备重启
                 rebootDevice();
                 break;
 
-            case DEVICE_CONFIG_CLEARKEY:
-                clearAccessToken();
+            case DEVICE_CONFIG_CLEAR_SECURITY_INFO:  //设备清除密钥
+                clearSecurityInfo();
                 break;
 
             case DEVICE_CONFIG_TEST:
                 value_Object = aJson.getObjectItem(root, "value");
-                //testNeutron(value_Object);
+                testDevice(value_Object);
                 break;
 
             case DEVICE_CONFIG_ERROR: //错误
@@ -211,46 +190,38 @@ void DeviceConfig::sendComfirm(int status)
     aJson.deleteItem(root);
 }
 
-void DeviceConfig::sendDeviceInfo(void)
+void DeviceConfig::getDeviceBaseInfo(void)
 {
-#if 0
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return;}
 
     aJson.addNumberToObject(root, "status", 200);
-    //intorobot atom
-    char device_id[25], board[7];
-    if ((char)0x1 != intorobot_system_param.at_mode) {
-        aJson.addStringToObject(root, "board", INTOROBOT_BOARD_TYPE2);
+    char device_id[25], board[8];
+    if ( 0x01 != HAL_PARAMS_Get_At_Mode_Flag() ) {
+        HAL_Board_Type(board, sizeof(board), 1);
+        aJson.addStringToObject(root, "board", (char *)board);
         aJson.addNumberToObject(root, "at_mode", 0);
     }
     else {
-        memset(board, 0, sizeof(board));
-        memcpy(board, intorobot_system_param.device_id, 6);
-        if(0 == strcmp(board, INTOROBOT_BOARD_TYPE2)) {
-            aJson.addStringToObject(root, "board", INTOROBOT_BOARD_TYPE2);
-        } else {
-            aJson.addStringToObject(root, "board", INTOROBOT_BOARD_TYPE1);
-        }
-        memset(device_id, 0, sizeof(device_id));
-        memcpy(device_id, intorobot_system_param.device_id, 24);
-        aJson.addStringToObject(root, "device_id", device_id);
+        HAL_Board_Type(board, sizeof(board), 0);
+        aJson.addStringToObject(root, "board", (char *)board);
+        HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+        aJson.addStringToObject(root, "device_id", (char *)device_id);
         aJson.addNumberToObject(root, "at_mode", 1);
     }
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
-    MO_DEBUG(("send device info: %s\r\n",string));
     free(string);
     aJson.deleteItem(root);
-#endif
 }
 
-void DeviceConfig::sendApScanList(void)
+void DeviceConfig::getApScanList(void)
 {
-#if 0 
-    int8_t numOfNetworks = WiFi.scanNetworks();
-    if(numOfNetworks < 1)
+    WiFiAccessPoint ap[20];
+
+    int found = WiFi.scan(ap, 20);
+    if(found < 1)
     {
         sendComfirm(201);
     }
@@ -260,7 +231,7 @@ void DeviceConfig::sendApScanList(void)
         if (root == NULL)
         {return;}
         aJson.addNumberToObject(root, "status",200);
-        aJson.addNumberToObject(root, "listnum",numOfNetworks);
+        aJson.addNumberToObject(root, "listnum",found);
         aJsonObject* ssidlistarray = aJson.createArray();
         if (ssidlistarray == NULL)
         {
@@ -269,7 +240,7 @@ void DeviceConfig::sendApScanList(void)
         }
         aJson.addItemToObject(root, "ssidlist", ssidlistarray);
 
-        for(int n = 0; n < numOfNetworks; n++)
+        for(int n = 0; n < found; n++)
         {
             aJsonObject* ssid_object = aJson.createObject();
             if (ssid_object == NULL)
@@ -278,30 +249,22 @@ void DeviceConfig::sendApScanList(void)
                 return;
             }
             aJson.addItemToArray(ssidlistarray, ssid_object);
-            aJson.addStringToObject(ssid_object, "ssid", WiFi.SSID(n));
-            aJson.addNumberToObject(ssid_object, "entype", (int)WiFi.encryptionType(n));
-            aJson.addNumberToObject(ssid_object, "signal", (int)WiFi.RSSI(n));
+            aJson.addStringToObject(ssid_object, "ssid", ap[n].ssid);
+            aJson.addNumberToObject(ssid_object, "entype", ap[n].security);
+            aJson.addNumberToObject(ssid_object, "signal", ap[n].rssi);
         }
         char* string = aJson.print(root);
         write((unsigned char *)string, strlen(string));
-        MO_DEBUG(("sendApScanList: %s\r\n",string));
-        vPortFree(string);
+        free(string);
         aJson.deleteItem(root);
     }
-#endif
 }
 
 bool DeviceConfig::setWifiCredentials(aJsonObject* value_Object)
 {
-#if 0
     aJsonObject* ssid_Object = aJson.getObjectItem(value_Object, "ssid");
     aJsonObject* passwd_Object = aJson.getObjectItem(value_Object, "passwd");
-    // TODO: channel security bssid
-    // stop the smartconfig
-    if(mo_drv_wifi_run_cmd("AT+CWSTOPSMART","OK",10))
-    {
-        MO_INFO(("STOP SMART OK!\r\n"));
-    }
+
     if ((ssid_Object != NULL) && (passwd_Object != NULL))
     {
         char *pSsid,*pPasswd;
@@ -315,40 +278,17 @@ bool DeviceConfig::setWifiCredentials(aJsonObject* value_Object)
         else
         {
             int setWifiFlag = 1; // 0: success; 1 fail
-            setWifiFlag = WiFi.setCredentials(pSsid, pPasswd);
-            if (setWifiFlag == 0)
-            {
-                MO_DEBUG(("Set wifi OK!"));
-                sendComfirm(200);
-                return true;
-            }
+            WiFi.setCredentials(pSsid, pPasswd);
+            sendComfirm(200);
+            return true;
         }
     }
     sendComfirm(201);
-    MO_ERROR(("Set wifi Failed!"));
     return false;
-#endif
-    return true;
-}
-
-bool DeviceConfig::setWrtTimezone(float time_zone)
-{
-#if 0 
-    if(time_zone < -12 || time_zone > 13)  time_zone=8.0;
-    int res=mo_DeviceConfig_setWrtTimezone(time_zone);
-
-    if(res == 0)
-    {
-        return true;
-    }
-    return false;
-#endif
-return true;
 }
 
 void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
 {
-    /*
     int valueint;
     char len, *valuestring, at_mode;
     float valuefloat;
@@ -357,35 +297,25 @@ void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
     Object = aJson.getObjectItem(value_Object, "zone");
     if (Object != (aJsonObject* )NULL) {
         valuefloat = (Object->type==aJson_Int?(float)(Object->valueint):Object->valuefloat);
-        //MO_DEBUG(("zone:%f", valuefloat));
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
-        intorobot_system_param.zone = valuefloat;
-        setWrtTimezone(valuefloat);     //设置wrt时区
+        HAL_PARAMS_Set_Time_Zone(valuefloat);
     }
-    //device_id and access_token
-    at_mode = intorobot_system_param.at_mode;
-    //if ((char)0x1 != at_mode)
-    {
-        Object = aJson.getObjectItem(value_Object, "device_id");
-        Object1 = aJson.getObjectItem(value_Object, "access_token");
-        if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
-            //device_id
-            valuestring = Object->valuestring;
-            len=strlen(valuestring);
-            //MO_DEBUG(("device_id:%s, length: %d", valuestring, len));
-            if(len > 48) {len = 48;}
-            memset(intorobot_system_param.device_id, 0, sizeof(intorobot_system_param.device_id));
-            memcpy(intorobot_system_param.device_id, valuestring,len);
-            //access_token
-            valuestring = Object1->valuestring;
-            len=strlen(valuestring);
-           // MO_DEBUG(("access_token:%s, length: %d", valuestring, len));
-            if(len > 48) {len = 48;}
-            memset(intorobot_system_param.access_token, 0, sizeof(intorobot_system_param.access_token));
-            memcpy(intorobot_system_param.access_token, valuestring,len);
-            intorobot_system_param.at_mode = (char)0x1;
-        }
+    //device_id  and access_token
+    Object = aJson.getObjectItem(value_Object, "device_id");
+    Object1 = aJson.getObjectItem(value_Object, "access_token");
+    if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
+        //device_id
+        valuestring = Object->valuestring;
+        len=strlen(valuestring);
+        if(len > 48) {len = 48;}
+        HAL_PARAMS_Set_DeviceID(valuestring);
+        //access_token
+        valuestring = Object1->valuestring;
+        len=strlen(valuestring);
+        if(len > 48) {len = 48;}
+        HAL_PARAMS_Set_AccessToken(valuestring);
+        HAL_PARAMS_Set_At_Mode_Flag(0x01);
     }
     //domain and port
     Object = aJson.getObjectItem(value_Object, "sv_domain");
@@ -395,36 +325,28 @@ void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
         //domain
         valuestring = Object->valuestring;
         len=strlen(valuestring);
-        //MO_DEBUG(("sv_domain:%s", valuestring));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.sv_domain, 0, sizeof(intorobot_system_param.sv_domain));
-        memcpy(intorobot_system_param.sv_domain, valuestring, len);
+        HAL_PARAMS_Set_Server_Domain(valuestring);
         //port
         valueint = Object1->valueint;
-        //MO_DEBUG(("sv_port:%d", valueint));
-        intorobot_system_param.sv_port = valueint;
+        HAL_PARAMS_Set_Server_Port(valueint);
         //down domain
         valuestring = Object2->valuestring;
         len=strlen(valuestring);
-        //MO_DEBUG(("dw_domain:%s", valuestring));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.dw_domain, 0, sizeof(intorobot_system_param.dw_domain));
-        memcpy(intorobot_system_param.dw_domain, valuestring, len);
+        HAL_PARAMS_Set_Down_Domain(valuestring);
 
-        intorobot_system_param.sv_select = (char)0x01;
+        HAL_PARAMS_Set_Server_Select_Flag(0x01);
     }
-    saveSystemParams(&intorobot_system_param);
-    */
 }
 
-void DeviceConfig::sendWifiStatus(void)
+void DeviceConfig::getWifiStatus(void)
 {
-#if 0
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return;}
 
-    if(WiFi.status())  //wifi连通
+    if(WiFi.ready())  //wifi连通
     {
         aJson.addNumberToObject(root, "status", 200);
         aJson.addStringToObject(root, "ssid", WiFi.SSID());
@@ -437,24 +359,20 @@ void DeviceConfig::sendWifiStatus(void)
 
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
-    MO_DEBUG(("send wifi status: %s\r\n",string));
-    vPortFree(string);
+    free(string);
     aJson.deleteItem(root);
-#endif
 }
 
 void DeviceConfig::restartNetwork(void)
 {
-#if 0
-    WiFi.restartNetwork();
+    WiFi.off();
+    delay(1000);
+    WiFi.on();
     sendComfirm(200);
-    MO_DEBUG(("Network Restarted"));
-#endif
 }
 
-void DeviceConfig::sendBoardInfo(void)
+void DeviceConfig::getDeviceInfo(void)
 {
-#if 0
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return;}
@@ -465,74 +383,50 @@ void DeviceConfig::sendBoardInfo(void)
     if (value_object == NULL)
     {return;}
 
-    if ((char)0x01 != intorobot_system_param.at_mode) {
-        aJson.addStringToObject(value_object, "board", INTOROBOT_BOARD_TYPE2);
+
+    char device_id[28],board[8];
+    if (0x01 != HAL_PARAMS_Get_At_Mode_Flag()) {
+        HAL_Board_Type(board, sizeof(board), 1);
+        aJson.addStringToObject(value_object, "board", board);
         aJson.addNumberToObject(value_object, "at_mode", 0);
     }
     else {
-        char board[8];
-        memset(board, 0, sizeof(board));
-        memcpy(board, intorobot_system_param.device_id, 6);
-        if(0 == strcmp(board, INTOROBOT_BOARD_TYPE1)) {
-            aJson.addStringToObject(value_object, "board", INTOROBOT_BOARD_TYPE1);
-        } else {
-            aJson.addStringToObject(value_object, "board", INTOROBOT_BOARD_TYPE2);
-        }
-        char device_id[28];
-        memset(device_id, 0, sizeof(device_id));
-        memcpy(device_id, intorobot_system_param.device_id, 24);
+        HAL_Board_Type(board, sizeof(board), 0);
+        aJson.addStringToObject(value_object, "board", board);
+        HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
         aJson.addStringToObject(value_object, "device_id", device_id);
         aJson.addNumberToObject(value_object, "at_mode", 1);
     }
 
-    aJson.addNumberToObject(value_object, "zone", intorobot_system_param.zone);
-    aJson.addNumberToObject(value_object, "sv_select", intorobot_system_param.sv_select);
+    aJson.addNumberToObject(value_object, "zone", HAL_PARAMS_Get_Time_Zone());
+    aJson.addNumberToObject(value_object, "sv_select", HAL_PARAMS_Get_Server_Select_Flag());
     char sv_domain[50] = {0};
-    // memset(sv_domain, 0x00, sizeof(sv_domain));
-    // memcpy(sv_domain, intorobot_system_param.sv_domain, 48);
+    HAL_PARAMS_Get_Server_Domain(sv_domain, sizeof(sv_domain));
     aJson.addStringToObject(value_object, "sv_domain", sv_domain);
-    aJson.addNumberToObject(value_object, "sv_port", intorobot_system_param.sv_port);
+    aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_Server_Port());
     char dw_domain[50] = {0};
-    // memset(dw_domain, 0x00, sizeof(dw_domain));
-    // memcpy(dw_domain, intorobot_system_param.dw_domain, 48);
+    HAL_PARAMS_Get_Down_Domain(dw_domain, sizeof(dw_domain));
     aJson.addStringToObject(value_object, "dw_domain", dw_domain);
 
-    char stamac[20] = {0}, apmac[20] = {0}, ssid[30] = {0}, bssid[20] = {0};
-    int rssi = 0, channel = 0;
-    mo_get_mac_hal(stamac, apmac);
-    mo_get_ssi_hal(ssid, bssid, channel, rssi);
+    uint8_t stamac[20] = {0}, bssid[20] = {0};;
 
-    aJson.addStringToObject(value_object, "stamac", stamac);
-    aJson.addStringToObject(value_object, "apmac", apmac);
-    aJson.addStringToObject(value_object, "ssid", ssid);
-    aJson.addStringToObject(value_object, "bssid", bssid);
-    aJson.addNumberToObject(value_object, "rssi", rssi);
+    aJson.addStringToObject(value_object, "stamac", (char *)WiFi.macAddress(stamac));
+    aJson.addStringToObject(value_object, "apmac", (char *)WiFi.macAddress(stamac));
+    aJson.addStringToObject(value_object, "ssid", WiFi.SSID());
+    aJson.addStringToObject(value_object, "bssid", (char *)WiFi.BSSID(bssid));
+    aJson.addNumberToObject(value_object, "rssi", WiFi.RSSI());
 
     aJson.addItemToObject(root, "value", value_object);
 
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
-    MO_DEBUG(("send device info: %s\r\n",string));
-    vPortFree(string);
-    // aJson.deleteItem(value_object);  // if not comment it, it die (usbserial)
+    free(string);
     aJson.deleteItem(root);
-#endif
-}
-
-/*初始化参数*/
-void DeviceConfig::initBoardPara(void)
-{
-    /*
-    intorobot_system_param.at_mode = (char)0x00;
-    intorobot_system_param.sv_select = (char)0x00;
-    saveSystemParams(&intorobot_system_param);
-    */
 }
 
 /*设置板子信息*/
-void DeviceConfig::SetBoardPara(aJsonObject* value_object)
+void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
 {
-#if 0
     aJsonObject* object = (aJsonObject* )NULL;
     aJsonObject* object1 = (aJsonObject* )NULL;
     aJsonObject* object2 = (aJsonObject* )NULL;
@@ -541,10 +435,8 @@ void DeviceConfig::SetBoardPara(aJsonObject* value_object)
     uint32_t len = 0;
     float valuefloat = 0.0;
     int valueint = 0;
-    char device_id_test[48] = {0};
 
     // device_id and access_token
-    //MO_DEBUG(("Set device_id and access_token"));
     object = aJson.getObjectItem(value_object, "device_id");
     object1 = aJson.getObjectItem(value_object, "access_token");
     if (object != (aJsonObject* )NULL && object1 != (aJsonObject* )NULL)
@@ -552,37 +444,28 @@ void DeviceConfig::SetBoardPara(aJsonObject* value_object)
         //device_id
         valuestring = object->valuestring;
         len = strlen(valuestring);
-        //MO_DEBUG(("device_id:%s, length: %d", valuestring, len));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.device_id, 0, sizeof(intorobot_system_param.device_id));
-        memcpy(intorobot_system_param.device_id, valuestring, len);
-        memcpy(device_id_test, valuestring, len);
-        intorobot_system_param.at_mode = 0x01;
+        HAL_PARAMS_Set_DeviceID(valuestring);
 
         //access_token
         valuestring = object1->valuestring;
         len = strlen(valuestring);
-        //MO_DEBUG(("access_token:%s, length: %d", valuestring, len));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.access_token, 0, sizeof(intorobot_system_param.access_token));
-        memcpy(intorobot_system_param.access_token, valuestring, len);
+        HAL_PARAMS_Set_AccessToken(valuestring);
+        HAL_PARAMS_Set_At_Mode_Flag(0x01);
     }
 
     //zone
-    //MO_DEBUG(("Set zone"));
     object = aJson.getObjectItem(value_object, "zone");
     if (object != (aJsonObject* )NULL)
     {
         valuefloat = (object->type==aJson_Int?(float)(object->valueint):object->valuefloat);
-        MO_DEBUG(("zone:%f", valuefloat));
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
-        intorobot_system_param.zone = valuefloat;
-        setWrtTimezone(valuefloat);     //设置wrt时区
+        HAL_PARAMS_Set_Time_Zone(valuefloat);
     }
 
     //domain and port
-    //MO_DEBUG(("Set sv_domain, sv_port and dw_domain"));
     object = aJson.getObjectItem(value_object, "sv_domain");
     object1 = aJson.getObjectItem(value_object, "sv_port");
     object2 = aJson.getObjectItem(value_object, "dw_domain");
@@ -591,46 +474,24 @@ void DeviceConfig::SetBoardPara(aJsonObject* value_object)
         //domain
         valuestring = object->valuestring;
         len = strlen(valuestring);
-        //MO_DEBUG(("sv_domain:%s", valuestring));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.sv_domain, 0, sizeof(intorobot_system_param.sv_domain));
-        memcpy(intorobot_system_param.sv_domain, valuestring, len);
+        HAL_PARAMS_Set_Server_Domain(valuestring);
         //port
         valueint = object1->valueint;
-        MO_DEBUG(("sv_port:%d", valueint));
-        intorobot_system_param.sv_port = valueint;
+        HAL_PARAMS_Set_Server_Port(valueint);
         //down domain
         valuestring = object2->valuestring;
         len=strlen(valuestring);
-        MO_DEBUG(("dw_domain:%s", valuestring));
         if(len > 48) {len = 48;}
-        memset(intorobot_system_param.dw_domain, 0, sizeof(intorobot_system_param.dw_domain));
-        memcpy(intorobot_system_param.dw_domain, valuestring, len);
-        intorobot_system_param.sv_select = (char)0x01;
+        HAL_PARAMS_Set_Down_Domain(valuestring);
+        HAL_PARAMS_Set_Server_Select_Flag(0x01);
     }
-    saveSystemParams(&intorobot_system_param);
-
-    loadSystemParams(&intorobot_system_param);
-    // test for Device id for factory
-    if (0 == strcmp(device_id_test, intorobot_system_param.device_id))
-    {
-        MO_DEBUG(("device_id:%s", intorobot_system_param.device_id));
-        MO_DEBUG(("Set device id OK"));
-        // sendConfirm(200);
-    }
-    else
-    {
-        MO_ERROR(("Set device id error"));
-        sendComfirm(201);
-
-    }
-    MO_DEBUG(("device_id:%s", intorobot_system_param.device_id));
 
     object = aJson.getObjectItem(value_object, "stamac");
     object1 = aJson.getObjectItem(value_object, "apmac");
-
     if ((object != NULL)&&(object1 != NULL))
     {
+/*
         MO_DEBUG(("Set stamac and apmac"));
         uint8_t setMacFlag = 1; // 0 success, 1 fail
         setMacFlag = mo_set_mac_hal(object->valuestring, object1->valuestring);
@@ -644,56 +505,35 @@ void DeviceConfig::SetBoardPara(aJsonObject* value_object)
             MO_DEBUG(("Set Macaddress Failed!"));
             sendComfirm(202);
         }
+        */
+        sendComfirm(200);
     }
     else
     {
-        MO_DEBUG(("Set Macaddress Failed!"));
         sendComfirm(202);
     }
-
-    // stop the smartconfig
-    if(mo_drv_wifi_run_cmd("AT+CWSTOPSMART","OK",10))
-    {
-        MO_INFO(("STOP SMART OK!\r\n"));
-    }
-
-    MO_DEBUG(("SetInfo End!!"));
-#endif
 }
 
-void DeviceConfig::resetDeviceFactory(void)
+void DeviceConfig::resetDeviceFac(void)
 {
-    /*
-    intorobot_boot_param.boot_flag = 3;
-    saveBootParams(&intorobot_boot_param);
-    //MO_DEBUG(("Start reboot!!"));
+    HAL_PARAMS_Set_Boot_Flag(3);
     delay(1000);
-    // restart stm32
-    //HAL_NVIC_SystemReset();
-    */
+    HAL_Core_System_Reset();
 }
 
 void DeviceConfig::rebootDevice(void)
 {
-    //MO_DEBUG(("restart network!!"));
-    // restart esp8266
-    restartNetwork(); // contain sendComfirm(200)
-
-    // restart stm32
-    //HAL_NVIC_SystemReset();
+    HAL_Core_System_Reset();
 }
 
-void DeviceConfig::clearAccessToken(void)
+void DeviceConfig::clearSecurityInfo(void)
 {
-    /*
-    memcpy(intorobot_system_param.access_token, "FFFFFFFFFFFFFFFFFFFFFFFF", 24);
-    intorobot_system_param.at_mode = (char)0x0;
-    saveSystemParams(&intorobot_system_param);
+    HAL_PARAMS_Set_AccessToken("");
+    HAL_PARAMS_Set_At_Mode_Flag(0x00);
     sendComfirm(200);
-    */
 }
 
-void DeviceConfig::testNeutron(aJsonObject* value_object)// uart
+void DeviceConfig::testDevice(aJsonObject* value_object)
 {
 #if 0
     aJsonObject* object = (aJsonObject* )NULL;
@@ -923,7 +763,6 @@ void UsbDeviceConfig::sendComfirm(int status)
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
-    //MO_DEBUG(("sendComfirm: %s\r\n",string));
     free(string);
     aJson.deleteItem(root);
 }
@@ -955,7 +794,6 @@ void UdpDeviceConfig::sendComfirm(int status)
     {
         write((unsigned char *)string, strlen(string));
         delay(100);
-        MO_DEBUG(("sendComfirm: %s\r\n",string));
     }
     free(string);
     aJson.deleteItem(root);
@@ -967,7 +805,6 @@ int UdpDeviceConfig::available(void)
 #if 0
     if( 1 == smartconfig_over_flag )
     {
-        //MO_DEBUG(("smart config over\r\n"));
         smartconfig_over_flag = 0;
         udp_read_flag = 1;
         mo_smartconfig_stop();
@@ -977,7 +814,6 @@ int UdpDeviceConfig::available(void)
 
     if(udp_read_flag)
     {
-        // MO_DEBUG(("udp read\r\n"));
         delay(300); // Poll every 300ms
         return Udp.available();
     }
@@ -1014,4 +850,3 @@ void UdpDeviceConfig::close(void)
 UsbDeviceConfig DeviceConfigUsb;
 //TcpDeviceConfig DeviceConfigTcp;
 UdpDeviceConfig DeviceConfigUdp;
-#endif

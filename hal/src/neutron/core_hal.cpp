@@ -24,7 +24,7 @@
 #include "core_hal.h"
 #include "watchdog_hal.h"
 #include "rng_hal.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 #include "bootloader.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
@@ -139,13 +139,13 @@ void HAL_Core_Config(void)
     HAL_RNG_Initial();
 
     HAL_IWDG_Initial();
-    HAL_LED_Initial();
-    HAL_LED_RGB_Color(255, 255, 255);
+    HAL_UI_RGB_Initial();
+    HAL_UI_RGB_Color(255, 255, 255);
 }
 
 void HAL_Core_Setup(void)
 {
-    //esp8266MDM.init();
+    esp8266MDM.init();
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
     HAL_Bootloader_Lock(true);

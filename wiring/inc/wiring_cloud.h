@@ -168,7 +168,7 @@ class CloudClass: public Print{
             //application_checkin();
             intorobot_process();
         }
-        static String deviceID(void) { return SystemClass::deviceID(); }
+        static String deviceID(void) { return intorobot_deviceID(); }
 
         static int read(void)
         {

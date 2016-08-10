@@ -17,22 +17,25 @@
   ******************************************************************************
 */
 
-#include "system_task.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 
-int system_rgb_off(void)
+void system_rgb_off(void)
 {
+    HAL_UI_RGB_Color(0, 0, 0);
 }
 
-int system_rgb_color(uint8_t red, uint8_t green, uint8_t blue)
+void system_rgb_color(uint8_t red, uint8_t green, uint8_t blue)
 {
+    HAL_UI_RGB_Color(red, green, blue);
 }
 
-int system_rgb_blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+void system_rgb_blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
 {
+    HAL_UI_RGB_Blink(red, green, blue, period);
 }
 
-int system_rgb_breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+void system_rgb_breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
 {
+    HAL_UI_RGB_Breath(red, green, blue, period);
 }
 

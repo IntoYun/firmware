@@ -21,7 +21,7 @@
 #include "intorobot_macros.h"
 #include "panic.h"
 #include "service_debug.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 #include "delay_hal.h"
 #include "watchdog_hal.h"
 #include "interrupts_hal.h"
