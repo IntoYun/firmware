@@ -46,9 +46,9 @@ typedef enum {
 } ip_status_t;
 
 typedef enum {
-    JOINAP_ATERROR    = 0,
+    JOINAP_SUCCESS    = 0,
     JOINAP_TIMEOUT    = 1,
-    JOINAP_PSWEEOR    = 2,
+    JOINAP_PSWERROR   = 2,
     JOINAP_NOFOUNDAP  = 3,
     JOINAP_CONNETFAIL = 4,
 } wifi_join_ap_t;
@@ -68,6 +68,13 @@ typedef struct {
    int rssi;        // when scanning
 } wifi_ap_t;
 
+typedef struct {
+   char ssid[33];
+   uint8_t bssid[6];
+   uint8_t channel;
+   int rssi;        // when scanning
+} wifi_info_t;
+
 
 //! An IP v4 address
 typedef uint32_t MDM_IP;
@@ -82,6 +89,14 @@ typedef uint32_t MDM_IP;
                         (((uint32_t)(b))<<16) | \
                         (((uint32_t)(c))<< 8) | \
                         (((uint32_t)(d))<< 0))
+
+#define MACSTR           "%x:%x:%x:%x:%x:%x"
+
+typedef struct {
+    MDM_IP  IpAddr;             // byte 0 is MSB, byte 3 is LSB
+    uint8_t MacAddr[6];
+} wifi_addr_t;
+
 
 // ----------------------------------------------------------------
 // Sockets
@@ -118,6 +133,7 @@ enum {
     TYPE_CONNECT            = 0x210000,
     TYPE_BUSY               = 0x220000,
     TYPE_SMARTCONFIG        = 0x230000,
+    TYPE_DHCP               = 0x230000,
     TYPE_PROMPT             = 0x300000,
     TYPE_PLUS               = 0x400000,
     TYPE_TEXT               = 0x500000,

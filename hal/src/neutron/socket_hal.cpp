@@ -1,21 +1,21 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
 
 #include "socket_hal.h"
 #include "parser.h"
@@ -27,26 +27,17 @@ const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
 
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
-#if 0
     sock_handle_t handle = esp8266MDM.socketSocket(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
-    esp8266MDM.socketSetBlocking(handle, 0);
     return handle;
-#endif
-    return 0;
 }
 
 int32_t socket_connect(sock_handle_t sd, const sockaddr_t *addr, long addrlen)
 {
-#if 0
     const uint8_t* addr_data = addr->sa_data;
     uint16_t port = addr_data[0]<<8 | addr_data[1];
     MDM_IP ip = IPADR(addr_data[2], addr_data[3], addr_data[4], addr_data[5]);
-    esp8266MDM.socketSetBlocking(sd, 5000);
     bool result = esp8266MDM.socketConnect(sd, ip, port);
-    esp8266MDM.socketSetBlocking(sd, 0);
     return (result ? 0 : 1);
-#endif
-    return 0;
 }
 
 sock_result_t socket_reset_blocking_call()
@@ -56,21 +47,17 @@ sock_result_t socket_reset_blocking_call()
 
 sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, system_tick_t _timeout)
 {
-#if 0
-    esp8266MDM.socketSetBlocking(sd, _timeout);
     sock_result_t result = 0;
     if (_timeout==0) {
-    		result = esp8266MDM.socketReadable(sd);
-    		if (result==0)		// no data, so return without polling for data
-    			return 0;
-    		if (result>0)		// clear error
-    			result = 0;
+        result = esp8266MDM.socketReadable(sd);
+        if (result==0)// no data, so return without polling for data
+            return 0;
+        if (result>0)// clear error
+            result = 0;
     }
     if (!result)
-    		result = esp8266MDM.socketRecv(sd, (char*)buffer, len);
+        result = esp8266MDM.socketRecv(sd, (char*)buffer, len);
     return result;
-#endif
-    return 0;
 }
 
 sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port)
@@ -80,16 +67,15 @@ sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port
 
 sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t bufLen, uint32_t flags, sockaddr_t* addr, socklen_t* addrsize)
 {
-#if 0
     int port;
     MDM_IP ip;
 
     sock_result_t result = esp8266MDM.socketReadable(sock);
-	if (result<=0)			// error or no data
-		return result;
+    if (result<=0)// error or no data
+        return result;
 
-	// have some data to let's get it.
-	result = esp8266MDM.socketRecvFrom(sock, &ip, &port, (char*)buffer, bufLen);
+    // have some data to let's get it.
+    result = esp8266MDM.socketRecvFrom(sock, &ip, &port, (char*)buffer, bufLen);
     if (result > 0) {
         uint32_t ipv4 = ip;
         addr->sa_data[0] = (port>>8) & 0xFF;
@@ -100,8 +86,6 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
         addr->sa_data[5] = ipv4 & 0xFF;
     }
     return result;
-#endif
-    return 0;
 }
 
 sock_result_t socket_bind(sock_handle_t sock, uint16_t port)
@@ -116,37 +100,27 @@ sock_result_t socket_accept(sock_handle_t sock)
 
 uint8_t socket_active_status(sock_handle_t socket)
 {
-#if 0
     bool result = esp8266MDM.socketIsConnected(socket);
     return (result ? 0 : 1);
-#endif 
-    return 0;
 }
 
 sock_result_t socket_close(sock_handle_t sock)
 {
-#if 0
     bool result = esp8266MDM.socketFree(sock); // closes and frees the socket
     return (result ? 0 : 1);
-#endif 
-    return 0;
 }
 
 sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
 {
-    //return esp8266MDM.socketSend(sd, (const char*)buffer, len);
-    return 0;
+    return esp8266MDM.socketSend(sd, (const char*)buffer, len);
 }
 
 sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, sockaddr_t* addr, socklen_t addr_size)
 {
-#if 0
     const uint8_t* addr_data = addr->sa_data;
     uint16_t port = addr_data[0]<<8 | addr_data[1];
     MDM_IP ip = IPADR(addr_data[2], addr_data[3], addr_data[4], addr_data[5]);
     return esp8266MDM.socketSendTo(sd, ip, port, (const char*)buffer, len);
-#endif
-    return 0;
 }
 
 inline bool is_valid(sock_handle_t handle) {
@@ -154,15 +128,13 @@ inline bool is_valid(sock_handle_t handle) {
 }
 
 uint8_t socket_handle_valid(sock_handle_t handle) {
-//    return is_valid(handle);
-return true;
+    return is_valid(handle);
 }
 
 sock_handle_t socket_handle_invalid()
 {
     return SOCKET_INVALID;
 }
-
 
 sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
 {
@@ -171,7 +143,7 @@ sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface
 
 sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
 {
-	return -1;
+    return -1;
 }
 
 sock_result_t socket_peer(sock_handle_t sd, sock_peer_t* peer, void* reserved)

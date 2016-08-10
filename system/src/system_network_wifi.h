@@ -27,13 +27,13 @@
 
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
-public:
-    void connect_cancel(bool cancel) override
-    {
-        if (cancel)
-            wlan_connect_cancel(HAL_IsISR());
-    }
+protected:
+    void disconnect_now() override { wlan_disconnect(); }
+    int status_now() override { return wlan_status(); }
+    void on_now() override { wlan_activate(); }
+    void off_now() override { wlan_deactivate(); }
 
+public:
     bool has_credentials() override
     {
         return wlan_has_credentials()==0;
@@ -69,11 +69,6 @@ public:
     void setup() override
     {
         wlan_setup();
-
-        if (wlan_reset_credentials_store_required())
-        {
-            wlan_reset_credentials_store();
-        }
     }
 
     void fetch_ipconfig(WLanConfig* target)

@@ -44,7 +44,7 @@
 #include "watchdog_hal.h"
 #include "usb_hal.h"
 #include "system_mode.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 #include "params_hal.h"
 //#include "ledcontrol.h"
 //#include "wiring_power.h"
@@ -379,18 +379,8 @@ void app_loop(void)
     }
 }
 
-/*******************************************************************************
- * Function Name  : main.
- * Description    : main routine.
- * Input          : None.
- * Output         : None.
- * Return         : None.
- *******************************************************************************/
-void app_setup_and_loop_initial(void)
+static void app_load_params(void)
 {
-    HAL_Core_Init();
-    // We have running firmware, otherwise we wouldn't have gotten here
-    DECLARE_SYS_HEALTH(ENTERED_Main);
     // load params
     HAL_PARAMS_Load_System_Params();
     HAL_PARAMS_Load_Boot_Params();
@@ -409,6 +399,23 @@ void app_setup_and_loop_initial(void)
     {
         HAL_PARAMS_Set_InitParam_Flag(0);
     }
+}
+
+/*******************************************************************************
+ * Function Name  : main.
+ * Description    : main routine.
+ * Input          : None.
+ * Output         : None.
+ * Return         : None.
+ *******************************************************************************/
+void app_setup_and_loop_initial(void)
+{
+    HAL_Core_Init();
+    // We have running firmware, otherwise we wouldn't have gotten here
+    DECLARE_SYS_HEALTH(ENTERED_Main);
+    // load params
+    app_load_params();
+
     DEBUG_D("welcome from IntoRobot!\r\n");
     String s = intorobot_deviceID();
     DEBUG_D("Device %s started\r\n", s.c_str());
@@ -416,6 +423,7 @@ void app_setup_and_loop_initial(void)
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
+    Network_Setup();
 
 #if PLATFORM_THREADING
     create_system_task();

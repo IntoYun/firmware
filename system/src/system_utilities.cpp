@@ -18,8 +18,26 @@
   ******************************************************************************
 */
 
-#include "intorobot_def.h"
+#include "system_task.h"
+#include <algorithm>
 #include "system_version.h"
+#include "static_assert.h"
+#include "intorobot_macros.h"
+
+using std::min;
+
+/**
+ * Series 1s (5 times), 2s (5 times), 4s (5 times), 8s (5 times) then to 16s thereafter.
+ * @param connection_attempts
+ * @return The number of milliseconds to backoff.
+ */
+unsigned backoff_period(unsigned connection_attempts)
+{
+    if (!connection_attempts)
+        return 0;
+    unsigned exponent = min(4u, (connection_attempts-1)/5);
+    return 1000*(1<<exponent);
+}
 
 int system_version(char *pversion)
 {
@@ -31,5 +49,5 @@ int system_version(char *pversion)
     }
     return SDK_ERR;
 #endif
-    return SDK_ERR;
+    return 0;
 }

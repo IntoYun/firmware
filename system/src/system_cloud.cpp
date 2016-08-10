@@ -26,15 +26,14 @@
 #include "system_task.h"
 #include "system_threading.h"
 #include "system_update.h"
-#include "deviceid_hal.h"
 #include "params_hal.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 //#ifndef INTOROBOT_NO_CLOUD
 
-volatile uint8_t g_intorobot_cloud_socketed = 0;    //wifi连接状态 1连接 0断开
-volatile uint8_t g_intorobot_cloud_connected = 0;   //平台连接状态 1连接上了
+volatile uint8_t g_intorobot_network_connected = 0;    //网络连接状态 1连接 0断开
+volatile uint8_t g_intorobot_cloud_connected = 0;      //平台连接状态 1连接上了
 
 struct CallBackList g_callback_list;  //回调结构体
 struct CloudDebugBuffer  g_debug_tx_buffer;
@@ -117,55 +116,6 @@ void fill_mqtt_topic(String &fulltopic, const char *topic, const char *device_id
     {sprintf(temp,"%s/%s/", INTOROBOT_API_VER, device_id);}
     fulltopic=temp;
     fulltopic+=topic;
-}
-#if 0
-void intorobot_cloud_flag_connect(void)
-{
-    g_intorobot_cloud_auto_connect= 1;
-}
-
-/**
- * Sets the auto-connect state to false. The cloud will be disconnected by the system.
- */
-void intorobot_cloud_flag_disconnect(void)
-{
-    g_intorobot_cloud_auto_connect = 0;
-}
-
-/**
- * Sets the auto-connect state to true. The cloud will be connected by the system.
- */
-bool intorobot_cloud_flag_auto_connect()
-{
-    return g_intorobot_cloud_auto_connect;
-}
-#endif
-/**
- * Determines if the system will attempt to connect or disconnect from the cloud.
- */
-bool intorobot_cloud_flag_connected(void)
-{
-    if (g_intorobot_cloud_socketed && g_intorobot_cloud_connected)
-        return true;
-    else
-        return false;
-}
-
-void intorobot_process(void)
-{
-    /*
-	// application thread will pump application messages
-#if PLATFORM_THREADING
-    if (system_thread_get_state(NULL) && APPLICATION_THREAD_CURRENT())
-    {
-        ApplicationThread.process();
-        return;
-    }
-#endif
-
-    // run the background processing loop, and specifically also pump cloud events
-    Spark_Idle_Events(true);
-    */
 }
 
 String intorobot_deviceID(void)
@@ -449,3 +399,79 @@ void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len)
     }
 }
 
+/**
+ * Determines if the system will attempt to connect or disconnect from the cloud.
+ */
+bool intorobot_cloud_flag_connected(void)
+{
+    if (g_intorobot_network_connected && g_intorobot_cloud_connected)
+        return true;
+    else
+        return false;
+}
+
+void intorobot_cloud_disconnect(void)
+{
+    if(g_mqtt_client.connected())
+    {
+        g_mqtt_client.disconnect();
+    }
+}
+
+int intorobot_cloud_connect(void)
+{
+    intorobot_cloud_disconnect();
+    DEBUG_D("1111");
+    //set intorobot server
+    char sv_domain[36]={0};
+    int sv_port;
+    if(0x01 == HAL_PARAMS_Get_Server_Select_Flag()) {
+        HAL_PARAMS_Get_Server_Domain(sv_domain, sizeof(sv_domain));
+        sv_port=HAL_PARAMS_Get_Server_Port();
+    }
+    else {
+        strcpy(sv_domain, INTOROBOT_SERVER_DOMAIN);
+        sv_port=INTOROBOT_SERVER_PORT;
+    }
+    g_mqtt_client.setServer(sv_domain, sv_port);
+
+    DEBUG_D("2222");
+    char device_id[36]={0},access_token[36]={0};
+    HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+    HAL_PARAMS_Get_AccessToken(access_token, sizeof(access_token));
+    //mqtt连接平台
+    DEBUG_D("3333");
+    if(g_mqtt_client.connect("", access_token, device_id))
+    {
+        char fw_version[28]={0}, subsys_version[28]={0}, temp[64]={0};
+
+        DEBUG_D("3333");
+        HAL_PARAMS_Get_FirmwareLib_Version(fw_version, sizeof(fw_version));
+        HAL_PARAMS_Get_Subsys_Version(subsys_version, sizeof(subsys_version));
+        memset(temp, 0, sizeof(temp));
+        sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, subsys_version);
+        intorobot_publish(INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)temp, strlen(temp), 0, true);
+
+        //重新订阅
+        resubscribe();
+        return 0;
+    }
+    return -1;
+}
+
+int intorobot_cloud_handle(void)
+{
+    if(true == g_mqtt_client.loop())
+    {
+        //发送IntoRobot.printf打印到平台
+        mqtt_send_debug_info();
+        return 0;
+    }
+    return -1;
+}
+
+void intorobot_process(void)
+{
+
+
+}

@@ -17,46 +17,35 @@
   ******************************************************************************
 */
 
-#ifndef APPSTORE_HAL_H
-#define	APPSTORE_HAL_H
+#ifndef RGBLED_HAL_H
+#define	RGBLED_HAL_H
+
+#include <stdint.h>
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
-
-typedef enum ProductStoreIndex
+typedef enum
 {
-    /**
-     * The persisted Product ID, 0xFFFF if none set.
-     */
-    PRODUCT_STORE_ID = 0,
+	BUTTON1 = 0
+} Button_TypeDef;
 
-    /**
-     * The persisted product version. 0xFFFF if none set.
-     */
-    PRODUCT_STORE_VERSION = 1
+typedef enum
+{
+	BUTTON_MODE_GPIO = 0, BUTTON_MODE_EXTI = 1
+} ButtonMode_TypeDef;
 
 
-} ProductStoreIndex;
+void HAL_UI_RGB_Initial(void);
+void HAL_UI_RGB_Color(uint8_t red, uint8_t green, uint8_t blue);
+void HAL_UI_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+void HAL_UI_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
 
-/**
- * Sets the value at a specific product store index.
- * @return The previous value.
- */
-uint16_t HAL_SetProductStore(ProductStoreIndex index, uint16_t value);
-
-/**
- * Fetches the value at a given index in the product store.
- * @param index
- * @return
- */
-uint16_t HAL_GetProductStore(ProductStoreIndex index);
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* APPSTORE_HAL_H */
+#endif	/* RGBLED_HAL_H */
 

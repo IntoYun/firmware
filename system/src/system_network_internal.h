@@ -21,10 +21,8 @@
 #define SYSTEM_NETWORK_INTERNAL_H
 
 #include "system_setup.h"
-#include "rgbled_hal.h"
 #include "wiring_ticks.h"
 #include "system_event.h"
-//#include "system_cloud_internal.h"
 #include "system_network.h"
 #include "system_threading.h"
 #include "system_rgbled.h"
@@ -77,11 +75,10 @@ struct NetworkInterface
     virtual void setup()=0;
 
     virtual void on()=0;
-    virtual void off()=0;
+    virtual void off(bool disconnect_cloud=false)=0;
     virtual void connect(bool listen_enabled=true)=0;
     virtual bool connecting()=0;
     virtual bool connected()=0;
-    virtual void connect_cancel(bool cancel)=0;
     /**
      * Force a manual disconnct.
      */
@@ -96,6 +93,7 @@ struct NetworkInterface
      * Perform the 10sec press command, e.g. clear credentials.
      */
     virtual bool ready()=0;
+    virtual bool status()=0;
 
     virtual bool clear_credentials()=0;
     virtual bool has_credentials()=0;
@@ -115,10 +113,14 @@ class ManagedNetworkInterface : public NetworkInterface
     volatile uint8_t WLAN_CONNECTING;
     volatile uint8_t WLAN_DHCP;
 
-    protected:
+protected:
     virtual network_interface_t network_interface() override { return 0; }
+    virtual void disconnect_now()=0;
+    virtual int status_now()=0;
+    virtual void on_now()=0;
+    virtual void off_now()=0;
 
-    public:
+public:
 
     virtual void get_ipconfig(IPConfig* config)=0;
 
@@ -138,11 +140,12 @@ class ManagedNetworkInterface : public NetworkInterface
         return false;
     }
 
-
     void connect(bool listen_enabled=true) override
     {
         on();
         INTOROBOT_WLAN_STARTED = 1;
+        INTOROBOT_WLAN_SLEEP = 0;
+        WLAN_DISCONNECT = 0;
     }
 
     void disconnect() override
@@ -153,7 +156,8 @@ class ManagedNetworkInterface : public NetworkInterface
             WLAN_CONNECTING = 0;
             WLAN_CONNECTED = 0;
             WLAN_DHCP = 0;
-
+            intorobot_cloud_disconnect();
+            disconnect_now();
             config_clear();
         }
     }
@@ -161,6 +165,24 @@ class ManagedNetworkInterface : public NetworkInterface
     bool ready() override
     {
         return (INTOROBOT_WLAN_STARTED && WLAN_DHCP);
+    }
+
+    bool status() override
+    {
+        if(INTOROBOT_WLAN_STARTED && !status_now())
+        {
+            WLAN_CONNECTED = 1;
+            WLAN_CONNECTING = 0;
+            WLAN_DHCP=1;
+            return true;
+        }
+        else
+        {
+            WLAN_CONNECTED = 0;
+            WLAN_CONNECTING = 1;
+            WLAN_DHCP=0;
+            return false;
+        }
     }
 
     bool connecting() override
@@ -172,18 +194,26 @@ class ManagedNetworkInterface : public NetworkInterface
     {
         if (!INTOROBOT_WLAN_STARTED)
         {
-            connect();
             config_clear();
-            update_config(true);
+            on_now();
             INTOROBOT_WLAN_STARTED = 1;
+            INTOROBOT_WLAN_SLEEP = 0;
         }
     }
 
-    void off() override
+    void off(bool disconnect_cloud=false) override
     {
         if (INTOROBOT_WLAN_STARTED)
         {
             disconnect();
+            off_now();
+
+            INTOROBOT_WLAN_SLEEP = 1;
+#if !SPARK_NO_CLOUD
+            if (disconnect_cloud) {
+                intorobot_cloud_flag_disconnect();
+            }
+#endif
             INTOROBOT_WLAN_STARTED = 0;
             WLAN_DHCP = 0;
             WLAN_CONNECTED = 0;

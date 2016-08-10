@@ -27,15 +27,10 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 
 int wlan_clear_credentials()
 {
-    return 1;
+    return 0;
 }
 
 int wlan_has_credentials()
-{
-    return 1;
-}
-
-int wlan_connect_init()
 {
     return 0;
 }
@@ -50,81 +45,84 @@ wlan_result_t wlan_deactivate()
     return 0;
 }
 
-bool wlan_reset_credentials_store_required()
-{
-    return false;
-}
-
-wlan_result_t wlan_reset_credentials_store()
+int wlan_connect()
 {
     return 0;
 }
 
-/**
- * Do what is needed to finalize the connection.
- * @return
- */
-wlan_result_t wlan_connect_finalize()
-{
-    // enable connection from stored profiles
-    return 0;
-}
-
-void Set_NetApp_Timeout(void)
-{
-}
-
-void Clear_NetApp_Dhcp(void)
-{
-}
-
-wlan_result_t wlan_disconnect_now()
+wlan_result_t wlan_disconnect()
 {
     return 0;
+}
+
+int wlan_status()
+{
+    if(IPSTATUS_NOTCONNECTWIFI != esp8266MDM.getIpStatus()) {
+        return 0;
+    }
+    return -1;
 }
 
 int wlan_connected_rssi(void)
 {
+    wifi_info_t wifiInfo;
+
+    if( true == esp8266MDM.getWifiInfo(&wifiInfo) ){
+        return wifiInfo.rssi;
+    }
     return 0;
 }
 
 int wlan_set_credentials(WLanCredentials* c)
 {
+    if(JOINAP_SUCCESS == esp8266MDM.wifiJoinAp(c->ssid, c->password)) {
+        return 0;
+    }
     return -1;
 }
 
-void wlan_smart_config_init()
+void wlan_Imlink_start()
 {
+    esp8266MDM.stopSmartconfig();
+    esp8266MDM.startSmartconfig(SMARTCONFIGTYPE_ESPTOUCH);
 }
 
-bool wlan_smart_config_finalize()
+imlink_status_t wlan_Imlink_get_status()
 {
-    return false;
+    return (imlink_status_t)esp8266MDM.getSmartconfigStatus();
 }
 
-void wlan_smart_config_cleanup()
+void wlan_Imlink_stop()
 {
+    esp8266MDM.stopSmartconfig();
 }
 
 void wlan_setup()
 {
 }
 
+void wlan_fetch_ipconfig(WLanConfig* config)
+{
+    wifi_addr_t addr;
+    wifi_info_t wifiInfo;
+
+    memset(config, 0, sizeof(WLanConfig));
+    config->size = sizeof(WLanConfig);
+
+    if( true == esp8266MDM.getAddress(&addr) ) {
+        config->nw.aucIP.ipv4 = addr.IpAddr;
+        memcpy(config->nw.uaMacAddr, addr.MacAddr, 6);
+    }
+    if( true == esp8266MDM.getWifiInfo(&wifiInfo) ){
+        memcpy(config->uaSSID, wifiInfo.ssid, 33);
+        memcpy(config->BSSID, wifiInfo.bssid, 6);
+    }
+}
+
 void wlan_set_error_count(uint32_t errorCount)
 {
 }
 
-void wlan_fetch_ipconfig(WLanConfig* config)
-{
-}
-
-void SPARK_WLAN_SmartConfigProcess()
-{
-}
-
-void wlan_connect_cancel(bool called_from_isr)
-{
-}
 
 /**
  * Sets the IP source - static or dynamic.
@@ -145,6 +143,7 @@ void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reser
 void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
         const HAL_IPAddress* gateway, const HAL_IPAddress* dns1, const HAL_IPAddress* dns2, void* reserved)
 {
+
 }
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)

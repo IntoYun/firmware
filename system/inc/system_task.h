@@ -39,40 +39,18 @@ void system_process_loop(void);
 void ui_process_loop(void);
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS);
-void Network_Setup(bool threaded);
+void Network_Setup();
 
-/**
- * Run background processing. This function should be called as often as possible by user code.
- * @param force_events when true, runs cloud event pump in addition to maintaining the wifi and cloud connection.
- */
-void IntoRobot_Idle_Events(bool force_events);
-inline void IntoRobot_Idle() { IntoRobot_Idle_Events(false); }
 
-/**
- * The old method
- */
-void SPARK_WLAN_Loop(void) __attribute__ ((deprecated("Please use Particle.process() instead.")));
-inline void SPARK_WLAN_Loop(void) { intorobot_process(); }
+extern volatile uint8_t g_intorobot_network_connected;
+extern volatile uint8_t g_intorobot_cloud_connected;
+extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
+extern volatile uint8_t INTOROBOT_WLAN_STARTED;
 
-void disconnect_cloud();
-
+extern volatile uint8_t SYSTEM_POWEROFF;
+extern volatile uint8_t SPARK_FLASH_UPDATE;
 extern volatile uint32_t TimingFlashUpdateTimeout;
 
-extern volatile uint8_t SPARK_WLAN_RESET;
-extern volatile uint8_t SPARK_WLAN_SLEEP;
-extern volatile uint8_t SPARK_WLAN_STARTED;
-extern volatile uint8_t SPARK_CLOUD_SOCKETED;
-extern volatile uint8_t SPARK_CLOUD_CONNECTED;
-extern volatile uint8_t SPARK_FLASH_UPDATE;
-extern volatile uint8_t SPARK_LED_FADE;
-
-extern volatile uint8_t Spark_Error_Count;
-extern volatile uint8_t Cloud_Handshake_Error_Count;
-extern volatile uint8_t SYSTEM_POWEROFF;
-
-extern volatile system_tick_t spark_loop_total_millis;
-
-void system_delay_ms(unsigned long ms, bool no_background_loop);
 
 /**
  * Determines the backoff period after a number of failed connections.

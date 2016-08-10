@@ -314,5 +314,6 @@ extern SystemClass System;
 #define waitFor(condition, timeout) System.waitCondition([]{ return (condition)(); }, (timeout))
 #define waitUntil(condition) System.waitCondition([]{ return (condition)(); })
 
+
 #endif /* SPARK_WIRING_SYSTEM_H */
 

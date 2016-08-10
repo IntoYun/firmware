@@ -88,6 +88,9 @@ public:
     /* get the smart config status*/
     deal_status_t getSmartconfigStatus(void);
 
+    /* get local IP and mac address*/
+    int getAddress(wifi_addr_t *addr);
+
     /* set the sta mac an ap mac */
     bool setMacAddress(const char *staMac, const char *apMac);
 
@@ -99,6 +102,9 @@ public:
 
     /* get wifi status */
     ip_status_t getIpStatus(void);
+
+    /* get wifi info */
+    int getWifiInfo(wifi_info_t *wifiInfo);
 
     /* join ap */
     wifi_join_ap_t wifiJoinAp(const char *ssid, const char *password);
@@ -345,19 +351,19 @@ protected:
     // parsing callbacks for different AT commands and their parameter arguments
     static int _cbString(int type, const char* buf, int len, char* str);
     static int _cbInt(int type, const char* buf, int len, int* val);
-
     static int _cbGetNetVersion(int type, const char* buf, int len, char* str);
+    static int _cbGetAddress(int type, const char* buf, int len, wifi_addr_t* addr);
     static int _cbGetStaMacAddress(int type, const char* buf, int len, char* str);
     static int _cbGetApMacAddress(int type, const char* buf, int len, char* str);
     static int _cbApScan(int type, const char* buf, int len, wifi_ap_t *aps);
     static int _cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result);
+    static int _cbGetWifiInfo(int type, const char* buf, int len, wifi_info_t *wifiInfo);
     static int _cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t* result);
     static int _cbGetHostByName(int type, const char* buf, int len, MDM_IP* ip);
     static int _cbDownOtaFile(int type, const char* buf, int len, deal_status_t* result);
     static int _cbDownNetFile(int type, const char* buf, int len, deal_status_t* result);
     static int _cbGetDownFileProgress(int type, const char* buf, int len, int* result);
-    // variables
-    MDM_IP       _ip;  //!< assigned ip address
+
     // management struture for sockets
     typedef struct {
         int handle;

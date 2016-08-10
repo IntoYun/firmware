@@ -62,5 +62,5 @@ long map(long value, long fromStart, long fromEnd, long toStart, long toEnd)
 
 void delay(unsigned long ms)
 {
-    system_delay_ms(ms, false);
+    HAL_Delay_Milliseconds(ms);
 }

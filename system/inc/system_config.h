@@ -36,16 +36,15 @@
 typedef enum{
     DEVICE_CONFIG_GET_BASE_INFO,        //获取设备基础信息
     DEVICE_CONFIG_GET_WIFI_LIST,        //获取wifi列表
-    DEVICE_CONFIG_SET_WIFI_INFO,        //设置wifi信息
+    DEVICE_CONFIG_SET_WIFI_CREDENTIALS, //设置wifi信息
     DEVICE_CONFIG_SET_BOUND_INFO,       //设置设备绑定信息
-    DEVICE_CONFIG_CHECK_WIFI,           //查询wifi连接状态
+    DEVICE_CONFIG_GET_WIFI_STATUS,      //查询wifi连接状态
     DEVICE_CONFIG_RESTART_NETWORK,      //重启网络
-    DEVICE_CONFIG_INIT_DEFAULT_INFO,    //初始化设备默认参数
     DEVICE_CONFIG_GET_INFO,             //获取设备信息
     DEVICE_CONFIG_SET_INFO,             //设置设备信息
     DEVICE_CONFIG_RESET_FAC,            //设备恢复出厂设置
     DEVICE_CONFIG_REBOOT,               //设备重启
-    DEVICE_CONFIG_CLEARKEY,             //设备清除密钥
+    DEVICE_CONFIG_CLEAR_SECURITY_INFO,  //设备清除密钥
     DEVICE_CONFIG_TEST,                 //设备测试
     DEVICE_CONFIG_ERROR
 }DeviceConfigCmdType;
@@ -72,22 +71,15 @@ public:
 	void getDeviceBaseInfo(void);
 	void getApScanList(void);
 	bool setWifiCredentials(aJsonObject* value_Object);
-	bool setWrtTimezone(float time_zone);
     void setDeviceBoundInfo(aJsonObject* value_Object);
     void getWifiStatus(void);
     void restartNetwork(void);
-    void initDeviceInfo(void);
-
-    void sendDeviceInfo(void);
-    void initBoardPara(void);
-    void sendBoardInfo(void);
+    void getDeviceInfo(void);
     void setDeviceInfo(aJsonObject* value_Object);
-    void setBoardPara(aJsonObject* value_object);
-    void resetDeviceFactory(void);
+    void resetDeviceFac(void);
     void rebootDevice(void);
-    void clearAccessToken(void);
-    void test(aJsonObject* value_Object);
-    void testNeutron(aJsonObject* value_object);
+    void clearSecurityInfo(void);
+    void testDevice(aJsonObject* value_Object);
 };
 
 class UsbDeviceConfig : public DeviceConfig
@@ -104,7 +96,6 @@ public:
     virtual size_t write(const uint8_t *buf, size_t size);
     virtual void close(void);
     virtual void sendComfirm(int status);
-
 };
 
 class TcpDeviceConfig : public DeviceConfig
@@ -114,8 +105,6 @@ public:
     TCPClient client,client_bak;
 
 public:
-	//TcpDeviceConfig(){}
-
     void init(void);
     virtual int available(void);
     virtual int read(void);
@@ -131,8 +120,6 @@ public:
     UDP Udp;
 
 public:
-    UdpDeviceConfig(){}
-
     void init(void);
     virtual int available(void);
     virtual int read(void);
@@ -143,7 +130,7 @@ public:
 };
 
 extern UsbDeviceConfig DeviceConfigUsb;
-//extern TcpDeviceConfig DeviceConfigTcp;
+extern TcpDeviceConfig DeviceConfigTcp;
 extern UdpDeviceConfig DeviceConfigUdp;
 
 

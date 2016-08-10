@@ -26,7 +26,6 @@ volatile uint8_t g_intorobot_cloud_auto_connect = 1; //default is AUTOMATIC mode
 
 void intorobot_cloud_flag_connect(void)
 {
-    //Schedule cloud connection and handshake
     g_intorobot_cloud_auto_connect = 1;
 }
 

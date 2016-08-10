@@ -35,7 +35,7 @@
 #include "system_update.h"
 #include "system_ymodem.h"
 #include "ota_flash_hal.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 #include "file_transfer.h"
 
 /**

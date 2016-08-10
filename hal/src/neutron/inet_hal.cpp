@@ -24,11 +24,24 @@
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,
         network_interface_t nif, void* reserved)
 {
-    return 1;
+    MDM_IP ip;
+
+    ip = esp8266MDM.getHostByName(hostname);
+    if(NOIP != ip) {
+        out_ip_addr->ipv4 = ip;
+        return 0;
+    }
+    return -1;
 }
 
 int inet_ping(const HAL_IPAddress* address, network_interface_t nif, uint8_t nTries,
         void* reserved)
 {
-    return 0;
+    int count = 0;
+    for (int i=0; i<nTries; i++) {
+        if(true==esp8266MDM.ping(address->ipv4)){
+            count++;
+        }
+    }
+    return count;
 }

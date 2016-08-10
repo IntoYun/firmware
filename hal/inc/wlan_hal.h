@@ -73,6 +73,13 @@ typedef enum
   ANT_INTERNAL = 0, ANT_EXTERNAL = 1, ANT_AUTO = 3
 } WLanSelectAntenna_TypeDef;
 
+typedef enum {
+    IMLINK_SUCCESS = 0,
+    IMLINK_FAIL = 1,
+    IMLINK_DOING = 2,
+    IMLINK_IDLE = 3,
+} imlink_status_t;
+
 typedef int wlan_result_t;
 
 typedef struct __attribute__((__packed__))  _WLanConfig_t {
@@ -99,14 +106,11 @@ wlan_result_t  wlan_connect_init();
  */
 wlan_result_t  wlan_connect_finalize();
 
-
-bool wlan_reset_credentials_store_required();
-wlan_result_t  wlan_reset_credentials_store();
-
 void Set_NetApp_Timeout();
 void Clear_NetApp_Dhcp();
 
-wlan_result_t wlan_disconnect_now();
+wlan_result_t wlan_disconnect();
+int wlan_status();
 
 /**
  * Enable wifi without connecting.

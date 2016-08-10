@@ -27,13 +27,14 @@
 #include "watchdog_hal.h"
 #include "wlan_hal.h"
 #include "delay_hal.h"
-#include "rgbled_hal.h"
+#include "ui_hal.h"
 #include <string.h>
 
 uint32_t wlan_watchdog_base;
 uint32_t wlan_watchdog_duration;
 
 volatile uint8_t INTOROBOT_WLAN_STARTED;
+volatile uint8_t INTOROBOT_WLAN_SLEEP;
 
 #if Wiring_WiFi
 #include "system_network_wifi.h"
@@ -69,7 +70,6 @@ void network_connect(network_handle_t network, uint32_t flags, uint32_t param, v
 
 void network_disconnect(network_handle_t network, uint32_t param, void* reserved)
 {
-	nif(network).connect_cancel(true);
     nif(network).disconnect();
 }
 
@@ -102,7 +102,7 @@ bool network_has_credentials(network_handle_t network, uint32_t param, void* res
 
 void network_off(network_handle_t network, uint32_t flags, uint32_t param, void* reserved)
 {
-    nif(network).off();
+    nif(network).off(flags & 1);
 }
 
 /**

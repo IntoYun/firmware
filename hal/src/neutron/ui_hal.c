@@ -16,20 +16,20 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
 #include "hw_config.h"
-#include "button_hal.h"
+#include "pinmap_hal.h"
+#include "ui_hal.h"
 
 __IO uint16_t BUTTON_DEBOUNCED_TIME[] = {0};
 
 
 
-void HAL_BUTTON_Initial(void)
+void HAL_UI_BUTTON_Initial(void)
 {
 
 }
 
-uint8_t HAL_BUTTON_GetState(Button_TypeDef Button)
+uint8_t HAL_UI_BUTTON_GetState(Button_TypeDef Button)
 {
 return 0;
 }
@@ -90,3 +90,29 @@ void HAL_Core_Mode_Button_Reset(void)
 }
 
 #endif
+
+void HAL_UI_RGB_Initial(void)
+{
+    HAL_Pin_Mode(RGBR_UC,OUTPUT);
+    HAL_Pin_Mode(RGBG_UC,OUTPUT);
+    HAL_Pin_Mode(RGBB_UC,OUTPUT);
+}
+
+void HAL_UI_RGB_Color(uint8_t red, uint8_t green, uint8_t blue)
+{
+    HAL_GPIO_Write(RGBR_UC, 1);
+    HAL_GPIO_Write(RGBG_UC, 0);
+    HAL_GPIO_Write(RGBB_UC, 0);
+}
+
+void HAL_UI_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+{
+
+}
+
+void HAL_UI_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+{
+
+}
+
+

@@ -170,7 +170,6 @@ MDMParser::MDMParser(void)
     _downotafile_status = DEALSTATUS_IDLE;
     _downnetfile_status = DEALSTATUS_IDLE;
 
-    _ip        = NOIP;
     _init      = false;
 
     _aplisttotalcount  = 0;
@@ -228,7 +227,6 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Timer_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
-        //DEBUG_D("buf:%s ",buf);
 #ifdef MDM_DEBUG
         if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
         {
@@ -407,7 +405,7 @@ failure:
 int MDMParser::_cbGetNetVersion(int type, const char* buf, int len, char* str)
 {
     if (str && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "\r\n+IR_GETVERSION:%s\r\n", str) == 1)
+        if (sscanf(buf, "+IR_GETVERSION:%s\r\n", str) == 1)
             /*nothing*/;
     }
     return WAIT;
@@ -492,7 +490,35 @@ bool MDMParser::stopSmartconfig(void)
 
 deal_status_t MDMParser::getSmartconfigStatus(void)
 {
+    waitFinalResp(NULL,NULL,0); //必须调用这个才能处理数据
     return _smartconfig_status;
+}
+
+int MDMParser::_cbGetAddress(int type, const char* buf, int len, wifi_addr_t* addr)
+{
+    if ((type == TYPE_PLUS) && addr) {
+        int a,b,c,d;
+        if (sscanf(buf, "+CIFSR:STAIP,\"" IPSTR "\"", &a,&b,&c,&d) == 4)
+            addr->IpAddr = IPADR(a,b,c,d);
+        uint8_t temp[6];
+        if (sscanf(buf, "+CIFSR:STAMAC,\"" MACSTR "\"", &temp[0],&temp[1],&temp[2],&temp[3],&temp[4],&temp[5]) == 6)
+            memcpy(addr->MacAddr, temp, 6);
+    }
+    return WAIT;
+}
+
+int MDMParser::getAddress(wifi_addr_t *addr)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CIFSR\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetAddress, addr)) {
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
 }
 
 bool MDMParser::setMacAddress(const char *staMac, const char *apMac)
@@ -529,7 +555,7 @@ failure:
 int MDMParser::_cbGetStaMacAddress(int type, const char* buf, int len, char* str)
 {
     if (str && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "\r\n+CIPSTAMAC_DEF:%s\r\n", str) == 1)
+        if (sscanf(buf, "+CIPSTAMAC_DEF:%s\r\n", str) == 1)
             /*nothing*/;
     }
     return WAIT;
@@ -538,7 +564,7 @@ int MDMParser::_cbGetStaMacAddress(int type, const char* buf, int len, char* str
 int MDMParser::_cbGetApMacAddress(int type, const char* buf, int len, char* str)
 {
     if (str && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "\r\n+CIPAPMAC_DEF:%s\r\n", str) == 1)
+        if (sscanf(buf, "+CIPAPMAC_DEF:%s\r\n", str) == 1)
             /*nothing*/;
     }
     return WAIT;
@@ -606,7 +632,7 @@ int MDMParser::_cbGetIpStatus(int type, const char* buf, int len, ip_status_t* r
 {
     int rst;
     if (result && (type == TYPE_UNKNOWN)) {
-        if (sscanf(buf, "\r\nSTATUS:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "STATUS:%d\r\n", &rst) == 1) {
             *result = (ip_status_t)rst;
         }
     }
@@ -628,11 +654,38 @@ ip_status_t MDMParser::getIpStatus(void)
     return result;
 }
 
+int MDMParser::_cbGetWifiInfo(int type, const char* buf, int len, wifi_info_t *wifiInfo)
+{
+    int rst;
+    if (wifiInfo && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+CWJAP_DEF:\"%[^\"]\",\"" MACSTR "\",%d,%d\r\n", wifiInfo->ssid, \
+                    &wifiInfo->bssid[0],  &wifiInfo->bssid[1], &wifiInfo->bssid[2], &wifiInfo->bssid[3], &wifiInfo->bssid[4], &wifiInfo->bssid[5],\
+                    &wifiInfo->channel, &wifiInfo->rssi) == 9)
+            /*nothing*/;
+    }
+    return WAIT;
+}
+
+int MDMParser::getWifiInfo(wifi_info_t *wifiInfo)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        memset(wifiInfo, 0, sizeof(wifi_info_t));
+        sendFormated("AT+CWJAP_DEF?\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetWifiInfo, wifiInfo)) {
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
 int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t* result)
 {
     int rst;
     if (result && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "\r\n+CWJAP:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "+CWJAP_DEF:%d\r\n", &rst) == 1) {
             *result = (wifi_join_ap_t)rst;
         }
             /*nothing*/;
@@ -640,16 +693,15 @@ int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t*
     return WAIT;
 }
 
-
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 {
-    wifi_join_ap_t result = JOINAP_ATERROR;
+    wifi_join_ap_t result = JOINAP_CONNETFAIL;
     LOCK();
 
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\"\r\n", ssid, password);
         if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)) {
-            result = JOINAP_ATERROR;
+            result = JOINAP_CONNETFAIL;
         }
     }
     UNLOCK();
@@ -658,13 +710,13 @@ wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password, const char *bssid)
 {
-    wifi_join_ap_t result = JOINAP_ATERROR;
+    wifi_join_ap_t result = JOINAP_CONNETFAIL;
     LOCK();
 
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\",\"%s\"\r\n", ssid, password, bssid);
         if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)){
-            result = JOINAP_ATERROR;
+            result = JOINAP_CONNETFAIL;
         }
     }
     UNLOCK();
@@ -675,7 +727,7 @@ int MDMParser::_cbGetHostByName(int type, const char* buf, int len, MDM_IP* ip)
 {
     if ((type == TYPE_PLUS) && ip) {
         int a,b,c,d;
-        if (sscanf(buf, "\r\n+CIPDOMAIN:" IPSTR "\r\n", &a,&b,&c,&d) == 4)
+        if (sscanf(buf, "+CIPDOMAIN:" IPSTR "\r\n", &a,&b,&c,&d) == 4)
             *ip = IPADR(a,b,c,d);
     }
     return WAIT;
@@ -942,7 +994,7 @@ int MDMParser::_cbDownOtaFile(int type, const char* buf, int len, deal_status_t*
 {
     int rst;
     if (type == TYPE_PLUS) {
-        if (sscanf(buf, "\r\n+IR_DOWNFILE:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "+IR_DOWNFILE:%d\r\n", &rst) == 1) {
             *result = (deal_status_t)rst;
         }
     }
@@ -977,7 +1029,7 @@ int MDMParser::_cbDownNetFile(int type, const char* buf, int len, deal_status_t*
 {
     int rst;
     if (type == TYPE_PLUS) {
-        if (sscanf(buf, "\r\n+IR_NETDOWN:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "+IR_NETDOWN:%d\r\n", &rst) == 1) {
             *result = (deal_status_t)rst;
         }
     }
@@ -1032,7 +1084,7 @@ deal_status_t MDMParser::getDownNetfileStatus(void)
 int MDMParser::_cbGetDownFileProgress(int type, const char* buf, int len, int* result)
 {
     if (type == TYPE_PLUS) {
-        if (sscanf(buf, "\r\nAT+IR_DOWNPROGRESS:%d\r\n", result) == 1)
+        if (sscanf(buf, "+IR_DOWNPROGRESS:%d\r\n", result) == 1)
         /*nothing*/;
     }
     return WAIT;
@@ -1165,9 +1217,11 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             { "\r\nERROR\r\n",                       NULL,               TYPE_ERROR         },
             { "\r\nFAIL\r\n",                        NULL,               TYPE_FAIL          },
             { "\r\nALREAY CONNECT\r\n",              NULL,               TYPE_CONNECT       },
+            { "WIFI CONNECTED\r\n",                  NULL,               TYPE_CONNECT       },
+            { "WIFI GOT IP\r\n",                     NULL,               TYPE_DHCP          },
             { "\r\nbusy p...\r\n",                   NULL,               TYPE_BUSY          },
-            { "\r\nSmartconfig connected WiFi\r\n",  NULL,               TYPE_SMARTCONFIG   },
-            { "\r\n+",                               "\r\n",             TYPE_PLUS          },
+            { "Smartconfig connected WiFi\r\n",      NULL,               TYPE_SMARTCONFIG   },
+            { "+",                                   "\r\n",             TYPE_PLUS          },
             { "\r\n>",                               NULL,               TYPE_PROMPT        }, // Sockets
         };
         for (int i = 0; i < (int)(sizeof(lutF)/sizeof(*lutF)); i ++) {
