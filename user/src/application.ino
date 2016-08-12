@@ -616,6 +616,7 @@ void setup()
     pinMode(PWM_PIN, OUTPUT);
     pinMode(PWM_FRE_PIN, OUTPUT);
     analogWrite(PWM_PIN, duty);
+    /*analogWrite(PWM_FRE_PIN, duty);*/
     //analogWrite(PWM_FRE_PIN, duty, freq);
     //analogWrite(PWM_FRE_PIN, duty);
 }
@@ -654,6 +655,7 @@ void loop()
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
     DEBUG("GY30 value: %f", gy30.Read());
+    DEBUG("GY30 value: %d", gy30.Read());
     //DEBUG("Runing !");
 }
 #endif
@@ -699,4 +701,78 @@ void loop()
 }
 #endif
 
+#if 0
+#include "Adafruit_SSD1306.h"
+#define SSD1307
+// Hareware SPI
+// MOSI SPI MOSI
+// CLK SPI CLK
+
+//#define LED_PIN D6
+// // the vcc 3.3v
+#define OLED_DC     D6
+#define OLED_CS     D1
+#define OLED_RESET  D4
+Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);  // Hareware SPI
+
+// #define OLED_MOSI   A7
+// #define OLED_CLK    A5
+// #define OLED_DC     D3
+// #define OLED_CS     D1
+// #define OLED_RESET  D4
+// Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);//  Software SPI
+
+// #define OLED_MOSI   D0
+// #define OLED_CLK    D3
+// #define OLED_DC     D3
+// #define OLED_CS     D1
+// #define OLED_RESET  D5
+// Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);//  Software SPI
+char temp[128] = {'a', 'b', 'c','3', '2', '1', '0'};
+
+void setup()
+{
+    DEBUG("SPI Test\r\n");
+   // pinMode(LED_PIN, OUTPUT);
+#ifdef SSD1307
+    display.begin(SSD1306_SWITCHCAPVCC);
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.println(temp);
+    display.display();
+    delay(1000);
+    display.clearDisplay();
+    display.display();
+    DEBUG("SPI Test Setup end\r\n");
+#else
+    //SPI.setClockDivider(SPI_CLOCK_DIV64);
+    SPI.setClockDivider(SPI_CLOCK_DIV128);
+    SPI.begin();
+#endif
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    DEBUG("Runing !");
+#ifdef SSD1307
+    display.setTextSize(0);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.println(temp);
+    display.display();
+ //   digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(1000);                   // wait for a second
+  //  digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(1000);                   // wait for a second
+#else
+    SPI.transfer(0xAA);
+    SPI.transfer(0x55);
+    SPI.transfer(0x00);
+    SPI.transfer(0xFF);
+    delay(100);
+#endif
+}
+#endif
 
