@@ -1,96 +1,4 @@
 #if 0
-Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
-
-#include "application.h"
-
-#define LED_PIN  36
-uint8_t count;
-void countISR(void)
-{
-    count++;
-}
-
-void setup()
-{
-    pinMode(LED_PIN, OUTPUT);
-    pinMode(A5,INPUT_PULLUP);
-    attachInterrupt(A5,countISR,FALLING);
-}
-
-// the loop function runs over and over again forever
-void loop()
-{
-    digitalWrite(LED_PIN, LOW);   // turn the LED on (HIGH is the voltage level)
-    delay(100);              // wait for a second
-    digitalWrite(LED_PIN, HIGH);    // turn the LED off by making the voltage LOW
-    delay(900);              // wait for a second
-    DEBUG("count = %d",count);
-}
-#endif
-
-#if 0
-//舵机
-Servo myservo;
-int pos = 0;
-void setup()
-{
-    myservo.attach(A5);  // attaches the servo on pin 9 to the servo object 
-}
-
-void loop()
-{
-    for(pos = 0; pos <= 180; pos += 1) // goes from 0 degrees to 180 degrees 
-    {                                  // in steps of 1 degree 
-        myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-        delay(15);                       // waits 15ms for the servo to reach the position 
-    }
-    for(pos = 180; pos>=0; pos -= 1)     // goes from 180 degrees to 0 degrees 
-    {
-        myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-        delay(15);                       // waits 15ms for the servo to reach the position 
-    }
-}
-#endif
-
-#if 0
-void setup()
-{
-    pinMode(LED_PIN, OUTPUT);
-#if 0
-   //pwm
-    pinMode(D0,OUTPUT);
-    pinMode(D1,OUTPUT);
-    pinMode(D2,OUTPUT);
-    pinMode(D4,OUTPUT);
-    pinMode(D5,OUTPUT);
-    pinMode(A0,OUTPUT);
-    pinMode(A4,OUTPUT);
-    pinMode(A5,OUTPUT);
-    tone(D4,1000,1000000);
-    analogWrite(D0,10);
-    analogWrite(D1,20);
-    analogWrite(D2,50);
-    analogWrite(D4,90);
-    analogWrite(D5,100);
-    analogWrite(A0,150);
-    analogWrite(A4,180);
-    analogWrite(A5,220);
-   #endif
-}
-
-// the loop function runs over and over again forever
-void loop()
-{
-    digitalWrite(LED_PIN, LOW);   // turn the LED on (HIGH is the voltage level)
-    delay(100);              // wait for a second
-    digitalWrite(LED_PIN, HIGH);    // turn the LED off by making the voltage LOW
-    delay(900);              // wait for a second
-}
-#endif
-//====================================================
-
-
-#if 0
 /*
  * Atom 默认程序
  */
@@ -98,6 +6,7 @@ void loop()
 
 #define SMARTLIGHT_CMD_SWITCH    "channel/smartLight_0/cmd/switch"   //开关命令
 #define SMARTLIGHT_DATA_STATUS   "channel/smartLight_0/data/status"  //开关状态
+
 
 #define LEDPIN    D7    //定义灯泡控制引脚
 
@@ -534,6 +443,7 @@ void loop()
 }
 #endif
 
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #if 0
 
@@ -601,7 +511,7 @@ void loop()
 }
 #endif
 
-#if 0
+#if 1
 
 #define LED_PIN D6
 #define PWM_PIN D1
@@ -683,19 +593,26 @@ void loop()
 }
 #endif
 
-#if 1
-#define LED_PIN  D7
+#if 0
+#define LED_PIN  D6
+#define TEST_PIN D1
 
 void setup()
 {
+    DEBUG("Nut timer hal millis micro Test\r\n");
     pinMode(LED_PIN, OUTPUT);
+    pinMode(TEST_PIN, OUTPUT);
+    //tone(TEST_PIN, 1000, 10000);
 }
+
 
 // the loop function runs over and over again forever
 void loop()
 {
     digitalWrite(LED_PIN, LOW);
     delay(1000);
+    DEBUG("micros: %ld", micros());
+    DEBUG("millis: %ld", millis());
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
 }
