@@ -27,13 +27,12 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "pwm_hal.h"
 #include "pinmap_impl.h"
 #include "service_debug.h"
-#include "hw_config.h"
+#if 0
+#include "gpio_hal.h"
 #include "ets_sys.h"
-#include "Arduino.h"
-
-//#define PWMRANGE 1023
-//#define HIGH 0x1
-//#define LOW  0x0
+#define LOW  0
+#define HIGH 1
+#define PWMRANGE 1023
 
 uint32_t pwm_mask = 0;
 uint16_t pwm_values[17] = {0,};
@@ -131,54 +130,52 @@ void pwm_start_timer(){
     timer1_write(1);
 }
 
-void __analogWrite(uint8_t pin, int value) {
-    DEBUG("Enter __analogWrite...");
-    DEBUG("Pin number: %d", pin);
-    DEBUG("value: %d", value);
-    DEBUG("pwm_mask: %d", pwm_mask);
-    static int aa = 0;
-    static int bb = 0;
+extern void __analogWrite(uint8_t pin, int value) {
     bool start_timer = false;
     if(value == 0){
         pwm_mask &= ~(1 << pin);
         prep_pwm_steps();
+        /* digitalWrite(pin, LOW); */
         HAL_GPIO_Write(pin, LOW);
         if(pwm_mask == 0) timer1_disable();
         return;
     }
     if((pwm_mask & (1 << pin)) == 0){
-        DEBUG("I here");
-        aa = 1;
         if(pwm_mask == 0) start_timer = true;
         pwm_mask |= (1 << pin);
+        /* pinMode(pin, OUTPUT); */
         HAL_Pin_Mode(pin, OUTPUT);
+        /* digitalWrite(pin, LOW); */
         HAL_GPIO_Write(pin, LOW);
     }
-    DEBUG("Before pwm_value");
     pwm_values[pin] = value % (pwm_range + 1);
-    DEBUG("pwm_values: %d", pwm_values[pin]);
     prep_pwm_steps();
     if(start_timer){
-        bb = 1;
-        DEBUG("Start timer ...");
         pwm_start_timer();
     }
-    DEBUG("aa: %d", aa);
-    DEBUG("bb: %d", bb);
-
 }
 
-void __analogWriteFreq(uint32_t freq){
-    DEBUG("freq: %d", freq);
+extern void __analogWriteFreq(uint32_t freq){
     pwm_freq = freq;
     prep_pwm_steps();
 }
 
-void __analogWriteRange(uint32_t range){
-    DEBUG("range: %d", range);
+extern void __analogWriteRange(uint32_t range){
     pwm_range = range;
     prep_pwm_steps();
 }
+#endif
+
+
+
+#include "pwm.h"
+#include "eagle_soc.h"
+#define PWM_0_OUT_IO_MUX PERIPHS_IO_MUX_MTDI_U
+#define PWM_0_OUT_IO_NUM 12
+#define PWM_0_OUT_IO_FUNC  FUNC_GPIO12
+
+
+
 
 /*
  * @brief Should take an integer 0-255 and create a PWM signal with a duty cycle from 0-100%.
@@ -218,6 +215,12 @@ void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
     HAL_PWM_Write_With_Frequency_Ext(pin, value, TIM_PWM_FREQ);
 }
 
+uint32_t io_info[][3] =
+    {
+        //{PWM_0_OUT_IO_MUX, PWM_0_OUT_IO_FUNC, PWM_0_OUT_IO_NUM}
+        {PWM_0_OUT_IO_MUX, PWM_0_OUT_IO_FUNC, PWM_0_OUT_IO_NUM}
+        //,{PWM_1_OUT_IO_MUX, PWM_1_OUT_IO_FUNC, PWM_1_OUT_IO_NUM}
+    };
 /*
  * @brief Should take an integer within the limits of set resolution (8-bit or 16-bit)
  * and create a PWM signal with a duty cycle from 0-100%
@@ -232,9 +235,18 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
     DEBUG("Enter HAL_PWM_Write_With_Frequency_Ext!");
     DEBUG("Pin: %d", pin);
     DEBUG("value: %d", value);
-    __analogWriteFreq(pwm_frequency);
-    __analogWriteRange(255);
-    __analogWrite(pin, value);
+    uint32_t period = 1000;
+    uint32_t pwm_channel_num = 1;
+    uint32_t duty[1] = {5000};
+    pwm_init(period, duty, pwm_channel_num, io_info);
+    pwm_start();
+    /* void pwm_set_duty(uint32 duty, uint8 channel); */
+    /* void pwm_set_period(uint32 period); */
+
+
+    /* __analogWriteFreq(pwm_frequency); */
+    /* __analogWriteRange(255); */
+    /* __analogWrite(pin, value); */
 }
 
 // TODO: below todo

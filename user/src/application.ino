@@ -1,3 +1,7 @@
+// include the all the header files
+#include "application.h"
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+
 #if 0
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
@@ -601,7 +605,7 @@ void loop()
 }
 #endif
 
-#if 0
+#if 1 
 
 #define LED_PIN D6
 #define PWM_PIN D1
@@ -616,7 +620,7 @@ void setup()
     pinMode(PWM_PIN, OUTPUT);
     pinMode(PWM_FRE_PIN, OUTPUT);
     analogWrite(PWM_PIN, duty);
-    /*analogWrite(PWM_FRE_PIN, duty);*/
+    // analogWrite(PWM_FRE_PIN, duty);
     //analogWrite(PWM_FRE_PIN, duty, freq);
     //analogWrite(PWM_FRE_PIN, duty);
 }
@@ -624,7 +628,7 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
-    analogWrite(PWM_PIN, duty);
+    // analogWrite(PWM_PIN, duty);
     digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(3000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
@@ -683,7 +687,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 #define LED_PIN  D7
 
 void setup()
