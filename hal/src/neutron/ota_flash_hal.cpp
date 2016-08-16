@@ -17,32 +17,43 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_RGB_H_
-#define WIRING_RGB_H_
+#include "ota_flash_hal.h"
+#include "core_hal.h"
+#include "parser.h"
 
 
-#include <stdint.h>
-
-class RGBClass
+down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    public:
-        RGBClass();
-        ~RGBClass();
+    return (down_status_t)esp8266MDM.downOtaFile(host, param, md5);
+}
 
-        bool controlled(void);
-        void control(bool flag);
-        bool off(void);
-        bool color(uint32_t rgb);
-        bool color(uint8_t red, uint8_t green, uint8_t blue);
-        bool blink(uint32_t rgb,uint16_t period);
-        bool blink(uint8_t red, uint8_t green, uint8_t blue,uint16_t period);
-        bool breath(uint32_t rgb,uint16_t period);
-        bool breath(uint8_t red, uint8_t green, uint8_t blue,uint16_t period);
+down_status_t HAL_OTA_Get_App_Download_Status(void)
+{
+    return (down_status_t)esp8266MDM.getDownOtafileStatus();
+}
 
-    private:
-        bool _control;
-};
+void HAL_OTA_Update_App(void)
+{
+    HAL_Core_Enter_Ota_Update_Mode();
+}
 
-extern RGBClass RGB;
+down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
+{
+    return (down_status_t)esp8266MDM.downNetFile(host, param);
+}
 
-#endif
+down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
+{
+    return (down_status_t)esp8266MDM.getDownNetfileStatus();
+}
+
+void HAL_OTA_Upadate_Subsys(void)
+{
+    esp8266MDM.updateNet();
+}
+
+uint8_t HAL_OTA_Get_Download_Progress()
+{
+    return (uint8_t)esp8266MDM.getDownFileProgress();
+}
+

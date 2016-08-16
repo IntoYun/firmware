@@ -157,7 +157,7 @@ void save_system_params(system_params_t *psystem_params) {
 /*
  * 恢复默认参数  不保留密钥信息
  * */
-void HAL_PARAMS_Init_System_Params(void) {
+void HAL_PARAMS_Init_All_System_Params(void) {
     init_system_params(&intorobot_system_params);
     save_system_params(&intorobot_system_params);
 }

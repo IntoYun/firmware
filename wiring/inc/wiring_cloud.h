@@ -25,7 +25,7 @@
 //#include "events.h"
 #include "system_cloud.h"
 #include "system_sleep.h"
-#include "wiring_system.h"
+//#include "wiring_system.h"
 #include "wiring_watchdog.h"
 #include "interrupts_hal.h"
 #include <functional>

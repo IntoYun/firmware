@@ -112,12 +112,14 @@ public:
          * @param nif   The network interface to connect to
          * @return non-zero on success
          */
-	virtual uint8_t begin(uint16_t port, network_interface_t nif=0);
+        virtual uint8_t begin(uint16_t port, network_interface_t nif=0);
+        virtual uint8_t begin(const char *host, uint16_t port, uint16_t localport, network_interface_t nif=0);
+        virtual uint8_t begin(IPAddress ip, uint16_t port, uint16_t localport, network_interface_t nif=0);
 
         /**
          * Disconnects this UDP socket.
          */
-	virtual void stop();
+	    virtual void stop();
 
         /**
          * Sends an packet directly. This does not require the UDP instance to have an allocated buffer.

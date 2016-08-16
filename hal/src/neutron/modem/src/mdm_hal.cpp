@@ -250,7 +250,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
             /*******************************************/
             //handle unsolicited commands here
             if (type == TYPE_PLUS) {
-                const char* cmd = buf+3;
+                const char* cmd = buf+1;
                 int a, b, n;
                 char *s;
 
@@ -261,9 +261,9 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                     DEBUG_D("Socket %d: handle %d has %d bytes pending\r\n", socket, a, b);
                     if (socket != MDM_SOCKET_ERROR) {
                         s = strchr(buf, ':');
-                        for(n=1; n <= b; n++) {
+                        for(n=0; n < b; n++) {
                             if (_sockets[socket].pipe->writeable()) {
-                                _sockets[socket].pipe->putc(s[n]);
+                                _sockets[socket].pipe->putc(s[n+1]);
                             }
                             else{
                                 break;
@@ -274,12 +274,22 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                     // down file ---------------------------------
                     // IR_DOWNFILE:<result>
                 } else if ((sscanf(cmd, "IR_DOWNFILE:%d", &a) == 1)) {
+                    //AT设计的有问题   下载中返回结果后面多了一个ok. 特殊处理  去掉后面的Ok
+                    if(_downotafile_status == DEALSTATUS_DOING) {
+                        char temp[16];
+                        getLine(temp, strlen("\r\nOK\r\n"));
+                    }
                     if(0 == a)
                         _downotafile_status = DEALSTATUS_SUCCESS;
                     else
                         _downotafile_status = DEALSTATUS_FAIL;
                     // IR_DOWNFILE:<result>
                 } else if ((sscanf(cmd, "IR_NETDOWN:%d", &a) == 1)) {
+                    //AT设计的有问题   下载中返回结果后面多了一个ok. 特殊处理  去掉后面的Ok
+                    if(_downnetfile_status == DEALSTATUS_DOING) {
+                        char temp[16];
+                        getLine(temp, strlen("\r\nOK\r\n"));
+                    }
                     if(0 == a)
                         _downnetfile_status = DEALSTATUS_SUCCESS;
                     else
@@ -789,7 +799,8 @@ int MDMParser::socketSocket(IpProtocol ipproto, int port)
     if (socket != MDM_SOCKET_ERROR) {
         DEBUG_D("Socket %d: handle %d was created\r\n", socket, socket);
         _sockets[socket].handle     = socket;
-        _sockets[socket].ipproto = ipproto;
+        _sockets[socket].ipproto    = ipproto;
+        _sockets[socket].localip    = port;
         _sockets[socket].connected  = false;
         _sockets[socket].pending    = 0;
         _sockets[socket].open       = true;
@@ -805,7 +816,10 @@ bool MDMParser::socketConnect(int socket, const char * host, int port)
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
         DEBUG_D("socketConnect(%d,port:%d)\r\n", socket,port);
-        sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d\r\n", _sockets[socket].handle, _sockets[socket].ipproto?"UDP":"TCP", host, port);
+        if(_sockets[socket].ipproto)
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", host, port, _sockets[socket].localip, 2);
+        else
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d\r\n", _sockets[socket].handle, "TCP", host, port);
         if (RESP_OK == waitFinalResp())
             ok = _sockets[socket].connected = true;
     }
@@ -819,7 +833,10 @@ bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
         DEBUG_D("socketConnect(%d,port:%d)\r\n", socket,port);
-        sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d\r\n", _sockets[socket].handle, _sockets[socket].ipproto?"UDP":"TCP", IPNUM(ip), port);
+        if(_sockets[socket].ipproto)
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", IPNUM(ip), port, _sockets[socket].localip, 2);
+        else
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d\r\n", _sockets[socket].handle, "TCP", IPNUM(ip), port);
         if (RESP_OK == waitFinalResp())
             ok = _sockets[socket].connected = true;
     }
@@ -832,7 +849,7 @@ bool MDMParser::socketIsConnected(int socket)
     bool ok = false;
     LOCK();
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    DEBUG_D("socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
+    //DEBUG_D("socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
     UNLOCK();
     return ok;
 }
@@ -868,10 +885,12 @@ bool MDMParser::_socketFree(int socket)
         if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
             DEBUG_D("socketFree(%d)\r\n",  socket);
             _sockets[socket].handle     = MDM_SOCKET_ERROR;
+            _sockets[socket].localip    = 0;
             _sockets[socket].connected  = false;
             _sockets[socket].pending    = 0;
             _sockets[socket].open       = false;
-            delete [] _sockets[socket].pipe;
+            if (_sockets[socket].pipe)
+                delete _sockets[socket].pipe;
         }
         ok = true;
     }
@@ -899,11 +918,12 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
             LOCK();
             if (ISSOCKET(socket)) {
                 sendFormated("AT+CIPSEND=%d,%d\r\n",_sockets[socket].handle,blk);
-                if (RESP_PROMPT == waitFinalResp()) {
-                    HAL_Delay_Milliseconds(50);
-                    send(buf, blk);
-                    if (RESP_OK == waitFinalResp())
-                        ok = true;
+                if (RESP_OK == waitFinalResp()){
+                    if (RESP_PROMPT == waitFinalResp()) {
+                        send(buf, blk);
+                        if (RESP_OK == waitFinalResp())
+                            ok = true;
+                    }
                 }
             }
             UNLOCK();
@@ -948,6 +968,7 @@ int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, i
 
 int MDMParser::socketReadable(int socket)
 {
+    waitFinalResp(NULL, NULL, 0);
     int pending = MDM_SOCKET_ERROR;
     if (_cancel_all_operations)
         return MDM_SOCKET_ERROR;
@@ -1004,16 +1025,17 @@ int MDMParser::_cbDownOtaFile(int type, const char* buf, int len, deal_status_t*
 deal_status_t MDMParser::downOtaFile(const char *host, const char *param, const char * md5)
 {
     deal_status_t result = DEALSTATUS_FAIL;
-    LOCK();
 
+    LOCK();
+    _downotafile_status = DEALSTATUS_IDLE;
     if (_init) {
         sendFormated("AT+IR_DOWNFILE=\"%s\",\"%s\",\"%s\"\r\n", host, param, md5);
         if (RESP_OK != waitFinalResp(_cbDownOtaFile, &result)){
             result = DEALSTATUS_FAIL;
         }
     }
-    UNLOCK();
     _downotafile_status = result;
+    UNLOCK();
     return result;
 }
 
@@ -1022,6 +1044,7 @@ deal_status_t MDMParser::downOtaFile(const char *host, const char *param, const 
  */
 deal_status_t MDMParser::getDownOtafileStatus(void)
 {
+    waitFinalResp(NULL, NULL, 0);
     return _downotafile_status;
 }
 
@@ -1043,15 +1066,15 @@ deal_status_t MDMParser::downNetFile(const char *host, const char *param)
 {
     deal_status_t result = DEALSTATUS_FAIL;
     LOCK();
-
+    _downnetfile_status = DEALSTATUS_IDLE;
     if (_init) {
         sendFormated("AT+IR_NETDOWN=\"%s\",\"%s\"\r\n", host, param);
         if (RESP_OK != waitFinalResp(_cbDownNetFile, &result)){
             result = DEALSTATUS_FAIL;
         }
     }
-    UNLOCK();
     _downnetfile_status = result;
+    UNLOCK();
     return result;
 }
 
@@ -1078,6 +1101,7 @@ bool MDMParser::updateNet(void)
  */
 deal_status_t MDMParser::getDownNetfileStatus(void)
 {
+    waitFinalResp(NULL, NULL, 0);
     return _downnetfile_status;
 }
 
@@ -1174,10 +1198,11 @@ int MDMParser::_parseFormated(Pipe<char>* pipe, int len, const char* fmt)
                 }
                 else if (*fmt == 'c') { // char buffer (takes last numeric as length)
                     fmt ++;
-                    while (num --) {
+                    while (--num) {
                         if (++o > len)      return WAIT;
                         ch = pipe->next();
                     }
+                    continue;
                 }
                 else if (*fmt == 's') {
                     fmt ++;
@@ -1208,7 +1233,7 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
         static struct {
             const char* fmt;                              int type;
         } lutF[] = {
-            { "\r\n+IPD,%d,%d:%c",                          TYPE_PLUS       },
+            { "+IPD,%d,%d:%c",                          TYPE_PLUS       },
         };
         static struct {
             const char* sta;          const char* end;    int type;
@@ -1219,10 +1244,12 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             { "\r\nALREAY CONNECT\r\n",              NULL,               TYPE_CONNECT       },
             { "WIFI CONNECTED\r\n",                  NULL,               TYPE_CONNECT       },
             { "WIFI GOT IP\r\n",                     NULL,               TYPE_DHCP          },
+            { "WIFI DISCONNECT\r\n",                 NULL,               TYPE_DISCONNECT    },
             { "\r\nbusy p...\r\n",                   NULL,               TYPE_BUSY          },
-            { "Smartconfig connected WiFi\r\n",      NULL,               TYPE_SMARTCONFIG   },
+            { "smartconfig connected wifi\r\n",      NULL,               TYPE_SMARTCONFIG   },
             { "+",                                   "\r\n",             TYPE_PLUS          },
-            { "\r\n>",                               NULL,               TYPE_PROMPT        }, // Sockets
+            { "> ",                                  NULL,               TYPE_PROMPT        }, // Sockets
+            { "\r\nSEND OK\r\n",                     NULL,               TYPE_OK            }, // Sockets
         };
         for (int i = 0; i < (int)(sizeof(lutF)/sizeof(*lutF)); i ++) {
             pipe->set(unkn);

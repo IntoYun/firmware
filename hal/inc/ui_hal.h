@@ -18,34 +18,66 @@
 */
 
 #ifndef RGBLED_HAL_H
-#define	RGBLED_HAL_H
+#define RGBLED_HAL_H
 
 #include <stdint.h>
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum
 {
-	BUTTON1 = 0
+    BUTTON1 = 0
 } Button_TypeDef;
 
 typedef enum
 {
-	BUTTON_MODE_GPIO = 0, BUTTON_MODE_EXTI = 1
+    BUTTON_MODE_GPIO = 0, BUTTON_MODE_EXTI = 1
 } ButtonMode_TypeDef;
 
+typedef enum
+{
+    RGB_MODE_COLOR = 0,
+    RGB_MODE_BLINK = 1,
+    RGB_MODE_BREATH = 2
+}rgb_mode_t;
 
-void HAL_UI_RGB_Initial(void);
-void HAL_UI_RGB_Color(uint8_t red, uint8_t green, uint8_t blue);
-void HAL_UI_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
-void HAL_UI_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+typedef struct {
+    rgb_mode_t  rgb_mode;
+    uint8_t     rgb_fade_step;
+    uint8_t     rgb_fade_direction;
+    uint16_t    rgb_period;
+    uint32_t    rgb_color;
+    uint32_t    rgb_last_color;
+}rgb_info_t;
 
 
-#ifdef	__cplusplus
+//RGB Basic Colors
+#define RGB_COLOR_BLACK     0x000000
+#define RGB_COLOR_RED       0xFF0000
+#define RGB_COLOR_GREEN     0x00FF00
+#define RGB_COLOR_BLUE      0x0000FF
+#define RGB_COLOR_YELLOW    0xFFFF00
+#define RGB_COLOR_CYAN      0x00FFFF  //浅蓝色
+#define RGB_COLOR_MAGENTA   0xFF00FF
+#define RGB_COLOR_WHITE     0xFFFFFF
+
+
+void HAL_UI_Initial(void);
+uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button);
+uint32_t HAL_UI_Mode_Button_Pressed(void);
+int HAL_UI_RGB_Get_Info(rgb_info_t *pinfo);
+int HAL_UI_RGB_Set_Info(rgb_info_t info);
+void HAL_UI_RGB_Color(uint32_t color);
+void HAL_UI_RGB_Blink(uint32_t color, uint16_t period);
+void HAL_UI_RGB_Breath(uint32_t color, uint16_t period);
+void HAL_UI_SysTick_Handler(void);
+
+
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* RGBLED_HAL_H */
+#endif/* RGBLED_HAL_H */
 

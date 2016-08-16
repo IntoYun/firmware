@@ -35,6 +35,17 @@
 extern "C" {
 #endif
 
+typedef enum
+{
+    BUTTON_MODE_NONE = 0,
+    BUTTON_MODE_CONFIG,
+    BUTTON_MODE_DEFFW,
+    BUTTON_MODE_COM,
+    BUTTON_MODE_FAC,
+    BUTTON_MODE_NC,
+    BUTTON_MODE_RESET
+} button_mode_t;
+
 void system_process_loop(void);
 void ui_process_loop(void);
 

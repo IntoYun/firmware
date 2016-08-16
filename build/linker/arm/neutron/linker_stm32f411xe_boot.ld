@@ -42,7 +42,7 @@ Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 MEMORY
 {
     SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 128K
-    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K
+    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 32K
 }
 
 INCLUDE linker_stm32f411xe_common.ld

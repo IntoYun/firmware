@@ -49,7 +49,7 @@ class Stream : public Print
     virtual int peek() = 0;
     virtual void flush() = 0;
 
-    Stream() {_timeout=1000;}
+    Stream() {_timeout=100;}
 
 // parsing methods
 

@@ -20,78 +20,64 @@
 #include "wiring_rgb.h"
 #include "ui_hal.h"
 
-bool RGBClass::controlled(void)
-{
-//    return LED_RGB_IsOverRidden();
-return true;
+
+RGBClass::RGBClass() {
+    _control=false;
 }
 
-void RGBClass::control(bool override)
-{
-    /*
-    if(override == controlled())
-            return;
-    else if (override)
-            LED_Signaling_Start();
-    else
-            LED_Signaling_Stop();
-            */
+RGBClass::~RGBClass() {
 }
 
-void RGBClass::color(uint32_t rgb) {
-    color((rgb>>16)&0xFF, (rgb>>8)&0xFF, (rgb)&0xFF);
+bool RGBClass::controlled(void) {
+    return _control;
 }
 
-void RGBClass::color(int red, int green, int blue)
-{
-    /*
-    if (!controlled())
-            return;
-
-    LED_SetSignalingColor(red << 16 | green << 8 | blue);
-    LED_On(LED_RGB);
-    */
+void RGBClass::control(bool flag) {
+    _control=flag;
 }
 
-void RGBClass::brightness(uint8_t brightness, bool update)
-{
-    /*
-    LED_SetBrightness(brightness);
-    if (controlled() && update)
-        LED_On(LED_RGB);
-        */
+bool RGBClass::off(void) {
+    if(!_control)
+    {return false;}
+
+    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+    return true;
 }
 
-void RGBClass::onChange(wiring_rgb_change_handler_t handler) {
-/*
-  if(handler) {
-    auto wrapper = new wiring_rgb_change_handler_t(handler);
-    if(wrapper) {
-      LED_RGB_SetChangeHandler(call_std_change_handler, wrapper);
-    }
-  }
-  else {
-      LED_RGB_SetChangeHandler(NULL, NULL);
-  }
-  */
+bool RGBClass::color(uint32_t rgb) {
+    if(!_control)
+    {return false;}
+ 
+    HAL_UI_RGB_Color(rgb);
+    return true;
 }
 
-void RGBClass::onChange(raw_rgb_change_handler_t *handler) {
-   // LED_RGB_SetChangeHandler(handler ? call_raw_change_handler : NULL, (void*)handler);
+bool RGBClass::color(uint8_t red, uint8_t green, uint8_t blue) {
+    return color((red<<16)|(green<<8)|blue);
 }
 
-void RGBClass::call_raw_change_handler(void* data, uint8_t r, uint8_t g, uint8_t b, void* reserved)
-{
-    /*
-    auto fn = (raw_rgb_change_handler_t*)(data);
-    (*fn)(r, g, b);
-    */
+bool RGBClass::blink(uint32_t rgb, uint16_t period) {
+    if(!_control)
+    {return false;}
+
+    HAL_UI_RGB_Blink(rgb, period);
+    return true;
 }
 
-void RGBClass::call_std_change_handler(void* data, uint8_t r, uint8_t g, uint8_t b, void* reserved)
-{
-    /*
-    auto fn = (wiring_rgb_change_handler_t*)(data);
-    (*fn)(r, g, b);
-    */
+bool RGBClass::blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period) {
+    return blink((red<<16)|(green<<8)|blue, period);
 }
+
+bool RGBClass::breath(uint32_t rgb, uint16_t period) {
+    if(!_control)
+    {return false;}
+
+    HAL_UI_RGB_Breath(rgb, period);
+    return true;
+}
+
+bool RGBClass::breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period) {
+    return breath((red<<16)|(green<<8)|blue, period);
+}
+
+RGBClass RGB;

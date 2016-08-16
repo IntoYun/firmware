@@ -288,7 +288,7 @@ public:
     */
     int waitFinalResp(_CALLBACKPTR cb = NULL,
                       void* param = NULL,
-                      system_tick_t timeout_ms = 10000);
+                      system_tick_t timeout_ms = 5000);
 
     /** template version of #waitFinalResp when using callbacks,
         This template will allow the compiler to do type cheking but
@@ -299,7 +299,7 @@ public:
     template<class T>
     inline int waitFinalResp(int (*cb)(int type, const char* buf, int len, T* param),
                     T* param,
-                    system_tick_t timeout_ms = 10000)
+                    system_tick_t timeout_ms = 5000)
     {
         return waitFinalResp((_CALLBACKPTR)cb, (void*)param, timeout_ms);
     }
@@ -368,6 +368,7 @@ protected:
     typedef struct {
         int handle;
         volatile IpProtocol ipproto;
+        volatile int localip;
         volatile bool connected;
         volatile int pending;
         volatile bool open;

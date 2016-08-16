@@ -41,13 +41,10 @@ unsigned backoff_period(unsigned connection_attempts)
 
 int system_version(char *pversion)
 {
-#if 0
     if(NULL != pversion)
     {
-        strcpy(pversion, stringify(SYSTEM_VERSION_STRING));
-        return strlen(pversion)
+        strcpy(pversion, SYSTEM_VERSION);
+        return strlen(pversion);
     }
-    return SDK_ERR;
-#endif
     return 0;
 }

@@ -64,19 +64,21 @@ static uint32_t FLASH_Interminal_Get_Sector(uint32_t address)
     return sector;
 }
 
-void HAL_FLASH_Interminal_Erase(uint32_t address)
+void HAL_FLASH_Interminal_Erase(uint32_t address, uint32_t length)
 {
     FLASH_EraseInitTypeDef EraseInitStruct;
-    uint32_t FirstSector = 0, SECTORError = 0;
+    uint32_t FirstSector = 0, NbOfSectors = 0, SECTORError = 0;
 
     HAL_FLASH_Unlock();
     FirstSector = FLASH_Interminal_Get_Sector(address);
+    NbOfSectors = FLASH_Interminal_Get_Sector(address + length) - FirstSector + 1;
 
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
     EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     EraseInitStruct.Sector = FirstSector;
-    EraseInitStruct.NbSectors = 1;
+    EraseInitStruct.NbSectors = NbOfSectors;
     HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError);
+
     HAL_FLASH_Lock();
 }
 
@@ -98,13 +100,15 @@ int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datal
     uint16_t i = 0;
 
     HAL_StatusTypeDef flashStatus = HAL_OK;
-    HAL_FLASH_Interminal_Erase(address);
+    HAL_FLASH_Interminal_Erase(address, datalen);
     HAL_FLASH_Unlock();
+
     while((address < endAddress) && (flashStatus == HAL_OK))
     {
         flashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, pdata[i++]);
         address = address + 2;
     }
+
     HAL_FLASH_Lock();
     return flashStatus;
 }
