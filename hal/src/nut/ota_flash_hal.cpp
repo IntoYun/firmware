@@ -17,34 +17,40 @@
   ******************************************************************************
 */
 
-#include "hw_config.h"
-#include "timer_hal.h"
+#include "ota_flash_hal.h"
+#include "core_hal.h"
 
 
-/* Private typedef -----------------------------------------------------------*/
-
-/* Private define ------------------------------------------------------------*/
-
-/* Private macro -------------------------------------------------------------*/
-
-/* Private variables ---------------------------------------------------------*/
-
-/* Extern variables ----------------------------------------------------------*/
-
-/* Private function prototypes -----------------------------------------------*/
-
-/*
- * @brief Should return the number of microseconds since the processor started up.
- */
-system_tick_t HAL_Timer_Get_Micro_Seconds(void)
+down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    return GetSystem1UsTick();
+    return DOWNSTATUS_SUCCESS;
 }
 
-/*
- * @brief Should return the number of milliseconds since the processor started up.
- */
-system_tick_t HAL_Timer_Get_Milli_Seconds(void)
+down_status_t HAL_OTA_Get_App_Download_Status(void)
 {
-    return GetSystem1MsTick();
+    return DOWNSTATUS_SUCCESS;
 }
+
+void HAL_OTA_Update_App(void)
+{
+}
+
+down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
+{
+    return DOWNSTATUS_SUCCESS;
+}
+
+down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
+{
+    return DOWNSTATUS_SUCCESS;
+}
+
+void HAL_OTA_Upadate_Subsys(void)
+{
+}
+
+uint8_t HAL_OTA_Get_Download_Progress()
+{
+    return 0;
+}
+

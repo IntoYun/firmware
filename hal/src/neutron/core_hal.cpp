@@ -244,6 +244,11 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
+void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
+{
+   //APP_LineCodingBitRateHandler = handler;
+}
+
 /**
  * @brief  This function handles SysTick Handler.
  * @param  None
