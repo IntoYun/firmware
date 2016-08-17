@@ -7,6 +7,7 @@ Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #include "application.h"
 
+
 #define LED_PIN  36
 uint8_t count;
 void countISR(void)
@@ -38,21 +39,21 @@ Servo myservo;
 int pos = 0;
 void setup()
 {
-    myservo.attach(A5);  // attaches the servo on pin 9 to the servo object 
+    myservo.attach(A5);  // attaches the servo on pin 9 to the servo object
 }
 
 void loop()
 {
-    for(pos = 0; pos <= 180; pos += 1) // goes from 0 degrees to 180 degrees 
-    {                                  // in steps of 1 degree 
-        myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-        delay(15);                       // waits 15ms for the servo to reach the position 
-    }
-    for(pos = 180; pos>=0; pos -= 1)     // goes from 180 degrees to 0 degrees 
-    {
-        myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-        delay(15);                       // waits 15ms for the servo to reach the position 
-    }
+    for(pos = 0; pos <= 180; pos += 1) // goes from 0 degrees to 180 degrees
+        {                                  // in steps of 1 degree
+            myservo.write(pos);              // tell servo to go to position in variable 'pos'
+            delay(15);                       // waits 15ms for the servo to reach the position
+        }
+    for(pos = 180; pos>=0; pos -= 1)     // goes from 180 degrees to 0 degrees
+        {
+            myservo.write(pos);              // tell servo to go to position in variable 'pos'
+            delay(15);                       // waits 15ms for the servo to reach the position
+        }
 }
 #endif
 
@@ -61,7 +62,7 @@ void setup()
 {
     pinMode(LED_PIN, OUTPUT);
 #if 0
-   //pwm
+    //pwm
     pinMode(D0,OUTPUT);
     pinMode(D1,OUTPUT);
     pinMode(D2,OUTPUT);
@@ -79,7 +80,7 @@ void setup()
     analogWrite(A0,150);
     analogWrite(A4,180);
     analogWrite(A5,220);
-   #endif
+#endif
 }
 
 // the loop function runs over and over again forever
@@ -108,15 +109,15 @@ void loop()
 void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 {
     if(payload[0] == '1')
-    {
-        digitalWrite(LEDPIN, HIGH);     // 打开灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
-    }
+        {
+            digitalWrite(LEDPIN, HIGH);     // 打开灯泡
+            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
+        }
     else
-    {
-        digitalWrite(LEDPIN, LOW);      //关闭灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
-    }
+        {
+            digitalWrite(LEDPIN, LOW);      //关闭灯泡
+            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
+        }
 }
 
 void setup()
@@ -163,9 +164,9 @@ void loop()
 
 void setup()
 {
-   pinMode(testA, INPUT);
-   pinMode(LED_PIN, OUTPUT);
-   DEBUG("AnalogRead Test\r\n");
+    pinMode(testA, INPUT);
+    pinMode(LED_PIN, OUTPUT);
+    DEBUG("AnalogRead Test\r\n");
 }
 
 // the loop function runs over and over again forever
@@ -214,16 +215,16 @@ void loop()
 uint8_t flag = 0;
 void Blink(void)
 {
-	if(flag == 0)
-	{
-		flag = 1;
-		digitalWrite(LED_PIN,HIGH);
-	}
-	else
-	{
-		flag = 0;
-		digitalWrite(LED_PIN,LOW);
-	}
+    if(flag == 0)
+        {
+            flag = 1;
+            digitalWrite(LED_PIN,HIGH);
+        }
+    else
+        {
+            flag = 0;
+            digitalWrite(LED_PIN,LOW);
+        }
 }
 
 void setup()
@@ -231,9 +232,9 @@ void setup()
     DEBUG("Interrupt Test\r\n");
     pinMode(LED_PIN, OUTPUT);
 
-	pinMode(INTERRUPT_PIN, INPUT_PULLUP);
-	pinMode(testPinPWM, OUTPUT);
-	attachInterrupt(INTERRUPT_PIN, Blink, FALLING);
+    pinMode(INTERRUPT_PIN, INPUT_PULLUP);
+    pinMode(testPinPWM, OUTPUT);
+    attachInterrupt(INTERRUPT_PIN, Blink, FALLING);
     DEBUG("After setup\r\n");
 }
 
@@ -243,28 +244,28 @@ void loop()
     DEBUG("Enter loop\r\n");
     attachInterrupt(INTERRUPT_PIN, Blink, FALLING);
 
-	for(uint8_t i = 0; i < 5; i++)
-	{
-		digitalWrite(testPinPWM, HIGH);
-		delay(500);
-		digitalWrite(testPinPWM, LOW);
-		delay(500);
-	}
+    for(uint8_t i = 0; i < 5; i++)
+        {
+            digitalWrite(testPinPWM, HIGH);
+            delay(500);
+            digitalWrite(testPinPWM, LOW);
+            delay(500);
+        }
 
-	detachInterrupt(INTERRUPT_PIN);
-	delay(1000);
-	attachInterrupt(INTERRUPT_PIN,Blink, FALLING);
+    detachInterrupt(INTERRUPT_PIN);
+    delay(1000);
+    attachInterrupt(INTERRUPT_PIN,Blink, FALLING);
 
-	for(uint8_t i = 0; i < 5; i++) // ledÉÁË¸
-	{
-		digitalWrite(testPinPWM, HIGH);
-		delay(500);
-		digitalWrite(testPinPWM, LOW);
-		delay(500);
-	}
-	noInterrupts();
-	delay(1000);
-	interrupts();
+    for(uint8_t i = 0; i < 5; i++) // ledÉÁË¸
+        {
+            digitalWrite(testPinPWM, HIGH);
+            delay(500);
+            digitalWrite(testPinPWM, LOW);
+            delay(500);
+        }
+    noInterrupts();
+    delay(1000);
+    interrupts();
 }
 
 #endif
@@ -308,28 +309,28 @@ void loop()
 void setup()
 {
     DEBUG("Tone Test\r\n");
-   pinMode(LED_PIN, OUTPUT);
-pinMode(TEST_PIN,INPUT_PULLUP);
-Serial.begin(115200);
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(TEST_PIN,INPUT_PULLUP);
+    Serial.begin(115200);
 }
 
 
 // the loop function runs over and over again forever
 void loop()
 {
-//   if(digitalRead(TEST_PIN)== 1)
-//    {
-//        digitalWrite(LED_PIN,HIGH);
-//    }
-//    else
-//    {
-//        digitalWrite(LED_PIN,LOW);
-//    }
-     // digitalWrite(LED_PIN,LOW);
-      delay(100);
-     // digitalWrite(LED_PIN,HIGH);
-      delay(1000);
-      Serial.println("asdfgh");
+    //   if(digitalRead(TEST_PIN)== 1)
+    //    {
+    //        digitalWrite(LED_PIN,HIGH);
+    //    }
+    //    else
+    //    {
+    //        digitalWrite(LED_PIN,LOW);
+    //    }
+    // digitalWrite(LED_PIN,LOW);
+    delay(100);
+    // digitalWrite(LED_PIN,HIGH);
+    delay(1000);
+    Serial.println("asdfgh");
 }
 #endif
 
@@ -567,6 +568,9 @@ void loop()
 #define LED_PIN D6
 void setup()
 {
+    while(1){
+
+    }
     DEBUG("Nut analogRead digitalRead Test\r\n");
     pinMode(LED_PIN, OUTPUT);
     pinMode(D1, INPUT);
@@ -605,7 +609,7 @@ void loop()
 }
 #endif
 
-#if 1 
+#if 1
 
 #define LED_PIN D6
 #define PWM_PIN D1
@@ -737,7 +741,7 @@ char temp[128] = {'a', 'b', 'c','3', '2', '1', '0'};
 void setup()
 {
     DEBUG("SPI Test\r\n");
-   // pinMode(LED_PIN, OUTPUT);
+    // pinMode(LED_PIN, OUTPUT);
 #ifdef SSD1307
     display.begin(SSD1306_SWITCHCAPVCC);
     display.setTextSize(1);
@@ -766,9 +770,9 @@ void loop()
     display.setCursor(0,0);
     display.println(temp);
     display.display();
- //   digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //   digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);                   // wait for a second
-  //  digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
+    //  digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
 #else
     SPI.transfer(0xAA);
@@ -779,4 +783,3 @@ void loop()
 #endif
 }
 #endif
-

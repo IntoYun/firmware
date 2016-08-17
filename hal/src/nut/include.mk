@@ -22,6 +22,6 @@ endif
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
 LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
-LIBS += m gcc hal phy pp net80211 wpa crypto main wps axtls smartconfig airkiss mesh wpa2 lwip_gcc stdc++
+LIBS += m gcc halhal phy pp net80211 wpa crypto main wps axtls smartconfig airkiss mesh wpa2 lwip_gcc stdc++
 
 endif
