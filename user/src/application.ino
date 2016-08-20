@@ -1,8 +1,34 @@
-#if 0
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #include "application.h"
 
+
+#define LED_PIN  36
+
+void setup()
+{
+    DEBUG("system clock = %d",SystemCoreClock);
+    pinMode(LED_PIN, OUTPUT);
+  //  EEPROM.write(89,20);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    DEBUG("loop");
+    digitalWrite(LED_PIN, LOW);
+    delay(100);
+    digitalWrite(LED_PIN, HIGH);
+    delay(900);
+   // DEBUG("eeprom val = %d",EEPROM.read(89));
+   // delay(100);
+   // EEPROM.write(89,123);
+   // delay(1000);
+   // DEBUG("eeprom val1 = %d",EEPROM.read(89));
+   // while(1);
+}
+
+#if 0
 #define LED_PIN  36
 uint8_t count;
 void countISR(void)
@@ -681,7 +707,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 #define LED_PIN  D7
 
 void setup()
@@ -698,5 +724,3 @@ void loop()
     delay(1000);
 }
 #endif
-
-
