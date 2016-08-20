@@ -40,7 +40,6 @@
  * NC = Not Connected to Module Pads --> No Access
  *
  */
-#include "Arduino.h"
 #include "uart.h"
 #include "esp8266_peri.h"
 #include "user_interface.h"
@@ -165,16 +164,16 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
         if(uart->tx_enabled) {
             if (tx_pin == 2) {
                 uart->tx_pin = 2;
-                pinMode(uart->tx_pin, FUNCTION_4);
+                //pinMode(uart->tx_pin, FUNCTION_4);
             } else {
                 uart->tx_pin = 1;
-                pinMode(uart->tx_pin, FUNCTION_0);
+                //pinMode(uart->tx_pin, FUNCTION_0);
             }
         } else {
             uart->tx_pin = 255;
         }
         if(uart->rx_enabled) {
-            pinMode(uart->rx_pin, SPECIAL);
+            //pinMode(uart->rx_pin, SPECIAL);
         }
         IOSWAP &= ~(1 << IOSWAPU0);
         break;
@@ -208,6 +207,7 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
 
 void uart_uninit(uart_t* uart)
 {
+    /*
     if(uart == NULL) {
         return;
     }
@@ -234,10 +234,12 @@ void uart_uninit(uart_t* uart)
     }
 
     free(uart);
+    */
 }
 
 void uart_swap(uart_t* uart, int tx_pin)
 {
+    /*
     if(uart == NULL) {
         return;
     }
@@ -284,10 +286,12 @@ void uart_swap(uart_t* uart, int tx_pin)
     default:
         break;
     }
+    */
 }
 
 void uart_set_tx(uart_t* uart, int tx_pin)
 {
+    /*
     if(uart == NULL) {
         return;
     }
@@ -312,6 +316,7 @@ void uart_set_tx(uart_t* uart, int tx_pin)
     default:
         break;
     }
+    */
 }
 
 void uart_set_pins(uart_t* uart, int tx, int rx)

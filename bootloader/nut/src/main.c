@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "flash.h"
 #include "eboot_command.h"
+#include "params_hal.h"
 
 #define SWRST do { (*((volatile uint32_t*) 0x60000700)) |= 0x80000000; } while(0);
 
@@ -105,10 +106,14 @@ int copy_raw(const uint32_t src_addr,
     return 0;
 }
 
-void main()
+int main()
 {
     int res = 9, count=3;
     struct eboot_command cmd;
+
+    // load params
+    //HAL_PARAMS_Load_System_Params();
+    //HAL_PARAMS_Load_Boot_Params();
 
     eboot_command_read(&cmd);
     if (cmd.action == ACTION_COPY_RAW){

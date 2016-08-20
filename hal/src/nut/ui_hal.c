@@ -26,8 +26,10 @@ volatile uint32_t TimingBUTTON=0;
 volatile uint32_t TimingLED;
 volatile rgb_info_t rgb_info;
 
-void Set_RGB_Color(uint32_t color)
-{
+void Set_RGB_Color(uint32_t color) {
+}
+
+void RGB_Color_Toggle(void) {
 }
 
 void HAL_UI_Initial(void)

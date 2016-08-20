@@ -37,8 +37,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888002"
-#define INTOROBOT_BOARD_TYPE1    "887002"
+#define INTOROBOT_BOARD_TYPE    "888003"
+#define INTOROBOT_BOARD_TYPE1    "887003"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -95,7 +95,7 @@ void init_fac_system_params(system_params_t *psystem_params) {
 }
 
 void read_boot_params(boot_params_t *pboot_params) {
-    uint32_t len = sizeof(boot_params_t);
+/*    uint32_t len = sizeof(boot_params_t);
     uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
     uint8_t *pboot = (uint8_t *)pboot_params;
 
@@ -107,13 +107,14 @@ void read_boot_params(boot_params_t *pboot_params) {
     for (int num = 0; num<len; num++) {
         pboot[num] = HAL_EEPROM_Read(address+num);
     }
+    */
 }
 
 /*
  * 保存bootloader参数区
  * */
 void save_boot_params(boot_params_t *pboot_params) {
-    uint32_t len = sizeof(boot_params_t);
+/*    uint32_t len = sizeof(boot_params_t);
     uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
     uint8_t *pboot = (uint8_t *)pboot_params;
 
@@ -124,6 +125,7 @@ void save_boot_params(boot_params_t *pboot_params) {
     for (int num = 0; num<len; num++) {
         HAL_EEPROM_Write(address+num, pboot[num]);
     }
+    */
 }
 
 /*

@@ -18,6 +18,7 @@
 */
 
 #include "wiring_constants.h"
+#include "wiring_arduino.h"
 #include "system_mqttclient.h"
 #include "wiring.h"
 #include "stdint.h"
@@ -393,7 +394,7 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
     }
     return false;
 }
-/*
+
 boolean MqttClientClass::publish_P(const char* topic, const uint8_t* payload, unsigned int plength, boolean retained) {
     uint8_t llen = 0;
     uint8_t digit;
@@ -438,7 +439,7 @@ boolean MqttClientClass::publish_P(const char* topic, const uint8_t* payload, un
 
     return rc == tlen + 4 + plength;
 }
-*/
+
 boolean MqttClientClass::write(uint8_t header, uint8_t* buf, uint16_t length) {
     uint8_t lenBuf[4];
     uint8_t llen = 0;
