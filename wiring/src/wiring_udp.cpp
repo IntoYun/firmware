@@ -63,21 +63,58 @@ void UDP::releaseBuffer()
 
 uint8_t UDP::begin(uint16_t port, network_interface_t nif)
 {
+    return begin(IPADDR_BROADCAST, 5557, port, nif);
+}
+
+uint8_t UDP::begin(const char *host, uint16_t port, uint16_t localport, network_interface_t nif)
+{
+    if(Network.from(_nif).ready())
+    {
+        HAL_IPAddress ip_addr;
+
+        if(inet_gethostbyname((char*)host, strlen(host), &ip_addr, _nif, NULL) == 0)
+        {
+            IPAddress remote_addr(ip_addr);
+            return begin(remote_addr, port, localport, nif);
+        }
+    }
+    return 0;
+}
+
+uint8_t UDP::begin(IPAddress ip, uint16_t port, uint16_t localport, network_interface_t nif)
+{
     bool bound = 0;
     if(Network.from(nif).ready())
     {
-       _sock = socket_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, port, nif);
+        sockaddr_t tSocketAddr;
+        _sock = socket_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, localport, nif);
         DEBUG("socket=%d",_sock);
         if (socket_handle_valid(_sock))
         {
             flush();
+
+            tSocketAddr.sa_family = AF_INET;
+
+            tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
+            tSocketAddr.sa_data[1] = (port & 0x00FF);
+
+            tSocketAddr.sa_data[2] = ip[0];        // Todo IPv6
+            tSocketAddr.sa_data[3] = ip[1];
+            tSocketAddr.sa_data[4] = ip[2];
+            tSocketAddr.sa_data[5] = ip[3];
+
+            uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
+            DEBUG("_sock %d connect",_sock);
+            bound = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
+            DEBUG("_sock %d connected=%d",_sock, bound);
+            HAL_NET_SetNetWatchDog(ot);
+            _remoteIP = ip;
+            _remotePort = port;
             _port = port;
-            _nif = nif;
-            bound = true;
-        }
-        else {
-            stop();
-            bound = false;
+            if(!bound)
+            {
+                stop();
+            }
         }
     }
     return bound;
@@ -212,9 +249,9 @@ int UDP::read(unsigned char* buffer, size_t len)
     int read = -1;
     if (available())
     {
-    read = min(int(len), available());
-      memcpy(buffer, &_buffer[_offset], read);
-      _offset += read;
+        read = min(int(len), available());
+        memcpy(buffer, &_buffer[_offset], read);
+        _offset += read;
     }
     return read;
 }

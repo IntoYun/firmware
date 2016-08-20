@@ -136,12 +136,6 @@ void network_setup(network_handle_t network, uint32_t flags, void* reserved)
     nif(network).setup();
 }
 
-// These are internal methods
-void manage_smart_config()
-{
-    //network.listen_loop();
-}
-
 void manage_ip_config()
 {
     nif(0).update_config();

@@ -42,8 +42,8 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     uint32_t header;          // 系统标志参数区标志  固定为0x5AA5F66F
-    char     fw_version[24];       // 固件版本号
-    char     net_version[24];      // NET模块版本号
+    char     fwlib_ver[24];        // 固件库版本号
+    char     subsys_ver[24];       // 子系统模块版本号
     uint8_t  reserverd[96];        // 版本号预留区 每添加一个版本号，预留区大小减1
     uint8_t  config_flag;          // 是否进入配置模式  0:不进入  1:进入
     uint8_t  ota_flag;             // 是否上报在线升级成功状态   0:不上报  1:上报

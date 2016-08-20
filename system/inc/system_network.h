@@ -22,7 +22,7 @@
  */
 
 #ifndef SYSTEM_NETWORK_H
-#define	SYSTEM_NETWORK_H
+#define SYSTEM_NETWORK_H
 
 #include "inet_hal.h"
 #include "wlan_hal.h"

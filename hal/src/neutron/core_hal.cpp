@@ -34,7 +34,9 @@
 #include "stm32f4xx_it.h"
 #include "service_debug.h"
 #include "concurrent_hal.h"
+#include "params_hal.h"
 #include "parser.h"
+#include "eeprom_hal.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -119,14 +121,13 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-//    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
+    DECLARE_SYS_HEALTH(ENTERED_Config);
     Set_System();
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
-    //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
 #endif
-
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     for (pin_t pin=D0; pin<=D7; pin++)
@@ -134,13 +135,12 @@ void HAL_Core_Config(void)
     for (pin_t pin=A0; pin<=A7; pin++)
 //        HAL_Pin_Mode(pin, INPUT);
 #endif
-
     HAL_RTC_Initial();
     HAL_RNG_Initial();
-
     HAL_IWDG_Initial();
-    HAL_UI_RGB_Initial();
-    HAL_UI_RGB_Color(255, 255, 255);
+    HAL_UI_Initial();
+    HAL_EEPROM_Init();
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
 }
 
 void HAL_Core_Setup(void)
@@ -148,7 +148,7 @@ void HAL_Core_Setup(void)
     esp8266MDM.init();
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
-    HAL_Bootloader_Lock(true);
+    //HAL_Bootloader_Lock(true);
 }
 
 void HAL_Core_System_Reset(void)
@@ -156,19 +156,69 @@ void HAL_Core_System_Reset(void)
     NVIC_SystemReset();
 }
 
-void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
+void HAL_Core_Enter_DFU_Mode(bool persist)
 {
-    if (HAL_Feature_Get(FEATURE_RESET_INFO))
+    // true  - DFU mode persist if firmware upgrade is not completed
+    // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
+    //         Subsequent reset or power off-on will execute normal firmware
+    if (persist)
     {
-        // Save reset info to backup registers
-        //RTC_WriteBackupRegister(RTC_BKP_DR2, reason);
-        //RTC_WriteBackupRegister(RTC_BKP_DR3, data);
+        HAL_PARAMS_Set_Boot_boot_flag(6);
+        HAL_PARAMS_Save_Params();
+    }
+    else
+    {
+        HAL_Core_Write_Backup_Register(BKP_DR_01, 0x7DEA);
     }
     HAL_Core_System_Reset();
 }
 
-void HAL_Core_Factory_Reset(void)
+void HAL_Core_Enter_Config_Mode(void)
 {
+    HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
+}
+
+void HAL_Core_Enter_Firmware_Recovery_Mode(void)
+{
+    HAL_PARAMS_Set_Boot_boot_flag(1);
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
+}
+
+void HAL_Core_Enter_Com_Mode(void)
+{
+    HAL_PARAMS_Set_Boot_boot_flag(2);
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
+}
+/**
+ * 恢复出厂设置 不清除密钥
+ */
+
+void HAL_Core_Enter_Factory_Reset_Mode(void)
+{
+    HAL_PARAMS_Set_Boot_boot_flag(3);
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
+}
+
+void HAL_Core_Enter_Ota_Update_Mode(void)
+{
+    HAL_PARAMS_Set_Boot_boot_flag(4);
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
+}
+
+/**
+ * 恢复出厂设置 清除密钥
+ */
+void HAL_Core_Enter_Factory_All_Reset_Mode(void)
+{
+    HAL_PARAMS_Set_Boot_boot_flag(5);
+    HAL_PARAMS_Save_Params();
+    HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Safe_Mode(void* reserved)
@@ -179,56 +229,25 @@ void HAL_Core_Enter_Bootloader(bool persist)
 {
 }
 
-void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds)
+uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-}
+    char temp[32];
+    uint16_t templen;
 
-void HAL_Core_Execute_Stop_Mode(void)
-{
-}
-
-void HAL_Core_Enter_Standby_Mode(void)
-{
-}
-
-void HAL_Core_Execute_Standby_Mode(void)
-{
-}
-
-uint32_t HAL_Core_Compute_CRC32(const uint8_t *pBuffer, uint32_t bufferSize)
-{
+    if (buffer!=NULL && len>0) {
+        if(esp8266MDM.getNetVersion(temp))
+        templen = MIN(strlen(temp), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, temp, templen);
+        return templen;
+    }
     return 0;
-}
-
-void HAL_Bootloader_Lock(bool lock)
-{
-}
-
-unsigned HAL_Core_System_Clock(HAL_SystemClock clock, void* reserved)
-{
-    return 1;
-}
-
-int HAL_Feature_Set(HAL_Feature feature, bool enabled)
-{
-    return -1;
-}
-
-bool HAL_Feature_Get(HAL_Feature feature)
-{
-    return false;
-}
-
-int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length)
-{
-    return -1;
 }
 
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {
    //APP_LineCodingBitRateHandler = handler;
 }
-
 
 /**
  * @brief  This function handles SysTick Handler.
@@ -243,5 +262,6 @@ void SysTick_Handler(void)
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();
+    HAL_UI_SysTick_Handler();
     //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }

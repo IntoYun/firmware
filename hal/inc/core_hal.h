@@ -120,28 +120,18 @@ int atexit(void (*func)()) __attribute__((weak));
 void HAL_Core_Init(void);
 void HAL_Core_Config(void);
 bool HAL_Core_Validate_User_Module(void);
-bool HAL_Core_Mode_Button_Pressed(uint16_t pressedMillisDuration);
-void HAL_Core_Mode_Button_Reset(void);
 void HAL_Core_System_Reset(void);
-void HAL_Core_Factory_Reset(void);
+void HAL_Core_Enter_DFU_Mode(bool persist);
+void HAL_Core_Enter_Config_Mode(void);
+void HAL_Core_Enter_Firmware_Recovery_Mode(void);
+void HAL_Core_Enter_Com_Mode(void);
+void HAL_Core_Enter_Factory_Reset_Mode(void);
+void HAL_Core_Enter_Ota_Update_Mode(void);
+void HAL_Core_Enter_Factory_All_Reset_Mode(void);
 
-void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved);
-int HAL_Core_Get_Last_Reset_Info(int *reason, uint32_t *data, void *reserved);
-
-/**
- * Notification from hal to the external system.
- * @param button    The button that was pressed, 0-based
- * @param state     The current state of the button.
- */
-void HAL_Notify_Button_State(uint8_t button, uint8_t state);
 
 void HAL_Core_Enter_Safe_Mode(void* reserved);
 void HAL_Core_Enter_Bootloader(bool persist);
-void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds);
-void HAL_Core_Execute_Stop_Mode(void);
-void HAL_Core_Enter_Standby_Mode(void);
-void HAL_Core_Execute_Standby_Mode(void);
-uint32_t HAL_Core_Compute_CRC32(const uint8_t *pBuffer, uint32_t bufferSize);
 
 typedef enum _BootloaderFlag_t {
     BOOTLOADER_FLAG_VERSION,
@@ -156,8 +146,6 @@ enum BootloaderFeaturesEnabled
     BL_BUTTON_FEATURES = (BL_FEATURE_SAFE_MODE|BL_FEATURE_DFU_MODE|BL_FEATURE_FACTORY_RESET)
 };
 
-
-
 uint16_t HAL_Bootloader_Get_Flag(BootloaderFlag flag);
 
 //Following is currently defined in bootloader/src/core-vx/dfu_hal.c
@@ -169,6 +157,7 @@ void HAL_Core_Set_System_Loop_Handler(void (*handler)(void));
 void HAL_SysTick_Handler(void);
 
 void HAL_Bootloader_Lock(bool lock);
+uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len);
 
 bool HAL_Core_System_Reset_FlagSet(RESET_TypeDef resetType);
 

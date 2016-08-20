@@ -180,21 +180,14 @@ typedef struct {
  * @return 0 on success.
  */
 int wlan_set_credentials(WLanCredentials* credentials);
-
 /**
- * Initialize smart config mode.
+ * Initialize imlink config mode.
  */
-void wlan_smart_config_init();
-void wlan_smart_config_cleanup();
+void wlan_Imlink_start();
+void wlan_Imlink_stop();
+imlink_status_t wlan_Imlink_get_status();
 
 void wlan_set_error_count(uint32_t error_count);
-
-
-/**
- * Finalize after profiles established.
- * @return true the wifi profiles were changed
- */
-bool wlan_smart_config_finalize();
 
 /**
  * Retrieve IP address info. Available after HAL_WLAN_notify_dhcp() has been callted.
@@ -205,13 +198,6 @@ void wlan_fetch_ipconfig(WLanConfig* config);
  * Called once at startup to initialize the wlan hardware.
  */
 void wlan_setup();
-
-void welan_set_error_count();
-
-void SPARK_WLAN_SmartConfigProcess();
-
-void HAL_WLAN_notify_simple_config_done();
-
 
 /**
  * Select the Wi-Fi antenna.

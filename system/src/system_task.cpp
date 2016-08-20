@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 #include "wiring_platform.h"
-#include "wiring_system.h"
+//#include "wiring_system.h"
 #include "system_task.h"
 #include "system_cloud.h"
 #include "system_mode.h"
@@ -25,6 +25,7 @@
 #include "system_network_internal.h"
 #include "system_update.h"
 #include "system_rgbled.h"
+#include "system_config.h"
 #include "intorobot_macros.h"
 #include "string.h"
 #include "system_tick_hal.h"
@@ -32,6 +33,7 @@
 #include "wlan_hal.h"
 #include "delay_hal.h"
 #include "timer_hal.h"
+#include "params_hal.h"
 #include "service_debug.h"
 
 #include "wiring_network.h"
@@ -100,7 +102,12 @@ void Network_Setup(void)
     {
         network.connect();
     }
+    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     network_connection_attempt_init();
+#endif
+
+#if !SPARK_NO_CLOUD
+    intorobot_cloud_init();
 #endif
 }
 
@@ -109,10 +116,7 @@ void Network_Setup(void)
  */
 void manage_serial_flasher()
 {
-    if(SPARK_FLASH_UPDATE == 3)
-    {
-        system_firmwareUpdate(&Serial);
-    }
+
 }
 
 /**
@@ -129,7 +133,7 @@ void manage_network_connection()
     if (network.status()) {
         DEBUG_D("network connected\r\n");
         if(!was_connected) {
-            //system_rgb_blink(0, 0, 255, 1000);//蓝灯闪烁
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }
     }
     else
@@ -137,7 +141,7 @@ void manage_network_connection()
         DEBUG_D("network connection failed\r\n");
         if(was_connected) {
             g_intorobot_cloud_connected = 0;
-            //system_rgb_blink(0, 255, 0, 1000);	//尝试联网绿灯闪烁
+            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }
     }
     network_connection_attempted();
@@ -167,7 +171,7 @@ void establish_cloud_connection(void)
                 DEBUG_D("Cloud connected\r\n");
                 g_intorobot_cloud_connected = 1;
                 cloud_failed_connection_attempts = 0;
-                //system_rgb_blink(255, 255, 255, 2000);          //白灯闪烁
+                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }
             else
             {
@@ -191,7 +195,7 @@ void handle_cloud_connection(void)
                 DEBUG_D("Cloud disconnected\r\n");
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
-                //system_rgb_blink(0, 0, 255, 1000);
+                system_rgb_blink(RGB_COLOR_BLUE, 1000);
             }
         }
     }
@@ -211,33 +215,42 @@ void manage_cloud_connection(void)
 }
 #endif
 
+// These are internal methods
+void manage_imlink_config()
+{
+    if(HAL_PARAMS_Get_System_config_flag())
+    {
+        DEBUG_D(("enter device config\r\n"));
+        system_rgb_blink(RGB_COLOR_RED, 1000);
+        DeviceConfigUsb.init();
+        DeviceConfigUdp.init();
+        while(1)
+        {
+            if(DeviceConfigUsb.process()||DeviceConfigUdp.process())
+            {
+                break;
+            }
+        }
+        DEBUG_D(("exit  device config\r\n"));
+        HAL_PARAMS_Set_System_config_flag(0);
+        HAL_PARAMS_Save_Params();
+    }
+}
+
 void system_process_loop(void)
 {
-    //DEBUG_D("system_process_loop\r\n");
 #if PLATFORM_THREADING
     while (1) {
 #endif
-        /*
         manage_serial_flasher();
 
         manage_network_connection();
 
-        manage_smart_config();
-
         manage_ip_config();
 
         CLOUD_FN(manage_cloud_connection(), (void)0);
-
-        //DEBUG_D("process_loop");
-        */
 #if PLATFORM_THREADING
     }
 #endif
-}
-
-void ui_process_loop(void)
-{
-    DEBUG_D("ui_process_loop\r\n");
-
 }
 

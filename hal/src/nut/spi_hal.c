@@ -26,6 +26,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "spi_hal.h"
 #include "Arduino.h"
+#include "service_debug.h"
 
 #define SPI_HAS_TRANSACTION
 
@@ -174,64 +175,26 @@ void setFrequency(uint32_t freq) {
 
 }
 
-inline void setDataBits(uint16_t bits) {
-    const uint32_t mask = ~((SPIMMOSI << SPILMOSI) | (SPIMMISO << SPILMISO));
-    bits--;
-    SPI1U1 = ((SPI1U1 & mask) | ((bits << SPILMOSI) | (bits << SPILMISO)));
-}
-
-uint8_t transfer(uint8_t data) {
-    while(SPI1CMD & SPIBUSY) {}
-    // reset to 8Bit mode
-    setDataBits(8);
-    SPI1W0 = data;
-    SPI1CMD |= SPIBUSY;
-    while(SPI1CMD & SPIBUSY) {}
-    return (uint8_t) (SPI1W0 & 0xff);
-}
-
-void HAL_SPI_Initial(HAL_SPI_Interface spi)
-{
-    useHwCs = false;
-}
-
-void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
-{
-    HAL_Pin_Mode(SCK, SPECIAL);  ///< GPIO14
-    HAL_Pin_Mode(MISO, SPECIAL); ///< GPIO12
-    HAL_Pin_Mode(MOSI, SPECIAL); ///< GPIO13
-
-    SPI1C = 0;
-    setFrequency(1000000); ///< 1MHz
-    setBitOrder(LSBFIRST);
-    setDataMode(SPI_MODE0);
-    SPI1U = SPIUMOSI | SPIUDUPLEX | SPIUSSE;
-    SPI1U1 = (7 << SPILMOSI) | (7 << SPILMISO);
-    SPI1C1 = 0;
-}
-
-void HAL_SPI_End(HAL_SPI_Interface spi)
-{
-    HAL_Pin_Mode(SCK, INPUT);
-    HAL_Pin_Mode(MISO, INPUT);
-    HAL_Pin_Mode(MOSI, INPUT);
-    if(useHwCs) {
-        HAL_Pin_Mode(SS, INPUT);
-    }
-
-}
-
-void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
+void setBitOrder(uint8_t bitOrder)
 {
     if(bitOrder == MSBFIRST) {
         SPI1C &= ~(SPICWBO | SPICRBO);
     } else {
         SPI1C |= (SPICWBO | SPICRBO);
     }
+
 }
 
-void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
+
+void setDataMode(uint8_t dataMode)
 {
+    /**
+     SPI_MODE0 0x00 - CPOL: 0  CPHA: 0
+     SPI_MODE1 0x01 - CPOL: 0  CPHA: 1
+     SPI_MODE2 0x10 - CPOL: 1  CPHA: 0
+     SPI_MODE3 0x11 - CPOL: 1  CPHA: 1
+     */
+
     bool CPOL = (dataMode & 0x10); ///< CPOL (Clock Polarity)
     bool CPHA = (dataMode & 0x01); ///< CPHA (Clock Phase)
 
@@ -250,14 +213,79 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
 }
 
 
+inline void setDataBits(uint16_t bits) {
+    const uint32_t mask = ~((SPIMMOSI << SPILMOSI) | (SPIMMISO << SPILMISO));
+    bits--;
+    SPI1U1 = ((SPI1U1 & mask) | ((bits << SPILMOSI) | (bits << SPILMISO)));
+}
+
+uint8_t transfer(uint8_t data) {
+    while(SPI1CMD & SPIBUSY) {}
+    // reset to 8Bit mode
+    setDataBits(8);
+    SPI1W0 = data;
+    SPI1CMD |= SPIBUSY;
+    while(SPI1CMD & SPIBUSY) {}
+    return (uint8_t) (SPI1W0 & 0xff);
+}
+
+void HAL_SPI_Initial(HAL_SPI_Interface spi)
+{
+    DEBUG("Enter HAL_SPI_Initial...");
+    useHwCs = false;
+}
+
+void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
+{
+    DEBUG("Enter HAL_SPI_Begin...");
+    HAL_Pin_Mode(SCK, SPECIAL);  ///< GPIO14
+    HAL_Pin_Mode(MISO, SPECIAL); ///< GPIO12
+    HAL_Pin_Mode(MOSI, SPECIAL); ///< GPIO13
+
+    SPI1C = 0;
+    setFrequency(1000000); ///< 1MHz
+    setBitOrder(LSBFIRST);
+    setDataMode(SPI_MODE0);
+    SPI1U = SPIUMOSI | SPIUDUPLEX | SPIUSSE;
+    SPI1U1 = (7 << SPILMOSI) | (7 << SPILMISO);
+    SPI1C1 = 0;
+}
+
+void HAL_SPI_End(HAL_SPI_Interface spi)
+{
+    DEBUG("Enter HAL_SPI_End...");
+    HAL_Pin_Mode(SCK, INPUT);
+    HAL_Pin_Mode(MISO, INPUT);
+    HAL_Pin_Mode(MOSI, INPUT);
+    if(useHwCs) {
+        HAL_Pin_Mode(SS, INPUT);
+    }
+
+}
+
+void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
+{
+    DEBUG("Enter HAL_SPI_Set_Bit_Order...");
+    setBitOrder(bitOrder);
+}
+
+void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
+{
+    DEBUG("Enter HAL_SPI_Set_Data_Mode...");
+    setDataMode(dataMode);
+ }
+
+
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
+    DEBUG("Enter HAL_SPI_Set_Clock_Mode...");
     setClockDivider(rate);
 }
 
 
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
+    //DEBUG("Enter HAL_SPI_Send_Receive_Mode...");
     return transfer((uint8_t)data);
 }
 

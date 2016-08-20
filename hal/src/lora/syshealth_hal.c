@@ -1,18 +1,16 @@
-
 #include "syshealth_hal.h"
+#include "core_hal.h"
 
-eSystemHealth sys_health_cache;
-
-void HAL_Set_Sys_Health(eSystemHealth health) {
-    if (health>sys_health_cache)
-    {
-        sys_health_cache = health;
-    }
-}
 
 eSystemHealth HAL_Get_Sys_Health() {
-    return sys_health_cache;
+    return  (eSystemHealth)HAL_Core_Read_Backup_Register(BKP_DR_02);
 }
 
-
+void HAL_Set_Sys_Health(eSystemHealth health) {
+    static eSystemHealth cache;
+    if (health>cache) {
+        cache = health;
+        HAL_Core_Write_Backup_Register(BKP_DR_02, health);
+    }
+}
 

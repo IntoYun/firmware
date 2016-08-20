@@ -63,3 +63,4 @@ void GY30::Write(uint8_t regAddress)
     Wire.write(regAddress); // send address
     Wire.endTransmission();
 }
+

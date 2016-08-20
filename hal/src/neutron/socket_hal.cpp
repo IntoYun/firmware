@@ -117,10 +117,13 @@ sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
 
 sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, sockaddr_t* addr, socklen_t addr_size)
 {
+    return esp8266MDM.socketSend(sd, (const char*)buffer, len);
+    /*
     const uint8_t* addr_data = addr->sa_data;
     uint16_t port = addr_data[0]<<8 | addr_data[1];
     MDM_IP ip = IPADR(addr_data[2], addr_data[3], addr_data[4], addr_data[5]);
     return esp8266MDM.socketSendTo(sd, ip, port, (const char*)buffer, len);
+    */
 }
 
 inline bool is_valid(sock_handle_t handle) {

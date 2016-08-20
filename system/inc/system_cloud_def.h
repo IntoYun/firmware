@@ -60,9 +60,9 @@
 #define INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_FAIL    "21"  //token update failed
 #define INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_SUCC    "22"  //token update success
 
-#define INTOROBOT_MQTT_RESPONSE_RESET_READY          "30"  //ready system reset
-#define INTOROBOT_MQTT_RESPONSE_RESET_FAIL           "31"  //system reset failed
-#define INTOROBOT_MQTT_RESPONSE_RESET_SUCC           "32"  //system reset success
+#define INTOROBOT_MQTT_RESPONSE_REBOOT_READY         "30"  //ready system reboot
+#define INTOROBOT_MQTT_RESPONSE_REBOOT_FAIL          "31"  //system reboot failed
+#define INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC          "32"  //system reboot success
 
 //notify json response
 #define INTOROBOT_MQTT_RESPONSE_JSON_TOPIC   "platform/default/info/json"
@@ -96,8 +96,8 @@
 #define INTOROBOT_MQTT_SUB_CHANGE_TOKEN_TOPIC   "token/default/action/flash"
 #define INTOROBOT_MQTT_SUB_CHANGE_TOKEN_QOS     0
 
-#define INTOROBOT_MQTT_SUB_RESET_TOPIC   "firmware/default/action/reset"
-#define INTOROBOT_MQTT_SUB_RESET_QOS     0
+#define INTOROBOT_MQTT_SUB_REBOOT_TOPIC   "firmware/default/action/reset"
+#define INTOROBOT_MQTT_SUB_REBOOT_QOS     0
 
 #define INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC   "firmware/default/action/debug"
 #define INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_QOS     0

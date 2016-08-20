@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file    main.cpp
- * @author  Satish Nair, Zachary Crockett, Zach Supalla and Mohit Bhoite
+
  * @version V1.0.0
  * @date    13-March-2013
  *
@@ -9,21 +9,21 @@
  *
  * @brief   Main program body.
  ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+ Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this program; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
+ You should have received a copy of the GNU Lesser General Public
+ License along with this program; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
  */
 
 /* Includes ------------------------------------------------------------------*/
@@ -33,7 +33,6 @@
 #include "system_task.h"
 #include "system_network.h"
 #include "system_network_internal.h"
-//#include "system_cloud_internal.h"
 #include "system_sleep.h"
 #include "system_threading.h"
 #include "system_user.h"
@@ -44,145 +43,26 @@
 #include "watchdog_hal.h"
 #include "usb_hal.h"
 #include "system_mode.h"
-#include "ui_hal.h"
+#include "system_rgbled.h"
 #include "params_hal.h"
-//#include "ledcontrol.h"
-//#include "wiring_power.h"
-//#include "wiring_fuel.h"
 #include "wiring_interrupts.h"
 #include "wiring_cellular.h"
 #include "wiring_cellular_printable.h"
 #include "system_rgbled.h"
+#include "system_version.h"
 
 using namespace intorobot;
 
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-#if defined(DEBUG_BUTTON_WD)
-#define BUTTON_WD_DEBUG(x,...) DEBUG(x,__VA_ARGS__)
-#else
-#define BUTTON_WD_DEBUG(x,...)
-#endif
-
-static volatile uint32_t button_timeout_start;
-static volatile uint32_t button_timeout_duration;
-
-inline void ARM_BUTTON_TIMEOUT(uint32_t dur) {
-    button_timeout_start = HAL_Timer_Get_Milli_Seconds();
-    button_timeout_duration = dur;
-    BUTTON_WD_DEBUG("Button WD Set %d",(dur));
-}
-inline bool IS_BUTTON_TIMEOUT() {
-    return button_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-button_timeout_start)>button_timeout_duration);
-}
-
-inline void CLR_BUTTON_TIMEOUT() {
-    button_timeout_duration = 0;
-    BUTTON_WD_DEBUG("Button WD Cleared, was %d",button_timeout_duration);
-}
 
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static volatile uint32_t TimingLED;
-static volatile uint32_t TimingIWDGReload;
+volatile button_mode_t BUTTON_Mode = BUTTON_MODE_NONE;
+volatile uint32_t BUTTON_press_time;
 
-/**
- * When non-zero, causes the system to play out a count on the LED.
- * For even values, the system displays a bright color for a short period,
- * while for odd values the system displays a dim color for a longer period.
- * The value is then decremented and the process repeated until 0.
- */
-static volatile uint8_t SYSTEM_LED_COUNT;
-
-//RGBLEDState led_state;
-
-/**
- * KNowing the current listen mode isn't sufficient to determine the correct action (since that may or may not have changed)
- * we need also to know the listen mode at the time the button was pressed.
- */
-static volatile bool wasListeningOnButtonPress;
-/**
- * The lower 16-bits of the time when the button was first pressed.
- */
-static volatile uint16_t pressed_time;
-
-uint16_t system_button_pushed_duration(uint8_t button, void*)
-{
-    if (button || network.listening())
-        return 0;
-    return pressed_time ? HAL_Timer_Get_Milli_Seconds()-pressed_time : 0;
-}
-
-static volatile uint8_t button_final_clicks = 0;
-static uint8_t button_current_clicks = 0;
-
-void reset_button_click()
-{
-    const uint8_t clicks = button_current_clicks;
-    button_current_clicks = 0;
-    CLR_BUTTON_TIMEOUT();
-    if (clicks > 0) {
-        system_notify_event(button_final_click, clicks);
-        button_final_clicks = clicks;
-    }
-}
-
-void handle_button_click(uint16_t depressed_duration)
-{
-    bool reset = true;
-    if (depressed_duration < 30) { // Likely a spurious click due to switch bouncing
-        reset = false;
-    } else if (depressed_duration < 500) { // a short button press
-        button_current_clicks++;
-        if (button_current_clicks < 5) { // 5 clicks "ought to be enough for anybody"
-            // If next button click doesn't come within 1 second, declare a
-            // final button click.
-            ARM_BUTTON_TIMEOUT(1000);
-            reset = false;
-        }
-        system_notify_event(button_click, button_current_clicks);
-    }
-    if (reset) {
-        reset_button_click();
-    }
-}
-
-// this is called on multiple threads - ideally need a mutex
-void HAL_Notify_Button_State(uint8_t button, uint8_t pressed)
-{
-    if (button==0)
-    {
-        if (pressed)
-        {
-            wasListeningOnButtonPress = network.listening();
-            pressed_time = HAL_Timer_Get_Milli_Seconds();
-            if (!wasListeningOnButtonPress)             // start of button press
-            {
-                system_notify_event(button_status, 0);
-            }
-        }
-        else
-        {
-            int release_time = HAL_Timer_Get_Milli_Seconds();
-            uint16_t depressed_duration = release_time - pressed_time;
-
-            if (!network.listening()) {
-                system_notify_event(button_status, depressed_duration);
-                handle_button_click(depressed_duration);
-            }
-            pressed_time = 0;
-            if (depressed_duration>3000 && depressed_duration<8000 && wasListeningOnButtonPress && network.listening())
-                network.listen(true);
-        }
-    }
-}
-
-inline bool system_led_override()
-{
-	return SYSTEM_LED_COUNT;
-}
 
 /*******************************************************************************
  * Function Name  : HAL_SysTick_Handler
@@ -194,161 +74,78 @@ inline bool system_led_override()
  *******************************/
 extern "C" void HAL_SysTick_Handler(void)
 {
-#if 0
-    if (LED_RGB_IsOverRidden() && !system_led_override())
+    BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
+    if(BUTTON_press_time)
     {
-#ifndef SPARK_NO_CLOUD
-        if (LED_Spark_Signal != 0)
-        {
-            LED_Signaling_Override();
+        if( BUTTON_press_time > 30000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_RESET) {
+                BUTTON_Mode=BUTTON_MODE_RESET; //恢复出厂设置  清除密钥
+                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);//黄灯打开
+            }
         }
-#endif
-    }
-    else if (TimingLED != 0x00)
-    {
-        TimingLED--;
-    }
-    else if(SPARK_FLASH_UPDATE || Spark_Error_Count || network.listening())
-    {
-        //Do nothing
-    }
-    else if (SYSTEM_POWEROFF)
-    {
-        LED_SetRGBColor(RGB_COLOR_GREY);
-        LED_On(LED_RGB);
-    }
-    else if (SYSTEM_LED_COUNT)
-    {
-		SPARK_LED_FADE = 0;
-		if (SYSTEM_LED_COUNT==255)
-		{
-			// hold the LED on this color until the actual number of bars is set
-  			LED_SetRGBColor(0<<16 | 10<<8 | 0);
-    	        LED_On(LED_RGB);
-    			TimingLED = 100;
-		}
-		else if (SYSTEM_LED_COUNT & 128)
-		{
-			LED_SetRGBColor(0<<16 | 10<<8 | 0);
-			LED_On(LED_RGB);
-			TimingLED = 1000;
-			SYSTEM_LED_COUNT &= ~128;
-		}
-		else
-		{
-			--SYSTEM_LED_COUNT;
-			if (SYSTEM_LED_COUNT==0)
-			{
-				led_state.restore();
-			}
-			else if (!(SYSTEM_LED_COUNT&1))
-			{
-				LED_SetRGBColor(0<<16 | 255<<8 | 0);
-				LED_On(LED_RGB);
-				TimingLED = 40;
-			}
-			else
-			{
-				LED_SetRGBColor(0<<16 | 10<<8 | 0);
-				LED_On(LED_RGB);
-				TimingLED = SYSTEM_LED_COUNT==1 ? 750 : 350;
-			}
-		}
-    }
-    else if(SPARK_LED_FADE && (!SPARK_CLOUD_CONNECTED || system_cloud_active()))
-    {
-        LED_Fade(LED_RGB);
-        TimingLED = 20;//Breathing frequency kept constant
-    }
-    else if(SPARK_CLOUD_CONNECTED)
-    {
-        LED_SetRGBColor(system_mode()==SAFE_MODE ? RGB_COLOR_MAGENTA : RGB_COLOR_CYAN);
-        LED_On(LED_RGB);
-        SPARK_LED_FADE = 1;
-    }
-    else
-    {
-        LED_Toggle(LED_RGB);
-        if(SPARK_CLOUD_SOCKETED || ( network.connected() && !network.ready()))
-            TimingLED = 50;         //50ms
-        else
-            TimingLED = 100;        //100ms
-    }
-
-    if(SPARK_FLASH_UPDATE)
-    {
-#ifndef SPARK_NO_CLOUD
-        if (TimingFlashUpdateTimeout >= TIMING_FLASH_UPDATE_TIMEOUT)
-        {
-            //Reset is the only way now to recover from stuck OTA update
-            HAL_Core_System_Reset();
+        else if( BUTTON_press_time > 20000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_NC) {
+                BUTTON_Mode=BUTTON_MODE_NC; //退出
+                HAL_UI_RGB_Color(RGB_COLOR_BLACK);//关灯
+            }
         }
-        else
-        {
-            TimingFlashUpdateTimeout++;
+        else if( BUTTON_press_time >  13000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_FAC) {
+                BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
+                HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
+            }
         }
-#endif
-    }
-    else if(network.listening() && HAL_Core_Mode_Button_Pressed(10000))
-    {
-        network.listen_command();
-    }
-    // determine if the button press needs to change the state (and hasn't done so already))
-    else if(!network.listening() && HAL_Core_Mode_Button_Pressed(3000) && !wasListeningOnButtonPress)
-    {
-        network.connect_cancel(true);
-        // fire the button event to the user, then enter listening mode (so no more button notifications are sent)
-        // there's a race condition here - the HAL_notify_button_state function should
-        // be thread safe, but currently isn't.
-        HAL_Notify_Button_State(0, false);
-        network.listen();
-        HAL_Notify_Button_State(0, true);
-    }
-
-#ifdef IWDG_RESET_ENABLE
-    if (TimingIWDGReload >= TIMING_IWDG_RELOAD)
-    {
-        TimingIWDGReload = 0;
-
-        /* Reload WDG counter */
-        HAL_Notify_WDT();
-        DECLARE_SYS_HEALTH(CLEARED_WATCHDOG);
-    }
-    else
-    {
-        TimingIWDGReload++;
-    }
-#endif
-
-    if (IS_BUTTON_TIMEOUT())
-    {
-        reset_button_click();
-    }
-#endif
-}
-
-void manage_safe_mode()
-{
-#if 0
-    uint16_t flag = (HAL_Bootloader_Get_Flag(BOOTLOADER_FLAG_STARTUP_MODE));
-    if (flag != 0xFF) { // old bootloader
-        if (flag & 1) {
-            set_system_mode(SAFE_MODE);
-            // explicitly disable multithreading
-            system_thread_set_state(spark::feature::DISABLED, NULL);
-            uint8_t value = 0;
-            system_get_flag(SYSTEM_FLAG_STARTUP_SAFE_LISTEN_MODE, &value, nullptr);
-            if (value)
-            {
-                // disable logging so that it doesn't interfere with serial output
-                set_logger_output(nullptr, NO_LOG_LEVEL);
-                system_set_flag(SYSTEM_FLAG_STARTUP_SAFE_LISTEN_MODE, 0, 0);
-                // flag listening mode
-                network_listen(0, 0, 0);
+        else if( BUTTON_press_time >  10000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_COM) {
+                BUTTON_Mode=BUTTON_MODE_COM;//进入串口转发程序
+                HAL_UI_RGB_Color(RGB_COLOR_BLUE);//蓝灯打开
+            }
+        }
+        else if( BUTTON_press_time >  7000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_DEFFW) {
+                BUTTON_Mode=BUTTON_MODE_DEFFW; //恢复默认出厂程序
+                HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
+            }
+        }
+        else if( BUTTON_press_time >  3000 ) {
+            if(BUTTON_Mode!=BUTTON_MODE_CONFIG) {
+                BUTTON_Mode=BUTTON_MODE_CONFIG; //wifi配置模式
+                HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
             }
         }
     }
-#endif
+    else
+    {
+        switch(BUTTON_Mode)
+        {
+            case BUTTON_MODE_CONFIG:
+                HAL_Core_Enter_Config_Mode();
+                break;
+
+            case BUTTON_MODE_DEFFW:
+                HAL_Core_Enter_Firmware_Recovery_Mode();
+                break;
+
+            case BUTTON_MODE_COM:
+                HAL_Core_Enter_Com_Mode();
+                break;
+
+            case BUTTON_MODE_FAC:
+                HAL_Core_Enter_Factory_Reset_Mode();
+                break;
+
+            case BUTTON_MODE_NC:
+                HAL_Core_System_Reset();
+                break;
+
+            case BUTTON_MODE_RESET:
+                HAL_Core_Enter_Factory_All_Reset_Mode();
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 void app_loop(void)
@@ -358,7 +155,6 @@ void app_loop(void)
 #if !PLATFORM_THREADING
     //system_process_loop();
 #endif
-    //DEBUG_D("app_loop\r\n");
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1))
     {
@@ -385,22 +181,42 @@ static void app_load_params(void)
     HAL_PARAMS_Load_System_Params();
     HAL_PARAMS_Load_Boot_Params();
     // check if need init params
-    if(1 == HAL_PARAMS_Get_InitParam_Flag()) //初始化参数 保留密钥
+    if(1 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
         DEBUG_D(("init params fac\r\n"));
         HAL_PARAMS_Init_Fac_System_Params();
     }
-    else if(1 == HAL_PARAMS_Get_InitParam_Flag()) //初始化所有参数
+    else if(2 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
         DEBUG_D(("init params all\r\n"));
-        HAL_PARAMS_Init_System_Params();
+        HAL_PARAMS_Init_All_System_Params();
     }
-    if(0 != HAL_PARAMS_Get_InitParam_Flag()) //初始化参数 保留密钥
+    if(0 != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        HAL_PARAMS_Set_InitParam_Flag(0);
+        HAL_PARAMS_Set_Boot_initparam_flag(0);
     }
-}
 
+    //保存子系统程序版本号
+    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
+    HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
+    HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
+    DEBUG_D("ver1=%s, ver2=%s\r\n", subsys_ver1, subsys_ver2);
+    if(strcmp(subsys_ver1, subsys_ver2))
+    {
+        HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+    }
+
+    //保存固件库版本号
+    char fw_ver1[32] = {0}, fw_ver2[32] = {0};
+    system_version(fw_ver1);
+    DEBUG_D("fwver1=%s\r\n", fw_ver1);
+    HAL_PARAMS_Get_System_fwlib_ver(fw_ver2, sizeof(fw_ver2));
+    if(strcmp(fw_ver1, fw_ver2))
+    {
+        HAL_PARAMS_Set_System_fwlib_ver(fw_ver1);
+    }
+    HAL_PARAMS_Save_Params();
+}
 /*******************************************************************************
  * Function Name  : main.
  * Description    : main routine.
@@ -416,6 +232,8 @@ void app_setup_and_loop_initial(void)
     // load params
     app_load_params();
 
+    set_system_mode(DEFAULT);
+
     DEBUG_D("welcome from IntoRobot!\r\n");
     String s = intorobot_deviceID();
     DEBUG_D("Device %s started\r\n", s.c_str());
@@ -423,6 +241,8 @@ void app_setup_and_loop_initial(void)
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
+    manage_imlink_config();
+
     Network_Setup();
 
 #if PLATFORM_THREADING
@@ -460,12 +280,12 @@ void app_setup_and_loop(void)
  *******************************************************************************/
 void assert_failed(uint8_t* file, uint32_t line)
 {
-	/* User can add his own implementation to report the file name and line number,
-	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line number,
+ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
-	/* Infinite loop */
-	while (1)
-	{
-	}
+    /* Infinite loop */
+    while (1)
+    {
+    }
 }
 #endif

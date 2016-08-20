@@ -29,7 +29,7 @@ GTAGS
 # 编译结果
 build/target/
 
-# 编译结果
+# 编译工具
 tools/dist/
 tools/gcc-arm-none-eabi/
 tools/xtensa-lx106-elf/

@@ -20,14 +20,31 @@
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_rgbled.h"
+#include "system_network.h"
+#include "system_network_internal.h"
 #include "params_hal.h"
 #include "core_hal.h"
+#include "wlan_hal.h"
 #include "wiring_wifi.h"
 
 using namespace intorobot;
 
-volatile uint8_t  smartconfig_over_flag = 0;
-volatile uint8_t  udp_read_flag = 0;
+static volatile uint32_t config_timeout_start;
+static volatile uint32_t config_timeout_duration;
+
+inline void ARM_CONFIG_TIMEOUT(uint32_t dur) {
+    config_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    config_timeout_duration = dur;
+    DEBUG("CONFIG WD Set %d",(dur));
+}
+inline bool IS_CONFIG_TIMEOUT() {
+    return config_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-config_timeout_start)>config_timeout_duration);
+}
+
+inline void CLR_CONFIG_TIMEOUT() {
+    config_timeout_duration = 0;
+    DEBUG("CONFIG WD Cleared, was %d", config_timeout_duration);
+}
 
 DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
     if(!strcmp(s,"hello")) {
@@ -114,7 +131,6 @@ bool DeviceConfig::process(void)
                 sendComfirm(200);
                 _isConfigSuccessful=true;
                 close();
-                delay(500);
                 break;
 
             case DEVICE_CONFIG_GET_WIFI_STATUS:      //查询wifi连接状态
@@ -197,16 +213,22 @@ void DeviceConfig::getDeviceBaseInfo(void)
     {return;}
 
     aJson.addNumberToObject(root, "status", 200);
-    char device_id[25], board[8];
-    if ( 0x01 != HAL_PARAMS_Get_At_Mode_Flag() ) {
+    char device_id[32], board[8];
+    if ( 0x01 != HAL_PARAMS_Get_System_at_mode() ) {
         HAL_Board_Type(board, sizeof(board), 1);
         aJson.addStringToObject(root, "board", (char *)board);
         aJson.addNumberToObject(root, "at_mode", 0);
     }
     else {
         HAL_Board_Type(board, sizeof(board), 0);
-        aJson.addStringToObject(root, "board", (char *)board);
-        HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+        HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+        if(!memcmp(board, device_id, 6)) {
+            aJson.addStringToObject(root, "board", (char *)board);
+        }
+        else {
+            HAL_Board_Type(board, sizeof(board), 1);
+            aJson.addStringToObject(root, "board", (char *)board);
+        }
         aJson.addStringToObject(root, "device_id", (char *)device_id);
         aJson.addNumberToObject(root, "at_mode", 1);
     }
@@ -299,45 +321,29 @@ void DeviceConfig::setDeviceBoundInfo(aJsonObject* value_Object)
         valuefloat = (Object->type==aJson_Int?(float)(Object->valueint):Object->valuefloat);
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
-        HAL_PARAMS_Set_Time_Zone(valuefloat);
+        HAL_PARAMS_Set_System_zone(valuefloat);
     }
+
     //device_id  and access_token
     Object = aJson.getObjectItem(value_Object, "device_id");
     Object1 = aJson.getObjectItem(value_Object, "access_token");
     if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
-        //device_id
-        valuestring = Object->valuestring;
-        len=strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_DeviceID(valuestring);
-        //access_token
-        valuestring = Object1->valuestring;
-        len=strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_AccessToken(valuestring);
-        HAL_PARAMS_Set_At_Mode_Flag(0x01);
+        HAL_PARAMS_Set_System_device_id(Object->valuestring);
+        HAL_PARAMS_Set_System_access_token(Object1->valuestring);
+        HAL_PARAMS_Set_System_at_mode(0x01);
     }
+
     //domain and port
     Object = aJson.getObjectItem(value_Object, "sv_domain");
     Object1 = aJson.getObjectItem(value_Object, "sv_port");
     Object2 = aJson.getObjectItem(value_Object, "dw_domain");
     if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL && Object2 != (aJsonObject* )NULL) {
-        //domain
-        valuestring = Object->valuestring;
-        len=strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_Server_Domain(valuestring);
-        //port
-        valueint = Object1->valueint;
-        HAL_PARAMS_Set_Server_Port(valueint);
-        //down domain
-        valuestring = Object2->valuestring;
-        len=strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_Down_Domain(valuestring);
-
-        HAL_PARAMS_Set_Server_Select_Flag(0x01);
+        HAL_PARAMS_Set_System_sv_domain(Object->valuestring);
+        HAL_PARAMS_Set_System_sv_port(Object1->valueint);
+        HAL_PARAMS_Set_System_dw_domain(Object2->valuestring);
+        HAL_PARAMS_Set_System_sv_select(0x01);
     }
+    HAL_PARAMS_Save_Params();
 }
 
 void DeviceConfig::getWifiStatus(void)
@@ -384,8 +390,8 @@ void DeviceConfig::getDeviceInfo(void)
     {return;}
 
 
-    char device_id[28],board[8];
-    if (0x01 != HAL_PARAMS_Get_At_Mode_Flag()) {
+    char device_id[32],board[8];
+    if (0x01 != HAL_PARAMS_Get_System_at_mode()) {
         HAL_Board_Type(board, sizeof(board), 1);
         aJson.addStringToObject(value_object, "board", board);
         aJson.addNumberToObject(value_object, "at_mode", 0);
@@ -393,19 +399,19 @@ void DeviceConfig::getDeviceInfo(void)
     else {
         HAL_Board_Type(board, sizeof(board), 0);
         aJson.addStringToObject(value_object, "board", board);
-        HAL_PARAMS_Get_DeviceID(device_id, sizeof(device_id));
+        HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
         aJson.addStringToObject(value_object, "device_id", device_id);
         aJson.addNumberToObject(value_object, "at_mode", 1);
     }
 
-    aJson.addNumberToObject(value_object, "zone", HAL_PARAMS_Get_Time_Zone());
-    aJson.addNumberToObject(value_object, "sv_select", HAL_PARAMS_Get_Server_Select_Flag());
+    aJson.addNumberToObject(value_object, "zone", HAL_PARAMS_Get_System_zone());
+    aJson.addNumberToObject(value_object, "sv_select", HAL_PARAMS_Get_System_sv_select());
     char sv_domain[50] = {0};
-    HAL_PARAMS_Get_Server_Domain(sv_domain, sizeof(sv_domain));
+    HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
     aJson.addStringToObject(value_object, "sv_domain", sv_domain);
-    aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_Server_Port());
+    aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_System_sv_port());
     char dw_domain[50] = {0};
-    HAL_PARAMS_Get_Down_Domain(dw_domain, sizeof(dw_domain));
+    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     aJson.addStringToObject(value_object, "dw_domain", dw_domain);
 
     uint8_t stamac[20] = {0}, bssid[20] = {0};;
@@ -441,18 +447,9 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     object1 = aJson.getObjectItem(value_object, "access_token");
     if (object != (aJsonObject* )NULL && object1 != (aJsonObject* )NULL)
     {
-        //device_id
-        valuestring = object->valuestring;
-        len = strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_DeviceID(valuestring);
-
-        //access_token
-        valuestring = object1->valuestring;
-        len = strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_AccessToken(valuestring);
-        HAL_PARAMS_Set_At_Mode_Flag(0x01);
+        HAL_PARAMS_Set_System_device_id(object->valuestring);
+        HAL_PARAMS_Set_System_access_token(object1->valuestring);
+        HAL_PARAMS_Set_System_at_mode(0x01);
     }
 
     //zone
@@ -462,7 +459,7 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
         valuefloat = (object->type==aJson_Int?(float)(object->valueint):object->valuefloat);
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
-        HAL_PARAMS_Set_Time_Zone(valuefloat);
+        HAL_PARAMS_Set_System_zone(valuefloat);
     }
 
     //domain and port
@@ -471,20 +468,10 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     object2 = aJson.getObjectItem(value_object, "dw_domain");
     if (object != (aJsonObject* )NULL && object1 != (aJsonObject* )NULL && object2 != (aJsonObject* )NULL)
     {
-        //domain
-        valuestring = object->valuestring;
-        len = strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_Server_Domain(valuestring);
-        //port
-        valueint = object1->valueint;
-        HAL_PARAMS_Set_Server_Port(valueint);
-        //down domain
-        valuestring = object2->valuestring;
-        len=strlen(valuestring);
-        if(len > 48) {len = 48;}
-        HAL_PARAMS_Set_Down_Domain(valuestring);
-        HAL_PARAMS_Set_Server_Select_Flag(0x01);
+        HAL_PARAMS_Set_System_sv_domain(object->valuestring);
+        HAL_PARAMS_Set_System_sv_port(object1->valueint);
+        HAL_PARAMS_Set_System_dw_domain(object2->valuestring);
+        HAL_PARAMS_Set_System_sv_select(0x01);
     }
 
     object = aJson.getObjectItem(value_object, "stamac");
@@ -516,7 +503,8 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
 
 void DeviceConfig::resetDeviceFac(void)
 {
-    HAL_PARAMS_Set_Boot_Flag(3);
+    HAL_PARAMS_Set_Boot_boot_flag(3);
+    HAL_PARAMS_Save_Params();
     delay(1000);
     HAL_Core_System_Reset();
 }
@@ -528,8 +516,9 @@ void DeviceConfig::rebootDevice(void)
 
 void DeviceConfig::clearSecurityInfo(void)
 {
-    HAL_PARAMS_Set_AccessToken("");
-    HAL_PARAMS_Set_At_Mode_Flag(0x00);
+    HAL_PARAMS_Set_System_access_token("");
+    HAL_PARAMS_Set_System_at_mode(0x00);
+    HAL_PARAMS_Save_Params();
     sendComfirm(200);
 }
 
@@ -774,52 +763,57 @@ void UsbDeviceConfig::close(void)
 
 void UdpDeviceConfig::init(void)
 {
-	//延时否则太快 smartconfig无返回
-    delay(2000);
-    //smartconfig
-    //mo_smartconfig_start();
+    wlan_Imlink_start();
 }
 
 void UdpDeviceConfig::sendComfirm(int status)
 {
-#if 0
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return;}
 
-    system_rgb_blink(255, 0, 0, 200);
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);
-    for(int i=0; i < 15; i++) //may be not enough
+    for(int i=0; i < 5; i++) //may be not enough
     {
         write((unsigned char *)string, strlen(string));
-        delay(100);
     }
     free(string);
     aJson.deleteItem(root);
-#endif
 }
 
 int UdpDeviceConfig::available(void)
 {
-#if 0
-    if( 1 == smartconfig_over_flag )
+    static volatile uint8_t step = 0;
+    switch(step)
     {
-        smartconfig_over_flag = 0;
-        udp_read_flag = 1;
-        mo_smartconfig_stop();
-        //监听端口
-        Udp.begin(5556);
+        case 0:
+            if( IMLINK_SUCCESS == wlan_Imlink_get_status() ) {
+                wlan_Imlink_stop();
+                network.connect();
+                ARM_CONFIG_TIMEOUT(5000);
+                step = 1;
+            }
+            break;
+        case 1:
+            if(IS_CONFIG_TIMEOUT()) {
+                wlan_Imlink_start();
+                CLR_CONFIG_TIMEOUT();
+                step = 0;
+            }
+            if( network.status() ) {
+                system_rgb_blink(RGB_COLOR_RED, 200);
+                Udp.begin(5556);
+                step = 2;
+            }
+            break;
+        case 2:
+            return Udp.parsePacket();
+            break;
+        default:
+            break;
     }
-
-    if(udp_read_flag)
-    {
-        delay(300); // Poll every 300ms
-        return Udp.available();
-    }
-    else
-    {return 0;}
-#endif
+    return 0;
 }
 
 int UdpDeviceConfig::read(void)
@@ -834,10 +828,8 @@ String UdpDeviceConfig::readString(void)
 
 size_t UdpDeviceConfig::write(const uint8_t *buf, size_t size)
 {
-    //组包
     Udp.beginPacket("255.255.255.255",5557);
     Udp.write(buf,size);
-    //发送
     return Udp.endPacket();
 }
 
