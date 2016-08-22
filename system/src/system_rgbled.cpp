@@ -17,25 +17,46 @@
   ******************************************************************************
 */
 
-#include "ui_hal.h"
+#include "system_rgbled.h"
+#include "wiring_rgb.h"
 
-void system_rgb_off(void)
+bool system_rgb_off(void)
 {
-    HAL_UI_RGB_Color(0, 0, 0);
+    if(!RGB.controlled())
+    {
+        HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+        return true;
+    }
+    return false;
 }
 
-void system_rgb_color(uint8_t red, uint8_t green, uint8_t blue)
+bool system_rgb_color(uint32_t rgb)
 {
-    HAL_UI_RGB_Color(red, green, blue);
+    if(!RGB.controlled())
+    {
+        HAL_UI_RGB_Color(rgb);
+        return true;
+    }
+    return false;
 }
 
-void system_rgb_blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+bool system_rgb_blink(uint32_t rgb, uint16_t period)
 {
-    HAL_UI_RGB_Blink(red, green, blue, period);
+    if(!RGB.controlled())
+    {
+        HAL_UI_RGB_Blink(rgb, period);
+        return true;
+    }
+    return false;
 }
 
-void system_rgb_breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+bool system_rgb_breath(uint32_t rgb, uint16_t period)
 {
-    HAL_UI_RGB_Breath(red, green, blue, period);
+    if(!RGB.controlled())
+    {
+        HAL_UI_RGB_Breath(rgb, period);
+        return true;
+    }
+    return false;
 }
 

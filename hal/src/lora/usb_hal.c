@@ -1,27 +1,21 @@
 /**
  ******************************************************************************
- * @file    usb_device.c
- * @author  Matthew McGowan
- * @version V1.0.0
- * @date    27-Sept-2014
- * @brief   USB Virtual COM Port and HID device HAL
- ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This program is free software; you can redistribute it and/or
+  This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation, either
   version 3 of the License, or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
+  This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with this program; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
- */
+  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+  ******************************************************************************
+*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "service_debug.h"
@@ -30,8 +24,13 @@
 #include <stdint.h>
 
 /* Private typedef -----------------------------------------------------------*/
-
 #ifdef USB_CDC_ENABLE
+
+/* Private define ------------------------------------------------------------*/
+
+//TODO
+//static osMutexId usb_mutex;	//transfer all mutex
+
 /*******************************************************************************
  * Function Name  : USB_USART_Init
  * Description    : Start USB-USART protocol.
@@ -81,8 +80,7 @@ void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
     SetLineCodingBitRateHandler(handler);
 }
 
-static inline bool USB_USART_Connected()
-{
+static inline bool USB_USART_Connected() {
     return LineCoding.bitrate > 0;
 }
 
@@ -120,7 +118,6 @@ int32_t USB_USART_Receive_Data(uint8_t peek)
         return data;
     }
     return -1;
-
 }
 
 /*******************************************************************************
@@ -136,7 +133,6 @@ int32_t USB_USART_Available_Data_For_Write(void)
         return 1;
     }
     return -1;
-
 }
 
 /*******************************************************************************
@@ -157,18 +153,10 @@ void USB_USART_Send_Data(uint8_t Data)
 
     //TODO
 	//osMutexRelease(usb_mutex);
-
 }
 
-/*******************************************************************************
- * Function Name  : USB_USART_Flush_Data.
- * Description    : Flushes TX buffer
- * Input          : None.
- * Return         : None.
- *******************************************************************************/
 void USB_USART_Flush_Data(void)
 {
-
 }
 
 /**

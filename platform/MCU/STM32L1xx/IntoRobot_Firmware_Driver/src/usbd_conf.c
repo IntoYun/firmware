@@ -59,6 +59,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
        For the STM32L products there is no need to configure the PA12/PA11 pins couple
        as Alternate Function */
     GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
+    //GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;//GPIO_MODE_INPUT;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;

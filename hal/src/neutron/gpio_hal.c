@@ -151,6 +151,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             break;
     }
     HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
+    HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_RESET);
 }
 
 /*

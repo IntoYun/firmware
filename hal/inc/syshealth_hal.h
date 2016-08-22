@@ -36,7 +36,7 @@ typedef enum eSystemHealth_ {
   FIRST_RETRY = 1,
   SECOND_RETRY = 2,
   THIRD_RETRY = 3,
-  ENTERED_SparkCoreConfig,
+  ENTERED_Config,
   ENTERED_Main,
   ENTERED_WLAN_Loop,
   ENTERED_Setup,

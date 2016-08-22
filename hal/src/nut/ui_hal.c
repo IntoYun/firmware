@@ -1,112 +1,114 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
 #include "hw_config.h"
 #include "pinmap_hal.h"
 #include "ui_hal.h"
 
-__IO uint16_t BUTTON_DEBOUNCED_TIME[] = {0};
 
+volatile uint32_t BUTTON_last_state = 0;
+volatile uint32_t TimingBUTTON=0;
+volatile uint32_t TimingLED;
+volatile rgb_info_t rgb_info;
 
-
-void HAL_UI_BUTTON_Initial(void)
+void Set_RGB_Color(uint32_t color)
 {
-
 }
 
-uint8_t HAL_UI_BUTTON_GetState(Button_TypeDef Button)
+void HAL_UI_Initial(void)
 {
-return 0;
 }
 
-
-void BUTTON_EXTI_Config(Button_TypeDef Button, FunctionalState NewState)
-{
-#if 0
-    EXTI_InitTypeDef EXTI_InitStructure;
-
-    /* Connect Button EXTI Line to Button GPIO Pin */
-    GPIO_EXTILineConfig(BUTTON_GPIO_PORT_SOURCE[Button], BUTTON_GPIO_PIN_SOURCE[Button]);
-
-    /* Clear the EXTI line pending flag */
-    EXTI_ClearFlag(BUTTON_EXTI_LINE[Button]);
-
-    /* Configure Button EXTI line */
-    EXTI_InitStructure.EXTI_Line = BUTTON_EXTI_LINE[Button];
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = BUTTON_EXTI_TRIGGER[Button];
-    EXTI_InitStructure.EXTI_LineCmd = NewState;
-    EXTI_Init(&EXTI_InitStructure);
-#endif
-}
-
-/**
- * @brief  Returns the selected Button Debounced Time.
- * @param  Button: Specifies the Button to be checked.
- *   This parameter can be one of following parameters:
- *     @arg BUTTON1: Button1
- *     @arg BUTTON2: Button2
- * @retval Button Debounced time in millisec.
- */
-uint16_t BUTTON_GetDebouncedTime(Button_TypeDef Button)
-{
-    return BUTTON_DEBOUNCED_TIME[Button];
-}
-
-void BUTTON_ResetDebouncedState(Button_TypeDef Button)
-{
-    BUTTON_DEBOUNCED_TIME[Button] = 0;
-}
-
-#if 0
-
-uint16_t HAL_Core_Mode_Button_Pressed_Time()
+uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
 {
     return 0;
 }
 
-bool HAL_Core_Mode_Button_Pressed(uint16_t pressedMillisDuration)
+uint32_t HAL_UI_Mode_Button_Pressed(void)
 {
-    return false;
+    return TimingBUTTON;
 }
 
-void HAL_Core_Mode_Button_Reset(void)
+int HAL_UI_RGB_Get_Info(rgb_info_t *pinfo)
 {
+    memcpy(pinfo, &rgb_info, sizeof(rgb_info_t));
+    return 0;
 }
 
-#endif
-
-void HAL_UI_RGB_Initial(void)
+int HAL_UI_RGB_Set_Info(rgb_info_t info)
 {
+    memcpy(&rgb_info, &info, sizeof(rgb_info_t));
+    return 0;
 }
 
-void HAL_UI_RGB_Color(uint8_t red, uint8_t green, uint8_t blue)
+void HAL_UI_RGB_Color(uint32_t color)
 {
+    memset(&rgb_info, 0, sizeof(rgb_info));
+    rgb_info.rgb_mode = RGB_MODE_COLOR;
+    rgb_info.rgb_color = color;
+    Set_RGB_Color(color);
 }
 
-void HAL_UI_RGB_Blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+void HAL_UI_RGB_Blink(uint32_t color, uint16_t period)
 {
-
+    memset(&rgb_info, 0, sizeof(rgb_info));
+    rgb_info.rgb_mode = RGB_MODE_BLINK;
+    rgb_info.rgb_color = color;
+    rgb_info.rgb_period = period>100 ? period >> 1 : 50;
 }
 
-void HAL_UI_RGB_Breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period)
+void HAL_UI_RGB_Breath(uint32_t color, uint16_t period)
 {
-
+    HAL_UI_RGB_Blink(color, period);
 }
 
+void HAL_UI_SysTick_Handler(void)
+{
+    //三色灯处理
+    if(RGB_MODE_BLINK == rgb_info.rgb_mode)
+    {
+        if (TimingLED != 0x00)
+        {
+            TimingLED--;
+        }
+        else
+        {
+            RGB_Color_Toggle();
+            TimingLED = rgb_info.rgb_period;
+        }
+    }
+    //侧边按键处理
+    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
+    {
+        if(!BUTTON_last_state) {
+            TimingBUTTON = 0;
+            BUTTON_last_state = 1;
+        }
+        else {
+            TimingBUTTON++;
+        }
+    }
+    else {
+        if(BUTTON_last_state)
+        {
+            TimingBUTTON = 0;
+            BUTTON_last_state = 1;
+        }
+    }
+}
 

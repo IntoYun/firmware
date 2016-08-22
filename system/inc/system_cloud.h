@@ -77,6 +77,7 @@ extern "C" {
 #endif
 
 String intorobot_deviceID(void);
+bool intorobot_cloud_init(void);
 uint8_t intorobot_publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
 uint8_t intorobot_subscribe(const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
 uint8_t intorobot_widget_subscribe(const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);

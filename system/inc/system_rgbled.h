@@ -20,17 +20,35 @@
 #ifndef SYSTEM_RGBLED_H_
 #define SYSTEM_RGBLED_H_
 
-
 #include <stdint.h>
+#include "ui_hal.h"
+
+// This is temporary until we can get scoped LED management in place.
+class RGBLEDState
+{
+    rgb_info_t rgb_info;
+
+public:
+    void save()
+    {
+        HAL_UI_RGB_Get_Info(&rgb_info);
+    }
+
+    void restore()
+    {
+        HAL_UI_RGB_Set_Info(rgb_info);
+    }
+
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void system_rgb_off(void);
-void system_rgb_color(uint8_t red, uint8_t green, uint8_t blue);
-void system_rgb_blink(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
-void system_rgb_breath(uint8_t red, uint8_t green, uint8_t blue, uint16_t period);
+bool system_rgb_off(void);
+bool system_rgb_color(uint32_t rgb);
+bool system_rgb_blink(uint32_t rgb, uint16_t period);
+bool system_rgb_breath(uint32_t rgb, uint16_t period);
 
 #ifdef __cplusplus
 }

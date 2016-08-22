@@ -11,8 +11,8 @@ HAL_LINK ?= $(findstring hal,$(MAKE_DEPENDENCIES))
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(HAL_LINK))
 
-#LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_app.ld
-LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_boot.ld
+LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_app.ld
+#LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_boot.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm/$(PLATFORM_NAME)
 LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
 LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)

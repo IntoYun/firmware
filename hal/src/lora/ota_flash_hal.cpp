@@ -17,32 +17,40 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_RGB_H_
-#define WIRING_RGB_H_
+#include "ota_flash_hal.h"
+#include "core_hal.h"
 
 
-#include <stdint.h>
-
-class RGBClass
+down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    public:
-        RGBClass();
-        ~RGBClass();
+    return DOWNSTATUS_SUCCESS;
+}
 
-        bool controlled(void);
-        void control(bool flag);
-        bool off(void);
-        bool color(uint32_t rgb);
-        bool color(uint8_t red, uint8_t green, uint8_t blue);
-        bool blink(uint32_t rgb,uint16_t period);
-        bool blink(uint8_t red, uint8_t green, uint8_t blue,uint16_t period);
-        bool breath(uint32_t rgb,uint16_t period);
-        bool breath(uint8_t red, uint8_t green, uint8_t blue,uint16_t period);
+down_status_t HAL_OTA_Get_App_Download_Status(void)
+{
+    return DOWNSTATUS_SUCCESS;
+}
 
-    private:
-        bool _control;
-};
+void HAL_OTA_Update_App(void)
+{
+}
 
-extern RGBClass RGB;
+down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
+{
+    return DOWNSTATUS_SUCCESS;
+}
 
-#endif
+down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
+{
+    return DOWNSTATUS_SUCCESS;
+}
+
+void HAL_OTA_Upadate_Subsys(void)
+{
+}
+
+uint8_t HAL_OTA_Get_Download_Progress()
+{
+    return 0;
+}
+

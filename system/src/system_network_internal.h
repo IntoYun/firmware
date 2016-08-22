@@ -37,7 +37,7 @@ enum eWanTimings
 extern volatile uint8_t INTOROBOT_WLAN_STARTED;
 
 extern volatile uint8_t SPARK_LED_FADE;
-void manage_smart_config();
+void manage_imlink_config();
 void manage_ip_config();
 
 extern uint32_t wlan_watchdog_duration;
