@@ -95,20 +95,7 @@ typedef struct __attribute__((__packed__))  _WLanConfig_t {
 STATIC_ASSERT(WLanConfigSize, sizeof(WLanConfig)==WLanConfig_Size_V2);
 
 
-
-/**
- * Connect start the wireless connection.
- */
-wlan_result_t  wlan_connect_init();
-
-/**
- * Finalize the connection by connecting to stored profiles.
- */
-wlan_result_t  wlan_connect_finalize();
-
-void Set_NetApp_Timeout();
-void Clear_NetApp_Dhcp();
-
+int wlan_connect();
 wlan_result_t wlan_disconnect();
 int wlan_status();
 

@@ -18,6 +18,19 @@
 */
 
 #include "wlan_hal.h"
+#include "esp8266_wifi_generic.h"
+
+extern "C" {
+#include "c_types.h"
+#include "ets_sys.h"
+#include "os_type.h"
+#include "osapi.h"
+#include "mem.h"
+#include "user_interface.h"
+#include "lwip/err.h"
+#include "lwip/dns.h"
+}
+
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -46,40 +59,73 @@ wlan_result_t wlan_deactivate()
 
 int wlan_connect()
 {
-    return 0;
+    return esp8266_connect();
 }
 
 wlan_result_t wlan_disconnect()
 {
-    return 0;
+    return esp8266_disconnect();
 }
 
 int wlan_status()
 {
-    return -1;
+    wl_status_t status = esp8266_status();
+    switch(status) {
+        case WL_CONNECTED:
+            return 0;
+        default:
+            return 1;
+    }
+    return 0;
 }
 
 int wlan_connected_rssi(void)
 {
-    return 0;
+    return esp8266_getRSSI();
 }
 
 int wlan_set_credentials(WLanCredentials* c)
 {
-    return -1;
+    struct station_config conf;
+    strcpy(reinterpret_cast<char*>(conf.ssid), c->ssid);
+
+    if(c->password) {
+        if (strlen(c->password) == 64) // it's not a passphrase, is the PSK
+            memcpy(reinterpret_cast<char*>(conf.password), c->password, 64);
+        else
+            strcpy(reinterpret_cast<char*>(conf.password), c->password);
+    } else {
+        *conf.password = 0;
+    }
+    conf.bssid_set = 0;
+
+    ETS_UART_INTR_DISABLE();
+    // workaround for #1997: make sure the value of ap_number is updated and written to flash
+    // to be removed after SDK update
+    wifi_station_ap_number_set(2);
+    wifi_station_ap_number_set(1);
+
+    wifi_station_set_config(&conf);
+    ETS_UART_INTR_ENABLE();
+    return 0;
 }
 
 void wlan_Imlink_start()
 {
+    esp8266_beginSmartConfig();
 }
 
 imlink_status_t wlan_Imlink_get_status()
 {
+    if(!esp8266_smartConfigDone)
+    return IMLINK_DOING;
+    else
     return IMLINK_SUCCESS;
 }
 
 void wlan_Imlink_stop()
 {
+    esp8266_stopSmartConfig();
 }
 
 void wlan_setup()

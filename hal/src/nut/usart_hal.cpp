@@ -26,7 +26,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "usart_hal.h"
-#include "uart.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
