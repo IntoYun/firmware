@@ -28,6 +28,7 @@
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
 protected:
+    void connect_now() override { wlan_connect(); }
     void disconnect_now() override { wlan_disconnect(); }
     int status_now() override { return wlan_status(); }
     void on_now() override { wlan_activate(); }

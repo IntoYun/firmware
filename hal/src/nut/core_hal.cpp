@@ -33,6 +33,8 @@
 #include "params_hal.h"
 #include <Arduino.h>
 #include "Schedule.h"
+#include "esp8266_wifi_generic.h"
+
 extern "C" {
 #include "ets_sys.h"
 #include "os_type.h"
@@ -156,6 +158,7 @@ extern "C" void user_init(void) {
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
 
+    HAL_Core_Setup();
     SysTick_Enable();
 
     cont_init(&g_cont);
@@ -181,9 +184,9 @@ void HAL_Core_Config(void)
 
 void HAL_Core_Setup(void)
 {
+    esp8266_setMode(WIFI_STA);
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
-    //HAL_Bootloader_Lock(true);
 }
 
 void HAL_Core_System_Reset(void)

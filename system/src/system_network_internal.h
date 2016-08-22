@@ -115,6 +115,7 @@ class ManagedNetworkInterface : public NetworkInterface
 
 protected:
     virtual network_interface_t network_interface() override { return 0; }
+    virtual void connect_now()=0;
     virtual void disconnect_now()=0;
     virtual int status_now()=0;
     virtual void on_now()=0;
@@ -143,6 +144,7 @@ public:
     void connect(bool listen_enabled=true) override
     {
         on();
+        connect_now();
         INTOROBOT_WLAN_STARTED = 1;
         INTOROBOT_WLAN_SLEEP = 0;
         WLAN_DISCONNECT = 0;

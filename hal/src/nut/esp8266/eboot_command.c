@@ -1,5 +1,8 @@
+#include "ets_sys.h"
+#include "osapi.h"
 #include "eboot_command.h"
-#include "flash.h"
+#include "upgrade.h"
+#include "user_config.h"
 
 uint32_t crc32_update(uint32_t crc, const uint8_t *data, size_t length)
 {
@@ -40,7 +43,7 @@ void eboot_command_init(struct eboot_command* cmd)
 
 void eboot_command_read(struct eboot_command* cmd)
 {
-    if (!SPIRead(COMMAND_INFO_ADDR, cmd, sizeof(struct eboot_command)))
+    if (!spi_flash_read(COMMAND_INFO_ADDR, cmd, sizeof(struct eboot_command)))
     {
         uint32_t crc32 = eboot_command_calculate_crc32(cmd);
         if ((cmd->magic & EBOOT_MAGIC_MASK) == EBOOT_MAGIC && cmd->crc32 == crc32)
@@ -56,7 +59,7 @@ void eboot_command_write(struct eboot_command* cmd)
     cmd->magic = EBOOT_MAGIC;
     cmd->crc32 = eboot_command_calculate_crc32(cmd);
 
-    SPIEraseSector(COMMAND_INFO_SEC_START);
-    SPIWrite(COMMAND_INFO_ADDR, cmd, sizeof(struct eboot_command));
+    spi_flash_erase_sector(COMMAND_INFO_SEC_START);
+    spi_flash_write(COMMAND_INFO_ADDR, cmd, sizeof(struct eboot_command));
 }
 

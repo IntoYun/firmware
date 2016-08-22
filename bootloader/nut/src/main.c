@@ -111,23 +111,15 @@ int main()
     int res = 9, count=3;
     struct eboot_command cmd;
 
-    // load params
-    //HAL_PARAMS_Load_System_Params();
-    //HAL_PARAMS_Load_Boot_Params();
-
     eboot_command_read(&cmd);
-    if (cmd.action == ACTION_COPY_RAW){
+    if (cmd.action == ACTION_COPY_APP){
         ets_putc('c'); ets_putc('p'); ets_putc(':');
-        if(cmd.esp8266_app_size && cmd.default_stm32_app_size){
+        if(cmd.online_app_size){
             ets_wdt_disable();
             while(count--)
             {
                 //wifi update
-                res = copy_raw(cmd.esp8266_app_addr[0], cmd.esp8266_app_addr[1], cmd.esp8266_app_size);
-                //default app update
-                if (res == 0){
-                    res = copy_raw(cmd.default_stm32_app_addr[0], cmd.default_stm32_app_addr[1], cmd.default_stm32_app_size);
-                }
+                res = copy_raw(cmd.online_app_addr[0], cmd.online_app_addr[1], cmd.online_app_size);
                 if(res == 0){
                     break;
                 }
@@ -136,8 +128,26 @@ int main()
         }
         ets_putc('0'+res); ets_putc('\n');
         cmd.action = ACTION_LOAD_APP;
-        cmd.esp8266_app_size = 0;
-        cmd.online_stm32_app_size = 0;
+        cmd.online_app_size = 0;
+        eboot_command_write(&cmd);
+    }
+
+    if (cmd.action == ACTION_COPY_DEFAPP){
+        ets_putc('c'); ets_putc('p'); ets_putc(':');
+        if(cmd.default_app_size){
+            ets_wdt_disable();
+            while(count--)
+            {
+                res = copy_raw(cmd.default_app_addr[0], cmd.default_app_addr[1], cmd.default_app_size);
+                if(res == 0){
+                    break;
+                }
+            }
+            ets_wdt_enable();
+        }
+        ets_putc('0'+res); ets_putc('\n');
+        cmd.action = ACTION_LOAD_APP;
+        cmd.default_app_size = 0;
         eboot_command_write(&cmd);
     }
 
