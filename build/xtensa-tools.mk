@@ -12,12 +12,13 @@ include $(COMMON_BUILD)/common-tools.mk
 CDEFINES += -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DESP8266
 
 # C 编译参数
-CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD
 ifneq ("$(MODULE)","bootloader")
-CFLAGS += -Os -ffunction-sections -fdata-sections
+CFLAGS += -Os
 else
 CFLAGS += -O0
 endif
+
+CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -ffunction-sections -fdata-sections
 
 CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
 

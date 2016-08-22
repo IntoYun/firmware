@@ -21,17 +21,36 @@
 #include "ui_hal.h"
 
 
+#define RGB_GPIO_PIN               2
+#define MODE_BOTTON_GPIO_PIN       1
+
+extern void ICACHE_RAM_ATTR espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes, bool is800KHz);
+
+
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
 volatile uint32_t TimingLED;
 volatile rgb_info_t rgb_info;
 
-void Set_RGB_Color(uint32_t color)
-{
+void Set_RGB_Color(uint32_t color) {
+    espShow(RGB_GPIO_PIN, &color, 1, true);
+}
+
+void RGB_Color_Toggle(void) {
+    if(rgb_info.rgb_last_color) {
+        Set_RGB_Color(0);
+        rgb_info.rgb_last_color = 0;
+    }
+    else {
+        Set_RGB_Color(rgb_info.rgb_color);
+        rgb_info.rgb_last_color = rgb_info.rgb_color;
+    }
 }
 
 void HAL_UI_Initial(void)
 {
+    //HAL_Pin_Mode(RGB_GPIO_PIN, OUTPUT);
+    //HAL_GPIO_Write(RGB_GPIO_PIN, LOW);
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)

@@ -241,7 +241,7 @@ void app_setup_and_loop_initial(void)
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
-    manage_imlink_config();
+    //manage_imlink_config();
 
     Network_Setup();
 
