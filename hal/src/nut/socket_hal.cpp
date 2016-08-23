@@ -1,5 +1,5 @@
-/**
-******************************************************************************
+
+/******************************************************************************
 * @file    socket_hal.c
 * @author  Matthew McGowan
 * @version V1.0.0
@@ -20,8 +20,7 @@ Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, see <http://www.gnu.org/licenses/>.
-******************************************************************************
-*/
+******************************************************************************/
 
 #include "socket_hal.h"
 #define LWIP_SOCKET 1
@@ -43,7 +42,7 @@ int32_t socket_connect(sock_handle_t sd, const sockaddr_t *addr, long addrlen)
 {
     // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr_t don't
     struct sockaddr* addr_tmp;
-    for (int i = 0; i < sizeof(addr->sa_data); i++){
+    for (int i = 0; i < 14; i++){
         addr_tmp->sa_data[i] = addr->sa_data[i];
     }
     addr_tmp->sa_family = addr->sa_family;
@@ -71,7 +70,7 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
 {
     // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr don't
     struct sockaddr* addr_tmp;
-    for (int i = 0; i < sizeof(addr->sa_data); i++){
+    for (int i = 0; i < 14; i++){
         addr_tmp->sa_data[i] = addr->sa_data[i];
     }
     addr_tmp->sa_family = addr->sa_family;
@@ -110,7 +109,7 @@ sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len,
 {
     // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr don't
     struct sockaddr* addr_tmp;
-    for (int i = 0; i < sizeof(addr->sa_data); i++){
+    for (int i = 0; i < 14; i++){
         addr_tmp->sa_data[i] = addr->sa_data[i];
     }
     addr_tmp->sa_family = addr->sa_family;
