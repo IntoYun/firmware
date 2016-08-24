@@ -62,6 +62,8 @@ using namespace intorobot;
 /* Private variables ---------------------------------------------------------*/
 volatile button_mode_t BUTTON_Mode = BUTTON_MODE_NONE;
 volatile uint32_t BUTTON_press_time;
+volatile uint8_t INTOROBOT_IMLINK_CONFIG_IS_NEEDED=true; //进入配置模式
+volatile uint8_t INTOROBOT_IMLINK_CONFIG_START=false; //配置模式开始
 
 
 /*******************************************************************************
@@ -119,6 +121,8 @@ extern "C" void HAL_SysTick_Handler(void)
         switch(BUTTON_Mode)
         {
             case BUTTON_MODE_CONFIG:
+                INTOROBOT_IMLINK_CONFIG_IS_NEEDED = true;
+                INTOROBOT_IMLINK_CONFIG_START=false;
                 HAL_Core_Enter_Config_Mode();
                 break;
 
@@ -145,33 +149,36 @@ extern "C" void HAL_SysTick_Handler(void)
             default:
                 break;
         }
+        if(BUTTON_MODE_NONE != BUTTON_Mode) {
+            BUTTON_Mode = BUTTON_MODE_NONE;
+        }
     }
 }
 
 void app_loop(void)
 {
-    DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
-
-#if !PLATFORM_THREADING
-    //system_process_loop();
-#endif
-    static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
-    if ((INTOROBOT_WIRING_APPLICATION != 1))
+    if(!INTOROBOT_IMLINK_CONFIG_IS_NEEDED)
     {
-        //Execute user application setup only once
-        DECLARE_SYS_HEALTH(ENTERED_Setup);
-        if (system_mode()!=SAFE_MODE)
-            setup();
-        INTOROBOT_WIRING_APPLICATION = 1;
-        _post_loop();
-    }
+        DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
 
-    //Execute user application loop
-    DECLARE_SYS_HEALTH(ENTERED_Loop);
-    if (system_mode()!=SAFE_MODE) {
-        loop();
-        DECLARE_SYS_HEALTH(RAN_Loop);
-        _post_loop();
+        static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
+        if ((INTOROBOT_WIRING_APPLICATION != 1))
+        {
+            //Execute user application setup only once
+            DECLARE_SYS_HEALTH(ENTERED_Setup);
+            if (system_mode()!=SAFE_MODE)
+                setup();
+            INTOROBOT_WIRING_APPLICATION = 1;
+            _post_loop();
+        }
+
+        //Execute user application loop
+        DECLARE_SYS_HEALTH(ENTERED_Loop);
+        if (system_mode()!=SAFE_MODE) {
+            loop();
+            DECLARE_SYS_HEALTH(RAN_Loop);
+            _post_loop();
+        }
     }
 }
 
@@ -241,9 +248,6 @@ void app_setup_and_loop_initial(void)
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
-    //manage_imlink_config();
-
-    Network_Setup();
 
 #if PLATFORM_THREADING
     create_system_task();

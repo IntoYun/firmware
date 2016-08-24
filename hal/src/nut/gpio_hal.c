@@ -76,7 +76,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             case OUTPUT:
                 GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
                 GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                GPES = (1 << pin); //Enable
+                GPES = (1 << gpio_pin); //Enable
                 PIN_MAP[pin].pin_mode = OUTPUT;
                 break;
 

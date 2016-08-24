@@ -68,7 +68,7 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 
 #define TOTAL_PINS 31
 #define TOTAL_ANALOG_PINS 1
-#define TOTAL_DIGITAL_PINS 9
+#define TOTAL_DIGITAL_PINS 10
 #define FIRST_ANALOG_PIN 30
 
 #define D0 0
@@ -78,9 +78,9 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define D4 4
 #define D5 5
 #define D6 6
-#define D7 8
-#define TX 9
-#define RX 10
+#define D7 7
+#define TX 8
+#define RX 9
 
 #define A0 30
 

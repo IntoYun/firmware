@@ -25,7 +25,7 @@
  * @param  None
  * @retval The sector of a given address
  */
-static uint32_t FLASH_Interminal_Get_Sector(uint32_t address)
+uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
 #if 0
     uint32_t sector = 0;
@@ -50,7 +50,7 @@ static uint32_t FLASH_Interminal_Get_Sector(uint32_t address)
 #endif
 }
 
-void HAL_FLASH_Interminal_Erase(uint32_t address)
+void HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
 #if 0
     FLASH_EraseInitTypeDef EraseInitStruct;
@@ -68,7 +68,7 @@ void HAL_FLASH_Interminal_Erase(uint32_t address)
 #endif
 }
 
-void HAL_FLASH_Interminal_Read(uint32_t address, uint16_t *pdata, uint32_t datalen)
+void HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
 #if 0
     uint32_t endAddress = address + datalen*2;
@@ -82,7 +82,7 @@ void HAL_FLASH_Interminal_Read(uint32_t address, uint16_t *pdata, uint32_t datal
 #endif
 }
 
-int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datalen)
+int HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
 #if 0
     uint32_t endAddress = address + datalen * 2;

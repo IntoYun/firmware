@@ -26,29 +26,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include "ota_flash_hal.h"
 
-#include <stdint.h>
-#include "esp8266_wifi_type.h"
-#include "wl_definitions.h"
-
-bool esp8266_setMode(WiFiMode_t m);
-WiFiMode_t esp8266_getMode();
-bool esp8266_enableSTA(bool enable);
-bool esp8266_enableAP(bool enable);
-uint8_t* esp8266_getMacAddress(uint8_t* mac);
-bool esp8266_setDHCP(char enable);
-bool esp8266_setAutoConnect(bool autoConnect);
-int32_t esp8266_getRSSI(void);
-bool esp8266_beginSmartConfig();
-bool esp8266_stopSmartConfig();
-bool esp8266_smartConfigDone();
-int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t *ip_addr);
-int esp8266_connect();
-int esp8266_disconnect();
-wl_status_t esp8266_status();
-bool esp8266_setAutoConnect(bool autoConnect);
-bool esp8266_getAutoConnect();
-bool esp8266_setAutoReconnect(bool autoReconnect);
+down_status_t esp8266_downOnlineApp(const char *host, const char *param, const char * md5);
+down_status_t esp8266_downDefaultApp(const char *host, const char *param);
+down_status_t esp8266_getDownOnlineAppStatus(void);
+down_status_t esp8266_getDownDefaultAppStatus(void);
+uint8_t esp8266_getDownloadProgress(void);
 
 #ifdef __cplusplus
 }

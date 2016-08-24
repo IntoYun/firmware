@@ -36,6 +36,8 @@ extern "C" {
 #include "lwip/dns.h"
 }
 
+#include "service_debug.h"
+
 extern "C" void esp_schedule();
 extern "C" void esp_yield();
 
@@ -141,6 +143,24 @@ bool esp8266_setAutoConnect(bool autoConnect) {
 }
 
 /**
+ * Checks if ESP8266 station mode will connect to AP
+ * automatically or not when it is powered on.
+ * @return auto connect
+ */
+bool esp8266_getAutoConnect() {
+    return (wifi_station_get_auto_connect() != 0);
+}
+
+/**
+ * Set whether reconnect or not when the ESP8266 station is disconnected from AP.
+ * @param autoReconnect
+ * @return
+ */
+bool esp8266_setAutoReconnect(bool autoReconnect) {
+    return wifi_station_set_reconnect_policy(autoReconnect);
+}
+
+/**
  * Return the current network RSSI.
  * @return  RSSI value
  */
@@ -159,16 +179,16 @@ bool _smartConfigDone = false;
  */
 void smartConfigCallback(uint32_t st, void* result) {
     sc_status status = (sc_status) st;
+
+    DEBUG_D("status=%d\r\n",status);
     if(status == SC_STATUS_LINK) {
         station_config* sta_conf = reinterpret_cast<station_config*>(result);
 
         wifi_station_set_config(sta_conf);
         wifi_station_disconnect();
         wifi_station_connect();
-
-        _smartConfigDone = true;
     } else if(status == SC_STATUS_LINK_OVER) {
-        esp8266_stopSmartConfig();
+        _smartConfigDone = true;
     }
 }
 
@@ -185,7 +205,8 @@ bool esp8266_beginSmartConfig() {
         return false;
     }
 
-    if(smartconfig_start(reinterpret_cast<sc_callback_t>(&smartConfigCallback), 1)) {
+    if(smartconfig_start(reinterpret_cast<sc_callback_t>(&smartConfigCallback), 0)) {
+        DEBUG_D("smartconfig_start\r\n");
         _smartConfigStarted = true;
         _smartConfigDone = false;
         return true;

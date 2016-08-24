@@ -39,7 +39,6 @@ extern void esp_yield();
 /**
  * Updated by HAL_1Ms_Tick()
  */
-volatile uint32_t TimingDelay;
 
 static os_timer_t delay_timer;
 

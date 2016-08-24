@@ -17,15 +17,13 @@
  ******************************************************************************
  */
 #include "hw_config.h"
-#include "pinmap_hal.h"
 #include "ui_hal.h"
+#include "service_debug.h"
 
+#define RGB_GPIO_PIN               5
+#define MODE_BOTTON_GPIO_PIN       0
 
-#define RGB_GPIO_PIN               2
-#define MODE_BOTTON_GPIO_PIN       1
-
-extern void ICACHE_RAM_ATTR espShow(uint8_t pin, uint8_t *pixels, uint32_t numBytes, bool is800KHz);
-
+extern void ICACHE_RAM_ATTR espShow(uint8_t pin, uint32_t color, uint8_t brightness);
 
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
@@ -33,7 +31,7 @@ volatile uint32_t TimingLED;
 volatile rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
-    espShow(RGB_GPIO_PIN, &color, 1, true);
+    espShow(RGB_GPIO_PIN, color, 15);
 }
 
 void RGB_Color_Toggle(void) {
@@ -49,13 +47,22 @@ void RGB_Color_Toggle(void) {
 
 void HAL_UI_Initial(void)
 {
-    //HAL_Pin_Mode(RGB_GPIO_PIN, OUTPUT);
-    //HAL_GPIO_Write(RGB_GPIO_PIN, LOW);
+    // initial rgb pin
+    GPF(RGB_GPIO_PIN) = GPFFS(GPFFS_GPIO(RGB_GPIO_PIN));
+    GPC(RGB_GPIO_PIN) = (GPC(RGB_GPIO_PIN) & (0xF << GPCI));
+    GPES = (1 << RGB_GPIO_PIN); //Enable
+    // gpio write low
+    GPOC = (1 << RGB_GPIO_PIN);
+
+    // initial button pin
+    GPF(MODE_BOTTON_GPIO_PIN) = GPFFS(GPFFS_GPIO(MODE_BOTTON_GPIO_PIN));
+    GPEC = (1 << MODE_BOTTON_GPIO_PIN); //Disable
+    GPC(MODE_BOTTON_GPIO_PIN) = (GPC(MODE_BOTTON_GPIO_PIN) & (0xF << GPCI)) | (1 << GPCD);
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
 {
-    return 0;
+    return GPIP(MODE_BOTTON_GPIO_PIN);
 }
 
 uint32_t HAL_UI_Mode_Button_Pressed(void)

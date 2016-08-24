@@ -34,15 +34,6 @@
 #include <Arduino.h>
 #include "Schedule.h"
 #include "esp8266_wifi_generic.h"
-
-extern "C" {
-#include "ets_sys.h"
-#include "os_type.h"
-#include "osapi.h"
-#include "mem.h"
-#include "user_interface.h"
-#include "cont.h"
-}
 #include <core_version.h>
 
 
@@ -62,11 +53,6 @@ void HAL_Core_Setup(void);
 struct rst_info resetInfo;
 
 /* Extern variables ----------------------------------------------------------*/
-/**
- * Updated by HAL_1Ms_Tick()
- */
-extern volatile uint32_t TimingDelay;
-
 int atexit(void (*func)()) {
     return 0;
 }
@@ -149,16 +135,18 @@ void init_done() {
     system_set_os_print(1);
     gdb_init();
     do_global_ctors();
+    HAL_Core_Config();
+    HAL_Core_Setup();
     app_setup_and_loop_initial();
     esp_schedule();
 }
 
 extern "C" void user_init(void) {
+
     struct rst_info *rtc_info_ptr = system_get_rst_info();
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
 
-    HAL_Core_Setup();
     SysTick_Enable();
 
     cont_init(&g_cont);
@@ -171,8 +159,20 @@ void HAL_Core_Init(void)
 
 }
 
+void System_Loop_Handler(void* arg);
+void SysTick_Handler(void* arg);
+static os_timer_t systick_timer;
+static os_timer_t system_loop_timer;
+
 void HAL_Core_Config(void)
 {
+    //滴答定时器
+    os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
+    os_timer_arm(&systick_timer, 1, 1);
+    //后台处理定时器
+    os_timer_setfn(&system_loop_timer, (os_timer_func_t*)&System_Loop_Handler, 0);
+    os_timer_arm(&system_loop_timer, 200, 1);
+
     HAL_RTC_Initial();
     HAL_RNG_Initial();
 
@@ -184,14 +184,19 @@ void HAL_Core_Config(void)
 
 void HAL_Core_Setup(void)
 {
+    HAL_Delay_Microseconds(500000);
     esp8266_setMode(WIFI_STA);
+    esp8266_setDHCP(true);
+    esp8266_setAutoConnect(false);
+    esp8266_setAutoReconnect(true);
     HAL_IWDG_Config(DISABLE);
     bootloader_update_if_needed();
 }
 
+extern "C" void __real_system_restart_local();
 void HAL_Core_System_Reset(void)
 {
-    //NVIC_SystemReset();
+    __real_system_restart_local();
 }
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
@@ -271,28 +276,25 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
 }
 
+typedef void (*app_system_loop_handler)(void);
+static app_system_loop_handler APP_System_Loop_Handler = NULL;
+
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {
-   //APP_LineCodingBitRateHandler = handler;
+    APP_System_Loop_Handler = handler;
 }
 
-/**
- * Function Name  : SysTick_Handler
- * Description    : This function handles SysTick Handler.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
-void SysTick_Handler(void)
+void System_Loop_Handler(void* arg)
 {
-    //HAL_IncTick();
-    //System1MsTick();
-
-    if (TimingDelay != 0x00)
+    if (NULL != APP_System_Loop_Handler)
     {
-        TimingDelay--;
+        APP_System_Loop_Handler();
     }
+}
 
+void SysTick_Handler(void* arg)
+{
     HAL_SysTick_Handler();
+    HAL_UI_SysTick_Handler();
 }
 

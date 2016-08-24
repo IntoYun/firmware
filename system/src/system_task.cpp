@@ -34,6 +34,7 @@
 #include "delay_hal.h"
 #include "timer_hal.h"
 #include "params_hal.h"
+#include "ota_flash_hal.h"
 #include "service_debug.h"
 
 #include "wiring_network.h"
@@ -42,6 +43,9 @@
 #include "system_threading.h"
 
 using intorobot::Network;
+
+extern volatile uint8_t INTOROBOT_IMLINK_CONFIG_IS_NEEDED; //进入配置模式
+extern volatile uint8_t INTOROBOT_IMLINK_CONFIG_START; //配置模式开始
 
 /**
  * Time in millis of the last cloud connection attempt.
@@ -122,6 +126,7 @@ void manage_serial_flasher()
 /**
  * Reset or initialize the network connection as required.
  */
+
 void manage_network_connection()
 {
     if (in_network_backoff_period())
@@ -134,6 +139,7 @@ void manage_network_connection()
         DEBUG_D("network connected\r\n");
         if(!was_connected) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            HAL_OTA_Download_App("www.intorobot.com", "/v1/bins?dwn_token=66907ae677ad7d5c94628e4da3355804", "0aaf696dceeacea3655e7cc3df25c89d");
         }
     }
     else
@@ -216,25 +222,35 @@ void manage_cloud_connection(void)
 #endif
 
 // These are internal methods
-void manage_imlink_config()
+bool manage_imlink_config()
 {
     if(HAL_PARAMS_Get_System_config_flag())
     {
-        DEBUG_D(("enter device config\r\n"));
-        system_rgb_blink(RGB_COLOR_RED, 1000);
-        DeviceConfigUsb.init();
-        DeviceConfigUdp.init();
-        while(1)
+        if (!INTOROBOT_IMLINK_CONFIG_START)
         {
-            if(DeviceConfigUsb.process()||DeviceConfigUdp.process())
-            {
-                break;
-            }
+            DEBUG_D(("enter device config\r\n"));
+            system_rgb_blink(RGB_COLOR_RED, 1000);
+            DeviceConfigUsb.init();
+            DeviceConfigUdp.init();
+            INTOROBOT_IMLINK_CONFIG_START = true;
+            INTOROBOT_IMLINK_CONFIG_IS_NEEDED = true;
         }
-        DEBUG_D(("exit  device config\r\n"));
-        HAL_PARAMS_Set_System_config_flag(0);
-        HAL_PARAMS_Save_Params();
+        if(DeviceConfigUsb.process()||DeviceConfigUdp.process())
+        {
+            DEBUG_D(("exit  device config\r\n"));
+            HAL_PARAMS_Set_System_config_flag(0);
+            HAL_PARAMS_Save_Params();
+            INTOROBOT_IMLINK_CONFIG_START = false;
+        }
+        else {
+            return false;
+        }
     }
+    if(true == INTOROBOT_IMLINK_CONFIG_IS_NEEDED) {
+        Network_Setup();
+        INTOROBOT_IMLINK_CONFIG_IS_NEEDED = false;
+    }
+    return true;
 }
 
 void system_process_loop(void)
@@ -242,13 +258,13 @@ void system_process_loop(void)
 #if PLATFORM_THREADING
     while (1) {
 #endif
-        manage_serial_flasher();
-
-        manage_network_connection();
-
-        manage_ip_config();
-
-        CLOUD_FN(manage_cloud_connection(), (void)0);
+        if(manage_imlink_config())
+        {
+            manage_serial_flasher();
+            manage_network_connection();
+            manage_ip_config();
+            //CLOUD_FN(manage_cloud_connection(), (void)0);
+        }
 #if PLATFORM_THREADING
     }
 #endif
