@@ -761,6 +761,55 @@ void UsbDeviceConfig::close(void)
     //none do
 }
 
+void UsartDeviceConfig::init(void)
+{
+    serial.begin(115200);    //
+    while (!serial); // wait for a serial connection
+}
+
+int UsartDeviceConfig::available(void)
+{
+    return serial.available();
+}
+
+int UsartDeviceConfig::read(void)
+{
+    return serial.read();
+}
+
+String UsartDeviceConfig::readString(void)
+{
+    return serial.readString();
+}
+
+size_t UsartDeviceConfig::write(const uint8_t *buffer, size_t size)
+{
+    for(size_t i = 0;i<size;i++)
+    {
+        serial.write(buffer[i]);
+    }
+    return size;
+}
+
+void UsartDeviceConfig::sendComfirm(int status)
+{
+    aJsonObject* root = aJson.createObject();
+    if (root == NULL)
+    {return;}
+
+    aJson.addNumberToObject(root, "status", status);
+    char* string = aJson.print(root);
+    write((unsigned char *)string, strlen(string));
+    free(string);
+    aJson.deleteItem(root);
+}
+
+void UsartDeviceConfig::close(void)
+{
+    //none do
+}
+
+
 void UdpDeviceConfig::init(void)
 {
     wlan_Imlink_start();

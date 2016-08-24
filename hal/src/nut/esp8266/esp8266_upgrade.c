@@ -1,15 +1,7 @@
-#include "ets_sys.h"
-#include "osapi.h"
-#include "os_type.h"
+#include "hw_config.h"
 #include "md5.h"
-
-#include "lwip/err.h"
-#include "lwip/ip_addr.h"
-#include "lwip/mem.h"
-#include "lwip/app/espconn.h"
-
 #include "eboot_command.h"
-#include "upgrade_lib.c"
+#include "esp8266_upgrade_lib.c"
 
 
 LOCAL md5_context_t _ctx;
@@ -145,34 +137,19 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
     if (totallength == 0){
         DEBUG("httpdata:%s\n", pusrdata);
         ptr = (char *)os_strstr(pusrdata, "HTTP/1.1 ");
-        os_memset(returncode, 0, sizeof(returncode));
-        os_memcpy(returncode, ptr+9, 3);
+        memset(returncode, 0, sizeof(returncode));
+        memcpy(returncode, ptr+9, 3);
 
-        if(os_strcmp(returncode ,"200")){ //下载失败
+        if(strcmp(returncode ,"200")){ //下载失败
             DEBUG("http download return code  error\n");
             upgrade_check(server);
             return;
         }
-        else
-        {
-            /*
-            os_memset(output, 0, sizeof(output));
-            if (ONLINE_STM32_APP_FILE == filetype) {
-                os_sprintf(output,"%s:2\r\n", CMD_DOWN_FILE); //正在下载
-                at_port_print(output);
-                at_response_ok();
-            }
-            else if (ESP8266_APP_FILE == filetype) {
-                os_sprintf(output,"%s:2\r\n", CMD_NET_DOWN); //正在下载
-                at_port_print(output);
-                at_response_ok();
-            }*/
-        }
     }
 
-    if (totallength == 0 && (ptr = (char *)os_strstr(pusrdata, "\r\n\r\n")) != NULL &&
-            (ptr = (char *)os_strstr(pusrdata, "Content-Length")) != NULL) {
-        ptr = (char *)os_strstr(pusrdata, "\r\n\r\n");
+    if (totallength == 0 && (ptr = (char *)strstr(pusrdata, "\r\n\r\n")) != NULL &&
+            (ptr = (char *)strstr(pusrdata, "Content-Length")) != NULL) {
+        ptr = (char *)strstr(pusrdata, "\r\n\r\n");
         length -= ptr - pusrdata;
         length -= 4;
         totallength += length;
@@ -180,15 +157,15 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
         MD5Init(&_ctx);
         MD5Update(&_ctx, ptr + 4, length);
         system_upgrade(ptr + 4, length);
-        ptr = (char *)os_strstr(pusrdata, "Content-Length: ");
+        ptr = (char *)strstr(pusrdata, "Content-Length: ");
 
         if (ptr != NULL) {
             ptr += 16;
-            ptmp2 = (char *)os_strstr(ptr, "\r\n");
+            ptmp2 = (char *)strstr(ptr, "\r\n");
 
             if (ptmp2 != NULL) {
-                os_memset(lengthbuffer, 0, sizeof(lengthbuffer));
-                os_memcpy(lengthbuffer, ptr, ptmp2 - ptr);
+                memset(lengthbuffer, 0, sizeof(lengthbuffer));
+                memcpy(lengthbuffer, ptr, ptmp2 - ptr);
                 sumlength = atoi(lengthbuffer);
                 uint32_t  limit_size = 0;
                 if (ONLINE_APP_FILE == filetype) {
@@ -207,14 +184,14 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
                     return;
                 }
                 //获取文件MD5码
-                ptr = (char *)os_strstr(pusrdata, "X-Md5: ");
+                ptr = (char *)strstr(pusrdata, "X-Md5: ");
                 if (ptr != NULL) {
                     ptr += 7;
-                    ptmp2 = (char *)os_strstr(ptr, "\r\n");
+                    ptmp2 = (char *)strstr(ptr, "\r\n");
 
                     if (ptmp2 != NULL) {
-                        os_memset(server->md5, 0, sizeof(server->md5));
-                        os_memcpy(server->md5, ptr, ptmp2 - ptr);
+                        memset(server->md5, 0, sizeof(server->md5));
+                        memcpy(server->md5, ptr, ptmp2 - ptr);
                     } else {
                         DEBUG("X-Mdt failed\n");
                         upgrade_check(server);
@@ -253,14 +230,14 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
     if ((totallength == sumlength)) {
         DEBUG("upgrade file download finished.\n");
         MD5Final(md5_calc, &_ctx);
-        os_memset(output, 0, sizeof(output));
+        memset(output, 0, sizeof(output));
         for(i = 0; i < 16; i++)
         {
-            os_sprintf(output + (i * 2), "%02x", md5_calc[i]);
+            sprintf(output + (i * 2), "%02x", md5_calc[i]);
         }
         DEBUG("md5 = %s\n",output);
         DEBUG("server->md5 = %s\n",server->md5);
-        if(!os_strcmp(server->md5,output)){
+        if(!strcmp(server->md5,output)){
             DEBUG("md5 check ok.\n");
             system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
             if (ONLINE_APP_FILE == filetype) {
@@ -320,7 +297,7 @@ upgrade_connect_cb(void *arg){
 
     if (pbuf != NULL) {
         DEBUG("%s\n", pbuf);
-        espconn_sent(pespconn, pbuf, os_strlen(pbuf));
+        espconn_sent(pespconn, pbuf, strlen(pbuf));
     }
 }
 
@@ -383,7 +360,7 @@ system_upgrade_start(struct upgrade_server_info *server){
             upgrade_conn->proto.tcp->local_port = espconn_port();
             upgrade_conn->proto.tcp->remote_port = server->port;
 
-            os_memcpy(upgrade_conn->proto.tcp->remote_ip, server->ip, 4);
+            memcpy(upgrade_conn->proto.tcp->remote_ip, server->ip, 4);
 
             DEBUG("%s\n", __func__);
             upgrade_connect(server);

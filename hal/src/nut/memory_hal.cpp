@@ -19,22 +19,44 @@
 
 #include "memory_hal.h"
 #include "hw_config.h"
+#include "flash_utils.h"
+#include "binary.h"
+
+static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
 
 /**
  * @brief  Gets the sector of a given address
  * @param  None
  * @retval The sector of a given address
  */
-void HAL_FLASH_Interminal_Erase(uint32_t address)
+uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
+    return address/FLASH_SECTOR_SIZE;
 }
 
-void HAL_FLASH_Interminal_Read(uint32_t address, uint16_t *pdata, uint32_t datalen)
+/**
+ * @brief  Gets the sector of a given address
+ * @param  None
+ * @retval The sector of a given address
+ */
+void HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
+    ets_isr_mask(FLASH_INT_MASK);
+    spi_flash_erase_sector(sector);
+    ets_isr_unmask(FLASH_INT_MASK);
 }
 
-int HAL_FLASH_Interminal_Write(uint32_t address, uint16_t *pdata, uint32_t datalen)
+void HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
-    return 0;
+    ets_isr_mask(FLASH_INT_MASK);
+    spi_flash_read(address, pdata, datalen);
+    ets_isr_unmask(FLASH_INT_MASK);
+}
+
+int HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
+{
+    ets_isr_mask(FLASH_INT_MASK);
+    spi_flash_write(address, pdata, datalen);
+    ets_isr_unmask(FLASH_INT_MASK);
 }
 

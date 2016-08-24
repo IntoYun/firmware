@@ -1,7 +1,7 @@
 #include "ets_sys.h"
 #include "osapi.h"
 #include "eboot_command.h"
-#include "upgrade.h"
+#include "esp8266_upgrade.h"
 #include "user_config.h"
 
 uint32_t crc32_update(uint32_t crc, const uint8_t *data, size_t length)

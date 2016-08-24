@@ -16,7 +16,7 @@ ifneq (,$(findstring wiring,$(MAKE_DEPENDENCIES)))
 LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_app.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/esp8266/$(PLATFORM_NAME)
 
-USE_PRINTF_FLOAT ?= y
+USE_PRINTF_FLOAT ?= n
 ifeq ("$(USE_PRINTF_FLOAT)","y")
 LDFLAGS += -u _printf_float
 endif

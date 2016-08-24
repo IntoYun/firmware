@@ -27,18 +27,19 @@
 #include "service_debug.h"
 
 
+#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)
+#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x10FFF)
 
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS              ((uint32_t)0x08010000)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS                ((uint32_t)0x0801FFFF)
+#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x11000)
+#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x17FFF)
 
-#define EEPROM_BOOT_PARAMS_MAX_SIZE                        (512)    //参数区大小
 
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
 #define INTOROBOT_BOARD_TYPE    "888003"
-#define INTOROBOT_BOARD_TYPE1    "887003"
+#define INTOROBOT_BOARD_TYPE1   "887003"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -94,40 +95,38 @@ void init_fac_system_params(system_params_t *psystem_params) {
     memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
 }
 
+void save_boot_params(boot_params_t *pboot_params);
+/*
+ * 读取bootloader参数区
+ * */
 void read_boot_params(boot_params_t *pboot_params) {
-/*    uint32_t len = sizeof(boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    uint32_t len = sizeof(boot_params_t);
 
-    memset(pboot, 0, len);
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    memset(pboot_params, 0, sizeof(boot_params_t));
+    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS-FLASH_BOOT_PARAMS_START_ADDRESS)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        pboot[num] = HAL_EEPROM_Read(address+num);
+    HAL_FLASH_Interminal_Read(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
+    if( BOOT_PARAMS_HEADER != pboot_params->header ) {
+        init_boot_params(pboot_params);
+        save_boot_params(pboot_params);
     }
-    */
 }
 
 /*
  * 保存bootloader参数区
  * */
 void save_boot_params(boot_params_t *pboot_params) {
-/*    uint32_t len = sizeof(boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    uint32_t len = sizeof(boot_params_t);
 
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS - FLASH_BOOT_PARAMS_START_ADDRESS)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        HAL_EEPROM_Write(address+num, pboot[num]);
-    }
-    */
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
+    HAL_FLASH_Interminal_Write(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
 }
 
+void save_system_params(system_params_t *psystem_params);
 /*
  * 加载系统参数区
  * */
@@ -138,10 +137,10 @@ void read_system_params(system_params_t *psystem_params) {
     if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS-FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
         return;
     }
-    HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint16_t *)psystem_params, len/2);
+    HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
     if( SYSTEM_PARAMS_HEADER != psystem_params->header ) {
         init_system_params(psystem_params);
-        HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint16_t *)psystem_params, len/2);
+        save_system_params(psystem_params);
     }
 }
 
@@ -154,7 +153,8 @@ void save_system_params(system_params_t *psystem_params) {
     if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS - FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
         return;
     }
-    HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint16_t *)psystem_params, len/2);
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
+    HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
 }
 
 /*
@@ -185,20 +185,20 @@ void HAL_PARAMS_Init_Boot_Params(void) {
 /*
  * 读取bootloader参数区
  * */
-void HAL_PARAMS_Load_System_Params(void) {
-    read_system_params(&intorobot_system_params);
-    if( SYSTEM_PARAMS_HEADER != intorobot_system_params.header ) {
-        HAL_PARAMS_Init_All_System_Params();
+void HAL_PARAMS_Load_Boot_Params(void) {
+    read_boot_params(&intorobot_boot_params);
+    if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
+        HAL_PARAMS_Init_Boot_Params();
     }
 }
 
 /*
  * 读取系统参数区
  * */
-void HAL_PARAMS_Load_Boot_Params(void) {
-    read_boot_params(&intorobot_boot_params);
-    if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
-        HAL_PARAMS_Init_Boot_Params();
+void HAL_PARAMS_Load_System_Params(void) {
+    read_system_params(&intorobot_system_params);
+    if( SYSTEM_PARAMS_HEADER != intorobot_system_params.header ) {
+        HAL_PARAMS_Init_All_System_Params();
     }
 }
 

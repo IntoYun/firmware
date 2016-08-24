@@ -113,7 +113,7 @@ void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 
 unsigned int USB_USART_Baud_Rate(void)
 {
-    return 0;
+    return 115200;
 }
 
 void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))

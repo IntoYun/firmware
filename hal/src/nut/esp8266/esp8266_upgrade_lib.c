@@ -1,7 +1,7 @@
 #include "ets_sys.h"
 #include "spi_flash.h"
 #include "lwip/mem.h"
-#include "upgrade.h"
+#include "esp8266_upgrade.h"
 
 LOCAL struct upgrade_param *upgrade;
 extern enum file_type_t filetype;
@@ -22,7 +22,7 @@ system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
     {
     	return true;
     }
-    upgrade->buffer = (uint8 *)malloc(len + upgrade->extra);
+    upgrade->buffer = (uint8 *)os_zalloc(len + upgrade->extra);
 
     memcpy(upgrade->buffer, upgrade->save, upgrade->extra);
     memcpy(upgrade->buffer + upgrade->extra, data, len);

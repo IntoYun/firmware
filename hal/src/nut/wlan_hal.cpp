@@ -112,12 +112,14 @@ int wlan_set_credentials(WLanCredentials* c)
 
 void wlan_Imlink_start()
 {
+    esp8266_setAutoReconnect(false);
+    wlan_disconnect();
     esp8266_beginSmartConfig();
 }
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    if(!esp8266_smartConfigDone)
+    if(!esp8266_smartConfigDone())
     return IMLINK_DOING;
     else
     return IMLINK_SUCCESS;
@@ -125,6 +127,7 @@ imlink_status_t wlan_Imlink_get_status()
 
 void wlan_Imlink_stop()
 {
+    esp8266_setAutoReconnect(true);
     esp8266_stopSmartConfig();
 }
 
@@ -134,6 +137,23 @@ void wlan_setup()
 
 void wlan_fetch_ipconfig(WLanConfig* config)
 {
+    memset(config, 0, sizeof(WLanConfig));
+    config->size = sizeof(WLanConfig);
+
+    struct ip_info ip;
+    wifi_get_ip_info(STATION_IF, &ip);
+    config->nw.aucIP.ipv4 = ip.ip.addr;
+    config->nw.aucSubnetMask.ipv4 = ip.netmask.addr;
+    config->nw.aucDefaultGateway.ipv4 = ip.gw.addr;
+
+    ip_addr_t dns_ip = dns_getserver(0);
+    config->nw.aucDNSServer.ipv4 = dns_ip.addr;
+    wifi_get_macaddr(STATION_IF, config->nw.uaMacAddr);
+
+    struct station_config conf;
+    wifi_station_get_config(&conf);
+    memcpy(config->uaSSID, conf.ssid, 32);
+    memcpy(config->BSSID, conf.bssid, 6);
 }
 
 void wlan_set_error_count(uint32_t errorCount)

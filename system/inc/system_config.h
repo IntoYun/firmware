@@ -26,6 +26,7 @@
 #define SYSTEM_CONFIG_H_
 
 #include "wiring_usbserial.h"
+#include "wiring_usartserial.h"
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"
 #include "wiring_udp.h"
@@ -89,6 +90,22 @@ public:
 
 public:
 	UsbDeviceConfig(USBSerial &_s = Serial):serialusb(_s){}
+    void init();
+    virtual int available(void);
+    virtual int read(void);
+    virtual String readString(void);
+    virtual size_t write(const uint8_t *buf, size_t size);
+    virtual void close(void);
+    virtual void sendComfirm(int status);
+};
+
+class UsartDeviceConfig : public DeviceConfig
+{
+public:
+	USARTSerial &serial;
+
+public:
+	UsartDeviceConfig(USARTSerial &_s = Serial1):serial(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);

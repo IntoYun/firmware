@@ -39,9 +39,26 @@
 #include "stdlib_noniso.h"
 #include "service_debug.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "c_types.h"
+#include "ets_sys.h"
+#include "os_type.h"
+#include "osapi.h"
+#include "mem.h"
+#include "user_interface.h"
+#include "cont.h"
+#include "espconn.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
-#define     __IO    volatile             /*!< Defines 'read / write' permissions              */
+#define __IO    volatile             /*!< Defines 'read / write' permissions              */
 
 #endif  /*HW_CONFIG_H_*/

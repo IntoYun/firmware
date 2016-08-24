@@ -1,6 +1,10 @@
 #ifndef __UPGRADE_H__
 #define __UPGRADE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SPI_FLASH_SEC_SIZE      4096       //Flash 扇区大小
 #define LIMIT_ERASE_SIZE        0x10000    //Flash 擦除扇区大小限制
 
@@ -54,6 +58,9 @@ struct upgrade_server_info {
 #define APP_SEC_START                    32   //应用程序运行起始扇区
 #define DEFAULT_APP_SEC_START            219  //默认应用程序存放起始扇区
 
+#define BOOT_SEC_NUM                     16   //BOOT占用16个扇区
+#define BOOT_PARAMS_SEC_NUM              1    //boot参数区扇区总个数
+#define SYSTEM_PARAMS_SEC_NUM            7    //系统参数区扇区总个数
 #define APP_SEC_NUM                      187  //应用程序扇区总个数
 #define DEFAULT_APP_SEC_NUM              89   //默认应用程序扇区总个数
 
@@ -64,6 +71,9 @@ struct upgrade_server_info {
 #define CACHE_BOOT_SEC_NUM               16   //boot程序扇区总个数
 #define CACHE_ONLINE_APP_SEC_NUM         187  //在线应用程序  缓冲扇区总个数
 #define CACHE_DEFAULT_APP_SEC_NUM        187  //默认应用程序 缓冲扇区总个数
+
+#define BOOT_PARAMS_ADDR                 BOOT_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
+#define SYSTEM_PARAMS_ADDR               SYSTEM_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 
 #define APP_ADDR                         APP_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 #define DEFAULT_APP_ADDR                 DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE       //默认程序 存放地址
@@ -88,5 +98,9 @@ void system_upgrade_deinit();
 bool system_upgrade(uint8 *data, uint16 len);
 bool system_upgrade_start(struct upgrade_server_info *server);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
