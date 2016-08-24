@@ -139,7 +139,7 @@ void manage_network_connection()
         DEBUG_D("network connected\r\n");
         if(!was_connected) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
-            HAL_OTA_Download_App("www.intorobot.com", "/v1/bins?dwn_token=66907ae677ad7d5c94628e4da3355804", "0aaf696dceeacea3655e7cc3df25c89d");
+            //HAL_OTA_Download_App("www.intorobot.com", "/v1/bins?dwn_token=66907ae677ad7d5c94628e4da3355804", "0aaf696dceeacea3655e7cc3df25c89d");
         }
     }
     else
