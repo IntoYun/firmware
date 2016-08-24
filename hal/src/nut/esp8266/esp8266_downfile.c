@@ -124,7 +124,6 @@ void upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg){
 void downFile(char *hostname, char *httppara, char *md5para, void *check_cb){
     upServer = (struct upgrade_server_info *)os_zalloc(sizeof(struct upgrade_server_info));
 
-    DEBUG("upServer=%x\r\n",upServer);
     upServer->upgrade_version[5] = '\0';
     upServer->port = 80;
     upServer->check_cb = check_cb;
@@ -134,7 +133,6 @@ void downFile(char *hostname, char *httppara, char *md5para, void *check_cb){
     {
         upServer->url = (uint8 *)os_zalloc(1024);
     }
-    DEBUG("upServer->url=%x\r\n",upServer->url);
 
     sprintf(upServer->url,
             "GET %s HTTP/1.0\r\nHost: %s\r\n"pheadbuffer"",

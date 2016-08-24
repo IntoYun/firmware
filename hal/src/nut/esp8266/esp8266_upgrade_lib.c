@@ -14,8 +14,7 @@ extern SpiFlashChip *flashchip;
  * Parameters   :
  * Returns      :
 *******************************************************************************/
-LOCAL bool ICACHE_FLASH_ATTR
-system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
+LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
 {
     bool ret = false;
     if(data == NULL || len == 0)
@@ -41,12 +40,12 @@ system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
         if (len > SPI_FLASH_SEC_SIZE) {
 
         } else {
-			//os_printf("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+			DEBUG("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
             /* earse sector, just earse when first enter this zone */
             if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
                 upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
                 spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
-				//os_printf("%x\n",upgrade->fw_bin_sec_earse);
+				DEBUG("%x\n",upgrade->fw_bin_sec_earse);
             }
         }
 
@@ -69,8 +68,7 @@ system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
  * Parameters   :
  * Returns      :
 *******************************************************************************/
-bool ICACHE_FLASH_ATTR
-system_upgrade(uint8 *data, uint16 len)
+bool ICACHE_FLASH_ATTR system_upgrade(uint8 *data, uint16 len)
 {
     bool ret;
 
@@ -84,16 +82,8 @@ system_upgrade(uint8 *data, uint16 len)
  * Parameters   :
  * Returns      :
 *******************************************************************************/
-void ICACHE_FLASH_ATTR
-system_upgrade_init(void)
+void ICACHE_FLASH_ATTR system_upgrade_init(void)
 {
-    uint32 user_bin2_start;
-    uint8 flash_buf[4];
-    uint8 high_half;
-
-    spi_flash_read(0, (uint32 *)flash_buf, 4);
-    high_half = (flash_buf[3] & 0xF0) >> 4;
-
     if (upgrade == NULL) {
         upgrade = (struct upgrade_param *)os_zalloc(sizeof(struct upgrade_param));
     }
@@ -112,6 +102,7 @@ system_upgrade_init(void)
 		upgrade->fw_bin_sec = CACHE_DEFAULT_APP_SEC_START;
 		upgrade->fw_bin_sec_num = CACHE_DEFAULT_APP_SEC_NUM;
 	}
+    DEBUG("sec=%d  sec_num=%d", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
     upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
 }
 
@@ -121,8 +112,7 @@ system_upgrade_init(void)
  * Parameters   :
  * Returns      :
 *******************************************************************************/
-void ICACHE_FLASH_ATTR
-system_upgrade_deinit(void)
+void ICACHE_FLASH_ATTR system_upgrade_deinit(void)
 {
     os_free(upgrade);
     upgrade = NULL;

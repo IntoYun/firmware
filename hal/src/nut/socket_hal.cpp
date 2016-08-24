@@ -23,32 +23,13 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
 #include "socket_hal.h"
-#define LWIP_SOCKET 1
-#include "lwip/sockets.h"
 
-
-const sock_handle_t SOCKET_MAX = (sock_handle_t)7; // 7 total sockets, handle 0-6
-const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
-
-//extern int lwip_socket(int domain, int type, int protocol);
-sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
-{
-    // here family is not use, because LWIP_UNUSED_ARG();
-    sock_handle_t handle = lwip_socket(family, type, protocol);
-    return handle;
-}
 
 int32_t socket_connect(sock_handle_t sd, const sockaddr_t *addr, long addrlen)
 {
-    // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr_t don't
-    struct sockaddr* addr_tmp;
-    for (int i = 0; i < 14; i++){
-        addr_tmp->sa_data[i] = addr->sa_data[i];
-    }
-    addr_tmp->sa_family = addr->sa_family;
-    return lwip_connect(sd, addr_tmp, addrlen); // return the connect result
+    return 0;
 }
-// not implement yet
+
 sock_result_t socket_reset_blocking_call()
 {
     return 0;
@@ -56,11 +37,9 @@ sock_result_t socket_reset_blocking_call()
 
 sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, system_tick_t _timeout)
 {
-    // here _timeout is not used, maybe a bug.
-    return lwip_recv(sd, buffer, len, 0); // recv input param flags set 0, need consideration.
+  return 0;
 }
 
-// not implement yet.
 sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port)
 {
     return 0;
@@ -68,17 +47,12 @@ sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port
 
 sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t bufLen, uint32_t flags, sockaddr_t* addr, socklen_t* addrsize)
 {
-    // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr don't
-    struct sockaddr* addr_tmp;
-    for (int i = 0; i < 14; i++){
-        addr_tmp->sa_data[i] = addr->sa_data[i];
-    }
-    addr_tmp->sa_family = addr->sa_family;
-    return lwip_recvfrom(sock, buffer, bufLen, 0, addr_tmp, addrsize); // flags set to 0, need more consideration.
+    return 0;
 }
 
 sock_result_t socket_bind(sock_handle_t sock, uint16_t port)
 {
+    return 0;
 }
 
 sock_result_t socket_accept(sock_handle_t sock)
@@ -86,9 +60,6 @@ sock_result_t socket_accept(sock_handle_t sock)
     return 0;
 }
 
-
-// not implement yet
-// maybe need reconstruct the code
 uint8_t socket_active_status(sock_handle_t socket)
 {
     return 0;
@@ -96,28 +67,26 @@ uint8_t socket_active_status(sock_handle_t socket)
 
 sock_result_t socket_close(sock_handle_t sock)
 {
-    return lwip_close(sock);
+    return 0;
 }
 
+sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
+{
+    return 0;
+}
 
 sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
 {
-    return lwip_send(sd, buffer, len, 0); // flags set to 0, need more consideration.
+    return 0;
 }
 
 sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, sockaddr_t* addr, socklen_t addr_size)
 {
-    // here maybe some bugs, the struct sockaddr has sa_len member, but sockaddr don't
-    struct sockaddr* addr_tmp;
-    for (int i = 0; i < 14; i++){
-        addr_tmp->sa_data[i] = addr->sa_data[i];
-    }
-    addr_tmp->sa_family = addr->sa_family;
-    return lwip_sendto(sd, buffer, len, 0, addr_tmp, addr_size);
+    return 0;
 }
 
-// const sock_handle_t SOCKET_MAX = (sock_handle_t)0xFFFE;
-// const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
+const sock_handle_t SOCKET_MAX = (sock_handle_t)0xFFFE;
+const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
 
 inline bool is_valid(sock_handle_t handle) {
     return handle<SOCKET_MAX;
@@ -140,7 +109,7 @@ sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface
 
 sock_result_t socket_leave_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
 {
-    return -1;
+	return -1;
 }
 
 sock_result_t socket_peer(sock_handle_t sd, sock_peer_t* peer, void* reserved)

@@ -22,8 +22,7 @@ extern uint8_t down_progress;
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_disconcb(void *arg){
+LOCAL void ICACHE_FLASH_ATTR upgrade_disconcb(void *arg){
     struct espconn *pespconn = arg;
 
     if (pespconn == NULL) {
@@ -44,8 +43,7 @@ upgrade_disconcb(void *arg){
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_datasent(void *arg){
+LOCAL void ICACHE_FLASH_ATTR upgrade_datasent(void *arg){
     struct espconn *pespconn = arg;
 
     if (pespconn ->state == ESPCONN_CONNECT) {
@@ -58,16 +56,14 @@ upgrade_datasent(void *arg){
  * Parameters   : bin -- server number
  * Returns      : none
 *******************************************************************************/
-void ICACHE_FLASH_ATTR
-LOCAL upgrade_deinit(void){
+void ICACHE_FLASH_ATTR LOCAL upgrade_deinit(void){
     if (system_upgrade_flag_check() != UPGRADE_FLAG_START) {
         system_upgrade_deinit();
     }
 }
 
 //连接服务器超时回调
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_connect_timeout_cb(struct espconn *pespconn){
+LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn){
     struct upgrade_server_info *server;
 
 	DEBUG("upgrade_connect_timeout_cb\n");
@@ -90,8 +86,7 @@ upgrade_connect_timeout_cb(struct espconn *pespconn){
 }
 
 //下载结果检查
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_check(struct upgrade_server_info *server){
+LOCAL void ICACHE_FLASH_ATTR upgrade_check(struct upgrade_server_info *server){
 	DEBUG("upgrade_check\n");
     if (server == NULL) {
         return;
@@ -123,8 +118,7 @@ upgrade_check(struct upgrade_server_info *server){
  *                length -- The length of upgrade data
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_download(void *arg, char *pusrdata, unsigned short length){
+LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigned short length){
     char *ptr = NULL;
     char *ptmp2 = NULL;
     char lengthbuffer[32], returncode[4];
@@ -136,7 +130,7 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
     //检查返回码
     if (totallength == 0){
         DEBUG("httpdata:%s\n", pusrdata);
-        ptr = (char *)os_strstr(pusrdata, "HTTP/1.1 ");
+        ptr = (char *)strstr(pusrdata, "HTTP/1.1 ");
         memset(returncode, 0, sizeof(returncode));
         memcpy(returncode, ptr+9, 3);
 
@@ -158,7 +152,6 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
         MD5Update(&_ctx, ptr + 4, length);
         system_upgrade(ptr + 4, length);
         ptr = (char *)strstr(pusrdata, "Content-Length: ");
-
         if (ptr != NULL) {
             ptr += 16;
             ptmp2 = (char *)strstr(ptr, "\r\n");
@@ -277,6 +270,7 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
         os_timer_setfn(&upgrade_rev_timer, (os_timer_func_t *)upgrade_check, server);
         os_timer_arm(&upgrade_rev_timer, 10, 0);
     }
+    DEBUG("bbbbb.\n");
 }
 
 /******************************************************************************
@@ -285,8 +279,7 @@ upgrade_download(void *arg, char *pusrdata, unsigned short length){
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_connect_cb(void *arg){
+LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
     struct espconn *pespconn = arg;
 
     DEBUG("upgrade_connect_cb\n");
@@ -308,8 +301,7 @@ upgrade_connect_cb(void *arg){
  *                url -- the url whitch upgrade files saved
  * Returns      : none
 *******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-upgrade_connect(struct upgrade_server_info *server){
+LOCAL void ICACHE_FLASH_ATTR upgrade_connect(struct upgrade_server_info *server){
 	DEBUG("upgrade_connect\n");
 
     pbuf = server->url;
@@ -332,8 +324,7 @@ upgrade_connect(struct upgrade_server_info *server){
  * Parameters   : server -- A point to a server parmer which connected
  * Returns      : none
 *******************************************************************************/
-bool ICACHE_FLASH_ATTR
-system_upgrade_start(struct upgrade_server_info *server){
+bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
 
     if (system_upgrade_flag_check() == UPGRADE_FLAG_START) {
         return false;
