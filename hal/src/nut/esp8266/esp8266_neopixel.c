@@ -14,6 +14,7 @@ static inline uint32_t _getCycleCount(void) {
 }
 
 void ICACHE_RAM_ATTR espShow(uint8_t pin, uint32_t color, uint8_t brightness) {
+//void espShow(uint8_t pin, uint32_t color, uint8_t brightness) {
 #define CYCLES_800_T0H  (F_CPU / 2500000) // 0.4us
 #define CYCLES_800_T1H  (F_CPU / 1250000) // 0.8us
 #define CYCLES_800      (F_CPU /  800000) // 1.25us per bit

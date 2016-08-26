@@ -57,6 +57,7 @@ int atexit(void (*func)()) {
     return 0;
 }
 
+extern "C" void ets_update_cpu_frequency(int freqmhz);
 void preloop_update_frequency() __attribute__((weak));
 void preloop_update_frequency() {
 #if defined(F_CPU) && (F_CPU == 160000000L)
@@ -142,7 +143,6 @@ void init_done() {
 }
 
 extern "C" void user_init(void) {
-
     struct rst_info *rtc_info_ptr = system_get_rst_info();
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
@@ -178,13 +178,10 @@ void HAL_Core_Config(void)
 
     HAL_IWDG_Initial();
     HAL_UI_Initial();
-
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
 }
 
 void HAL_Core_Setup(void)
 {
-    HAL_Delay_Microseconds(500000);
     esp8266_setMode(WIFI_STA);
     esp8266_setDHCP(true);
     esp8266_setAutoConnect(false);

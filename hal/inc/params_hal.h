@@ -44,10 +44,12 @@ void HAL_PARAMS_Load_System_Params(void);
 void HAL_PARAMS_Load_Boot_Params(void);
 void HAL_PARAMS_Save_Params(void);
 
-uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void);
-int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag);
+uint32_t HAL_PARAMS_Get_Boot_boot_version(void);
+int HAL_PARAMS_Set_Boot_boot_version(uint32_t version);
 uint16_t HAL_PARAMS_Get_Boot_boot_flag(void);
 int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag);
+uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void);
+int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag);
 
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);

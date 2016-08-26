@@ -8,6 +8,14 @@
 #ifndef FLASH_H
 #define FLASH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 int SPIEraseBlock(uint32_t block);
 int SPIEraseSector(uint32_t sector);
 int SPIRead(uint32_t addr, void *dest, size_t size);
@@ -41,5 +49,8 @@ typedef struct {
     uint32_t            size;
 } section_header_t;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //FLASH_H

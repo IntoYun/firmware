@@ -5,164 +5,171 @@
  * 3-clause BSD license to be found in the LICENSE file.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include "hw_config.h"
+#include "boot_mode.h"
 #include "flash.h"
 #include "eboot_command.h"
+#include "esp8266/esp8266_config.h"
 #include "params_hal.h"
+#include "ui_hal.h"
+#include "boot_debug.h"
 
-#define SWRST do { (*((volatile uint32_t*) 0x60000700)) |= 0x80000000; } while(0);
 
-extern void ets_wdt_enable(void);
-extern void ets_wdt_disable(void);
+#define BOOTLOADER_VERSION  1
 
-/*从flash中导入应用*/
-int load_app_from_flash_raw(const uint32_t flash_addr)
+uint8_t RESERVE_MODE=0;
+uint8_t SERIAL_COM_MODE = 0;
+uint8_t DEFAULT_FIRMWARE_MODE=0;
+uint8_t FACTORY_RESET_MODE=0;
+uint8_t NC_MODE=0;
+uint8_t ALL_RESET_MODE=0;
+uint8_t START_APP_MODE=0;
+uint8_t OTA_FIRMWARE_MODE=0;
+
+uint32_t BUTTON_press_time=0;
+
+void Start_App(void)
 {
-    image_header_t image_header;
-    uint32_t pos = flash_addr + APP_START_OFFSET;
-
-    if (SPIRead(pos, &image_header, sizeof(image_header))){
-        return 1;
-    }
-    pos += sizeof(image_header);
-
-    for (uint32_t section_index = 0;
-        section_index < image_header.num_segments;
-        ++section_index){
-        section_header_t section_header = {0};
-        if (SPIRead(pos, &section_header, sizeof(section_header))){
-            return 2;
-        }
-        pos += sizeof(section_header);
-
-        const uint32_t address = section_header.address;
-
-        bool load = false;
-
-        if (address < 0x40000000){
-            load = true;
-        }
-
-        if (address >= 0x40100000 && address < 0x40108000){
-            load = true;
-        }
-
-        if (address >= 0x60000000){
-            load = true;
-        }
-
-        if (!load){
-            pos += section_header.size;
-            continue;
-        }
-
-        if (SPIRead(pos, (void*)address, section_header.size)){
-            return 3;
-        }
-
-        pos += section_header.size;
-    }
-    register uint32_t sp asm("a1") = 0x3ffffff0;
-    register uint32_t pc asm("a3") = image_header.entry;
-    __asm__  __volatile__ ("jx a3");
-
-    return 0;
-}
-
-/*从flash起始地址复制至目标地址*/
-int copy_raw(const uint32_t src_addr,
-             const uint32_t dst_addr,
-             const uint32_t size)
-{
-    // require regions to be aligned
-    if (src_addr & 0xfff != 0 ||
-        dst_addr & 0xfff != 0){
-        return 1;
-    }
-
-    const uint32_t buffer_size = FLASH_SECTOR_SIZE;
-    uint8_t buffer[buffer_size];
-    uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
-    uint32_t saddr = src_addr;
-    uint32_t daddr = dst_addr;
-
-    while (left){
-        if (SPIEraseSector(daddr/buffer_size)){
-            return 2;
-        }
-        if (SPIRead(saddr, buffer, buffer_size)){
-            return 3;
-        }
-        if (SPIWrite(daddr, buffer, buffer_size)){
-            return 4;
-        }
-        saddr += buffer_size;
-        daddr += buffer_size;
-        left  -= buffer_size;
-    }
-
-    return 0;
-}
-
-int main()
-{
-    int res = 9, count=3;
-    struct eboot_command cmd;
-
-    eboot_command_read(&cmd);
-    if (cmd.action == ACTION_COPY_APP){
-        ets_putc('c'); ets_putc('p'); ets_putc(':');
-        if(cmd.online_app_size){
-            ets_wdt_disable();
-            while(count--)
-            {
-                //wifi update
-                res = copy_raw(cmd.online_app_addr[0], cmd.online_app_addr[1], cmd.online_app_size);
-                if(res == 0){
-                    break;
-                }
-            }
-            ets_wdt_enable();
-        }
-        ets_putc('0'+res); ets_putc('\n');
-        cmd.action = ACTION_LOAD_APP;
-        cmd.online_app_size = 0;
-        eboot_command_write(&cmd);
-    }
-
-    if (cmd.action == ACTION_COPY_DEFAPP){
-        ets_putc('c'); ets_putc('p'); ets_putc(':');
-        if(cmd.default_app_size){
-            ets_wdt_disable();
-            while(count--)
-            {
-                res = copy_raw(cmd.default_app_addr[0], cmd.default_app_addr[1], cmd.default_app_size);
-                if(res == 0){
-                    break;
-                }
-            }
-            ets_wdt_enable();
-        }
-        ets_putc('0'+res); ets_putc('\n');
-        cmd.action = ACTION_LOAD_APP;
-        cmd.default_app_size = 0;
-        eboot_command_write(&cmd);
-    }
-
-    cmd.action = ACTION_LOAD_APP;
-    if (cmd.action == ACTION_LOAD_APP){
-        ets_putc('l'); ets_putc('d'); ets_putc('\n');
-        res = load_app_from_flash_raw(0);
-        //we will get to this only on load fail
-        ets_putc('e'); ets_putc(':'); ets_putc('0'+res); ets_putc('\n');
-    }
-
-    if (res){
+    ETS_FRC1_INTR_DISABLE();
+    if (!load_app(APP_START_OFFSET)){
         SWRST;
     }
 
     while(true)
     {}
 }
+
+int main()
+{
+    BOOT_DEBUG("boot start...\r\n");
+    Set_System();
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+
+    HAL_PARAMS_Load_Boot_Params();
+    HAL_PARAMS_Load_System_Params();
+
+    //延时1.5s 等待用户进入配置模式
+    delay(1500);
+
+    if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
+    {
+        BOOT_DEBUG("save boot version...\r\n");
+        HAL_PARAMS_Set_Boot_boot_version(BOOTLOADER_VERSION);
+        HAL_PARAMS_Save_Params();
+    }
+
+    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
+    {
+#define TIMING_RESERVE_MODE          3000   //保留模式
+#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认程序恢复判断时间
+#define TIMING_SERIAL_COM_MODE       10000  //保留1模式
+#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
+#define TIMING_NC                    20000  //无操作判断时间
+#define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
+        while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
+        {
+            BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
+            if(BUTTON_press_time > TIMING_ALL_RESET_MODE)
+            {
+                FACTORY_RESET_MODE = 0;
+                ALL_RESET_MODE = 1;
+                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
+            }
+            else if(BUTTON_press_time > TIMING_NC)
+            {
+                FACTORY_RESET_MODE = 0;
+                NC_MODE = 1;
+                HAL_UI_RGB_Color(0);
+            }
+            else if(BUTTON_press_time > TIMING_FACTORY_RESET_MODE)
+            {
+                SERIAL_COM_MODE=0;
+                FACTORY_RESET_MODE = 1;
+                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+            }
+            else if(BUTTON_press_time > TIMING_SERIAL_COM_MODE)
+            {
+                DEFAULT_FIRMWARE_MODE = 0;
+                SERIAL_COM_MODE=1;
+                HAL_UI_RGB_Color(RGB_COLOR_BLUE);
+            }
+            else if(BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE)
+            {
+                RESERVE_MODE=0;
+                DEFAULT_FIRMWARE_MODE = 1;
+                HAL_UI_RGB_Color(RGB_COLOR_GREEN);
+            }
+            else if(BUTTON_press_time > TIMING_RESERVE_MODE)
+            {
+                RESERVE_MODE=1;
+                HAL_UI_RGB_Color(RGB_COLOR_RED);
+            }
+        }
+    }
+    else
+    {
+        switch(HAL_PARAMS_Get_Boot_boot_flag())
+        {
+            case 0: //正常启动
+                START_APP_MODE = 1;
+                break;
+            case 1: //默认程序下载
+                DEFAULT_FIRMWARE_MODE = 1;
+                break;
+            case 2: //串口通讯(保留)
+                SERIAL_COM_MODE = 1;
+                break;
+            case 3: //恢复出厂
+                FACTORY_RESET_MODE = 1;
+                break;
+            case 4: //在线升级
+                OTA_FIRMWARE_MODE = 1;
+                break;
+            case 5: //完全恢复出厂  清除密钥
+                ALL_RESET_MODE = 1;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if(ALL_RESET_MODE)
+    {
+        BOOT_DEBUG("ALL factroy reset\r\n");
+        Enter_Factory_ALL_RESTORE_Mode();
+        ALL_RESET_MODE = 0;
+    }
+    else if(FACTORY_RESET_MODE)
+    {
+        BOOT_DEBUG("factroy reset\r\n");
+        Enter_Factory_RESTORE_Mode();
+        FACTORY_RESET_MODE = 0;
+    }
+    else if(DEFAULT_FIRMWARE_MODE)
+    {
+        BOOT_DEBUG("default firmware mode\r\n");
+        Enter_Default_RESTORE_Mode();
+        DEFAULT_FIRMWARE_MODE = 0;
+    }
+    else if(SERIAL_COM_MODE)
+    {
+        BOOT_DEBUG("serail com mode\r\n");
+        Enter_Serail_Com_Mode();
+        SERIAL_COM_MODE = 0;
+    }
+    else if(OTA_FIRMWARE_MODE)
+    {
+        BOOT_DEBUG("ota firmware\r\n");
+        Enter_OTA_Update_Mode();
+        OTA_FIRMWARE_MODE = 0;
+    }
+    else if(RESERVE_MODE||NC_MODE)
+    {
+        System_Reset();
+    }
+    BOOT_DEBUG("start app\r\n");
+    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+    Start_App();
+    return 0;
+}
+

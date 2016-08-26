@@ -5,9 +5,6 @@
  * 3-clause BSD license to be found in the LICENSE file.
  */
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "flash.h"
 
 

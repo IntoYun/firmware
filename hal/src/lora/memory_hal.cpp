@@ -50,7 +50,7 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 #endif
 }
 
-void HAL_FLASH_Interminal_Erase(uint32_t sector)
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
 #if 0
     FLASH_EraseInitTypeDef EraseInitStruct;
@@ -68,7 +68,7 @@ void HAL_FLASH_Interminal_Erase(uint32_t sector)
 #endif
 }
 
-void HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
 #if 0
     uint32_t endAddress = address + datalen*2;
@@ -82,7 +82,7 @@ void HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datal
 #endif
 }
 
-int HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
 #if 0
     uint32_t endAddress = address + datalen * 2;

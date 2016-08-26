@@ -218,6 +218,22 @@ void HAL_PARAMS_Save_Params(void) {
     save_boot_params(&intorobot_boot_params);
     save_system_params(&intorobot_system_params);
 }
+
+/*
+ * 读取bootloader版本号
+ * */
+uint32_t HAL_PARAMS_Get_Boot_boot_version(void) {
+    return intorobot_boot_params.boot_version;
+}
+
+/*
+ * 保存bootloader版本号
+ * */
+int HAL_PARAMS_Set_Boot_boot_version(uint32_t version) {
+    intorobot_boot_params.boot_version = version;
+    return 0;
+}
+
 /*
  * 读取设置启动标志
  * */

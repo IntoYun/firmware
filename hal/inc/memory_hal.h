@@ -95,10 +95,18 @@ public:
 extern "C" {
 #endif
 
+typedef enum
+{
+  HAL_FLASH_STATUS_OK       = 0x00U,
+  HAL_FLASH_STATUS_ERROR    = 0x01U,
+  HAL_FLASH_STATUS_BUSY     = 0x02U,
+  HAL_FLASH_STATUS_TIMEOUT  = 0x03U
+} HAL_Flash_StatusTypeDef;
+
 uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address);
-void HAL_FLASH_Interminal_Erase(uint32_t sector);
-void HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen);
-int HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen);
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector);
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen);
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen);
 
 #ifdef __cplusplus
 }
