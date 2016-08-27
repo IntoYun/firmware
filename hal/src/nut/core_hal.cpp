@@ -27,20 +27,22 @@
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "syshealth_hal.h"
+#include "intorobot_macros.h"
 #include "rtc_hal.h"
 #include "service_debug.h"
 #include "delay_hal.h"
 #include "params_hal.h"
+#include "memory_hal.h"
 #include <Arduino.h>
 #include "Schedule.h"
 #include "esp8266_wifi_generic.h"
 #include <core_version.h>
-
+#include "subsys_version.h"
+#include "flash_map.h"
 
 
 
 /* Private typedef ----------------------------------------------------------*/
-
 /* Private define -----------------------------------------------------------*/
 void HAL_Core_Setup(void);
 
@@ -131,11 +133,12 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
-
+extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
 void init_done() {
     system_set_os_print(1);
     gdb_init();
     do_global_ctors();
+    printf("\n%08x\n", intorobot_subsys_version);
     HAL_Core_Config();
     HAL_Core_Setup();
     app_setup_and_loop_initial();
@@ -193,24 +196,12 @@ void HAL_Core_Setup(void)
 extern "C" void __real_system_restart_local();
 void HAL_Core_System_Reset(void)
 {
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0x7DEA);
     __real_system_restart_local();
 }
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
 {
-    // true  - DFU mode persist if firmware upgrade is not completed
-    // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
-    //         Subsequent reset or power off-on will execute normal firmware
-    if (persist)
-    {
-        HAL_PARAMS_Set_Boot_boot_flag(6);
-        HAL_PARAMS_Save_Params();
-    }
-    else
-    {
-        HAL_Core_Write_Backup_Register(BKP_DR_01, 0x7DEA);
-    }
-    HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Config_Mode(void)
@@ -271,6 +262,20 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
+    char data[32];
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
+        if(!memcmp(data, "VERSION:", 8))
+        {
+            templen = MIN(strlen(&data[8]), len-1);
+            memset(buffer, 0, len);
+            memcpy(buffer, &data[8], templen);
+            return templen;
+        }
+    }
+    return 0;
 }
 
 typedef void (*app_system_loop_handler)(void);

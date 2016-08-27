@@ -12,6 +12,7 @@
 #include "esp8266/esp8266_config.h"
 #include "params_hal.h"
 #include "ui_hal.h"
+#include "core_hal.h"
 #include "boot_debug.h"
 
 
@@ -48,8 +49,13 @@ int main()
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
 
-    //延时1.5s 等待用户进入配置模式
-    delay(1500);
+    //自动进入DFU下载模式
+    if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
+    {
+        //延时1.5s 等待用户进入配置模式
+        delay(1500);
+    }
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0xFFFF);
 
     if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
     {

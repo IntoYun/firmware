@@ -24,6 +24,8 @@
 #define SPI_FLASH_SEC_SIZE      4096       //Flash 扇区大小
 #define LIMIT_ERASE_SIZE        0x10000    //Flash 擦除扇区大小限制
 
+#define SUBSYS_VERSION_ADDR     0x20010    //subsys version address
+
 /*
  *  28k  bootloader
  *  4k   指令保存区

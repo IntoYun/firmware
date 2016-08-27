@@ -238,7 +238,7 @@ void app_setup_and_loop_initial(void)
     DECLARE_SYS_HEALTH(ENTERED_Main);
     // load params
     app_load_params();
-//HAL_Core_System_Reset();
+
     set_system_mode(DEFAULT);
 
     DEBUG_D("welcome from IntoRobot!\r\n");
