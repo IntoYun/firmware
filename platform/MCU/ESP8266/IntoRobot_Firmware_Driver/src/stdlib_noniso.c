@@ -55,7 +55,7 @@ void reverse(char* begin, char* end) {
         --ie;
     }
 }
-
+/*
 char* itoa(int value, char* result, int base) {
     if(base < 2 || base > 16) {
         *result = 0;
@@ -105,6 +105,7 @@ char* ltoa(long value, char* result, int base) {
     *out = 0;
     return result;
 }
+*/
 
 char* utoa(unsigned value, char* result, int base) {
     if(base < 2 || base > 16) {
@@ -126,7 +127,7 @@ char* utoa(unsigned value, char* result, int base) {
     *out = 0;
     return result;
 }
-
+/*
 char* ultoa(unsigned long value, char* result, int base) {
     if(base < 2 || base > 16) {
         *result = 0;
@@ -147,6 +148,7 @@ char* ultoa(unsigned long value, char* result, int base) {
     *out = 0;
     return result;
 }
+*/
 
 char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     bool negative = false;
