@@ -1,8 +1,8 @@
 #include "hw_config.h"
 #include "md5.h"
-#include "eboot_command.h"
-#include "esp8266_upgrade_lib.c"
-
+#include "spi_flash.h"
+#include "esp8266_upgrade.h"
+#include "params_hal.h"
 
 LOCAL md5_context_t _ctx;
 LOCAL struct espconn *upgrade_conn;
@@ -13,15 +13,131 @@ LOCAL os_timer_t upgrade_timer;
 LOCAL uint32 totallength = 0;
 LOCAL uint32 sumlength = 0;
 LOCAL struct eboot_command cmd_info;
+LOCAL struct upgrade_param *upgrade;
 
 extern uint8_t down_progress;
+extern enum file_type_t filetype;
+
+extern int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+extern int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+extern int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
+
+/******************************************************************************
+ * FunctionName : system_upgrade_internal
+ * Description  : a
+ * Parameters   :
+ * Returns      :
+ *******************************************************************************/
+LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
+{
+    bool ret = false;
+    if(data == NULL || len == 0)
+    {
+        return true;
+    }
+    upgrade->buffer = (uint8 *)os_zalloc(len + upgrade->extra);
+
+    memcpy(upgrade->buffer, upgrade->save, upgrade->extra);
+    memcpy(upgrade->buffer + upgrade->extra, data, len);
+
+    len += upgrade->extra;
+    upgrade->extra = len & 0x03;
+    len -= upgrade->extra;
+
+    memcpy(upgrade->save, upgrade->buffer + len, upgrade->extra);
+
+    do {
+        if (upgrade->fw_bin_addr + len >= (upgrade->fw_bin_sec + upgrade->fw_bin_sec_num) * SPI_FLASH_SEC_SIZE) {
+            break;
+        }
+
+        if (len > SPI_FLASH_SEC_SIZE) {
+
+        } else {
+            DEBUG("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+            /* earse sector, just earse when first enter this zone */
+            if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
+                upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
+                spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
+                DEBUG("%x\n",upgrade->fw_bin_sec_earse);
+            }
+        }
+
+        if (spi_flash_write(upgrade->fw_bin_addr, (uint32 *)upgrade->buffer, len) != SPI_FLASH_RESULT_OK) {
+            break;
+        }
+
+        ret = true;
+        upgrade->fw_bin_addr += len;
+    } while (0);
+
+    os_free(upgrade->buffer);
+    upgrade->buffer = NULL;
+    return ret;
+}
+
+/******************************************************************************
+ * FunctionName : system_upgrade
+ * Description  : a
+ * Parameters   :
+ * Returns      :
+ *******************************************************************************/
+bool ICACHE_FLASH_ATTR system_upgrade(uint8 *data, uint16 len)
+{
+    bool ret;
+
+    ret = system_upgrade_internal(upgrade, data, len);
+    return ret;
+}
+
+/******************************************************************************
+ * FunctionName : system_upgrade_init
+ * Description  : a
+ * Parameters   :
+ * Returns      :
+ *******************************************************************************/
+void ICACHE_FLASH_ATTR system_upgrade_init(void)
+{
+    if (upgrade == NULL) {
+        upgrade = (struct upgrade_param *)os_zalloc(sizeof(struct upgrade_param));
+    }
+
+    system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
+
+    if (ONLINE_APP_FILE == filetype){
+        upgrade->fw_bin_sec = CACHE_ONLINE_APP_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_ONLINE_APP_SEC_NUM;
+    }
+    else if (BOOT_FILE == filetype){
+        upgrade->fw_bin_sec = CACHE_BOOT_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_BOOT_SEC_NUM;
+    }
+    else {
+        upgrade->fw_bin_sec = CACHE_DEFAULT_APP_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_DEFAULT_APP_SEC_NUM;
+    }
+    DEBUG("sec=%d  sec_num=%d", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
+    upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
+}
+
+/******************************************************************************
+ * FunctionName : system_upgrade_deinit
+ * Description  : a
+ * Parameters   :
+ * Returns      :
+ *******************************************************************************/
+void ICACHE_FLASH_ATTR system_upgrade_deinit(void)
+{
+    os_free(upgrade);
+    upgrade = NULL;
+}
 
 /******************************************************************************
  * FunctionName : upgrade_disconcb
  * Description  : The connection has been disconnected successfully.
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_disconcb(void *arg){
     struct espconn *pespconn = arg;
 
@@ -42,7 +158,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_disconcb(void *arg){
  *                be sent.
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_datasent(void *arg){
     struct espconn *pespconn = arg;
 
@@ -55,7 +171,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_datasent(void *arg){
  * Description  : disconnect the connection with the host
  * Parameters   : bin -- server number
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 void ICACHE_FLASH_ATTR LOCAL upgrade_deinit(void){
     if (system_upgrade_flag_check() != UPGRADE_FLAG_START) {
         system_upgrade_deinit();
@@ -66,7 +182,7 @@ void ICACHE_FLASH_ATTR LOCAL upgrade_deinit(void){
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn){
     struct upgrade_server_info *server;
 
-	DEBUG("upgrade_connect_timeout_cb\n");
+    DEBUG("upgrade_connect_timeout_cb\n");
     if (pespconn == NULL) {
         return;
     }
@@ -87,15 +203,15 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn
 
 //下载结果检查
 LOCAL void ICACHE_FLASH_ATTR upgrade_check(struct upgrade_server_info *server){
-	DEBUG("upgrade_check\n");
+    DEBUG("upgrade_check\n");
     if (server == NULL) {
         return;
     }
 
     os_timer_disarm(&upgrade_timer);
     if (system_upgrade_flag_check() != UPGRADE_FLAG_FINISH) {
-    	totallength = 0;
-    	sumlength = 0;
+        totallength = 0;
+        sumlength = 0;
         server->upgrade_flag = false;
         system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
     } else {
@@ -117,7 +233,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_check(struct upgrade_server_info *server){
  *                pusrdata -- The upgrade data (or NULL when the connection has been closed!)
  *                length -- The length of upgrade data
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigned short length){
     char *ptr = NULL;
     char *ptmp2 = NULL;
@@ -234,25 +350,17 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
             DEBUG("md5 check ok.\n");
             system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
             if (ONLINE_APP_FILE == filetype) {
-                cmd_info.online_app_size=sumlength;
-                cmd_info.default_app_size = 0;
-                cmd_info.online_app_addr[0] = CACHE_ONLINE_APP_ADDR;
-                cmd_info.online_app_addr[1] = APP_ADDR;
-                cmd_info.action = ACTION_COPY_APP;
+                HAL_PARAMS_Set_Boot_ota_app_size(sumlength);
             }
             else if (BOOT_FILE == filetype) {
-                cmd_info.boot_size = sumlength;
+                HAL_PARAMS_Set_Boot_boot_size(sumlength);
             }
             else if (DEFAULT_APP_FILE == filetype) {
-                cmd_info.default_app_size = sumlength;
-                cmd_info.online_app_size = 0;
-                cmd_info.default_app_addr[0] = CACHE_DEFAULT_APP_ADDR;
-                cmd_info.default_app_addr[1] = DEFAULT_APP_ADDR;
-                cmd_info.action = ACTION_COPY_DEFAPP;
+                HAL_PARAMS_Set_Boot_def_app_size(sumlength);
             }
             else {
             }
-            eboot_command_write(&cmd_info);
+            HAL_PARAMS_Save_Params();
             totallength = 0;
             sumlength = 0;
             upgrade_check(server);
@@ -278,7 +386,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
  * Description  : client connected with a host successfully
  * Parameters   : arg -- Additional argument to pass to the callback function
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
     struct espconn *pespconn = arg;
 
@@ -300,9 +408,9 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
  * Parameters   : bin -- server number
  *                url -- the url whitch upgrade files saved
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect(struct upgrade_server_info *server){
-	DEBUG("upgrade_connect\n");
+    DEBUG("upgrade_connect\n");
 
     pbuf = server->url;
     espconn_regist_connectcb(upgrade_conn, upgrade_connect_cb);
@@ -323,15 +431,15 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect(struct upgrade_server_info *server)
  * Description  : parameter initialize as a client
  * Parameters   : server -- A point to a server parmer which connected
  * Returns      : none
-*******************************************************************************/
+ *******************************************************************************/
 bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
 
     if (system_upgrade_flag_check() == UPGRADE_FLAG_START) {
         return false;
     }
     if (server == NULL) {
-    	DEBUG("server is NULL\n");
-    	return false;
+        DEBUG("server is NULL\n");
+        return false;
     }
     if (upgrade_conn == NULL) {
         upgrade_conn = (struct espconn *)os_zalloc(sizeof(struct espconn));

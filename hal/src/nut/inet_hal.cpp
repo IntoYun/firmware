@@ -25,16 +25,19 @@
 
 #include "inet_hal.h"
 #include "esp8266_wifi_generic.h"
+#include "service_debug.h"
 
 
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,
         network_interface_t nif, void* reserved)
 {
     uint32_t ip_addr;
-    int result = esp8266_gethostbyname(hostname, hostnameLen, &ip_addr);
+    DEBUG_D("inet_gethostbyname\r\n");
+    int result = esp8266_gethostbyname(hostname, hostnameLen, ip_addr);
     if(!result) {
         out_ip_addr->ipv4 = ip_addr;
     }
+    return result;
 }
 
 int inet_ping(const HAL_IPAddress* address, network_interface_t nif, uint8_t nTries,

@@ -24,6 +24,7 @@
 #include "system_network_internal.h"
 #include "params_hal.h"
 #include "core_hal.h"
+#include "inet_hal.h"
 #include "wlan_hal.h"
 #include "wiring_wifi.h"
 
@@ -229,6 +230,7 @@ void DeviceConfig::getDeviceBaseInfo(void)
             HAL_Board_Type(board, sizeof(board), 1);
             aJson.addStringToObject(root, "board", (char *)board);
         }
+        DEBUG_D("board = %s\r\n", board);
         aJson.addStringToObject(root, "device_id", (char *)device_id);
         aJson.addNumberToObject(root, "at_mode", 1);
     }
@@ -823,9 +825,10 @@ void UdpDeviceConfig::sendComfirm(int status)
 
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);
-    for(int i=0; i < 5; i++) //may be not enough
+    for(int i=0; i < 10; i++) //may be not enough
     {
         write((unsigned char *)string, strlen(string));
+        delay(100);
     }
     free(string);
     aJson.deleteItem(root);
@@ -877,7 +880,7 @@ String UdpDeviceConfig::readString(void)
 
 size_t UdpDeviceConfig::write(const uint8_t *buf, size_t size)
 {
-    Udp.beginPacket("255.255.255.255",5557);
+    Udp.beginPacket(IPADDR_BROADCAST,5557);
     Udp.write(buf,size);
     return Udp.endPacket();
 }

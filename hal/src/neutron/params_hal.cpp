@@ -46,6 +46,7 @@ uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
     uint32_t len;
 
     if (dest!=NULL && destLen>0) {
+        memset(dest, 0, destLen);
         len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
         if(0==type) {
             memcpy(dest, INTOROBOT_BOARD_TYPE, len);

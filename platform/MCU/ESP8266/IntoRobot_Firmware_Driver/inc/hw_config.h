@@ -50,10 +50,13 @@ extern "C" {
 #include "user_interface.h"
 #include "cont.h"
 #include "espconn.h"
+#include "lwip/err.h"
+#include "lwip/dns.h"
 
 #ifdef __cplusplus
 }
 #endif
+
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 

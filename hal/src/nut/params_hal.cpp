@@ -38,8 +38,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888003"
-#define INTOROBOT_BOARD_TYPE1   "887003"
+#define INTOROBOT_BOARD_TYPE    "888002"
+#define INTOROBOT_BOARD_TYPE1   "887002"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -47,6 +47,7 @@ uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
     uint32_t len;
 
     if (dest!=NULL && destLen>0) {
+        memset(dest, 0, destLen);
         len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
         if(0==type) {
             memcpy(dest, INTOROBOT_BOARD_TYPE, len);
@@ -259,6 +260,15 @@ int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag) {
 /********************************************************************************
  *  添加参数
  ********************************************************************************/
+extern "C" {
+    uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
+    int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
+    int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_boot_size(void);
+    int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
+}
+
 /*
  * 读取ota文件大小
  * */
