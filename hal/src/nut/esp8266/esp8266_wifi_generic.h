@@ -42,7 +42,7 @@ int32_t esp8266_getRSSI(void);
 bool esp8266_beginSmartConfig();
 bool esp8266_stopSmartConfig();
 bool esp8266_smartConfigDone();
-int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t *ip_addr);
+int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &ip_addr);
 int esp8266_connect();
 int esp8266_disconnect();
 wl_status_t esp8266_status();

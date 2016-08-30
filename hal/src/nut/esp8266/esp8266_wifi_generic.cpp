@@ -36,10 +36,35 @@ extern "C" {
 #include "lwip/dns.h"
 }
 
+#include "timer_hal.h"
 #include "service_debug.h"
 
-extern "C" void esp_schedule();
-extern "C" void esp_yield();
+
+extern "C" {
+void optimistic_yield(uint32_t interval_us);
+void esp_yield();
+void esp_schedule();
+}
+
+volatile uint8_t _dns_founded=0;
+
+static volatile uint32_t esp8266_wifi_timeout_start;
+static volatile uint32_t esp8266_wifi_timeout_duration;
+
+inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
+    esp8266_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    esp8266_wifi_timeout_duration = dur;
+    DEBUG("esp8266 WIFI WD Set %d",(dur));
+}
+inline bool IS_WIFI_TIMEOUT() {
+    return esp8266_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
+}
+
+inline void CLR_WIFI_TIMEOUT() {
+    esp8266_wifi_timeout_duration = 0;
+    DEBUG("esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
+}
+
 
 /**
  * set new mode
@@ -246,25 +271,46 @@ void wifi_dns_found_callback(const char *name, ip_addr_t *ipaddr, void *callback
     if(ipaddr) {
         (*reinterpret_cast<uint32_t*>(callback_arg)) = ipaddr->addr;
     }
-    esp_schedule(); // resume the hostByName function
+    _dns_founded = 1;
 }
 
-int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t *ip_addr)
+int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &ip_addr)
 {
     ip_addr_t addr;
 
-    err_t err = dns_gethostbyname(hostname, &addr, &wifi_dns_found_callback, ip_addr);
+    if(!strcmp(hostname, "255.255.255.255"))
+    {
+        ip_addr = IPADDR_NONE;
+        return 0;
+    }
+
+    addr.addr = ipaddr_addr(hostname);
+    if (addr.addr != IPADDR_NONE)
+    {
+        ip_addr = addr.addr;
+        return 0;
+    }
+
+    ip_addr = 0;
+    err_t err = dns_gethostbyname(hostname, &addr, &wifi_dns_found_callback, &ip_addr);
     if(err == ERR_OK) {
-        *ip_addr = addr.addr;
+        ip_addr = addr.addr;
     } else if(err == ERR_INPROGRESS) {
-        esp_yield();
+        ARM_WIFI_TIMEOUT(2000);
+        _dns_founded =0;
+        while (!_dns_founded) {
+            optimistic_yield(100);
+            if(IS_WIFI_TIMEOUT()) {
+                CLR_WIFI_TIMEOUT();
+                break;
+            }
+        }
         // will return here when dns_found_callback fires
-        if(*ip_addr != 0) {
+        if(ip_addr != 0) {
             err = ERR_OK;
         }
     }
-
-    return (err == ERR_OK) ? 1 : 0;
+    return (err == ERR_OK) ? 0 : 1;
 }
 
 int esp8266_connect()

@@ -17,6 +17,9 @@
   ******************************************************************************
 */
 
+extern "C" void yield(void);
+
+
 #include "wiring_constants.h"
 #include "wiring_arduino.h"
 #include "system_mqttclient.h"

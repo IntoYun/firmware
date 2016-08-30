@@ -19,18 +19,7 @@
 
 #include "wlan_hal.h"
 #include "esp8266_wifi_generic.h"
-
-extern "C" {
-#include "c_types.h"
-#include "ets_sys.h"
-#include "os_type.h"
-#include "osapi.h"
-#include "mem.h"
-#include "user_interface.h"
-#include "lwip/err.h"
-#include "lwip/dns.h"
-}
-
+#include "hw_config.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -59,7 +48,12 @@ wlan_result_t wlan_deactivate()
 
 int wlan_connect()
 {
-    return esp8266_connect();
+    if(wlan_status()) {
+        return esp8266_connect();
+    }
+    else {
+        return 0;
+    }
 }
 
 wlan_result_t wlan_disconnect()
@@ -127,8 +121,8 @@ imlink_status_t wlan_Imlink_get_status()
 
 void wlan_Imlink_stop()
 {
-    esp8266_setAutoReconnect(true);
     esp8266_stopSmartConfig();
+    esp8266_setAutoReconnect(true);
 }
 
 void wlan_setup()

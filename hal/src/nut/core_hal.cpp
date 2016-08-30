@@ -54,6 +54,12 @@ void HAL_Core_Setup(void);
 /* Private variables --------------------------------------------------------*/
 struct rst_info resetInfo;
 
+
+typedef void (*app_system_loop_handler)(void);
+static app_system_loop_handler APP_System_Loop_Handler = NULL;
+
+
+
 /* Extern variables ----------------------------------------------------------*/
 int atexit(void (*func)()) {
     return 0;
@@ -83,7 +89,9 @@ static os_event_t g_loop_queue[LOOP_QUEUE_SIZE];
 static uint32_t g_micros_at_task_start;
 
 extern "C" void esp_yield() {
-    if (cont_can_yield(&g_cont)) {
+    if (cont_can_yield(&g_cont))
+    {
+//        DEBUG_D("-----\r\n");
         cont_yield(&g_cont);
     }
 }
@@ -114,6 +122,9 @@ extern "C" void optimistic_yield(uint32_t interval_us) {
 
 static void loop_wrapper() {
     preloop_update_frequency();
+    if (NULL != APP_System_Loop_Handler) {
+        APP_System_Loop_Handler();
+    }
     app_loop();
     run_scheduled_functions();
     esp_schedule();
@@ -173,8 +184,8 @@ void HAL_Core_Config(void)
     os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
     os_timer_arm(&systick_timer, 1, 1);
     //后台处理定时器
-    os_timer_setfn(&system_loop_timer, (os_timer_func_t*)&System_Loop_Handler, 0);
-    os_timer_arm(&system_loop_timer, 200, 1);
+    //os_timer_setfn(&system_loop_timer, (os_timer_func_t*)&System_Loop_Handler, 0);
+    //os_timer_arm(&system_loop_timer, 200, 1);
 
     HAL_RTC_Initial();
     HAL_RNG_Initial();
@@ -277,9 +288,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     }
     return 0;
 }
-
-typedef void (*app_system_loop_handler)(void);
-static app_system_loop_handler APP_System_Loop_Handler = NULL;
 
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {

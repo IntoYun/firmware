@@ -1,6 +1,6 @@
 // include the all the header files
 #include "application.h"
-Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+//Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #if 0
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
@@ -95,7 +95,7 @@ void loop()
 //====================================================
 
 
-#if 0
+#if 1
 /*
  * Atom 默认程序
  */
@@ -111,12 +111,12 @@ void smartLightSwitchCb(uint8_t *payload, uint32_t len)
     if(payload[0] == '1')
         {
             digitalWrite(LEDPIN, HIGH);     // 打开灯泡
-            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
+            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
         }
     else
         {
             digitalWrite(LEDPIN, LOW);      //关闭灯泡
-            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
+            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
         }
 }
 
@@ -609,7 +609,7 @@ void loop()
 }
 #endif
 
-#if 1
+#if 0
 
 #define LED_PIN D6
 
@@ -621,12 +621,16 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
+    /*WiFi.resolve("www.intorobot.com");
+    delay(3000);
+    DEBUG("Runing !");
+    */
     // analogWrite(PWM_PIN, duty);
-    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    /*digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     delay(1000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
     delay(1000);                   // wait for a second
-    DEBUG("Runing !");
+    */
 }
 #endif
 

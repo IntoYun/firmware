@@ -38,8 +38,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888003"
-#define INTOROBOT_BOARD_TYPE1   "887003"
+#define INTOROBOT_BOARD_TYPE    "888002"
+#define INTOROBOT_BOARD_TYPE1   "887002"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -47,6 +47,7 @@ uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
     uint32_t len;
 
     if (dest!=NULL && destLen>0) {
+        memset(dest, 0, destLen);
         len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
         if(0==type) {
             memcpy(dest, INTOROBOT_BOARD_TYPE, len);

@@ -264,7 +264,7 @@ void system_process_loop(void)
             manage_serial_flasher();
             manage_network_connection();
             manage_ip_config();
-            //CLOUD_FN(manage_cloud_connection(), (void)0);
+            CLOUD_FN(manage_cloud_connection(), (void)0);
         }
 #if PLATFORM_THREADING
     }
