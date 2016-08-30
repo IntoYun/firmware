@@ -260,6 +260,15 @@ int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag) {
 /********************************************************************************
  *  添加参数
  ********************************************************************************/
+extern "C" {
+    uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
+    int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
+    int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_boot_size(void);
+    int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
+}
+
 /*
  * 读取ota文件大小
  * */

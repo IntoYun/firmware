@@ -8,7 +8,6 @@
 #include "hw_config.h"
 #include "boot_mode.h"
 #include "flash.h"
-#include "eboot_command.h"
 #include "esp8266/esp8266_config.h"
 #include "params_hal.h"
 #include "ui_hal.h"
