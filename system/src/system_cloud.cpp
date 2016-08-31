@@ -107,7 +107,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
 
     DEBUG_D("default:ota_update_callback\r\n");
     led_state.save();
-    system_rgb_blink(RGB_COLOR_YELLOW, 50);
+    system_rgb_color(RGB_COLOR_YELLOW);
     intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
@@ -122,7 +122,6 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
         char board[8]={0}, board1[8]={0};
         HAL_Board_Type(board, sizeof(board), 0);
         HAL_Board_Type(board1, sizeof(board1), 1);
-        DEBUG_D(("board_type: %s", type_Object->valuestring));
         if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
         {flag=2;}
     }
@@ -150,7 +149,6 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
         param+=INTOROBOT_OTA_UPDATE_URL;
         param+="?dwn_token=";
         param+=dtoken_Object->valuestring;
-        DEBUG_D(("md5=%s,url=%s\r\n", md5_Object->valuestring,param.c_str()));
 
         uint8_t down_status = 0, progress = 0;
         down_status_t status;
@@ -213,9 +211,9 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
 
     DEBUG_D("default:subsys_update_callback\r\n");
     led_state.save();
-    system_rgb_blink(RGB_COLOR_YELLOW, 50);
+    system_rgb_color(RGB_COLOR_YELLOW);
     memset(temp,0,sizeof(temp));
-    sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_READY);
+    sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS);
     intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
@@ -230,7 +228,6 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
         char board[8]={0}, board1[8]={0};
         HAL_Board_Type(board, sizeof(board), 0);
         HAL_Board_Type(board1, sizeof(board1), 1);
-        DEBUG_D(("board_type: %s", type_Object->valuestring));
         if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
         {flag=2;}
     }
@@ -242,7 +239,6 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
     {
         char sys_ver[24]={0};
         HAL_PARAMS_Get_System_subsys_ver(sys_ver, sizeof(sys_ver));
-        DEBUG_D(("sys_ver: %s\r\n", sys_Ver_Object->valuestring));
         if(strcmp(sys_ver, sys_Ver_Object->valuestring))
         {flag=2;}
     }
@@ -257,14 +253,17 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
         else {
             domain+=INTOROBOT_UPDATE_DOMAIN;
         }
-        param+=INTOROBOT_SUBSYSTEM_UPDATE_URL;
+        char name[24]={0};
+        HAL_Platform_Name(name, sizeof(name));
+        param+="/downloads/";
+        param+=name;
+        param+="/";
         param+=sys_Ver_Object->valuestring;
 
         uint8_t down_status = 0, progress = 0;
         down_status_t status;
         down_status_t result = HAL_OTA_Download_Subsys(domain.c_str(), param.c_str());
-        switch(result)
-        {
+        switch(result) {
             case DOWNSTATUS_SUCCESS:
                 break;
             case DOWNSTATUS_DOWNING:
@@ -276,7 +275,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
                     else if(DOWNSTATUS_DOWNING == status) {
                         progress = HAL_OTA_Get_Download_Progress();
                         memset(temp,0,sizeof(temp));
-                        sprintf(temp,"{\"status\":\"%s\",\"progress\": %s}", INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_PROCESS, progress);
+                        sprintf(temp,"{\"status\":\"%s\",\"progress\": %d}", INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS, progress);
                         intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
                         delay(1000);
                     }
@@ -292,10 +291,9 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
         }
         if(!down_status) {
             memset(temp,0,sizeof(temp));
-            sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC, progress);
+            sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC_EXIT, progress);
             intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
             HAL_OTA_Upadate_Subsys();
-            delay(20000);
             HAL_Core_System_Reset();
             while(1); //不会运行到地方
         }
@@ -703,10 +701,8 @@ int intorobot_cloud_connect(void)
         HAL_PARAMS_Get_System_fwlib_ver(fw_version, sizeof(fw_version));
         HAL_PARAMS_Get_System_subsys_ver(subsys_version, sizeof(subsys_version));
         memset(temp, 0, sizeof(temp));
-        //sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, subsys_version);
-        sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, "1.0.2.0");
+        sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, subsys_version);
         intorobot_publish(INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)temp, strlen(temp), 0, true);
-
         //重新订阅
         resubscribe();
         return 0;
@@ -727,8 +723,7 @@ int intorobot_cloud_handle(void)
 
 void intorobot_process(void)
 {
-
-
+    HAL_Core_System_Loop();
 }
 
 #endif

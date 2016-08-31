@@ -204,10 +204,10 @@ static void app_load_params(void)
     }
 
     //保存子系统程序版本号
-    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
+    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0}, platform[32] = {0};
     HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
     HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
-    DEBUG_D("ver1=%s, ver2=%s\r\n", subsys_ver1, subsys_ver2);
+    HAL_Platform_Name(platform, sizeof(platform));
     if(strcmp(subsys_ver1, subsys_ver2))
     {
         HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
@@ -216,7 +216,6 @@ static void app_load_params(void)
     //保存固件库版本号
     char fw_ver1[32] = {0}, fw_ver2[32] = {0};
     system_version(fw_ver1);
-    DEBUG_D("fwver1=%s\r\n", fw_ver1);
     HAL_PARAMS_Get_System_fwlib_ver(fw_ver2, sizeof(fw_ver2));
     if(strcmp(fw_ver1, fw_ver2))
     {

@@ -24,7 +24,8 @@
 #define INTOROBOT_API_VER             "v1"
 
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
-#define INTOROBOT_SUBSYSTEM_UPDATE_URL "/downloads/neutron/"
+//#define INTOROBOT_SUBSYSTEM_UPDATE_URL "/downloads/neutron/"
+#define INTOROBOT_SUBSYSTEM_UPDATE_URL "/downloads/nut/"
 
 #define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
 #define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
@@ -69,13 +70,13 @@
 #define INTOROBOT_MQTT_RESPONSE_JSON_QOS     0
 #define INTOROBOT_MQTT_RESPONSE_JSON_RETAIN  false
 
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_READY           "10"  //subsys ready down
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_FAIL       "11"  //subsys down failed
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC       "12"  //subsys down success
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_FAIL     "13"  //subsys update failed
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_SUCC     "14"  //subsys update success
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_PROCESS  "15"  //subsys update process
-#define INTOROBOT_MQTT_RESPONSE_SUBSYS_TYPEEEOR        "16"  //subsys update board type error
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS    "10"  //subsys ready and progress
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_FAIL         "11"  //subsys down failed
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC         "12"  //subsys down success
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_FAIL       "13"  //subsys update failed
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_SUCC       "14"  //subsys update success
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC_EXIT    "15"  //subsys down success and exit
+#define INTOROBOT_MQTT_RESPONSE_SUBSYS_TYPEEEOR          "16"  //subsys update board type error
 
 
 //device debug info
