@@ -80,9 +80,9 @@ size: $(TARGET_BASE).elf
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
 ifeq ("$(MODULE)","bootloader")
-	$(SUDO) $(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
+	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 else
-	$(SUDO) $(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+	$(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 endif
 	$(call echo,)
 
