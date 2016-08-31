@@ -64,12 +64,12 @@
 #define BOOT_PARAMS_ADDR                 BOOT_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 #define SYSTEM_PARAMS_ADDR               SYSTEM_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 
+#define BOOT_ADDR                        BOOT_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 #define APP_ADDR                         APP_SEC_START * SPI_FLASH_SEC_SIZE               //应用程序存放地址
 #define DEFAULT_APP_ADDR                 DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE       //默认程序 存放地址
 #define CACHE_BOOT_ADDR                  CACHE_BOOT_SEC_START * SPI_FLASH_SEC_SIZE        //bootloader下载存放位置
 #define CACHE_ONLINE_APP_ADDR            CACHE_ONLINE_APP_SEC_START * SPI_FLASH_SEC_SIZE  //在线编程程序下载存放地址
 #define CACHE_DEFAULT_APP_ADDR           CACHE_DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE //默认程序下载存放地址
-#define COMMAND_INFO_ADDR                COMMAND_INFO_SEC_START * SPI_FLASH_SEC_SIZE      //参数存储位置
 
 
 #endif /*FLASH_MAP_H_*/

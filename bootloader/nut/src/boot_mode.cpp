@@ -92,7 +92,7 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
 
     return true;
 }
-extern "C"\
+extern "C"
 {
     extern uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
     extern uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);

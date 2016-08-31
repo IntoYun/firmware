@@ -71,7 +71,7 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
         upgrade->fw_bin_addr += len;
     } while (0);
 
-    os_free(upgrade->buffer);
+    free(upgrade->buffer);
     upgrade->buffer = NULL;
     return ret;
 }
@@ -128,7 +128,7 @@ void ICACHE_FLASH_ATTR system_upgrade_init(void)
  *******************************************************************************/
 void ICACHE_FLASH_ATTR system_upgrade_deinit(void)
 {
-    os_free(upgrade);
+    free(upgrade);
     upgrade = NULL;
 }
 
@@ -145,9 +145,9 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_disconcb(void *arg){
         return;
     }
 
-    os_free(pespconn->proto.tcp);
+    free(pespconn->proto.tcp);
     pespconn->proto.tcp = NULL;
-    os_free(pespconn);
+    free(pespconn);
     pespconn = NULL;
     upgrade_conn = NULL;
 }
@@ -194,9 +194,9 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn
         server->check_cb(server);
     }
     system_upgrade_deinit();
-    os_free(pespconn->proto.tcp);
+    free(pespconn->proto.tcp);
     pespconn->proto.tcp = NULL;
-    os_free(pespconn);
+    free(pespconn);
     pespconn = NULL;
     upgrade_conn = NULL;
 }
@@ -378,7 +378,6 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
         os_timer_setfn(&upgrade_rev_timer, (os_timer_func_t *)upgrade_check, server);
         os_timer_arm(&upgrade_rev_timer, 10, 0);
     }
-    DEBUG("bbbbb.\n");
 }
 
 /******************************************************************************
@@ -458,10 +457,7 @@ bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
         if (upgrade_conn->proto.tcp != NULL) {
             upgrade_conn->proto.tcp->local_port = espconn_port();
             upgrade_conn->proto.tcp->remote_port = server->port;
-
             memcpy(upgrade_conn->proto.tcp->remote_ip, server->ip, 4);
-
-            DEBUG("%s\n", __func__);
             upgrade_connect(server);
 
             if (server->check_cb !=  NULL) {

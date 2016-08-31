@@ -109,15 +109,15 @@ void loop()
 void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 {
     if(payload[0] == '1')
-        {
-            digitalWrite(LEDPIN, HIGH);     // 打开灯泡
-            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
-        }
+    {
+        digitalWrite(LEDPIN, LOW);     // 打开灯泡
+        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
+    }
     else
-        {
-            digitalWrite(LEDPIN, LOW);      //关闭灯泡
-            IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
-        }
+    {
+        digitalWrite(LEDPIN, HIGH);      //关闭灯泡
+        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
+    }
 }
 
 void setup()
@@ -626,11 +626,10 @@ void loop()
     DEBUG("Runing !");
     */
     // analogWrite(PWM_PIN, duty);
-    /*digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                   // wait for a second
+    digitalWrite(LED_PIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(3000);                   // wait for a second
     digitalWrite(LED_PIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);                   // wait for a second
-    */
+    delay(3000);                   // wait for a second
 }
 #endif
 

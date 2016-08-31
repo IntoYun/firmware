@@ -158,6 +158,7 @@ void HAL_SysTick_Handler(void);
 
 void HAL_Bootloader_Lock(bool lock);
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len);
+void HAL_Core_System_Loop(void);
 
 bool HAL_Core_System_Reset_FlagSet(RESET_TypeDef resetType);
 

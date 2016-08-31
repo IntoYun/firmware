@@ -231,7 +231,6 @@ bool Esp8266ConnClass::socketFree(int socket)
 int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
 {
     DEBUG_D("socketSend(%d,,%d)\r\n", socket,len);
-    DEBUG_D("socketSendData:%s\r\n", buf);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -372,7 +371,6 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
     DEBUG_D("_espconn_recv_callback\r\n");
     for (socket=0; socket < NUMSOCKETS; socket++) {
         if (ISSOCKET(socket)) {
-            DEBUG_D("pespconn->proto.tcp->remote_port = %d", pespconn->proto.tcp->remote_port);
             if((pespconn->proto.tcp->remote_port == _sockets[socket].remote_port)
                     &&(!memcmp(pespconn->proto.tcp->remote_ip, (void *)_sockets[socket].remote_ip, 4))) {
                 break;
@@ -381,7 +379,6 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
     }
     if (NUMSOCKETS != socket) {
         DEBUG_D("Socket %d: has %d bytes pending\r\n", socket, len);
-        DEBUG_D("%s\r\n", pusrdata);
         for(n=0; n < len ; n++) {
             if (_sockets[socket].pipe->writeable()) {
                 _sockets[socket].pipe->putc(pusrdata[n]);

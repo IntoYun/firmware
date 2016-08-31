@@ -19,6 +19,7 @@
 
 #include "ota_flash_hal.h"
 #include "core_hal.h"
+#include "delay_hal.h"
 #include "parser.h"
 
 
@@ -50,6 +51,7 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
 void HAL_OTA_Upadate_Subsys(void)
 {
     esp8266MDM.updateNet();
+    HAL_Delay_Milliseconds(20000);
 }
 
 uint8_t HAL_OTA_Get_Download_Progress()

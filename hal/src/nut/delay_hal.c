@@ -23,6 +23,7 @@
  ******************************************************************************
  */
 
+#include "core_hal.h"
 #include "delay_hal.h"
 #include "hw_config.h"
 #include "ets_sys.h"
@@ -30,8 +31,9 @@
 #include "user_interface.h"
 #include "cont.h"
 
-extern void esp_schedule();
-extern void esp_yield();
+
+extern void optimistic_yield(uint32_t interval_us);
+extern void system_loop_handler(uint32_t interval_us);
 
 #define ONCE 0
 #define REPEAT 1
@@ -39,13 +41,13 @@ extern void esp_yield();
 /**
  * Updated by HAL_1Ms_Tick()
  */
-
+/*
 static os_timer_t delay_timer;
 
 void delay_end(void* arg) {
     esp_schedule();
 }
-
+*/
 /*******************************************************************************
 * Function Name  : Delay
 * Description    : Inserts a delay time.
@@ -55,6 +57,27 @@ void delay_end(void* arg) {
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t nTime)
 {
+    volatile system_tick_t start_millis, current_millis, elapsed_millis;
+
+    start_millis = HAL_Timer_Get_Milli_Seconds();
+    while (1)
+    {
+        current_millis = HAL_Timer_Get_Milli_Seconds();
+        elapsed_millis = current_millis - start_millis;
+        //Check for wrapping
+        if (elapsed_millis < 0)
+        {
+            elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
+        }
+
+        if (elapsed_millis >= (long)nTime)
+        {
+            break;
+        }
+        optimistic_yield(100);
+        system_loop_handler(100);
+    }
+/*
     if(nTime) {
         os_timer_setfn(&delay_timer, (os_timer_func_t*) &delay_end, 0);
         os_timer_arm(&delay_timer, nTime, ONCE);
@@ -65,6 +88,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
     if(nTime) {
         os_timer_disarm(&delay_timer);
     }
+    */
 }
 
 /*******************************************************************************

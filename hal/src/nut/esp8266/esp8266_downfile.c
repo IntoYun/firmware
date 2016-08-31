@@ -79,7 +79,6 @@ void downfile_rsp(void *arg){
             os_timer_disarm(&downfile_timer);
             os_timer_setfn(&downfile_timer, (os_timer_func_t *)down_default_app_cb, NULL);
             os_timer_arm(&downfile_timer, 500, 0);
-            return;
         }
         else if(DEFAULT_APP_FILE == filetype) //默认stm32程序文件
         {
@@ -100,9 +99,9 @@ void downfile_rsp(void *arg){
         }
     }
 
-    os_free(server->url);
+    free(server->url);
     server->url = NULL;
-    os_free(server);
+    free(server);
     server = NULL;
 }
 
@@ -111,6 +110,7 @@ void upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg){
     struct espconn *pespconn = (struct espconn *) arg;
     char output[64] = {0};
 
+    free(pespconn);
     DEBUG("upServer_dns_found\r\n");
     if(ipaddr == NULL)
     {
