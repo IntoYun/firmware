@@ -6,12 +6,12 @@ sysType=`uname -s`
 
 #esptool下载参数
 UPLOAD_SPEED=921600
-if [ $sysType = "Darwin" ]; then
-    UPLOAD_PORT=/dev/cu.SLAB_USBtoUART
-    ADDSUDO=""
-elif [ $sysType = "Linux" ]; then
+if [ $sysType = "Linux" ]; then
     UPLOAD_PORT=/dev/ttyUSB0
     ADDSUDO=sudo
+elif [ $sysType = "Darwin" ]; then
+    UPLOAD_PORT=/dev/cu.SLAB_USBtoUART
+    ADDSUDO=""
 fi
 
 UPLOAD_VERB=-v
