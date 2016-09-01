@@ -105,7 +105,12 @@ void Network_Setup(void)
     {
         network.connect();
     }
-    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+    if (network.connected()) {
+        system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+    }
+    else {
+        system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+    }
     network_connection_attempt_init();
 #endif
 

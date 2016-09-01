@@ -7,6 +7,17 @@
 #include "flash_map.h"
 #include "boot_debug.h"
 
+void start_app(void)
+{
+    ETS_FRC1_INTR_DISABLE();
+    if (!load_app(APP_ADDR)){
+        SWRST;
+    }
+
+    while(true)
+    {}
+}
+
 /*从flash中导入应用*/
 bool load_app(const uint32_t flash_addr)
 {

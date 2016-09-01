@@ -65,6 +65,7 @@
 #include "fast_pin.h"
 #include "string_convert.h"
 #include "debug_output_handler.h"
+#include "variant.h"
 
 #include "wiring_i2s.h"
 //#include "wiring_audio.h"

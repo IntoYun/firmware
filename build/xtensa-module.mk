@@ -59,7 +59,7 @@ esptool: $(TARGET_BASE).bin
 ifeq ("$(MODULE)","bootloader")
 	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $^
 else
-	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x20000 -cf $^
+	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x14000 -cf $^
 endif
 	$(call echo,)
 

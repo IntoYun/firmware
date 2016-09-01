@@ -1,0 +1,21 @@
+一、neutron stm32  内部flash 资源分布
+
+
+1.neutron bootloader区    32k
+2.eeprom模拟区            32k
+3.用户系统参数区           64k
+4.neutron应用程序区       384k
+
+
+二、neutron esp8266 flash 资源分布
+
+1.esp8266 boot程序区        28k
+2.esp8266 boot参数区        4k
+3.esp8266 程序区            720k
+4.neutron默认应用区          256k
+5.用户参数区                16k 
+6.neutron bootloader备份区  32k     
+7.neutron在线升级缓冲区      720k
+8.neutron默认应用缓冲区      256k
+9.文件系统区                2048k
+10.esp8266系统参数区        16k

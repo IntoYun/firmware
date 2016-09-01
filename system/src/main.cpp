@@ -190,12 +190,12 @@ static void app_load_params(void)
     // check if need init params
     if(1 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG_D(("init params fac\r\n"));
+        DEBUG_D("init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(2 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG_D(("init params all\r\n"));
+        DEBUG_D("init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
     if(0 != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
@@ -204,10 +204,9 @@ static void app_load_params(void)
     }
 
     //保存子系统程序版本号
-    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0}, platform[32] = {0};
+    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
     HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
     HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
-    HAL_Platform_Name(platform, sizeof(platform));
     if(strcmp(subsys_ver1, subsys_ver2))
     {
         HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);

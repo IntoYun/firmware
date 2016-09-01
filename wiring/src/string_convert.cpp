@@ -22,136 +22,186 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <ctype.h>
+#include <math.h>
 
 //------------------------------------------------------------------------------------------
-#define BUFSIZE (sizeof(long) * 8 + 1)
 
-//utility function used by ultoa()
-void str_reverse(char* buffer){
-    char *i, *j;
-    char c;
-    i=buffer;
-    j=buffer + strlen(buffer)-1;
-    while(i<j){
-        c = *i;
-        *i = *j;
-        *j = c;
-        ++i;
-        --j;
+void str_reverse(char* begin, char* end) {
+    char *is = begin;
+    char *ie = end - 1;
+    while(is < ie) {
+        char tmp = *ie;
+        *ie = *is;
+        *is = tmp;
+        ++is;
+        --ie;
     }
 }
 
-//convert long to string
-char *ltoa(long N, char *str, int base)
-{
-    int i = 2;
-    long uarg;
-    char *tail, *head = str, buf[BUFSIZE];
-
-    if (36 < base || 2 > base)
-        base = 10;                    /* can only use 0-9, A-Z        */
-    tail = &buf[BUFSIZE - 1];           /* last character position      */
-    *tail-- = '\0';
-
-    if (10 == base && N < 0L)
-    {
-        *head++ = '-';
-        uarg    = -N;
+char* itoa(int value, char* result, int base) {
+    if(base < 2 || base > 16) {
+        *result = 0;
+        return result;
     }
-    else  uarg = N;
 
-    if (uarg)
-    {
-        for (i = 1; uarg; ++i)
-        {
-            ldiv_t r;
+    char* out = result;
+    int quotient = abs(value);
 
-            r       = ldiv(uarg, base);
-            *tail-- = (char)(r.rem + ((9L < r.rem) ?
-                        ('A' - 10L) : '0'));
-            uarg    = r.quot;
+    do {
+        const int tmp = quotient / base;
+        *out = "0123456789abcdef"[quotient - (tmp * base)];
+        ++out;
+        quotient = tmp;
+    } while(quotient);
+
+    // Apply negative sign
+    if(value < 0)
+        *out++ = '-';
+
+    str_reverse(result, out);
+    *out = 0;
+    return result;
+}
+
+char* ltoa(long value, char* result, int base) {
+    if(base < 2 || base > 16) {
+        *result = 0;
+        return result;
+    }
+
+    char* out = result;
+    long quotient = abs(value);
+
+    do {
+        const long tmp = quotient / base;
+        *out = "0123456789abcdef"[quotient - (tmp * base)];
+        ++out;
+        quotient = tmp;
+    } while(quotient);
+
+    // Apply negative sign
+    if(value < 0)
+        *out++ = '-';
+
+    str_reverse(result, out);
+    *out = 0;
+    return result;
+}
+
+char* utoa(unsigned value, char* result, int base) {
+    if(base < 2 || base > 16) {
+        *result = 0;
+        return result;
+    }
+
+    char* out = result;
+    unsigned quotient = value;
+
+    do {
+        const unsigned tmp = quotient / base;
+        *out = "0123456789abcdef"[quotient - (tmp * base)];
+        ++out;
+        quotient = tmp;
+    } while(quotient);
+
+    str_reverse(result, out);
+    *out = 0;
+    return result;
+}
+
+char* ultoa(unsigned long value, char* result, int base) {
+    if(base < 2 || base > 16) {
+        *result = 0;
+        return result;
+    }
+
+    char* out = result;
+    unsigned long quotient = value;
+
+    do {
+        const unsigned long tmp = quotient / base;
+        *out = "0123456789abcdef"[quotient - (tmp * base)];
+        ++out;
+        quotient = tmp;
+    } while(quotient);
+
+    str_reverse(result, out);
+    *out = 0;
+    return result;
+}
+
+char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
+    bool negative = false;
+
+    if (isnan(number)) {
+        strcpy(s, "nan");
+        return s;
+    }
+    if (isinf(number)) {
+        strcpy(s, "inf");
+        return s;
+    }
+
+    char* out = s;
+
+    int fillme = width; // how many cells to fill for the integer part
+    if (prec > 0) {
+        fillme -= (prec+1);
+    }
+
+    // Handle negative numbers
+    if (number < 0.0) {
+        negative = true;
+        fillme--;
+        number = -number;
+    }
+
+    // Round correctly so that print(1.999, 2) prints as "2.00"
+    // I optimized out most of the divisions
+    double rounding = 2.0;
+    for (uint8_t i = 0; i < prec; ++i)
+        rounding *= 10.0;
+    rounding = 1.0 / rounding;
+
+    number += rounding;
+
+    // Figure out how big our number really is
+    double tenpow = 1.0;
+    int digitcount = 1;
+    while (number >= 10.0 * tenpow) {
+        tenpow *= 10.0;
+        digitcount++;
+    }
+
+    number /= tenpow;
+    fillme -= digitcount;
+
+    // Pad unused cells with spaces
+    while (fillme-- > 0) {
+        *out++ = ' ';
+    }
+
+    // Handle negative sign
+    if (negative) *out++ = '-';
+
+    // Print the digits, and if necessary, the decimal point
+    digitcount += prec;
+    int8_t digit = 0;
+    while (digitcount-- > 0) {
+        digit = (int8_t)number;
+        if (digit > 9) digit = 9; // insurance
+        *out++ = (char)('0' | digit);
+        if ((digitcount == prec) && (prec > 0)) {
+            *out++ = '.';
         }
+        number -= digit;
+        number *= 10.0;
     }
-    else  *tail-- = '0';
 
-    memcpy(head, ++tail, i);
-    return str;
-}
-
-//convert unsigned long to string
-char* ultoa(unsigned long a, char* buffer, int radix, char pad){
-    if(radix<2 || radix>36){
-        return NULL;
-    }
-    char* ptr=buffer;
-
-    div_t result;
-    while(a){
-        /* toolchain bug??
-           result = div(a, radix);
-           */
-        result.quot = a/radix;
-        result.rem = a%radix;
-        *ptr = result.rem;
-        if(result.rem<10){
-            *ptr += '0';
-        }else{
-            *ptr += 'a'-10;
-        }
-        ++ptr;
-        a = result.quot;
-    }
-    while (ptr < buffer+pad)
-        *ptr++ = '0';
-
-    *ptr = '\0';
-    str_reverse(buffer);
-    return buffer;
-}
-
-char* itoa(int a, char* buffer, int radix){
-    if(a<0){
-        *buffer = '-';
-        unsigned v = a==INT_MIN ? ((unsigned)INT_MAX+1) : -a;
-        ultoa((unsigned)v, buffer + 1, radix);
-    }else{
-        ultoa(a, buffer, radix);
-    }
-    return buffer;
-}
-
-__attribute__((weak)) char* utoa(unsigned a, char* buffer, int radix) {
-    return ultoa(a, buffer, radix);
-}
-
-
-// void itoa(int value, char *sp, int radix)
-// {
-//     char tmp[16];// be careful with the length of the buffer
-//     char *tp = tmp;
-//     int i;
-//     unsigned v;
-//     int sign;
-
-//     sign = (radix == 10 && value < 0);
-//     if (sign)   v = -value;
-//     else    v = (unsigned)value;
-
-//     while (v || tp == tmp)
-//     {
-//         i = v % radix;
-//         v /= radix; // v/=radix uses less CPU clocks than v=v/radix does
-//         if (i < 10)
-//           *tp++ = i+'0';
-//         else
-//           *tp++ = i + 'a' - 10;
-//     }
-
-//     if (sign)
-//     *sp++ = '-';
-//     while (tp > tmp)
-//     *sp++ = *--tp;
-// }
-
-//------------------------------------------------------------------------------------------
+    // make sure the string is terminated
+    *out = 0;
+    return s;
+}//------------------------------------------------------------------------------------------

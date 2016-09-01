@@ -6,12 +6,12 @@ sysType=`uname -s`
 
 #esptool下载参数
 UPLOAD_SPEED=921600
-if [ $sysType = "Linux" ]; then
+if [ $sysType = "Darwin" ]; then
     UPLOAD_PORT=/dev/cu.SLAB_USBtoUART
-    ADDSUDO=sudo
-elif [ $sysType = "Darwin" ]; then
-    UPLOAD_PORT=/dev/ttyUSB0
     ADDSUDO=""
+elif [ $sysType = "Linux" ]; then
+    UPLOAD_PORT=/dev/ttyUSB0
+    ADDSUDO=sudo
 fi
 
 UPLOAD_VERB=-v
@@ -27,9 +27,9 @@ echo "start download..."
 echo ""
 
 if [ "$1" == "all" ];then
-    $ADDSUDO $ESP_TOOL $UPLOAD_VERB -cb $UPLOAD_SPEED -cd $UPLOAD_RESET -cp $UPLOAD_PORT -ca 0x00000 -cf nut-boot.bin -ca 0x20000 -cf default-nut.bin -ca 0xDB000 -cf default-nut.bin -ca 0x134000 -cf nut-boot.bin -ca 0x3FC000 -cf esp_init_data_default.bin -ca 0x3FE000 -cf blank.bin
+    $ADDSUDO $ESP_TOOL $UPLOAD_VERB -cb $UPLOAD_SPEED -cd $UPLOAD_RESET -cp $UPLOAD_PORT -ca 0x00000 -cf nut-boot.bin -ca 0x14000 -cf default-nut.bin -ca 0x114000 -cf default-nut.bin -ca 0x194000 -cf nut-boot.bin -ca 0x3FC000 -cf esp_init_data_default.bin -ca 0x3FE000 -cf blank.bin
 else
-    $ADDSUDO $ESP_TOOL $UPLOAD_VERB -cb $UPLOAD_SPEED -cd $UPLOAD_RESET -cp $UPLOAD_PORT -ca 0x00000 -cf nut-boot.bin -ca 0x20000 -cf default-nut.bin -ca 0xDB000 -cf default-nut.bin -ca 0x134000 -cf nut-boot.bin
+    $ADDSUDO $ESP_TOOL $UPLOAD_VERB -cb $UPLOAD_SPEED -cd $UPLOAD_RESET -cp $UPLOAD_PORT -ca 0x00000 -cf nut-boot.bin -ca 0x14000 -cf default-nut.bin -ca 0x114000 -cf default-nut.bin -ca 0x194000 -cf nut-boot.bin
 fi
 
 echo ""

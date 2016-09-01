@@ -23,15 +23,16 @@
 #include "params_hal.h"
 #include "eeprom_hal.h"
 #include "memory_hal.h"
+#include "flash_map.h"
 #include "intorobot_macros.h"
 #include "service_debug.h"
 
 
-#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)
-#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x10FFF)
+#define FLASH_BOOT_PARAMS_START_ADDRESS              BOOT_PARAMS_START_ADDR
+#define FLASH_BOOT_PARAMS_END_ADDRESS                BOOT_PARAMS_END_ADDR
 
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x11000)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x17FFF)
+#define FLASH_SYSTEM_PARAMS_START_ADDRESS            SYSTEM_PARAMS_START_ADDR
+#define FLASH_SYSTEM_PARAMS_END_ADDRESS              SYSTEM_PARAMS_END_ADDR
 
 
 boot_params_t intorobot_boot_params;         //bootloader参数
@@ -123,7 +124,6 @@ void read_boot_params(boot_params_t *pboot_params) {
     }
     HAL_FLASH_Interminal_Read(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len);
     if( BOOT_PARAMS_HEADER != pboot_params->header ) {
-        //DEBUG_D("init boot params\r\n");
         init_boot_params(pboot_params);
         save_boot_params(pboot_params);
     }
@@ -155,7 +155,6 @@ void read_system_params(system_params_t *psystem_params) {
     }
     HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len);
     if( SYSTEM_PARAMS_HEADER != psystem_params->header ) {
-        //DEBUG_D("init system params\r\n");
         init_system_params(psystem_params);
         save_system_params(psystem_params);
     }

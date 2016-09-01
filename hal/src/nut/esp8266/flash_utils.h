@@ -33,7 +33,6 @@ int SPIEraseAreaEx(const uint32_t start, const uint32_t size);
 
 #define FLASH_SECTOR_SIZE 0x1000
 #define FLASH_BLOCK_SIZE 0x10000
-#define APP_START_OFFSET 0x1000
 
 typedef struct {
     unsigned char       magic;

@@ -24,7 +24,6 @@ int SPIEraseAreaEx(const uint32_t start, const uint32_t size);
 
 #define FLASH_SECTOR_SIZE        0x1000
 #define FLASH_BLOCK_SIZE         0x10000
-#define APP_START_OFFSET         0x20000    //flash前面64k留给bootloader 64k给参数区
 
 #define COMMAND_INFO_SEC_START   7         //下载文件属性区
 #define COMMAND_INFO_ADDR        0x7000    //command 存储区

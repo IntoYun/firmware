@@ -28,8 +28,9 @@
 //#include "wiring_system.h"
 #include "wiring_watchdog.h"
 #include "interrupts_hal.h"
+#include "string_convert.h"
 #include <functional>
-
+#include "service_debug.h"
 
 #ifdef INTOROBOT_NO_CLOUD
 #define CLOUD_FN(x,y) (y)
@@ -91,18 +92,18 @@ class CloudClass: public Print{
 
         static uint8_t publish(const char *topic, float payload)
         {
-            char tmp[32];
-            memset(tmp,0,sizeof(tmp));
-            sprintf(tmp, "%.2f", payload);
-            return publish(topic, (uint8_t *)tmp, strlen(tmp), 0, true);
+            char buf[32];
+            char *string = dtostrf(payload, 4, 2, buf);
+            DEBUG_D("topic :%s", string);
+            return publish(topic, (uint8_t *)string, strlen(string), 0, true);
         }
 
         static uint8_t publish(const char *topic, double payload)
         {
-            char tmp[128];
-            memset(tmp,0,sizeof(tmp));
-            sprintf(tmp, "%.2f", payload);
-            return publish(topic, (uint8_t *)tmp, strlen(tmp), 0, true);
+            char buf[32];
+            char *string = dtostrf(payload, 4, 2, buf);
+            DEBUG_D("topic :%s", string);
+            return publish(topic, (uint8_t *)string, strlen(string), 0, true);
         }
 
         static uint8_t publish(const char *topic, String payload)

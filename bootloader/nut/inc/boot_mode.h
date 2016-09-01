@@ -23,6 +23,7 @@ typedef enum
 } Firmware_TypeDef;
 
 
+void start_app(void);
 bool load_app(const uint32_t flash_addr);
 void Enter_Default_RESTORE_Mode(void);
 void Enter_Serail_Com_Mode(void);

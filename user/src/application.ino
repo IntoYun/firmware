@@ -97,7 +97,7 @@ void loop()
 
 #if 1
 /*
- * Atom 默认程序
+ * nut 默认程序
  */
 #include "application.h"
 
@@ -111,12 +111,12 @@ void smartLightSwitchCb(uint8_t *payload, uint32_t len)
     if(payload[0] == '1')
     {
         digitalWrite(LEDPIN, LOW);     // 打开灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
+        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
     }
     else
     {
         digitalWrite(LEDPIN, HIGH);      //关闭灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
+        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
     }
 }
 
@@ -774,4 +774,32 @@ void loop()
     delay(100);
 #endif
 }
+#endif
+
+#if 0
+
+
+#include "IntoRobot_DHT.h"
+
+//温湿度计应用topic定义
+#define HUMITURE_DATA_TEMPERATURE    "channel/humiture_0/data/temperature"   //空气温度
+#define HUMITURE_DATA_HUMIDITY       "channel/humiture_0/data/humidity"      //空气湿度
+#define DHT11_PIN   D1
+#define DHT_TYPE    DHT11
+
+IntoRobot_DHT dht11(DHT11_PIN,DHT_TYPE);
+
+void setup()
+{
+    //初始化
+    dht11.begin();
+}
+
+void loop()
+{
+    IntoRobot.publish(HUMITURE_DATA_TEMPERATURE, dht11.getTempCelcius()); //上送温度值
+    IntoRobot.publish(HUMITURE_DATA_HUMIDITY, dht11.getHumidity());        //上送湿度值
+    delay(1000);
+}
+
 #endif

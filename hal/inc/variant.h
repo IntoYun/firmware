@@ -22,22 +22,16 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
  */
+
 #ifndef   VARIANT_H_
 #define   VARIANT_H_
 
-#include "stm32f4xx_hal.h"
-
-/** Frequency of the board main oscillator */
-#define VARIANT_MAINOSC		26000000
-
-/** Master clock frequency */
-#define VARIANT_MCK			72000000
+#include "hw_config.h"
 
 /** @addtogroup Exported_types
   * @{
   */
 
-/*!< STM32F10x Standard Peripheral Library old types (maintained for legacy purpose) */
 typedef int32_t  s32;
 typedef int16_t s16;
 typedef int8_t  s8;
@@ -70,31 +64,14 @@ typedef __I uint32_t vuc32;  /*!< Read Only */
 typedef __I uint16_t vuc16;  /*!< Read Only */
 typedef __I uint8_t vuc8;   /*!< Read Only */
 
-#define UINT_MAX	0xffffffff
 
-#define HIGH 	0x1
-#define LOW 	0x0
+#define HIGH    0x1
+#define LOW     0x0
 
 #define ON      0x1
 #define OFF     0x0
 
-#ifndef __cplusplus
-//extern "C" {
-//#endif
-
-typedef enum
-{
-  false = 0, true  = !false
-}bool;
-
-//#ifdef __cplusplus
-//} /* end of extern "C" */
-#endif
-
-//#define bool  uint8_t
 #define boolean bool
-
-#define NONE ((uint8_t)0xFF)
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
@@ -102,8 +79,6 @@ typedef enum
 #define DEG_TO_RAD 0.017453292519943295769236907684886
 #define RAD_TO_DEG 57.295779513082320876798154814105
 #define EULER 2.718281828459045235360287471352
-#if 0
 
-
-#endif /* VARIANT_INTOROBOT_ATOM_H_ */
+#endif /* VARIANT_H_ */
 

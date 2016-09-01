@@ -24,35 +24,6 @@
 #include <stdlib.h>
 #include "string_convert.h"
 
-//These are very crude implementations - will refine later
-//------------------------------------------------------------------------------------------
-
-void dtoa (double val, unsigned char prec, char *sout) {
-    bool negative = val<0;
-    if (negative) {
-        val = -val;
-        *sout++ = '-';
-    }
-    long scale = 1;
-    for (uint8_t i=0; i<prec; i++)
-        scale *= 10;
-    val *= scale;   // capture all the significant digits
-    uint64_t fixed = uint64_t(val);
-    if ((val-fixed)>=0.5)    // round last digit
-        fixed++;
-
-    unsigned long first = (unsigned long)(fixed / scale);
-    unsigned long second = (unsigned long)(fixed % scale);
-
-    ultoa(first, sout, 10, 1);
-    if (prec) {
-        sout += strlen(sout);
-        *sout++ = '.';
-        ultoa(second, sout, 10, prec);
-    }
-}
-
-
 /*********************************************/
 /*  Constructors                             */
 /*********************************************/
@@ -135,16 +106,14 @@ String::String(float value, int decimalPlaces)
 {
 	init();
 	char buf[33];
-	dtoa(value, decimalPlaces, buf);
-        *this = buf;
+    *this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
 }
 
 String::String(double value, int decimalPlaces)
 {
 	init();
 	char buf[33];
-	dtoa(value, decimalPlaces, buf);
-        *this = buf;
+    *this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
 }
 String::~String()
 {
@@ -347,15 +316,15 @@ unsigned char String::concat(unsigned long num)
 unsigned char String::concat(float num)
 {
 	char buf[20];
-	dtoa(num, 6, buf);
-	return concat(buf, strlen(buf));
+    char* string = dtostrf(num, 4, 2, buf);
+	return concat(string, strlen(string));
 }
 
 unsigned char String::concat(double num)
 {
 	char buf[20];
-	dtoa(num, 6, buf);
-	return concat(buf, strlen(buf));
+    char* string = dtostrf(num, 4, 2, buf);
+    return concat(string, strlen(string));
 }
 
 /*********************************************/

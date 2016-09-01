@@ -28,17 +28,6 @@ uint8_t OTA_FIRMWARE_MODE=0;
 
 uint32_t BUTTON_press_time=0;
 
-void Start_App(void)
-{
-    ETS_FRC1_INTR_DISABLE();
-    if (!load_app(APP_START_OFFSET)){
-        SWRST;
-    }
-
-    while(true)
-    {}
-}
-
 int main()
 {
     BOOT_DEBUG("boot start...\r\n");
@@ -174,7 +163,7 @@ int main()
     }
     BOOT_DEBUG("start app\r\n");
     HAL_UI_RGB_Color(RGB_COLOR_BLACK);
-    Start_App();
+    start_app();
     return 0;
 }
 

@@ -61,6 +61,21 @@ extern "C" {
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
-#define __IO    volatile             /*!< Defines 'read / write' permissions              */
+
+/* IO definitions (access restrictions to peripheral registers) */
+/**
+    \defgroup CMSIS_glob_defs CMSIS Global Defines
+
+    <strong>IO Type Qualifiers</strong> are used
+    \li to specify the access to peripheral variables.
+    \li for automatic generation of peripheral register debug information.
+*/
+#ifdef __cplusplus
+  #define   __I     volatile             /*!< Defines 'read only' permissions                 */
+#else
+  #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
+#endif
+#define     __O     volatile             /*!< Defines 'write only' permissions                */
+#define     __IO    volatile             /*!< Defines 'read / write' permissions              */
 
 #endif  /*HW_CONFIG_H_*/
