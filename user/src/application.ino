@@ -1,6 +1,6 @@
 // include the all the header files
 #include "application.h"
-//Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
+Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
 #if 0
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
@@ -95,7 +95,7 @@ void loop()
 //====================================================
 
 
-#if 1
+#if 0
 /*
  * Atom 默认程序
  */
@@ -775,3 +775,25 @@ void loop()
 #endif
 }
 #endif
+
+#if 1
+#define LED_PIN  D6
+
+void setup()
+{
+    pinMode(LED_PIN, OUTPUT);
+    Serial2.begin(115200);
+}
+
+// the loop function runs over and over again forever
+void loop()
+{
+    digitalWrite(LED_PIN, LOW);
+    delay(1000);
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
+    DEBUG("I'm running!");
+}
+#endif
+
+

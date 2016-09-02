@@ -102,7 +102,7 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS        1
+#define TOTAL_USARTS       2
 
 
 #define TIM_PWM_FREQ 500 //500Hz
