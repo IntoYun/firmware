@@ -200,8 +200,14 @@ uart_t* uart_init(int uart_nr, int baudrate, int config, int mode, int tx_pin)
     uart_set_baudrate(uart, baudrate);
     USC0(uart->uart_nr) = config;
     uart_flush(uart);
-    USC1(uart->uart_nr) = 0;
-
+    /* USC1(uart->uart_nr) = 0; */
+    if (uart->uart_nr == UART1) {
+        USC1(uart->uart_nr) = 0;
+    }
+    else {
+        /* USC1(uart->uart_nr) = 1; */
+        /* USC1(uart->uart_nr) = 0; */
+    }
     return uart;
 }
 

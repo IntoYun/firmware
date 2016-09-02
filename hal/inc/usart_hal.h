@@ -55,7 +55,7 @@ typedef struct Ring_Buffer
 
 typedef enum HAL_USART_Serial {
   HAL_USART_SERIAL1 = 0,    //maps to USART_TX_RX
-#if PLATFORM_ID == 1 // neutron
+#if (PLATFORM_ID == 1 || PLATFORM_ID == 4 )// neutron or nut
   HAL_USART_SERIAL2 = 1
 #endif
 } HAL_USART_Serial;

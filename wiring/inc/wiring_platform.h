@@ -46,6 +46,7 @@
 #define Wiring_WiFi 1
 #define Wiring_IPv6 1
 #define Wiring_SPI1 1
+#define Wiring_Serial2 1
 #endif
 
 #if PLATFORM_ID==5      //lora
