@@ -1,155 +1,170 @@
 /**
  ******************************************************************************
- * @file     : hw_config.h
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
+ * @file    hw_config.c
+ * @author  Satish Nair, Zachary Crockett and Mohit Bhoite
+ * @version V1.0.0
+ * @date    13-March-2013
+ * @brief   Hardware Configuration & Setup
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
 
-  This library is free software; you can redistribute it and/or
+  This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation, either
   version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
+  This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
+  License along with this program; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
-#include "debug.h"
-#include "usb_lib.h"
-#include "usb_pwr.h"
+#include <string.h>
 
+/* Private typedef -----------------------------------------------------------*/
 
-/*******************************************************************************
-* Function Name  : USB_Disconnect_Config
-* Description    : Disconnect pin configuration
-* Input          : None.
-* Return         : None.
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void USB_Disconnect_Config(void)
+/* Private define ------------------------------------------------------------*/
+
+/* Private macro -------------------------------------------------------------*/
+
+/* Private variables ---------------------------------------------------------*/
+
+/* Extern variables ----------------------------------------------------------*/
+
+/* Private function prototypes -----------------------------------------------*/
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+ * @brief  This function is executed in case of error occurrence.
+ * @param  None
+ * @retval None
+ */
+static void Error_Handler(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-	/* Enable USB_DISCONNECT GPIO clock */
-	RCC_APB2PeriphClockCmd(USB_DISCONNECT_GPIO_CLK, ENABLE);
-
-	/* USB_DISCONNECT_GPIO_PIN used as USB pull-up */
-	GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_GPIO_PIN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-	GPIO_Init(USB_DISCONNECT_GPIO_PORT, &GPIO_InitStructure);
+  while(1)
+  {
+  }
 }
 
-/*******************************************************************************
-* Function Name  : Set_USBClock
-* Description    : Configures USB Clock input (48MHz)
-* Input          : None.
-* Return         : None.
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void Set_USBClock(void)
+/**
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (HSE)
+ *            SYSCLK(Hz)                     = 96000000
+ *            HCLK(Hz)                       = 96000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 2
+ *            APB2 Prescaler                 = 1
+ *            HSI Frequency(Hz)              = 16000000
+ *            HSE Frequency(Hz)              = 26000000
+ *            PLL_M                          = 13
+ *            PLL_N                          = 96
+ *            PLL_P                          = 2
+ *            PLL_Q                          = 4
+ *            VDD(V)                         = 3.3
+ *            Main regulator output voltage  = Scale2 mode
+ *            Flash Latency(WS)              = 4
+ * @param  None
+ * @retval None
+ */
+static void SystemClock_Config(void)
 {
-	/* Select USBCLK source */
-	RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_1Div5);
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
 
-	/* Enable the USB clock */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
+    /* Enable Power Control clock */
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    /* The voltage scaling allows optimizing the power consumption when the device is
+       clocked below the maximum system frequency, to update the voltage scaling value
+       regarding system frequency refer to product datasheet.  */
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    /* Enable HSI Oscillator and activate PLL with HSI as source */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM = 13;
+    RCC_OscInitStruct.PLL.PLLN = 96;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ = 4;
+    if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+       clocks dividers */
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
 
-/*******************************************************************************
-* Function Name  : Enter_LowPowerMode
-* Description    : Power-off system clocks and power while entering suspend mode
-* Input          : None.
-* Return         : None.
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void Enter_LowPowerMode(void)
+/**
+ * @brief  Initialise Data Watchpoint and Trace Register (DWT).
+ * @param  None
+ * @retval None
+ */
+void DWT_Init(void)
 {
-	/* Set the device state to suspend */
-	bDeviceState = SUSPENDED;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
-/*******************************************************************************
-* Function Name  : Leave_LowPowerMode
-* Description    : Restores system clocks and power while exiting suspend mode
-* Input          : None.
-* Return         : None.
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void Leave_LowPowerMode(void)
+/**
+ * @brief  Configures Main system clocks & power.
+ * @param  None
+ * @retval None
+ */
+void Set_System(void)
 {
-	DEVICE_INFO *pInfo = &Device_Info;
+    /* STM32F4xx HAL library initialization:
+     - Configure the Flash prefetch, instruction and Data caches
+     - Configure the Systick to generate an interrupt each 1 msec
+     - Set NVIC Group Priority to 4
+     - Global MSP (MCU Support Package) initialization
+    */
+    HAL_Init();
+    /* Configure the system clock to 96 MHz */
+    SystemClock_Config();
 
-	/* Set the device state to the correct state */
-	if (pInfo->Current_Configuration != 0)
-	{
-		/* Device configured */
-		bDeviceState = CONFIGURED;
-	}
-	else
-	{
-		bDeviceState = ATTACHED;
-	}
+    /* Initialise Data Watchpoint and Trace Register (DWT)  used in delay*/
+    DWT_Init();
 }
 
-/*******************************************************************************
-* Function Name  : USB_Interrupts_Config
-* Description    : Configures the USB interrupts
-* Input          : None.
-* Return         : None.
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void USB_Interrupts_Config(void)
+/**
+  * @brief  Sets the vector table location and Offset.
+  * @param  NVIC_VectTab: specifies if the vector table is in RAM or FLASH memory.
+  *   This parameter can be one of the following values:
+  *     @arg NVIC_VectTab_RAM
+  *     @arg NVIC_VectTab_FLASH
+  * @param  Offset: Vector Table base offset field. This value must be a multiple
+  *         of 0x200.
+  * @retval None
+  */
+void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset)
 {
-	NVIC_InitTypeDef NVIC_InitStructure;
+    /* Check the parameters */
+    assert_param(IS_NVIC_VECTTAB(NVIC_VectTab));
+    assert_param(IS_NVIC_OFFSET(Offset));
 
-	/* Enable the USB interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USB_LP_IRQ_PRIORITY;			//OLD: 0x01
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;								//OLD: 0x00
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+    SCB->VTOR = NVIC_VectTab | (Offset & (uint32_t)0x1FFFFF80);
 }
 
-/*******************************************************************************
-* Function Name  : USB_Cable_Config
-* Description    : Software Connection/Disconnection of USB Cable
-* Input          : None.
-* Return         : Status
-* author         : cky
-* date           : 6-December-2014
-* Others         : none
-*******************************************************************************/
-void USB_Cable_Config (FunctionalState NewState)
-{
-	if (NewState != DISABLE)
-	{
-		GPIO_SetBits(USB_DISCONNECT_GPIO_PORT, USB_DISCONNECT_GPIO_PIN);
-	}
-	else
-	{
-		GPIO_ResetBits(USB_DISCONNECT_GPIO_PORT, USB_DISCONNECT_GPIO_PIN);
-	}
-}
+
 

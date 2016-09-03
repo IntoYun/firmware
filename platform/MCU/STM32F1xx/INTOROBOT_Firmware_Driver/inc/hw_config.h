@@ -1,12 +1,12 @@
 /**
  ******************************************************************************
- * @file     : hw_config.h
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
+ * @file    hw_config.h
+ * @author  Satish Nair
+ * @version V1.0.0
+ * @date    22-Oct-2014
+ * @brief   Hardware Configuration & Setup
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -24,49 +24,43 @@
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef   HW_CONFIG_H_
-#define   HW_CONFIG_H_
+#ifndef HW_CONFIG_H_
+#define HW_CONFIG_H_
+
+
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
+#include <stdbool.h>
+#include "sdkqueue.h"
+#include "usbd_cdc_desc.h"
+#include "usbd_cdc_if.h"
+#include "usbd_dfu_desc.h"
+#include "usbd_dfu_if.h"
+#include "hw_ticks.h"
+#include "service_debug.h"
 
-#include <limits.h>
-#include "stm32f10x.h"
-#include "platform_config.h"
-#include "usb_type.h"
-#include "macros.h"
-#include "debug.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-
-typedef uint32_t system_tick_t;
-
-#define SYSTEM_US_TICKS		(SystemCoreClock / 1000000)//cycles per microsecond
-
-
-/* USB Config : IMR_MSK */
-/* mask defining which events has to be handled */
-/* by the device application software */
-#define IMR_MSK (CNTR_CTRM  | \
-                 CNTR_WKUPM | \
-                 CNTR_SUSPM | \
-                 CNTR_ERRM  | \
-                 CNTR_SOFM  | \
-                 CNTR_ESOFM | \
-                 CNTR_RESETM  \
-                )
+/* Exported types ------------------------------------------------------------*/
+#define NVIC_VectTab_RAM             SRAM_BASE
+#define NVIC_VectTab_FLASH           FLASH_BASE
 
 
-#define USART_RX_DATA_SIZE			256
+/* Exported constants --------------------------------------------------------*/
+
+/* Exported macros ------------------------------------------------------------*/
+
+/* Exported functions ------------------------------------------------------- */
+void Set_System(void);
+void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset);
+
+/* External variables --------------------------------------------------------*/
 
 
-/* USB hardware peripheral related methods */
-void USB_Disconnect_Config(void);
-void Set_USBClock(void);
-void Enter_LowPowerMode(void);
-void Leave_LowPowerMode(void);
-void USB_Interrupts_Config(void);
-void USB_Cable_Config(FunctionalState NewState);
-
-
-#define KICK_WDT() IWDG_ReloadCounter()
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /*HW_CONFIG_H_*/
-
