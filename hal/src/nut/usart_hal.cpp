@@ -3,6 +3,7 @@
  * @file    usart_hal.c
  * @author  Satish Nair, Brett Walach
  * @version V1.0.0
+
  * @date    12-Sept-2014
  * @brief
  ******************************************************************************
@@ -25,65 +26,233 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
-#include "uart.h"
 #include "usart_hal.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include "Arduino.h"
+#include "delay_hal.h"
 
-uart_t* uart_map[TOTAL_USARTS];
+
+#define UART0    0
+#define UART1    1
+#define UART_NO -1
+
+// Options for `config` argument of uart_init
+#define UART_NB_BIT_5         0B00000000
+#define UART_NB_BIT_6         0B00000100
+#define UART_NB_BIT_7         0B00001000
+#define UART_NB_BIT_8         0B00001100
+
+#define UART_PARITY_NONE      0B00000000
+#define UART_PARITY_EVEN      0B00000010
+#define UART_PARITY_ODD       0B00000011
+
+#define UART_NB_STOP_BIT_0    0B00000000
+#define UART_NB_STOP_BIT_1    0B00010000
+#define UART_NB_STOP_BIT_15   0B00100000
+#define UART_NB_STOP_BIT_2    0B00110000
+
+#define UART_TX_FIFO_SIZE     0x80
+
+#define UART_8N1 ( UART_NB_BIT_8 | UART_PARITY_NONE | UART_NB_STOP_BIT_1 )
+
+static int s_uart_debug_nr = UART0;
+
+
+/* Private typedef -----------------------------------------------------------*/
+typedef enum USART_Num_Def {
+    USART_0 = 0,
+    USART_1 = 1
+} USART_Num_Def;
+
+/* Private macro -------------------------------------------------------------*/
+// IS_USART_CONFIG_VALID(config) - returns true for 8 data bit, any flow control, any parity, any stop byte configurations
+#define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
+
+/* Private variables ---------------------------------------------------------*/
+typedef struct STM32_USART_Info {
+    int usart_nr;
+    uint8_t usart_tx_pin;
+    uint8_t usart_rx_pin;
+
+    bool usart_enabled;
+    bool usart_transmitting;
+    int peek_char;
+} ESP8266_USART_Info;
+
+/*
+ * USART mapping
+ */
+ESP8266_USART_Info USART_MAP[TOTAL_USARTS] =
+{
+    /*
+     * USART_number (UART0, UART1)
+     * TX pin
+     * RX pin
+     * <usart enabled> used internally and does not appear below
+     * <usart transmitting> used internally and does not appear below
+     */
+    { UART0, 1, 3 },           // USART 0
+    { UART1, 2, 0xFF }         // USART 1
+};
+
+static ESP8266_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+
+
+static void uart1_write_char(char c)
+{
+    while(((USS(1) >> USTXC) & 0xff) >= 0x7F) {
+        delay(0);
+    }
+    USF(1) = c;
+}
+
+static void uart_ignore_char(char c)
+{
+}
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
+    if(serial == HAL_USART_SERIAL1) {
+        usartMap[serial] = &USART_MAP[USART_0];
+    }
+    else {
+        usartMap[serial] = &USART_MAP[USART_1];
+    }
 
+    usartMap[serial]->usart_enabled = false;
+    usartMap[serial]->usart_transmitting = false;
+    usartMap[serial]->peek_char = -1;
 }
 
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 {
-    HAL_USART_BeginConfig(serial, baud, UART_8N1, 0); // Default serial configuration is 8N1
+    HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
 }
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
-    // when serial = HAL_USART_SERIAL1(0), esp8266 UART1(1)
-    // when serial = HAL_USART_SERIAL2(1), esp8266 UART0(0)
-    // so below is !=
-    if (uart_get_debug() != serial) {
-        uart_set_debug(UART_NO);
-    }
-    if (uart_map[serial]){
-        free(uart_map[serial]);
+    // Verify UART configuration, exit if it's invalid.
+    if (!IS_USART_CONFIG_VALID(config)) {
+        usartMap[serial]->usart_enabled = false;
+        return;
     }
 
-    if (serial == HAL_USART_SERIAL1){
-        uart_map[serial] = uart_init(UART1, baud, UART_8N1, 0, 1);
-        if (uart_tx_enabled(uart_map[serial])) {
-            uart_set_debug(UART1);
+    // set debug UART_NO
+    if (s_uart_debug_nr == usartMap[serial]->usart_nr) {
+        system_set_os_print(0);
+        ets_install_putc1((void *) &uart_ignore_char);
+    }
+
+    if (HAL_USART_SERIAL1 == serial) {
+        // set tx pin mode
+        GPC(usartMap[serial]->usart_tx_pin) = (GPC(usartMap[serial]->usart_tx_pin) & (0xF << GPCI));
+        GPEC = (1 << usartMap[serial]->usart_tx_pin);
+        GPF(usartMap[serial]->usart_tx_pin) = GPFFS((FUNCTION_0 >> 4) & 0x07);
+        //set rx pin mode
+        GPC(usartMap[serial]->usart_rx_pin) = (GPC(usartMap[serial]->usart_rx_pin) & (0xF << GPCI));
+        GPEC = (1 << usartMap[serial]->usart_rx_pin);
+        GPF(usartMap[serial]->usart_rx_pin) = GPFFS(GPFFS_BUS(usartMap[serial]->usart_rx_pin));
+        GPF(usartMap[serial]->usart_rx_pin) |= (1 << GPFPU); // rx pin = 3
+
+        IOSWAP &= ~(1 << IOSWAPU0);
+    }
+    else {
+        //set tx pin mode
+        GPC(usartMap[serial]->usart_tx_pin) = (GPC(usartMap[serial]->usart_tx_pin) & (0xF << GPCI));
+        GPEC = (1 << usartMap[serial]->usart_tx_pin);
+        GPF(usartMap[serial]->usart_tx_pin) = GPFFS(GPFFS_BUS(usartMap[serial]->usart_tx_pin));
+        // GPF(usartMap[serial]->usart_tx_pin) |= (1 << GPFPU); // no need this line, pin != 3
+
+        //set debug, default the UART1 is the debug usart port
+        system_set_os_print(1);
+        ets_install_putc1((void *) &uart1_write_char);
+    }
+
+    uint32 esp8266_uart_config = 0;
+    // Stop bit configuration.
+    switch (config & SERIAL_STOP_BITS) {
+        case 0b00: // 1 stop bit
+            esp8266_uart_config |= UART_NB_STOP_BIT_1;
+            break;
+        case 0b01: // 2 stop bits
+            esp8266_uart_config |= UART_NB_STOP_BIT_2;
+            break;
+    }
+
+    // Eight / Nine data bit configuration
+    if (config & SERIAL_NINE_BITS) {
+        // Nine data bits, no parity.
+        esp8266_uart_config |= UART_PARITY_NONE;
+        esp8266_uart_config |= UART_NB_BIT_8;
+    } else {
+        // eight data bits, parity configuration (impacts word length)
+        switch ((config & SERIAL_PARITY_BITS) >> 2) {
+            case 0b00: // none
+                esp8266_uart_config |= UART_PARITY_NONE;
+                esp8266_uart_config |= UART_NB_BIT_8;
+                break;
+            case 0b01: // even
+                esp8266_uart_config |= UART_PARITY_EVEN;
+                esp8266_uart_config |= UART_NB_BIT_8;
+                break;
+            case 0b10: // odd
+                esp8266_uart_config |= UART_PARITY_ODD;
+                esp8266_uart_config |= UART_NB_BIT_8;
+                break;
         }
     }
-    else if (serial == HAL_USART_SERIAL2) {
-        uart_map[serial] = uart_init(UART0, baud, UART_8N1, 0, 1);
+
+    // set baudrate
+    USD(usartMap[serial]->usart_nr) = (ESP8266_CLOCK / baud);
+    // uart config
+    USC0(usartMap[serial]->usart_nr) = esp8266_uart_config;
+    // uart flush
+    uint32_t tmp = 0x00000000;
+
+    if (HAL_USART_SERIAL1 == serial){
+        tmp |= (1 << UCRXRST); // if rx_enabled
     }
+    tmp |= (1 << UCTXRST); // if tx_enabled
+    USC0(usartMap[serial]->usart_nr) |= (tmp);
+    USC0(usartMap[serial]->usart_nr) &= ~(tmp);
+
+    USC1(usartMap[serial]->usart_nr) = 0;
+
+    usartMap[serial]->usart_enabled = true;
+    usartMap[serial]->usart_transmitting = false;
+    usartMap[serial]->peek_char = -1;
 }
 
 void HAL_USART_End(HAL_USART_Serial serial)
 {
-    // !=, reason as HAL_USART_BeginConfig
-    if (uart_get_debug() != serial) {
-        uart_set_debug(UART_NO);
+    system_set_os_print(0);
+    ets_install_putc1((void *) &uart_ignore_char);
+
+    GPF(usartMap[serial]->usart_tx_pin) = GPFFS(GPFFS_GPIO(usartMap[serial]->usart_tx_pin));
+    GPEC = (1 << usartMap[serial]->usart_tx_pin);
+    GPC(usartMap[serial]->usart_tx_pin) = (GPC(usartMap[serial]->usart_tx_pin) & (0xF << GPCI)) | (1 << GPCD);
+
+    if( HAL_USART_SERIAL1 == serial){
+        GPF(usartMap[serial]->usart_rx_pin) = GPFFS(GPFFS_GPIO(usartMap[serial]->usart_rx_pin));
+        GPEC = (1 << usartMap[serial]->usart_rx_pin);
+        GPC(usartMap[serial]->usart_rx_pin) = (GPC(usartMap[serial]->usart_rx_pin) & (0xF << GPCI)) | (1 << GPCD);
     }
 
-    uart_uninit(uart_map[serial]);
-    uart_map[serial] = NULL;
+    usartMap[serial]->usart_enabled = false;
+    usartMap[serial]->usart_transmitting = false;
+    usartMap[serial]->peek_char = -1;
 }
 
 uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
-    if (!uart_map[serial] || !uart_tx_enabled(uart_map[serial])) {
+    if (!usartMap[serial] || !(usartMap[serial]->usart_enabled)) {
         return 0;
     }
-    uart_write_char(uart_map[serial], data);
+    while((USS(usartMap[serial]->usart_nr) >> USTXC) >= 0x7f);
+    USF(usartMap[serial]->usart_nr) = data;
     return 1;
 }
 
@@ -94,59 +263,69 @@ uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 
 int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
-    // if(!_uart || !uart_rx_enabled(_uart)) {
-    //     return 0;
-    // }
+    // if serial refer to uart1, not right, uart1 don't have rx pin
+    if ( ( HAL_USART_SERIAL2 == serial) || !usartMap[serial] || !usartMap[serial]->usart_enabled) {
+        return 0;
+    }
 
-    // int result = static_cast<int>(uart_rx_available(_uart));
-    // if (_peek_char != -1) {
-    //     result += 1;
-    // }
-    // if (!result) {
-    //     optimistic_yield(10000);
-    // }
-    // return result;
+    int result = static_cast<int>((USS(usartMap[serial]->usart_nr) >> USRXC) & 0xff);
+    if (usartMap[serial]->peek_char != -1) {
+        result += 1;
+    }
+    if (!result) {
+        optimistic_yield(10000);
+    }
+    return result;
 }
 
 int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
 {
-    if (!uart_map[serial] || !uart_tx_enabled(uart_map[serial])) {
+    if (!usartMap[serial] || !usartMap[serial]->usart_enabled) {
         return 0;
     }
-    return static_cast<int>(uart_tx_free(uart_map[serial]));
+    return static_cast<int>(UART_TX_FIFO_SIZE - ((USS(usartMap[serial]->usart_nr) >> USTXC) & 0xff));
 }
 
 int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
 {
-    if (serial == HAL_USART_SERIAL1){
-        return -1; // return error;
+    if ((HAL_USART_SERIAL1 != serial) || !usartMap[serial] || !usartMap[serial]->usart_enabled){
+        return -1;
     }
-    return uart_read_char(uart_map[serial]);
+
+    if (usartMap[serial]->peek_char != -1) {
+        auto tmp = usartMap[serial]->peek_char;
+        usartMap[serial]->peek_char = -1;
+        return tmp;
+    }
+    return USF(usartMap[serial]->usart_nr) & 0xff;
 }
 
 int32_t HAL_USART_Peek_Data(HAL_USART_Serial serial)
 {
-    return 0;
+    if (HAL_USART_SERIAL1 != serial){
+        return 0;
+    }
+    if (usartMap[serial]->peek_char != -1) {
+        return usartMap[serial]->peek_char;
+    }
+    usartMap[serial]->peek_char = USF(usartMap[serial]->usart_nr) & 0xff;
+    return usartMap[serial]->peek_char;
 }
 
 void HAL_USART_Flush_Data(HAL_USART_Serial serial)
 {
-    if (!uart_map[serial] || !uart_tx_enabled(uart_map[serial])) {
+    if (!usartMap[serial] || !usartMap[serial]->usart_enabled) {
         return;
     }
-
-    uart_wait_tx_empty(uart_map[serial]);
+    while(((USS(usartMap[serial]->usart_nr) >> USTXC) & 0xff) >> 0) {
+        // ets_delay_us(0);
+        HAL_Delay_Milliseconds(0);
+    }
 }
 
 bool HAL_USART_Is_Enabled(HAL_USART_Serial serial)
 {
-    if (serial == HAL_USART_SERIAL1){
-        return uart_map[serial] && uart_rx_enabled(uart_map[serial]);
-    }
-    else if (serial == HAL_USART_SERIAL2) {
-        return uart_map[serial] && uart_tx_enabled(uart_map[serial]) && uart_rx_enabled(uart_map[serial]);
-    }
-    return false;
+    return usartMap[serial]->usart_enabled;
 }
 
 void HAL_USART_Half_Duplex(HAL_USART_Serial serial, bool Enable)
