@@ -87,8 +87,8 @@ bool pinAvailable(uint16_t pin) {
   }
 #endif
 #ifndef WIRING_NO_USART_SERIAL
-  // Serial1 safety check
-  if(Serial1.isEnabled() == true && (pin == RX || pin == TX))
+  // Serial safety check
+  if(Serial.isEnabled() == true && (pin == RX || pin == TX))
   {
     return 0; // 'pin' is used
   }

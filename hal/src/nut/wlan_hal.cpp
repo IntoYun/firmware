@@ -17,9 +17,9 @@
   ******************************************************************************
 */
 
+#include "hw_config.h"
 #include "wlan_hal.h"
 #include "esp8266_wifi_generic.h"
-#include "hw_config.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -188,5 +188,39 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
 int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
 {
     // Reading credentials from the CC3000 is not possible
+    return 0;
+}
+
+#define STATION_IF      0x00
+#define SOFTAP_IF       0x01
+/**
+ * wifi set station and ap mac addr
+ */
+int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
+{
+    if(!wifi_set_macaddr(STATION_IF, stamacaddr))
+    {
+        return -1;
+    }
+    if(!wifi_set_macaddr(SOFTAP_IF, apmacaddr))
+    {
+        return -1;
+    }
+    return 0;
+}
+
+/**
+ * wifi get station and ap mac addr
+ */
+int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
+{
+    if(!wifi_get_macaddr(STATION_IF, stamacaddr))
+    {
+        return -1;
+    }
+    if(!wifi_get_macaddr(SOFTAP_IF, apmacaddr))
+    {
+        return -1;
+    }
     return 0;
 }

@@ -89,11 +89,11 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 
 
 #ifndef INTOROBOT_WIRING_NO_USART_SERIAL
-#define Serial1 __fetch_global_Serial1()
+#define Serial __fetch_global_Serial1()
 extern USARTSerial& __fetch_global_Serial1();
 
 #if Wiring_Serial2
-#define Serial2 __fetch_global_Serial2()
+#define Serial1 __fetch_global_Serial2()
 extern USARTSerial& __fetch_global_Serial2();
 #endif
 

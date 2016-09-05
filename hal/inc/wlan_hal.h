@@ -261,6 +261,10 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie);
 
 int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data);
 
+int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
+int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
+
+
 #ifdef	__cplusplus
 }
 #endif

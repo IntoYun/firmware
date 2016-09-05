@@ -95,8 +95,8 @@ void serialEventRun()
     if (serialEvent && Serial.available()>0)
         serialEvent();
 
-    if (serialEvent1 && Serial1.available()>0)
-        serialEvent1();
+    //if (serialEvent1 && Serial1.available()>0)
+    //    serialEvent1();
 
 #if Wiring_Serial2
     if (serialEventRun2) serialEventRun2();

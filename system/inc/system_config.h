@@ -89,7 +89,7 @@ public:
 	USBSerial &serialusb;
 
 public:
-	UsbDeviceConfig(USBSerial &_s = Serial):serialusb(_s){}
+	UsbDeviceConfig(USBSerial &_s = SerialUSB):serialusb(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);
@@ -105,7 +105,7 @@ public:
 	USARTSerial &serial;
 
 public:
-	UsartDeviceConfig(USARTSerial &_s = Serial1):serial(_s){}
+	UsartDeviceConfig(USARTSerial &_s = Serial):serial(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);

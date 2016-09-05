@@ -416,10 +416,16 @@ void DeviceConfig::getDeviceInfo(void)
     HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     aJson.addStringToObject(value_object, "dw_domain", dw_domain);
 
-    uint8_t stamac[20] = {0}, bssid[20] = {0};;
+    uint8_t stamac[6] = {0}, apmac[6] = {0}, bssid[20] = {0};;
+    char macStr[20] = {0};
 
-    aJson.addStringToObject(value_object, "stamac", (char *)WiFi.macAddress(stamac));
-    aJson.addStringToObject(value_object, "apmac", (char *)WiFi.macAddress(stamac));
+    wlan_get_macaddr(stamac, apmac);
+    memset(macStr, 0, sizeof(macStr));
+    //sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
+    aJson.addStringToObject(value_object, "stamac", macStr);
+    memset(macStr, 0, sizeof(macStr));
+    //sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
+    aJson.addStringToObject(value_object, "apmac", macStr);
     aJson.addStringToObject(value_object, "ssid", WiFi.SSID());
     aJson.addStringToObject(value_object, "bssid", (char *)WiFi.BSSID(bssid));
     aJson.addNumberToObject(value_object, "rssi", WiFi.RSSI());
@@ -476,26 +482,21 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
         HAL_PARAMS_Set_System_sv_select(0x01);
     }
 
+    uint8_t stamac[6] = {0}, apmac[6] = {0};
     object = aJson.getObjectItem(value_object, "stamac");
     object1 = aJson.getObjectItem(value_object, "apmac");
     if ((object != NULL)&&(object1 != NULL))
     {
-/*
-        MO_DEBUG(("Set stamac and apmac"));
-        uint8_t setMacFlag = 1; // 0 success, 1 fail
-        setMacFlag = mo_set_mac_hal(object->valuestring, object1->valuestring);
-        if (setMacFlag == 0)
+        //sscanf(object->valuestring, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
+        //sscanf(object1->valuestring, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
+        if(!wlan_set_macaddr(stamac, apmac))
         {
-            MO_DEBUG(("Set Macaddress OK!"));
             sendComfirm(200);
         }
         else
         {
-            MO_DEBUG(("Set Macaddress Failed!"));
             sendComfirm(202);
         }
-        */
-        sendComfirm(200);
     }
     else
     {

@@ -39,6 +39,7 @@
 #include <core_version.h>
 #include "subsys_version.h"
 #include "flash_map.h"
+#include "uart.h"
 
 
 
@@ -141,7 +142,6 @@ static void do_global_ctors(void) {
 
 extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
 void init_done() {
-    system_set_os_print(1);
     gdb_init();
     do_global_ctors();
     printf("\n%08x\n", intorobot_subsys_version);
@@ -178,6 +178,17 @@ void HAL_Core_Config(void)
     //滴答定时器  //处理三色灯和模式处理
     os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
     os_timer_arm(&systick_timer, 1, 1);
+
+    //Disable UART interrupts
+    system_set_os_print(0);
+    U0IE = 0;
+    U1IE = 0;
+
+    //Wiring pins default to inputs
+    for (pin_t pin=D0; pin<=D6; pin++)
+    {
+        HAL_Pin_Mode(pin, INPUT);
+    }
 
     HAL_RTC_Initial();
     HAL_RNG_Initial();

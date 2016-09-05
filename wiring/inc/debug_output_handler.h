@@ -21,11 +21,30 @@
 #ifndef DEBUG_OUTPUT_HANDLER_H_
 #define	DEBUG_OUTPUT_HANDLER_H_
 
+#include "wiring_platform.h"
 #include "wiring_usartserial.h"
 #include "wiring_usbserial.h"
 #include "service_debug.h"
 #include "delay_hal.h"
 
+#ifdef INTOROBOT_USB_SERIAL
+struct SerialUSBDebugOutput
+{
+    SerialUSBDebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
+    {
+        SerialUSB.begin(baud);
+        set_logger_output(log_output, level);
+    }
+
+    static void log_output(const char* msg)
+    {
+        SerialUSB.print(msg);
+    }
+
+};
+#endif
+
+#ifndef INTOROBOT_WIRING_NO_USART_SERIAL
 struct SerialDebugOutput
 {
     SerialDebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
@@ -37,12 +56,11 @@ struct SerialDebugOutput
     static void log_output(const char* msg)
     {
         Serial.print(msg);
-        //Serial.flush();
-        //HAL_Delay_Milliseconds(10);
     }
 
 };
 
+#if Wiring_Serial2
 struct Serial1DebugOutput
 {
     Serial1DebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
@@ -57,7 +75,8 @@ struct Serial1DebugOutput
     }
 
 };
-
+#endif
+#endif
 
 #endif	/* DEBUG_OUTPUT_HANDLER_H */
 
