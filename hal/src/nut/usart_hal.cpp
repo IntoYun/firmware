@@ -151,14 +151,12 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         uart_set_debug(UART1);
     }*/
 #endif
-DEBUG_D("222\r\n");
     // Verify UART configuration, exit if it's invalid.
     if (!IS_USART_CONFIG_VALID(config)) {
         usartMap[serial]->usart_enabled = false;
         return;
     }
 
-DEBUG_D("3j33\r\n");
     // set debug UART_NO
     //if (s_uart_debug_nr == usartMap[serial]->usart_nr) {
         system_set_os_print(0);
@@ -177,7 +175,6 @@ DEBUG_D("3j33\r\n");
         GPF(usartMap[serial]->usart_rx_pin) |= (1 << GPFPU); // rx pin = 3
 
         IOSWAP &= ~(1 << IOSWAPU0);
-        DEBUG_D("4444\r\n");
     }
     else {
         //set tx pin 2 mode
@@ -224,7 +221,6 @@ DEBUG_D("3j33\r\n");
         }
     }
 
-    DEBUG_D("55555\r\n");
     // set baudrate
     USD(usartMap[serial]->usart_nr) = (ESP8266_CLOCK / baud);
     // uart config
@@ -232,7 +228,6 @@ DEBUG_D("3j33\r\n");
     // uart flush
     uint32_t tmp = 0x00000000;
 
-    DEBUG_D("66666\r\n");
     if (HAL_USART_SERIAL1 == serial){
         tmp |= (1 << UCRXRST); // if rx_enabled
     }
@@ -240,14 +235,11 @@ DEBUG_D("3j33\r\n");
     USC0(usartMap[serial]->usart_nr) |= (tmp);
     USC0(usartMap[serial]->usart_nr) &= ~(tmp);
 
-    DEBUG_D("77777 %d\r\n", usartMap[serial]->usart_nr);
     USC1(usartMap[serial]->usart_nr) = 0;
 
-    DEBUG_D("888888\r\n");
     usartMap[serial]->usart_enabled = true;
     usartMap[serial]->usart_transmitting = false;
     usartMap[serial]->peek_char = -1;
-    DEBUG_D("99999\r\n");
 }
 
 void HAL_USART_End(HAL_USART_Serial serial)
