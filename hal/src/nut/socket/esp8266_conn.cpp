@@ -64,7 +64,7 @@ static volatile uint32_t esp8266_conn_timeout_duration;
 inline void ARM_CONN_TIMEOUT(uint32_t dur) {
     esp8266_conn_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_conn_timeout_duration = dur;
-    DEBUG("esp8266 CONN WD Set %d",(dur));
+    //DEBUG("esp8266 CONN WD Set %d",(dur));
 }
 inline bool IS_CONN_TIMEOUT() {
     return esp8266_conn_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_conn_timeout_start)>esp8266_conn_timeout_duration);
@@ -72,7 +72,7 @@ inline bool IS_CONN_TIMEOUT() {
 
 inline void CLR_CONN_TIMEOUT() {
     esp8266_conn_timeout_duration = 0;
-    DEBUG("esp8266 CONN WD Cleared, was %d", esp8266_conn_timeout_duration);
+    //DEBUG("esp8266 CONN WD Cleared, was %d", esp8266_conn_timeout_duration);
 }
 
 SockCtrl Esp8266ConnClass::_sockets[5];
@@ -91,7 +91,7 @@ int Esp8266ConnClass::socketSocket(IpProtocol ipproto, int port)
     // find an free socket
     socket = _findSocket(MDM_SOCKET_ERROR);
     if (socket != MDM_SOCKET_ERROR) {
-        DEBUG_D("Socket %d: handle %d was created\r\n", socket, socket);
+        //DEBUG_D("Socket %d: handle %d was created\r\n", socket, socket);
         _sockets[socket].handle       = socket;
         _sockets[socket].ipproto      = ipproto;
         _sockets[socket].local_port   = port;
@@ -103,7 +103,7 @@ int Esp8266ConnClass::socketSocket(IpProtocol ipproto, int port)
         _sockets[socket].pipe = new Pipe<char>(MAX_SIZE);
         _sockets[socket].esp8266_conn_ptr = (struct espconn *)os_zalloc(sizeof(struct espconn));
     }
-    DEBUG_D("socketSocket(%s)\r\n", (ipproto?"UDP":"TCP"));
+    //DEBUG_D("socketSocket(%s)\r\n", (ipproto?"UDP":"TCP"));
     return socket;
 }
 
@@ -111,7 +111,7 @@ bool Esp8266ConnClass::socketConnect(int socket, const MDM_IP& ip, int port)
 {
     bool ok = false;
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        DEBUG_D("socketConnect(%d, ip:%x port:%d)\r\n", socket, ip, port);
+        //DEBUG_D("socketConnect(%d, ip:%x port:%d)\r\n", socket, ip, port);
         _sockets[socket].remote_port  = port;
         memcpy((void *)_sockets[socket].remote_ip, &ip, 4);
         if(_sockets[socket].ipproto) {
@@ -159,7 +159,7 @@ bool Esp8266ConnClass::socketIsConnected(int socket)
 {
     bool ok = false;
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    //DEBUG_D("socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
+    ////DEBUG_D("socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
     return ok;
 }
 
@@ -169,7 +169,7 @@ bool Esp8266ConnClass::socketClose(int socket)
     if (ISSOCKET(socket)
             && (_sockets[socket].connected || _sockets[socket].open))
     {
-        DEBUG_D("socketClose(%d)\r\n", socket);
+        //DEBUG_D("socketClose(%d)\r\n", socket);
         ARM_CONN_TIMEOUT(1000);
         _socketDisconnected =0;
         espconn_disconnect(_sockets[socket].esp8266_conn_ptr);
@@ -195,7 +195,7 @@ bool Esp8266ConnClass::_socketFree(int socket)
     bool ok = false;
     if ((socket >= 0) && (socket < NUMSOCKETS)) {
         if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
-            DEBUG_D("socketFree(%d)\r\n",  socket);
+            //DEBUG_D("socketFree(%d)\r\n",  socket);
             _sockets[socket].handle     = MDM_SOCKET_ERROR;
             _sockets[socket].local_port    = 0;
             _sockets[socket].remote_port  = 0;
@@ -230,7 +230,7 @@ bool Esp8266ConnClass::socketFree(int socket)
 
 int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
 {
-    DEBUG_D("socketSend(%d,,%d)\r\n", socket,len);
+    //DEBUG_D("socketSend(%d,,%d)\r\n", socket,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -262,7 +262,7 @@ int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
 
 int Esp8266ConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    //DEBUG_D("socketSendTo(%d," IPSTR ",%d,,%d)\r\n", socket,IPNUM(ip),port,len)
+    ////DEBUG_D("socketSendTo(%d," IPSTR ",%d,,%d)\r\n", socket,IPNUM(ip),port,len)
     //Todo 后期实现
     return socketSend(socket, buf, len);
 }
@@ -273,7 +273,7 @@ int Esp8266ConnClass::socketReadable(int socket)
 
     optimistic_yield(100);
     if (ISSOCKET(socket) && _sockets[socket].connected) {
-        //DEBUG_D("socketReadable(%d)\r\n", socket);
+        ////DEBUG_D("socketReadable(%d)\r\n", socket);
         // allow to receive unsolicited commands
         if (_sockets[socket].connected)
             pending = _sockets[socket].pending;
@@ -315,7 +315,7 @@ void Esp8266ConnClass::_espconn_connect_callback(void *arg) {
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    DEBUG_D("_espconn_connect_callback\r\n");
+    //DEBUG_D("_espconn_connect_callback\r\n");
     for (socket=0; socket < NUMSOCKETS; socket++) {
         if (ISSOCKET(socket)) {
             if((pespconn->proto.tcp->remote_port == _sockets[socket].remote_port)
@@ -334,7 +334,7 @@ void Esp8266ConnClass::_espconn_reconnect_callback(void *arg, sint8 errType) {
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    DEBUG_D("_espconn_reconnect_callback\r\n");
+    //DEBUG_D("_espconn_reconnect_callback\r\n");
     for (socket=0; socket < NUMSOCKETS; socket++) {
         if (ISSOCKET(socket)) {
             if((pespconn->proto.tcp->remote_port == _sockets[socket].remote_port)
@@ -360,7 +360,7 @@ void Esp8266ConnClass::_espconn_reconnect_callback(void *arg, sint8 errType) {
 }
 
 void Esp8266ConnClass::_espconn_sent_callback(void *arg) {
-    DEBUG_D("_espconn_sent_callback\r\n");
+    //DEBUG_D("_espconn_sent_callback\r\n");
     _socketSended = 1;
 }
 
@@ -368,7 +368,7 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
     int socket=0, n=0;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    DEBUG_D("_espconn_recv_callback\r\n");
+    //DEBUG_D("_espconn_recv_callback\r\n");
     for (socket=0; socket < NUMSOCKETS; socket++) {
         if (ISSOCKET(socket)) {
             if((pespconn->proto.tcp->remote_port == _sockets[socket].remote_port)
@@ -378,7 +378,7 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
         }
     }
     if (NUMSOCKETS != socket) {
-        DEBUG_D("Socket %d: has %d bytes pending\r\n", socket, len);
+        //DEBUG_D("Socket %d: has %d bytes pending\r\n", socket, len);
         for(n=0; n < len ; n++) {
             if (_sockets[socket].pipe->writeable()) {
                 _sockets[socket].pipe->putc(pusrdata[n]);
@@ -395,7 +395,7 @@ void Esp8266ConnClass::_espconn_disconnect_callback(void *arg) {
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;
 
-    DEBUG_D("_espconn_disconnect_callback\r\n");
+    //DEBUG_D("_espconn_disconnect_callback\r\n");
     for (socket=0; socket < NUMSOCKETS; socket++) {
         if (ISSOCKET(socket)) {
             if((pespconn->proto.tcp->remote_port == _sockets[socket].remote_port)

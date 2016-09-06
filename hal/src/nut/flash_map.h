@@ -46,7 +46,7 @@
 #define APP_SEC_START                    20   //应用程序运行起始扇区
 #define DEFAULT_APP_SEC_START            276  //默认应用程序存放起始扇区
 
-#define BOOT_SEC_NUM                     7    //BOOT占用总扇区
+#define BOOT_SEC_NUM                     6    //BOOT占用总扇区
 #define BOOT_PARAMS_SEC_NUM              1    //boot参数区扇区总个数
 #define SYSTEM_PARAMS_SEC_NUM            4    //用户系统参数区扇区总个数
 #define APP_SEC_NUM                      256  //应用程序扇区总个数
@@ -73,6 +73,9 @@
 #define CACHE_DEFAULT_APP_ADDR           CACHE_DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE //默认程序下载存放地址
 #define SUBSYS_VERSION_ADDR              DEFAULT_APP_ADDR+0x10                            //子系统程序版本号
 
+#define MAC_SEC_START                    6    //mac地址暂存扇区
+#define MAC_SEC_NUM                      1    //mac 地址暂存扇区个数
+#define FLASH_MAC_START_ADDR           MAC_SEC_START * SPI_FLASH_SEC_SIZE      //boot参数起始地址
 #endif /*FLASH_MAP_H_*/
 
 

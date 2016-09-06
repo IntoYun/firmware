@@ -42,6 +42,7 @@ typedef enum{
     DEVICE_CONFIG_GET_WIFI_STATUS,      //查询wifi连接状态
     DEVICE_CONFIG_RESTART_NETWORK,      //重启网络
     DEVICE_CONFIG_GET_INFO,             //获取设备信息
+    DEVICE_CONFIG_INIT_DEVICEINFO,      //灌入密钥
     DEVICE_CONFIG_SET_INFO,             //设置设备信息
     DEVICE_CONFIG_RESET_FAC,            //设备恢复出厂设置
     DEVICE_CONFIG_REBOOT,               //设备重启
@@ -99,7 +100,7 @@ public:
     virtual void sendComfirm(int status);
 };
 
-class UsartDeviceConfig : public DeviceConfig
+class UsartDeviceConfig: public DeviceConfig
 {
 public:
 	USARTSerial &serial;
@@ -147,6 +148,7 @@ public:
 };
 
 extern UsbDeviceConfig DeviceConfigUsb;
+extern UsartDeviceConfig DeviceConfigUsart;
 extern TcpDeviceConfig DeviceConfigTcp;
 extern UdpDeviceConfig DeviceConfigUdp;
 

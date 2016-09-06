@@ -28,6 +28,8 @@
 #include "wlan_hal.h"
 #include "wiring_wifi.h"
 #include "string_convert.h"
+#include "esp8266_wifi_type.h"
+#include "esp8266_wifi_generic.h"
 
 using namespace intorobot;
 
@@ -69,6 +71,9 @@ DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
     }
     else if(!strcmp(s,"getInfo")) {
         return DEVICE_CONFIG_GET_INFO;
+    }
+    else if(!strcmp(s,"initInfo")) {
+        return DEVICE_CONFIG_INIT_DEVICEINFO;
     }
     else if(!strcmp(s,"setInfo")) {
         return DEVICE_CONFIG_SET_INFO;
@@ -144,8 +149,17 @@ bool DeviceConfig::process(void)
                 break;
 
             case DEVICE_CONFIG_GET_INFO:             //获取设备信息
-                GETINFO:
+                // GETINFO:
                 getDeviceInfo();
+                break;
+
+            case DEVICE_CONFIG_INIT_DEVICEINFO:
+                value_Object = aJson.getObjectItem(root, "value");
+                if (value_Object == NULL)
+                    {break;}
+                setDeviceBoundInfo(value_Object);
+                sendComfirm(200);
+                delay(500);
                 break;
 
             case DEVICE_CONFIG_SET_INFO:             //设置设备信息
@@ -490,19 +504,21 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     {
         mac_str_to_bin( object->valuestring, stamac);
         mac_str_to_bin( object1->valuestring, apmac);
-        if(!wlan_set_macaddr(stamac, apmac))
+        int ret = wlan_set_macaddr_to_flash(stamac, apmac);
+        if(!ret)
         {
             sendComfirm(200);
         }
         else
         {
-            sendComfirm(202);
+            sendComfirm(201);
         }
     }
     else
     {
         sendComfirm(202);
     }
+    HAL_PARAMS_Save_Params();
 }
 
 void DeviceConfig::resetDeviceFac(void)
@@ -894,5 +910,6 @@ void UdpDeviceConfig::close(void)
 
 
 UsbDeviceConfig DeviceConfigUsb;
+UsartDeviceConfig DeviceConfigUsart;
 //TcpDeviceConfig DeviceConfigTcp;
 UdpDeviceConfig DeviceConfigUdp;

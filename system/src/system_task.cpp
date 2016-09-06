@@ -138,16 +138,16 @@ void manage_network_connection()
 
     bool was_connected = network.connected();
 
-    DEBUG_D("network: checking\r\n");
+    //DEBUG_D("network: checking\r\n");
     if (network.status()) {
-        DEBUG_D("network connected\r\n");
+        //DEBUG_D("network connected\r\n");
         if(!was_connected) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }
     }
     else
     {
-        DEBUG_D("network connection failed\r\n");
+        //DEBUG_D("network connection failed\r\n");
         if(was_connected) {
             g_intorobot_cloud_connected = 0;
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
@@ -173,18 +173,18 @@ void establish_cloud_connection(void)
             if (in_cloud_backoff_period())
                 return;
 
-            DEBUG_D("Cloud: connecting\r\n");
+            //DEBUG_D("Cloud: connecting\r\n");
             int connect_result = intorobot_cloud_connect();
             if (connect_result >= 0)
             {
-                DEBUG_D("Cloud connected\r\n");
+                //DEBUG_D("Cloud connected\r\n");
                 g_intorobot_cloud_connected = 1;
                 cloud_failed_connection_attempts = 0;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }
             else
             {
-                DEBUG_D("Cloud connection failed: %d\r\n", connect_result);
+                //DEBUG_D("Cloud connection failed: %d\r\n", connect_result);
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
                 cloud_connection_failed();
@@ -201,7 +201,7 @@ void handle_cloud_connection(void)
         {
             int err = intorobot_cloud_handle();
             if (err) {
-                DEBUG_D("Cloud disconnected\r\n");
+                //DEBUG_D("Cloud disconnected\r\n");
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
                 system_rgb_blink(RGB_COLOR_BLUE, 1000);
@@ -231,16 +231,17 @@ bool manage_imlink_config()
     {
         if (!INTOROBOT_IMLINK_CONFIG_START)
         {
-            DEBUG_D(("enter device config\r\n"));
+            //DEBUG_D(("enter device config\r\n"));
             system_rgb_blink(RGB_COLOR_RED, 1000);
             DeviceConfigUsb.init();
+            DeviceConfigUsart.init();
             DeviceConfigUdp.init();
             INTOROBOT_IMLINK_CONFIG_START = true;
             INTOROBOT_IMLINK_CONFIG_IS_NEEDED = true;
         }
-        if(DeviceConfigUsb.process()||DeviceConfigUdp.process())
+        if( DeviceConfigUsb.process() || DeviceConfigUdp.process() || DeviceConfigUsart.process() )
         {
-            DEBUG_D(("exit  device config\r\n"));
+            //DEBUG_D(("exit  device config\r\n"));
             HAL_PARAMS_Set_System_config_flag(0);
             HAL_PARAMS_Save_Params();
             INTOROBOT_IMLINK_CONFIG_START = false;

@@ -20,6 +20,8 @@
 #include "hw_config.h"
 #include "wlan_hal.h"
 #include "esp8266_wifi_generic.h"
+#include "flash_map.h"
+#include "memory_hal.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -223,4 +225,24 @@ int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
         return -1;
     }
     return 0;
+}
+
+int wlan_set_macaddr_to_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
+{
+    if (stamacaddr != NULL && apmacaddr != NULL){
+        mac_param_t mac_addrs;
+        mac_addrs.header = FLASH_MAC_HEADER;
+
+        memset(mac_addrs.stamac_addrs, 0, sizeof(mac_addrs.stamac_addrs));
+        memcpy(mac_addrs.stamac_addrs, stamacaddr, sizeof(mac_addrs.stamac_addrs));
+
+        memset(mac_addrs.apmac_addrs, 0, sizeof(mac_addrs.apmac_addrs));
+        memcpy(mac_addrs.apmac_addrs, apmacaddr, sizeof(mac_addrs.apmac_addrs));
+
+        uint32_t len = sizeof(mac_addrs);
+        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
+        HAL_FLASH_Interminal_Write(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, len);
+        return 0;
+    }
+    return -1;
 }

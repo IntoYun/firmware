@@ -59,7 +59,7 @@ void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
-    DEBUG_D("default:mqtt_client_callback\r\n");
+    //DEBUG_D("default:mqtt_client_callback\r\n");
     uint8_t *pdata = NULL;
     pCallBack pcallback=get_subscribe_callback(topic);
     if(pcallback!=NULL)
@@ -87,7 +87,7 @@ void sync_time_callback(uint8_t *payload, uint32_t len)
     uint32_t n;
     String s_time="";
 
-    DEBUG_D("default:sync_time_callback\r\n");
+    //DEBUG_D("default:sync_time_callback\r\n");
     for(n=0; n<len; n++)
     {s_time+=(char)payload[n];}
     Time.setTime(atol(s_time.c_str()));
@@ -105,7 +105,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     for(n=0; n<len; n++)
     {s_payload+=(char)payload[n];}
 
-    DEBUG_D("default:ota_update_callback\r\n");
+    //DEBUG_D("default:ota_update_callback\r\n");
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
     intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
@@ -209,7 +209,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
     for(n=0; n<len; n++)
     {s_payload+=(char)payload[n];}
 
-    DEBUG_D("default:subsys_update_callback\r\n");
+    //DEBUG_D("default:subsys_update_callback\r\n");
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
     memset(temp,0,sizeof(temp));
@@ -319,7 +319,7 @@ void accesstoken_update_callback(uint8_t *payload, uint32_t len)
     uint32_t n;
     String s_access_token;
 
-    DEBUG_D("default:accesstoken_update_callback");
+    //DEBUG_D("default:accesstoken_update_callback");
     for(n=0; n<len; n++)
     {s_access_token+=(char)payload[n];}
     //send response topic
@@ -337,7 +337,7 @@ void accesstoken_update_callback(uint8_t *payload, uint32_t len)
 
 void system_reboot_callback(uint8_t *payload, uint32_t len)
 {
-    DEBUG_D("default:system_reboot_callback\r\n");
+    //DEBUG_D("default:system_reboot_callback\r\n");
     //system reset ready
     intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC), 0, false);
     HAL_Core_System_Reset();
@@ -345,7 +345,7 @@ void system_reboot_callback(uint8_t *payload, uint32_t len)
 
 void system_debug_callback(uint8_t *payload, uint32_t len)
 {
-    DEBUG_D("default:system_debug_callback\r\n");
+    //DEBUG_D("default:system_debug_callback\r\n");
     mqtt_receive_debug_info(payload, len);
 }
 
@@ -690,10 +690,10 @@ int intorobot_cloud_connect(void)
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
     //mqtt连接平台
-    DEBUG_D("sv_domain:%s\r\n", sv_domain);
-    DEBUG_D("sv_port:%d\r\n", sv_port);
-    DEBUG_D("device_id=%s\r\n", device_id);
-    DEBUG_D("access_token=%s\r\n", access_token);
+    // DEBUG_D("sv_domain:%s\r\n", sv_domain);
+    // DEBUG_D("sv_port:%d\r\n", sv_port);
+    // DEBUG_D("device_id=%s\r\n", device_id);
+    // DEBUG_D("access_token=%s\r\n", access_token);
     if(g_mqtt_client.connect("", access_token, device_id))
     {
         char fw_version[28]={0}, subsys_version[28]={0}, temp[64]={0};

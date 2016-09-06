@@ -55,8 +55,9 @@ int TCPClient::connect(const char* host, uint16_t port, network_interface_t nif)
         {
             return connect(ip_addr, port, nif);
         }
-        else
-            DEBUG("unable to get IP for hostname");
+        else{
+            // DEBUG("unable to get IP for hostname");
+        }
     }
     return rv;
 }
@@ -69,7 +70,7 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
     {
         sockaddr_t tSocketAddr;
         _sock = socket_create(AF_INET, SOCK_STREAM, IPPROTO_TCP, port, nif);
-        DEBUG("socket=%d",_sock);
+        // DEBUG("socket=%d",_sock);
 
         if (socket_handle_valid(_sock))
         {
@@ -86,9 +87,9 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
             tSocketAddr.sa_data[5] = ip[3];
 
             uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
-            DEBUG("_sock %d connect",_sock);
+            // DEBUG("_sock %d connect",_sock);
             connected = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
-            DEBUG("_sock %d connected=%d",_sock, connected);
+            // DEBUG("_sock %d connected=%d",_sock, connected);
             HAL_NET_SetNetWatchDog(ot);
             _remoteIP = ip;
             if(!connected)
@@ -133,7 +134,7 @@ int TCPClient::available()
             int ret = socket_receive(_sock, _buffer + _total , arraySize(_buffer)-_total, 0);
             if (ret > 0)
             {
-                DEBUG("recv(=%d)",ret);
+                // DEBUG("recv(=%d)",ret);
                 if (_total == 0) _offset = 0;
                 _total += ret;
             }
@@ -180,7 +181,7 @@ void TCPClient::flush()
 
 void TCPClient::stop()
 {
-    DEBUG("_sock %d closesocket", _sock);
+    // DEBUG("_sock %d closesocket", _sock);
 
     if (isOpen(_sock))
         socket_close(_sock);
@@ -197,7 +198,7 @@ uint8_t TCPClient::connected()
     {
         rv = available(); // Try CC3000
         if (!rv) {        // No more Data and CLOSE_WAIT
-            DEBUG("caling Stop No more Data and in CLOSE_WAIT");
+            // DEBUG("caling Stop No more Data and in CLOSE_WAIT");
             stop();       // Close our side
         }
     }
