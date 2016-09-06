@@ -228,7 +228,7 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
     hpcd.Instance = USB;
     hpcd.Init.dev_endpoints = 8;
     hpcd.Init.speed = PCD_SPEED_FULL;
-    hpcd.Init.ep0_mps = DEP0CTL_MPS_8 ;//PCD_EP0MPS_64;//PCD_EP0MPS_64;
+    hpcd.Init.ep0_mps = PCD_EP0MPS_64;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.low_power_enable = DISABLE;
     hpcd.Init.battery_charging_enable = DISABLE;
@@ -239,8 +239,8 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 
     HAL_PCD_Init(pdev->pData);
 
-    HAL_PCDEx_PMAConfig(pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);//0x40
-    HAL_PCDEx_PMAConfig(pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);//0x80
+    HAL_PCDEx_PMAConfig(pdev->pData , 0x00 , PCD_SNG_BUF, 0x40);
+    HAL_PCDEx_PMAConfig(pdev->pData , 0x80 , PCD_SNG_BUF, 0x80);
     HAL_PCDEx_PMAConfig(pdev->pData , CDC_IN_EP , PCD_SNG_BUF, 0xC0);
     HAL_PCDEx_PMAConfig(pdev->pData , CDC_OUT_EP , PCD_SNG_BUF, 0x110);
     HAL_PCDEx_PMAConfig(pdev->pData , CDC_CMD_EP , PCD_SNG_BUF, 0x100);
