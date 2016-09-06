@@ -187,7 +187,7 @@ void HAL_Core_Config(void)
     //Wiring pins default to inputs
     for (pin_t pin=D0; pin<=D6; pin++)
     {
-        HAL_Pin_Mode(pin, INPUT);
+        //HAL_Pin_Mode(pin, INPUT);
     }
 
     HAL_RTC_Initial();

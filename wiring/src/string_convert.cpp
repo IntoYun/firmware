@@ -204,4 +204,26 @@ char * dtostrf(double number, signed char width, unsigned char prec, char *s) {
     // make sure the string is terminated
     *out = 0;
     return s;
-}//------------------------------------------------------------------------------------------
+}
+
+int mac_str_to_bin( char *str, unsigned char *mac)
+{
+    int i;
+    char *s, *e;
+
+    if ((mac == NULL) || (str == NULL))
+    {
+        return -1;
+    }
+
+    s = (char *) str;
+    for (i = 0; i < 6; ++i)
+    {
+        mac[i] = s ? strtoul (s, &e, 16) : 0;
+        if (s)
+           s = (*e) ? e + 1 : e;
+    }
+    return 0;
+}
+
+//------------------------------------------------------------------------------------------

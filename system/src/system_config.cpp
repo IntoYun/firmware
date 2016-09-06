@@ -27,6 +27,7 @@
 #include "inet_hal.h"
 #include "wlan_hal.h"
 #include "wiring_wifi.h"
+#include "string_convert.h"
 
 using namespace intorobot;
 
@@ -421,10 +422,10 @@ void DeviceConfig::getDeviceInfo(void)
 
     wlan_get_macaddr(stamac, apmac);
     memset(macStr, 0, sizeof(macStr));
-    //sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
+    sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
     aJson.addStringToObject(value_object, "stamac", macStr);
     memset(macStr, 0, sizeof(macStr));
-    //sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
+    sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
     aJson.addStringToObject(value_object, "apmac", macStr);
     aJson.addStringToObject(value_object, "ssid", WiFi.SSID());
     aJson.addStringToObject(value_object, "bssid", (char *)WiFi.BSSID(bssid));
@@ -487,8 +488,8 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     object1 = aJson.getObjectItem(value_object, "apmac");
     if ((object != NULL)&&(object1 != NULL))
     {
-        //sscanf(object->valuestring, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
-        //sscanf(object1->valuestring, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
+        mac_str_to_bin( object->valuestring, stamac);
+        mac_str_to_bin( object1->valuestring, apmac);
         if(!wlan_set_macaddr(stamac, apmac))
         {
             sendComfirm(200);
