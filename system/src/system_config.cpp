@@ -502,8 +502,8 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     object1 = aJson.getObjectItem(value_object, "apmac");
     if ((object != NULL)&&(object1 != NULL))
     {
-        mac_str_to_bin( object->valuestring, stamac);
-        mac_str_to_bin( object1->valuestring, apmac);
+        mac_str_to_bin(object->valuestring, stamac);
+        mac_str_to_bin(object1->valuestring, apmac);
         int ret = wlan_set_macaddr_to_flash(stamac, apmac);
         if(!ret)
         {

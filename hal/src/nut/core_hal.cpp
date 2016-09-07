@@ -159,7 +159,7 @@ void init_done() {
         // for (int i = 0; i < 6; i++){
         //     DEBUG("stamac: %x", mac_addrs.stamac_addrs[i]);
         // }
-        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
+        // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
     }
     esp_schedule();
 }
