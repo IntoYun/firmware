@@ -22,14 +22,17 @@ sudo ./install-tools.sh
 
 ### 编译与烧录
 
-在intorobot-firmware-hal目录下，可以进行各个产品的编译。编译的命令主要如下：
+在intorobot-firmware-hal目录下，可以进行各个产品的编译。编译默认固件的命令主要如下：
 
 ```
-make PLATFORM=atom clean all
-make PLATFORM=neutron clean all
-make PLATFORM=nut clean all
-make PLATFORM=lora clean all
+make PLATFORM=atom clean all APP=default-atom
+make PLATFORM=neutron clean all APP=default-neutron
+make PLATFORM=nut clean all APP=default-nut
+make PLATFORM=lora clean all APP=default-lora
 ```
+
+
+
 
 其中，*PLATFORM=product_name*也可以替换成*PLATFORM_ID=product_id*.产品的名称和ID的关系如下表（详情请参见build/platform-id.mk）：
 
