@@ -26,51 +26,32 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include "hw_config.h"
+#include "boot_mode.h"
+#include "params_hal.h"
+#include "ui_hal.h"
+#include "core_hal.h"
+#include "boot_debug.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-pFunction JumpToApplication;
-uint32_t JumpAddress;
-
-SDK_QUEUE USART_Rx_Queue;
-SDK_QUEUE USB_Rx_Queue;
-
-extern volatile uint32_t TimingBUTTON;
-extern volatile uint32_t TimingLED;
-extern RTC_HandleTypeDef RtcHandle;
-
-extern boot_params_t intorobot_boot_params;  	//设备标识参数
-
-uint8_t USB_DFU_MODE = 0;
-uint8_t ESP8266_UPDATE_MODE = 0;
-uint8_t ESP8266_COM_MODE = 0;
-uint8_t DEFAULT_FIRMWARE_MODE = 0;
-uint8_t OTA_FIRMWARE_MODE = 0;
-uint8_t FACTORY_RESET_MODE = 0;
-uint8_t NC_MODE = 0;
-uint8_t ALL_RESET_MODE = 0;
-uint8_t START_APP_MODE = 0;
-
-void Start_App(void);
-void Enter_DFU_Mode(void);
-void Enter_ESP8266_Update_Mode();
-void Enter_Default_Firmware_Update_Mode();
-void Enter_ESP8266_Com_Mode(void);
-void Enter_Factory_Update_Mode(char type);
-void Enter_OTA_Firmware_Update_Mode(void);
-
-
-extern void usartA2A3begin(uint32_t baud);
-extern UART_HandleTypeDef UartHandleA;
-
-extern void print(char *p);
-extern void printn(char *p, int n);
-
-
 #define BOOTLOADER_VERSION  1
 #define LIGHTTIME 400
+
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+uint32_t BUTTON_press_time=0;
+
+uint8_t USB_DFU_MODE          = 0;
+uint8_t ESP8266_UPDATE_MODE   = 0;
+uint8_t SERIAL_COM_MODE       = 0;
+uint8_t DEFAULT_FIRMWARE_MODE = 0;
+uint8_t OTA_FIRMWARE_MODE     = 0;
+uint8_t FACTORY_RESET_MODE    = 0;
+uint8_t NC_MODE               = 0;
+uint8_t ALL_RESET_MODE        = 0;
+uint8_t START_APP_MODE        = 0;
+
 /**
  * @brief  Main program
  * @param  None
@@ -78,18 +59,21 @@ extern void printn(char *p, int n);
  */
 int main(void)
 {
-    Set_System();
-    Set_RGB_LED_Color(0);
-//    usartA2A3begin(115200);
-    Load_BootParams();
+    BOOT_DEBUG("boot start...\r\n");
+    HAL_System_Config();
+    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
 
-    if(BOOTLOADER_VERSION != intorobot_boot_params.boot_version)
+    HAL_PARAMS_Load_Boot_Params();
+    HAL_PARAMS_Load_System_Params();
+
+    if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
     {
-        intorobot_boot_params.boot_version = BOOTLOADER_VERSION;
-        Save_BootParams();
+        BOOT_DEBUG("save boot version...\r\n");
+        HAL_PARAMS_Set_Boot_boot_version(BOOTLOADER_VERSION);
+        HAL_PARAMS_Save_Params();
     }
 
-    if (BUTTON_GetState(FAC_BUTTON) == BUTTON_PRESSED)
+    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
     {
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
@@ -98,55 +82,55 @@ int main(void)
 #define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
 #define TIMING_NC                    20000  //无操作判断时间
 #define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
-        TimingBUTTON = 0;
-        while (BUTTON_GetState(FAC_BUTTON) == BUTTON_PRESSED)
+        while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
-            if(TimingBUTTON>TIMING_ALL_RESET_MODE)
+            BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
+            if( BUTTON_press_time > TIMING_ALL_RESET_MODE )
             {
                 FACTORY_RESET_MODE = 0;
                 ALL_RESET_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_YELLOW);
+                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
             }
-            else if(TimingBUTTON>TIMING_NC)
+            else if( BUTTON_press_time > TIMING_NC )
             {
                 FACTORY_RESET_MODE = 0;
                 NC_MODE = 1;
-                Set_RGB_LED_Color(0);
+                HAL_UI_RGB_Color(RGB_COLOR_BLACK);
             }
-            else if(TimingBUTTON > TIMING_FACTORY_RESET_MODE)
+            else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
             {
-                ESP8266_COM_MODE = 0;
+                SERIAL_COM_MODE = 0;
                 FACTORY_RESET_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_CYAN);
+                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
             }
-            else if(TimingBUTTON > TIMING_ESP8266_COM_MODE)
+            else if( BUTTON_press_time > TIMING_ESP8266_COM_MODE )
             {
                 DEFAULT_FIRMWARE_MODE = 0;
-                ESP8266_COM_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_BLUE);
+                SERIAL_COM_MODE = 1;
+                HAL_UI_RGB_Color(RGB_COLOR_BLUE);
             }
-            else if(TimingBUTTON > TIMING_DEFAULT_RESTORE_MODE)
+            else if( BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE )
             {
                 ESP8266_UPDATE_MODE = 0;
                 DEFAULT_FIRMWARE_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_GREEN);
+                HAL_UI_RGB_Color(RGB_COLOR_GREEN);
             }
-            else if(TimingBUTTON > TIMING_ESP8266_UPDATE_MODE)
+            else if( BUTTON_press_time > TIMING_ESP8266_UPDATE_MODE )
             {
                 USB_DFU_MODE = 0;
                 ESP8266_UPDATE_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_RED);
+                HAL_UI_RGB_Color(RGB_COLOR_RED);
             }
-            else if(TimingBUTTON > TIMING_DFU_DOWNLOAD_MODE)
+            else if( BUTTON_press_time > TIMING_DFU_DOWNLOAD_MODE )
             {
                 USB_DFU_MODE = 1;
-                Set_RGB_LED_Color(RGB_COLOR_MAGENTA);
+                HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);
             }
         }
     }
     else
     {
-        switch(intorobot_boot_params.boot_flag)
+        switch(HAL_PARAMS_Get_Boot_boot_flag())
         {
             case 0: //正常启动
                 START_APP_MODE = 1;
@@ -155,7 +139,7 @@ int main(void)
                 DEFAULT_FIRMWARE_MODE = 1;
                 break;
             case 2: //esp8266串口通讯
-                ESP8266_COM_MODE = 1;
+                SERIAL_COM_MODE = 1;
                 break;
             case 3: //恢复出厂
                 FACTORY_RESET_MODE = 1;
@@ -174,196 +158,64 @@ int main(void)
         }
     }
     //自动进入DFU下载模式
-    if(HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR1) == 0x7DEA)
+    if(0x7DEA == HAL_Core_Read_Backup_Register(BKP_DR_01))
     {
         USB_DFU_MODE = 1;
-        HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0xFFFF);
     }
+    HAL_Core_Write_Backup_Register(BKP_DR_01, 0xFFFF);
 
     if(ALL_RESET_MODE)
     {
-        print("ALL factroy reset\r\n");
-        Enter_Factory_Update_Mode(1);
+        BOOT_DEBUG("ALL factroy reset\r\n");
+        Enter_Factory_ALL_RESTORE_Mode();
         ALL_RESET_MODE = 0;
     }
     else if(FACTORY_RESET_MODE)
     {
-        print("factroy reset\r\n");
-        Enter_Factory_Update_Mode(0);
+        BOOT_DEBUG("factroy reset\r\n");
+        Enter_Factory_RESTORE_Mode();
         FACTORY_RESET_MODE = 0;
     }
-    else if(ESP8266_COM_MODE)
+    else if(SERIAL_COM_MODE)
     {
-        print("esp8266 com\r\n");
-        Enter_ESP8266_Com_Mode();
+        BOOT_DEBUG("esp8266 com\r\n");
+        Enter_Serail_Com_Mode();
+        SERIAL_COM_MODE=1;
     }
     else if(DEFAULT_FIRMWARE_MODE)
     {
-        print("default firmware mode\r\n");
-        Enter_Default_Firmware_Update_Mode();
+        BOOT_DEBUG("default firmware mode\r\n");
+        Enter_Default_RESTORE_Mode();
         DEFAULT_FIRMWARE_MODE = 0;
     }
     else if(ESP8266_UPDATE_MODE)
     {
-        print("esp8266 update\r\n");
+        BOOT_DEBUG("esp8266 update\r\n");
         Enter_ESP8266_Update_Mode();
     }
     else if(USB_DFU_MODE)
     {
-        print("dfu\r\n");
+        BOOT_DEBUG("dfu\r\n");
         Enter_DFU_Mode();
     }
     else if(OTA_FIRMWARE_MODE)
     {
-        print("ota firmware\r\n");
-        Enter_OTA_Firmware_Update_Mode();
+        BOOT_DEBUG("ota firmware\r\n");
+        Enter_OTA_Update_Mode();
         OTA_FIRMWARE_MODE = 0;
     }
-    print("start app\r\n");
-    Set_RGB_LED_Color(RGB_COLOR_RED); // color the same with atom
-    delay(LIGHTTIME);
-    Set_RGB_LED_Color(RGB_COLOR_GREEN); // color the same with atom
-    delay(LIGHTTIME);
-    Set_RGB_LED_Color(RGB_COLOR_BLUE); // color the same with atom
-    delay(LIGHTTIME);
-    Set_RGB_LED_Color(0);//防止进入应用程序初始化三色灯 导致闪灯
 
-    Start_App();
+    BOOT_DEBUG("start app\r\n");
+    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
+
+    start_app();
     return 0;
 }
-
-void Start_App(void)
-{
-    if(((*(__IO uint32_t*)USBD_DFU_APP_DEFAULT_ADD) & 0x2FFE0000 ) == 0x20000000)
-    {
-        /* Jump to user application */
-        JumpAddress = *(__IO uint32_t*) (USBD_DFU_APP_DEFAULT_ADD + 4);
-        JumpToApplication = (pFunction) JumpAddress;
-
-        /* Initialize user application's Stack Pointer */
-        __set_MSP(*(__IO uint32_t*) USBD_DFU_APP_DEFAULT_ADD);
-        JumpToApplication();
-    }
-}
-
-void Enter_DFU_Mode(void)
-{
-    Set_RGB_LED_Color(RGB_COLOR_MAGENTA);
-    USBD_DFU_Init();
-    while(1)
-    {}
-}
-
-void Enter_ESP8266_Update_Mode(void)
-{
-    Set_RGB_LED_Color(RGB_COLOR_RED);
-    Esp8266_Enter_UpdateMode();
-    USBD_CDC_Init();
-    while (1)
-    {
-        USBD_CDC_Process();
-    }
-}
-
-void Enter_ESP8266_Com_Mode(void)
-{
-    Set_RGB_LED_Color(RGB_COLOR_BLUE);
-    intorobot_boot_params.boot_flag = 0;
-    Save_BootParams();
-    USBD_CDC_Init();
-    while (1)
-    {
-        USBD_CDC_Process();
-    }
-}
-
-void Enter_Default_Firmware_Update_Mode(void)
-{
-    LED_SetSignalingColor(RGB_COLOR_YELLOW);
-    LED_Signaling_Start();
-
-    delay(4000);//8266启动必须延时2s以上 才能打开串口 否则会导致stm32死机 可能是串口中断问题 需要在验证。
-    Uart1_Init();
-    ESP8266_Init();
-
-    if(true == DEFAULT_Flash_Reset())
-    {
-        intorobot_boot_params.boot_flag = 0;
-        Save_BootParams();
-        LED_Signaling_Stop();
-    }
-    else
-    {
-        HAL_NVIC_SystemReset();
-    }
-}
-
-void Enter_Factory_Update_Mode(char type)
-{
-    LED_SetSignalingColor(RGB_COLOR_YELLOW);
-    LED_Signaling_Start();
-
-    delay(4000);//8266启动必须延时2s以上 才能打开串口 否则会导致stm32死机 可能是串口中断问题 需要在验证。
-    Uart1_Init();
-    ESP8266_Init();
-
-    if(type==0)
-    {
-        if(true == FACTORY_Flash_Reset())
-        {
-            intorobot_boot_params.initparam_flag = 1;
-        }
-        else
-        {
-            HAL_NVIC_SystemReset();
-        }
-    }
-    else
-    {
-        intorobot_boot_params.initparam_flag = 2;
-    }
-    intorobot_boot_params.boot_flag = 0;
-    Save_BootParams();
-}
-
-void Enter_OTA_Firmware_Update_Mode(void)
-{
-    LED_SetSignalingColor(RGB_COLOR_YELLOW);
-    LED_Signaling_Start();
-
-    delay(4000);//8266启动必须延时2s以上 才能打开串口 否则会导致stm32死机 可能是串口中断问题 需要在验证。
-    Uart1_Init();
-    ESP8266_Init();
-
-    if(true == OTA_Flash_Reset())
-    {
-        intorobot_boot_params.boot_flag = 0;
-        Save_BootParams();
-    }
-    else
-    {
-        HAL_NVIC_SystemReset();
-    }
-}
-
-#ifdef  USE_FULL_ASSERT
-/**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
-void assert_failed(uint8_t* file, uint32_t line)
-{
-    /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-
-    /* Infinite loop */
-    while (1)
-    {
-    }
-}
-#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

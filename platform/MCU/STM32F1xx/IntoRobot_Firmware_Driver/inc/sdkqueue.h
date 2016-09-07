@@ -15,24 +15,28 @@ extern "C"{
 #define SDK_TIME_OUT                 (-2)
 #define SDK_PARA_ERR                 (-3)
 
-#define SDK_MAX_QUEUE_SIZE              (256)
+#define SDK_MAX_QUEUE_SIZE           (256)
 
 typedef struct
 {
     int32_t siHead;
     int32_t siTail;
-    uint8_t heData[SDK_MAX_QUEUE_SIZE];
+    uint32_t uiSize;
+    uint8_t *heData;
 }SDK_QUEUE;
 
+
+extern int32_t sdkInitialQueue(SDK_QUEUE * const pstQueue, uint32_t uiQueueSize);
 extern int32_t sdkGetQueueHead(SDK_QUEUE const* const pstQueue);
 extern int32_t sdkClearQueue(SDK_QUEUE * const pstQueue);
-extern int32_t sdkInsertQueue(SDK_QUEUE * pstQueue ,const uint8_t *phe , int32_t siLen);
+extern int32_t sdkInsertQueue(SDK_QUEUE * pstQueue ,const uint8_t *phe , uint32_t siLen);
 extern bool sdkIsQueueEmpty(SDK_QUEUE const * const pstQueue);
 extern bool sdkIsQueueFull(SDK_QUEUE const * const pstQueue);
 extern bool sdkTryQueueData(const SDK_QUEUE *pstQueue , int32_t siHead , uint8_t *pucOut);
 extern int32_t sdkSetQueueHead(SDK_QUEUE * const pstQueue , int32_t siHead);
 extern bool sdkGetQueueData(SDK_QUEUE * const pstQueue, uint8_t *pucOut);
 extern int32_t sdkGetQueueDataLen(SDK_QUEUE * const pstQueue);
+extern int32_t sdkReleaseQueue(SDK_QUEUE * const pstQueue);
 
 #ifdef __cplusplus
 }

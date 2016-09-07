@@ -86,16 +86,16 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
         usartMap[serial] = &USART_MAP[USART_A2_A3];
         usartMap[serial]->uart_handle = &UartHandle_A2A3;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
-        sdkClearQueue(usartMap[serial]->usart_rx_queue);
-        //sdkClearQueue(usartMap[serial]->usart_tx_queue);
+        sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
+        //sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
     }
     else {
         /*
         usartMap[serial] = &USART_MAP[USART_ESP8266];
         usartMap[serial]->uart_handle = &UartHandle_ESP8266;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_ESP8266;
-        sdkClearQueue(usartMap[serial]->usart_rx_queue);
-        //sdkClearQueue(usartMap[serial]->usart_tx_queue);
+        sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
+        sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
         */
     }
 
@@ -207,7 +207,7 @@ void HAL_USART_End(HAL_USART_Serial serial)
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
 
     // clear any received data
-    sdkClearQueue(usartMap[serial]->usart_rx_queue);
+    sdkReleaseQueue(usartMap[serial]->usart_rx_queue);
 
     // Undo any pin re-mapping done for this USART
     // ...

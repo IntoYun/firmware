@@ -21,13 +21,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+int32_t sdkInitialQueue(SDK_QUEUE * const pstQueue, uint32_t uiQueueSize)
+{
+    if((pstQueue == NULL)||(uiQueueSize == 0))
+    {
+        return SDK_PARA_ERR;
+    }
+    memset(pstQueue , 0 , sizeof(*pstQueue));
+    pstQueue->uiSize = uiQueueSize;
+    pstQueue->heData = malloc(uiQueueSize);
+    if(pstQueue->heData == NULL)
+        return SDK_PARA_ERR;
+    else
+        return SDK_OK;
+}
+
 int32_t sdkClearQueue(SDK_QUEUE * const pstQueue)
 {
     if(pstQueue == NULL)
     {
         return SDK_PARA_ERR;
     }
-    memset(pstQueue, 0 , sizeof(*pstQueue));
+    pstQueue->siHead = 0;
+    pstQueue->siTail = 0;
+    if(pstQueue->heData != NULL)
+    {
+        memset(pstQueue->heData , 0 , pstQueue->uiSize);
+    }
     return SDK_OK;
 }
 
@@ -49,7 +69,7 @@ bool sdkIsQueueFull(SDK_QUEUE const * const pstQueue)
         return true;
     }
 
-    if(pstQueue->siHead == ((pstQueue->siTail + 1) % SDK_MAX_QUEUE_SIZE))
+    if(pstQueue->siHead == ((pstQueue->siTail + 1) % pstQueue->uiSize))
     {
         return true;
     }
@@ -59,7 +79,7 @@ bool sdkIsQueueFull(SDK_QUEUE const * const pstQueue)
     }
 }
 
-int32_t sdkInsertQueue(SDK_QUEUE *  pstQueue ,const uint8_t *phe , int32_t siLen)
+int32_t sdkInsertQueue(SDK_QUEUE *  pstQueue ,const uint8_t *phe , uint32_t siLen)
 {
     int32_t uii;
 
@@ -73,7 +93,7 @@ int32_t sdkInsertQueue(SDK_QUEUE *  pstQueue ,const uint8_t *phe , int32_t siLen
         if( !sdkIsQueueFull(pstQueue) )
         {
             pstQueue->heData[pstQueue->siTail] = phe[uii];
-            pstQueue->siTail = (pstQueue->siTail + 1) % SDK_MAX_QUEUE_SIZE;
+            pstQueue->siTail = (pstQueue->siTail + 1) % pstQueue->uiSize;
         }
         else
         {
@@ -86,13 +106,13 @@ int32_t sdkInsertQueue(SDK_QUEUE *  pstQueue ,const uint8_t *phe , int32_t siLen
 
 int32_t sdkSetQueueHead(SDK_QUEUE * const pstQueue , int32_t siHead)
 {
-   if(siHead >= SDK_MAX_QUEUE_SIZE || NULL == pstQueue || siHead < 0 )
+   if(siHead >= pstQueue->uiSize || NULL == pstQueue || siHead < 0 )
     {
         //Assert(0);
         return SDK_PARA_ERR;
     }
 
-    siHead =  siHead % SDK_MAX_QUEUE_SIZE;  //lint !e539
+    siHead =  siHead % pstQueue->uiSize;  //lint !e539
 
     if( !sdkIsQueueEmpty(pstQueue) )
     {
@@ -131,7 +151,7 @@ int32_t sdkGetQueueHead(SDK_QUEUE const* const pstQueue)
 
 bool sdkTryQueueData(const SDK_QUEUE *pstQueue , int32_t siHead , uint8_t *pucOut)
 {
-    siHead = siHead % SDK_MAX_QUEUE_SIZE;
+    siHead = siHead % pstQueue->uiSize;
 
     if( !sdkIsQueueEmpty(pstQueue) )
     {
@@ -160,7 +180,7 @@ bool sdkGetQueueData(SDK_QUEUE * const pstQueue, uint8_t *pucOut)
     if( !sdkIsQueueEmpty(pstQueue) )
     {
         *pucOut = pstQueue->heData[pstQueue->siHead];
-        pstQueue->siHead = (pstQueue->siHead + 1) % SDK_MAX_QUEUE_SIZE;
+        pstQueue->siHead = (pstQueue->siHead + 1) % pstQueue->uiSize;
         return true;
     }
     return false;
@@ -185,4 +205,15 @@ int32_t sdkGetQueueDataLen(SDK_QUEUE * const pstQueue)
     return 0;
 }
 
+int32_t sdkReleaseQueue(SDK_QUEUE * const pstQueue)
+{
+    if(pstQueue == NULL)
+    {
+        return SDK_PARA_ERR;
+    }
+    if(pstQueue->heData != NULL)
+        free(pstQueue->heData);
+    memset(pstQueue , 0 , sizeof(*pstQueue));
+    return SDK_OK;
+}
 
