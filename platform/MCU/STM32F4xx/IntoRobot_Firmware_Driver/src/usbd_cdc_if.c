@@ -33,9 +33,10 @@
 #include "usbd_cdc_if.h"
 #include "service_debug.h"
 
+extern UART_HandleTypeDef UartHandleEsp8266;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define USER_RX_BUFFER_SIZE  256
+#define USER_RX_BUFFER_SIZE  2048
 
 
 /* Private macro -------------------------------------------------------------*/
@@ -100,6 +101,7 @@ static int8_t CDC_Itf_Init(void)
  */
 static int8_t CDC_Itf_DeInit(void)
 {
+    sdkReleaseQueue(&USB_Rx_Queue);
     return (USBD_OK);
 }
 

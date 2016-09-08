@@ -25,13 +25,14 @@
 #define INTERNAL_FLASH_END_ADDRESS      ((uint32_t)INTERNAL_FLASH_START+INTERNAL_FLASH_SIZE)	//For 512KB Internal Flash
 
 /*
- *  32k   bootloader
- *  32k   eeprom模拟区
- *  64k   应用系统参数区
- *  384k  应用程序区
+ *  16+16k   bootloader
+ *  16+16k   eeprom模拟区
+ *  64k      应用系统参数区
+ *  128*3k   应用程序区
  */
 
 
+#define EEPROM_START_ADDR                ((uint32_t)0x08008000)
 #define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x08010000)
 #define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x0801FFFF)
 

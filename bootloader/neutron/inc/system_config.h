@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef ESP8266_HW_CONFIG_H
-#define ESP8266_HW_CONFIG_H
+#ifndef SYSTEM_CONFIG_H
+#define SYSTEM_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +27,7 @@ void usart_esp8266_initial(uint32_t baud);
 void Esp8266_Reset(void);
 void Esp8266_Enter_UpdateMode(void);
 void HAL_System_Config(void);
+system_tick_t millis(void);
 void delay(uint32_t ms);
 void System_Reset(void);
 

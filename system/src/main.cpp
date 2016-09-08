@@ -74,42 +74,50 @@ volatile uint8_t INTOROBOT_IMLINK_CONFIG_START=false; //配置模式开始
  * Return         : None.
  ************************************************
  *******************************/
+#define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
+#define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
+#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
+#define TIMING_ESP8266_COM_MODE      10000  //esp8266串口转接判断时间
+#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
+#define TIMING_NC                    20000  //无操作判断时间
+#define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
+
 extern "C" void HAL_SysTick_Handler(void)
 {
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
     if(BUTTON_press_time)
     {
-        if( BUTTON_press_time > 30000 ) {
+        if( BUTTON_press_time > TIMING_ALL_RESET_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_RESET) {
                 BUTTON_Mode=BUTTON_MODE_RESET; //恢复出厂设置  清除密钥
                 HAL_UI_RGB_Color(RGB_COLOR_YELLOW);//黄灯打开
             }
         }
-        else if( BUTTON_press_time > 20000 ) {
+        else if( BUTTON_press_time > TIMING_NC ) {
             if(BUTTON_Mode!=BUTTON_MODE_NC) {
                 BUTTON_Mode=BUTTON_MODE_NC; //退出
                 HAL_UI_RGB_Color(RGB_COLOR_BLACK);//关灯
             }
         }
-        else if( BUTTON_press_time >  13000 ) {
+        else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_FAC) {
                 BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
                 HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
             }
         }
-        else if( BUTTON_press_time >  10000 ) {
+        else if( BUTTON_press_time > TIMING_ESP8266_COM_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_COM) {
                 BUTTON_Mode=BUTTON_MODE_COM;//进入串口转发程序
                 HAL_UI_RGB_Color(RGB_COLOR_BLUE);//蓝灯打开
             }
         }
-        else if( BUTTON_press_time >  7000 ) {
+        else if( BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_DEFFW) {
                 BUTTON_Mode=BUTTON_MODE_DEFFW; //恢复默认出厂程序
                 HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
             }
         }
-        else if( BUTTON_press_time >  3000 ) {
+        else if( BUTTON_press_time > TIMING_DFU_DOWNLOAD_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_CONFIG) {
                 BUTTON_Mode=BUTTON_MODE_CONFIG; //wifi配置模式
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
@@ -188,19 +196,19 @@ static void app_load_params(void)
     HAL_PARAMS_Load_System_Params();
     HAL_PARAMS_Load_Boot_Params();
     // check if need init params
-    if(1 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
+    if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
         DEBUG_D("init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     }
-    else if(2 == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
+    else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
         DEBUG_D("init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
-    if(0 != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
+    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        HAL_PARAMS_Set_Boot_initparam_flag(0);
+        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
     }
 
     //保存子系统程序版本号

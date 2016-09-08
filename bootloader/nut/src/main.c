@@ -103,22 +103,22 @@ int main()
     {
         switch(HAL_PARAMS_Get_Boot_boot_flag())
         {
-            case 0: //正常启动
+            case BOOT_FLAG_NORMAL:          //正常启动
                 START_APP_MODE = 1;
                 break;
-            case 1: //默认程序下载
+            case BOOT_FLAG_DEFAULT_RESTORE: //默认程序下载
                 DEFAULT_FIRMWARE_MODE = 1;
                 break;
-            case 2: //串口通讯(保留)
+            case BOOT_FLAG_SERIAL_COM:      //串口通讯(保留)
                 SERIAL_COM_MODE = 1;
                 break;
-            case 3: //恢复出厂
+            case BOOT_FLAG_FACTORY_RESET:   //恢复出厂
                 FACTORY_RESET_MODE = 1;
                 break;
-            case 4: //在线升级
+            case BOOT_FLAG_OTA_UPDATE:      //在线升级
                 OTA_FIRMWARE_MODE = 1;
                 break;
-            case 5: //完全恢复出厂  清除密钥
+            case BOOT_FLAG_ALL_RESET:       //完全恢复出厂  清除密钥
                 ALL_RESET_MODE = 1;
                 break;
             default:

@@ -51,7 +51,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     //RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        //DEBUG("RCC_OscConfg Error");
+        DEBUG_D("RCC_OscConfg Error\r\n");
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
@@ -66,7 +66,6 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     /*##-3- Configure the NVIC for RTC Alarm ###################################*/
     HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0F, 0);
     HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
-
 }
 /**
  * @brief RTC MSP De-Initialization
@@ -104,7 +103,7 @@ static void RTC_CalendarAlarmConfig(void)
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        //DEBUG("RTC CalendarAlarmConfig SetDate Error!");
+        DEBUG_D("RTC CalendarAlarmConfig SetDate Error!\r\n");
     }
 
     /*##-2- Configure the Time #################################################*/
@@ -118,11 +117,8 @@ static void RTC_CalendarAlarmConfig(void)
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        //DEBUG("RTC CalendarAlarmConfig SetTime Error!");
+        DEBUG_D("RTC CalendarAlarmConfig SetTime Error!\r\n");
     }
-
-    /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
-    HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
 }
 
 /*
@@ -151,7 +147,7 @@ void HAL_RTC_Initial()
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
     {
-        //DEBUG("RTC Init Error!");
+        DEBUG_D("RTC Init Error!\r\n");
     }
     RTC_CalendarAlarmConfig();
 }
@@ -223,7 +219,7 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        //DEBUG("RTC Set_UnixTime SetDate failed!");
+        DEBUG_D("RTC Set_UnixTime SetDate failed!\r\n");
     }
 
     /*##-2- Configure the Time #################################################*/
@@ -237,11 +233,8 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        //DEBUG("RTC Set_UnixTime SetTime failed!");
+        DEBUG_D("RTC Set_UnixTime SetTime failed!\r\n");
     }
-
-    /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
-    HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
 }
 
 /*
@@ -275,7 +268,7 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
     {
         /* Initialization Error */
-        //DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
+        DEBUG_D("RTC CalendarAlarmConfig SetAlarm Error!\r\n");
     }
 }
 
@@ -296,7 +289,7 @@ void HAL_RTC_Cancel_UnixAlarm(void)
  */
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
-    //DEBUG("RTC Alarm Callback");
+    DEBUG_D("RTC Alarm Callback\r\n");
 }
 
 /**

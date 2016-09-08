@@ -36,7 +36,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BOOTLOADER_VERSION  1
-#define LIGHTTIME 400
+#define LIGHTTIME           400
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -59,8 +59,8 @@ uint8_t START_APP_MODE        = 0;
  */
 int main(void)
 {
-    BOOT_DEBUG("boot start...\r\n");
     HAL_System_Config();
+    BOOT_DEBUG("boot start...\r\n");
     HAL_UI_RGB_Color(RGB_COLOR_BLACK);
 
     HAL_PARAMS_Load_Boot_Params();
@@ -132,31 +132,32 @@ int main(void)
     {
         switch(HAL_PARAMS_Get_Boot_boot_flag())
         {
-            case 0: //正常启动
+            case BOOT_FLAG_NORMAL:          //正常启动
                 START_APP_MODE = 1;
                 break;
-            case 1: //默认程序下载
+            case BOOT_FLAG_DEFAULT_RESTORE: //默认程序下载
                 DEFAULT_FIRMWARE_MODE = 1;
                 break;
-            case 2: //esp8266串口通讯
+            case BOOT_FLAG_SERIAL_COM:      //esp8266串口通讯
                 SERIAL_COM_MODE = 1;
                 break;
-            case 3: //恢复出厂
+            case BOOT_FLAG_FACTORY_RESET:   //恢复出厂
                 FACTORY_RESET_MODE = 1;
                 break;
-            case 4: //在线升级
+            case BOOT_FLAG_OTA_UPDATE:      //在线升级
                 OTA_FIRMWARE_MODE = 1;
                 break;
-            case 5: //完全恢复出厂  清除密钥
+            case BOOT_FLAG_ALL_RESET:       //完全恢复出厂  清除密钥
                 ALL_RESET_MODE = 1;
                 break;
-            case 6: //进入DFU下载模式
+            case BOOT_FLAG_USB_DFU:         //进入DFU下载模式
                 USB_DFU_MODE = 1;
                 break;
             default:
                 break;
         }
     }
+
     //自动进入DFU下载模式
     if(0x7DEA == HAL_Core_Read_Backup_Register(BKP_DR_01))
     {

@@ -64,7 +64,7 @@ int main(void)
     }
 
     //进入DFU下载模式
-    if( 6 == HAL_PARAMS_Get_Boot_boot_flag() )
+    if( BOOT_FLAG_USB_DFU == HAL_PARAMS_Get_Boot_boot_flag() )
     {
         USB_DFU_MODE = 1;
     }

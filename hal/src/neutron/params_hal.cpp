@@ -201,6 +201,10 @@ void HAL_PARAMS_Init_Boot_Params(void) {
 void HAL_PARAMS_Load_Boot_Params(void) {
     read_boot_params(&intorobot_boot_params);
     if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
+        //擦除eeprom区域 并初始化
+        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(EEPROM_START_ADDR));
+        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(EEPROM_START_ADDR)+1);
+        HAL_EEPROM_Init();
         HAL_PARAMS_Init_Boot_Params();
     }
 }
@@ -241,14 +245,14 @@ int HAL_PARAMS_Set_Boot_boot_version(uint32_t version) {
 /*
  * 读取设置启动标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_boot_flag(void) {
-    return intorobot_boot_params.boot_flag;
+BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void) {
+    return (BOOT_FLAG_TypeDef)intorobot_boot_params.boot_flag;
 }
 
 /*
  * 保存设置启动标志
  * */
-int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag) {
     intorobot_boot_params.boot_flag = flag;
     return 0;
 }
@@ -256,14 +260,14 @@ int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
 /*
  * 读取设置是否恢复默认参数标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void) {
-    return intorobot_boot_params.initparam_flag;
+INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void) {
+    return (INITPARAM_FLAG_TypeDef)intorobot_boot_params.initparam_flag;
 }
 
 /*
  * 保存设置是否恢复默认参数标志
  * */
-int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     intorobot_boot_params.initparam_flag = flag;
     return 0;
 }

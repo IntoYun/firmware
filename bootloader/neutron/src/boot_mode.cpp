@@ -1,3 +1,4 @@
+#include "hw_config.h"
 #include "boot_mode.h"
 #include "memory_hal.h"
 #include "params_hal.h"
@@ -6,6 +7,8 @@
 #include "esp8266_comm.h"
 #include "system_config.h"
 #include "boot_debug.h"
+
+#define UPDATE_BLINK_PERIOD 100
 
 extern UART_HandleTypeDef UartHandleEsp8266;
 extern SDK_QUEUE USART_Esp8266_Queue;
@@ -104,6 +107,8 @@ void USBD_CDC_Process(void)
     }
     if(len)
     {
+        //BOOT_DEBUG("esp8266 %d\r\n", len);
+        //delay(2);
         USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
         while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
     }
@@ -122,6 +127,8 @@ void USBD_CDC_Process(void)
     }
     if(len)
     {
+        //delay(2);
+        //BOOT_DEBUG("usb %d\r\n", len);
         HAL_UART_Transmit(&UartHandleEsp8266, TxBuffer, len, 2000);//2000ms
     }
 }
@@ -138,11 +145,11 @@ bool OTA_Flash_Reset(void)
 
 void Enter_Default_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     ESP8266_Init();
     if(DEFAULT_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else
@@ -154,7 +161,7 @@ void Enter_Default_RESTORE_Mode(void)
 void Enter_Serail_Com_Mode(void)
 {
     HAL_UI_RGB_Color(RGB_COLOR_BLUE);
-    HAL_PARAMS_Set_Boot_boot_flag(0);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
     USBD_CDC_Init();
     while (1)
@@ -165,12 +172,12 @@ void Enter_Serail_Com_Mode(void)
 
 void Enter_Factory_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     ESP8266_Init();
     if(DEFAULT_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_initparam_flag(1);
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else
@@ -181,20 +188,20 @@ void Enter_Factory_RESTORE_Mode(void)
 
 void Enter_Factory_ALL_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     delay(1000);
-    HAL_PARAMS_Set_Boot_initparam_flag(2);
-    HAL_PARAMS_Set_Boot_boot_flag(0);
+    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_ALL_RESET);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
 }
 
 void Enter_OTA_Update_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     ESP8266_Init();
     if(OTA_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else
@@ -213,6 +220,7 @@ void Enter_DFU_Mode(void)
 
 void Enter_ESP8266_Update_Mode(void)
 {
+    usart_esp8266_initial(230400);  //esp8266升级 采取230400波特率  460800 和 921600还是不稳定
     HAL_UI_RGB_Color(RGB_COLOR_RED);
     Esp8266_Enter_UpdateMode();
     USBD_CDC_Init();

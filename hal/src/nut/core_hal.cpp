@@ -228,14 +228,14 @@ void HAL_Core_Enter_Config_Mode(void)
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(1);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_DEFAULT_RESTORE);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Com_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(2);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_SERIAL_COM);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
@@ -245,14 +245,14 @@ void HAL_Core_Enter_Com_Mode(void)
 
 void HAL_Core_Enter_Factory_Reset_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(3);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_FACTORY_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Ota_Update_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(4);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
@@ -262,7 +262,7 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
  */
 void HAL_Core_Enter_Factory_All_Reset_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(5);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }

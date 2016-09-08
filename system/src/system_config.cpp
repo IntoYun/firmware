@@ -522,10 +522,7 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
 
 void DeviceConfig::resetDeviceFac(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(3);
-    HAL_PARAMS_Save_Params();
-    delay(1000);
-    HAL_Core_System_Reset();
+    HAL_Core_Enter_Factory_Reset_Mode();
 }
 
 void DeviceConfig::rebootDevice(void)

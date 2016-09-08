@@ -1,3 +1,4 @@
+#include "hw_config.h"
 #include "boot_mode.h"
 #include "esp8266/esp8266_config.h"
 #include "flash.h"
@@ -6,6 +7,8 @@
 #include "ui_hal.h"
 #include "flash_map.h"
 #include "boot_debug.h"
+
+#define UPDATE_BLINK_PERIOD 100
 
 void start_app(void)
 {
@@ -144,10 +147,10 @@ bool OTA_Flash_Reset(void)
 
 void Enter_Default_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     if(DEFAULT_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else
@@ -158,18 +161,18 @@ void Enter_Default_RESTORE_Mode(void)
 
 void Enter_Serail_Com_Mode(void)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(0);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
     System_Reset();
 }
 
 void Enter_Factory_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     if(DEFAULT_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_initparam_flag(1);
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else
@@ -180,19 +183,19 @@ void Enter_Factory_RESTORE_Mode(void)
 
 void Enter_Factory_ALL_RESTORE_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     delay(1000);
-    HAL_PARAMS_Set_Boot_initparam_flag(2);
-    HAL_PARAMS_Set_Boot_boot_flag(0);
+    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_ALL_RESET);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
 }
 
 void Enter_OTA_Update_Mode(void)
 {
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, 100);
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
     if(OTA_Flash_Reset())
     {
-        HAL_PARAMS_Set_Boot_boot_flag(0);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
         HAL_PARAMS_Save_Params();
     }
     else

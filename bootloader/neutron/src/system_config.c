@@ -1,4 +1,5 @@
 #include "hw_config.h"
+#include "boot_debug.h"
 
 #define ESP8266_USART_QUEUE_SIZE              (1024*20)
 
@@ -7,11 +8,12 @@ UART_HandleTypeDef UartHandleEsp8266;
 
 SDK_QUEUE USART_Esp8266_Queue;
 
-void debug_print(char *p)
+
+void log_output(const char* msg)
 {
-    while(*p)
+    while(*msg)
     {
-        HAL_UART_Transmit(&UartHandleA2A3, (uint8_t *)p++, 1, 30);
+        HAL_UART_Transmit(&UartHandleA2A3, (uint8_t *)msg++, 1, 10);
     }
 }
 
@@ -44,6 +46,7 @@ void usart_a2a3_initial(uint32_t baud)
 
 void usart_esp8266_initial(uint32_t baud)
 {
+    sdkReleaseQueue(&USART_Esp8266_Queue);
     HAL_UART_DeInit(&UartHandleEsp8266);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -66,12 +69,13 @@ void usart_esp8266_initial(uint32_t baud)
     UartHandleEsp8266.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     UartHandleEsp8266.Init.Mode         = UART_MODE_TX_RX;
     UartHandleEsp8266.Init.OverSampling = UART_OVERSAMPLING_16;
-
     HAL_UART_Init(&UartHandleEsp8266);
 
+    sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE); //初始化esp8266接受缓冲队列
     //Configure the NVIC for UART
     HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
+    __HAL_UART_ENABLE_IT(&UartHandleEsp8266, UART_IT_RXNE);
 }
 
 void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
@@ -89,12 +93,14 @@ void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
 void HAL_System_Config(void)
 {
     Set_System();
+    usart_a2a3_initial(115200);
+    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
     HAL_RTC_Initial();
     HAL_UI_Initial();
     ESP8266_GPIO_Initial();
-    sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE);
-    usart_a2a3_initial(115200);
-    usart_esp8266_initial(460800);
+    usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
+    Esp8266_Reset();
+    HAL_EEPROM_Init();   //初始化eeprom区
 }
 
 void ESP8266_GPIO_Initial(void)

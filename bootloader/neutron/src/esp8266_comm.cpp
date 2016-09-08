@@ -3,6 +3,8 @@
 #include "hw_config.h"
 #include "flash_map.h"
 #include "esp8266_comm.h"
+#include "system_config.h"
+#include "memory_hal.h"
 #include "crc16.h"
 #include "boot_debug.h"
 
@@ -73,6 +75,7 @@ int16_t ESP8266_Firmware_Size(Firmware_TypeDef FmType, uint32_t PacketSize)
 int16_t ESP8266_Firware_Packet(Firmware_TypeDef FmType, uint32_t PacketSize, uint32_t PacketIndex, uint32_t timeout)
 {
     char params[64],temp[16];
+    uint16_t crc16 = 0;
     uint32_t DataStart=0;
     uint32_t timeIn = millis();	// Timestamp coming into function
     uint32_t datalen=0, count = 0, step = 0;
@@ -137,28 +140,21 @@ int16_t ESP8266_Firware_Packet(Firmware_TypeDef FmType, uint32_t PacketSize, uin
                 case 4:// check crc
                     crc_reset();
                     crc_update_n((uint8_t *)&esp8266RxBuffer[DataStart], datalen-2);
-                    uint16_t crc16 = crc_get_reseult();
+                    crc16 = crc_get_reseult();
                     if( crc16 == ((esp8266RxBuffer[bufferHead - 1] << 8) | (esp8266RxBuffer[bufferHead - 2]) ))
                     {
                         datalen = datalen-2;//去掉crc校验值
                         BOOT_DEBUG("crc32 success  flash begin\r\n");
-                        uint32_t Internal_Flash_Address;
-                        uint32_t Internal_Flash_Data;
-                        HAL_StatusTypeDef status = HAL_OK;
-                        for(count=0,Internal_Flash_Address=PacketIndex*PacketSize+APP_ADDR;(count < datalen) && (Internal_Flash_Address < INTERNAL_FLASH_END_ADDRESS) && (status == HAL_OK);)
+                        if( PacketIndex*PacketSize+APP_ADDR+datalen < INTERNAL_FLASH_END_ADDRESS )
                         {
-                            Internal_Flash_Data = *((uint32_t *)&esp8266RxBuffer[DataStart+count]);
-                            status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, Internal_Flash_Address, Internal_Flash_Data);
-                            Internal_Flash_Address += 4;
-                            count += 4;
+                            if( HAL_FLASH_STATUS_OK == HAL_FLASH_Interminal_Write(PacketIndex*PacketSize+APP_ADDR, (uint32_t *)&esp8266RxBuffer[DataStart], datalen/4) )
+                            {
+                                BOOT_DEBUG("crc32 success flash end\r\n");
+                                return ESP8266_RSP_SUCCESS;
+                            }
                         }
-                        BOOT_DEBUG("crc32 success flash end\r\n");
-                        return ESP8266_RSP_SUCCESS;
                     }
-                    else
-                    {
-                        step = 5;
-                    }
+                    step = 5;
                     break;
                 case 5:
                     return ESP8266_RSP_UNKNOWN;
@@ -188,6 +184,7 @@ void sendCommand(const char * cmd, Esp8266_Cmd_TypeDef CmdType, const char * par
     {
         sprintf(temp, "AT%s=%s\r\n", cmd, params);
     }
+    BOOT_DEBUG("%s", temp);
     HAL_UART_Transmit(&UartHandleEsp8266, (uint8_t *)temp, strlen(temp), 1000);
 }
 
@@ -226,7 +223,6 @@ void clearBuffer()
     bufferHead = 0;
 }
 
-extern uint8_t testI;
 unsigned int readByteToBuffer()
 {
     uint8_t c;
@@ -237,7 +233,7 @@ unsigned int readByteToBuffer()
         {
             sdkGetQueueData(&USART_Esp8266_Queue, &c);
             esp8266RxBuffer[bufferHead++] = c;
-            //printn(&c,1);
+            //BOOT_DEBUG("%c", c);
             return 1;
         }
     }

@@ -21,18 +21,37 @@
 #ifndef PARAMS_HAL_H_
 #define PARAMS_HAL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
+typedef enum
+{
+    BOOT_FLAG_NORMAL            = 0,
+    BOOT_FLAG_DEFAULT_RESTORE   = 1,
+    BOOT_FLAG_SERIAL_COM        = 2,
+    BOOT_FLAG_FACTORY_RESET     = 3,
+    BOOT_FLAG_OTA_UPDATE        = 4,
+    BOOT_FLAG_ALL_RESET         = 5,
+    BOOT_FLAG_USB_DFU           = 6
+} BOOT_FLAG_TypeDef;
+
+typedef enum
+{
+    INITPARAM_FLAG_NORMAL            = 0,
+    INITPARAM_FLAG_FACTORY_RESET     = 1,
+    INITPARAM_FLAG_ALL_RESET         = 2
+} INITPARAM_FLAG_TypeDef;
+
 
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type);
 uint32_t HAL_Platform_ID(void);
@@ -47,10 +66,10 @@ void HAL_PARAMS_Save_Params(void);
 
 uint32_t HAL_PARAMS_Get_Boot_boot_version(void);
 int HAL_PARAMS_Set_Boot_boot_version(uint32_t version);
-uint16_t HAL_PARAMS_Get_Boot_boot_flag(void);
-int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag);
-uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void);
-int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag);
+BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void);
+int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag);
+INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void);
+int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag);
 
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);

@@ -22,7 +22,6 @@ typedef enum
     DEFAULT_FIRWARE = 0, OTA_FIRWARE = 1
 } Firmware_TypeDef;
 
-#define CORE_FW_ADDRESS                 ((uint32_t)0x08020000)
 
 void start_app(void);
 void Enter_Default_RESTORE_Mode(void);
