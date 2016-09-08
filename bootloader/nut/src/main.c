@@ -16,6 +16,7 @@
 
 
 #define BOOTLOADER_VERSION  1
+#define LIGHTTIME           400
 
 uint8_t RESERVE_MODE=0;
 uint8_t SERIAL_COM_MODE = 0;
@@ -161,7 +162,13 @@ int main()
         System_Reset();
     }
     BOOT_DEBUG("start app\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
+    delay(LIGHTTIME);
+    HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
     start_app();
     return 0;
 }
