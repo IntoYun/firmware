@@ -22,6 +22,7 @@
 #include "esp8266_wifi_generic.h"
 #include "flash_map.h"
 #include "memory_hal.h"
+#include "macaddr_hal.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -195,39 +196,12 @@ int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
+
+
 /**
  * wifi set station and ap mac addr
  */
 int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
-{
-    if(!wifi_set_macaddr(STATION_IF, stamacaddr))
-    {
-        return -1;
-    }
-    if(!wifi_set_macaddr(SOFTAP_IF, apmacaddr))
-    {
-        return -1;
-    }
-    return 0;
-}
-
-/**
- * wifi get station and ap mac addr
- */
-int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
-{
-    if(!wifi_get_macaddr(STATION_IF, stamacaddr))
-    {
-        return -1;
-    }
-    if(!wifi_get_macaddr(SOFTAP_IF, apmacaddr))
-    {
-        return -1;
-    }
-    return 0;
-}
-
-int wlan_set_macaddr_to_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
     if (stamacaddr != NULL && apmacaddr != NULL){
         mac_param_t mac_addrs;
@@ -246,3 +220,48 @@ int wlan_set_macaddr_to_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
     }
     return -1;
 }
+
+/**
+ * wifi get station and ap mac addr
+ */
+int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
+{
+    if(!wifi_get_macaddr(STATION_IF, stamacaddr))
+    {
+        return -1;
+    }
+    if(!wifi_get_macaddr(SOFTAP_IF, apmacaddr))
+    {
+        return -1;
+    }
+    return 0;
+}
+
+int wlan_set_macaddr_from_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
+{
+    if(!wifi_set_macaddr(STATION_IF, stamacaddr))
+        {
+            return -1;
+        }
+    if(!wifi_set_macaddr(SOFTAP_IF, apmacaddr))
+        {
+            return -1;
+        }
+    return 0;
+}
+
+int wlan_set_macaddr_when_init(void)
+{
+    mac_param_t mac_addrs;
+    HAL_FLASH_Interminal_Read(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, sizeof(mac_addrs));
+    if (FLASH_MAC_HEADER == mac_addrs.header){
+        esp8266_setMode(WIFI_AP_STA);
+        wlan_set_macaddr_from_flash(mac_addrs.stamac_addrs, mac_addrs.apmac_addrs);
+        esp8266_setMode(WIFI_STA);
+        // for (int i = 0; i < 6; i++){
+        //     DEBUG("stamac: %x", mac_addrs.stamac_addrs[i]);
+        // }
+        // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
+    }
+}
+

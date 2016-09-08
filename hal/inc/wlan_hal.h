@@ -94,14 +94,6 @@ typedef struct __attribute__((__packed__))  _WLanConfig_t {
 #define WLanConfig_Size_V1   (sizeof(NetworkConfig)+2+33)
 #define WLanConfig_Size_V2   (WLanConfig_Size_V1+6)
 
-#define FLASH_MAC_HEADER      0x5aa5f88f
-
-typedef struct __attribute__((__packed__))  _mac_param_t {
-    uint32_t header;
-    uint8_t stamac_addrs[6];
-    uint8_t apmac_addrs[6];
-} mac_param_t;
-
 
 STATIC_ASSERT(WLanConfigSize, sizeof(WLanConfig)==WLanConfig_Size_V2);
 
@@ -274,7 +266,6 @@ int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data);
 
 int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
 int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
-int wlan_set_macaddr_to_flash(uint8_t *stamacaddr, uint8_t *apmacaddr);
 
 #ifdef	__cplusplus
 }

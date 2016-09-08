@@ -1,3 +1,4 @@
+
 /**
  ******************************************************************************
   Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
@@ -28,8 +29,6 @@
 #include "wlan_hal.h"
 #include "wiring_wifi.h"
 #include "string_convert.h"
-#include "esp8266_wifi_type.h"
-#include "esp8266_wifi_generic.h"
 
 using namespace intorobot;
 
@@ -504,7 +503,7 @@ void DeviceConfig::setDeviceInfo(aJsonObject* value_object)
     {
         mac_str_to_bin(object->valuestring, stamac);
         mac_str_to_bin(object1->valuestring, apmac);
-        int ret = wlan_set_macaddr_to_flash(stamac, apmac);
+        int ret = wlan_set_macaddr(stamac, apmac);
         if(!ret)
         {
             sendComfirm(200);

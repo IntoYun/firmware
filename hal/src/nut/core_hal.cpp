@@ -40,8 +40,8 @@
 #include "subsys_version.h"
 #include "flash_map.h"
 #include "uart.h"
-#include "wlan_hal.h"
 #include "memory_hal.h"
+#include "macaddr_hal.h"
 
 
 /* Private typedef ----------------------------------------------------------*/
@@ -149,18 +149,7 @@ void init_done() {
     HAL_Core_Config();
     HAL_Core_Setup();
     app_setup_and_loop_initial();
-
-    mac_param_t mac_addrs;
-    HAL_FLASH_Interminal_Read(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, sizeof(mac_addrs));
-    if (FLASH_MAC_HEADER == mac_addrs.header){
-        esp8266_setMode(WIFI_AP_STA);
-        wlan_set_macaddr(mac_addrs.stamac_addrs, mac_addrs.apmac_addrs);
-        esp8266_setMode(WIFI_STA);
-        // for (int i = 0; i < 6; i++){
-        //     DEBUG("stamac: %x", mac_addrs.stamac_addrs[i]);
-        // }
-        // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
-    }
+    wlan_set_macaddr_when_init();
     esp_schedule();
 }
 
