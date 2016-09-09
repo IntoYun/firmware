@@ -43,7 +43,6 @@ void micros_overflow_tick(void* arg) {
 }
 
 void SysTick_Enable() {
-    timer1_isr_init();
     os_timer_setfn(&micros_overflow_timer, (os_timer_func_t*) &micros_overflow_tick, 0);
     os_timer_arm(&micros_overflow_timer, 60000, REPEAT);
 }

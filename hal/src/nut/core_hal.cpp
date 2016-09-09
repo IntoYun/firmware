@@ -35,11 +35,10 @@
 #include "memory_hal.h"
 #include <Arduino.h>
 #include "Schedule.h"
-#include "esp8266_wifi_generic.h"
+#include "core_esp8266_wifi_generic.h"
 #include <core_version.h>
 #include "subsys_version.h"
 #include "flash_map.h"
-#include "uart.h"
 #include "memory_hal.h"
 #include "macaddr_hal.h"
 
@@ -158,6 +157,13 @@ extern "C" void user_init(void) {
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
 
+    //Disable UART interrupts
+    system_set_os_print(0);
+    U0IE = 0;
+    U1IE = 0;
+    timer1_isr_init();
+    HAL_Interrupts_Initial();
+
     SysTick_Enable();
     cont_init(&g_cont);
     ets_task(loop_task, LOOP_TASK_PRIORITY, g_loop_queue, LOOP_QUEUE_SIZE);
@@ -179,11 +185,6 @@ void HAL_Core_Config(void)
     //滴答定时器  //处理三色灯和模式处理
     os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
     os_timer_arm(&systick_timer, 1, 1);
-
-    //Disable UART interrupts
-    system_set_os_print(0);
-    U0IE = 0;
-    U1IE = 0;
 
     //Wiring pins default to inputs
     for (pin_t pin=D0; pin<=D6; pin++)

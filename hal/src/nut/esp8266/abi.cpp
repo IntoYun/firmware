@@ -18,8 +18,8 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <esp8266_debug.h>
 #include <Arduino.h>
+#include "hw_config.h"
 #include <cxxabi.h>
 
 using __cxxabiv1::__guard;
@@ -49,12 +49,12 @@ extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
 
 void __cxa_pure_virtual(void)
 {
-    panic();
+    //panic();
 }
 
 void __cxa_deleted_virtual(void)
 {
-    panic();
+    //panic();
 }
 
 typedef struct {
@@ -89,27 +89,27 @@ namespace std
 {
 void __throw_bad_function_call()
 {
-    panic();
+    //panic();
 }
 
 void __throw_length_error(char const*)
 {
-    panic();
+    //panic();
 }
 
 void __throw_bad_alloc()
 {
-    panic();
+    //panic();
 }
 
 void __throw_logic_error(const char* str)
 {
-    panic();
+    //panic();
 }
 
 void __throw_out_of_range(const char* str)
 {
-    panic();
+    //panic();
 }
 }
 

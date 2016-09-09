@@ -22,7 +22,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "esp8266_debug.h"
 #include "ets_sys.h"
 #include "user_interface.h"
 #include "esp8266_peri.h"

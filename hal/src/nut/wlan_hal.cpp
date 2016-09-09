@@ -19,7 +19,7 @@
 
 #include "hw_config.h"
 #include "wlan_hal.h"
-#include "esp8266_wifi_generic.h"
+#include "core_esp8266_wifi_generic.h"
 #include "flash_map.h"
 #include "memory_hal.h"
 #include "macaddr_hal.h"
