@@ -22,7 +22,7 @@
 
  */
 
-#include "esp8266_wifi_generic.h"
+#include "core_esp8266_wifi_generic.h"
 
 extern "C" {
 #include "c_types.h"

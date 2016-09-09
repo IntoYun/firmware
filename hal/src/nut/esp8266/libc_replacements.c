@@ -38,7 +38,6 @@
 #include "osapi.h"
 #include "mem.h"
 #include "user_interface.h"
-#include "esp8266_debug.h"
 
 int ICACHE_RAM_ATTR puts(const char * str) {
     return ets_printf("%s", str);

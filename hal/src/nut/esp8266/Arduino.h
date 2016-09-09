@@ -42,8 +42,6 @@ extern "C" {
 #define HIGH 0x1
 #define LOW  0x0
 
-#define PWMRANGE 1023
-
 //GPIO FUNCTIONS
 #define INPUT             0x00
 #define INPUT_PULLUP      0x02
@@ -71,15 +69,6 @@ extern "C" {
 
 #define LSBFIRST 0
 #define MSBFIRST 1
-
-//Interrupt Modes
-#define RISING    0x01
-#define FALLING   0x02
-#define CHANGE    0x03
-#define ONLOW     0x04
-#define ONHIGH    0x05
-#define ONLOW_WE  0x0C
-#define ONHIGH_WE 0x0D
 
 #define DEFAULT 1
 #define EXTERNAL 0
@@ -141,30 +130,6 @@ void ets_intr_unlock();
 #define __STRINGIFY(a) #a
 #endif
 
-// these low level routines provide a replacement for SREG interrupt save that AVR uses
-// but are esp8266 specific. A normal use pattern is like
-//
-//{
-//    uint32_t savedPS = xt_rsil(1); // this routine will allow level 2 and above
-//    // do work here
-//    xt_wsr_ps(savedPS); // restore the state
-//}
-//
-// level (0-15), interrupts of the given level and above will be active
-// level 15 will disable ALL interrupts,
-// level 0 will enable ALL interrupts,
-//
-#define xt_rsil(level) (__extension__({uint32_t state; __asm__ __volatile__("rsil %0," __STRINGIFY(level) : "=a" (state)); state;}))
-#define xt_wsr_ps(state)  __asm__ __volatile__("wsr %0,ps; isync" :: "a" (state) : "memory")
-
-#define interrupts() xt_rsil(0)
-#define noInterrupts() xt_rsil(15)
-
-
-#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
-#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
-#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
-
 #define lowByte(w) ((uint8_t) ((w) & 0xff))
 #define highByte(w) ((uint8_t) ((w) >> 8))
 
@@ -190,15 +155,6 @@ void init(void);
 void initVariant(void);
 
 int atexit(void (*func)()) __attribute__((weak));
-
-void pinMode(uint8_t pin, uint8_t mode);
-void digitalWrite(uint8_t pin, uint8_t val);
-int digitalRead(uint8_t pin);
-int analogRead(uint8_t pin);
-void analogReference(uint8_t mode);
-void analogWrite(uint8_t pin, int val);
-void analogWriteFreq(uint32_t freq);
-void analogWriteRange(uint32_t range);
 
 unsigned long millis(void);
 unsigned long micros(void);

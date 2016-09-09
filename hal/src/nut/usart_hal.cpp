@@ -26,7 +26,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
-//#include "uart.h"
 #include "usart_hal.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -36,7 +35,6 @@
 #include "delay_hal.h"
 #include "service_debug.h"
 
-#if 1
 #define UART0    0
 #define UART1    1
 #define UART_NO -1
@@ -61,8 +59,7 @@
 #define UART_8N1 ( UART_NB_BIT_8 | UART_PARITY_NONE | UART_NB_STOP_BIT_1 )
 
 static int s_uart_debug_nr = UART0;
-#endif
-#if 1
+
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
     USART_0 = 0,
@@ -113,7 +110,7 @@ static void uart1_write_char(char c)
 static void uart_ignore_char(char c)
 {
 }
-#endif
+
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1) {
@@ -128,29 +125,13 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
     usartMap[serial]->peek_char = -1;
 }
 
-//uart_t* _uart = nullptr;
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 {
     HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
-	//HAL_USART_BeginConfig(serial, baud, UART_8N1, 0); // Default serial configuration is 8N1
 }
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
-#if 0
-    if(uart_get_debug() == UART1) {
-        uart_set_debug(UART_NO);
-    }
-
-    if (_uart) {
-        free(_uart);
-    }
-
-    _uart = uart_init(UART1, baud, UART_8N1, 0, 1);
-   /* if(uart_tx_enabled(_uart)) {
-        uart_set_debug(UART1);
-    }*/
-#endif
     // Verify UART configuration, exit if it's invalid.
     if (!IS_USART_CONFIG_VALID(config)) {
         usartMap[serial]->usart_enabled = false;
@@ -158,10 +139,8 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     }
 
     // set debug UART_NO
-    //if (s_uart_debug_nr == usartMap[serial]->usart_nr) {
-        system_set_os_print(0);
-        ets_install_putc1((void *) &uart_ignore_char);
-    //}
+    system_set_os_print(0);
+    ets_install_putc1((void *) &uart_ignore_char);
 
     if (HAL_USART_SERIAL1 == serial) {
         // set tx pin 1 mode
@@ -181,10 +160,6 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         GPC(usartMap[serial]->usart_tx_pin) = (GPC(usartMap[serial]->usart_tx_pin) & (0xF << GPCI));
         GPEC = (1 << usartMap[serial]->usart_tx_pin);
         GPF(usartMap[serial]->usart_tx_pin) = GPFFS(GPFFS_BUS(usartMap[serial]->usart_tx_pin));
-
-        //set debug, default the UART1 is the debug usart port
-        //system_set_os_print(1);
-        //ets_install_putc1((void *) &uart1_write_char);
     }
 
     uint32 esp8266_uart_config = 0;
@@ -319,7 +294,6 @@ int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
     }
 
     return USF(usartMap[serial]->usart_nr) & 0xff;
-    //return 0;
 }
 
 int32_t HAL_USART_Peek_Data(HAL_USART_Serial serial)
@@ -342,7 +316,6 @@ void HAL_USART_Flush_Data(HAL_USART_Serial serial)
     }
 
     while(((USS(usartMap[serial]->usart_nr) >> USTXC) & 0xff) >> 0) {
-        // ets_delay_us(0);
         HAL_Delay_Milliseconds(0);
     }
 }
@@ -350,7 +323,6 @@ void HAL_USART_Flush_Data(HAL_USART_Serial serial)
 bool HAL_USART_Is_Enabled(HAL_USART_Serial serial)
 {
     return usartMap[serial]->usart_enabled;
-    //return false;
 }
 
 void HAL_USART_Half_Duplex(HAL_USART_Serial serial, bool Enable)

@@ -55,6 +55,7 @@ typedef struct HAL_InterruptExtraConfiguration {
 extern "C" {
 #endif
 
+void HAL_Interrupts_Initial(void);
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config);
 void HAL_Interrupts_Detach(uint16_t pin);
 void HAL_Interrupts_Enable_All(void);

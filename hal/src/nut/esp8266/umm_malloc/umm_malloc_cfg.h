@@ -5,7 +5,6 @@
 #ifndef _UMM_MALLOC_CFG_H
 #define _UMM_MALLOC_CFG_H
 
-#include <esp8266_debug.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
