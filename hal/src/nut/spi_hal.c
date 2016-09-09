@@ -298,7 +298,8 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 
     SPI1C = 0;
     setFrequency(1000000); ///< 1MHz
-    setBitOrder(LSBFIRST);
+    /* setBitOrder(LSBFIRST); */
+    setBitOrder(MSBFIRST); // Adafruit need MSBFIRST
     setDataMode(SPI_MODE0);
     SPI1U = SPIUMOSI | SPIUDUPLEX | SPIUSSE;
     SPI1U1 = (7 << SPILMOSI) | (7 << SPILMISO);

@@ -37,7 +37,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #define PWMRANGE 1023
 
 
-static void __pinMode(uint8_t pin, uint8_t mode) {
+extern void __pinMode(uint8_t pin, uint8_t mode) {
   if(pin < 16){
     if(mode == SPECIAL){
       GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
