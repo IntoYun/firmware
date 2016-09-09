@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 
-#define BOOT_DEBUG_SWITCH
+//#define BOOT_DEBUG_SWITCH
 
 #ifdef BOOT_DEBUG_SWITCH
 #define BOOT_DEBUG        ets_printf

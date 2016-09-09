@@ -72,12 +72,10 @@ volatile uint8_t INTOROBOT_IMLINK_CONFIG_START=false; //配置模式开始
  * Input          : None
  * Output         : None.
  * Return         : None.
- ************************************************
- *******************************/
-#define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
-#define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
-#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_ESP8266_COM_MODE      10000  //esp8266串口转接判断时间
+ *******************************************************************************/
+#define TIMING_CONFIG_MODE           3000   //进入配置模式判断时间
+#define TIMING_DEFAULT_RESTORE_MODE  7000   //进入默认固件灯程序升级判断时间
+#define TIMING_SERIAL_COM_MODE       10000  //进入串口转接程序判断时间
 #define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
 #define TIMING_NC                    20000  //无操作判断时间
 #define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
@@ -105,7 +103,7 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
             }
         }
-        else if( BUTTON_press_time > TIMING_ESP8266_COM_MODE ) {
+        else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_COM) {
                 BUTTON_Mode=BUTTON_MODE_COM;//进入串口转发程序
                 HAL_UI_RGB_Color(RGB_COLOR_BLUE);//蓝灯打开
@@ -117,7 +115,7 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
             }
         }
-        else if( BUTTON_press_time > TIMING_DFU_DOWNLOAD_MODE ) {
+        else if( BUTTON_press_time > TIMING_CONFIG_MODE ) {
             if(BUTTON_Mode!=BUTTON_MODE_CONFIG) {
                 BUTTON_Mode=BUTTON_MODE_CONFIG; //wifi配置模式
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开

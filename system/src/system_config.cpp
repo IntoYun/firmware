@@ -244,7 +244,6 @@ void DeviceConfig::getDeviceBaseInfo(void)
             HAL_Board_Type(board, sizeof(board), 1);
             aJson.addStringToObject(root, "board", (char *)board);
         }
-        DEBUG_D("board = %s\r\n", board);
         aJson.addStringToObject(root, "device_id", (char *)device_id);
         aJson.addNumberToObject(root, "at_mode", 1);
     }

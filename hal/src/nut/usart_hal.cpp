@@ -132,6 +132,11 @@ void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
+    if( true == usartMap[serial]->usart_enabled )
+    {
+        return;
+    }
+
     // Verify UART configuration, exit if it's invalid.
     if (!IS_USART_CONFIG_VALID(config)) {
         usartMap[serial]->usart_enabled = false;
