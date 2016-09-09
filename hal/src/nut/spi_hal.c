@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "spi_hal.h"
+#include "pinmap_impl.h"
 #include "Arduino.h"
 #include "service_debug.h"
 
@@ -60,14 +61,64 @@ bool useHwCs;
 void writeBytes_(uint8_t * data, uint8_t size);
 void transferBytes_(uint8_t * out, uint8_t * in, uint8_t size);
 inline void setDataBits(uint16_t bits);
+static void __pinMode(uint8_t pin, uint8_t mode) {
+  if(pin < 16){
+    if(mode == SPECIAL){
+      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+      GPEC = (1 << pin); //Disable
+      GPF(pin) = GPFFS(GPFFS_BUS(pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+      if(pin == 3) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
+    } else if(mode & FUNCTION_0){
+      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+      GPEC = (1 << pin); //Disable
+      GPF(pin) = GPFFS((mode >> 4) & 0x07);
+      if(pin == 13 && mode == FUNCTION_4) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
+    }  else if(mode == OUTPUT || mode == OUTPUT_OPEN_DRAIN){
+      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+      if(mode == OUTPUT_OPEN_DRAIN) GPC(pin) |= (1 << GPCD);
+      GPES = (1 << pin); //Enable
+    } else if(mode == INPUT || mode == INPUT_PULLUP){
+      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+      GPEC = (1 << pin); //Disable
+      GPC(pin) = (GPC(pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+      if(mode == INPUT_PULLUP) {
+          GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
+      }
+    } else if(mode == WAKEUP_PULLUP || mode == WAKEUP_PULLDOWN){
+      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+      GPEC = (1 << pin); //Disable
+      if(mode == WAKEUP_PULLUP) {
+          GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
+          GPC(pin) = (1 << GPCD) | (4 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(LOW) | WAKEUP_ENABLE(ENABLED)
+      } else {
+          GPF(pin) |= (1 << GPFPD);  // Enable  Pulldown
+          GPC(pin) = (1 << GPCD) | (5 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(HIGH) | WAKEUP_ENABLE(ENABLED)
+      }
+    }
+  } else if(pin == 16){
+    GPF16 = GP16FFS(GPFFS_GPIO(pin));//Set mode to GPIO
+    GPC16 = 0;
+    if(mode == INPUT || mode == INPUT_PULLDOWN_16){
+      if(mode == INPUT_PULLDOWN_16){
+        GPF16 |= (1 << GP16FPD);//Enable Pulldown
+      }
+      GP16E &= ~1;
+    } else if(mode == OUTPUT){
+      GP16E |= 1;
+    }
+  }
+}
 
 void setHwCs(bool use) {
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    unsigned char ss_pin = PIN_MAP[SS].gpio_pin;
     if(use) {
-        HAL_Pin_Mode(SS, SPECIAL); ///< GPIO15
+        __pinMode(ss_pin, SPECIAL); ///< GPIO15
         SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
     } else {
         if(useHwCs) {
-            HAL_Pin_Mode(SS, INPUT);
+            __pinMode(SS, INPUT);
             SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
         }
     }
@@ -83,7 +134,6 @@ static uint32_t ClkRegToFreq(spiClk_t * reg) {
     return (ESP8266_CLOCK / ((reg->regPre + 1) * (reg->regN + 1)));
 }
 
-
 void setClockDivider(uint32_t clockDiv) {
     if(clockDiv == 0x80000000) {
         GPMUX |= (1 << 9); // Set bit 9 if sysclock required
@@ -92,6 +142,7 @@ void setClockDivider(uint32_t clockDiv) {
     }
     SPI1CLK = clockDiv;
 }
+
 void setFrequency(uint32_t freq) {
     static uint32_t lastSetFrequency = 0;
     static uint32_t lastSetRegister = 0;
@@ -185,7 +236,6 @@ void setBitOrder(uint8_t bitOrder)
 
 }
 
-
 void setDataMode(uint8_t dataMode)
 {
     /**
@@ -194,7 +244,6 @@ void setDataMode(uint8_t dataMode)
      SPI_MODE2 0x10 - CPOL: 1  CPHA: 0
      SPI_MODE3 0x11 - CPOL: 1  CPHA: 1
      */
-
     bool CPOL = (dataMode & 0x10); ///< CPOL (Clock Polarity)
     bool CPHA = (dataMode & 0x01); ///< CPHA (Clock Phase)
 
@@ -231,16 +280,21 @@ uint8_t transfer(uint8_t data) {
 
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_Initial...");
     useHwCs = false;
 }
 
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     DEBUG("Enter HAL_SPI_Begin...");
-    HAL_Pin_Mode(SCK, SPECIAL);  ///< GPIO14
-    HAL_Pin_Mode(MISO, SPECIAL); ///< GPIO12
-    HAL_Pin_Mode(MOSI, SPECIAL); ///< GPIO13
+
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    unsigned char sck_pin = PIN_MAP[SCK].gpio_pin;
+    unsigned char miso_pin = PIN_MAP[MISO].gpio_pin;
+    unsigned char mosi_pin = PIN_MAP[MOSI].gpio_pin;
+
+    __pinMode(sck_pin, SPECIAL);
+    __pinMode(miso_pin, SPECIAL);
+    __pinMode(mosi_pin, SPECIAL);
 
     SPI1C = 0;
     setFrequency(1000000); ///< 1MHz
@@ -254,13 +308,19 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
     DEBUG("Enter HAL_SPI_End...");
-    HAL_Pin_Mode(SCK, INPUT);
-    HAL_Pin_Mode(MISO, INPUT);
-    HAL_Pin_Mode(MOSI, INPUT);
-    if(useHwCs) {
-        HAL_Pin_Mode(SS, INPUT);
-    }
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    unsigned char sck_pin = PIN_MAP[SCK].gpio_pin;
+    unsigned char miso_pin = PIN_MAP[MISO].gpio_pin;
+    unsigned char mosi_pin = PIN_MAP[MOSI].gpio_pin;
+    unsigned char ss_pin = PIN_MAP[SS].gpio_pin;
 
+    __pinMode(sck_pin, INPUT);  ///< GPIO14
+    __pinMode(miso_pin, INPUT); ///< GPIO12
+    __pinMode(mosi_pin, INPUT); ///< GPIO13
+
+    if(useHwCs) {
+        __pinMode(ss_pin, INPUT); ///< GPIO13
+    }
 }
 
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
@@ -273,8 +333,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
 {
     DEBUG("Enter HAL_SPI_Set_Data_Mode...");
     setDataMode(dataMode);
- }
-
+}
 
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
@@ -282,10 +341,9 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
     setClockDivider(rate);
 }
 
-
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
-    //DEBUG("Enter HAL_SPI_Send_Receive_Mode...");
+    /* DEBUG("Enter HAL_SPI_Send_Receive_Mode..."); */
     return transfer((uint8_t)data);
 }
 

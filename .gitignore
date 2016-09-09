@@ -37,6 +37,7 @@ tools/esptool/
 tools/stlink/
 
 #用户例子
+user/src/*
 user/src/application.ino
 
 # tags
