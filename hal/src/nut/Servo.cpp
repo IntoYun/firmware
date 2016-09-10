@@ -1,40 +1,94 @@
-/**
- ******************************************************************************
- * @file    servo_hal.c
- * @author  Matthew McGowan
- * @version V1.0.0
- * @date    27-Sept-2014
- * @brief
- ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+/*
+Copyright (c) 2015 Michael C. Miller. All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
- */
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
 
-/* Includes ------------------------------------------------------------------*/
-#include "servo_hal.h"
-//#include "ServoTimers.h"
-#include "Arduino.h"
-/* Private macro -------------------------------------------------------------*/
+#if 1
 
-/* Private variables ---------------------------------------------------------*/
+#include <Arduino.h>
+#include <Servo.h>
+extern void __pinMode(uint8_t pin, uint8_t mode) {
+    if(pin < 16){
+        if(mode == SPECIAL){
+            GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+            GPEC = (1 << pin); //Disable
+            GPF(pin) = GPFFS(GPFFS_BUS(pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+            if(pin == 3) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
+        } else if(mode & FUNCTION_0){
+            GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+            GPEC = (1 << pin); //Disable
+            GPF(pin) = GPFFS((mode >> 4) & 0x07);
+            if(pin == 13 && mode == FUNCTION_4) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
+        }  else if(mode == OUTPUT || mode == OUTPUT_OPEN_DRAIN){
+            GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+            GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+            if(mode == OUTPUT_OPEN_DRAIN) GPC(pin) |= (1 << GPCD);
+            GPES = (1 << pin); //Enable
+        } else if(mode == INPUT || mode == INPUT_PULLUP){
+            GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+            GPEC = (1 << pin); //Disable
+            GPC(pin) = (GPC(pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+            if(mode == INPUT_PULLUP) {
+                GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
+            }
+        } else if(mode == WAKEUP_PULLUP || mode == WAKEUP_PULLDOWN){
+            GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
+            GPEC = (1 << pin); //Disable
+            if(mode == WAKEUP_PULLUP) {
+                GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
+                GPC(pin) = (1 << GPCD) | (4 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(LOW) | WAKEUP_ENABLE(ENABLED)
+            } else {
+                GPF(pin) |= (1 << GPFPD);  // Enable  Pulldown
+                GPC(pin) = (1 << GPCD) | (5 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(HIGH) | WAKEUP_ENABLE(ENABLED)
+            }
+        }
+    } else if(pin == 16){
+        GPF16 = GP16FFS(GPFFS_GPIO(pin));//Set mode to GPIO
+        GPC16 = 0;
+        if(mode == INPUT || mode == INPUT_PULLDOWN_16){
+            if(mode == INPUT_PULLDOWN_16){
+                GPF16 |= (1 << GP16FPD);//Enable Pulldown
+            }
+            GP16E &= ~1;
+        } else if(mode == OUTPUT){
+            GP16E |= 1;
+        }
+    }
+}
 
-/* Extern variables ----------------------------------------------------------*/
+extern void ICACHE_RAM_ATTR __digitalWrite(uint8_t pin, uint8_t val) {
+    if(pin < 16){
+        if(val) GPOS = (1 << pin);
+        else GPOC = (1 << pin);
+    } else if(pin == 16){
+        if(val) GP16O |= 1;
+        else GP16O &= ~1;
+    }
+}
 
-/* Private function prototypes -----------------------------------------------*/
-#if 0
+extern int ICACHE_RAM_ATTR __digitalRead(uint8_t pin) {
+    if(pin < 16){
+        return GPIP(pin);
+    } else if(pin == 16){
+        return GP16I & 0x01;
+    }
+    return 0;
+}
+
+
 #define INVALID_SERVO         255     // flag indicating an invalid servo index
 
 const uint32_t c_CycleCompensation = 4;  // compensation us to trim adjust for digitalWrite delays
@@ -71,7 +125,7 @@ static uint8_t s_servoCount = 0;            // the total number of attached s_se
 
 // similiar to map but will have increased accuracy that provides a more
 // symetric api (call it and use result to reverse will provide the original value)
-//
+// 
 int improved_map(int value, int minIn, int maxIn, int minOut, int maxOut)
 {
     const int rangeIn = maxIn - minIn;
@@ -88,11 +142,11 @@ int improved_map(int value, int minIn, int maxIn, int minOut, int maxOut)
 // Interrupt handler template method that takes a class that implements
 // a standard set of methods for the timer abstraction
 //------------------------------------------------------------------------------
-//template <class T>
-static void Servo_Handler0(ServoTimer0* timer) ICACHE_RAM_ATTR;
+template <class T>
+static void Servo_Handler(T* timer) ICACHE_RAM_ATTR;
 
-//template <class T>
-static void Servo_Handler0(ServoTimer0* timer)
+template <class T>
+static void Servo_Handler(T* timer)
 {
     uint8_t servoIndex;
 
@@ -105,8 +159,8 @@ static void Servo_Handler0(ServoTimer0* timer)
     else {
         servoIndex = SERVO_INDEX(timer->timerId(), timer->getCurrentChannel());
         if (servoIndex < s_servoCount && s_servos[servoIndex].info.isActive) {
-            // pulse channel low if activated
-            HAL_GPIO_Write(s_servos[servoIndex].info.pin, LOW);
+            // pulse this channel low if activated
+            __digitalWrite(s_servos[servoIndex].info.pin, LOW);
 
             if (s_servos[servoIndex].info.isDetaching) {
                 s_servos[servoIndex].info.isActive = false;
@@ -130,75 +184,7 @@ static void Servo_Handler0(ServoTimer0* timer)
             }
             else {
                 // its an active channel so pulse it high
-                HAL_GPIO_Write(s_servos[servoIndex].info.pin, HIGH);
-            }
-        }
-    }
-    else {
-        if (!isTimerActive(timer->timerId())) {
-            // no active running channels on this timer, stop the ISR
-            finISR(timer->timerId());
-        }
-        else {
-            // finished all channels so wait for the refresh period to expire before starting over
-            // allow a few ticks to ensure the next match is not missed
-            uint32_t refreshCompare = timer->usToTicks(REFRESH_INTERVAL);
-            if ((timer->GetCycleCount() + c_CycleCompensation * 2) < refreshCompare) {
-                timer->SetCycleCompare(refreshCompare - c_CycleCompensation);
-            }
-            else {
-                // at least REFRESH_INTERVAL has elapsed
-                timer->SetCycleCompare(timer->GetCycleCount() + c_CycleCompensation * 2);
-            }
-        }
-
-        timer->setEndOfCycle();
-    }
-}
-
-//template <class T>
-static void Servo_Handler1(ServoTimer1* timer) ICACHE_RAM_ATTR;
-
-//template <class T>
-static void Servo_Handler1(ServoTimer1* timer)
-{
-    uint8_t servoIndex;
-
-    // clear interrupt
-    timer->ResetInterrupt();
-
-    if (timer->isEndOfCycle()) {
-        timer->StartCycle();
-    }
-    else {
-        servoIndex = SERVO_INDEX(timer->timerId(), timer->getCurrentChannel());
-        if (servoIndex < s_servoCount && s_servos[servoIndex].info.isActive) {
-            // pulse channel low if activated
-            HAL_GPIO_Write(s_servos[servoIndex].info.pin, LOW);
-
-            if (s_servos[servoIndex].info.isDetaching) {
-                s_servos[servoIndex].info.isActive = false;
-                s_servos[servoIndex].info.isDetaching = false;
-            }
-        }
-        timer->nextChannel();
-    }
-
-    servoIndex = SERVO_INDEX(timer->timerId(), timer->getCurrentChannel());
-
-    if (servoIndex < s_servoCount &&
-        timer->getCurrentChannel() < SERVOS_PER_TIMER) {
-        timer->SetPulseCompare(timer->usToTicks(s_servos[servoIndex].usPulse) - c_CycleCompensation);
-
-        if (s_servos[servoIndex].info.isActive) {
-            if (s_servos[servoIndex].info.isDetaching) {
-                // it was active, reset state and leave low
-                s_servos[servoIndex].info.isActive = false;
-                s_servos[servoIndex].info.isDetaching = false;
-            }
-            else {
-                // its an active channel so pulse it high
-                HAL_GPIO_Write(s_servos[servoIndex].info.pin, HIGH);
+                __digitalWrite(s_servos[servoIndex].info.pin, HIGH);
             }
         }
     }
@@ -227,13 +213,13 @@ static void Servo_Handler1(ServoTimer1* timer)
 static void handler0() ICACHE_RAM_ATTR;
 static void handler0()
 {
-    Servo_Handler0(&s_servoTimer0);
+    Servo_Handler<ServoTimer0>(&s_servoTimer0);
 }
 
 static void handler1() ICACHE_RAM_ATTR;
 static void handler1()
 {
-    Servo_Handler1(&s_servoTimer1);
+    Servo_Handler<ServoTimer1>(&s_servoTimer1);
 }
 
 static void initISR(ServoTimerSequence timerId)
@@ -273,10 +259,10 @@ static boolean isTimerActive(ServoTimerSequence timerId)
     return false;
 }
 
-uint8_t _servoIndex;
-uint16_t _minUs;
-uint16_t _maxUs;
-void checkServo(void)
+//-------------------------------------------------------------------
+// Servo class methods
+
+ServoHal::ServoHal()
 {
     if (s_servoCount < MAX_SERVOS) {
         // assign a servo index to this instance
@@ -297,18 +283,19 @@ void checkServo(void)
     }
 }
 
-#endif
-
-#if 0
-void HAL_Servo_Attach(uint16_t pin)
+uint8_t ServoHal::attach(int pin)
 {
-    checkServo();
+    return attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
+}
+
+uint8_t ServoHal::attach(int pin, int minUs, int maxUs)
+{
     ServoTimerSequence timerId;
 
     if (_servoIndex < MAX_SERVOS) {
         if (s_servos[_servoIndex].info.pin == INVALID_PIN) {
-            HAL_Pin_Modee(pin, OUTPUT);       // set servo pin to output
-            HAL_GPIO_lWrite(pin, LOW);
+            __pinMode(pin, OUTPUT);       // set servo pin to output
+            __digitalWrite(pin, LOW);
             s_servos[_servoIndex].info.pin = pin;
         }
 
@@ -326,21 +313,19 @@ void HAL_Servo_Attach(uint16_t pin)
         s_servos[_servoIndex].info.isDetaching = false;
         s_servos[_servoIndex].info.isActive = true;  // this must be set after the check for isTimerActive
     }
-    //return _servoIndex;
-
+    return _servoIndex;
 }
 
-void HAL_Servo_Detach(uint16_t pin)
+void ServoHal::detach()
 {
     ServoTimerSequence timerId;
 
     if (s_servos[_servoIndex].info.isActive) {
         s_servos[_servoIndex].info.isDetaching = true;
     }
-
 }
 
-void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
+void ServoHal::write(int value)
 {
     // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
     if (value < MIN_PULSE_WIDTH) {
@@ -350,6 +335,11 @@ void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
         // for any user defined min and max, but we must use default min max
         value = improved_map(value, 0, 180, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
     }
+    writeMicroseconds(value);
+}
+
+void ServoHal::writeMicroseconds(int value)
+{
     // ensure channel is valid
     if ((_servoIndex < MAX_SERVOS)) {
         // ensure pulse width is valid
@@ -359,7 +349,14 @@ void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
     }
 }
 
-uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
+int ServoHal::read() // return the value as degrees
+{
+    // read returns the angle for an assumed 0-180, so we calculate using 
+    // the normal min/max constants and not user defined ones
+    return improved_map(readMicroseconds(), MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, 0, 180);
+}
+
+int ServoHal::readMicroseconds()
 {
     unsigned int pulsewidth;
     if (_servoIndex != INVALID_SERVO) {
@@ -372,29 +369,9 @@ uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
     return pulsewidth;
 }
 
-uint16_t HAL_Servo_Read_Frequency(uint16_t pin)
+bool ServoHal::attached()
 {
-    return 0;
+    return s_servos[_servoIndex].info.isActive;
 }
+
 #endif
-void HAL_Servo_Attach(uint16_t pin)
-{
-}
-
-void HAL_Servo_Detach(uint16_t pin)
-{
-}
-
-void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
-{
-}
-
-uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
-{
-    return 0;
-}
-
-uint16_t HAL_Servo_Read_Frequency(uint16_t pin)
-{
-    return 0;
-}

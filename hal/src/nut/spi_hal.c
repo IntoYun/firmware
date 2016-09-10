@@ -61,64 +61,24 @@ bool useHwCs;
 void writeBytes_(uint8_t * data, uint8_t size);
 void transferBytes_(uint8_t * out, uint8_t * in, uint8_t size);
 inline void setDataBits(uint16_t bits);
-static void __pinMode(uint8_t pin, uint8_t mode) {
-  if(pin < 16){
-    if(mode == SPECIAL){
-      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-      GPEC = (1 << pin); //Disable
-      GPF(pin) = GPFFS(GPFFS_BUS(pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
-      if(pin == 3) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
-    } else if(mode & FUNCTION_0){
-      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-      GPEC = (1 << pin); //Disable
-      GPF(pin) = GPFFS((mode >> 4) & 0x07);
-      if(pin == 13 && mode == FUNCTION_4) GPF(pin) |= (1 << GPFPU);//enable pullup on RX
-    }  else if(mode == OUTPUT || mode == OUTPUT_OPEN_DRAIN){
-      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
-      GPC(pin) = (GPC(pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-      if(mode == OUTPUT_OPEN_DRAIN) GPC(pin) |= (1 << GPCD);
-      GPES = (1 << pin); //Enable
-    } else if(mode == INPUT || mode == INPUT_PULLUP){
-      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
-      GPEC = (1 << pin); //Disable
-      GPC(pin) = (GPC(pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-      if(mode == INPUT_PULLUP) {
-          GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
-      }
-    } else if(mode == WAKEUP_PULLUP || mode == WAKEUP_PULLDOWN){
-      GPF(pin) = GPFFS(GPFFS_GPIO(pin));//Set mode to GPIO
-      GPEC = (1 << pin); //Disable
-      if(mode == WAKEUP_PULLUP) {
-          GPF(pin) |= (1 << GPFPU);  // Enable  Pullup
-          GPC(pin) = (1 << GPCD) | (4 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(LOW) | WAKEUP_ENABLE(ENABLED)
-      } else {
-          GPF(pin) |= (1 << GPFPD);  // Enable  Pulldown
-          GPC(pin) = (1 << GPCD) | (5 << GPCI) | (1 << GPCWE); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(HIGH) | WAKEUP_ENABLE(ENABLED)
-      }
-    }
-  } else if(pin == 16){
-    GPF16 = GP16FFS(GPFFS_GPIO(pin));//Set mode to GPIO
-    GPC16 = 0;
-    if(mode == INPUT || mode == INPUT_PULLDOWN_16){
-      if(mode == INPUT_PULLDOWN_16){
-        GPF16 |= (1 << GP16FPD);//Enable Pulldown
-      }
-      GP16E &= ~1;
-    } else if(mode == OUTPUT){
-      GP16E |= 1;
-    }
-  }
-}
 
 void setHwCs(bool use) {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     unsigned char ss_pin = PIN_MAP[SS].gpio_pin;
     if(use) {
-        __pinMode(ss_pin, SPECIAL); ///< GPIO15
+        /* __pinMode(ss_pin, SPECIAL); ///< GPIO15 */
+        GPC(ss_pin) = (GPC(ss_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+        GPEC = (1 << ss_pin); //Disable
+        GPF(ss_pin) = GPFFS(GPFFS_BUS(ss_pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+
         SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
     } else {
         if(useHwCs) {
-            __pinMode(SS, INPUT);
+            /* __pinMode(ss_pin, INPUT); */
+            GPF(ss_pin) = GPFFS(GPFFS_GPIO(ss_pin));//Set mode to GPIO
+            GPEC = (1 << ss_pin); //Disable
+            GPC(ss_pin) = (GPC(ss_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+
             SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
         }
     }
@@ -285,16 +245,26 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
-    DEBUG("Enter HAL_SPI_Begin...");
-
+    /* DEBUG("Enter HAL_SPI_Begin..."); */
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     unsigned char sck_pin = PIN_MAP[SCK].gpio_pin;
     unsigned char miso_pin = PIN_MAP[MISO].gpio_pin;
     unsigned char mosi_pin = PIN_MAP[MOSI].gpio_pin;
 
-    __pinMode(sck_pin, SPECIAL);
-    __pinMode(miso_pin, SPECIAL);
-    __pinMode(mosi_pin, SPECIAL);
+    /* __pinMode(sck_pin, SPECIAL); */
+    GPC(sck_pin) = (GPC(sck_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+    GPEC = (1 << sck_pin); //Disable
+    GPF(sck_pin) = GPFFS(GPFFS_BUS(sck_pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+
+    /* __pinMode(miso_pin, SPECIAL); */
+    GPC(sck_pin) = (GPC(sck_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+    GPEC = (1 << sck_pin); //Disable
+    GPF(sck_pin) = GPFFS(GPFFS_BUS(sck_pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
+
+    /* __pinMode(mosi_pin, SPECIAL); */
+    GPC(mosi_pin) = (GPC(mosi_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+    GPEC = (1 << mosi_pin); //Disable
+    GPF(mosi_pin) = GPFFS(GPFFS_BUS(mosi_pin));//Set mode to BUS (RX0, TX0, TX1, SPI, HSPI or CLK depending in the pin)
 
     SPI1C = 0;
     setFrequency(1000000); ///< 1MHz
@@ -308,37 +278,52 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_End...");
+    /* DEBUG("Enter HAL_SPI_End..."); */
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     unsigned char sck_pin = PIN_MAP[SCK].gpio_pin;
     unsigned char miso_pin = PIN_MAP[MISO].gpio_pin;
     unsigned char mosi_pin = PIN_MAP[MOSI].gpio_pin;
     unsigned char ss_pin = PIN_MAP[SS].gpio_pin;
 
-    __pinMode(sck_pin, INPUT);  ///< GPIO14
-    __pinMode(miso_pin, INPUT); ///< GPIO12
-    __pinMode(mosi_pin, INPUT); ///< GPIO13
+    /* __pinMode(sck_pin, INPUT);  ///< GPIO14 */
+    GPF(sck_pin) = GPFFS(GPFFS_GPIO(sck_pin));//Set mode to GPIO
+    GPEC = (1 << sck_pin); //Disable
+    GPC(sck_pin) = (GPC(sck_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+
+    /* __pinMode(miso_pin, INPUT); ///< GPIO12 */
+    GPF(miso_pin) = GPFFS(GPFFS_GPIO(miso_pin));//Set mode to GPIO
+    GPEC = (1 << miso_pin); //Disable
+    GPC(miso_pin) = (GPC(miso_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+
+    /* __pinMode(mosi_pin, INPUT); ///< GPIO13 */
+    GPF(miso_pin) = GPFFS(GPFFS_GPIO(miso_pin));//Set mode to GPIO
+    GPEC = (1 << miso_pin); //Disable
+    GPC(miso_pin) = (GPC(miso_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
 
     if(useHwCs) {
-        __pinMode(ss_pin, INPUT); ///< GPIO13
+        /* __pinMode(ss_pin, INPUT); ///< GPIO13 */
+        GPF(ss_pin) = GPFFS(GPFFS_GPIO(ss_pin));//Set mode to GPIO
+        GPEC = (1 << ss_pin); //Disable
+        GPC(ss_pin) = (GPC(ss_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
+
     }
 }
 
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
 {
-    DEBUG("Enter HAL_SPI_Set_Bit_Order...");
+    /* DEBUG("Enter HAL_SPI_Set_Bit_Order..."); */
     setBitOrder(bitOrder);
 }
 
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
 {
-    DEBUG("Enter HAL_SPI_Set_Data_Mode...");
+    /* DEBUG("Enter HAL_SPI_Set_Data_Mode..."); */
     setDataMode(dataMode);
 }
 
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-    DEBUG("Enter HAL_SPI_Set_Clock_Mode...");
+    /* DEBUG("Enter HAL_SPI_Set_Clock_Mode..."); */
     setClockDivider(rate);
 }
 
