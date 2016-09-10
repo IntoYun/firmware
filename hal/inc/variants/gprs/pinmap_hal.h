@@ -1,0 +1,147 @@
+/**
+ ******************************************************************************
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, either
+  version 3 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+  ******************************************************************************
+*/
+
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef PINMAP_HAL_H_
+#define PINMAP_HAL_H_
+
+/* Includes ------------------------------------------------------------------*/
+#include <stdbool.h>
+#include <stdint.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Exported types ------------------------------------------------------------*/
+
+typedef uint16_t pin_t;
+
+typedef enum PinMode {
+    INPUT,
+    OUTPUT,
+    INPUT_PULLUP,
+    INPUT_PULLDOWN,
+    AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
+    AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
+    AN_INPUT,           //Used internally for ADC Input
+    AN_OUTPUT,          //Used internally for DAC Output
+    PIN_MODE_NONE=0xFF
+} PinMode;
+
+typedef enum {
+    PF_NONE,
+    PF_DIO,
+    PF_TIMER,
+    PF_ADC,
+    PF_DAC
+} PinFunction;
+
+PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
+
+typedef struct STM32_Pin_Info  STM32_Pin_Info;
+
+STM32_Pin_Info* HAL_Pin_Map(void);
+
+/* Exported macros -----------------------------------------------------------*/
+
+/*
+* Pin mapping. Borrowed from Wiring
+*/
+#define TOTAL_PINS  37
+#define TOTAL_ANALOG_PINS 6
+#define FIRST_ANALOG_PIN  30
+
+#define D0 0
+#define D1 1
+#define D2 2
+#define D3 3
+#define D4 4
+#define D5 5
+#define D6 6
+#define D7 7
+
+#define A0 30
+#define A1 31
+#define A2 32
+#define A3 33
+#define A4 34
+#define A5 35
+//#define A6 36
+//#define A7 37
+
+// Uart pins
+//#define CTS A0
+//#define RTS A1
+
+#define TX A0
+#define RX A1
+
+// SPI pins
+#define SS   A2
+#define SCK  A3
+#define MISO A4
+#define MOSI A5
+
+#define SS1   D2
+#define SCK1  D3
+#define MISO1 D4
+#define MOSI1 D5
+
+// I2C pins
+#define SDA  D2
+#define SCL  D1
+
+// The following pins are only defined for easy access during development.
+// Will be removed later as they are internal I/O and users
+// should not have too easy of access or bad code could do harm.
+//#define ESP_BOOT_UC         60
+//#define ESP_RESET_UC        61
+//#define RGBR_UC             62
+//#define RGBG_UC             63
+//#define RGBB_UC             64
+//
+//#define LIGHT_SENSOR_UC     65
+//#define SENSOR_SDA_UC       66
+//#define SENSOR_SCL_UC       67
+//
+//#define ESP8266_TXD_UC      68
+//#define ESP8266_RXD_UC      69
+
+
+#define LED_USER  D7
+
+#define TOTAL_USARTS        2
+
+
+
+
+#define TIM_PWM_FREQ 500 //500Hz
+
+#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
+
+#define LSBFIRST 0
+#define MSBFIRST 1
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* PINMAP_HAL_H_ */

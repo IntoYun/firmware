@@ -78,7 +78,7 @@ int main(void)
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
 #define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_ESP8266_COM_MODE      10000  //esp8266串口转接判断时间
+#define TIMING_SERIAL_COM_MODE      10000  //esp8266串口转接判断时间
 #define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
 #define TIMING_NC                    20000  //无操作判断时间
 #define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
@@ -103,7 +103,7 @@ int main(void)
                 FACTORY_RESET_MODE = 1;
                 HAL_UI_RGB_Color(RGB_COLOR_CYAN);
             }
-            else if( BUTTON_press_time > TIMING_ESP8266_COM_MODE )
+            else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
             {
                 DEFAULT_FIRMWARE_MODE = 0;
                 SERIAL_COM_MODE = 1;
@@ -181,7 +181,7 @@ int main(void)
     {
         BOOT_DEBUG("esp8266 com\r\n");
         Enter_Serail_Com_Mode();
-        SERIAL_COM_MODE=1;
+        SERIAL_COM_MODE=0;
     }
     else if(DEFAULT_FIRMWARE_MODE)
     {

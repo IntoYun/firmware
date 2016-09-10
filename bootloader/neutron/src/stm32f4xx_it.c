@@ -35,7 +35,6 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-extern PCD_HandleTypeDef hpcd;
 extern UART_HandleTypeDef UartHandleEsp8266;
 
 /* Private function prototypes -----------------------------------------------*/

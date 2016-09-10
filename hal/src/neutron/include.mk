@@ -34,7 +34,4 @@ ASRC_STARTUP += $(COMMON_BUILD)/startup/arm/$(PLATFORM_NAME)/startup_$(PLATFORM_
 ASFLAGS += -I$(COMMON_BUILD)/startup/arm
 ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
 
-LIB_DIRS += $(TARGET_HAL_SRC_INC_PATH)/lib/
-LIBS += PDMFilter_CM4_GCC
-#
 endif
