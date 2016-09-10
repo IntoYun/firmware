@@ -114,12 +114,7 @@ static void RTC_CalendarAlarmConfig(void)
     {
         DEBUG("RTC CalendarAlarmConfig SetTime Error!");
     }
-
-    /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
-    HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
 }
-
-
 
 void HAL_RTC_Initial(void)
 {
@@ -145,7 +140,6 @@ void HAL_RTC_Initial(void)
         DEBUG("RTC Init Error!");
     }
     RTC_CalendarAlarmConfig();
-
 }
 
 time_t HAL_RTC_Get_UnixTime(void)
@@ -223,10 +217,6 @@ void HAL_RTC_Set_UnixTime(time_t value)
     {
         DEBUG("RTC Set_UnixTime SetTime failed!");
     }
-
-    /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
-    HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
-
 }
 
 void HAL_RTC_Set_Alarm(uint32_t value)
@@ -262,7 +252,6 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
         /* Initialization Error */
         DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
     }
-
 }
 
 void HAL_RTC_Cancel_UnixAlarm(void)
@@ -278,8 +267,6 @@ void HAL_RTC_Cancel_UnixAlarm(void)
 void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
     DEBUG("RTC Alarm Callback");
-    // When the time come, light the LED
-    HAL_GPIO_Write(D7, 1);
 }
 
 /**

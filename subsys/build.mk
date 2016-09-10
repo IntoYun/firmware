@@ -3,7 +3,7 @@
 # pulling in the required sources.
 # (Include files are selected in import.mk)
 
-BOARD_TYPE_PATH = $(BOARD_MODULE_PATH)/$(PLATFORM)
-include $(call rwildcard,$(BOARD_TYPE_PATH)/,sources.mk)
+SUBSYS_SRC_PATH = $(SUBSYS_MODULE_PATH)/$(PLATFORM_NAME)/src
+include $(call rwildcard,$(SUBSYS_SRC_PATH)/,sources.mk)
 
 

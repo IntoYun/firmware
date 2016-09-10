@@ -25,15 +25,16 @@ MAKE_DEPENDENCIES = newlib_nano
 endif
 
 ifeq ($(PLATFORM_ID),3)# neutron-net
-MAKE_DEPENDENCIES += platform board
+MAKE_DEPENDENCIES += platform subsys
+LIB_DEPS += $(PLATFORM_LIB_DEP) $(SUBSYS_LIB_DEP)
 else
-MAKE_DEPENDENCIES += user wiring hal system services platform
+MAKE_DEPENDENCIES += user wiring wiring_ex hal system services platform
+LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(WIRING_EX_LIB_DEP) $(HAL_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(PLATFORM_LIB_DEP)
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)
 
 LIBS += $(MAKE_DEPENDENCIES)
-LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(HAL_LIB_DEP) $(PLATFORM_LIB_DEP)
 LIB_DIRS += $(dir $(LIB_DEPS))
 
 # Target this makefile is building.

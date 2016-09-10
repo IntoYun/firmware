@@ -65,13 +65,13 @@ typedef __I uint16_t vuc16;  /*!< Read Only */
 typedef __I uint8_t vuc8;   /*!< Read Only */
 
 
-#define HIGH    0x1
-#define LOW     0x0
+//#define HIGH    0x1
+//#define LOW     0x0
 
 #define ON      0x1
 #define OFF     0x0
 
-#define boolean bool
+//#define boolean bool
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398

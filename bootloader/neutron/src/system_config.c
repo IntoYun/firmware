@@ -3,7 +3,7 @@
 
 #define ESP8266_USART_QUEUE_SIZE              (1024*20)
 
-UART_HandleTypeDef UartHandleA2A3;
+UART_HandleTypeDef UartHandleDebug;
 UART_HandleTypeDef UartHandleEsp8266;
 
 SDK_QUEUE USART_Esp8266_Queue;
@@ -13,13 +13,13 @@ void log_output(const char* msg)
 {
     while(*msg)
     {
-        HAL_UART_Transmit(&UartHandleA2A3, (uint8_t *)msg++, 1, 10);
+        HAL_UART_Transmit(&UartHandleDebug, (uint8_t *)msg++, 1, 10);
     }
 }
 
-void usart_a2a3_initial(uint32_t baud)
+void usart_debug_initial(uint32_t baud)
 {
-    HAL_UART_DeInit(&UartHandleA2A3);
+    HAL_UART_DeInit(&UartHandleDebug);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_USART2_CLK_ENABLE();
@@ -33,15 +33,15 @@ void usart_a2a3_initial(uint32_t baud)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    UartHandleA2A3.Instance          = USART2;
-    UartHandleA2A3.Init.BaudRate     = baud;
-    UartHandleA2A3.Init.WordLength   = UART_WORDLENGTH_8B;
-    UartHandleA2A3.Init.StopBits     = UART_STOPBITS_1;
-    UartHandleA2A3.Init.Parity       = UART_PARITY_NONE;
-    UartHandleA2A3.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    UartHandleA2A3.Init.Mode         = UART_MODE_TX_RX;
-    UartHandleA2A3.Init.OverSampling = UART_OVERSAMPLING_16;
-    HAL_UART_Init(&UartHandleA2A3);
+    UartHandleDebug.Instance          = USART2;
+    UartHandleDebug.Init.BaudRate     = baud;
+    UartHandleDebug.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandleDebug.Init.StopBits     = UART_STOPBITS_1;
+    UartHandleDebug.Init.Parity       = UART_PARITY_NONE;
+    UartHandleDebug.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandleDebug.Init.Mode         = UART_MODE_TX_RX;
+    UartHandleDebug.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_Init(&UartHandleDebug);
 }
 
 void usart_esp8266_initial(uint32_t baud)
@@ -93,7 +93,7 @@ void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
 void HAL_System_Config(void)
 {
     Set_System();
-    usart_a2a3_initial(115200);
+    usart_debug_initial(115200);
     set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
     HAL_RTC_Initial();
     HAL_UI_Initial();

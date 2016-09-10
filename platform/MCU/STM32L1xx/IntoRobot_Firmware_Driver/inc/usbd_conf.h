@@ -64,12 +64,14 @@ extern PCD_HandleTypeDef hpcd;
 void *USBD_static_malloc(uint32_t size);
 void USBD_static_free(void *p);
 
-#define MAX_STATIC_ALLOC_SIZE     140 /*CDC Class Driver Structure size*/
+#define MAX_STATIC_ALLOC_SIZE     262 /*CDC Class Driver Structure size*/
 
 #define USBD_malloc               (uint32_t *)USBD_static_malloc
 #define USBD_free                 USBD_static_free
 #define USBD_memset               /* Not used */
 #define USBD_memcpy               /* Not used */
+#define USBD_Delay                HAL_Delay
+
  /* DEBUG macros */
 #if (USBD_DEBUG_LEVEL > 0)
 #define  USBD_UsrLog(...)   printf(__VA_ARGS__);\

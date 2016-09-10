@@ -49,11 +49,14 @@ make PLATFORM=lora clean all APP=default-lora
 ```
 make PLATFORM=atom clean all st-flash
 make PLATFORM=neutron clean all st-flash
-make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool
 make PLATFORM=lora clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=atom clean all program-dfu
+make PLATFORM=neutron clean all program-dfu
+make PLATFORM=lora clean all DEBUG_BUILD=y USE_SWD=y program-dfu
+make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool 
 ```
 
-DEBUG_BUILD=y打开调试， st-flash esptool分别选择相应的烧录工具。
+DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的烧录工具。
 
 ## 代码架构
 
