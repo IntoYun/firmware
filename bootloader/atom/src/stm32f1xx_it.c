@@ -159,7 +159,8 @@ void SysTick_Handler(void)
  * @param  None
  * @retval None
  */
-void OTG_FS_IRQHandler(void)
+/* void OTG_FS_IRQHandler(void) */
+void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd);
 }
@@ -169,9 +170,9 @@ void OTG_FS_IRQHandler(void)
  * @param  None
  * @retval None
  */
-void USART1_IRQHandler(void)
+/*void USART1_IRQHandler(void)
 {
     HAL_USART1_Esp8266_Handler(&UartHandleEsp8266);
 }
-
+*/
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

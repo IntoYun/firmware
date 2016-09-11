@@ -12,11 +12,11 @@ PLATFORM_LIB_DEP = $(PLATFORM_LIB_DIR)/lib$(PLATFORM_MODULE_NAME).a
 
 ifeq ("$(ARCH)","arm")
 # Target specific defines
-ifeq ($(PLATFORM_ID),0)
-CDEFINES += -DUSE_STDPERIPH_DRIVER
-else
+# ifeq ($(PLATFORM_ID),0)
+# CDEFINES += -DUSE_STDPERIPH_DRIVER
+# else
 CDEFINES += -DUSE_HAL_DRIVER
-endif
+# endif
 
 CDEFINES += -DDFU_BUILD_ENABLE
 

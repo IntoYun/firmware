@@ -24,14 +24,14 @@
 #include "core_hal.h"
 #include "watchdog_hal.h"
 #include "rng_hal.h"
-#include "rgbled_hal.h"
+// #include "rgbled_hal.h"
 #include "bootloader.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "hw_config.h"
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
-#include "stm32l1xx_it.h"
+// #include "stm32l1xx_it.h"
 #include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/
@@ -99,13 +99,13 @@ void HAL_Core_Config(void)
     HAL_RNG_Initial();
 
     HAL_IWDG_Initial();
-    HAL_LED_Initial();
+    // HAL_LED_Initial();
 
 #ifdef DFU_BUILD_ENABLE
     //Load_SystemFlags();
 #endif
 
-    HAL_LED_RGB_Color(255, 255, 255);
+    // HAL_LED_RGB_Color(255, 255, 255);
 }
 
 void HAL_Core_Setup(void)

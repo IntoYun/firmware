@@ -14,7 +14,7 @@ CSRC += $(call target_files,$(TARGET_USB_FS_SRC_PATH)/,*.c)
 CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/CDC,*.c)
 CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/DFU,*.c)
 CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Core/Src,*.c)
-CSRC += $(call target_files,$(TARGET_STM32F4XX_HAL_SRC_PATH)/,*.c)
+CSRC += $(call target_files,$(TARGET_STM32F1XX_HAL_SRC_PATH)/,*.c)
 
 
 # enumerate target cpp files
