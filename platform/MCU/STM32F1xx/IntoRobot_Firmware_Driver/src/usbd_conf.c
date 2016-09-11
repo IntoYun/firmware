@@ -26,7 +26,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32f1xx_hal.h"
 #include "usbd_core.h"
 #include "service_debug.h"
 
@@ -50,30 +50,37 @@ PCD_HandleTypeDef hpcd;
 void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 {
     GPIO_InitTypeDef  GPIO_InitStruct;
-    if(hpcd->Instance == USB_OTG_FS)
+    if(hpcd->Instance == USB)//USB_OTG_FS)
     {
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**USB_OTG_FS GPIO Configuration
           PA11     ------> USB_OTG_FS_DM
           PA12     ------> USB_OTG_FS_DP
           */
-        GPIO_InitStruct.Pin = GPIO_PIN_11;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        /* Configure USB DM/DP pins */
+        GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_INPUT;
         GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  
+        /* Enable the USB disconnect GPIO clock */
+        __HAL_RCC_GPIOB_CLK_ENABLE();
 
-        GPIO_InitStruct.Pin = GPIO_PIN_12;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        /* /\* USB_DISCONNECT used as USB pull-up *\/ */
+        /* GPIO_InitStruct.Pin = USB_DISCONNECT_PIN; */
+        /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD; */
+        /* HAL_GPIO_Init(USB_DISCONNECT_PORT, &GPIO_InitStruct); */
+  
+        /* Enable USB Clock */
+        __HAL_RCC_USB_CLK_ENABLE();
+  
+        /* Set USB Interrupt priority */
+        HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 5, 0);
 
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+        /* Enable USB Interrupt */
+        HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
 
-        /* Peripheral interrupt init*/
-        HAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
     }
 }
 /**
@@ -83,13 +90,13 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
  */
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
 {
-    if(hpcd->Instance == USB_OTG_FS)
+    if(hpcd->Instance == USB)
     {
         /* Disable USB FS Clock */
-        __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
+        __HAL_RCC_USB_CLK_DISABLE();
         __HAL_RCC_SYSCFG_CLK_DISABLE();
         HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
-        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+        HAL_NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
     }
 }
 
@@ -242,31 +249,51 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
  */
 USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 {
-    /* Set LL Driver parameters */
-    hpcd.Instance = USB_OTG_FS;
-    hpcd.Init.dev_endpoints = 4;
-    hpcd.Init.use_dedicated_ep1 = 0;
-    hpcd.Init.ep0_mps = 0x40;
-    hpcd.Init.dma_enable = 0;
-    hpcd.Init.low_power_enable = 0;
+    hpcd.Instance = USB;
+    hpcd.Init.dev_endpoints = 8;
+    hpcd.Init.ep0_mps = PCD_EP0MPS_64;
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
-    hpcd.Init.Sof_enable = 0;
     hpcd.Init.speed = PCD_SPEED_FULL;
-    hpcd.Init.vbus_sensing_enable = 0;
-    hpcd.Init.lpm_enable = 0;
-
-    /* Link the driver to the stack */
+    hpcd.Init.low_power_enable = 0;
+  
+    /* Link The driver to the stack */
     hpcd.pData = pdev;
     pdev->pData = &hpcd;
-
+  
     /* Initialize LL Driver */
-    HAL_PCD_Init(&hpcd);
+    HAL_PCD_Init((PCD_HandleTypeDef*)pdev->pData);
 
-    HAL_PCDEx_SetRxFiFo(&hpcd, 0x80);
-    HAL_PCDEx_SetTxFiFo(&hpcd, 0, 0x40);
-    HAL_PCDEx_SetTxFiFo(&hpcd, 1, 0x80);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
+    HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
+    // HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0x100);
+
     return USBD_OK;
-}
+
+/*     /\* Set LL Driver parameters *\/ */
+/*     hpcd.Instance = USB;//USB_OTG_FS; */
+/*     hpcd.Init.dev_endpoints = 4; */
+/*     hpcd.Init.use_dedicated_ep1 = 0; */
+/*     hpcd.Init.ep0_mps = 0x40; */
+/*     hpcd.Init.dma_enable = 0; */
+/*     hpcd.Init.low_power_enable = 0; */
+/*     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED; */
+/*     hpcd.Init.Sof_enable = 0; */
+/*     hpcd.Init.speed = PCD_SPEED_FULL; */
+/*     hpcd.Init.vbus_sensing_enable = 0; */
+/*     hpcd.Init.lpm_enable = 0; */
+
+/*     /\* Link the driver to the stack *\/ */
+/*     hpcd.pData = pdev; */
+/*     pdev->pData = &hpcd; */
+
+/*     /\* Initialize LL Driver *\/ */
+/*     HAL_PCD_Init(&hpcd); */
+
+/*     HAL_PCDEx_SetRxFiFo(&hpcd, 0x80); */
+/*     HAL_PCDEx_SetTxFiFo(&hpcd, 0, 0x40); */
+/*     HAL_PCDEx_SetTxFiFo(&hpcd, 1, 0x80); */
+/*     return USBD_OK; */
+} 
 
 /**
  * @brief  De-Initializes the Low Level portion of the Device driver.

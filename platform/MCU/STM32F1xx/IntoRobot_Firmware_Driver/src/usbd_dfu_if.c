@@ -27,7 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu_if.h"
-#include "stm32f4xx_hal_conf.h"
+#include "stm32f1xx_hal_conf.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -97,25 +97,23 @@ uint16_t Flash_If_DeInit(void)
  */
 uint16_t Flash_If_Erase(uint32_t Add)
 {
-    uint32_t startsector = 0;
-    uint32_t sectornb = 0;
+    uint32_t NbOfPages = 0;
+    uint32_t PageError = 0;
     /* Variable contains Flash operation status */
     HAL_StatusTypeDef status;
     FLASH_EraseInitTypeDef eraseinitstruct;
 
-    /* Get the number of sector */
-    startsector = GetSector(Add);
-
-    eraseinitstruct.TypeErase = FLASH_TYPEERASE_SECTORS;
-    eraseinitstruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-    eraseinitstruct.Sector = startsector;
-    eraseinitstruct.NbSectors = 1;
-    status = HAL_FLASHEx_Erase(&eraseinitstruct, &sectornb);
+    /* Get the number of sector to erase from 1st sector*/
+    NbOfPages = ((USBD_DFU_APP_END_ADD - USBD_DFU_APP_DEFAULT_ADD) / FLASH_PAGE_SIZE) + 1;
+    eraseinitstruct.TypeErase = FLASH_TYPEERASE_PAGES;
+    eraseinitstruct.PageAddress = USBD_DFU_APP_DEFAULT_ADD;
+    eraseinitstruct.NbPages = NbOfPages;
+    status = HAL_FLASHEx_Erase(&eraseinitstruct, &PageError);
 
     if (status != HAL_OK)
-    {
-        return 1;
-    }
+        {
+            return 1;
+        }
     return 0;
 }
 
@@ -198,49 +196,49 @@ uint16_t Flash_If_GetStatus(uint32_t Add, uint8_t Cmd, uint8_t *buffer)
     return 0;
 }
 
-/**
- * @brief  Gets the sector of a given address
- * @param  Address Address of the FLASH Memory
- * @retval The sector of a given address
- */
-static uint32_t GetSector(uint32_t Address)
-{
-    uint32_t sector = 0;
+/* /\** */
+/*  * @brief  Gets the sector of a given address */
+/*  * @param  Address Address of the FLASH Memory */
+/*  * @retval The sector of a given address */
+/*  *\/ */
+/* static uint32_t GetSector(uint32_t Address) */
+/* { */
+/*     uint32_t sector = 0; */
 
-    if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
-    {
-        sector = FLASH_SECTOR_0;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
-    {
-        sector = FLASH_SECTOR_1;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
-    {
-        sector = FLASH_SECTOR_2;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
-    {
-        sector = FLASH_SECTOR_3;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
-    {
-        sector = FLASH_SECTOR_4;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
-    {
-        sector = FLASH_SECTOR_5;
-    }
-    else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
-    {
-        sector = FLASH_SECTOR_6;
-    }
-    else
-    {
-        sector = FLASH_SECTOR_7;
-    }
-    return sector;
-}
+/*     if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0)) */
+/*     { */
+/*         sector = FLASH_SECTOR_0; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1)) */
+/*     { */
+/*         sector = FLASH_SECTOR_1; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2)) */
+/*     { */
+/*         sector = FLASH_SECTOR_2; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3)) */
+/*     { */
+/*         sector = FLASH_SECTOR_3; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4)) */
+/*     { */
+/*         sector = FLASH_SECTOR_4; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5)) */
+/*     { */
+/*         sector = FLASH_SECTOR_5; */
+/*     } */
+/*     else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6)) */
+/*     { */
+/*         sector = FLASH_SECTOR_6; */
+/*     } */
+/*     else */
+/*     { */
+/*         sector = FLASH_SECTOR_7; */
+/*     } */
+/*     return sector; */
+/* } */
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

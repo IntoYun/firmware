@@ -30,7 +30,7 @@
 #define __USBD_CONF_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "stm32f1xx_hal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,7 +50,10 @@
 #define USBD_DFU_MAX_ITF_NUM                   1
 #define USBD_DFU_XFER_SIZE                     1024   /* Max DFU Packet Size   = 1024 bytes */
 /* #define USBD_DFU_APP_DEFAULT_ADD               0x0800C000 /\* The first 3 sectors (48 KB) are reserved for DFU code *\/ */
-#define USBD_DFU_APP_DEFAULT_ADD               0x08020000 /* The first 3 sectors (48 KB) are reserved for DFU code */
+// #define USBD_DFU_APP_DEFAULT_ADD               0x08005000 /* The first 3 sectors (48 KB) are reserved for DFU code */
+
+#define USBD_DFU_APP_DEFAULT_ADD               0x08005000 /*ADDR_FLASH_PAGE_14*/
+#define USBD_DFU_APP_END_ADD                   0x08010000 /*ADDR_FLASH_PAGE_64*/
 
 /* Exported macro ------------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;

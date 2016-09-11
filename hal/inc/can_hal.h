@@ -64,7 +64,7 @@ typedef enum HAL_CAN_Filters {
 
 /* Exported types ------------------------------------------------------------*/
 
-struct CANMessage
+typedef struct CANMessage
 {
    uint32_t id;
    uint8_t  size;
@@ -73,18 +73,19 @@ struct CANMessage
    uint8_t  len;
    uint8_t  data[8];
 
-#ifdef __cplusplus
-   CANMessage()
-     : id { 0 },
-       size { sizeof(CANMessage) },
-       extended { false },
-       rtr { false },
-       len { 0 },
-       data { 0 }
-   {
-   }
-#endif
-};
+    #ifdef __cplusplus
+       CANMessage()
+         : id { 0 },
+           size { sizeof(CANMessage) },
+           extended { false },
+           rtr { false },
+           len { 0 },
+           data { 0 }
+       {
+       }
+    #endif
+}CANMessage;
+
 
 /* Exported constants --------------------------------------------------------*/
 

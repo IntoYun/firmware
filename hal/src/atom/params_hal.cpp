@@ -235,8 +235,8 @@ int HAL_PARAMS_Set_Boot_boot_version(uint32_t version) {
 /*
  * 读取设置启动标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_boot_flag(void) {
-    return intorobot_boot_params.boot_flag;
+BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void) {
+    return (BOOT_FLAG_TypeDef)intorobot_boot_params.boot_flag;
 }
 
 /*
@@ -250,8 +250,8 @@ int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
 /*
  * 读取设置是否恢复默认参数标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void) {
-    return intorobot_boot_params.initparam_flag;
+INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void) {
+    return (INITPARAM_FLAG_TypeDef)intorobot_boot_params.initparam_flag;
 }
 
 /*
