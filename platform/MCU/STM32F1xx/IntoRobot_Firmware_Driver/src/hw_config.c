@@ -80,7 +80,7 @@ static void SystemClock_Config(void)
   RCC_OscInitTypeDef oscinitstruct = {0};
   
   /* Configure PLL ------------------------------------------------------*/
-  /* PLL configuration: PLLCLK = (HSI / 2) * PLLMUL = (8 / 2) * 16 = 64 MHz */
+  /* PLL configuration: PLLCLK = (HSE) * PLLMUL = (8 ) * 9 = 72 MHz */
   /* PREDIV1 configuration: PREDIV1CLK = PLLCLK / HSEPredivValue = 64 / 1 = 64 MHz */
   /* Enable HSI and activate PLL with HSi_DIV2 as source */
   oscinitstruct.OscillatorType  = RCC_OSCILLATORTYPE_HSE;
