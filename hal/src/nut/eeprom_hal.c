@@ -24,6 +24,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "eeprom_hal.h"
 #include "spi_flash.h"
 #include "flash_map.h"

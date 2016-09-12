@@ -72,6 +72,8 @@ typedef __I uint8_t vuc8;   /*!< Read Only */
 #define OFF     0x0
 
 //#define boolean bool
+#define NONE ((uint8_t)0xFF)
+
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
