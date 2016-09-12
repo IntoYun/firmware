@@ -50,27 +50,30 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 #endif
 }
 
-HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t address)
 {
-#if 0
-    FLASH_EraseInitTypeDef EraseInitStruct;
-    uint32_t FirstSector = 0, SECTORError = 0;
+    uint32_t PAGEError = 0;
 
     HAL_FLASH_Unlock();
-    FirstSector = FLASH_Interminal_Get_Sector(address);
+    // First Sector = FLASH_Interminal_Get_Sector(address);
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.PageAddress = address;
+    if(address == (uint32_t)0x08006000) // boot
+    {
+        EraseInitStruct.NbPages = 1;
+    }
+    else
+    {
+        EraseInitStruct.NbPages = 3;
+    }
 
-    EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
-    EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
-    EraseInitStruct.Sector = FirstSector;
-    EraseInitStruct.NbSectors = 1;
-    HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError);
+    HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
     HAL_FLASH_Lock();
-#endif
 }
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
-#if 0
     uint32_t endAddress = address + datalen*2;
     uint16_t i = 0;
 
@@ -79,25 +82,24 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
         pdata[i++] = (*(uint16_t*)address);
         address = address + 2;
     }
-#endif
 }
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
-#if 0
     uint32_t endAddress = address + datalen * 2;
     uint16_t i = 0;
 
-    HAL_StatusTypeDef flashStatus = HAL_OK;
+    // HAL_StatusTypeDef flashStatus = HAL_OK;
+    HAL_Flash_StatusTypeDef flashStatus = HAL_FLASH_STATUS_OK;
     HAL_FLASH_Interminal_Erase(address);
     HAL_FLASH_Unlock();
-    while((address < endAddress) && (flashStatus == HAL_OK))
+    while((address < endAddress) && (flashStatus == HAL_FLASH_STATUS_OK))
     {
-        flashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, pdata[i++]);
+        flashStatus = (HAL_Flash_StatusTypeDef)HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, pdata[i++]);
         address = address + 2;
     }
+
     HAL_FLASH_Lock();
     return flashStatus;
-#endif
 }
 

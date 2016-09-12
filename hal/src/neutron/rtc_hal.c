@@ -38,7 +38,8 @@ RTC_HandleTypeDef RtcHandle;
   */
 void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
 {
-    RCC_OscInitTypeDef        RCC_OscInitStruct;
+    RCC_OscInitT
+ypeDef        RCC_OscInitStruct;
     RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
 
     //__HAL_RCC_PWR_CLK_ENABLE();

@@ -29,43 +29,108 @@
 
 RTC_HandleTypeDef RtcHandle;
 
+static void RTC_CalendarAlarmConfig(void)
+{
+  RTC_DateTypeDef  sdatestructure;
+  RTC_TimeTypeDef  stimestructure;
+  RTC_AlarmTypeDef salarmstructure;
+ 
+  /*##-1- Configure the Date #################################################*/
+  /* Set Date: Tuesday February 18th 2014 */
+  sdatestructure.Year = 0x14;
+  sdatestructure.Month = RTC_MONTH_FEBRUARY;
+  sdatestructure.Date = 0x18;
+  sdatestructure.WeekDay = RTC_WEEKDAY_TUESDAY;
+  
+  if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
+  {
+    /* Initialization Error */
+    /* Error_Handler();  */
+  } 
+  
+  /*##-2- Configure the Time #################################################*/
+  /* Set Time: 02:20:00 */
+  stimestructure.Hours = 0x02;
+  stimestructure.Minutes = 0x20;
+  stimestructure.Seconds = 0x00;
+  
+  if(HAL_RTC_SetTime(&RtcHandle,&stimestructure,RTC_FORMAT_BCD) != HAL_OK)
+  {
+    /* Initialization Error */
+    /* Error_Handler();  */
+  }  
+
+#if 0
+  /*##-3- Configure the RTC Alarm peripheral #################################*/
+  /* Set Alarm to 02:20:30 
+     RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
+  salarmstructure.Alarm = RTC_ALARM_A;
+  salarmstructure.AlarmTime.Hours = 0x02;
+  salarmstructure.AlarmTime.Minutes = 0x20;
+  salarmstructure.AlarmTime.Seconds = 0x30;
+  
+  if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
+  {
+    /* Initialization Error */
+    /* Error_Handler();  */
+  }
+  #endif
+}
+
 void HAL_RTC_Initial(void)
 {
-#if 0
     /*##-1- Configure the RTC peripheral #######################################*/
     /* Configure RTC prescaler and RTC data registers */
-    /* RTC configured as follows:
-       - Hour Format    = Format 24
-       - Asynch Prediv  = Value according to source clock
-       - Synch Prediv   = Value according to source clock
-       - OutPut         = Output Disable
-       - OutPutPolarity = High Polarity
-       - OutPutType     = Open Drain */
-    RtcHandle.Instance            = RTC;
-    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv   = 0x7F; //RTC_ASYNCH_PREDIV; //0x7F;
-    RtcHandle.Init.SynchPrediv    = 0x00FF; //RTC_SYNCH_PREDIV;  //0x00FF;
-    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
-    RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+    RtcHandle.Instance          = RTC;
+    RtcHandle.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
-        {
-            DEBUG("RTC Init Error!");
-        }
-    RTC_CalendarAlarmConfig();
+    {
+        DEBUG("RTC Init Error!");
+    }
 
-#endif
+    RTC_CalendarAlarmConfig(); 
 }
 
 time_t HAL_RTC_Get_UnixTime(void)
 {
-    return 0;
+    RTC_DateTypeDef sdatestructureget;
+    RTC_TimeTypeDef stimestructureget;
+    struct tm tmstruct;
+    memset(&tmstruct, 0, sizeof(struct tm));
+
+    /* Get the RTC current Time */
+    HAL_RTC_GetTime(&RtcHandle, &stimestructureget, RTC_FORMAT_BIN);
+    /* Get the RTC current Date */
+    HAL_RTC_GetDate(&RtcHandle, &sdatestructureget, RTC_FORMAT_BIN);
+    tmstruct.tm_year = 2000 + sdatestructureget.Year - 1900;
+    tmstruct.tm_mon  = sdatestructureget.Month - 1;
+    tmstruct.tm_mday = sdatestructureget.Date;
+    tmstruct.tm_hour = stimestructureget.Hours;
+    tmstruct.tm_min  = stimestructureget.Minutes;
+    tmstruct.tm_sec  = stimestructureget.Seconds;
+    time_t t = mktime( &tmstruct );
+    return t;
 }
+
+static uint8_t dec2hex_direct(uint8_t decData)
+{
+    uint8_t hexData  = 0;
+    uint8_t iCount   = 0;
+    uint8_t leftData = 0;
+    while(leftData = decData % 10)
+        {
+            hexData = hexData +  leftData * pow(16, iCount);
+            decData = decData / 10;
+            iCount++;
+        }
+    //DEBUG("hexData: %d", hexData);
+    return hexData;
+}
+
 
 void HAL_RTC_Set_UnixTime(time_t value)
 {
-    #if 0
     struct tm *tmTemp = gmtime( &value );
     RTC_DateTypeDef sdatestructure;
     RTC_TimeTypeDef stimestructure;
@@ -87,9 +152,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
     stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
     stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
     stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
-    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
-    stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
-    stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
+    /* stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM; */
+    /* stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ; */
+    /* stimestructure.StoreOperation = RTC_STOREOPERATION_RESET; */
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
@@ -98,18 +163,14 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
     HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
-
-
-#endif
 }
 
-void HAL_RTC_Set_Alarm(uint32_t value)
-{
-}
+/* void/\*  HAL_RTC_Set_Alarm(uint32_t value) *\/ */
+/* { */
+/* } */
 
 void HAL_RTC_Set_UnixAlarm(time_t value)
 {
-    #if 0
     HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
     RTC_AlarmTypeDef salarmstructure;
 
@@ -118,29 +179,38 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
 
 
     /*##-- Configure the RTC Alarm peripheral #################################*/
-    /* Set Alam to 00:00:20
-       RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
-    salarmstructure.Alarm                = RTC_ALARM_A;
-    salarmstructure.AlarmDateWeekDay     = RTC_WEEKDAY_FRIDAY;
-    salarmstructure.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY;
-   // salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE;
-    salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    salarmstructure.AlarmTime.Hours      = dec2hex_direct(tmTemp->tm_hour);
-    salarmstructure.AlarmTime.Minutes    = dec2hex_direct(tmTemp->tm_min);
-    salarmstructure.AlarmTime.Seconds    = dec2hex_direct(tmTemp->tm_sec);
-   // salarmstructure.AlarmTime.SubSeconds = 0x00;
-
+   /*  /\* Set Alam to 00:00:20 */
+   /*     RTC Alarm Generation: Alarm on Hours, Minutes and Seconds *\/ */
+   /*  salarmstructure.Alarm                = RTC_ALARM_A; */
+   /*  salarmstructure.AlarmDateWeekDay     = RTC_WEEKDAY_FRIDAY; */
+   /*  salarmstructure.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE; */
+   /*  salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY; */
+   /* // salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE; */
+   /*  salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM; */
+   /*  salarmstructure.AlarmTime.Hours      = dec2hex_direct(tmTemp->tm_hour); */
+   /*  salarmstructure.AlarmTime.Minutes    = dec2hex_direct(tmTemp->tm_min); */
+   /*  salarmstructure.AlarmTime.Seconds    = dec2hex_direct(tmTemp->tm_sec); */
+   /* // salarmstructure.AlarmTime.SubSeconds = 0x00; */
+    salarmstructure.Alarm = RTC_ALARM_A;
+    salarmstructure.AlarmTime.Hours = 0x02;
+    salarmstructure.AlarmTime.Minutes = 0x20;
+    salarmstructure.AlarmTime.Seconds = 0x30;
+ 
     if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
     {
         /* Initialization Error */
         DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
     }
 
-#endif
 }
 
 void HAL_RTC_Cancel_UnixAlarm(void)
 {
-    /* HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn); */
+    HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
 }
+
+void RTC_Alarm_IRQHandler(void)
+{
+    HAL_RTC_AlarmIRQHandler(&RtcHandle);
+}
+

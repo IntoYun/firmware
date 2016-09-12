@@ -27,20 +27,20 @@
 #include "service_debug.h"
 
 
-#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)
-#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x10FFF)
+#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x6000)
+#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x63FF)
 
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x11000)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x17FFF)
+#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x6400)
+#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x6FFF)
 
 
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888004"
-#define INTOROBOT_BOARD_TYPE1   "887004"
-#define INTOROBOT_BOARD_NAME    "lora"
+#define INTOROBOT_BOARD_TYPE    "888001"
+#define INTOROBOT_BOARD_TYPE1   "887001"
+#define INTOROBOT_BOARD_NAME    "atom"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -133,7 +133,8 @@ void save_boot_params(boot_params_t *pboot_params) {
     if(len > (FLASH_BOOT_PARAMS_END_ADDRESS - FLASH_BOOT_PARAMS_START_ADDRESS)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
+    // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
+    HAL_FLASH_Interminal_Erase(FLASH_BOOT_PARAMS_START_ADDRESS);
     HAL_FLASH_Interminal_Write(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
 }
 
@@ -160,7 +161,8 @@ void save_system_params(system_params_t *psystem_params) {
     if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS - FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
+    // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
+    HAL_FLASH_Interminal_Erase(FLASH_SYSTEM_PARAMS_START_ADDRESS);
     HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
 }
 
