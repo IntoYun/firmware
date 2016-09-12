@@ -6,6 +6,8 @@
 #ifndef SPI_FLASH_H
 #define SPI_FLASH_H
 
+#include "c_types.h"
+
 typedef enum {
     SPI_FLASH_RESULT_OK,
     SPI_FLASH_RESULT_ERR,

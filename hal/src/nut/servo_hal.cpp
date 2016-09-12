@@ -463,7 +463,7 @@ uint16_t HAL_Servo_Read_Frequency(uint16_t pin)
 }
 #endif
 
-#define MAX_SERVOS_NUM 4
+#define MAX_SERVOS_NUM 7
 
 static ServoHal* myServo[MAX_SERVOS_NUM];
 
@@ -474,10 +474,13 @@ typedef struct pinInfo {
 
 // only 4 pwm pins here: D1 D2 D3 D5
 pinInfo PinServoIndex[MAX_SERVOS_NUM] = {
-    {D1, false}
+    {D0, false}
+    ,{D1, false}
     ,{D2, false}
     ,{D3, false}
+    ,{D4, false}
     ,{D5, false}
+    ,{D6, false}
 };
 
 int8_t findServoIndex(uint16_t pin)
