@@ -62,6 +62,7 @@ void HAL_Hook_Main() __attribute__((weak));
 void HAL_Hook_Main()
 {
     // nada
+
 }
 
 int main() {
@@ -96,9 +97,9 @@ void HAL_Core_Config(void)
 #endif
 
     HAL_RTC_Initial();
-    HAL_RNG_Initial();
+    // HAL_RNG_Initial();
 
-    HAL_IWDG_Initial();
+    // HAL_IWDG_Initial();
     // HAL_LED_Initial();
 
 #ifdef DFU_BUILD_ENABLE
