@@ -257,7 +257,7 @@ INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void) {
 /*
  * 保存设置是否恢复默认参数标志
  * */
-int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     intorobot_boot_params.initparam_flag = flag;
     return 0;
 }

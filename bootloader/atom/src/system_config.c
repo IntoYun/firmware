@@ -1,7 +1,7 @@
 #include "hw_config.h"
 
-UART_HandleTypeDef UartHandleA2A3;
-UART_HandleTypeDef UartHandleEsp8266;
+/* UART_HandleTypeDef UartHandleA2A3; */
+/* UART_HandleTypeDef UartHandleEsp8266; */
 
 SDK_QUEUE USART_Esp8266_Queue;
 
@@ -9,12 +9,13 @@ void debug_print(char *p)
 {
     while(*p)
     {
-        HAL_UART_Transmit(&UartHandleA2A3, (uint8_t *)p++, 1, 30);
+        //    HAL_UART_Transmit(&UartHandleA2A3, (uint8_t *)p++, 1, 30);
     }
 }
 
 void usart_a2a3_initial(uint32_t baud)
 {
+    #if 0
     HAL_UART_DeInit(&UartHandleA2A3);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -38,10 +39,12 @@ void usart_a2a3_initial(uint32_t baud)
     UartHandleA2A3.Init.Mode         = UART_MODE_TX_RX;
     UartHandleA2A3.Init.OverSampling = UART_OVERSAMPLING_16;
     HAL_UART_Init(&UartHandleA2A3);
+    #endif
 }
 
 void usart_esp8266_initial(uint32_t baud)
 {
+    #if 0
     HAL_UART_DeInit(&UartHandleEsp8266);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -70,8 +73,10 @@ void usart_esp8266_initial(uint32_t baud)
     //Configure the NVIC for UART
     HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
+    #endif
 }
 
+#if 0
 void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
 {
     uint8_t c;
@@ -83,13 +88,14 @@ void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
         sdkInsertQueue(&USART_Esp8266_Queue, &c, 1);
     }
 }
+#endif
 
 void HAL_System_Config(void)
 {
     Set_System();
     HAL_RTC_Initial();
     HAL_UI_Initial();
-    sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE);
+    /* sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE); */
     usart_a2a3_initial(115200);
     usart_esp8266_initial(460800);
 }

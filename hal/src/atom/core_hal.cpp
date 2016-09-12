@@ -130,6 +130,31 @@ void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
     }
     HAL_Core_System_Reset();
 }
+void HAL_Core_Enter_DFU_Mode(bool persist)
+{
+    // true  - DFU mode persist if firmware upgrade is not completed
+    // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
+    //         Subsequent reset or power off-on will execute normal firmware
+    #if 0
+    if (persist)
+        {
+            HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_USB_DFU);
+            HAL_PARAMS_Save_Params();
+        }
+    else
+        {
+            HAL_Core_Write_Backup_Register(BKP_DR_01, 0x7DEA);
+        }
+    HAL_Core_System_Reset();
+    #endif
+}
+
+void HAL_Core_Enter_Factory_Reset_Mode(void)
+{
+    // HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_FACTORY_RESET);
+    // HAL_PARAMS_Save_Params();
+    // HAL_Core_System_Reset();
+}
 
 void HAL_Core_Factory_Reset(void)
 {
@@ -193,6 +218,10 @@ void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
    //APP_LineCodingBitRateHandler = handler;
 }
 
+uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
+{
+    return 0;
+}
 /*******************************************************************************
  * Function Name  : SysTick_Handler
  * Description    : This function handles SysTick Handler.

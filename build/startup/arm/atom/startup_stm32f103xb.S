@@ -97,7 +97,9 @@ bcc	FillZerobss
 /* Call the clock system intitialization function. */
 bl  SystemInit
 /* Call C++ constructors. */
-bl	CallConstructors
+/*bl	CallConstructors*/
+
+  .include "intorobot_init.S"
 /* Call the application's entry point. */
 bl	main
 bx	lr

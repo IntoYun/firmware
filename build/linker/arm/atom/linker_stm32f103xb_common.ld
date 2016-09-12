@@ -1,7 +1,7 @@
 /*
 *****************************************************************************
 **
-**  File        : linker_stm32f10x_md.ld
+**  File        : linker_stm32f103_common.ld
 **
 **  Abstract    : Linker script for STM32F103CB Device with
 **                128KByte FLASH, 20KByte RAM
@@ -23,41 +23,28 @@
 These are used by the startup in order to allocate stacks for the different modes.
 */
 
-__Stack_Size = 2048 ;
 
 PROVIDE ( _Stack_Size = __Stack_Size ) ;
-
-__Stack_Init = _estack - __Stack_Size ;
 
 /*"PROVIDE" allows to easily override these values from an object file or the commmand line.*/
 PROVIDE ( _Stack_Init = __Stack_Init ) ;
 
+ENTRY(Reset_Handler)
+
 /*
 There will be a link error if there is not this amount of RAM free at the end.
 */
-_Minimum_Stack_Size = 0x200 ;
 
+/* _estack = ORIGIN(SRAM)+LENGTH(SRAM);  /\* end of 128K SRAM *\/ */
+/* _Minimum_Stack_Size = 0x200 ; */
+/* higher address of the user mode stack */
+_estack = 0x20005000;
 /* include the memory spaces definitions sub-script */
 /*
 Linker subscript for STM32F10x definitions with 128K Flash and 20K RAM */
 
 /* Memory Spaces Definitions */
-/*
-mdf lbz:如果不使用boot启动把eeprom映射到flash的末尾4K地址
-*/
-MEMORY
-{
-  RAM (xrw)     : ORIGIN = 0x20000000, LENGTH = 20K
-  FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K-0x1000
-  FLASHB1 (rx)  : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB0 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB2 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB3 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-}
 
-/* higher address of the user mode stack */
-_estack = 0x20005000;
 
 /* include the sections management sub-script for FLASH mode */
 
@@ -91,6 +78,15 @@ SECTIONS
         *(.rodata*)
         *(.glue_7)
         *(.glue_7t)
+
+        link_constructors_location = .;
+        KEEP (*(.preinit_array))
+        KEEP (*(.init_array*))
+        KEEP (*crtbegin.o(.ctors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*crtend.o(.ctors))
+        link_constructors_end = .;
 
 	    . = ALIGN(4);
    	  _etext = .;
@@ -159,7 +155,10 @@ SECTIONS
 	    /* This is used by the startup in order to initialize the .bss secion */
    	 _ebss = . ;
     } >RAM
-    
+
+    link_heap_location = end;
+    link_heap_location_end = __Stack_Init;
+
     PROVIDE ( end = _ebss );
     PROVIDE ( _end = _ebss );
     
