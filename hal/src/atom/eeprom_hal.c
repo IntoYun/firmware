@@ -27,17 +27,29 @@
 #include "eeprom_hal.h"
 #include "stm32f1xx.h"
 
+
+/* typedef enum */
+/*     { */
+/*         HAL_OK       = 0x00, */
+/*         HAL_ERROR    = 0x01, */
+/*         HAL_BUSY     = 0x02, */
+/*         HAL_TIMEOUT  = 0x03 */
+/*     } HAL_StatusTypeDef; */
+
+
 typedef enum
 {
-        FLASH_BUSY_ = 1,
-        FLASH_ERROR_RD_,
-        FLASH_ERROR_PGS_,
-        FLASH_ERROR_PGP_,
-        FLASH_ERROR_PGA_,
-        FLASH_ERROR_WRP_,
-        FLASH_ERROR_PROGRAM_,
-        FLASH_ERROR_OPERATION_,
-        FLASH_COMPLETE
+    FLASH_COMPLETE = 0x00,
+    FLASH_ERROR = 0x01,
+    FLASH_BUSY = 0x02,
+    FLASH_TIMEOUT = 0x03,
+/*     FLASH_ERROR_RD_, */
+/*     FLASH_ERROR_PGS_, */
+/*     FLASH_ERROR_PGP_, */
+/*     FLASH_ERROR_PGA_, */
+/*     FLASH_ERROR_WRP_, */
+/*     FLASH_ERROR_PROGRAM_, */
+/*     FLASH_ERROR_OPERATION_, */
 }FLASH_Status;
 
 
@@ -88,6 +100,9 @@ static uint16_t EEPROM_VerifyPageFullWriteVariable(uint16_t EepromAddress, uint1
 static uint16_t EEPROM_PageTransfer(uint16_t EepromAddress, uint16_t EepromData);
 static uint16_t EEPROM_ReadVariable(uint16_t EepromAddress, uint16_t *EepromData);
 
+/* HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data); */
+
+/* HAL_StatusTypeDef  HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError); */
 /*********************************************************************************
   *Function		: uint16_t EEPROM_Init(void)
   *Description	: Restore the pages to a known good state in case of page's status corruption after a power loss.
@@ -107,13 +122,18 @@ uint16_t EEPROM_Init(void)
     uint16_t  FlashStatus;
 
     /* Unlock the Flash Program Erase controller */
-    FLASH_Unlock();
+    /* FLASH_Unlock(); */
+    HAL_FLASH_Unlock();
 
     /* Get Page0 status */
     PageStatus0 = (*(__IO uint16_t*)PAGE0_BASE_ADDRESS);
     /* Get Page1 status */
     PageStatus1 = (*(__IO uint16_t*)PAGE1_BASE_ADDRESS);
 
+    uint32_t PAGEError = 0;
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.NbPages = 1;
     /* Check for invalid header states and repair if necessary */
     switch (PageStatus0)
     {
@@ -121,7 +141,9 @@ uint16_t EEPROM_Init(void)
             if (PageStatus1 == VALID_PAGE) /* Page0 erased, Page1 valid */
             {
                 /* Erase Page0 */
-                FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE0_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -131,14 +153,18 @@ uint16_t EEPROM_Init(void)
             else if (PageStatus1 == RECEIVE_DATA) /* Page0 erased, Page1 receive */
             {
                 /* Erase Page0 */
-                FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE0_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
                     return FlashStatus;
                 }
                 /* Mark Page1 as valid */
-                FlashStatus = FLASH_ProgramHalfWord(PAGE1_BASE_ADDRESS, VALID_PAGE);
+                /* FlashStatus = FLASH_ProgramHalfWord(PAGE1_BASE_ADDRESS, VALID_PAGE); */
+                FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE1_BASE_ADDRESS, VALID_PAGE);
                 /* If program operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -185,14 +211,19 @@ uint16_t EEPROM_Init(void)
                     }
                 }
                 /* Mark Page0 as valid */
-                FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE);
+                /* FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE); */
+                FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
+
                 /* If program operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
                     return FlashStatus;
                 }
                 /* Erase Page1 */
-                FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE1_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -202,14 +233,18 @@ uint16_t EEPROM_Init(void)
             else if (PageStatus1 == ERASED) /* Page0 receive, Page1 erased */
             {
                 /* Erase Page1 */
-                FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE1_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
                     return FlashStatus;
                 }
                 /* Mark Page0 as valid */
-                FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE);
+                /* FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE); */
+                FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
                 /* If program operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -241,7 +276,10 @@ uint16_t EEPROM_Init(void)
             else if (PageStatus1 == ERASED) /* Page0 valid, Page1 erased */
             {
                 /* Erase Page1 */
-                FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE1_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -275,14 +313,18 @@ uint16_t EEPROM_Init(void)
                     }
                 }
                 /* Mark Page1 as valid */
-                FlashStatus = FLASH_ProgramHalfWord(PAGE1_BASE_ADDRESS, VALID_PAGE);
+                /* FlashStatus = FLASH_ProgramHalfWord(PAGE1_BASE_ADDRESS, VALID_PAGE); */
+                FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE1_BASE_ADDRESS, VALID_PAGE);
                 /* If program operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
                     return FlashStatus;
                 }
                 /* Erase Page0 */
-                FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS);
+                /* FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS); */
+                EraseInitStruct.PageAddress = PAGE0_BASE_ADDRESS;
+                FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
                 /* If erase operation was failed, a Flash error code is returned */
                 if (FlashStatus != FLASH_COMPLETE)
                 {
@@ -382,7 +424,8 @@ uint16_t EEPROM_WriteVariable(uint16_t EepromAddress, uint16_t EepromData)
     uint16_t Status = 0;
 
     /* Unlock the Flash Program Erase controller */
-    FLASH_Unlock();
+    /* FLASH_Unlock(); */
+    HAL_FLASH_Unlock();
 
     /* Write the variable virtual address and value in the EEPROM */
     Status = EEPROM_VerifyPageFullWriteVariable(EepromAddress, EepromData);
@@ -413,9 +456,16 @@ static FLASH_Status EEPROM_Format(void)
 {
     FLASH_Status FlashStatus = FLASH_COMPLETE;
 
+    uint32_t PAGEError = 0;
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.NbPages = 1;
+ 
     /* Erase Page0 */
-    FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS);
-
+    /* FlashStatus = FLASH_ErasePage(PAGE0_BASE_ADDRESS); */
+    EraseInitStruct.PageAddress = PAGE0_BASE_ADDRESS;
+    FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+ 
     /* If erase operation was failed, a Flash error code is returned */
     if (FlashStatus != FLASH_COMPLETE)
     {
@@ -423,7 +473,8 @@ static FLASH_Status EEPROM_Format(void)
     }
 
     /* Set Page0 as valid page: Write VALID_PAGE at Page0 base address */
-    FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE);
+    /* FlashStatus = FLASH_ProgramHalfWord(PAGE0_BASE_ADDRESS, VALID_PAGE); */
+    FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, PAGE0_BASE_ADDRESS, VALID_PAGE);
 
     /* If program operation was failed, a Flash error code is returned */
     if (FlashStatus != FLASH_COMPLETE)
@@ -432,7 +483,9 @@ static FLASH_Status EEPROM_Format(void)
     }
 
     /* Erase Page1 */
-    FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS);
+    /* FlashStatus = FLASH_ErasePage(PAGE1_BASE_ADDRESS); */
+    EraseInitStruct.PageAddress = PAGE1_BASE_ADDRESS;
+    FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
 
     /* Return Page1 erase operation status */
     return FlashStatus;
@@ -559,14 +612,17 @@ static uint16_t EEPROM_VerifyPageFullWriteVariable(uint16_t EepromAddress, uint1
         if ((*(__IO uint32_t*)Address) == 0xFFFFFFFF)
         {
             /* Set variable data */
-            FlashStatus = FLASH_ProgramHalfWord(Address, EepromData);
+            /* FlashStatus = FLASH_ProgramHalfWord(Address, EepromData); */
+            FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, Address, EepromData);
             /* If program operation was failed, a Flash error code is returned */
             if (FlashStatus != FLASH_COMPLETE)
             {
                 return FlashStatus;
             }
             /* Set variable virtual address */
-            FlashStatus = FLASH_ProgramHalfWord(Address + 2, EepromAddress);
+            /* FlashStatus = FLASH_ProgramHalfWord(Address + 2, EepromAddress); */
+            FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, Address + 2, EepromAddress);
+
             /* Return program operation status */
             return FlashStatus;
         }
@@ -602,6 +658,11 @@ static uint16_t EEPROM_PageTransfer(uint16_t EepromAddress, uint16_t EepromData)
     uint16_t ValidPage = PAGE0, EepromAddressIdx = 0;
     uint16_t EepromStatus = 0, ReadStatus = 0;
 
+    uint32_t PAGEError = 0;
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.NbPages = 1;
+ 
     /* Get active Page for read operation */
     ValidPage = EEPROM_FindValidPage(READ_FROM_VALID_PAGE);
 
@@ -627,7 +688,8 @@ static uint16_t EEPROM_PageTransfer(uint16_t EepromAddress, uint16_t EepromData)
     }
 
     /* Set the new Page status to RECEIVE_DATA status */
-    FlashStatus = FLASH_ProgramHalfWord(NewPageAddress, RECEIVE_DATA);
+    /* FlashStatus = FLASH_ProgramHalfWord(NewPageAddress, RECEIVE_DATA); */
+    FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, NewPageAddress, RECEIVE_DATA);
     /* If program operation was failed, a Flash error code is returned */
     if (FlashStatus != FLASH_COMPLETE)
     {
@@ -664,7 +726,11 @@ static uint16_t EEPROM_PageTransfer(uint16_t EepromAddress, uint16_t EepromData)
     }
 
     /* Erase the old Page: Set old Page status to ERASED status */
-    FlashStatus = FLASH_ErasePage(OldPageAddress);
+    /* FlashStatus = FLASH_ErasePage(OldPageAddress); */
+    EraseInitStruct.PageAddress = OldPageAddress;
+    FlashStatus = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+
+
     /* If erase operation was failed, a Flash error code is returned */
     if (FlashStatus != FLASH_COMPLETE)
     {
@@ -672,7 +738,8 @@ static uint16_t EEPROM_PageTransfer(uint16_t EepromAddress, uint16_t EepromData)
     }
 
     /* Set new Page status to VALID_PAGE status */
-    FlashStatus = FLASH_ProgramHalfWord(NewPageAddress, VALID_PAGE);
+    /* FlashStatus = FLASH_ProgramHalfWord(NewPageAddress, VALID_PAGE); */
+    FlashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, NewPageAddress, VALID_PAGE);
     /* If program operation was failed, a Flash error code is returned */
     if (FlashStatus != FLASH_COMPLETE)
     {
