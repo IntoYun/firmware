@@ -23,13 +23,13 @@
 #include "pinmap_impl.h"
 #include <string.h>
 
-UART_HandleTypeDef UartHandle_A0A1;  // USART2 A0(PA2)-TX A1(PA3)-RX
+UART_HandleTypeDef UartHandle_A2A3;  // USART2 A2(PA2)-TX A3(PA3)-RX
 //UART_HandleTypeDef UartHandle_D0D1;  // USART3 D0(PB10)-TX D1(PB11)-RX
-SDK_QUEUE Usart_Rx_Queue_A0A1;
+SDK_QUEUE Usart_Rx_Queue_A2A3;
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
-    USART_A0_A1 = 0,
+    USART_A2_A3 = 0,
     USART_D0_D1
 };
 
@@ -80,9 +80,9 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1)
     {
-        usartMap[serial] = &USART_MAP[USART_A0_A1];
-        usartMap[serial]->uart_handle = &UartHandle_A0A1;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A0A1;
+        usartMap[serial] = &USART_MAP[USART_A2_A3];
+        usartMap[serial]->uart_handle = &UartHandle_A2A3;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
         //sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
     }

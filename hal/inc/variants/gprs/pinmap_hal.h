@@ -65,8 +65,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS  37
-#define TOTAL_ANALOG_PINS 6
+#define TOTAL_PINS  40 
+#define TOTAL_ANALOG_PINS  8 
 #define FIRST_ANALOG_PIN  30
 
 #define D0 0
@@ -84,30 +84,38 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A3 33
 #define A4 34
 #define A5 35
-//#define A6 36
-//#define A7 37
+#define A6 36
+#define A7 37
+#define A8 38
+#define A9 39
+
 
 // Uart pins
 //#define CTS A0
 //#define RTS A1
-
-#define TX A0
-#define RX A1
+//usart2
+#define TX A2
+#define RX A3
 
 // SPI pins
-#define SS   A2
-#define SCK  A3
-#define MISO A4
-#define MOSI A5
+#define SS   A4
+#define SCK  A5
+#define MISO A6
+#define MOSI A7
 
-#define SS1   D2
-#define SCK1  D3
-#define MISO1 D4
-#define MOSI1 D5
+// #define SS1   D2
+// #define SCK1  D3
+// #define MISO1 D4
+// #define MOSI1 D5
 
-// I2C pins
-#define SDA  D2
+//I2C1 pins
+#define SDA  D0
 #define SCL  D1
+
+//I2C2 pins 
+#define SDA1 D7
+#define SCL1 D6
+
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
@@ -126,9 +134,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 //#define ESP8266_RXD_UC      69
 
 
-#define LED_USER  D7
+#define LED_USER  D5
 
-#define TOTAL_USARTS        2
+#define TOTAL_USARTS       1 
 
 
 

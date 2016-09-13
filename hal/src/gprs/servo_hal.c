@@ -105,11 +105,11 @@ void HAL_Servo_Attach(uint16_t pin)
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
         }
-        else if(PIN_MAP[pin].timer_peripheral == TIM10)
+        else if(PIN_MAP[pin].timer_peripheral == TIM4)
         {
 
-            __HAL_RCC_TIM10_CLK_ENABLE();
-            GPIO_InitStruct.Alternate = GPIO_AF3_TIM10;
+            __HAL_RCC_TIM4_CLK_ENABLE();
+            GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
             if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
             {
@@ -122,23 +122,23 @@ void HAL_Servo_Attach(uint16_t pin)
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
         }
-        else if(PIN_MAP[pin].timer_peripheral == TIM11)
-        {
+        /* else if(PIN_MAP[pin].timer_peripheral == TIM11) */
+        /* { */
 
-            __HAL_RCC_TIM11_CLK_ENABLE();
-            GPIO_InitStruct.Alternate = GPIO_AF3_TIM11;
-            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
-            if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
-            {
-                __HAL_RCC_GPIOA_CLK_ENABLE();
-                HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-            }
-            else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
-            {
-                __HAL_RCC_GPIOB_CLK_ENABLE();
-                HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-            }
-        }
+        /*     __HAL_RCC_TIM11_CLK_ENABLE(); */
+        /*     GPIO_InitStruct.Alternate = GPIO_AF3_TIM11; */
+        /*     GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin; */
+        /*     if( (PIN_MAP[pin].gpio_peripheral == GPIOA) ) */
+        /*     { */
+        /*         __HAL_RCC_GPIOA_CLK_ENABLE(); */
+        /*         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct); */
+        /*     } */
+        /*     else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) ) */
+        /*     { */
+        /*         __HAL_RCC_GPIOB_CLK_ENABLE(); */
+        /*         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); */
+        /*     } */
+        /* } */
 
         TIM_HandleTypeDef TimHandle;
         TIM_OC_InitTypeDef sConfig;

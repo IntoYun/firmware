@@ -31,7 +31,7 @@
 #define TOTAL_SPI 2
 
 typedef enum SPI_Num_Def {
-    SPI1_A3_A4_A5 = 0,
+    SPI1_A5_A6_A7 = 0,
     SPI2_D3_D4_D5 = 1
 } SPI_Num_Def;
 
@@ -103,16 +103,16 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
         __HAL_RCC_DMA1_CLK_ENABLE();
 #endif
     }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
-        DEBUG("Select SPI3, and Enable Clock...");
-        __HAL_RCC_SPI2_CLK_ENABLE();
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-#ifdef useDMASPI
-        // DMA1 clock
-        __HAL_RCC_DMA1_CLK_ENABLE();
-#endif
-    }
+/*     else if(spiMap[spi]->SPI_Peripheral == SPI2) */
+/*     { */
+/*         DEBUG("Select SPI3, and Enable Clock..."); */
+/*         __HAL_RCC_SPI2_CLK_ENABLE(); */
+/*         __HAL_RCC_GPIOB_CLK_ENABLE(); */
+/* #ifdef useDMASPI */
+/*         // DMA1 clock */
+/*         __HAL_RCC_DMA1_CLK_ENABLE(); */
+/* #endif */
+    /* } */
     /*##-2- Configure peripheral GPIO ##########################################*/
     /* SPI SCK GPIO pin configuration  */
     GPIO_InitStruct.Pin       = spiMap[spi]->SPI_SCK_Pin;
@@ -196,11 +196,11 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
         __HAL_RCC_SPI1_FORCE_RESET();
         __HAL_RCC_SPI1_RELEASE_RESET();
     }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
-        __HAL_RCC_SPI2_FORCE_RESET();
-        __HAL_RCC_SPI2_RELEASE_RESET();
-    }
+    /* else if(spiMap[spi]->SPI_Peripheral == SPI2) */
+    /* { */
+    /*     __HAL_RCC_SPI2_FORCE_RESET(); */
+    /*     __HAL_RCC_SPI2_RELEASE_RESET(); */
+    /* } */
 
     /*##-2- Disable peripherals and GPIO Clocks ################################*/
     /* Configure SPI SCK as alternate function  */
@@ -233,12 +233,12 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
     DEBUG("Enter HAL_SPI_Initial...");
     if(spi == HAL_SPI_INTERFACE1)
     {
-        spiMap[spi] = &SPI_MAP[SPI1_A3_A4_A5];
+        spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
     }
-    else if(spi == HAL_SPI_INTERFACE2)
-    {
-        spiMap[spi] = &SPI_MAP[SPI2_D3_D4_D5];
-    }
+    /* else if(spi == HAL_SPI_INTERFACE2) */
+    /* { */
+    /*     spiMap[spi] = &SPI_MAP[SPI2_D3_D4_D5]; */
+    /* } */
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
     spiMap[spi]->SPI_Clock_Divider_Set = false;
