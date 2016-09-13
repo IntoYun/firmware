@@ -61,7 +61,6 @@ ifeq ("$(MODULE)","bootloader")
 	$(ST-FLASH) --reset write $< 0x8000000
 else
 	$(ST-FLASH) --reset write $< $(PLATFORM_DFU)
-#	$(ST-FLASH) --reset write $< 0x8000000
 endif
 
 ifneq ("$(OPENOCD_HOME)","")

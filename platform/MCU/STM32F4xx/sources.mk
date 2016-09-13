@@ -11,9 +11,9 @@ TARGET_STM32F4XX_HAL_SRC_PATH = $(TARGET_STM32F4XX_HAL_PATH)/Src
 # C source files included in this build.
 CSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.c)
 CSRC += $(call target_files,$(TARGET_USB_FS_SRC_PATH)/,*.c)
-CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/CDC,*.c)
-CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/DFU,*.c)
-CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Core/Src,*.c)
+CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/CDC/,*.c)
+CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Class/DFU/,*.c)
+CSRC += $(call target_files,$(TARGET_USB_FS_PATH)/Core/Src/,*.c)
 CSRC += $(call target_files,$(TARGET_STM32F4XX_HAL_SRC_PATH)/,*.c)
 
 
@@ -23,3 +23,5 @@ CPPSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.cpp)
 # ASM source files included in this build.
 ASRC +=
 
+# include common sources also
+include $(call rwildcard,$(PLATFORM_MCU_SHARED_STM32_PATH)/,sources.mk)

@@ -8,6 +8,6 @@ TARGET_TYPE = a
 BUILD_PATH_EXT = $(PLATFORM_BUILD_PATH_EXT)
 
 # 不依靠其他模块
-DEPENDENCIES = services
+DEPENDENCIES = services hal
 
 include ../build/arm-tlm.mk

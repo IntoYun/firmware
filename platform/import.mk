@@ -31,5 +31,7 @@ endif
 endif
 # pull in the includes/sources corresponding to the target platform
 # 包含本模块头文件
+INCLUDE_DIRS += $(PLATFORM_MODULE_PATH)/shared/inc
+
 PLATFORM_MCU_PATH=$(PLATFORM_MODULE_PATH)/MCU/$(PLATFORM_MCU)
 include $(call rwildcard,$(PLATFORM_MCU_PATH)/,include.mk)

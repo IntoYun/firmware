@@ -55,7 +55,7 @@ struct EERef{
     EERef &operator <<=( uint8_t in )    { return *this = **this << in; }
     EERef &operator >>=( uint8_t in )    { return *this = **this >> in; }
 
-    EERef &update( uint8_t in )          { return  in != *this ? *this = in : *this; }
+    EERef &update( uint8_t in )          { return *this = in; }
 
     /** Prefix increment/decrement **/
     EERef& operator++()                  { return *this += 1; }
@@ -119,6 +119,7 @@ struct EEPROMClass{
     		HAL_EEPROM_Init();
     }
 
+
     //Basic user access methods.
     EERef operator[]( const int idx )    { return idx; }
     uint8_t read( int idx )              { return EERef( idx ); }
@@ -131,22 +132,36 @@ struct EEPROMClass{
     uint16_t length()                    { return HAL_EEPROM_Length(); }
 
     //Functionality to 'get' and 'put' objects to and from EEPROM.
-    template< typename T > T &get( int idx, T &t ){
-        EEPtr e = idx;
-        uint8_t *ptr = (uint8_t*) &t;
-        for( int count = sizeof(T) ; count ; --count, ++e )  *ptr++ = *e;
+    template <typename T> T &get( int idx, T &t )
+    {
+        HAL_EEPROM_Get(idx, &t, sizeof(T));
         return t;
     }
 
-    template< typename T > const T &put( int idx, const T &t ){
-        EEPtr e = idx;
-        const uint8_t *ptr = (const uint8_t*) &t;
-        for( int count = sizeof(T) ; count ; --count, ++e )  (*e).update( *ptr++ );
+    template <typename T> const T &put( int idx, const T &t )
+    {
+        HAL_EEPROM_Put(idx, &t, sizeof(T));
         return t;
+    }
+
+    void clear()
+    {
+        HAL_EEPROM_Clear();
+    }
+
+    bool hasPendingErase()
+    {
+        return HAL_EEPROM_Has_Pending_Erase();
+    }
+
+    void performPendingErase()
+    {
+        HAL_EEPROM_Perform_Pending_Erase();
     }
 };
 
 #define EEPROM __fetch_global_EEPROM()
 EEPROMClass& __fetch_global_EEPROM();
+
 
 #endif /* WIRING_EEPROM_H_ */

@@ -25,12 +25,11 @@
 extern "C" {
 #endif
 
-#include <limits.h>
-#include "stm32l1xx.h"
 
-typedef uint32_t system_tick_t;
+#include "platform_config.h"
+#include "system_tick_hal.h"
 
-#define SYSTEM_US_TICKS		(SystemCoreClock / 1000000)//cycles per microsecond
+#define SYSTEM_US_TICKS         (SystemCoreClock / 1000000)//cycles per microsecond
 #define SYSTEM_TICK_COUNTER     (DWT->CYCCNT)
 
 /**

@@ -18,10 +18,11 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "service_debug.h"
+#include <stdint.h>
 #include "hw_config.h"
 #include "usb_hal.h"
-#include <stdint.h>
+#include "sdkqueue.h"
+#include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
 #ifdef USB_CDC_ENABLE

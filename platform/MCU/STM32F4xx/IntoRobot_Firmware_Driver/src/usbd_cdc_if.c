@@ -33,7 +33,6 @@
 #include "usbd_cdc_if.h"
 #include "service_debug.h"
 
-extern UART_HandleTypeDef UartHandleEsp8266;
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define USER_RX_BUFFER_SIZE  2048

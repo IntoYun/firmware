@@ -29,6 +29,11 @@
 #ifndef __USBD_CDC_IF_H
 #define __USBD_CDC_IF_H
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc.h"
 
@@ -45,6 +50,11 @@ extern USBD_CDC_LineCodingTypeDef LineCoding;
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void SetLineCodingBitRateHandler(linecoding_bitrate_handler handler);
+
+
+#ifdef	__cplusplus
+}
+#endif
 
 
 

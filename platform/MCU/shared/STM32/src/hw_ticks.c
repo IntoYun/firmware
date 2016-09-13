@@ -20,9 +20,8 @@
  */
 
 
-//#include <stdint.h>
-#include <limits.h>
 #include "hw_ticks.h"
+#include <limits.h>
 
 /**
  * The current millisecond counter value.

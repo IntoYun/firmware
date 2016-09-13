@@ -35,7 +35,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define USER_RX_BUFFER_SIZE  256
+#define USER_RX_BUFFER_SIZE  2048
 
 
 /* Private macro -------------------------------------------------------------*/
@@ -100,6 +100,7 @@ static int8_t CDC_Itf_Init(void)
  */
 static int8_t CDC_Itf_DeInit(void)
 {
+    sdkReleaseQueue(&USB_Rx_Queue);
     return (USBD_OK);
 }
 
@@ -136,11 +137,11 @@ static int8_t CDC_Itf_Control (uint8_t cmd, uint8_t* pbuf, uint16_t length)
             break;
 
         case CDC_SET_LINE_CODING:
-                        LineCoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
-                          (pbuf[2] << 16) | (pbuf[3] << 24));
-                          LineCoding.format     = pbuf[4];
-                          LineCoding.paritytype = pbuf[5];
-                          LineCoding.datatype   = pbuf[6];
+            LineCoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
+                    (pbuf[2] << 16) | (pbuf[3] << 24));
+            LineCoding.format     = pbuf[4];
+            LineCoding.paritytype = pbuf[5];
+            LineCoding.datatype   = pbuf[6];
 
             //Callback handler when the host sets a specific linecoding
             if (NULL != APP_LineCodingBitRateHandler)

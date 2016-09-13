@@ -18,10 +18,11 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
 #include "hw_config.h"
 #include "usart_hal.h"
 #include "pinmap_impl.h"
-#include <string.h>
+#include "sdkqueue.h"
 
 
 UART_HandleTypeDef UartHandle_A2A3;

@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
- * @file    module_info_hal.h
- * @authors mat
- * @date    24 February 2015
+ * @file    platforms.h
+ * @authors Matthew McGowan, Brett Walach
+ * @date    02 February 2015
  ******************************************************************************
   Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
 
@@ -21,20 +21,17 @@
  ******************************************************************************
  */
 
-#ifndef MODULE_INFO_HAL_H
-#define	MODULE_INFO_HAL_H
+#ifndef PLATFORMS_H
+#define	PLATFORMS_H
 
-#define MODULE_VERIFY_CRC                               1<<1
-#define MODULE_VERIFY_DESTINATION_IS_START_ADDRESS      1<<2
-#define MODULE_VERIFY_FUNCTION                          1<<3
-#define MODULE_VERIFY_LENGTH                            1<<3
-
-#define MODULE_VERIFY_MASK \
-            (MODULE_VERIFY_CRC | \
-            MODULE_VERIFY_DESTINATION_IS_START_ADDRESS | \
-            MODULE_VERIFY_FUNCTION | \
-            MODULE_VERIFY_LENGTH)
+#define PLATFORM_ATOM                0
+#define PLATFORM_NEUTRON             1
+#define PLATFORM_GCC                 2
+#define PLATFORM_NEUTRON_NET         3
+#define PLATFORM_NUT                 4
+#define PLATFORM_LORA                5
+#define PLATFORM_GPRS                6
 
 
-#endif	/* MODULE_INFO_HAL_H */
+#endif	/* PLATFORMS_H */
 
