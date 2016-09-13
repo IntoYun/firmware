@@ -52,8 +52,8 @@
 /* #define USBD_DFU_APP_DEFAULT_ADD               0x0800C000 /\* The first 3 sectors (48 KB) are reserved for DFU code *\/ */
 // #define USBD_DFU_APP_DEFAULT_ADD               0x08005000 /* The first 3 sectors (48 KB) are reserved for DFU code */
 
-#define USBD_DFU_APP_DEFAULT_ADD               0x08005000 /*ADDR_FLASH_PAGE_14*/
-#define USBD_DFU_APP_END_ADD                   0x08010000 /*ADDR_FLASH_PAGE_64*/
+#define USBD_DFU_APP_DEFAULT_ADD               0x08007000 /*ADDR_FLASH_PAGE_14*/
+#define USBD_DFU_APP_END_ADD                   0x08020000 /*ADDR_FLASH_PAGE_64*/
 
 /* Exported macro ------------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;
