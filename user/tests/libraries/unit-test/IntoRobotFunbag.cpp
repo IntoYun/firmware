@@ -1,6 +1,7 @@
 #include "application.h"
 #include "unit-test.h"
-#include "rgbled.h"
+// #include "rgbled.h"
+#include "ui_hal.h"
 
 #ifdef FLASHEE_EEPROM
 #include "flashee-eeprom.h"
@@ -59,7 +60,7 @@ public:
 
 
 
-SparkTestRunner _runner;
+IntoRobotTestRunner _runner;
 
 bool requestStart = false;
 bool _enterDFU = false;
@@ -91,7 +92,8 @@ void print_status(Print& out)
  */
 void unit_test_setup()
 {
-    Serial.begin(9600);
+    // Serial.begin(9600);
+    Serial.begin(115200);
 #ifdef FLASHEE_EEPROM
     Flashee::FlashDevice& store = Flashee::Devices::userFlash();
     // 64k should be plenty for anyone.
@@ -106,7 +108,7 @@ void unit_test_setup()
     Test::out = &Serial;
 #endif
     print_status(Serial);
-    Particle.variable("log", buf, STRING);
+    // IntoRobot.variable("log", buf, STRING);
     _runner.begin();
 }
 
@@ -208,7 +210,7 @@ bool isStartRequested(bool runImmediately) {
 void unit_test_loop(bool runImmediately, bool runTest)
 {
     if (_enterDFU)
-        System.dfu();
+        // System.dfu();
 
     if (!_runner.isStarted() && isStartRequested(runImmediately)) {
         Serial.println("Running tests");
@@ -220,7 +222,7 @@ void unit_test_loop(bool runImmediately, bool runTest)
     }
 }
 
-int SparkTestRunner::testStatusColor() {
+int IntoRobotTestRunner::testStatusColor() {
     if (Test::failed>0)
         return RGB_COLOR_RED;
     else if (Test::skipped>0)
@@ -270,13 +272,13 @@ int testCmd(String arg) {
     return result;
 }
 
-void SparkTestRunner::begin() {
-    Particle.variable("passed", &Test::passed, INT);
-    Particle.variable("failed", &Test::failed, INT);
-    Particle.variable("skipped", &Test::skipped, INT);
-    Particle.variable("count", &Test::count, INT);
-    Particle.variable("state", &_state, INT);
-    Particle.function("cmd", testCmd);
-    setState(WAITING);
+void IntoRobotTestRunner::begin() {
+    // IntoRobot.variable("passed", &Test::passed, INT);
+    // IntoRobot.variable("failed", &Test::failed, INT);
+    // IntoRobot.variable("skipped", &Test::skipped, INT);
+    // IntoRobot.variable("count", &Test::count, INT);
+    // IntoRobot.variable("state", &_state, INT);
+    // IntoRobot.function("cmd", testCmd);
+    // setState(WAITING);
 }
 

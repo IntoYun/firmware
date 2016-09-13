@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
-  Copyright (c) 2016 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2016 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ test(concurrent_semaphore_deadlock)
     while(millis() - start < 2000)
     {
         WiFi.resolve("www.particle.io");
-        Particle.process();
+        IntoRobot.process();
     }
 
     run = false;

@@ -1,5 +1,5 @@
 /**
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   Copyright 2012 STMicroelectronics
   http://www.st.com/software_license_agreement_liberty_v2

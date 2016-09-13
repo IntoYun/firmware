@@ -6,7 +6,7 @@
  * @date    10-April-2015
  * @brief   UDP NTP Client test application
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -112,7 +112,7 @@ unsigned long getNTPClientTime(void)
 test(UDP_NTPClientTimeApproximatesSparkCloudTime)
 {
     // Request time synchronization from the Spark Cloud
-    Particle.syncTime();
+    IntoRobot.syncTime();
 
     // get NTP time
     unsigned long ntpEpochTime = getNTPClientTime();

@@ -21,7 +21,7 @@ int eventData = 0;
 #define WAIT_EVENT(event) \
         do { \
             while (eventQueue.empty() && millis() - testStarted < testTimeout) { \
-                Particle.process(); \
+                IntoRobot.process(); \
             } \
             if (eventQueue.empty() || eventQueue.front().type != (event)) { \
                 return stopTest(false); \
@@ -86,7 +86,7 @@ int testClicks(String arg) {
 void setup() {
     pinMode(D7, OUTPUT);
     System.on(button_status | button_click | button_final_click, eventHandler);
-    Particle.function("testClicks", testClicks);
+    IntoRobot.function("testClicks", testClicks);
 }
 
 void loop() {

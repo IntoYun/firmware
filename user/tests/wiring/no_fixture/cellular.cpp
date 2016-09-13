@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -33,13 +33,13 @@
  */
 void disconnect_from_cloud(system_tick_t timeout)
 {
-    Particle.disconnect();
-    waitFor(Particle.disconnected, timeout);
+    IntoRobot.disconnect();
+    waitFor(IntoRobot.disconnected, timeout);
 }
 void connect_to_cloud(system_tick_t timeout)
 {
-    Particle.connect();
-    waitFor(Particle.connected, timeout);
+    IntoRobot.connect();
+    waitFor(IntoRobot.connected, timeout);
 }
 void consume_all_sockets(uint8_t protocol)
 {
@@ -56,10 +56,10 @@ test(device_will_connect_to_the_cloud_when_all_tcp_sockets_consumed) {
     // When all available TCP sockets are consumed
     consume_all_sockets(IPPROTO_TCP);
     // And the device attempts to connect to the Cloud
-    Particle.connect();
+    IntoRobot.connect();
     // Then the device overcomes this socket obstacle and connects to the Cloud
     connect_to_cloud(60*1000);
-    assertEqual(Particle.connected(), true);
+    assertEqual(IntoRobot.connected(), true);
 }
 /* Scenario: The device will connect to the Cloud even when all
  *           UDP socket types are consumed
@@ -76,10 +76,10 @@ test(device_will_connect_to_the_cloud_when_all_udp_sockets_consumed) {
     // When all available UDP sockets are consumed
     consume_all_sockets(IPPROTO_UDP);
     // And the device attempts to connect to the Cloud
-    Particle.connect();
+    IntoRobot.connect();
     // Then the device overcomes this socket obstacle and connects to the Cloud
     connect_to_cloud(60*1000);
-    assertEqual(Particle.connected(), true);
+    assertEqual(IntoRobot.connected(), true);
 }
 
 int how_many_band_options_are_available(void)

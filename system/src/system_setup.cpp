@@ -339,7 +339,7 @@ void WiFiSetupConsole::handle(char c)
             print("has connected to the Cloud and is ready to go!\r\n\r\n");
             print("If your LED flashes red or you encounter any other problems,\r\n");
             print("visit https://www.particle.io/support to debug.\r\n\r\n");
-            print("    Particle <3 you!\r\n\r\n");
+            print("    IntoRobot <3 you!\r\n\r\n");
         }
         else
         {

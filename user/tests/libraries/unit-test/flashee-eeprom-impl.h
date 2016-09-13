@@ -1360,6 +1360,6 @@ class SparkExternalFlashDevice : public FlashDevice {
     }
 
 };
-#endif // SPARK
+#endif 
 
 #endif

@@ -4,7 +4,7 @@
  * @authors mat
  * @date    21 January 2015
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -60,7 +60,7 @@ test(application_thread_can_pump_events)
 	// test value not incremented
 	assertEqual((int)test_val, 0);
 
-    Particle.process();
+    IntoRobot.process();
 
     // validate the function was called.
     assertEqual((int)test_val, 1);

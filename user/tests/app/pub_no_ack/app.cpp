@@ -68,12 +68,12 @@ template <typename T> int measure(T t, int timeout, Print& stream)
 
 void publish_ack()
 {
-	Particle.publish("a","b");
+	IntoRobot.publish("a","b");
 }
 
 void publish_nack()
 {
-	Particle.publish("a","b", NO_ACK);
+	IntoRobot.publish("a","b", NO_ACK);
 }
 
 void setup()

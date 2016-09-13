@@ -4,7 +4,7 @@
  * @authors mat
  * @date    06 April 2015
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@
 
 #include "application.h"
 #include "unit-test/unit-test.h"
-#include "spark_wiring_string.h"
+// #include "spark_wiring_string.h"
 
 
 #if PLATFORM_ID>=3

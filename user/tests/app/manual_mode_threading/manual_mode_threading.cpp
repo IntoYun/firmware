@@ -11,9 +11,9 @@ void setup() {
 void loop() {
   //WiFi.hasCredentials();  // Problem 1: never connects. Comment out to fix.
 	Serial.print(".");
-  if (Particle.connected() == false) {
+  if (IntoRobot.connected() == false) {
     Serial.println("Connecting");
-    Particle.connect();
+    IntoRobot.connect();
   } else {
     WiFi.hasCredentials();  // Problem 2: dropped connections. Comment out to fix.
   }

@@ -4,7 +4,7 @@
  * @authors Matthew McGowan
  * @date    13 January 2015
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -25,8 +25,8 @@
 
 test(system_api) {
 
-    API_COMPILE(System.dfu());
-    API_COMPILE(System.dfu(true));
+    // API_COMPILE(System.dfu());
+    // API_COMPILE(System.dfu(true));
 
     API_COMPILE(System.factoryReset());
 

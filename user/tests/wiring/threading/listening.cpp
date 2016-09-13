@@ -29,7 +29,7 @@ void listening_update_handler(system_event_t, int time, void*) {
 /**
  * Validates that the listening event is sent to the application.
  * This is a white box test - verifies that both the system event loop is
- * running and that the application can pump events by calling Particle.process()
+ * running and that the application can pump events by calling IntoRobot.process()
  *
  */
 test(listening_update_event_is_sent) {
@@ -41,7 +41,7 @@ test(listening_update_event_is_sent) {
 
     uint32_t start = millis();
     while (!listening_update_time && ((millis() - start) < 4000)) {
-    		Particle.process();		// pump application events
+    		IntoRobot.process();		// pump application events
     }
     listening_stop();
     System.off(listening_update_handler); // Unregister handler
@@ -85,7 +85,7 @@ test(app_can_exit_listen_mode_761)
 	uint32_t start = millis();
 	listening_start();
 	WiFi.listen(false);
-	Particle.process();
+	IntoRobot.process();
 	delay(10);	// todo - find a better way to interact with the system thread
 	assertFalse(WiFi.listening());
 }
@@ -105,7 +105,7 @@ test(publish_during_listening_mode_issue_761)
 {
 	listening_start();
 
-	bool result = Particle.publish("mdma", "codez");
+	bool result = IntoRobot.publish("mdma", "codez");
 	WiFi.listen(false);
 	assertFalse(result);
 }
