@@ -36,36 +36,36 @@ public:
         const uint8_t* data_ptr = (const uint8_t*)data;
         const uint8_t* end_ptr  = data_ptr+size;
         unsigned destination = offset;
-        FLASH_Unlock();
-        FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
+        HAL_FLASH_Unlock();
         while (data_ptr < end_ptr)
         {
-            FLASH_Status status;
+            HAL_StatusTypeDef status = HAL_OK;
             const int max_tries = 10;
             int tries = 0;
 
             if ( !(destination & 0x03) && (end_ptr - data_ptr >= 4))  // have a whole word to write
             {
-                while ((FLASH_COMPLETE != (status = FLASH_ProgramWord(destination, *(const uint32_t*)data_ptr))) && (tries++ < max_tries));
+                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, destination, *(const uint32_t*)data_ptr))) && (tries++ < max_tries));
                 destination += 4;
                 data_ptr += 4;
             }
             else if ( !(destination & 0x01) && (end_ptr - data_ptr >= 2))  // have a half word to write
             {
-                while ((FLASH_COMPLETE != (status = FLASH_ProgramHalfWord(destination, *(const uint16_t*)data_ptr))) && (tries++ < max_tries));
+                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, destination, *(const uint16_t*)data_ptr))) && (tries++ < max_tries));
                 destination += 2;
                 data_ptr += 2;
             }
+            /*
             else
             {
-                while ((FLASH_COMPLETE != (status = FLASH_ProgramByte(destination, *data_ptr))) && (tries++ < max_tries));
+                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, destination, *data_ptr))) && (tries++ < max_tries));
                 destination++;
                 data_ptr++;
             }
-
+            */
         }
-        FLASH_Lock();
+        HAL_FLASH_Lock();
         return (memcmp(dataAt(offset), data, size)) ? -1 : 0;
     }
 

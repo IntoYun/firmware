@@ -146,20 +146,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define ESP_BOOT_UC         60
-#define ESP_RESET_UC        61
-#define RGBR_UC             62
-#define RGBG_UC             63
-#define RGBB_UC             64
-
-#define LIGHT_SENSOR_UC     65
-#define SENSOR_SDA_UC       66
-#define SENSOR_SCL_UC       67
-
-#define ESP8266_TXD_UC      68
-#define ESP8266_RXD_UC      69
-
-
 #define LED_USER  D7
 
 #define TOTAL_USARTS        2

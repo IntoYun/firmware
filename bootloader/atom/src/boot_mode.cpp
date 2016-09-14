@@ -1,3 +1,4 @@
+#include "hw_config.h"
 #include "boot_mode.h"
 #include "memory_hal.h"
 #include "params_hal.h"
@@ -6,8 +7,6 @@
 #include "system_config.h"
 #include "boot_debug.h"
 
-// extern UART_HandleTypeDef UartHandleEsp8266;
-// extern SDK_QUEUE USART_Esp8266_Queue;
 
 pFunction JumpToApplication;
 uint32_t JumpAddress;

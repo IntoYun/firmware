@@ -22,10 +22,7 @@ extern "C" {
 #endif
 
 
-void usart_a2a3_initial(uint32_t baud);
-void usart_esp8266_initial(uint32_t baud);
-void Esp8266_Reset(void);
-void Esp8266_Enter_UpdateMode(void);
+void usart_debug_initial(uint32_t baud);
 void HAL_System_Config(void);
 void delay(uint32_t ms);
 void System_Reset(void);

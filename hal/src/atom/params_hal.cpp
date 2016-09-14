@@ -244,7 +244,7 @@ BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void) {
 /*
  * 保存设置启动标志
  * */
-int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag) {
     intorobot_boot_params.boot_flag = flag;
     return 0;
 }

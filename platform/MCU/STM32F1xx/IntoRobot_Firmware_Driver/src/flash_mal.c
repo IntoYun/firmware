@@ -6,89 +6,70 @@
  * @date    30-Jan-2015
  * @brief   Media access layer for platform dependent flash interfaces
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+ Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
 
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this program; if not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Lesser General Public
+ License along with this program; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "flash_mal.h"
-#include "dct.h"
-#include "module_info.h"
 #include <string.h>
 
 /* Private functions ---------------------------------------------------------*/
-
-static const uint32_t sectorAddresses[] = {
-    0x8000000, 0x8004000, 0x8008000, 0x800C000, 0x8010000, 0x8020000
-};
-static const uint8_t flashSectors[] = {
-    FLASH_Sector_0, FLASH_Sector_1, FLASH_Sector_2, FLASH_Sector_3, FLASH_Sector_4,
-    FLASH_Sector_5, FLASH_Sector_6, FLASH_Sector_7, FLASH_Sector_8, FLASH_Sector_9,
-    FLASH_Sector_10, FLASH_Sector_11
-};
-
-
-/**
- * Retrieves the index into the flashSectors array that contains the
- * flash sector that spans the given address.
- */
-uint16_t addressToSectorIndex(uint32_t address)
-{
-    int i;
-    for (i=1; i<6; i++) {
-        if (address<sectorAddresses[i])
-            return i-1;
-    }
-    return ((address-0x8020000)>>17)+5;
-}
-
-uint32_t sectorIndexToStartAddress(uint16_t sector)
-{
-	return sector<5 ? sectorAddresses[sector] :
-			((sector-5)<<17)+0x8020000;
-}
-
 static inline uint16_t InternalSectorToWriteProtect(uint32_t startAddress)
 {
     uint16_t OB_WRP_Sector;
-	OB_WRP_Sector = 1<<addressToSectorIndex(startAddress);
+    OB_WRP_Sector = 1<<(startAddress/INTERNAL_FLASH_SECTOR_SIZE);
     return OB_WRP_Sector;
 }
 
 inline static uint16_t InternalSectorToErase(uint32_t startAddress)
 {
-    uint16_t    flashSector = flashSectors[addressToSectorIndex(startAddress)];
+    uint16_t flashSector = startAddress/INTERNAL_FLASH_SECTOR_SIZE;
     return flashSector;
+}
+
+inline static uint16_t InternalPageToErase(uint32_t startAddress)
+{
+    uint16_t flashPage = (startAddress/INTERNAL_FLASH_PAGE_SIZE);
+    return flashPage;
 }
 
 uint16_t FLASH_SectorToWriteProtect(flash_device_t device, uint32_t startAddress)
 {
-	uint16_t sector = 0;
-	if (device==FLASH_INTERNAL)
-		sector = InternalSectorToWriteProtect(startAddress);
-	return sector;
+    uint16_t sector = 0;
+    if (device==FLASH_INTERNAL)
+        sector = InternalSectorToWriteProtect(startAddress);
+    return sector;
 }
 
 uint16_t FLASH_SectorToErase(flash_device_t device, uint32_t startAddress)
 {
-	uint16_t sector = 0xFFFF;
-	if (device==FLASH_INTERNAL)
-		sector = InternalSectorToErase(startAddress);
-	return sector;
+    uint16_t sector = 0xFFFF;
+    if (device==FLASH_INTERNAL)
+        sector = InternalSectorToErase(startAddress);
+    return sector;
+}
+
+uint16_t FLASH_PageToErase(flash_device_t device, uint32_t startAddress)
+{
+    uint16_t sector = 0xFFFF;
+    if (device==FLASH_INTERNAL)
+        sector = InternalSectorToErase(startAddress);
+    return sector;
 }
 
 /**
@@ -96,25 +77,23 @@ uint16_t FLASH_SectorToErase(flash_device_t device, uint32_t startAddress)
  */
 uint32_t EndOfFlashSector(flash_device_t device, uint32_t address)
 {
-	uint32_t end;
-	if (device==FLASH_INTERNAL)
-	{
-		uint16_t sector = addressToSectorIndex(address);
-		end = sectorIndexToStartAddress(sector+1);
-	}
+    uint32_t end;
+    if (device==FLASH_INTERNAL)
+    {
+        uint16_t sector = address / INTERNAL_FLASH_SECTOR_SIZE;
+        end = (sector+1) * INTERNAL_FLASH_SECTOR_SIZE;
+    }
 #if USE_SERIAL_FLASH
-	else if (device==FLASH_SERIAL)
-	{
-		uint16_t sector = address / sFLASH_PAGESIZE;
-		end = (sector+1) * sFLASH_PAGESIZE;
-	}
+    else if (device==FLASH_SERIAL)
+    {
+        uint16_t sector = address / sFLASH_PAGESIZE;
+        end = (sector+1) * sFLASH_PAGESIZE;
+    }
 #endif
-	else
-		end = 0;
-	return end;
+    else
+        end = 0;
+    return end;
 }
-
-
 
 bool FLASH_CheckValidAddressRange(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t length)
 {
@@ -122,7 +101,7 @@ bool FLASH_CheckValidAddressRange(flash_device_t flashDeviceID, uint32_t startAd
 
     if (flashDeviceID == FLASH_INTERNAL)
     {
-        return startAddress>=0x8000000 && endAddress<=0x8100000;
+        return startAddress>=0x8000000 && endAddress<=0x8080000;
     }
     else if (flashDeviceID == FLASH_SERIAL)
     {
@@ -156,7 +135,7 @@ bool FLASH_WriteProtectMemory(flash_device_t flashDeviceID, uint32_t startAddres
         uint16_t OB_WRP_Sector = InternalSectorToWriteProtect(startAddress);
         uint16_t end = InternalSectorToWriteProtect(startAddress+length-1)<<1;
 
-        if (OB_WRP_Sector < OB_WRP_Sector_0)
+        if (OB_WRP_Sector < OB_WRP_PAGES124TO127)
         {
             return false;
         }
@@ -182,7 +161,6 @@ bool FLASH_WriteProtectMemory(flash_device_t flashDeviceID, uint32_t startAddres
 
 bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t length)
 {
-    uint32_t eraseCounter = 0;
     uint32_t numPages = 0;
 
     if (FLASH_CheckValidAddressRange(flashDeviceID, startAddress, length) != true)
@@ -193,9 +171,9 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
     if (flashDeviceID == FLASH_INTERNAL)
     {
         /* Check which sector has to be erased */
-        uint16_t flashSector = InternalSectorToErase(startAddress);
+        uint16_t flashPage = InternalPageToErase(startAddress);
 
-        if (flashSector > FLASH_Sector_11)
+        if (flashPage > (INTERNAL_FLASH_SIZE/INTERNAL_FLASH_PAGE_SIZE)-1)
         {
             return false;
         }
@@ -204,28 +182,23 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
         FLASH_WriteProtectMemory(FLASH_INTERNAL, startAddress, length, false);
 
         /* Unlock the Flash Program Erase Controller */
-        FLASH_Unlock();
+        HAL_FLASH_Unlock();
 
         /* Define the number of Internal Flash pages to be erased */
         numPages = FLASH_PagesMask(length, INTERNAL_FLASH_PAGE_SIZE);
 
-        /* Clear All pending flags */
-        FLASH_ClearFlags();
-
-        /* Erase the Internal Flash pages */
-        for (eraseCounter = 0; (eraseCounter < numPages); eraseCounter++)
+        uint32_t PAGEError = 0;
+        FLASH_EraseInitTypeDef EraseInitStruct;
+        EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+        EraseInitStruct.PageAddress = startAddress&(INTERNAL_FLASH_PAGE_SIZE-1);
+        EraseInitStruct.NbPages     = numPages;
+        if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
         {
-            FLASH_Status status = FLASH_EraseSector(flashSector + (8 * eraseCounter), VoltageRange_3);
-
-            /* If erase operation fails, return Failure */
-            if (status != FLASH_COMPLETE)
-            {
-                return false;
-            }
+            return false;
         }
 
         /* Locks the FLASH Program Erase Controller */
-        FLASH_Lock();
+        HAL_FLASH_Lock();
 
         return true;
     }
@@ -254,8 +227,8 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
 }
 
 bool FLASH_CheckCopyMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
-                      flash_device_t destinationDeviceID, uint32_t destinationAddress,
-                      uint32_t length, uint8_t module_function, uint8_t flags)
+        flash_device_t destinationDeviceID, uint32_t destinationAddress,
+        uint32_t length, uint8_t module_function, uint8_t flags)
 {
     if (!FLASH_CheckValidAddressRange(sourceDeviceID, sourceAddress, length))
     {
@@ -267,39 +240,6 @@ bool FLASH_CheckCopyMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress
         return false;
     }
 
-#ifndef USE_SERIAL_FLASH    // this predates the module system (early P1's using external flash for storage)
-    if ((sourceDeviceID == FLASH_INTERNAL) && (flags & MODULE_VERIFY_MASK))
-    {
-        uint32_t moduleLength = FLASH_ModuleLength(sourceDeviceID, sourceAddress);
-
-        if((flags & (MODULE_VERIFY_LENGTH|MODULE_VERIFY_CRC)) && (length < moduleLength+4))
-        {
-            return false;
-        }
-
-        const module_info_t* info = FLASH_ModuleInfo(sourceDeviceID, sourceAddress);
-        if ((info->module_function != MODULE_FUNCTION_RESOURCE) && (info->platform_id != PLATFORM_ID))
-        {
-            return false;
-        }
-
-        // verify destination address
-        if ((flags & MODULE_VERIFY_DESTINATION_IS_START_ADDRESS) && (((uint32_t)info->module_start_address) != destinationAddress))
-        {
-            return false;
-        }
-
-        if ((flags & MODULE_VERIFY_FUNCTION) && (info->module_function != module_function))
-        {
-            return false;
-        }
-
-        if ((flags & MODULE_VERIFY_CRC) && !FLASH_VerifyCRC32(sourceDeviceID, sourceAddress, moduleLength))
-        {
-            return false;
-        }
-    }
-#endif
     return true;
 }
 
@@ -309,90 +249,90 @@ bool CopyFlashBlock(flash_device_t sourceDeviceID, uint32_t sourceAddress, flash
     uint8_t serialFlashData[4];
 #endif
 
-	uint32_t endAddress = sourceAddress+length;
+    uint32_t endAddress = sourceAddress+length;
 
     if (!FLASH_EraseMemory(destinationDeviceID, destinationAddress, length))
     {
         return false;
     }
 
-	if (destinationDeviceID == FLASH_INTERNAL)
-	{
-	    /* Locks the internal flash program erase controller */
-	    FLASH_Unlock();
-	}
+    if (destinationDeviceID == FLASH_INTERNAL)
+    {
+        /* Locks the internal flash program erase controller */
+        HAL_FLASH_Unlock();
+    }
 
-	bool success = true;
+    bool success = true;
 
-	/* Program source to destination */
-	while (sourceAddress < endAddress)
-	{
-	    uint32_t internalFlashData = 0;
+    /* Program source to destination */
+    while (sourceAddress < endAddress)
+    {
+        uint32_t internalFlashData = 0;
 
-		if (sourceDeviceID == FLASH_INTERNAL)
-		{
-			/* Read data from internal flash source address */
-			internalFlashData = (*(__IO uint32_t*) sourceAddress);
-		}
-	#ifdef USE_SERIAL_FLASH
-		else if (sourceDeviceID == FLASH_SERIAL)
-		{
-			/* Read data from serial flash source address */
-			sFLASH_ReadBuffer(serialFlashData, sourceAddress, 4);
-		}
-	#endif
+        if (sourceDeviceID == FLASH_INTERNAL)
+        {
+            /* Read data from internal flash source address */
+            internalFlashData = (*(__IO uint32_t*) sourceAddress);
+        }
+#ifdef USE_SERIAL_FLASH
+        else if (sourceDeviceID == FLASH_SERIAL)
+        {
+            /* Read data from serial flash source address */
+            sFLASH_ReadBuffer(serialFlashData, sourceAddress, 4);
+        }
+#endif
 
-		if (destinationDeviceID == FLASH_INTERNAL)
-		{
-	#ifdef USE_SERIAL_FLASH
-			if (sourceDeviceID == FLASH_SERIAL)
-			{
-				internalFlashData = (uint32_t)(serialFlashData[0] | (serialFlashData[1] << 8) | (serialFlashData[2] << 16) | (serialFlashData[3] << 24));
-			}
-	#endif
+        if (destinationDeviceID == FLASH_INTERNAL)
+        {
+#ifdef USE_SERIAL_FLASH
+            if (sourceDeviceID == FLASH_SERIAL)
+            {
+                internalFlashData = (uint32_t)(serialFlashData[0] | (serialFlashData[1] << 8) | (serialFlashData[2] << 16) | (serialFlashData[3] << 24));
+            }
+#endif
 
-			/* Program data to internal flash destination address */
-			FLASH_Status status = FLASH_ProgramWord(destinationAddress, internalFlashData);
+            /* Program data to internal flash destination address */
+            HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, destinationAddress, internalFlashData);
 
-			/* If program operation fails, return Failure */
-			if (status != FLASH_COMPLETE)
-			{
-				success = false;
-				break;
-			}
-		}
-	#ifdef USE_SERIAL_FLASH
-		else if (destinationDeviceID == FLASH_SERIAL)
-		{
-			if (sourceDeviceID == FLASH_INTERNAL)
-			{
-				serialFlashData[0] = (uint8_t)(internalFlashData & 0xFF);
-				serialFlashData[1] = (uint8_t)((internalFlashData & 0xFF00) >> 8);
-				serialFlashData[2] = (uint8_t)((internalFlashData & 0xFF0000) >> 16);
-				serialFlashData[3] = (uint8_t)((internalFlashData & 0xFF000000) >> 24);
-			}
+            /* If program operation fails, return Failure */
+            if (status != HAL_OK)
+            {
+                success = false;
+                break;
+            }
+        }
+#ifdef USE_SERIAL_FLASH
+        else if (destinationDeviceID == FLASH_SERIAL)
+        {
+            if (sourceDeviceID == FLASH_INTERNAL)
+            {
+                serialFlashData[0] = (uint8_t)(internalFlashData & 0xFF);
+                serialFlashData[1] = (uint8_t)((internalFlashData & 0xFF00) >> 8);
+                serialFlashData[2] = (uint8_t)((internalFlashData & 0xFF0000) >> 16);
+                serialFlashData[3] = (uint8_t)((internalFlashData & 0xFF000000) >> 24);
+            }
 
-			/* Program data to serial flash destination address */
-			sFLASH_WriteBuffer(serialFlashData, destinationAddress, 4);
-		}
-	#endif
+            /* Program data to serial flash destination address */
+            sFLASH_WriteBuffer(serialFlashData, destinationAddress, 4);
+        }
+#endif
 
-		sourceAddress += 4;
-		destinationAddress += 4;
-	}
+        sourceAddress += 4;
+        destinationAddress += 4;
+    }
 
-	if (destinationDeviceID == FLASH_INTERNAL)
-	{
-	    /* Locks the internal flash program erase controller */
-	    FLASH_Lock();
-	}
+    if (destinationDeviceID == FLASH_INTERNAL)
+    {
+        /* Locks the internal flash program erase controller */
+        HAL_FLASH_Lock();
+    }
 
-	return success;
+    return success;
 }
 
 bool FLASH_CopyMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
-                      flash_device_t destinationDeviceID, uint32_t destinationAddress,
-                      uint32_t length, uint8_t module_function, uint8_t flags)
+        flash_device_t destinationDeviceID, uint32_t destinationAddress,
+        uint32_t length, uint8_t module_function, uint8_t flags)
 {
     if (!FLASH_CheckCopyMemory(sourceDeviceID, sourceAddress, destinationDeviceID, destinationAddress, length, module_function, flags))
     {
@@ -410,23 +350,23 @@ bool FLASH_CopyMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
     while (length)
     {
         uint32_t endBlockAddress = EndOfFlashSector(destinationDeviceID, destinationAddress);
-    		uint32_t blockLength = endBlockAddress-destinationAddress;
-    		if (blockLength>length)
-    			blockLength = length;
-    		if (!CopyFlashBlock(sourceDeviceID, sourceAddress, destinationDeviceID, destinationAddress, blockLength))
-    			return false;
-    		length -= blockLength;
-    		sourceAddress += blockLength;
-    		destinationAddress += blockLength;
+        uint32_t blockLength = endBlockAddress-destinationAddress;
+        if (blockLength>length)
+            blockLength = length;
+        if (!CopyFlashBlock(sourceDeviceID, sourceAddress, destinationDeviceID, destinationAddress, blockLength))
+            return false;
+        length -= blockLength;
+        sourceAddress += blockLength;
+        destinationAddress += blockLength;
     }
     return true;
 }
 
 bool FLASH_CompareMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
-                         flash_device_t destinationDeviceID, uint32_t destinationAddress,
-                         uint32_t length)
+        flash_device_t destinationDeviceID, uint32_t destinationAddress,
+        uint32_t length)
 {
-	uint32_t endAddress = sourceAddress + length;
+    uint32_t endAddress = sourceAddress + length;
 
     if (FLASH_CheckValidAddressRange(sourceDeviceID, sourceAddress, length) != true)
     {
@@ -449,7 +389,7 @@ bool FLASH_CompareMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
     /* Program source to destination */
     while (sourceAddress < endAddress)
     {
-    		uint32_t sourceDeviceData = 0;
+        uint32_t sourceDeviceData = 0;
         if (sourceDeviceID == FLASH_INTERNAL)
         {
             /* Read data from internal flash source address */
@@ -493,333 +433,102 @@ bool FLASH_CompareMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
     return true;
 }
 
-bool FLASH_AddToNextAvailableModulesSlot(flash_device_t sourceDeviceID, uint32_t sourceAddress,
-                                         flash_device_t destinationDeviceID, uint32_t destinationAddress,
-                                         uint32_t length, uint8_t function, uint8_t flags)
-{
-    //Read the flash modules info from the dct area
-    const platform_flash_modules_t* dct_app_data = (const platform_flash_modules_t*)dct_read_app_data(DCT_FLASH_MODULES_OFFSET);
-    platform_flash_modules_t flash_modules[MAX_MODULES_SLOT];
-    uint8_t flash_module_index = MAX_MODULES_SLOT;
-
-    memcpy(flash_modules, dct_app_data, sizeof(flash_modules));
-
-    //fill up the next available modules slot and return true else false
-    //slot 0 is reserved for factory reset module so start from flash_module_index = 1
-    for (flash_module_index = GEN_START_SLOT; flash_module_index < MAX_MODULES_SLOT; flash_module_index++)
-    {
-        if(flash_modules[flash_module_index].magicNumber == 0xABCD)
-        {
-            continue;
-        }
-        else
-        {
-            flash_modules[flash_module_index].sourceDeviceID = sourceDeviceID;
-            flash_modules[flash_module_index].sourceAddress = sourceAddress;
-            flash_modules[flash_module_index].destinationDeviceID = destinationDeviceID;
-            flash_modules[flash_module_index].destinationAddress = destinationAddress;
-            flash_modules[flash_module_index].length = length;
-            flash_modules[flash_module_index].magicNumber = 0xABCD;
-            flash_modules[flash_module_index].module_function = function;
-            flash_modules[flash_module_index].flags = flags;
-
-            dct_write_app_data(&flash_modules[flash_module_index],
-                               offsetof(application_dct_t, flash_modules[flash_module_index]),
-                               sizeof(platform_flash_modules_t));
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool FLASH_AddToFactoryResetModuleSlot(flash_device_t sourceDeviceID, uint32_t sourceAddress,
-                                       flash_device_t destinationDeviceID, uint32_t destinationAddress,
-                                       uint32_t length, uint8_t function, uint8_t flags)
-{
-    //Read the flash modules info from the dct area
-    const platform_flash_modules_t* dct_app_data = (const platform_flash_modules_t*)dct_read_app_data(DCT_FLASH_MODULES_OFFSET);
-    platform_flash_modules_t flash_modules[1];//slot 0 is factory reset module
-
-    memcpy(flash_modules, dct_app_data, sizeof(flash_modules));
-
-    flash_modules[FAC_RESET_SLOT].sourceDeviceID = sourceDeviceID;
-    flash_modules[FAC_RESET_SLOT].sourceAddress = sourceAddress;
-    flash_modules[FAC_RESET_SLOT].destinationDeviceID = destinationDeviceID;
-    flash_modules[FAC_RESET_SLOT].destinationAddress = destinationAddress;
-    flash_modules[FAC_RESET_SLOT].length = length;
-    flash_modules[FAC_RESET_SLOT].magicNumber = 0x0FAC;
-    flash_modules[FAC_RESET_SLOT].module_function = function;
-    flash_modules[FAC_RESET_SLOT].flags = flags;
-
-    if(memcmp(flash_modules, dct_app_data, sizeof(flash_modules)) != 0)
-    {
-        //Only write dct app data if factory reset module slot is different
-        dct_write_app_data(&flash_modules[FAC_RESET_SLOT],
-                           offsetof(application_dct_t, flash_modules[FAC_RESET_SLOT]),
-                           sizeof(platform_flash_modules_t));
-    }
-
-    return true;
-}
-
-bool FLASH_ClearFactoryResetModuleSlot(void)
-{
-    //Read the flash modules info from the dct area
-    const platform_flash_modules_t* flash_modules = (const platform_flash_modules_t*)dct_read_app_data(DCT_FLASH_MODULES_OFFSET);
-
-    //Set slot 0 factory reset module elements to 0 without sector erase
-    FLASH_Unlock();
-
-    uint32_t address = (uint32_t)&flash_modules[FAC_RESET_SLOT];
-    uint32_t length = sizeof(platform_flash_modules_t) >> 2;
-
-    while(length--)
-    {
-        FLASH_ProgramWord(address, 0);
-        address += 4;
-    }
-
-    FLASH_Lock();
-
-    return true;
-}
-
-bool FLASH_ApplyFactoryResetImage(copymem_fn_t copy)
-{
-    //Read the flash modules info from the dct area
-    const platform_flash_modules_t* flash_modules = (const platform_flash_modules_t*)dct_read_app_data(DCT_FLASH_MODULES_OFFSET);
-    bool restoreFactoryReset = false;
-
-    if(flash_modules[FAC_RESET_SLOT].magicNumber == 0x0FAC)
-    {
-        //Restore Factory Reset Firmware (slot 0 is factory reset module)
-        restoreFactoryReset = copy(flash_modules[FAC_RESET_SLOT].sourceDeviceID,
-                                               flash_modules[FAC_RESET_SLOT].sourceAddress,
-                                               flash_modules[FAC_RESET_SLOT].destinationDeviceID,
-                                               flash_modules[FAC_RESET_SLOT].destinationAddress,
-                                               flash_modules[FAC_RESET_SLOT].length,
-                                                flash_modules[FAC_RESET_SLOT].module_function,
-                                               flash_modules[FAC_RESET_SLOT].flags);
-    }
-    else
-    {
-        // attempt to use the default that the bootloader was built with
-        restoreFactoryReset = copy(FLASH_INTERNAL, INTERNAL_FLASH_FAC_ADDRESS, FLASH_INTERNAL, USER_FIRMWARE_IMAGE_LOCATION, FIRMWARE_IMAGE_SIZE,
-            FACTORY_RESET_MODULE_FUNCTION,
-            MODULE_VERIFY_CRC | MODULE_VERIFY_DESTINATION_IS_START_ADDRESS | MODULE_VERIFY_FUNCTION);
-    }
-    return restoreFactoryReset;
-
-}
-
-bool FLASH_IsFactoryResetAvailable(void)
-{
-    return FLASH_ApplyFactoryResetImage(FLASH_CheckCopyMemory);
-}
-
-bool FLASH_RestoreFromFactoryResetModuleSlot(void)
-{
-    return FLASH_ApplyFactoryResetImage(FLASH_CopyMemory);
-}
-
-//This function called in bootloader to perform the memory update process
-void FLASH_UpdateModules(void (*flashModulesCallback)(bool isUpdating))
-{
-    //Read the flash modules info from the dct area
-    const platform_flash_modules_t* flash_modules = (const platform_flash_modules_t*)dct_read_app_data(DCT_FLASH_MODULES_OFFSET);
-    uint8_t flash_module_index = MAX_MODULES_SLOT;
-
-    //slot 0 is reserved for factory reset module so start from flash_module_index = 1
-    for (flash_module_index = GEN_START_SLOT; flash_module_index < MAX_MODULES_SLOT; flash_module_index++)
-    {
-        if(flash_modules[flash_module_index].magicNumber == 0xABCD)
-        {
-            //Turn On RGB_COLOR_MAGENTA toggling during flash updating
-            if(flashModulesCallback)
-            {
-                flashModulesCallback(true);
-            }
-
-            //Copy memory from source to destination based on flash device id
-            FLASH_CopyMemory(flash_modules[flash_module_index].sourceDeviceID,
-                             flash_modules[flash_module_index].sourceAddress,
-                             flash_modules[flash_module_index].destinationDeviceID,
-                             flash_modules[flash_module_index].destinationAddress,
-                             flash_modules[flash_module_index].length,
-                             flash_modules[flash_module_index].module_function,
-                             flash_modules[flash_module_index].flags);
-
-            //Set all flash_modules[flash_module_index] elements to 0 without sector erase
-            FLASH_Unlock();
-
-            uint32_t address = (uint32_t)&flash_modules[flash_module_index];
-            uint32_t length = sizeof(platform_flash_modules_t) >> 2;
-
-            while(length--)
-            {
-                FLASH_ProgramWord(address, 0);
-                address += 4;
-            }
-
-            FLASH_Lock();
-
-            if(flashModulesCallback)
-            {
-                //Turn Off RGB_COLOR_MAGENTA toggling
-                flashModulesCallback(false);
-            }
-        }
-    }
-}
-
-const module_info_t* FLASH_ModuleInfo(uint8_t flashDeviceID, uint32_t startAddress)
-{
-    if(flashDeviceID == FLASH_INTERNAL)
-    {
-        if (((*(__IO uint32_t*)startAddress) & APP_START_MASK) == 0x20000000)
-        {
-            startAddress += 0x184;
-        }
-
-        const module_info_t* module_info = (const module_info_t*)startAddress;
-
-        return module_info;
-    }
-
-    return NULL;
-}
-
-uint32_t FLASH_ModuleAddress(uint8_t flashDeviceID, uint32_t startAddress)
-{
-    const module_info_t* module_info = FLASH_ModuleInfo(flashDeviceID, startAddress);
-
-    if (module_info != NULL)
-    {
-        return (uint32_t)module_info->module_start_address;
-    }
-
-    return 0;
-}
-
-uint32_t FLASH_ModuleLength(uint8_t flashDeviceID, uint32_t startAddress)
-{
-    const module_info_t* module_info = FLASH_ModuleInfo(flashDeviceID, startAddress);
-
-    if (module_info != NULL)
-    {
-        return ((uint32_t)module_info->module_end_address - (uint32_t)module_info->module_start_address);
-    }
-
-    return 0;
-}
-
-bool FLASH_isUserModuleInfoValid(uint8_t flashDeviceID, uint32_t startAddress, uint32_t expectedAddress)
-{
-    const module_info_t* module_info = FLASH_ModuleInfo(flashDeviceID, startAddress);
-
-    return (module_info != NULL
-            && ((uint32_t)(module_info->module_start_address) == expectedAddress)
-            && ((uint32_t)(module_info->module_end_address)<=0x8100000)
-            && (module_info->platform_id==PLATFORM_ID));
-}
-
-bool FLASH_VerifyCRC32(uint8_t flashDeviceID, uint32_t startAddress, uint32_t length)
-{
-    if(flashDeviceID == FLASH_INTERNAL && length > 0)
-    {
-        uint32_t expectedCRC = __REV((*(__IO uint32_t*) (startAddress + length)));
-        uint32_t computedCRC = Compute_CRC32((uint8_t*)startAddress, length);
-
-        if (expectedCRC == computedCRC)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void FLASH_ClearFlags(void)
-{
-    /* Clear All pending flags */
-    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
-                    FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-}
-
 void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors)
 {
-    /* Get FLASH_Sectors write protection status */
-    uint32_t SectorsWRPStatus = FLASH_OB_GetWRP() & FLASH_Sectors;
+    FLASH_OBProgramInitTypeDef OBInit;
+    uint32_t SectorsWRPStatus = 0xFFF;
+
+    HAL_FLASHEx_OBGetConfig(&OBInit);
+    SectorsWRPStatus = OBInit.WRPPage & FLASH_Sectors;
 
     if (SectorsWRPStatus != 0)
     {
-        //If FLASH_Sectors are not write protected, enable the write protection
+        /* If FLASH_Sectors are not write protected, enable the write protection */
 
-        /* Enable the Flash option control register access */
-        FLASH_OB_Unlock();
+        /* Allow Access to option bytes sector */
+        HAL_FLASH_OB_Unlock();
 
-        /* Clear All pending flags */
-        FLASH_ClearFlags();
+        /* Allow Access to Flash control registers and user Flash */
+        HAL_FLASH_Unlock();
 
         /* Enable FLASH_Sectors write protection */
-        FLASH_OB_WRPConfig(FLASH_Sectors, ENABLE);
+        OBInit.OptionType = OPTIONBYTE_WRP;
+        OBInit.WRPState   = WRPSTATE_ENABLE;
+        OBInit.WRPPage  = FLASH_Sectors;
+        HAL_FLASHEx_OBProgram(&OBInit);
 
         /* Start the Option Bytes programming process */
-        if (FLASH_OB_Launch() != FLASH_COMPLETE)
+        if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
             //Error during Option Bytes programming process
         }
 
-        /* Disable the Flash option control register access */
-        FLASH_OB_Lock();
+        /* Prevent Access to option bytes sector */
+        HAL_FLASH_OB_Lock();
+
+        /* Disable the Flash option control register access (recommended to protect
+           the option Bytes against possible unwanted operations) */
+        HAL_FLASH_Lock();
 
         /* Get FLASH_Sectors write protection status */
-        SectorsWRPStatus = FLASH_OB_GetWRP() & FLASH_Sectors;
+        HAL_FLASHEx_OBGetConfig(&OBInit);
+        SectorsWRPStatus = OBInit.WRPPage & FLASH_Sectors;
 
         /* Check if FLASH_Sectors are write protected */
         if (SectorsWRPStatus == 0)
         {
-            //Write Protection Enable Operation is done correctly
         }
     }
 }
 
 void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
 {
+    FLASH_OBProgramInitTypeDef OBInit;
+    uint32_t SectorsWRPStatus = 0xFFF;
+
     /* Get FLASH_Sectors write protection status */
-    uint32_t SectorsWRPStatus = FLASH_OB_GetWRP() & FLASH_Sectors;
+    HAL_FLASHEx_OBGetConfig(&OBInit);
+    SectorsWRPStatus = OBInit.WRPPage & FLASH_Sectors;
 
     if (SectorsWRPStatus == 0)
     {
-        //If FLASH_Sectors are write protected, disable the write protection
+        /* If FLASH_Sectors are write protected, disable the write protection */
 
-        /* Enable the Flash option control register access */
-        FLASH_OB_Unlock();
+        /* Allow Access to option bytes sector */
+        HAL_FLASH_OB_Unlock();
 
-        /* Clear All pending flags */
-        FLASH_ClearFlags();
+        /* Allow Access to Flash control registers and user Flash */
+        HAL_FLASH_Unlock();
 
         /* Disable FLASH_Sectors write protection */
-        FLASH_OB_WRPConfig(FLASH_Sectors, DISABLE);
+        OBInit.OptionType = OPTIONBYTE_WRP;
+        OBInit.WRPState   = WRPSTATE_DISABLE;
+        OBInit.WRPPage  = FLASH_Sectors;
+        HAL_FLASHEx_OBProgram(&OBInit);
 
         /* Start the Option Bytes programming process */
-        if (FLASH_OB_Launch() != FLASH_COMPLETE)
+        if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
-            //Error during Option Bytes programming process
+            /* User can add here some code to deal with this error */
+            while (1)
+            {
+            }
         }
 
-        /* Disable the Flash option control register access */
-        FLASH_OB_Lock();
+        /* Prevent Access to option bytes sector */
+        HAL_FLASH_OB_Lock();
+
+        /* Disable the Flash option control register access (recommended to protect
+           the option Bytes against possible unwanted operations) */
+        HAL_FLASH_Lock();
 
         /* Get FLASH_Sectors write protection status */
-        SectorsWRPStatus = FLASH_OB_GetWRP() & FLASH_Sectors;
+        HAL_FLASHEx_OBGetConfig(&OBInit);
+        SectorsWRPStatus = OBInit.WRPPage & FLASH_Sectors;
 
         /* Check if FLASH_Sectors write protection is disabled */
         if (SectorsWRPStatus == FLASH_Sectors)
         {
-            //Write Protection Disable Operation is done correctly
         }
     }
 }
@@ -870,9 +579,6 @@ uint32_t FLASH_PagesMask(uint32_t imageSize, uint32_t pageSize)
 
 void FLASH_Begin(uint32_t FLASH_Address, uint32_t imageSize)
 {
-    system_flags.OTA_FLASHED_Status_SysFlag = 0x0000;
-    Save_SystemFlags();
-
 #ifdef USE_SERIAL_FLASH
     FLASH_EraseMemory(FLASH_SERIAL, FLASH_Address, imageSize);
 #else
@@ -903,14 +609,12 @@ int FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t bufferSize)
     uint32_t index = 0;
 
     /* Unlock the internal flash */
-    FLASH_Unlock();
-
-    FLASH_ClearFlags();
+    HAL_FLASH_Unlock();
 
     /* Data received are Word multiple */
     for (index = 0; index < (bufferSize & 0xFFFC); index += 4)
     {
-        FLASH_ProgramWord(address, *(uint32_t *)(pBuffer + index));
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *(uint32_t *)(pBuffer + index));
         address += 4;
     }
 
@@ -923,12 +627,11 @@ int FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t bufferSize)
         {
             buf[index] = pBuffer[ (bufferSize & 0xFFFC)+index ];
         }
-        FLASH_ProgramWord(address, *(uint32_t *)(pBuffer + index));
-
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *(uint32_t *)(pBuffer + index));
     }
 
     /* Lock the internal flash */
-    FLASH_Lock();
+    HAL_FLASH_Lock();
 
     return 0;
 #endif
@@ -936,12 +639,5 @@ int FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t bufferSize)
 
 void FLASH_End(void)
 {
-#ifdef USE_SERIAL_FLASH
-    system_flags.FLASH_OTA_Update_SysFlag = 0x0005;
-    Save_SystemFlags();
 
-    RTC_WriteBackupRegister(RTC_BKP_DR10, 0x0005);
-#else
-    //FLASH_AddToNextAvailableModulesSlot() should be called in system_update.cpp
-#endif
 }

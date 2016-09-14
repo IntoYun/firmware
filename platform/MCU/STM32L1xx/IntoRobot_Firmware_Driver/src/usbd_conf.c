@@ -26,7 +26,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l1xx.h"
+#include "stm32l1xx_hal.h"
 #include "usbd_cdc.h"
 #include "usbd_core.h"
 #include "service_debug.h"

@@ -50,7 +50,7 @@ public:
                 destination += 4;
                 data_ptr += 4;
             }
-            else if ( !(destination & 0x01) && (end_ptr - data_ptr >= 2))  // have a half word to write
+            /*else if ( !(destination & 0x01) && (end_ptr - data_ptr >= 2))  // have a half word to write
             {
                 while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, destination, *(const uint16_t*)data_ptr))) && (tries++ < max_tries));
                 destination += 2;
@@ -62,6 +62,7 @@ public:
                 destination++;
                 data_ptr++;
             }
+            */
         }
         HAL_FLASH_Lock();
         return (memcmp(dataAt(offset), data, size)) ? -1 : 0;

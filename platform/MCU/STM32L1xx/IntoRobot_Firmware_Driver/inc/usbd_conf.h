@@ -31,7 +31,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "stm32l1xx.h"
+#include "stm32l1xx_hal.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +53,7 @@
 #define USBD_DFU_APP_DEFAULT_ADD               0x08007000 /*ADDR_FLASH_PAGE_14*/
 #define USBD_DFU_APP_END_ADD                   0x08020000 /*ADDR_FLASH_PAGE_64*/
 
-//* Exported macro ------------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;
 
 /* Memory management macros */
@@ -72,7 +72,7 @@ void USBD_static_free(void *p);
 #define USBD_memcpy               /* Not used */
 #define USBD_Delay                HAL_Delay
 
- /* DEBUG macros */
+/* DEBUG macros */
 #if (USBD_DEBUG_LEVEL > 0)
 #define  USBD_UsrLog(...)   printf(__VA_ARGS__);\
                             printf("\n");

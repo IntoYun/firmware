@@ -26,6 +26,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 
+#ifdef HAS_SERIAL_FLASH
+
 #pragma GCC optimize ("O1")
 
 /* SST25 SPI Flash supported commands */
@@ -472,3 +474,4 @@ int sFLASH_SelfTest(void)
 
     return TestStatus;
 }
+#endif

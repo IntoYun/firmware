@@ -3,5 +3,5 @@
     bl  HAL_Core_Config
 .endif
 /* Call C++ constructors. */
-bl  CallConstructors
+    bl  CallConstructors
 

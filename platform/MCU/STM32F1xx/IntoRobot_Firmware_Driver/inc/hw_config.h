@@ -31,12 +31,19 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
+#include "platform_config.h"
 #include "sdkqueue.h"
 #include "usbd_cdc_desc.h"
 #include "usbd_cdc_if.h"
 #include "usbd_dfu_desc.h"
 #include "usbd_dfu_if.h"
 #include "hw_ticks.h"
+#include "flash_mal.h"
+#include "system_tick_hal.h"
+#if defined(HAS_SERIAL_FLASH)
+#include "spi_flash.h"
+#endif
 #include "service_debug.h"
 
 #ifdef __cplusplus

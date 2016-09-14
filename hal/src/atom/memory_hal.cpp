@@ -52,6 +52,7 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t address)
 {
+    /*
     uint32_t PAGEError = 0;
 
     HAL_FLASH_Unlock();
@@ -70,6 +71,8 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t address)
 
     HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
     HAL_FLASH_Lock();
+    */
+    return HAL_FLASH_STATUS_OK;
 }
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
@@ -86,6 +89,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
+    /*
     uint32_t endAddress = address + datalen * 2;
     uint16_t i = 0;
 
@@ -101,5 +105,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
 
     HAL_FLASH_Lock();
     return flashStatus;
+    */
+    return HAL_FLASH_STATUS_OK;
 }
 
