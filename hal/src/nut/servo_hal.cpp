@@ -27,7 +27,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "servo_hal.h"
 // #include "ServoTimers.h"
 #include "pinmap_impl.h"
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #include "Servo.h"
 
 #if 0

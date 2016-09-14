@@ -33,7 +33,7 @@
 #include "delay_hal.h"
 #include "params_hal.h"
 #include "memory_hal.h"
-#include <Arduino.h>
+#include "Arduino_Nut.h"
 #include "Schedule.h"
 #include "core_esp8266_wifi_generic.h"
 #include <core_version.h>

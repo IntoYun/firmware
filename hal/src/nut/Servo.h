@@ -49,7 +49,7 @@
 #ifndef Servo_h
 #define Servo_h
 
-#include <Arduino.h>
+#include "Arduino_Nut.h"
 
 // the following are in us (microseconds)
 //

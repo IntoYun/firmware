@@ -29,7 +29,7 @@
 #include "gpio_hal.h"
 #include "hw_config.h"
 #include "pinmap_impl.h"
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 
 unsigned char twi_dcount = 18;
 static unsigned char twi_sda, twi_scl;

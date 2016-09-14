@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #include "delay_hal.h"
 #include "service_debug.h"
 

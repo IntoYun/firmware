@@ -2,7 +2,7 @@
 // ESP8266 work for the NeoPixelBus library: github.com/Makuna/NeoPixelBus
 // Needs to be a separate .c file to enforce ICACHE_RAM_ATTR execution.
 
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #include "hw_config.h"
 #include "eagle_soc.h"
 #include "service_debug.h"

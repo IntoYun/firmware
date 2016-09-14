@@ -23,7 +23,7 @@
 #include "Adafruit_MCP23017.h"
 
 #if ARDUINO >= 100
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #else
 #include "WProgram.h"
 #endif

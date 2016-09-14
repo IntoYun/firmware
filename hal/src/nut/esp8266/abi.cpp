@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <Arduino.h>
+#include "Arduino_Nut.h"
 #include "hw_config.h"
 #include <cxxabi.h>
 

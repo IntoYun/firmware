@@ -26,7 +26,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "spi_hal.h"
 #include "pinmap_impl.h"
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #include "service_debug.h"
 
 #define SPI_HAS_TRANSACTION

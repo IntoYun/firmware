@@ -25,7 +25,7 @@
 #ifndef ServoTimer_h
 #define ServoTimer_h
 
-#include "Arduino.h"
+#include "Arduino_Nut.h"
 #include "servo_middle.h"
 
 #define REFRESH_INTERVAL    20000     // minumim time to refresh servos in microseconds 

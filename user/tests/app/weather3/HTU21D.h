@@ -7,7 +7,7 @@ Licence: GPL v3
 // Make library cross-compatiable
 // with Arduino, GNU C++ for tests, and Spark.
 //#if defined(ARDUINO) && ARDUINO >= 100
-//#include "Arduino.h"
+//#include "Arduino_Nut.h"
 //#elif defined(SPARK)
 //#include "application.h"
 //#endif
