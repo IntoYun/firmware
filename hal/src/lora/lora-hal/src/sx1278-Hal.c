@@ -33,8 +33,8 @@
  * SX1278 RESET I/O definitions
  */
 
-#define RESET_IOPORT                                GPIOA
-#define RESET_PIN                                   GPIO_PIN_8
+#define RESET_IOPORT                                GPIOB
+#define RESET_PIN                                   GPIO_PIN_9
 
 /*!
  * SX1278 SPI NSS I/O definitions
@@ -51,20 +51,20 @@
 #define DIO1_PIN                                    GPIO_PIN_0
 
 #define DIO2_IOPORT                                 GPIOB
-#define DIO2_PIN                                    GPIO_PIN_14//GPIO_PIN_1
+#define DIO2_PIN                                    GPIO_PIN_1
 
 #define DIO3_IOPORT                                 GPIOB
-#define DIO3_PIN                                    GPIO_PIN_7
+#define DIO3_PIN                                    GPIO_PIN_6
 
 #define DIO4_IOPORT                                 GPIOB
-#define DIO4_PIN                                    GPIO_PIN_8
+#define DIO4_PIN                                    GPIO_PIN_7
 
 #define DIO5_IOPORT                                 GPIOB
-#define DIO5_PIN                                    GPIO_PIN_6
+#define DIO5_PIN                                    GPIO_PIN_8
 
 //接收发生使能控制
-#define RX_IOPORT                                   GPIOB
-#define RX_PIN                                      GPIO_PIN_9
+#define RX_IOPORT                                   GPIOA
+#define RX_PIN                                      GPIO_PIN_8
 
 #define TX_IOPORT                                   GPIOB
 #define TX_PIN                                      GPIO_PIN_2
@@ -289,6 +289,7 @@ void SX1278WriteRxTx( uint8_t txEnable )
         HAL_GPIO_WritePin( TX_IOPORT, TX_PIN, GPIO_PIN_RESET );
     }
 }
+
 #if 0
 inline uint8_t SX1278ReadDio3( void )
 {
