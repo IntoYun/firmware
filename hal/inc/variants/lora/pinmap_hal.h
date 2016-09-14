@@ -65,7 +65,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS  37
+#define TOTAL_PINS   36 
 #define TOTAL_ANALOG_PINS 6
 #define FIRST_ANALOG_PIN  30
 
@@ -95,19 +95,19 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RX A1
 
 // SPI pins
-#define SS   A2
-#define SCK  A3
-#define MISO A4
-#define MOSI A5
+// #define SS   A2
+// #define SCK  A3
+// #define MISO A4
+// #define MOSI A5
 
-#define SS1   D2
-#define SCK1  D3
-#define MISO1 D4
-#define MOSI1 D5
+#define SS   D7 
+#define SCK  D4
+#define MISO D5
+#define MOSI D6
 
 // I2C pins
-#define SDA  D2
-#define SCL  D1
+#define SDA  D1
+#define SCL  D0
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users

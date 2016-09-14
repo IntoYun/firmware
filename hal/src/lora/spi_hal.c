@@ -31,8 +31,8 @@
 #define TOTAL_SPI 2
 
 typedef enum SPI_Num_Def {
-    SPI1_A3_A4_A5 = 0,
-    SPI2_D3_D4_D5 = 1
+    SPI2_D4_D5_D6 = 0,//user 
+    /* SPI1_B3_B4_B5 = 1  */ // sx1278 use
 } SPI_Num_Def;
 
 typedef struct STM32_SPI_Info {
@@ -74,8 +74,10 @@ typedef struct STM32_SPI_Info {
  */
 STM32_SPI_Info SPI_MAP[TOTAL_SPI] =
 {
-    { SPI1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5,  GPIO_PIN_6,  GPIO_PIN_7,  GPIO_PIN_4,  GPIO_AF5_SPI1},
+
     { SPI2, DMA1_Channel4, DMA1_Channel5, DMA1_Channel4_IRQn, DMA1_Channel5_IRQn, GPIOB, GPIOB, GPIOB, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15, GPIO_PIN_12, GPIO_AF5_SPI2}
+    /* { SPI1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5,  GPIO_PIN_6,  GPIO_PIN_7,  GPIO_PIN_4,  GPIO_AF5_SPI1}, *///user
+    /* { SPI1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, GPIOB, GPIOB, GPIOB, GPIO_PIN_3,  GPIO_PIN_4,  GPIO_PIN_5,  GPIO_PIN_15,  GPIO_AF5_SPI1}, *///sx1278 use
 };
 
 static STM32_SPI_Info *spiMap[TOTAL_SPI];
@@ -93,17 +95,18 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock SCK MISO MOSI clock and SPI clock and DMA clock */
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
-        DEBUG("Select SPI1, and Enable Clock...");
-        __HAL_RCC_SPI1_CLK_ENABLE();
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-#ifdef useDMASPI
-        // DMA2 clock
-        __HAL_RCC_DMA1_CLK_ENABLE();
-#endif
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
+/*     if (spiMap[spi]->SPI_Peripheral == SPI1) */
+/*     { */
+/*         DEBUG("Select SPI1, and Enable Clock..."); */
+/*         __HAL_RCC_SPI1_CLK_ENABLE(); */
+/*         __HAL_RCC_GPIOA_CLK_ENABLE(); */
+    /* __HAL_RCC_GPIOB_CLK_ENABLE(); */
+/* #ifdef useDMASPI */
+/*         // DMA2 clock */
+/*         __HAL_RCC_DMA1_CLK_ENABLE(); */
+/* #endif */
+/*     } */
+    if(spiMap[spi]->SPI_Peripheral == SPI2)
     {
         DEBUG("Select SPI3, and Enable Clock...");
         __HAL_RCC_SPI2_CLK_ENABLE();
@@ -191,12 +194,12 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
     DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
 
     /*##-1- Reset peripherals ##################################################*/
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
-        __HAL_RCC_SPI1_FORCE_RESET();
-        __HAL_RCC_SPI1_RELEASE_RESET();
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
+    /* if (spiMap[spi]->SPI_Peripheral == SPI1) */
+    /* { */
+    /*     __HAL_RCC_SPI1_FORCE_RESET(); */
+    /*     __HAL_RCC_SPI1_RELEASE_RESET(); */
+    /* } */
+    if(spiMap[spi]->SPI_Peripheral == SPI2)
     {
         __HAL_RCC_SPI2_FORCE_RESET();
         __HAL_RCC_SPI2_RELEASE_RESET();
@@ -233,12 +236,12 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
     DEBUG("Enter HAL_SPI_Initial...");
     if(spi == HAL_SPI_INTERFACE1)
     {
-        spiMap[spi] = &SPI_MAP[SPI1_A3_A4_A5];
+        spiMap[spi] = &SPI_MAP[SPI2_D4_D5_D6];
     }
-    else if(spi == HAL_SPI_INTERFACE2)
-    {
-        spiMap[spi] = &SPI_MAP[SPI2_D3_D4_D5];
-    }
+    /* else if(spi == HAL_SPI_INTERFACE2) */
+    /* { */
+    /*     spiMap[spi] = &SPI_MAP[SPI1_B3_B4_B5]; */
+    /* } */
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
     spiMap[spi]->SPI_Clock_Divider_Set = false;
@@ -467,7 +470,7 @@ int32_t HAL_SPI_DMA_Transfer_Status(HAL_SPI_Interface spi, HAL_SPI_TransferStatu
   */
 void DMA2_Stream0_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(spiMap[SPI1_A5_A6_A7]->SpiHandle.hdmarx);
+  HAL_DMA_IRQHandler(spiMap[SPI2_D4_D5_D6]->SpiHandle.hdmarx);
 }
 
 /**
