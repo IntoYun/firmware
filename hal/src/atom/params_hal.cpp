@@ -27,11 +27,11 @@
 #include "service_debug.h"
 
 
-#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x6000)
-#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x63FF)
+#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x08006000)
+#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x080063FF)
 
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x6400)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x6FFF)
+#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x08006400)
+#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x08006FFF)
 
 
 boot_params_t intorobot_boot_params;         //bootloader参数
@@ -133,8 +133,7 @@ void save_boot_params(boot_params_t *pboot_params) {
     if(len > (FLASH_BOOT_PARAMS_END_ADDRESS - FLASH_BOOT_PARAMS_START_ADDRESS)) {
         return;
     }
-    // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Erase(FLASH_BOOT_PARAMS_START_ADDRESS);
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
     HAL_FLASH_Interminal_Write(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
 }
 
@@ -161,8 +160,7 @@ void save_system_params(system_params_t *psystem_params) {
     if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS - FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
         return;
     }
-    // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Erase(FLASH_SYSTEM_PARAMS_START_ADDRESS);
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
     HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
 }
 

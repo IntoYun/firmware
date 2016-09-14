@@ -65,18 +65,7 @@ void HAL_Hook_Main()
     // nada
 }
 
-extern "C" int main() {
-    //HAL_Pin_Mode(D7, OUTPUT);
-    HAL_GPIO_Write(D7, 0);
-    HAL_Delay_Milliseconds(1000);
-    HAL_GPIO_Write(D7, 1);
-    HAL_Delay_Milliseconds(1000);
-    HAL_GPIO_Write(D7, 0);
-    HAL_Delay_Milliseconds(1000);
-    HAL_GPIO_Write(D7, 1);
-    HAL_Delay_Milliseconds(1000);
-    HAL_GPIO_Write(D7, 0);
-
+int main() {
     // the rtos systick can only be enabled after the system has been initialized
     systick_hook_enabled = true;
     HAL_Hook_Main();
@@ -91,15 +80,12 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-    HAL_Pin_Mode(D7, OUTPUT);
-    HAL_GPIO_Write(D7, 1);
-
-    //DECLARE_SYS_HEALTH(ENTERED_Config);
+    DECLARE_SYS_HEALTH(ENTERED_Config);
     Set_System();
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
-    //NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x7000);
 #endif
 
     //Wiring pins default to inputs
@@ -110,10 +96,11 @@ void HAL_Core_Config(void)
 //        HAL_Pin_Mode(pin, INPUT);
 #endif
 
-    //HAL_RTC_Initial();
+    HAL_RTC_Initial();
     HAL_RNG_Initial();
     HAL_IWDG_Initial();
     HAL_UI_Initial();
+    USB_Cable_Initial();
 
     HAL_UI_RGB_Color(RGB_COLOR_CYAN);
 }
@@ -132,6 +119,7 @@ void HAL_Core_System_Reset(void)
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
 {
+    DEBUG_D("HAL_Core_Enter_DFU_Mode\r\n");
     // true  - DFU mode persist if firmware upgrade is not completed
     // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
     //         Subsequent reset or power off-on will execute normal firmware
@@ -208,16 +196,55 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
+TIM_HandleTypeDef    TimHandle;
+
+void UI_Timer1_Configure(void)
+{
+    __HAL_RCC_TIM1_CLK_ENABLE();
+
+    TimHandle.Instance = TIM1;
+    TimHandle.Init.Period            = 5000-1;//计数到5000为500ms;
+    TimHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 10000)-1;
+    TimHandle.Init.ClockDivision     = 0;
+    TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    TimHandle.Init.RepetitionCounter = 0;
+
+    HAL_TIM_Base_DeInit(&TimHandle);
+    HAL_TIM_Base_Init(&TimHandle);
+
+    HAL_NVIC_SetPriority(TIM1_UP_IRQn, 14, 0);
+    HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
+
+    HAL_TIM_Base_Start_IT(&TimHandle);
+}
+
+typedef void (*app_system_loop_handler)(void);
+app_system_loop_handler APP_System_Loop_Handler = NULL;
+
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {
+    APP_System_Loop_Handler = handler;
 
+    UI_Timer1_Configure();
 }
 
-void HAL_Core_System_Loop(void)
+static uint32_t g_at_system_loop = false;
+void system_loop_handler(uint32_t interval_us)
+{
+    if( true == g_at_system_loop )
+        return;
+
+    if (NULL != APP_System_Loop_Handler) {
+        g_at_system_loop = true;
+        APP_System_Loop_Handler();
+        g_at_system_loop = false;
+    }
+}
+
+void HAL_Core_System_Yield(void)
 {
 
 }
-
 
 /*******************************************************************************
  * Function Name  : SysTick_Handler
@@ -226,6 +253,9 @@ void HAL_Core_System_Loop(void)
  * Output         : None
  * Return         : None
  *******************************************************************************/
+extern "C"
+{
+
 void SysTick_Handler(void)
 {
     HAL_IncTick();
@@ -242,4 +272,14 @@ void SysTick_Handler(void)
 
     HAL_SysTick_Handler();
 }
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    system_loop_handler(0);
+}
 
+void TIM1_UP_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandle);
+}
+
+}

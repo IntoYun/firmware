@@ -19,8 +19,6 @@ void log_output(const char* msg)
 
 void usart_debug_initial(uint32_t baud)
 {
-    HAL_UART_DeInit(&UartHandleDebug);
-
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_USART2_CLK_ENABLE();
 
@@ -41,7 +39,10 @@ void usart_debug_initial(uint32_t baud)
     UartHandleDebug.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     UartHandleDebug.Init.Mode         = UART_MODE_TX_RX;
     UartHandleDebug.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_DeInit(&UartHandleDebug);
     HAL_UART_Init(&UartHandleDebug);
+
+    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
 }
 
 void usart_esp8266_initial(uint32_t baud)
@@ -94,7 +95,6 @@ void HAL_System_Config(void)
 {
     Set_System();
     usart_debug_initial(115200);
-    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
     HAL_RTC_Initial();
     HAL_UI_Initial();
     ESP8266_GPIO_Initial();

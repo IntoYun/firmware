@@ -29,6 +29,66 @@
 
 RTC_HandleTypeDef RtcHandle;
 
+/**
+  * @brief RTC MSP Initialization
+  *        This function configures the hardware resources
+  * @param hrtc: RTC handle pointer
+  *
+  * @note  Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to select
+  *        the RTC clock source; in this case the Backup domain will be reset in
+  *        order to modify the RTC Clock source, as consequence RTC registers (including
+  *        the backup registers) and RCC_BDCR register are set to their reset values.
+  *
+  * @retval None
+  */
+void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
+{
+    RCC_OscInitTypeDef        RCC_OscInitStruct;
+    RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
+
+    __HAL_RCC_PWR_CLK_ENABLE();
+    HAL_PWR_EnableBkUpAccess();
+
+    /*##-1- Configure LSE as RTC clock source ###################################*/
+    RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+    RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+    RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
+    if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+    {
+        DEBUG("RCC_OscConfg Error\r\n");
+    }
+
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+        DEBUG("RCCEx_PeriphCLKConfig Error");
+    }
+    /*##-2- Enable RTC peripheral Clocks #######################################*/
+    /* Enable RTC Clock */
+    __HAL_RCC_RTC_ENABLE();
+    /*##-3- Configure the NVIC for RTC Alarm ###################################*/
+    HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
+}
+/**
+ * @brief RTC MSP De-Initialization
+ *        This function frees the hardware resources
+ *          - Disable the Peripheral's clock
+ * @param hrtc: RTC handle pointer
+ * @retval None
+ */
+void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
+{
+    /*##-1- Reset peripherals ##################################################*/
+    __HAL_RCC_RTC_DISABLE();
+
+    /*##-2- Disables the PWR Clock and Disables access to the backup domain ###################################*/
+    HAL_PWR_DisableBkUpAccess();
+    __HAL_RCC_PWR_CLK_DISABLE();
+}
+
 static void RTC_CalendarAlarmConfig(void)
 {
   RTC_DateTypeDef  sdatestructure;
@@ -89,7 +149,7 @@ void HAL_RTC_Initial(void)
         DEBUG("RTC Init Error!");
     }
 
-    RTC_CalendarAlarmConfig();
+    //RTC_CalendarAlarmConfig();
 }
 
 time_t HAL_RTC_Get_UnixTime(void)

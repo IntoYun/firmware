@@ -118,8 +118,13 @@ extern "C" void optimistic_yield(uint32_t interval_us) {
     }
 }
 
+static uint8_t intorobot_app_initial_flag = 0;
 static void loop_wrapper() {
     preloop_update_frequency();
+    if(!intorobot_app_initial_flag) {
+        app_setup_and_loop_initial();
+        intorobot_app_initial_flag = 1;
+    }
     system_loop_handler(100);
     app_loop();
     run_scheduled_functions();
@@ -147,7 +152,6 @@ void init_done() {
     printf("\n%08x\n", intorobot_subsys_version);
     HAL_Core_Config();
     HAL_Core_Setup();
-    app_setup_and_loop_initial();
     wlan_set_macaddr_when_init();
     esp_schedule();
 }
@@ -330,4 +334,8 @@ void HAL_Core_System_Loop(void)
     system_loop_handler(100);
 }
 
+void HAL_Core_System_Yield(void)
+{
+    optimistic_yield(100);
+}
 

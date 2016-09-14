@@ -88,14 +88,14 @@ static STM32_SPI_Info *spiMap[TOTAL_SPI];
  */
 void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_GPIO_DMA_Init...");
+    //DEBUG("Enter HAL_SPI_GPIO_DMA_Init...");
     GPIO_InitTypeDef  GPIO_InitStruct;
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock SCK MISO MOSI clock and SPI clock and DMA clock */
     if (spiMap[spi]->SPI_Peripheral == SPI1)
     {
-        DEBUG("Select SPI1, and Enable Clock...");
+        //DEBUG("Select SPI1, and Enable Clock...");
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
 #ifdef useDMASPI
@@ -230,7 +230,7 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_Initial...");
+    //DEBUG("Enter HAL_SPI_Initial...");
     if(spi == HAL_SPI_INTERFACE1)
     {
         spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];

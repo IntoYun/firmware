@@ -51,9 +51,8 @@ int main(void)
 {
     HAL_System_Config();
     BOOT_DEBUG("boot start...\r\n");
-    HAL_UI_UserLED_Control(1);
+    HAL_UI_UserLED_Control(0);
 
-    while(1);
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
 
@@ -79,13 +78,13 @@ int main(void)
 
     if(USB_DFU_MODE)
     {
-        HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);
         BOOT_DEBUG("dfu\r\n");
+        HAL_UI_UserLED_Control(1);
         Enter_DFU_Mode();
     }
 
     BOOT_DEBUG("start app\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
+    HAL_UI_UserLED_Control(0);
 
     start_app();
     return 0;

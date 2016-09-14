@@ -20,11 +20,11 @@
 #include "eeprom_emulation.h"
 #include "flash_storage_impl.h"
 
-constexpr uintptr_t EEPROM_SectorBase1 = 0x0800C000;
-constexpr uintptr_t EEPROM_SectorBase2 = 0x08010000;
+constexpr uintptr_t EEPROM_SectorBase1 = 0x08005000;
+constexpr uintptr_t EEPROM_SectorBase2 = 0x08005400;
 
-constexpr size_t EEPROM_SectorSize1 = 16*1024;
-constexpr size_t EEPROM_SectorSize2 = 64*1024;
+constexpr size_t EEPROM_SectorSize1 = 1*1024;
+constexpr size_t EEPROM_SectorSize2 = 1*1024;
 
 using FlashEEPROM = EEPROMEmulation<InternalFlashStore, EEPROM_SectorBase1, EEPROM_SectorSize1, EEPROM_SectorBase2, EEPROM_SectorSize2>;
 

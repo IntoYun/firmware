@@ -27,85 +27,52 @@
  */
 uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
-#if 0
-    uint32_t sector = 0;
-// STM32L151C8T6 16K-SRAM 64K-Flash
-    if((address < ADDR_FLASH_SECTOR_1) && (address >= ADDR_FLASH_SECTOR_0))
-    {
-        sector = OB_WRP1_PAGES0TO15;//LASH_SECTOR_0;
-    }
-    else if((address < ADDR_FLASH_SECTOR_2) && (address >= ADDR_FLASH_SECTOR_1))
-    {
-        sector = OB_WRP1_PAGES16TO31;//LASH_SECTOR_1;
-    }
-    else if((address < ADDR_FLASH_SECTOR_3) && (address >= ADDR_FLASH_SECTOR_2))
-    {
-        sector = OB_WRP1_PAGES16TO31;//FLASH_SECTOR_2;
-    }
-    else
-        sector = OB_WRP1_PAGES16TO31;//FLASH_SECTOR_3;
-    }
-
-    return sector;
-#endif
+    return (address-INTERNAL_FLASH_START)/INTERNAL_FLASH_PAGE_SIZE;
 }
 
-HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t address)
+HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
-    /*
+    FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t PAGEError = 0;
 
     HAL_FLASH_Unlock();
-    // First Sector = FLASH_Interminal_Get_Sector(address);
-    FLASH_EraseInitTypeDef EraseInitStruct;
-    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
-    EraseInitStruct.PageAddress = address;
-    if(address == (uint32_t)0x08006000) // boot
-    {
-        EraseInitStruct.NbPages = 1;
-    }
-    else
-    {
-        EraseInitStruct.NbPages = 3;
-    }
 
-    HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.PageAddress = INTERNAL_FLASH_PAGE_SIZE*sector + INTERNAL_FLASH_START;
+    EraseInitStruct.NbPages     = 1;
+    HAL_StatusTypeDef rslt = HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError);
     HAL_FLASH_Lock();
-    */
-    return HAL_FLASH_STATUS_OK;
+    return (HAL_Flash_StatusTypeDef)rslt;
 }
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
-    uint32_t endAddress = address + datalen*2;
+    uint32_t endAddress = address + datalen*4;
     uint16_t i = 0;
 
     while(address < endAddress)
     {
-        pdata[i++] = (*(uint16_t*)address);
-        address = address + 2;
+        pdata[i++] = (*(uint32_t*)address);
+        address = address + 4;
     }
+    return HAL_FLASH_STATUS_OK;
 }
 
 HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
-    /*
-    uint32_t endAddress = address + datalen * 2;
+    uint32_t endAddress = address + datalen * 4;
     uint16_t i = 0;
 
-    // HAL_StatusTypeDef flashStatus = HAL_OK;
-    HAL_Flash_StatusTypeDef flashStatus = HAL_FLASH_STATUS_OK;
-    HAL_FLASH_Interminal_Erase(address);
+    HAL_StatusTypeDef flashStatus = HAL_OK;
     HAL_FLASH_Unlock();
-    while((address < endAddress) && (flashStatus == HAL_FLASH_STATUS_OK))
+
+    while((address < endAddress) && (flashStatus == HAL_OK))
     {
-        flashStatus = (HAL_Flash_StatusTypeDef)HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, address, pdata[i++]);
-        address = address + 2;
+        flashStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, pdata[i++]);
+        address = address + 4;
     }
 
     HAL_FLASH_Lock();
-    return flashStatus;
-    */
-    return HAL_FLASH_STATUS_OK;
+    return (HAL_Flash_StatusTypeDef)flashStatus;
 }
 

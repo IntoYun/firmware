@@ -114,8 +114,6 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         return;
     }
 
-    HAL_UART_DeInit(usartMap[serial]->uart_handle);
-
     if(HAL_USART_SERIAL1 == serial)
     {
         __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -182,6 +180,8 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
                 break;
         }
     }
+
+    HAL_UART_DeInit(usartMap[serial]->uart_handle);
     HAL_UART_Init(usartMap[serial]->uart_handle);
 
     //Configure the NVIC for UART

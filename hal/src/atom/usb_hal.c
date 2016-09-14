@@ -39,7 +39,6 @@
  *******************************************************************************/
 void USB_USART_Initial(uint32_t baudRate)
 {
-#if 0
     //TODO
     //create usb mutex
     //osMutexDef(USB_MUT);
@@ -48,11 +47,13 @@ void USB_USART_Initial(uint32_t baudRate)
     {
         if (!baudRate && LineCoding.bitrate > 0)
         {
+            USB_Cable_Config(DISABLE);
             USBD_Stop(&USBD_Device);
             USBD_DeInit(&USBD_Device);
         }
         else if (!LineCoding.bitrate)
         {
+            USB_Cable_Config(ENABLE);
             /* Init Device Library */
             USBD_Init(&USBD_Device, &VCP_Desc, 0);
             /* Add Supported Class */
@@ -61,11 +62,14 @@ void USB_USART_Initial(uint32_t baudRate)
             USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
             /* Start Device Process */
             USBD_Start(&USBD_Device);
+
+            USB_Cable_Config(DISABLE);
+            delay(100);
+            USB_Cable_Config(ENABLE);
         }
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;
     }
-#endif
 }
 
 unsigned USB_USART_Baud_Rate(void)
@@ -166,7 +170,7 @@ void USB_USART_Flush_Data(void)
  * @param  None
  * @retval None
  */
-void USB_LP_IRQHandler(void)
+void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd);
 }
@@ -186,8 +190,3 @@ void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 }
 #endif
 
-
-int32_t USB_USART_Flush_Output(unsigned timeout, void* reserved)
-{
-    return 0;
-}

@@ -46,7 +46,7 @@ Linker subscript for STM32F10x definitions with 128K Flash and 20K RAM */
 MEMORY
 {
     SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 20K
-    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K-0x7000
+    APP_FLASH (rx)    : ORIGIN = 0x08007000, LENGTH = 128K-0x7000
 }
 
 INCLUDE linker_stm32f103xb_common.ld

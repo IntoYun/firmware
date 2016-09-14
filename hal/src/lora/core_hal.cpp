@@ -203,6 +203,11 @@ void HAL_Core_System_Loop(void)
 
 }
 
+void HAL_Core_System_Yield(void)
+{
+
+}
+
 /*******************************************************************************
  * Function Name  : SysTick_Handler
  * Description    : This function handles SysTick Handler.

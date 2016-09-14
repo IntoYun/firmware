@@ -24,7 +24,7 @@
 
 void HAL_UI_Initial(void)
 {
-    //三色灯管脚初始化
+    //例子灯配置
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef  GPIO_InitStruct;
     GPIO_InitStruct.Pin = USER_LED_GPIO_PIN;
@@ -33,7 +33,7 @@ void HAL_UI_Initial(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(USER_LED_GPIO_PORT, &GPIO_InitStruct);
 
-    HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_RESET);
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)

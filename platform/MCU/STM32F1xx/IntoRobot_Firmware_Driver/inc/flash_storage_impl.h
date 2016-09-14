@@ -56,14 +56,12 @@ public:
                 destination += 2;
                 data_ptr += 2;
             }
-            /*
             else
             {
-                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, destination, *data_ptr))) && (tries++ < max_tries));
-                destination++;
-                data_ptr++;
+                // Cannot program single bytes on STM32F1xx
+                // Avoid programming unaligned addresses or single bytes
+                return -1;
             }
-            */
         }
         HAL_FLASH_Lock();
         return (memcmp(dataAt(offset), data, size)) ? -1 : 0;
