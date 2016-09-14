@@ -163,14 +163,4 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
     HAL_PCD_IRQHandler(&hpcd);
 }
 
-/**
- * @brief  This function handles UART interrupt request.
- * @param  None
- * @retval None
- */
-/*void USART1_IRQHandler(void)
-{
-    HAL_USART1_Esp8266_Handler(&UartHandleEsp8266);
-}
-*/
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

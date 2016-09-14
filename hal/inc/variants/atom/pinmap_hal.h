@@ -65,8 +65,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS        41 
-#define TOTAL_ANALOG_PINS 16 
+#define TOTAL_PINS        41
+#define TOTAL_ANALOG_PINS 16
 #define FIRST_ANALOG_PIN  30
 
 #define D0  0
@@ -77,23 +77,23 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define D5  5
 #define D6  6
 #define D7  7
-#define D8  8 
-#define D9  9 
-#define D10 10 
-#define D11 11 
-#define D12 12 
-#define D13 13 
-#define D14 14 
-#define D15 15 
-#define D16 16 
+#define D8  8
+#define D9  9
+#define D10 10
+#define D11 11
+#define D12 12
+#define D13 13
+#define D14 14
+#define D15 15
+#define D16 16
 #define D17 17
-#define D18 18 
-#define D19 19 
-#define D20 20 
-#define D21 21 
-#define D22 22 
-#define D23 23 
-#define D24 24 
+#define D18 18
+#define D19 19
+#define D20 20
+#define D21 21
+#define D22 22
+#define D23 23
+#define D24 24
 
 #define A0  30
 #define A1  31
@@ -105,24 +105,20 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A7  37
 #define A8  38
 #define A9  39
-#define A10 40 
-#define A11 41 
-#define A12 42 
-#define A13 43 
-#define A14 44 
-#define A15 45 
-// // Uart pins
-// #define CTS A0
-// #define RTS A1
+#define A10 40
+#define A11 41
+#define A12 42
+#define A13 43
+#define A14 44
+#define A15 45
 
 //uart pin
 #define TX  A3
 #define RX  A2
 
 //uart1 pin
-#define TX1 D1 
-#define RX1 D0 
-
+#define TX1 D1
+#define RX1 D0
 
 // SPI pins
 #define SS    A4
@@ -149,9 +145,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define LED_USER  D7
 
 #define TOTAL_USARTS        2
-
-
-
 
 #define TIM_PWM_FREQ 500 //500Hz
 

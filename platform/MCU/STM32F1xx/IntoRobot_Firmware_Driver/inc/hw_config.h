@@ -63,7 +63,11 @@ extern "C" {
 void Set_System(void);
 void NVIC_SetVectorTable(uint32_t NVIC_VectTab, uint32_t Offset);
 
+void USB_Cable_Initial(void);
+void USB_Cable_Config(FunctionalState NewState);
+
 /* External variables --------------------------------------------------------*/
+
 
 
 #ifdef __cplusplus

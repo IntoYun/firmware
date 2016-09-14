@@ -28,17 +28,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu_if.h"
 #include "stm32f1xx_hal_conf.h"
+#include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define FLASH_DESC_STR      "@Internal Flash   /0x08000000/04*016Ka,01*064Kg,03*128Kg"
+#define FLASH_DESC_STR      "@Internal Flash   /0x08000000/20*01Ka,08*01Kg,100*01Kg"
 #define FLASH_ERASE_TIME    (uint16_t)50
 #define FLASH_PROGRAM_TIME  (uint16_t)50
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-static uint32_t GetSector(uint32_t Address);
 
 /* Extern function prototypes ------------------------------------------------*/
 uint16_t Flash_If_Init(void);
@@ -72,6 +72,7 @@ __ALIGN_BEGIN USBD_DFU_MediaTypeDef USBD_DFU_fops __ALIGN_END = {
  */
 uint16_t Flash_If_Init(void)
 {
+    DEBUG_D("Flash_If_Init\r\n");
     /* Unlock the internal flash */
     HAL_FLASH_Unlock();
     return 0;
@@ -84,9 +85,11 @@ uint16_t Flash_If_Init(void)
  */
 uint16_t Flash_If_DeInit(void)
 {
+    DEBUG_D("Flash_If_DeInit\r\n");
     /* Lock the internal flash */
     HAL_FLASH_Lock();
-    HAL_NVIC_SystemReset();  //下载完毕后 重启
+    NVIC_SystemReset();
+    DEBUG_D("Flash_If_DeInit111111\r\n");
     return 0;
 }
 
@@ -97,17 +100,18 @@ uint16_t Flash_If_DeInit(void)
  */
 uint16_t Flash_If_Erase(uint32_t Add)
 {
-    uint32_t NbOfPages = 0;
+    DEBUG_D("Flash_If_Erase\r\n");
     uint32_t PageError = 0;
     /* Variable contains Flash operation status */
     HAL_StatusTypeDef status;
     FLASH_EraseInitTypeDef eraseinitstruct;
 
     /* Get the number of sector to erase from 1st sector*/
-    NbOfPages = ((USBD_DFU_APP_END_ADD - USBD_DFU_APP_DEFAULT_ADD) / FLASH_PAGE_SIZE) + 1;
     eraseinitstruct.TypeErase = FLASH_TYPEERASE_PAGES;
-    eraseinitstruct.PageAddress = USBD_DFU_APP_DEFAULT_ADD;
-    eraseinitstruct.NbPages = NbOfPages;
+    eraseinitstruct.PageAddress = Add;
+    eraseinitstruct.NbPages = 1;
+
+    DEBUG_D("Flash_If_Erase %x\r\n", eraseinitstruct.PageAddress);
     status = HAL_FLASHEx_Erase(&eraseinitstruct, &PageError);
 
     if (status != HAL_OK)
@@ -126,6 +130,7 @@ uint16_t Flash_If_Erase(uint32_t Add)
  */
 uint16_t Flash_If_Write(uint8_t *src, uint8_t *dest, uint32_t Len)
 {
+    DEBUG_D("Flash_If_Write\r\n");
     uint32_t i = 0;
 
     for(i = 0; i < Len; i+=4)
@@ -159,6 +164,7 @@ uint16_t Flash_If_Write(uint8_t *src, uint8_t *dest, uint32_t Len)
  */
 uint8_t *Flash_If_Read(uint8_t *src, uint8_t *dest, uint32_t Len)
 {
+    DEBUG_D("Flash_If_Read\r\n");
     uint32_t i = 0;
     uint8_t *psrc = src;
 
@@ -178,6 +184,7 @@ uint8_t *Flash_If_Read(uint8_t *src, uint8_t *dest, uint32_t Len)
  */
 uint16_t Flash_If_GetStatus(uint32_t Add, uint8_t Cmd, uint8_t *buffer)
 {
+    DEBUG_D("Flash_If_GetStatus\r\n");
     switch(Cmd)
     {
         case DFU_MEDIA_PROGRAM:

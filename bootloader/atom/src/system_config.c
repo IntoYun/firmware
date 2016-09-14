@@ -23,9 +23,9 @@ void usart_debug_initial(uint32_t baud)
     GPIO_InitStruct.Pull      = GPIO_PULLUP;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    //GPIO_InitStruct.Pin       = GPIO_PIN_3;
-    //GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
-    //HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin       = GPIO_PIN_3;
+    GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     UartHandleDebug.Instance          = USART2;
     UartHandleDebug.Init.BaudRate     = baud;
@@ -38,15 +38,16 @@ void usart_debug_initial(uint32_t baud)
     HAL_UART_DeInit(&UartHandleDebug);
     HAL_UART_Init(&UartHandleDebug);
 
-    HAL_UART_Transmit(&UartHandleDebug, (uint8_t *)&"1", 1, 0xFFFF);
+    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
 }
 
 void HAL_System_Config(void)
 {
     Set_System();
-    //HAL_RTC_Initial();
-    HAL_UI_Initial();
     usart_debug_initial(115200);
+    HAL_RTC_Initial();
+    HAL_UI_Initial();
+    USB_Cable_Initial();
 }
 
 system_tick_t millis(void)

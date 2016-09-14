@@ -32,19 +32,13 @@
 static inline uint16_t InternalSectorToWriteProtect(uint32_t startAddress)
 {
     uint16_t OB_WRP_Sector;
-    OB_WRP_Sector = 1<<(startAddress/INTERNAL_FLASH_SECTOR_SIZE);
+    OB_WRP_Sector = 1<<((startAddress-INTERNAL_FLASH_START)/INTERNAL_FLASH_SECTOR_SIZE);
     return OB_WRP_Sector;
-}
-
-inline static uint16_t InternalSectorToErase(uint32_t startAddress)
-{
-    uint16_t flashSector = startAddress/INTERNAL_FLASH_SECTOR_SIZE;
-    return flashSector;
 }
 
 inline static uint16_t InternalPageToErase(uint32_t startAddress)
 {
-    uint16_t flashPage = (startAddress/INTERNAL_FLASH_PAGE_SIZE);
+    uint16_t flashPage = ((startAddress-INTERNAL_FLASH_START)/INTERNAL_FLASH_PAGE_SIZE);
     return flashPage;
 }
 
@@ -56,32 +50,25 @@ uint16_t FLASH_SectorToWriteProtect(flash_device_t device, uint32_t startAddress
     return sector;
 }
 
-uint16_t FLASH_SectorToErase(flash_device_t device, uint32_t startAddress)
-{
-    uint16_t sector = 0xFFFF;
-    if (device==FLASH_INTERNAL)
-        sector = InternalSectorToErase(startAddress);
-    return sector;
-}
-
 uint16_t FLASH_PageToErase(flash_device_t device, uint32_t startAddress)
 {
     uint16_t sector = 0xFFFF;
     if (device==FLASH_INTERNAL)
-        sector = InternalSectorToErase(startAddress);
+        sector = InternalPageToErase(startAddress);
     return sector;
 }
 
 /**
  * Determines the address that is the end of this sector (exclusive - so it's really the start of the next sector.)
  */
-uint32_t EndOfFlashSector(flash_device_t device, uint32_t address)
+uint32_t EndOfFlashPage(flash_device_t device, uint32_t address)
 {
     uint32_t end;
+
     if (device==FLASH_INTERNAL)
     {
-        uint16_t sector = address / INTERNAL_FLASH_SECTOR_SIZE;
-        end = (sector+1) * INTERNAL_FLASH_SECTOR_SIZE;
+        uint16_t page = (address-INTERNAL_FLASH_START) / INTERNAL_FLASH_PAGE_SIZE;
+        end = (page+1) * INTERNAL_FLASH_PAGE_SIZE;
     }
 #if USE_SERIAL_FLASH
     else if (device==FLASH_SERIAL)
@@ -101,7 +88,7 @@ bool FLASH_CheckValidAddressRange(flash_device_t flashDeviceID, uint32_t startAd
 
     if (flashDeviceID == FLASH_INTERNAL)
     {
-        return startAddress>=0x8000000 && endAddress<=0x8080000;
+        return startAddress>=INTERNAL_FLASH_START && endAddress<=INTERNAL_FLASH_END;
     }
     else if (flashDeviceID == FLASH_SERIAL)
     {
@@ -349,7 +336,7 @@ bool FLASH_CopyMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
 
     while (length)
     {
-        uint32_t endBlockAddress = EndOfFlashSector(destinationDeviceID, destinationAddress);
+        uint32_t endBlockAddress = EndOfFlashPage(destinationDeviceID, destinationAddress);
         uint32_t blockLength = endBlockAddress-destinationAddress;
         if (blockLength>length)
             blockLength = length;

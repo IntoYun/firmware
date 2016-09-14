@@ -25,12 +25,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
+#include <string.h>
 #include "usart_hal.h"
 #include "pinmap_impl.h"
-#include <string.h>
+#include "gpio_hal.h"
+
+#define USART_QUEUE_SIZE             256
 
 UART_HandleTypeDef UartHandle_A2A3;  // USART2 A2(PA3)-RX A3(PA2)-TX
 UART_HandleTypeDef UartHandle_D0D1;  // USART3 D0(PB11)-RX D1(PB10)-TX
+
 SDK_QUEUE Usart_Rx_Queue_A2A3;
 SDK_QUEUE Usart_Rx_Queue_D0D1;
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +49,7 @@ typedef enum USART_Num_Def {
 /* Private variables ---------------------------------------------------------*/
 typedef struct STM32_USART_Info {
     USART_TypeDef* usart_peripheral;
-    /* uint32_t usart_alternate; */
+
     int32_t usart_int_n;
     uint16_t usart_tx_pin;
     uint16_t usart_rx_pin;
@@ -67,7 +71,6 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
     /*
      * USART_peripheral (USARTx/UARTx; not using others)
      * gpio_peripheral (GPIOA, GPIOB, GPIOC or GPIOD)
-     * Alternate;
      * interrupt number (USARTx_IRQn/UARTx_IRQn)
      * TX pin
      * RX pin
@@ -76,51 +79,51 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2,  USART2_IRQn, TX, RX },//GPIO_AF7_USART2,        // USART2
-    { USART3,  USART3_IRQn, TX, RX } //GPIO_AF7_USART3,        // USART3
+    { USART2, USART2_IRQn, TX, RX },          // USART 2
+    { USART3, USART3_IRQn, TX1, RX1 }         // USART 3
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
-    /*
     if(serial == HAL_USART_SERIAL1)
     {
         usartMap[serial] = &USART_MAP[USART_A2_A3];
         usartMap[serial]->uart_handle = &UartHandle_A2A3;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
-        sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
-        //sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
+        sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     else
     {
         usartMap[serial] = &USART_MAP[USART_D0_D1];
         usartMap[serial]->uart_handle = &UartHandle_D0D1;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_D0D1;
-        sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
-        //sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
+        sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     usartMap[serial]->usart_enabled = false;
     usartMap[serial]->usart_transmitting = false;
-    */
 }
 
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 {
-    //HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
+    HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
 }
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
+
+    if( true == usartMap[serial]->usart_enabled )
+    {
+        return;
+    }
+
     // Verify UART configuration, exit if it's invalid.
     if (!IS_USART_CONFIG_VALID(config))
     {
         usartMap[serial]->usart_enabled = false;
         return;
     }
-
-    HAL_UART_DeInit(usartMap[serial]->uart_handle);
 
     if(HAL_USART_SERIAL1 == serial)
     {
@@ -136,18 +139,20 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     GPIO_InitTypeDef  GPIO_InitStruct;
     /* UART TX RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin|PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
+    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;//GPIO_SPEED_FAST;
-    /* GPIO_InitStruct.Alternate = usartMap[serial]->usart_alternate; */
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;;
+    HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_peripheral, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
+    GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
     HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_peripheral, &GPIO_InitStruct);
 
     usartMap[serial]->uart_handle->Instance          = usartMap[serial]->usart_peripheral;
     usartMap[serial]->uart_handle->Init.BaudRate     = baud;
     usartMap[serial]->uart_handle->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     usartMap[serial]->uart_handle->Init.Mode         = UART_MODE_TX_RX;
-    usartMap[serial]->uart_handle->Init.OverSampling = UART_OVERSAMPLING_16;
+    //usartMap[serial]->uart_handle->Init.OverSampling = UART_OVERSAMPLING_16;
 
     // Stop bit configuration.
     switch (config & SERIAL_STOP_BITS)
@@ -186,6 +191,8 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
                 break;
         }
     }
+
+    HAL_UART_DeInit(usartMap[serial]->uart_handle);
     HAL_UART_Init(usartMap[serial]->uart_handle);
 
     //Configure the NVIC for UART

@@ -33,6 +33,7 @@
 #include "wlan_hal.h"
 #include "delay_hal.h"
 #include "timer_hal.h"
+#include "core_hal.h"
 #include "params_hal.h"
 #include "service_debug.h"
 
@@ -42,9 +43,6 @@
 #include "system_threading.h"
 
 using intorobot::Network;
-
-extern volatile uint8_t INTOROBOT_IMLINK_CONFIG_IS_NEEDED; //进入配置模式
-extern volatile uint8_t INTOROBOT_IMLINK_CONFIG_START; //配置模式开始
 
 /**
  * Time in millis of the last cloud connection attempt.
@@ -225,36 +223,28 @@ void manage_cloud_connection(void)
 #endif
 
 // These are internal methods
-bool manage_imlink_config()
+void manage_imlink_config(void)
 {
     if(HAL_PARAMS_Get_System_config_flag())
     {
-        if (!INTOROBOT_IMLINK_CONFIG_START)
+        DEBUG_D(("enter device config\r\n"));
+        system_rgb_blink(RGB_COLOR_RED, 1000);
+        DeviceConfigUsb.init();
+        DeviceConfigUsart.init();
+        DeviceConfigUdp.init();
+
+        while(1)
         {
-            //DEBUG_D(("enter device config\r\n"));
-            system_rgb_blink(RGB_COLOR_RED, 1000);
-            DeviceConfigUsb.init();
-            DeviceConfigUsart.init();
-            DeviceConfigUdp.init();
-            INTOROBOT_IMLINK_CONFIG_START = true;
-            INTOROBOT_IMLINK_CONFIG_IS_NEEDED = true;
-        }
-        if( DeviceConfigUsb.process() || DeviceConfigUdp.process() || DeviceConfigUsart.process() )
-        {
-            //DEBUG_D(("exit  device config\r\n"));
-            HAL_PARAMS_Set_System_config_flag(0);
-            HAL_PARAMS_Save_Params();
-            INTOROBOT_IMLINK_CONFIG_START = false;
-        }
-        else {
-            return false;
+            if( DeviceConfigUsb.process() || DeviceConfigUdp.process() || DeviceConfigUsart.process() )
+            {
+                DEBUG_D(("exit  device config\r\n"));
+                HAL_PARAMS_Set_System_config_flag(0);
+                HAL_PARAMS_Save_Params();
+                break;
+            }
+            HAL_Core_System_Yield();
         }
     }
-    if(true == INTOROBOT_IMLINK_CONFIG_IS_NEEDED) {
-        Network_Setup();
-        INTOROBOT_IMLINK_CONFIG_IS_NEEDED = false;
-    }
-    return true;
 }
 
 void system_process_loop(void)
@@ -262,13 +252,10 @@ void system_process_loop(void)
 #if PLATFORM_THREADING
     while (1) {
 #endif
-        if(manage_imlink_config())
-        {
-            manage_serial_flasher();
-            manage_network_connection();
-            manage_ip_config();
-            CLOUD_FN(manage_cloud_connection(), (void)0);
-        }
+        manage_serial_flasher();
+        manage_network_connection();
+        manage_ip_config();
+        CLOUD_FN(manage_cloud_connection(), (void)0);
 #if PLATFORM_THREADING
     }
 #endif

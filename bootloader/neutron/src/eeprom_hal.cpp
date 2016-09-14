@@ -1,4 +1,4 @@
 
 // pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
 // full hal library.
-#include "../src/neutron/eeprom_hal.c"
+#include "../src/neutron/eeprom_hal.cpp"
