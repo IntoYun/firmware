@@ -76,19 +76,19 @@ bool disconnect = false;
 
 void setup()
 {
-    Particle.variable("bool", variableBool);
-    Particle.variable("int", variableInt);
-    Particle.variable("double", variableDouble);
-    Particle.variable("string", variableString);
+    // IntoRobot.variable("bool", variableBool);
+    // IntoRobot.variable("int", variableInt);
+    // IntoRobot.variable("double", variableDouble);
+    // IntoRobot.variable("string", variableString);
 
-    Particle.function("updateString", updateString);
-    Particle.function("update", update);
-    Particle.function("setString", setString);
-    Particle.function("checkString", checkString);
+    IntoRobot.function("updateString", updateString);
+    IntoRobot.function("update", update);
+    IntoRobot.function("setString", setString);
+    IntoRobot.function("checkString", checkString);
 
-    Particle.function("cmd", cmd);
+    IntoRobot.function("cmd", cmd);
 
-    Particle.subscribe("cloudtest", subscription);
+    IntoRobot.subscribe("cloudtest", subscription);
 
 }
 
@@ -109,7 +109,7 @@ void do_cmd(String arg)
 	}
 	else if (arg.equals("drop_dtls_session"))
 	{
-		Particle.publish("spark/device/session/end","", PRIVATE);
+		IntoRobot.publish("spark/device/session/end","", PRIVATE);
 	}
 	else if (arg.equals("reset"))
 	{
@@ -121,15 +121,15 @@ void loop()
 {
 	if (disconnect)
 	{
-		Particle.disconnect();
-		Particle.process();
+		IntoRobot.disconnect();
+		IntoRobot.process();
 		disconnect = false;
 	}
 
-	if (Particle.disconnected())
+	if (IntoRobot.disconnected())
 	{
-		Particle.connect();
-		Particle.process();
+		IntoRobot.connect();
+		IntoRobot.process();
 	}
 
 	if (next_cmd.length())

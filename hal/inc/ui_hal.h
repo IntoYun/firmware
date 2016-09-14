@@ -62,6 +62,8 @@ typedef struct {
 #define RGB_COLOR_CYAN      0x00FFFF  //浅蓝色
 #define RGB_COLOR_MAGENTA   0xFF00FF
 #define RGB_COLOR_WHITE     0xFFFFFF
+#define RGB_COLOR_ORANGE    0xFF6000
+#define RGB_COLOR_GREY      0x1F1F1F
 
 
 void HAL_UI_Initial(void);

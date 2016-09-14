@@ -1,5 +1,5 @@
 /**
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -117,15 +117,15 @@ void setup()
 
     //Setup the Tinker application here
     //Register all the Tinker functions
-    Particle.function("digitalread", tinkerDigitalRead);
-    Particle.function("digitalwrite", tinkerDigitalWrite);
+    IntoRobot.function("digitalread", tinkerDigitalRead);
+    IntoRobot.function("digitalwrite", tinkerDigitalWrite);
 
-    Particle.function("analogread", tinkerAnalogRead);
-    Particle.function("analogwrite", tinkerAnalogWrite);
+    IntoRobot.function("analogread", tinkerAnalogRead);
+    IntoRobot.function("analogwrite", tinkerAnalogWrite);
 
     System.on(all_events, eventHandler);
 
-    Particle.function("cmd", handleCmd);
+    IntoRobot.function("cmd", handleCmd);
 }
 
 /* This function loops forever --------------------------------------------*/

@@ -29,7 +29,7 @@ void setup()
 {
     Serial.begin(9600);
     Serial.println("PRESS ENTER");
-    while (!Serial.available()) Particle.process();
+    while (!Serial.available()) IntoRobot.process();
     while (Serial.available()) Serial.read(); // Flush the input buffer
 }
 
@@ -60,10 +60,10 @@ void loop()
             }
         }
         else if(c == 'C') {
-            Particle.connect();
+            IntoRobot.connect();
         }
         else if(c == 'c') {
-            Particle.disconnect();
+            IntoRobot.disconnect();
         }
         else {
             Serial.println("ignore you because you're not speaking my language!");

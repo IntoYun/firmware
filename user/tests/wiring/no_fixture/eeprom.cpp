@@ -6,7 +6,7 @@
  * @date    7-Oct-2014
  * @brief   EEPROM test application
  ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -63,7 +63,8 @@ test(EEPROM_ReadWriteSucceedsForAllAddressWithInRange) {
 
     // Avoid leaving the EEPROM 100% full which leads to poor performance
     // in other programs using EEPROM on this device in the future
-    EEPROM.clear();
+    // EEPROM.clear();
+    EEPROM.end();
 }
 
 test(EEPROM_ReadWriteFailsForAnyAddressOutOfRange) {

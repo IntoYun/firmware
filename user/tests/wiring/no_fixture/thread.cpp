@@ -2,6 +2,8 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
+#if 0
+
 #if PLATFORM_THREADING
 test(Thread_creation)
 {
@@ -92,5 +94,7 @@ test(application_watchdog_doesnt_fire_when_app_checks_in)
 	assertEqual(timeout_called, 1);
 	waitForComplete(wd);
 }
+
+#endif
 
 #endif

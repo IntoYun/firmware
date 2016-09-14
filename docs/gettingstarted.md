@@ -7,7 +7,7 @@
 
 ## 2. Download and Build Repositories
 
-The entire Particle firmware is contained in this repository.
+The entire IntoRobot firmware is contained in this repository.
 
 There are two ways to download
 - through the git command line interface
@@ -97,7 +97,7 @@ If you have made changes to any of the other directories, make automatically det
 
 ## 4. Flash It!
 
-Its now time to transfer your code to your Particle device! You can always do this using the Over the Air update feature or, if you like wires, do it over the USB.
+Its now time to transfer your code to your IntoRobot device! You can always do this using the Over the Air update feature or, if you like wires, do it over the USB.
 
 *Make sure you have the `dfu-util` command installed and available through the command line*
 

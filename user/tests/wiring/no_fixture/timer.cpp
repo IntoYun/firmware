@@ -1,6 +1,7 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
+#if 0
 #if PLATFORM_THREADING
 
 uint32_t timer_callback_called;
@@ -178,5 +179,7 @@ test(timer_is_active)
 	t.stop();
 	assertFalse(t.isActive());
 }
+
+#endif
 
 #endif

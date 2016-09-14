@@ -24,9 +24,9 @@
       SDA ------------------ D0/SDA
 
   Development environment specifics:
-  	IDE: Particle Dev
-  	Hardware Platform: Particle Photon
-                       Particle Core
+  	IDE: IntoRobot Dev
+  	Hardware Platform: IntoRobot Photon
+                       IntoRobot Core
 
   This code is beerware; if you see me (or any other SparkFun
   employee) at the local, and you've found our code helpful,

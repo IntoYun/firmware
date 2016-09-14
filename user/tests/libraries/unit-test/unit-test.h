@@ -32,13 +32,13 @@ enum RunnerState {
     COMPLETE
 };
 
-class SparkTestRunner {
+class IntoRobotTestRunner {
 
 private:
     int _state;
 
 public:
-    SparkTestRunner() : _state(INIT) {
+    IntoRobotTestRunner() : _state(INIT) {
 
     }
 
@@ -84,7 +84,7 @@ public:
             const char* stateName = nameForState((RunnerState)_state);
             if (isStarted())
                 updateLEDStatus();
-            Particle.publish("state", stateName);
+            IntoRobot.publish("state", stateName);
         }
     }
 
@@ -93,7 +93,7 @@ public:
     }
 };
 
-extern SparkTestRunner _runner;
+extern IntoRobotTestRunner _runner;
 
 #define UNIT_TEST_SETUP() \
     void setup() { unit_test_setup(); }
@@ -439,7 +439,7 @@ Variables you might want to adjust:
 */
 class Test
 {
-    friend class SparkTestRunner;
+    friend class IntoRobotTestRunner;
 
  private:
   // allows for both ram/progmem based names

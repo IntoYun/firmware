@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
-  Copyright (c) 2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -24,7 +24,7 @@ void setup()
 {
 	System.enableFeature(FEATURE_RETAINED_MEMORY);
 	Serial.begin(9600);
-	while (!Serial.available()) Particle.process();
+	while (!Serial.available()) IntoRobot.process();
 
 	if (int(&variable) < 0x30000000) {
 		Serial.printlnf("ERROR: expected variable in backup memory, but was at %x", &variable);

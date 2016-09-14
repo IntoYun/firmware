@@ -25,17 +25,24 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <limits.h>
+#include "stm32f1xx.h"
 
 typedef uint32_t system_tick_t;
 
-#define SYSTEM_US_TICKS         ( F_CPU / 1000000L )    //cycles per microsecond
-#define SYSTEM_TICK_COUNTER     10
+#define SYSTEM_US_TICKS		(SystemCoreClock / 1000000)//cycles per microsecond
+#define SYSTEM_TICK_COUNTER     (DWT->CYCCNT)
 
+/**
+ * Increment the millisecond tick counter.
+ */
+void System1MsTick(void);
 
-void SysTick_Enable();
+/**
+ * Increment the microsecond tick counter.
+ */
+void System1UsTick(void);
+
 /**
  * Fetch the current milliseconds count.
  * @return the number of milliseconds since the device was powered on or woken up from
@@ -49,6 +56,14 @@ system_tick_t GetSystem1MsTick();
  * sleep. Automatically wraps around when above UINT_MAX;
  */
 system_tick_t GetSystem1UsTick();
+
+
+/**
+ * Testing method that simulates advancing the time forward.
+ */
+void __advance_system1MsTick(system_tick_t millis, system_tick_t micros_from_rollover);
+
+void SysTick_Disable();
 
 
 
