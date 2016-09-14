@@ -178,7 +178,7 @@ void app_loop(void)
             _post_loop();
         }
 
-        Execute user application loop
+        // Execute user application loop
         DECLARE_SYS_HEALTH(ENTERED_Loop);
         if (system_mode()!=SAFE_MODE) {
                         loop();
