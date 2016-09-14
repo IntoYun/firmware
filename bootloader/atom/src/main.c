@@ -49,10 +49,11 @@ uint8_t START_APP_MODE        = 0;
  */
 int main(void)
 {
-    BOOT_DEBUG("boot start...\r\n");
     HAL_System_Config();
-    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+    BOOT_DEBUG("boot start...\r\n");
+    HAL_UI_UserLED_Control(1);
 
+    while(1);
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
 

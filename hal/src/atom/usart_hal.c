@@ -76,14 +76,15 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2,  USART2_IRQn, TX, RX },//GPIO_AF7_USART2,        // USART2   
-    { USART3,  USART3_IRQn, TX, RX } //GPIO_AF7_USART3,        // USART3 
+    { USART2,  USART2_IRQn, TX, RX },//GPIO_AF7_USART2,        // USART2
+    { USART3,  USART3_IRQn, TX, RX } //GPIO_AF7_USART3,        // USART3
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
+    /*
     if(serial == HAL_USART_SERIAL1)
     {
         usartMap[serial] = &USART_MAP[USART_A2_A3];
@@ -102,11 +103,12 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
     }
     usartMap[serial]->usart_enabled = false;
     usartMap[serial]->usart_transmitting = false;
+    */
 }
 
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 {
-    HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
+    //HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
 }
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)

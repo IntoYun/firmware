@@ -27,8 +27,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-#include "usbd_core.h"
 #include "usbd_cdc.h"
+#include "usbd_core.h"
 #include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/

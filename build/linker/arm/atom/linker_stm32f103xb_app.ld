@@ -1,27 +1,27 @@
 /*
-*****************************************************************************
-**
-**  File        : linker_stm32f10x_md.ld
-**
-**  Abstract    : Linker script for STM32F103CB Device with
-**                128KByte FLASH, 20KByte RAM
-**
-**                Set heap size, stack size and stack location according
-**                to application requirements.
-**
-**                Set memory bank area and size if external memory is used.
-**
-**  Target      : STMicroelectronics STM32
-**
-**  Environment : Eclipse-CDT and GNU Tools ARM Embedded. 
-**
-*****************************************************************************
-*/
+ *****************************************************************************
+ **
+ **  File        : linker_stm32f10x_md.ld
+ **
+ **  Abstract    : Linker script for STM32F103CB Device with
+ **                128KByte FLASH, 20KByte RAM
+ **
+ **                Set heap size, stack size and stack location according
+ **                to application requirements.
+ **
+ **                Set memory bank area and size if external memory is used.
+ **
+ **  Target      : STMicroelectronics STM32
+ **
+ **  Environment : Eclipse-CDT and GNU Tools ARM Embedded.
+ **
+ *****************************************************************************
+ */
 
-/* default stack sizes. 
+/* default stack sizes.
 
 These are used by the startup in order to allocate stacks for the different modes.
-*/
+ */
 
 __Stack_Size = 2048 ;
 
@@ -34,7 +34,7 @@ PROVIDE ( _Stack_Init = __Stack_Init ) ;
 
 /*
 There will be a link error if there is not this amount of RAM free at the end.
-*/
+ */
 _Minimum_Stack_Size = 0x200 ;
 
 /* include the memory spaces definitions sub-script */
@@ -45,13 +45,8 @@ Linker subscript for STM32F10x definitions with 128K Flash and 20K RAM */
 
 MEMORY
 {
-  RAM (xrw)     : ORIGIN = 0x20000000, LENGTH = 20K
-  FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K-0x5000
-  FLASHB1 (rx)  : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB0 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB2 (rx) : ORIGIN = 0x00000000, LENGTH = 0
-  EXTMEMB3 (rx) : ORIGIN = 0x00000000, LENGTH = 0
+    SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 20K
+    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K-0x7000
 }
 
 INCLUDE linker_stm32f103xb_common.ld

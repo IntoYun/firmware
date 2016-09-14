@@ -111,9 +111,9 @@ uint16_t Flash_If_Erase(uint32_t Add)
     status = HAL_FLASHEx_Erase(&eraseinitstruct, &PageError);
 
     if (status != HAL_OK)
-        {
-            return 1;
-        }
+    {
+        return 1;
+    }
     return 0;
 }
 
@@ -195,50 +195,5 @@ uint16_t Flash_If_GetStatus(uint32_t Add, uint8_t Cmd, uint8_t *buffer)
     }
     return 0;
 }
-
-/* /\** */
-/*  * @brief  Gets the sector of a given address */
-/*  * @param  Address Address of the FLASH Memory */
-/*  * @retval The sector of a given address */
-/*  *\/ */
-/* static uint32_t GetSector(uint32_t Address) */
-/* { */
-/*     uint32_t sector = 0; */
-
-/*     if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0)) */
-/*     { */
-/*         sector = FLASH_SECTOR_0; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1)) */
-/*     { */
-/*         sector = FLASH_SECTOR_1; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2)) */
-/*     { */
-/*         sector = FLASH_SECTOR_2; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3)) */
-/*     { */
-/*         sector = FLASH_SECTOR_3; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4)) */
-/*     { */
-/*         sector = FLASH_SECTOR_4; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5)) */
-/*     { */
-/*         sector = FLASH_SECTOR_5; */
-/*     } */
-/*     else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6)) */
-/*     { */
-/*         sector = FLASH_SECTOR_6; */
-/*     } */
-/*     else */
-/*     { */
-/*         sector = FLASH_SECTOR_7; */
-/*     } */
-/*     return sector; */
-/* } */
-
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

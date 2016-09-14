@@ -1,4 +1,4 @@
 
 // pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
 // full hal library.
-#include "../src/atom/eeprom_hal.c"
+#include "../src/gprs/timer_hal.c"

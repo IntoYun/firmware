@@ -39,6 +39,7 @@
  *******************************************************************************/
 void USB_USART_Initial(uint32_t baudRate)
 {
+#if 0
     //TODO
     //create usb mutex
     //osMutexDef(USB_MUT);
@@ -64,6 +65,7 @@ void USB_USART_Initial(uint32_t baudRate)
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;
     }
+#endif
 }
 
 unsigned USB_USART_Baud_Rate(void)
