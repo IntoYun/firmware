@@ -47,8 +47,8 @@ void usart_debug_initial(uint32_t baud)
 
 void usart_esp8266_initial(uint32_t baud)
 {
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
     sdkReleaseQueue(&USART_Esp8266_Queue);
-    HAL_UART_DeInit(&UartHandleEsp8266);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_USART1_CLK_ENABLE();
@@ -70,6 +70,8 @@ void usart_esp8266_initial(uint32_t baud)
     UartHandleEsp8266.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     UartHandleEsp8266.Init.Mode         = UART_MODE_TX_RX;
     UartHandleEsp8266.Init.OverSampling = UART_OVERSAMPLING_16;
+
+    HAL_UART_DeInit(&UartHandleEsp8266);
     HAL_UART_Init(&UartHandleEsp8266);
 
     sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE); //初始化esp8266接受缓冲队列
