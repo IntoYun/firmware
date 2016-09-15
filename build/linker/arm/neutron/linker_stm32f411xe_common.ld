@@ -11,7 +11,8 @@ Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
 */
 
 /* higher address of the user mode stack */
-_estack = ORIGIN(SRAM)+LENGTH(SRAM);  /* end of 128K SRAM */
+/*_estack = ORIGIN(SRAM)+LENGTH(SRAM);*/  /* end of 128K SRAM */
+_estack = 0x2001FFFF;                     /* end of RAM */
 
 /* include the sections management sub-script for FLASH mode */
 
