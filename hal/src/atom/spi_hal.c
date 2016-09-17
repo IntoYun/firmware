@@ -336,7 +336,7 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
     }
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
@@ -372,7 +372,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
             break;
     }
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Data_Mode_Set = true;
     //DEBUG("Leave HAL_SPI_Set_Data_Mode...");
 }
@@ -385,11 +385,10 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
  */
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-    //DEBUG("Enter HAL_SPI_Set_Clock_Divider...");
+    /* DEBUG("Enter HAL_SPI_Set_Clock_Divider..."); */
     spiMap[spi]->SpiHandle.Init.BaudRatePrescaler = rate;
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Clock_Divider_Set = true;
-
 }
 
 /*

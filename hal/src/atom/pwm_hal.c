@@ -80,6 +80,7 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
             {
                 __HAL_RCC_GPIOA_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+                DEBUG("pwm time2 gpioa");
             }
             else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
             {
