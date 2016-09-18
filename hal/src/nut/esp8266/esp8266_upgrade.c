@@ -31,8 +31,7 @@ extern int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
 LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
 {
     bool ret = false;
-    if(data == NULL || len == 0)
-    {
+    if(data == NULL || len == 0){
         return true;
     }
     upgrade->buffer = (uint8 *)os_zalloc(len + upgrade->extra);
@@ -51,16 +50,18 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
             break;
         }
 
-        if (len > SPI_FLASH_SEC_SIZE) {
-
-        } else {
-            DEBUG("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
-            /* earse sector, just earse when first enter this zone */
-            if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
-                upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
+        DEBUG("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+        /* earse sector, just earse when first enter this zone */
+        if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
+            uint16 lentmp = len;
+            while( lentmp > SPI_FLASH_SEC_SIZE ){
+                upgrade->fw_bin_sec_earse += 1;
                 spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
-                DEBUG("%x\n",upgrade->fw_bin_sec_earse);
+                lentmp -= SPI_FLASH_SEC_SIZE;
             }
+            upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
+            spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
+            DEBUG("%x\n",upgrade->fw_bin_sec_earse);
         }
 
         if (spi_flash_write(upgrade->fw_bin_addr, (uint32 *)upgrade->buffer, len) != SPI_FLASH_RESULT_OK) {
@@ -258,7 +259,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
     }
 
     if (totallength == 0 && (ptr = (char *)strstr(pusrdata, "\r\n\r\n")) != NULL &&
-            (ptr = (char *)strstr(pusrdata, "Content-Length")) != NULL) {
+        (ptr = (char *)strstr(pusrdata, "Content-Length")) != NULL) {
         ptr = (char *)strstr(pusrdata, "\r\n\r\n");
         length -= ptr - pusrdata;
         length -= 4;
@@ -319,7 +320,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
         }
     } else {
         if(totallength + length > sumlength)
-        {length = sumlength - totallength;}
+            {length = sumlength - totallength;}
         totallength += length;
         DEBUG("totallen = %d\n",totallength);
         MD5Update(&_ctx, pusrdata, length);
@@ -341,9 +342,9 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
         MD5Final(md5_calc, &_ctx);
         memset(output, 0, sizeof(output));
         for(i = 0; i < 16; i++)
-        {
-            sprintf(output + (i * 2), "%02x", md5_calc[i]);
-        }
+            {
+                sprintf(output + (i * 2), "%02x", md5_calc[i]);
+            }
         DEBUG("md5 = %s\n",output);
         DEBUG("server->md5 = %s\n",server->md5);
         if(!strcmp(server->md5,output)){
@@ -469,4 +470,3 @@ bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
     }
     return true;
 }
-

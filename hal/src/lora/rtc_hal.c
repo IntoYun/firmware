@@ -169,22 +169,20 @@ time_t HAL_RTC_Get_UnixTime(void)
  * @param decData: The input decimal data
  * @retral The output hexadecimal data
  */
-static uint8_t dec2hex_direct(uint8_t decData)
+static int dec2hex_direct(uint8_t decData)
 {
-    uint8_t hexData  = 0;
+    int hexData  = 0;
     uint8_t iCount   = 0;
-    uint8_t leftData = 0;
-    while(leftData = decData % 10)
-    {
-        hexData = hexData +  leftData * pow(16, iCount);
+    while( (decData / 10) || (decData % 10) ){
+        hexData = hexData +  (decData % 10) * pow(16, iCount);
+        if (decData < 10) {
+            break;
+        }
         decData = decData / 10;
         iCount++;
     }
-    //DEBUG("hexData: %d", hexData);
     return hexData;
 }
-
-
 
 void HAL_RTC_Set_UnixTime(time_t value)
 {
