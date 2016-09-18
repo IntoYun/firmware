@@ -140,6 +140,10 @@ void HAL_UI_RGB_Breath(uint32_t color, uint16_t period)
     HAL_UI_RGB_Blink(color, period);
 }
 
+void HAL_UI_UserLED_Control(uint8_t value)
+{
+}
+
 void HAL_UI_SysTick_Handler(void)
 {
     //三色灯处理

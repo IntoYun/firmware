@@ -38,6 +38,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static dfu_downover_handler Bootloader_DFU_DownOver_Handler = NULL;
+
 /* Private function prototypes -----------------------------------------------*/
 
 /* Extern function prototypes ------------------------------------------------*/
@@ -64,6 +66,13 @@ __ALIGN_BEGIN USBD_DFU_MediaTypeDef USBD_DFU_fops __ALIGN_END = {
     Flash_If_GetStatus,
 };
 
+
+void SetDfuDownOverHandler(dfu_downover_handler handler)
+{
+    Bootloader_DFU_DownOver_Handler = handler;
+}
+
+
 /* Private functions ---------------------------------------------------------*/
 /**
  * @brief  Initializes Memory.
@@ -88,7 +97,12 @@ uint16_t Flash_If_DeInit(void)
     DEBUG_D("Flash_If_DeInit\r\n");
     /* Lock the internal flash */
     HAL_FLASH_Lock();
-    NVIC_SystemReset();
+    //Callback handler when the host sets a specific linecoding
+    if (NULL != Bootloader_DFU_DownOver_Handler)
+    {
+        Bootloader_DFU_DownOver_Handler();
+    }
+    //NVIC_SystemReset();
     DEBUG_D("Flash_If_DeInit111111\r\n");
     return 0;
 }

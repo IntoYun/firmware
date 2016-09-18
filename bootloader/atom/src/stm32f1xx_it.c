@@ -142,7 +142,6 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     HAL_SYSTICK_IRQHandler();
-    HAL_UI_SysTick_Handler();
 }
 
 /******************************************************************************/

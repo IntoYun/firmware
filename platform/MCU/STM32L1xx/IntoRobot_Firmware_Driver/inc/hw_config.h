@@ -27,6 +27,9 @@
 #ifndef HW_CONFIG_H_
 #define HW_CONFIG_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
@@ -46,9 +49,6 @@
 #endif
 #include "service_debug.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Exported types ------------------------------------------------------------*/
 #define NVIC_VectTab_RAM             SRAM_BASE

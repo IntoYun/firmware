@@ -32,16 +32,21 @@
 
 #define USART_QUEUE_SIZE             256
 
-UART_HandleTypeDef UartHandle_A2A3;  // USART2 A2(PA3)-RX A3(PA2)-TX
-UART_HandleTypeDef UartHandle_D0D1;  // USART3 D0(PB11)-RX D1(PB10)-TX
+UART_HandleTypeDef UartHandle_A2A3;    // USART2 A2(PA3)-RX A3(PA2)-TX
+UART_HandleTypeDef UartHandle_D0D1;    // USART3 D0(PB11)-RX D1(PB10)-TX
+UART_HandleTypeDef UartHandle_BRIDGE;  // USART1 Bridge
 
 SDK_QUEUE Usart_Rx_Queue_A2A3;
 SDK_QUEUE Usart_Rx_Queue_D0D1;
+SDK_QUEUE Usart_Rx_Queue_BRIDGE;
+
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
     USART_A2_A3 = 0,
-    USART_D0_D1
+    USART_D0_D1 = 1,
+    USART_BRIDGE = 2
 };
+
 
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
 
@@ -79,8 +84,9 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, USART2_IRQn, TX, RX },          // USART 2
-    { USART3, USART3_IRQn, TX1, RX1 }         // USART 3
+    { USART2, USART2_IRQn, TX, RX },                      // USART 2
+    { USART3, USART3_IRQn, TX1, RX1 },                    // USART 3
+    { USART1, USART1_IRQn, BRIDGE_TX, BRIDGE_RX }         // USART 1
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -94,11 +100,18 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
-    else
+    else if(serial == HAL_USART_SERIAL2)
     {
         usartMap[serial] = &USART_MAP[USART_D0_D1];
         usartMap[serial]->uart_handle = &UartHandle_D0D1;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_D0D1;
+        sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
+    }
+    else
+    {
+        usartMap[serial] = &USART_MAP[USART_BRIDGE];
+        usartMap[serial]->uart_handle = &UartHandle_BRIDGE;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_BRIDGE;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     usartMap[serial]->usart_enabled = false;
@@ -112,7 +125,6 @@ void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
-
     if( true == usartMap[serial]->usart_enabled )
     {
         return;
@@ -130,10 +142,15 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_USART2_CLK_ENABLE();
     }
-    else
+    else if(HAL_USART_SERIAL2 == serial)
     {
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_USART3_CLK_ENABLE();
+    }
+    else
+    {
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_USART1_CLK_ENABLE();
     }
 
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -152,7 +169,6 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     usartMap[serial]->uart_handle->Init.BaudRate     = baud;
     usartMap[serial]->uart_handle->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     usartMap[serial]->uart_handle->Init.Mode         = UART_MODE_TX_RX;
-    //usartMap[serial]->uart_handle->Init.OverSampling = UART_OVERSAMPLING_16;
 
     // Stop bit configuration.
     switch (config & SERIAL_STOP_BITS)
@@ -213,10 +229,15 @@ void HAL_USART_End(HAL_USART_Serial serial)
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
     }
-    else
+    else if(HAL_USART_SERIAL2 == serial)
     {
         __HAL_RCC_USART3_FORCE_RESET();
         __HAL_RCC_USART3_RELEASE_RESET();
+    }
+    else
+    {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
     }
 
     //Disable the NVIC for UART ##########################################*/
@@ -239,7 +260,8 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
 uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
-    HAL_UART_Transmit(usartMap[serial]->uart_handle, (uint8_t *)&data, 1, 100);//100ms  带操作系统待验证
+    DEBUG_D("%02x ",data);
+    HAL_UART_Transmit(usartMap[serial]->uart_handle, (uint8_t *)&data, 1, 100);
     return 1;
 }
 
@@ -318,3 +340,10 @@ void USART3_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL2);
 }
+
+// Serial1 interrupt handler
+void USART1_IRQHandler(void)
+{
+    HAL_USART_Handler(HAL_USART_SERIAL3);
+}
+

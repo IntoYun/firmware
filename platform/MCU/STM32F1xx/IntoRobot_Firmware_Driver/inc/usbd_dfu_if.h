@@ -34,12 +34,15 @@
 #include "usbd_dfu.h"
 
 /* Exported types ------------------------------------------------------------*/
+typedef void (*dfu_downover_handler)(void);
+
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
 extern USBD_DFU_MediaTypeDef  USBD_DFU_fops;
 
 /* Exported functions ------------------------------------------------------- */
+extern void SetDfuDownOverHandler(dfu_downover_handler handler);
 
 #endif /* __USBD_DFU_FLASH_H_ */
 

@@ -74,6 +74,7 @@ int HAL_UI_RGB_Set_Info(rgb_info_t info);
 void HAL_UI_RGB_Color(uint32_t color);
 void HAL_UI_RGB_Blink(uint32_t color, uint16_t period);
 void HAL_UI_RGB_Breath(uint32_t color, uint16_t period);
+void HAL_UI_UserLED_Control(uint8_t value);
 void HAL_UI_SysTick_Handler(void);
 
 

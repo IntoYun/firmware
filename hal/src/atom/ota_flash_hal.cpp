@@ -17,13 +17,29 @@
   ******************************************************************************
 */
 
+#include <stdlib.h>
 #include "ota_flash_hal.h"
+#include "wiring_process.h"
 #include "core_hal.h"
 
+uint8_t down_progress=0;
 
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    return DOWNSTATUS_SUCCESS;
+    String url="";
+    Process Proc;
+
+    url+=host;
+    url+=param;
+    Proc.begin("stm32_update_online");
+    Proc.addParameter("DOWN");
+    Proc.addParameter(url);
+    Proc.addParameter(md5);
+    int res = Proc.run();
+    {
+        return DOWNSTATUS_SUCCESS;
+    }
+    return DOWNSTATUS_FAIL;
 }
 
 down_status_t HAL_OTA_Get_App_Download_Status(void)
@@ -33,24 +49,81 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
 
 void HAL_OTA_Update_App(void)
 {
+
 }
 
 down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
 {
-    return DOWNSTATUS_SUCCESS;
+    String url="";
+    Process Proc;
+
+    url+=host;
+    url+=param;
+    Proc.begin("openwrt_update_online");
+    Proc.addParameter("DOWN");
+    Proc.addParameter("0.0.0.0");
+    Proc.addParameter(url);
+
+    Proc.runAsynchronously();
+    if(Proc.running())
+    {
+        down_progress = 0;
+        return DOWNSTATUS_DOWNING;
+    }
+    else
+    {
+        if(Proc.exitValue() == 0)
+        return DOWNSTATUS_SUCCESS;
+    }
+    return DOWNSTATUS_FAIL;
 }
 
 down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
 {
-    return DOWNSTATUS_SUCCESS;
+    char c;
+    String process;
+    Process Proc;
+
+    if(Proc.running())
+    {
+        process="";
+        if(Proc.available()&&('<'==(char)Proc.read()))
+        {
+            while (Proc.available())//获取进度
+            {
+                c=(char)Proc.read();
+                if('>'==c)
+                {break;}
+                process+=c;
+            }
+            if(process.length())
+            {
+                down_progress = atoi(process.c_str());
+            }
+            return DOWNSTATUS_DOWNING;
+        }
+    }
+    else
+    {
+        if(Proc.exitValue() == 0)
+        {
+            return DOWNSTATUS_SUCCESS;
+        }
+    }
+    return DOWNSTATUS_FAIL;
 }
 
 void HAL_OTA_Upadate_Subsys(void)
 {
+    Process Proc;
+
+    Proc.begin("openwrt_update_online");
+    Proc.addParameter("UPDATE");
+    Proc.run();
 }
 
 uint8_t HAL_OTA_Get_Download_Progress()
 {
-    return 0;
+    return down_progress;
 }
 

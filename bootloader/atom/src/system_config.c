@@ -63,8 +63,3 @@ void delay(uint32_t ms)
     }
 }
 
-void System_Reset(void)
-{
-    NVIC_SystemReset();
-}
-
