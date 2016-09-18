@@ -64,7 +64,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         GPIO_InitStruct.Pull = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  
+
         /* Enable the USB disconnect GPIO clock */
         __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -72,10 +72,10 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /* GPIO_InitStruct.Pin = USB_DISCONNECT_PIN; */
         /* GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD; */
         /* HAL_GPIO_Init(USB_DISCONNECT_PORT, &GPIO_InitStruct); */
-  
+
         /* Enable USB Clock */
         __HAL_RCC_USB_CLK_ENABLE();
-  
+
         /* Set USB Interrupt priority */
         HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 5, 0);
 
@@ -256,11 +256,11 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
     hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
     hpcd.Init.speed = PCD_SPEED_FULL;
     hpcd.Init.low_power_enable = 0;
-  
+
     /* Link The driver to the stack */
     hpcd.pData = pdev;
     pdev->pData = &hpcd;
-  
+
     /* Initialize LL Driver */
     HAL_PCD_Init((PCD_HandleTypeDef*)pdev->pData);
 
@@ -300,7 +300,7 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 /*     HAL_PCDEx_SetTxFiFo(&hpcd, 0, 0x40); */
 /*     HAL_PCDEx_SetTxFiFo(&hpcd, 1, 0x80); */
 /*     return USBD_OK; */
-} 
+}
 
 /**
  * @brief  De-Initializes the Low Level portion of the Device driver.

@@ -77,18 +77,6 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
         optimistic_yield(100);
         system_loop_handler(100);
     }
-/*
-    if(nTime) {
-        os_timer_setfn(&delay_timer, (os_timer_func_t*) &delay_end, 0);
-        os_timer_arm(&delay_timer, nTime, ONCE);
-    } else {
-        esp_schedule();
-    }
-    esp_yield();
-    if(nTime) {
-        os_timer_disarm(&delay_timer);
-    }
-    */
 }
 
 /*******************************************************************************

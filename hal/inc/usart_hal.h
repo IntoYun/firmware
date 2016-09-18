@@ -27,8 +27,6 @@
 #include "pinmap_hal.h"
 
 /* Exported defines ----------------------------------------------------------*/
-#define SERIAL_BUFFER_SIZE      64
-
 // Available Serial Configurations for C
 #define SERIAL_8N1 (uint8_t)0b00000000
 #define SERIAL_8N2 (uint8_t)0b00000001
@@ -46,18 +44,11 @@
 #define SERIAL_NINE_BITS (uint8_t)0b00010000
 
 /* Exported types ------------------------------------------------------------*/
-typedef struct Ring_Buffer
-{
-  uint16_t buffer[SERIAL_BUFFER_SIZE];
-  volatile uint16_t head;
-  volatile uint16_t tail;
-} Ring_Buffer;
-
 typedef enum HAL_USART_Serial {
   HAL_USART_SERIAL1 = 0,    //maps to USART_TX_RX
-#if (PLATFORM_ID == 0 || PLATFORM_ID == 1 || PLATFORM_ID == 4 )// neutron or nut
-  HAL_USART_SERIAL2 = 1
-#endif
+  HAL_USART_SERIAL2 = 1,
+  HAL_USART_SERIAL3 = 2,
+  HAL_USART_SERIAL4 = 3
 } HAL_USART_Serial;
 
 /* Exported constants --------------------------------------------------------*/

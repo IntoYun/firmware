@@ -160,9 +160,7 @@ void HAL_Bootloader_Lock(bool lock);
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len);
 void HAL_Core_System_Loop(void);
 void HAL_Core_System_Yield(void);
-
-bool HAL_Core_System_Reset_FlagSet(RESET_TypeDef resetType);
-
+void HAL_Core_System_Loop_Control(bool state);
 
 typedef struct runtime_info_t {
     uint16_t size;              /* Size of this struct. */

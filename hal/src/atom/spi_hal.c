@@ -105,7 +105,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     }
     else if(spiMap[spi]->SPI_Peripheral == SPI2)
     {
-        DEBUG("Select SPI3, and Enable Clock...");
+        //DEBUG("Select SPI3, and Enable Clock...");
         __HAL_RCC_SPI2_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #ifdef useDMASPI
@@ -178,7 +178,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     //HAL_NVIC_SetPriority(spiMap[spi]->SPI_DMA_RX_IRQn, 7, 0);
     //HAL_NVIC_EnableIRQ(spiMap[spi]->SPI_DMA_RX_IRQn);
 #endif
-    DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
+    //DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
 }
 
 /*
@@ -188,7 +188,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
  */
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
+    //DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
 
     /*##-1- Reset peripherals ##################################################*/
     if (spiMap[spi]->SPI_Peripheral == SPI1)
@@ -261,7 +261,7 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
-    DEBUG("Enter HAL_SPI_Begin_Ext...");
+    //DEBUG("Enter HAL_SPI_Begin_Ext...");
 
     if (pin == SPI_DEFAULT_SS)
         pin = spiMap[spi]->SPI_SS_Pin;
@@ -301,7 +301,7 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
 
     HAL_SPI_Init(&spiMap[spi]->SpiHandle);
     spiMap[spi]->SPI_Enabled = true;
-    DEBUG("exit HAL_SPI_begin_ext");
+    //DEBUG("exit HAL_SPI_begin_ext");
     //TODO slave mode
 
 }

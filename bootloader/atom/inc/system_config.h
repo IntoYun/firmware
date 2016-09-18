@@ -23,7 +23,6 @@ extern "C" {
 
 void HAL_System_Config(void);
 void delay(uint32_t ms);
-void System_Reset(void);
 
 #ifdef __cplusplus
 }

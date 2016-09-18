@@ -53,7 +53,6 @@ void USB_USART_Initial(uint32_t baudRate)
         }
         else if (!LineCoding.bitrate)
         {
-            USB_Cable_Config(ENABLE);
             /* Init Device Library */
             USBD_Init(&USBD_Device, &VCP_Desc, 0);
             /* Add Supported Class */
@@ -152,13 +151,16 @@ void USB_USART_Send_Data(uint8_t Data)
     //TODO
     //osMutexWait(usb_mutex, osWaitForever);
 
-    USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
-    //	while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
-    USBD_CDC_TransmitPacket(&USBD_Device);
-    HAL_Delay_Microseconds(100);
+    if (USBD_STATE_CONFIGURED == USBD_Device.dev_state)
+    {
+        USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
+        //while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
+        USBD_CDC_TransmitPacket(&USBD_Device);
+        HAL_Delay_Microseconds(100);
+    }
 
     //TODO
-	//osMutexRelease(usb_mutex);
+    //osMutexRelease(usb_mutex);
 }
 
 void USB_USART_Flush_Data(void)

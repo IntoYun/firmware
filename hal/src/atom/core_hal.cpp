@@ -33,6 +33,8 @@
 #include "stm32f1xx_it.h"
 #include "delay_hal.h"
 #include "params_hal.h"
+#include "wiring_bridge.h"
+#include "wiring_process.h"
 #include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/
@@ -69,6 +71,11 @@ int main() {
     // the rtos systick can only be enabled after the system has been initialized
     systick_hook_enabled = true;
     HAL_Hook_Main();
+    //open bridge
+    DEBUG_D("Bridge Connecting\r\n");
+    Bridge.begin();
+    DEBUG_D("Bridge Connected\r\n");
+
     app_setup_and_loop();
     return 0;
 }
@@ -119,7 +126,6 @@ void HAL_Core_System_Reset(void)
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
 {
-    DEBUG_D("HAL_Core_Enter_DFU_Mode\r\n");
     // true  - DFU mode persist if firmware upgrade is not completed
     // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
     //         Subsequent reset or power off-on will execute normal firmware
@@ -193,7 +199,40 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
+    String tmp="";
+    uint16_t templen;
+    Process Proc;
+
+    Proc.begin("openwrt_update_online");
+    Proc.addParameter("GETVERSION");
+    int res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        if(tmp.length())
+        {
+            templen = MIN(tmp.length(), len-1);
+            memset(buffer, 0, len);
+            memcpy(buffer, tmp.c_str(), templen);
+            return templen;
+        }
+    }
     return 0;
+}
+
+void HAL_Core_System_Loop_Control(bool state)
+{
+    if (state == false)
+    {
+        HAL_NVIC_DisableIRQ(TIM1_UP_IRQn);
+    }
+    else
+    {
+        HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
+    }
 }
 
 TIM_HandleTypeDef    TimHandle;

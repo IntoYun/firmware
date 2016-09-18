@@ -65,7 +65,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS        41
+#define TOTAL_PINS        48
 #define TOTAL_ANALOG_PINS 16
 #define FIRST_ANALOG_PIN  30
 
@@ -142,13 +142,19 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
+
+//bridge uart pin
+#define BRIDGE_TX  47
+#define BRIDGE_RX  46
+
+
 #define LED_USER  D7
 
-#define TOTAL_USARTS        2
+#define TOTAL_USARTS   3
 
-#define TIM_PWM_FREQ 500 //500Hz
+#define TIM_PWM_FREQ   500 //500Hz
 
-#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
+#define SERVO_TIM_PWM_FREQ   50//50Hz                                                                                      //20ms = 50Hz
 
 #define LSBFIRST 0
 #define MSBFIRST 1

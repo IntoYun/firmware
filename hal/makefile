@@ -6,11 +6,15 @@ HAL_MODULE_PATH=.
 TARGET_TYPE = a
 BUILD_PATH_EXT = $(HAL_BUILD_PATH_EXT)
 
-#DEPENDENCIES = platform services bootloader
-DEPENDENCIES = platform services
-
 # ensure PLATFORM_NAME is defined
 include ../build/platform-id.mk
+
+ifeq ($(PLATFORM_ID),0)# atom
+DEPENDENCIES = wiring wiring_ex platform services
+else
+DEPENDENCIES = platform services
+endif
+
 -include $(HAL_MODULE_PATH)/src/$(PLATFORM_NAME)/tlm.mk
 
 

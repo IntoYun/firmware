@@ -49,6 +49,9 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
 
+    /* Enable BKP CLK enable for backup registers */
+    __HAL_RCC_BKP_CLK_ENABLE();
+
     /*##-1- Configure LSE as RTC clock source ###################################*/
     RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
@@ -91,50 +94,50 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
 
 static void RTC_CalendarAlarmConfig(void)
 {
-  RTC_DateTypeDef  sdatestructure;
-  RTC_TimeTypeDef  stimestructure;
-  RTC_AlarmTypeDef salarmstructure;
+    RTC_DateTypeDef  sdatestructure;
+    RTC_TimeTypeDef  stimestructure;
+    RTC_AlarmTypeDef salarmstructure;
 
-  /*##-1- Configure the Date #################################################*/
-  /* Set Date: Tuesday February 18th 2014 */
-  sdatestructure.Year = 0x14;
-  sdatestructure.Month = RTC_MONTH_FEBRUARY;
-  sdatestructure.Date = 0x18;
-  sdatestructure.WeekDay = RTC_WEEKDAY_TUESDAY;
+    /*##-1- Configure the Date #################################################*/
+    /* Set Date: Tuesday February 18th 2014 */
+    sdatestructure.Year = 0x14;
+    sdatestructure.Month = RTC_MONTH_FEBRUARY;
+    sdatestructure.Date = 0x18;
+    sdatestructure.WeekDay = RTC_WEEKDAY_TUESDAY;
 
-  if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
-  {
-    /* Initialization Error */
-    /* Error_Handler();  */
-  }
+    if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
+    {
+        /* Initialization Error */
+        /* Error_Handler();  */
+    }
 
-  /*##-2- Configure the Time #################################################*/
-  /* Set Time: 02:20:00 */
-  stimestructure.Hours = 0x02;
-  stimestructure.Minutes = 0x20;
-  stimestructure.Seconds = 0x00;
+    /*##-2- Configure the Time #################################################*/
+    /* Set Time: 02:20:00 */
+    stimestructure.Hours = 0x02;
+    stimestructure.Minutes = 0x20;
+    stimestructure.Seconds = 0x00;
 
-  if(HAL_RTC_SetTime(&RtcHandle,&stimestructure,RTC_FORMAT_BCD) != HAL_OK)
-  {
-    /* Initialization Error */
-    /* Error_Handler();  */
-  }
+    if(HAL_RTC_SetTime(&RtcHandle,&stimestructure,RTC_FORMAT_BCD) != HAL_OK)
+    {
+        /* Initialization Error */
+        /* Error_Handler();  */
+    }
 
 #if 0
-  /*##-3- Configure the RTC Alarm peripheral #################################*/
-  /* Set Alarm to 02:20:30
-     RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
-  salarmstructure.Alarm = RTC_ALARM_A;
-  salarmstructure.AlarmTime.Hours = 0x02;
-  salarmstructure.AlarmTime.Minutes = 0x20;
-  salarmstructure.AlarmTime.Seconds = 0x30;
+    /*##-3- Configure the RTC Alarm peripheral #################################*/
+    /* Set Alarm to 02:20:30
+       RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
+    salarmstructure.Alarm = RTC_ALARM_A;
+    salarmstructure.AlarmTime.Hours = 0x02;
+    salarmstructure.AlarmTime.Minutes = 0x20;
+    salarmstructure.AlarmTime.Seconds = 0x30;
 
-  if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
-  {
-    /* Initialization Error */
-    /* Error_Handler();  */
-  }
-  #endif
+    if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
+    {
+        /* Initialization Error */
+        /* Error_Handler();  */
+    }
+#endif
 }
 
 void HAL_RTC_Initial(void)
@@ -148,8 +151,7 @@ void HAL_RTC_Initial(void)
     {
         DEBUG("RTC Init Error!");
     }
-
-    //RTC_CalendarAlarmConfig();
+    RTC_CalendarAlarmConfig();
 }
 
 time_t HAL_RTC_Get_UnixTime(void)
@@ -225,9 +227,6 @@ void HAL_RTC_Set_UnixTime(time_t value)
     {
         DEBUG("RTC Set_UnixTime SetTime failed!");
     }
-
-    /*##-3- Writes a data in a RTC Backup data Register1 #######################*/
-    HAL_RTCEx_BKUPWrite(&RtcHandle, RTC_BKP_DR1, 0x32F2);
 }
 
 /* void/\*  HAL_RTC_Set_Alarm(uint32_t value) *\/ */
