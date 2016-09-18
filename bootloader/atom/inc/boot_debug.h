@@ -8,7 +8,7 @@ extern "C" {
 #include "service_debug.h"
 
 
-#define BOOT_DEBUG_SWITCH
+//#define BOOT_DEBUG_SWITCH
 
 #ifdef BOOT_DEBUG_SWITCH
 #define BOOT_DEBUG        DEBUG_D

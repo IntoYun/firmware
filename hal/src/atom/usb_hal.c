@@ -65,7 +65,6 @@ void USB_USART_Initial(uint32_t baudRate)
             USB_Cable_Config(DISABLE);
             delay(100);
             USB_Cable_Config(ENABLE);
-            delay(100);
         }
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;

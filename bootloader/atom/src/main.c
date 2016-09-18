@@ -63,6 +63,13 @@ int main(void)
         HAL_PARAMS_Save_Params();
     }
 
+    //自动进入DFU下载模式
+    if(0x7DEA == HAL_Core_Read_Backup_Register(BKP_DR_01))
+    {
+        USB_DFU_MODE = 1;
+    }
+    HAL_Core_Write_Backup_Register(BKP_DR_01, 0xFFFF);
+
     //进入DFU下载模式
     if( BOOT_FLAG_USB_DFU == HAL_PARAMS_Get_Boot_boot_flag() )
     {
@@ -71,7 +78,7 @@ int main(void)
 
     if(USB_DFU_MODE)
     {
-        BOOT_DEBUG("dfu\r\n");
+        BOOT_DEBUG("enter dfu mode\r\n");
         Enter_DFU_Mode();
     }
 

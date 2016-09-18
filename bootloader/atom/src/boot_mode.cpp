@@ -38,13 +38,6 @@ void USBD_DFU_Init(void)
     USB_Cable_Config(ENABLE);
 }
 
-void bootloader_dfu_downover_Handler(void)
-{
-    BOOT_DEBUG("bootloader_dfu_downover_Handler\r\n");
-    start_app();
-    while(1);
-}
-
 void Enter_DFU_Mode(void)
 {
     HAL_UI_UserLED_Control(1);
@@ -52,9 +45,9 @@ void Enter_DFU_Mode(void)
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
 
-    //SetDfuDownOverHandler(&bootloader_dfu_downover_Handler);
     USBD_DFU_Init();
     while(1)
-    {}
+    {
+    }
 }
 

@@ -260,7 +260,6 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
 uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
-    DEBUG_D("%02x ",data);
     HAL_UART_Transmit(usartMap[serial]->uart_handle, (uint8_t *)&data, 1, 100);
     return 1;
 }

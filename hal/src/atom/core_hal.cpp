@@ -121,20 +121,23 @@ void HAL_Core_Setup(void)
 
 void HAL_Core_System_Reset(void)
 {
-    Process Proc;
-
-    Proc.begin("stm32_system_reset");
-    Proc.addParameter("SRESET");
-    Proc.run();
-
-    while(1);
+    NVIC_SystemReset();
 }
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
 {
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_USB_DFU);
-    HAL_PARAMS_Save_Params();
-
+    // true  - DFU mode persist if firmware upgrade is not completed
+    // false - Briefly enter DFU bootloader mode (works with latest bootloader only )
+    //         Subsequent reset or power off-on will execute normal firmware
+    if (persist)
+    {
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_USB_DFU);
+        HAL_PARAMS_Save_Params();
+    }
+    else
+    {
+        HAL_Core_Write_Backup_Register(BKP_DR_01, 0x7DEA);
+    }
     HAL_Core_System_Reset();
 }
 

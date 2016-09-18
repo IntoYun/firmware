@@ -1,6 +1,7 @@
 
 #include "core_hal.h"
 #include "wiring_bridge.h"
+#include "service_debug.h"
 
 BridgeClass::BridgeClass(Stream &_stream) :
     index(0), stream(_stream), started(false), max_retries(0)
@@ -192,6 +193,7 @@ uint16_t BridgeClass::transfer(const uint8_t *buff1, uint16_t len1,
         // Wait for ACK in 100ms
         if (timedRead(100) != 0xFF)
         continue;
+
         crcReset();
         crcUpdate(0xFF);
 
@@ -254,6 +256,7 @@ uint16_t BridgeClass::transfer(const uint8_t *buff1, uint16_t len1,
 int BridgeClass::timedRead(unsigned int timeout)
 {
     int c;
+
     unsigned long _startMillis = millis();
     do
     {
