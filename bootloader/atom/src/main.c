@@ -28,7 +28,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "boot_mode.h"
-#include "params_hal.h"
 #include "ui_hal.h"
 #include "core_hal.h"
 #include "boot_debug.h"
@@ -53,28 +52,12 @@ int main(void)
     BOOT_DEBUG("boot start...\r\n");
     HAL_UI_UserLED_Control(0);
 
-    HAL_PARAMS_Load_Boot_Params();
-    HAL_PARAMS_Load_System_Params();
-
-    if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
-    {
-        BOOT_DEBUG("save boot version...\r\n");
-        HAL_PARAMS_Set_Boot_boot_version(BOOTLOADER_VERSION);
-        HAL_PARAMS_Save_Params();
-    }
-
     //自动进入DFU下载模式
     if(0x7DEA == HAL_Core_Read_Backup_Register(BKP_DR_01))
     {
         USB_DFU_MODE = 1;
     }
     HAL_Core_Write_Backup_Register(BKP_DR_01, 0xFFFF);
-
-    //进入DFU下载模式
-    if( BOOT_FLAG_USB_DFU == HAL_PARAMS_Get_Boot_boot_flag() )
-    {
-        USB_DFU_MODE = 1;
-    }
 
     if(USB_DFU_MODE)
     {

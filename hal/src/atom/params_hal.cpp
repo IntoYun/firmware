@@ -507,6 +507,7 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * */
 uint16_t HAL_PARAMS_Get_System_config_flag(void) {
     Process Proc;
+
     Proc.begin("device_config");
     Proc.addParameter("CHECK");
     int res = Proc.run();

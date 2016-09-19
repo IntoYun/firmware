@@ -108,8 +108,6 @@ void HAL_Core_Config(void)
     HAL_IWDG_Initial();
     HAL_UI_Initial();
     USB_Cable_Initial();
-
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
 }
 
 void HAL_Core_Setup(void)

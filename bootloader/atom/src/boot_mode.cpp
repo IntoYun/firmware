@@ -1,7 +1,6 @@
 #include "hw_config.h"
 #include "boot_mode.h"
 #include "memory_hal.h"
-#include "params_hal.h"
 #include "ui_hal.h"
 #include "flash_map.h"
 #include "system_config.h"
@@ -41,10 +40,6 @@ void USBD_DFU_Init(void)
 void Enter_DFU_Mode(void)
 {
     HAL_UI_UserLED_Control(1);
-
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
-    HAL_PARAMS_Save_Params();
-
     USBD_DFU_Init();
     while(1)
     {
