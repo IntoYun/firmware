@@ -5,7 +5,7 @@
 TARGET_HAL_SRC_INC_PATH = $(TARGET_HAL_PATH)/src/$(PLATFORM_NAME)
 
 INCLUDE_DIRS += $(TARGET_HAL_SRC_INC_PATH)
-
+INCLUDE_DIRS += $(TARGET_HAL_SRC_INC_PATH)/socket
 
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
