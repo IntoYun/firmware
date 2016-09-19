@@ -17,7 +17,10 @@
   ******************************************************************************
 */
 
+#include <stdio.h>
+#include "enums_hal.h"
 #include "wlan_hal.h"
+#include "wiring_process.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -46,6 +49,11 @@ wlan_result_t wlan_deactivate()
 
 int wlan_connect()
 {
+    Process Proc;
+
+    Proc.begin("wifi_connect");
+    Proc.addParameter("BEGIN");
+    Proc.runAsynchronously();
     return 0;
 }
 
@@ -56,21 +64,79 @@ wlan_result_t wlan_disconnect()
 
 int wlan_status()
 {
+    Process Proc;
+
+    Proc.begin("wifi_connect");
+    Proc.addParameter("STATUS");
+    int res = Proc.run();
+    if(res == 0)
+    {
+        return 0;
+    }
     return -1;
 }
 
 int wlan_connected_rssi(void)
 {
-    return 0;
+    String tmp;
+    int32_t rssi = 0;
+    Process Proc;
+
+    Proc.begin("wifi_get_current");
+    Proc.addParameter("RSSI");
+    int res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        rssi=tmp.toInt();
+    }
+    return rssi;
 }
 
 int wlan_set_credentials(WLanCredentials* c)
 {
-    return -1;
+    Process Proc;
+
+    Proc.begin("wifi_set_credentials");
+    Proc.addParameter(c->ssid);
+    if(c->password) {
+        Proc.addParameter(c->password);
+    }
+    else {
+        Proc.addParameter("");
+    }
+    Proc.addParameter("auto");
+
+    switch(c->security)
+    {
+        case WLAN_SEC_WEP :
+            Proc.addParameter("WEP");
+            break;
+        case WLAN_SEC_WPA :
+            Proc.addParameter("WPAPSK/AES");
+            break;
+        case WLAN_SEC_WPA2 :
+            Proc.addParameter("WPA2PSK/AES");
+            break;
+        default:
+            Proc.addParameter("NONE");
+            break;
+    };
+    Proc.run();
+    return 0;
 }
 
 void wlan_Imlink_start()
 {
+    Process Proc;
+
+    wlan_Imlink_stop();
+    Proc.begin("imlink_config");
+    Proc.addParameter("SET");
+    Proc.run();
 }
 
 imlink_status_t wlan_Imlink_get_status()
@@ -80,6 +146,10 @@ imlink_status_t wlan_Imlink_get_status()
 
 void wlan_Imlink_stop()
 {
+    Process Proc;
+
+    Proc.begin("sc_config_kill");
+    Proc.run();
 }
 
 void wlan_setup()
@@ -88,12 +158,93 @@ void wlan_setup()
 
 void wlan_fetch_ipconfig(WLanConfig* config)
 {
+    uint8_t addr_data[4];
+    uint8_t mac[6];
+    int res;
+    String tmp;
+    Process Proc;
+
+    Proc.begin("wifi_get_ifconfig");
+    Proc.addParameter("LOCALIP");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%d.%d.%d.%d",&addr_data[0],&addr_data[1],&addr_data[2],&addr_data[3]);
+        config->nw.aucIP.ipv4 = IPADR(addr_data[0], addr_data[1], addr_data[2], addr_data[3]);
+    }
+
+    Proc.begin("wifi_get_ifconfig");
+    Proc.addParameter("SUBNETMASK");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%d.%d.%d.%d",&addr_data[0],&addr_data[1],&addr_data[2],&addr_data[3]);
+        config->nw.aucSubnetMask.ipv4 = IPADR(addr_data[0], addr_data[1], addr_data[2], addr_data[3]);
+    }
+
+    Proc.begin("wifi_get_ifconfig");
+    Proc.addParameter("GATEWAYIP");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%d.%d.%d.%d",&addr_data[0],&addr_data[1],&addr_data[2],&addr_data[3]);
+        config->nw.aucDefaultGateway.ipv4 = IPADR(addr_data[0], addr_data[1], addr_data[2], addr_data[3]);
+    }
+
+    Proc.begin("wifi_get_ifconfig");
+    Proc.addParameter("MACADDRESS");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%x:%x:%x:%x:%x:%x",&mac[5],&mac[4],&mac[3],&mac[2],&mac[1],&mac[0]);
+        memcpy(config->nw.uaMacAddr,mac,6);
+    }
+
+    Proc.begin("wifi_get_current");
+    Proc.addParameter("SSID");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        memcpy(config->uaSSID, tmp.c_str(), 32);
+    }
+
+    Proc.begin("wifi_get_current");
+    Proc.addParameter("BSSID");
+    res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%x:%x:%x:%x:%x:%x",&mac[5],&mac[4],&mac[3],&mac[2],&mac[1],&mac[0]);
+        memcpy(config->BSSID,mac,6);
+    }
 }
 
 void wlan_set_error_count(uint32_t errorCount)
 {
 }
-
 
 /**
  * Sets the IP source - static or dynamic.
