@@ -77,19 +77,9 @@ int OpenwrtConnClass::socketSocket(IpProtocol ipproto, int port)
 
 bool OpenwrtConnClass::socketConnect(int socket, const MDM_IP& ip, int port)
 {
-    char host[32];
-
-    memset(host, 0, sizeof(host));
-
-    sprintf(host, "%s", "" IPSTR "", IPNUM(ip));
-    return socketConnect(socket, host, port);
-}
-
-bool OpenwrtConnClass::socketConnect(int socket, const char * host, int port)
-{
     bool ok = false;
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        DEBUG_D("socketConnect(%d, host:%s port:%d)\r\n", socket, host, port);
+        DEBUG_D("socketConnect(%d, ip:%s port:%d)\r\n", socket, ip, port);
         _sockets[socket].remote_port  = port;
         memcpy((void *)_sockets[socket].remote_ip, &ip, 4);
         if(_sockets[socket].ipproto) {  //udp
@@ -104,9 +94,9 @@ bool OpenwrtConnClass::socketConnect(int socket, const char * host, int port)
             else
             {
                 ok = true;
+                _sockets[socket].handle = res[0];
                 _sockets[socket].connected = true;
             }
-            _sockets[socket].handle = handle;
         }
         else { //tcp
             uint8_t tmp[] = {
@@ -114,11 +104,14 @@ bool OpenwrtConnClass::socketConnect(int socket, const char * host, int port)
                 static_cast<uint8_t>(port >> 8),
                 static_cast<uint8_t>(port)
             };
-            uint8_t res[1];
-            int l = bridge.transfer(tmp, 3, (const uint8_t *)host, strlen(host), res, 1);
+            uint8_t res1[1];
+            char host[32];
+            memset(host, 0, sizeof(host));
+            sprintf(host, "%s", "" IPSTR "", IPNUM(ip));
+            int l = bridge.transfer(tmp, 3, (const uint8_t *)host, strlen(host), res1, 1);
             if (l == 0)
                 return 0;
-            uint8_t handle = res[0];
+            uint8_t handle = res1[0];
 
             // wait for connection
             uint8_t tmp2[] = { 'c', handle };
@@ -137,6 +130,7 @@ bool OpenwrtConnClass::socketConnect(int socket, const char * host, int port)
             if(res[0] == 1)
             {
                 _sockets[socket].connected = true;
+                _sockets[socket].handle = handle;
                 ok = true;
             }
             else
@@ -144,7 +138,6 @@ bool OpenwrtConnClass::socketConnect(int socket, const char * host, int port)
                 ok = false;
                 _sockets[socket].connected = false;
             }
-            _sockets[socket].handle = handle;
         }
     }
     return ok;
@@ -166,12 +159,12 @@ bool OpenwrtConnClass::socketClose(int socket)
     {
         if(_sockets[socket].ipproto) //udp
         {
-            uint8_t cmd[] = {'j', handle};
+            uint8_t cmd[] = {'j', _sockets[socket].handle};
             bridge.transfer(cmd, 2);
         }
         else
         {
-            uint8_t cmd[] = {'q', handle};
+            uint8_t cmd[] = {'q', _sockets[socket].handle};
             bridge.transfer(cmd, 2);
         }
         // Assume RESP_OK in most situations, and assume closed
@@ -223,8 +216,8 @@ int OpenwrtConnClass::socketSend(int socket, const char * buf, int len)
         bool ok = false;
         {
             if (ISSOCKET(socket)) {
-                uint8_t cmd[] = {'l', handle};
-                bridge.transfer(cmd, 2, buf, blk, NULL, 0);
+                uint8_t cmd[] = {'l', _sockets[socket].handle};
+                bridge.transfer(cmd, 2, (uint8_t *)buf, blk, NULL, 0);
                 ok = true;
             }
         }
@@ -238,7 +231,7 @@ int OpenwrtConnClass::socketSend(int socket, const char * buf, int len)
 
 int OpenwrtConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    DEBUG_D("socketSendTo(%d," IPSTR ",%d,,%d)\r\n", socket,IPNUM(ip),port,len)
+    DEBUG_D("socketSendTo(%d," IPSTR ",%d,,%d)\r\n", socket,IPNUM(ip),port,len);
     //Todo 后期实现
     return socketSend(socket, buf, len);
 }
@@ -253,7 +246,7 @@ int OpenwrtConnClass::socketReadable(int socket)
         // allow to receive unsolicited commands
         if( 0 == _sockets[socket].pending )
         {
-            uint8_t cmd[] = {'K', handle, sizeof(buffer)};
+            uint8_t cmd[] = {'K', _sockets[socket].handle, sizeof(buffer)};
             int len = bridge.transfer(cmd, 3, buffer, sizeof(buffer));
             int n=0;
             for(n=0; n < len ; n++) {
@@ -293,7 +286,7 @@ int OpenwrtConnClass::socketRecvFrom(int socket, MDM_IP* ip, int* port, char* bu
     return socketRecv(socket, buf, len);
 }
 
-int OpwenwrtConnClass::_findSocket(int handle) {
+int OpenwrtConnClass::_findSocket(int handle) {
     for (int socket = 0; socket < NUMSOCKETS; socket ++) {
         if (_sockets[socket].handle == handle)
             return socket;

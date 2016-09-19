@@ -71,7 +71,6 @@ public:
         \return true if successfully, false otherwise
     */
     bool socketConnect(int socket, const MDM_IP& ip, int port);
-    bool socketConnect(int socket, const char * host, int port);
 
     /** make a socket connection
         \param socket the socket handle

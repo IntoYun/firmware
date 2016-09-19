@@ -24,6 +24,7 @@
 #include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "intorobot_macros.h"
+#include "wiring_process.h"
 #include "service_debug.h"
 
 
@@ -505,14 +506,30 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * 读取参数配置标志
  * */
 uint16_t HAL_PARAMS_Get_System_config_flag(void) {
-   return intorobot_system_params.config_flag;
+    Process Proc;
+    Proc.begin("device_config");
+    Proc.addParameter("CHECK");
+    int res = Proc.run();
+    if(res == 0)
+        intorobot_system_params.config_flag = 1;
+    else
+        intorobot_system_params.config_flag = 0;
+    return intorobot_system_params.config_flag;
 }
 
 /*
  * 保存参数配置标志
  * */
 int HAL_PARAMS_Set_System_config_flag(uint16_t flag) {
+    //因为atom的按键在openwrt端，所以需要特殊处理
     intorobot_system_params.config_flag = flag;
+    if(0 == flag)
+    {
+        Process Proc;
+        Proc.begin("device_config"); //in this script the openwrt Ap is restarted
+        Proc.addParameter("SET");
+        Proc.run();
+    }
     return 0;
 }
 

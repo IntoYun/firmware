@@ -23,14 +23,33 @@
  ******************************************************************************
  */
 
-
+#include <stdio.h>
 #include "inet_hal.h"
+#include "enums_hal.h"
+#include "wiring_process.h"
 
 
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,
         network_interface_t nif, void* reserved)
 {
-    return 1;
+    String tmp;
+    uint8_t addr_data[4];
+    Process Proc;
+
+    Proc.begin("wifi_get_hostip");
+    Proc.addParameter(hostname);
+    int res = Proc.run();
+    if(res == 0)
+    {
+        while (Proc.available())
+        {
+            tmp+=(char)Proc.read();
+        }
+        sscanf(tmp.c_str(),"%d.%d.%d.%d",&addr_data[0],&addr_data[1],&addr_data[2],&addr_data[3]);
+        out_ip_addr->ipv4 = IPADR(addr_data[0], addr_data[1], addr_data[2], addr_data[3]);
+        return 0;
+    }
+    return -1;
 }
 
 int inet_ping(const HAL_IPAddress* address, network_interface_t nif, uint8_t nTries,
