@@ -70,6 +70,9 @@
 #include "wiring_i2s.h"
 //#include "wiring_audio.h"
 
+#include "wiring_ext.h"
+#include "system_config.h"
+
 // this was being implicitly pulled in by some of the other headers
 // adding here for backwards compatibility.
 #include "system_task.h"
