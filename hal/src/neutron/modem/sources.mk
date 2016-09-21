@@ -6,7 +6,8 @@
 #       based on the root of the project
 
 # C source files included in this build.
-CSRC +=
+CSRC += $(call target_files,$(TARGET_HAL_MODEM_PATH)/src/,*.c)
+
 # enumerate target cpp files
 CPPSRC += $(call target_files,$(TARGET_HAL_MODEM_PATH)/src/,*.cpp)
 

@@ -216,6 +216,8 @@ public:
      */
     int getDownFileProgress(void);
 
+    bool getBootloader(void);
+
     // ----------------------------------------------------------------
     // DEBUG/DUMP status to DEBUG output
     // ----------------------------------------------------------------
@@ -363,6 +365,9 @@ protected:
     static int _cbDownOtaFile(int type, const char* buf, int len, deal_status_t* result);
     static int _cbDownNetFile(int type, const char* buf, int len, deal_status_t* result);
     static int _cbGetDownFileProgress(int type, const char* buf, int len, int* result);
+    static int _cbGetBootloaderPacketSize(int type, const char* buf, int len, uint32_t* result);
+    static int _cbGetBootloaderPacket(int type, const char* buf, int len, uint8_t* pdata);
+
 
     // management struture for sockets
     typedef struct {

@@ -17,6 +17,7 @@
  ******************************************************************************
  */
 
+#include "hw_config.h"
 #include "ota_flash_hal.h"
 #include "esp8266_downfile.h"
 #include "core_hal.h"
@@ -68,6 +69,60 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
     return true;
 }
 
+static bool bootloader_requires_update(void)
+{
+    char subsys_ver[32] = {0}, temp[16] = {0};
+    char *ptr = NULL;
+    uint32_t boot_ver = 0, boot_ver1;
+
+    if(HAL_Core_Get_Subsys_Version(subsys_ver, sizeof(subsys_ver)))
+    {
+        uint32_t boot_ver = HAL_PARAMS_Get_Boot_boot_version();
+        DEBUG_D("boot %s boot_ver = %d \r\n", subsys_ver, boot_ver);
+        if(boot_ver)
+        {
+            memset(temp, 0, sizeof(temp));
+            ptr = strrchr(subsys_ver, '.');
+            boot_ver1 = atoi(ptr+1);
+            DEBUG_D("boot_ver=%d  boot_ver1=%d \r\n", boot_ver, boot_ver1);
+            if(boot_ver != boot_ver1)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool bootloader_update(void)
+{
+    int count=3;
+    uint32_t boot_size = HAL_PARAMS_Get_Boot_boot_size();
+
+    if(boot_size)
+    {
+        while(count--) {
+            if(copy_raw(CACHE_BOOT_ADDR, BOOT_ADDR, boot_size)) {
+                HAL_PARAMS_Set_Boot_boot_size(0);
+                HAL_PARAMS_Save_Params();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/*注意 该函数不要随意更改*/
+bool HAL_Bootloader_Update_If_Needed(void)
+{
+    bool updated = false;
+    /*注意 bootloader升级过程不允许保存参数，因为bootloader暂放在系统参数存储区*/
+    if (bootloader_requires_update()) {
+        updated = bootloader_update();
+    }
+    return updated;
+}
+
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
     return esp8266_downOnlineApp(host, param, md5);
@@ -97,19 +152,15 @@ void HAL_OTA_Upadate_Subsys(void)
 {
     int count=3;
     uint32_t def_app_size = HAL_PARAMS_Get_Boot_def_app_size();
-    uint32_t boot_size = HAL_PARAMS_Get_Boot_boot_size();
 
-    if(def_app_size&&boot_size)
+    if(def_app_size)
     {
         while(count--) {
-            if(copy_raw(CACHE_BOOT_ADDR, BOOT_ADDR, boot_size)) {
-                if(copy_raw(CACHE_DEFAULT_APP_ADDR, DEFAULT_APP_ADDR, def_app_size)) {
-                    break;
-                }
+            if(copy_raw(CACHE_DEFAULT_APP_ADDR, DEFAULT_APP_ADDR, def_app_size)) {
+                break;
             }
         }
     }
-    HAL_PARAMS_Set_Boot_boot_size(0);
     HAL_PARAMS_Set_Boot_def_app_size(0);
     HAL_PARAMS_Save_Params();
 }

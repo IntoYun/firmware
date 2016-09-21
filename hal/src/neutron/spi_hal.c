@@ -83,14 +83,14 @@ static STM32_SPI_Info *spiMap[TOTAL_SPI];
  */
 void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_GPIO_DMA_Init...");
+    //DEBUG("Enter HAL_SPI_GPIO_DMA_Init...");
     GPIO_InitTypeDef  GPIO_InitStruct;
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock SCK MISO MOSI clock and SPI clock and DMA clock */
     if (spiMap[spi]->SPI_Peripheral == SPI1)
     {
-        DEBUG("Select SPI1, and Enable Clock...");
+        //DEBUG("Select SPI1, and Enable Clock...");
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
 #ifdef useDMASPI
@@ -100,7 +100,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     }
     else if(spiMap[spi]->SPI_Peripheral == SPI3)
     {
-        DEBUG("Select SPI3, and Enable Clock...");
+        //DEBUG("Select SPI3, and Enable Clock...");
         __HAL_RCC_SPI3_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #ifdef useDMASPI
@@ -183,7 +183,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     //HAL_NVIC_SetPriority(spiMap[spi]->SPI_DMA_RX_IRQn, 7, 0);
     //HAL_NVIC_EnableIRQ(spiMap[spi]->SPI_DMA_RX_IRQn);
 #endif
-    DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
+    //DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
 }
 
 /*
@@ -193,7 +193,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
  */
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
+    //DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
 
     /*##-1- Reset peripherals ##################################################*/
     if (spiMap[spi]->SPI_Peripheral == SPI1)
@@ -235,7 +235,7 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    DEBUG("Enter HAL_SPI_Initial...");
+    //DEBUG("Enter HAL_SPI_Initial...");
     if(spi == HAL_SPI_INTERFACE1)
     {
         spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
@@ -266,7 +266,7 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
-    DEBUG("Enter HAL_SPI_Begin_Ext...");
+    //DEBUG("Enter HAL_SPI_Begin_Ext...");
 
     if (pin == SPI_DEFAULT_SS)
         pin = spiMap[spi]->SPI_SS_Pin;

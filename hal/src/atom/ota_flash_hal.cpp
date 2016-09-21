@@ -24,6 +24,26 @@
 
 uint8_t down_progress=0;
 
+static bool bootloader_requires_update(void)
+{
+    return false;
+}
+
+static bool bootloader_update(void)
+{
+    return true;
+}
+
+bool HAL_Bootloader_Update_If_Needed(void)
+{
+    bool updated = false;
+
+    if (bootloader_requires_update()) {
+        updated = bootloader_update();
+    }
+    return updated;
+}
+
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
     String url="";

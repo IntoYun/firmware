@@ -68,13 +68,6 @@ static void EEPROM_WriteByte(uint32_t address, uint8_t dataVal)
 
 void HAL_EEPROM_Init(void)
 {
-   /* EEPROM_Init();
-    for(uint16_t i = 0; i < EEPROM_SIZE; i++)
-    {
-        EepromAddressTab[i] = i;
-    }
-    DEBUG("eeprom init");
-    */
 }
 
 uint8_t HAL_EEPROM_Read(uint32_t address)

@@ -387,7 +387,7 @@ public:
     }
 
     // Read values and find the address where to write new records
-    // 
+    //
     // Return false if there are invalid records, true if page can be
     // written to
     bool readRangeAndFindEmpty(LogicalPage page, Data *existingData, Index indexBegin,
@@ -551,7 +551,7 @@ public:
         // addresses, so make sure offsets fit in the chosen AddressOffset data type
         using AddressOffset = uint16_t;
         static_assert(
-            PageSize1 <= std::numeric_limits<AddressOffset>::max() + 1 && 
+            PageSize1 <= std::numeric_limits<AddressOffset>::max() + 1 &&
             PageSize2 <= std::numeric_limits<AddressOffset>::max() + 1,
             "PageSize1 or PageSize2 doesn't fit in AddressOffset. "
             "Make pages smaller or AddressOffset a larger data type"

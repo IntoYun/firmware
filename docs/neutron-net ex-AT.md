@@ -93,17 +93,13 @@ neutron-net 扩展AT指令 是在esp8266 AT指令的基础上添加的，涉及�
 
  **返回：**
 
-    +IR_GETFILEPACKET,16388:数据
-
-    OK
+    +IR_GETFILEPACKET,16386:数据
 
  **实例：**
 
     AT+IR_GETFILEPACKET=16384,0,1
 
     +IR_GETFILEPACKET,16388:数据
-
-    OK
 
 ## 6. 下载net固件程序
  **指令：**  `AT+IR_NETDOWN="域名或者IP地址"，“下载地址”`

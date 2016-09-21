@@ -31,6 +31,9 @@
 #include "service_debug.h"
 #include "concurrent_hal.h"
 #include "net_hal.h"
+#include "crc16.h"
+#include "flash_map.h"
+#include "memory_hal.h"
 
 
 #ifdef putc
@@ -1130,6 +1133,79 @@ int MDMParser::getDownFileProgress(void)
     return result;
 }
 
+int MDMParser::_cbGetBootloaderPacketSize(int type, const char* buf, int len, uint32_t* result)
+{
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_GETFILESIZE:%d\r\n", result) == 1)
+        /*nothing*/;
+    }
+    return WAIT;
+}
+
+int MDMParser::_cbGetBootloaderPacket(int type, const char* buf, int len, uint8_t* pdata)
+{
+    uint32_t size = 0;
+
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_GETFILEPACKET,%d\r\n", &size) == 1) {
+            char *s = strchr(buf, ':');
+            for(int n=0; n < size; n++) {
+                memcpy(pdata, s+1, size);
+            }
+            return RESP_OK;
+        }
+    }
+    return RESP_ERROR;
+}
+
+/**
+ * Used to get bootloader from esp8266
+ */
+#define PACKAGE_UNIT 1024  //1k
+bool MDMParser::getBootloader(void)
+{
+    bool ok = false;
+    uint8_t buf[1200];
+    uint16_t crc16 = 0;
+    uint32_t packet_size = 0;
+    int PacketIndex = 0;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+IR_GETFILESIZE=%d,2\r\n", PACKAGE_UNIT);
+        if (RESP_OK == waitFinalResp(_cbGetBootloaderPacketSize, &packet_size)) {
+            DEBUG_D("packet_size = %d\r\n", packet_size);
+            if(packet_size) {
+                for(PacketIndex = 0; PacketIndex < packet_size; PacketIndex++) {
+                    sendFormated("AT+IR_GETFILEPACKET= %d,%d,2\r\n", PACKAGE_UNIT, PacketIndex);
+                    memset(buf, 0, sizeof(buf));
+                    if (RESP_OK == waitFinalResp(_cbGetBootloaderPacket, buf)) {
+                        crc_reset();
+                        crc_update_n(buf, PACKAGE_UNIT);
+                        crc16 = crc_get_reseult();
+                        if( crc16 == ((buf[PACKAGE_UNIT] << 8) | (buf[PACKAGE_UNIT+1]))) {
+                            DEBUG_D("crc32 success  flash begin\r\n");
+                            if( PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR+PACKAGE_UNIT < APP_ADDR ) {
+                                if( HAL_FLASH_STATUS_OK == HAL_FLASH_Interminal_Write(PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR, (uint32_t *)&buf, PACKAGE_UNIT/4) ) {
+                                    DEBUG_D("crc32 success flash end\r\n");
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    break;
+                }
+                if(PacketIndex == packet_size)
+                {
+                    ok = false;
+                }
+            }
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
 // ----------------------------------------------------------------
 bool MDMParser::setDebug(int level)
 {
@@ -1234,6 +1310,7 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             const char* fmt;                              int type;
         } lutF[] = {
             { "+IPD,%d,%d:%c",                          TYPE_PLUS       },
+            { "+IR_GETFILEPACKET,%d:%c",                TYPE_PLUS       },
         };
         static struct {
             const char* sta;          const char* end;    int type;

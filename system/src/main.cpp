@@ -181,36 +181,8 @@ void app_loop(void)
     }
 }
 
-static void app_load_params(void)
+static void load_system_fwlib_version(void)
 {
-    // load params
-    HAL_PARAMS_Load_System_Params();
-    HAL_PARAMS_Load_Boot_Params();
-    // check if need init params
-    if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
-    {
-        DEBUG_D("init params fac\r\n");
-        HAL_PARAMS_Init_Fac_System_Params();
-    }
-    else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
-    {
-        DEBUG_D("init params all\r\n");
-        HAL_PARAMS_Init_All_System_Params();
-    }
-    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
-    {
-        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
-    }
-
-    //保存子系统程序版本号
-    char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
-    HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
-    HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
-    if(strcmp(subsys_ver1, subsys_ver2))
-    {
-        HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
-    }
-
     //保存固件库版本号
     char fw_ver1[32] = {0}, fw_ver2[32] = {0};
     system_version(fw_ver1);
@@ -221,6 +193,7 @@ static void app_load_params(void)
     }
     HAL_PARAMS_Save_Params();
 }
+
 /*******************************************************************************
  * Function Name  : main.
  * Description    : main routine.
@@ -234,7 +207,7 @@ void app_setup_and_loop_initial(void)
     // We have running firmware, otherwise we wouldn't have gotten here
     DECLARE_SYS_HEALTH(ENTERED_Main);
     // load params
-    app_load_params();
+    load_system_fwlib_version();
 
     set_system_mode(DEFAULT);
 

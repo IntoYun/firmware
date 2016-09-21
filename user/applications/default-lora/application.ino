@@ -1,5 +1,5 @@
 /*
- * nut 默认程序
+ * lora 默认程序
  */
 #include "application.h"
 
@@ -12,12 +12,12 @@ void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 {
     if(payload[0] == '1')
     {
-        digitalWrite(LEDPIN, LOW);     //nut 低电平 打开灯泡
+        digitalWrite(LEDPIN, LOW);     //低电平 打开灯泡
         IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
     }
     else
     {
-        digitalWrite(LEDPIN, HIGH);      //nut 高电平 关闭灯泡
+        digitalWrite(LEDPIN, HIGH);      //高电平 关闭灯泡
         IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
     }
 }

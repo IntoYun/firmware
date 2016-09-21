@@ -119,6 +119,7 @@ int atexit(void (*func)()) __attribute__((weak));
 
 void HAL_Core_Init(void);
 void HAL_Core_Config(void);
+void HAL_Core_Load_params(void);
 bool HAL_Core_Validate_User_Module(void);
 void HAL_Core_System_Reset(void);
 void HAL_Core_Enter_DFU_Mode(bool persist);

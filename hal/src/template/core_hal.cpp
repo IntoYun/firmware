@@ -25,7 +25,7 @@
 #include "watchdog_hal.h"
 #include "rng_hal.h"
 #include "rgbled_hal.h"
-#include "bootloader.h"
+#include "ota_flash_hal.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "hw_config.h"

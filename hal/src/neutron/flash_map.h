@@ -32,9 +32,12 @@
  */
 
 
+#define BOOTLOADER_START_ADDR            ((uint32_t)0x08000000)
 #define EEPROM_START_ADDR                ((uint32_t)0x08008000)
 #define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x08010000)
 #define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x0801FFFF)
+
+#define CACHE_BOOTLOADER_START_ADDR      ((uint32_t)0x08016000)
 
 #define BOOT_ADDR                        ((uint32_t)0x08000000)
 #define EEPROM_ADDR                      ((uint32_t)0x08008000)

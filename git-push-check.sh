@@ -10,17 +10,17 @@ fi
 echo "github push check begin!!!"
 
 export INTOROBOT_DEVELOP=1
-echo "check atom!!!"
+echo "check atom bootloader and app!!!"
 make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=default-atom
-echo "check neutron!!!"
+echo "check neutron bootloader and app!!!"
 make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=default-neutron
-echo "check nut!!!"
+echo "check nut bootloader and app!!!"
 make $VERBOSE PLATFORM=nut clean all COMPILE_LTO=n APP=default-nut
-echo "check lora!!!"
+echo "check lora bootloader and app!!!"
 make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
-echo "check gprs!!!"
+echo "check gprs bootloader and app!!!"
 make $VERBOSE PLATFORM=gprs clean all COMPILE_LTO=n APP=default-gprs
-echo "check neutron-net!!!"
+echo "check neutron-net bootloader and app!!!"
 make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
 
 echo "github push check success!!!"
