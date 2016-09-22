@@ -16,29 +16,14 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
-#ifndef WIRING_EXT_H_
-#define WIRING_EXT_H_
 #include "ext_hal.h"
+#include "Arduino_Nut.h"
 
-// bit operation
-#define abs(x) ((x)>0?(x):-(x))
-
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
-
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
-
-#define max(x,y)  (x>y ? x:y)
-
-#define bit(b) (1UL << (b))
-
-// irq operation
-void disableIRQ(void);
-void enableIRQ(void);
-
-
-#endif /* __WIRING_EXT_H_ */
+void disable_irq(void)
+{
+    xt_rsil(15);
+}
+void enable_irq(void)
+{
+    xt_rsil(0);
+}

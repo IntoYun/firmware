@@ -17,28 +17,18 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_EXT_H_
-#define WIRING_EXT_H_
-#include "ext_hal.h"
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __EXT_HAL_H
+#define __EXT_HAL_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// bit operation
-#define abs(x) ((x)>0?(x):-(x))
+void disable_irq(void);
+void enable_irq(void);
 
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
+#ifdef __cplusplus
+}
+#endif
 
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
-
-#define max(x,y)  (x>y ? x:y)
-
-#define bit(b) (1UL << (b))
-
-// irq operation
-void disableIRQ(void);
-void enableIRQ(void);
-
-
-#endif /* __WIRING_EXT_H_ */
+#endif  /* __EXT_HAL_H */

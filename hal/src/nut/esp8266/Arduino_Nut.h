@@ -151,9 +151,6 @@ void ets_intr_unlock();
 // #define interrupts() xt_rsil(0)
 // #define noInterrupts() xt_rsil(15)
 
-// #define __disable_irq() xt_rsil(15)
-// #define __enable_irq() xt_rsil(0)
-
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
