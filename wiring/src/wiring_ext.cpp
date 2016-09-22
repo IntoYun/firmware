@@ -16,46 +16,16 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************
 */
+#include "wiring_ext.h"
+#include "ext_hal.h"
 
-
-#include "wiring.h"
-#include "wiring_ticks.h"
-#include "adc_hal.h"
-#include "system_task.h"
-
-void setADCSampleTime(uint8_t ADC_SampleTime)
+// irq operation
+void disableIRQ(void)
 {
-    HAL_ADC_Set_Sample_Time(ADC_SampleTime);
+    disable_irq();
+}
+void enableIRQ(void)
+{
+    enable_irq();
 }
 
-long map(long value, long fromStart, long fromEnd, long toStart, long toEnd)
-{
-    return (value - fromStart) * (toEnd - toStart) / (fromEnd - fromStart) + toStart;
-}
-
-void delay(unsigned long ms)
-{
-    HAL_Delay_Milliseconds(ms);
-}
-
-
-uint32_t timerGetId(void)
-{
-    return millis();
-}
-
-bool timerIsEnd(uint32_t timerID, uint32_t time)
-{
-    volatile system_tick_t current_millis = millis();
-    volatile long elapsed_millis = current_millis - timerID;
-
-    //Check for wrapping
-    if (elapsed_millis < 0){
-        elapsed_millis =  0xFFFFFFFF -timerID + current_millis;
-    }
-
-    if (elapsed_millis >= (long)time){
-        return true;
-    }
-    return false;
-}

@@ -284,3 +284,22 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 
     return (SYSTEM_TICK_COUNTER - pulseStart)/SYSTEM_US_TICKS;
 }
+
+void HAL_pinSetFast(pin_t pin)
+{
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    PIN_MAP[pin].gpio_peripheral->BSRR = PIN_MAP[pin].gpio_pin;
+}
+
+void HAL_pinResetFast(pin_t pin)
+{
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    PIN_MAP[pin].gpio_peripheral->BRR = PIN_MAP[pin].gpio_pin;
+}
+
+int32_t HAL_pinReadFast(pin_t pin)
+{
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    return GPIO_ReadInputDataBit(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
+}
+

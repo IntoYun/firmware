@@ -224,3 +224,40 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 
     return (system_get_time() - pulseStart);
 }
+
+void HAL_pinSetFast(pin_t pin)
+{
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if(gpio_pin < 16){
+        GPOS = (1 << gpio_pin);
+    } else if(gpio_pin == 16){
+        GP16O |= 1;
+    }
+}
+
+void HAL_pinResetFast(pin_t pin)
+{
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if(gpio_pin < 16){
+        GPOC = (1 << gpio_pin);
+    } else if(gpio_pin == 16){
+        GP16O &= ~1;
+    }
+}
+
+int32_t HAL_pinReadFast(pin_t pin)
+{
+    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if(gpio_pin < 16){
+        return GPIP(gpio_pin);
+    } else if(gpio_pin == 16){
+        return GP16I & 0x01;
+    }
+    return 0;
+}
+
+
