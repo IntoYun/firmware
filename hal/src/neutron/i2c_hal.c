@@ -43,7 +43,7 @@
 // I2Cnum_SDA_SCL
 typedef enum I2C_Num_Def {
     I2C3_D2_D1_USER = 0,
-    I2C1_SDA_SCL_SENSOR = 1 
+    I2C1_SDA_SCL_SENSOR = 1
 } I2C_Num_Def;
 
 typedef enum I2C_Transaction_Ending_Condition {
@@ -229,8 +229,8 @@ void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
     {
         //DEBUG("HAL_I2C_Initial, choose sensors configuration!");
       i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1_USER];
-    } 
-  else if(i2c == HAL_I2C_INTERFACE2)// for sensors 
+    }
+  else if(i2c == HAL_I2C_INTERFACE2)// for sensors
     {
         //DEBUG("HAL_I2C_Initial, choose users configuration!");
       i2cMap[i2c] = &I2C_MAP[I2C1_SDA_SCL_SENSOR];

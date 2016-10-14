@@ -33,7 +33,7 @@
 #define EEPROM_START_ADDRESS    ((uint32_t)0x08080000)
 
 /* EEPROM Emulation Size */
-#define EEPROM_SIZE             ((uint8_t)0x64)       /* 100 bytes (Max 255/0xFF bytes) */
+#define EEPROM_SIZE             ((uint16_t)4096)       /* 4096 bytes (Max 4096/0xFFF bytes) */
 
 
 static uint8_t EEPROM_ReadByte(uint32_t address);
