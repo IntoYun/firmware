@@ -36,6 +36,9 @@
 #ifndef __LORAMAC_CRYPTO_H__
 #define __LORAMAC_CRYPTO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*!
  * Computes the LoRaMAC frame MIC field
  *
@@ -107,5 +110,7 @@ void LoRaMacJoinDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *ke
 void LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey );
 
 /*! \} defgroup LORAMAC */
-
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMAC_CRYPTO_H__

@@ -15,6 +15,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __RADIO_H__
 #define __RADIO_H__
 
+#include "variant.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*!
  * Radio driver supported modems
  */
@@ -315,5 +322,9 @@ struct Radio_s
  *         board implementation
  */
 extern const struct Radio_s Radio;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RADIO_H__

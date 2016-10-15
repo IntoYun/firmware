@@ -12,14 +12,15 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-//#include "board.h"
-//#include "rtc-board.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 
 #include "timer.h"
+#include "rtc_hal_lora.h"
+#include "stm32l1xx.h"
+#include "service_debug.h"
 
 
 /*!
@@ -87,7 +88,7 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 
 void TimerStart( TimerEvent_t *obj )
 {
-    /*
+
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
@@ -132,12 +133,11 @@ void TimerStart( TimerEvent_t *obj )
         }
     }
     __enable_irq( );
-    */
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
-    /*
+   
     uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps
     uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
 
@@ -188,12 +188,12 @@ static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
             }
         }
     }
-    */
+    
 }
 
 static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
-    /*
+    
     TimerEvent_t* cur = TimerListHead;
 
     if( cur != NULL )
@@ -206,12 +206,12 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
     obj->IsRunning = true;
     TimerListHead = obj;
     TimerSetTimeout( TimerListHead );
-    */
+    
 }
 
 void TimerIrqHandler( void )
 {
-    /*
+    
     uint32_t elapsedTime = 0;
 
     elapsedTime = TimerGetValue( );
@@ -247,12 +247,12 @@ void TimerIrqHandler( void )
             TimerSetTimeout( TimerListHead );
         }
     }
-    */
+    
 }
 
 void TimerStop( TimerEvent_t *obj )
 {
-    /*
+    
     __disable_irq( );
 
     uint32_t elapsedTime = 0;
@@ -336,7 +336,7 @@ void TimerStop( TimerEvent_t *obj )
         }
     }
     __enable_irq( );
-        */
+      
 }
 
 static bool TimerExists( TimerEvent_t *obj )
@@ -369,40 +369,35 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 TimerTime_t TimerGetValue( void )
 {
-//    return RtcGetElapsedAlarmTime( );
-    return 0;
+    return RtcGetElapsedAlarmTime( );
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-    //return RtcGetTimerValue( );
-    return 0;
+    return RtcGetTimerValue( );
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 {
-    //return RtcComputeElapsedTime( savedTime );
-    return 0;
+    return RtcComputeElapsedTime( savedTime );
 }
 
 TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 {
-    //return RtcComputeFutureEventTime( eventInFuture );
-    return 0;
+    return RtcComputeFutureEventTime( eventInFuture );
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-    /*
+    
     HasLoopedThroughMain = 0;
     obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
     RtcSetTimeout( obj->Timestamp );
-    */
+    
 }
 
 void TimerLowPowerHandler( void )
 {
-    /*
     if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
     {
         if( HasLoopedThroughMain < 5 )
@@ -418,5 +413,12 @@ void TimerLowPowerHandler( void )
             }
         }
     }
-    */
+    
+}
+
+void RTC_Alarm_IRQHandler( void )
+{
+    RTC_Alarm_IRQ();
+    TimerIrqHandler();
+    DEBUG("rtc timer");
 }
