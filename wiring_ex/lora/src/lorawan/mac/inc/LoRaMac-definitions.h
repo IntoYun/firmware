@@ -15,6 +15,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __LORAMAC_BOARD_H__
 #define __LORAMAC_BOARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /*!
  * Returns individual channel mask
  *
@@ -522,4 +527,7 @@ typedef enum
     #error "Please define a frequency band in the compiler options."
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMAC_BOARD_H__

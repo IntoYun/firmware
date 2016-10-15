@@ -15,6 +15,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1276_ARCH_H__
 #define __SX1276_ARCH_H__
 
+#include "../../radio/inc/sx1276.h"
+
+// #include "sx1276.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*!
  * \brief Radio hardware registers initialization definition
  *
@@ -41,6 +48,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 }                                                 \
 
 #define RF_MID_BAND_THRESH                          525000000
+
 
 /*!
  * \brief Initializes the radio I/Os pins interface
@@ -109,5 +117,17 @@ bool SX1276CheckRfFrequency( uint32_t frequency );
  * Radio hardware and global parameters
  */
 extern SX1276_t SX1276;
+
+void SX1276SetReset(void);
+
+void SX1276BoardInit(void);
+
+void SpiSetNss(uint8_t val);
+
+uint8_t SpiInOut( uint8_t outData );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX1276_ARCH_H__

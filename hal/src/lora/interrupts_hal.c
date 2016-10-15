@@ -104,6 +104,11 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     {
         __HAL_RCC_GPIOB_CLK_ENABLE();
     }
+    else if (gpio_port == GPIOC)
+    {
+       __HAL_RCC_GPIOC_CLK_ENABLE();
+    }
+
 
     // Register the handler for the user function name
     exti_channels[GPIO_PinSource].fn = handler;

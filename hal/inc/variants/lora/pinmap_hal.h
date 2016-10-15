@@ -65,7 +65,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS   36 
+#define TOTAL_PINS   46//36 
 #define TOTAL_ANALOG_PINS 6
 #define FIRST_ANALOG_PIN  30
 
@@ -84,6 +84,18 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A3 33
 #define A4 34
 #define A5 35
+
+// lora pins
+#define RESET_EN    36
+#define NSS_SPI1    37
+#define DIO0        38
+#define DIO1        39
+#define DIO2        40
+#define DIO3        41
+#define DIO4        42
+#define DIO5        43
+#define RX_EN       44
+#define TX_EN       45
 //#define A6 36
 //#define A7 37
 

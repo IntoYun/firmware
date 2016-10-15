@@ -18,6 +18,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "sx1276Regs-Fsk.h"
 #include "sx1276Regs-LoRa.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * Radio wakeup time from SLEEP mode
  */
@@ -119,12 +123,12 @@ typedef struct
 typedef struct SX1276_s
 {
     uint8_t        Reset;
-    uint8_t        DIO0;
-    uint8_t        DIO1;
-    uint8_t        DIO2;
-    uint8_t        DIO3;
-    uint8_t        DIO4;
-    uint8_t        DIO5;
+    uint8_t        Dio0;
+    uint8_t        Dio1;
+    uint8_t        Dio2;
+    uint8_t        Dio3;
+    uint8_t        Dio4;
+    uint8_t        Dio5;
     //Spi_t          Spi;
     RadioSettings_t Settings;
 }SX1276_t;
@@ -381,5 +385,10 @@ void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [IN] max        Maximum payload length in bytes
  */
 void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+
+uint32_t SX1278LoRaGetRFFrequency( void );
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX1276_H__

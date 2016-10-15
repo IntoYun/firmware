@@ -15,6 +15,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+enum BoardPowerSource
+{
+        USB_POWER = 0,
+        BATTERY_POWER
+};
 /*!
  * \brief Timer object description
  */
@@ -106,5 +114,9 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
  * \brief Manages the entry into ARM cortex deep-sleep mode
  */
 void TimerLowPowerHandler( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __TIMER_H__
