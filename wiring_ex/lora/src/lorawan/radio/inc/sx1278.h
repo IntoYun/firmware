@@ -6,17 +6,17 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Generic SX1276 driver implementation
+Description: Generic SX1278 driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __SX1276_H__
-#define __SX1276_H__
+#ifndef __SX1278_H__
+#define __SX1278_H__
 
-#include "sx1276Regs-Fsk.h"
-#include "sx1276Regs-LoRa.h"
+#include "sx1278Regs-Fsk.h"
+#include "sx1278Regs-LoRa.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,17 +25,17 @@ extern "C" {
 /*!
  * Radio wakeup time from SLEEP mode
  */
-#define RADIO_OSC_STARTUP                           1 // [ms]
+#define RADIO_OSC_STARTUP       1 // [ms]
 
 /*!
  * Radio PLL lock and Mode Ready delay which can vary with the temperature
  */
-#define RADIO_SLEEP_TO_RX                           2 // [ms]
+#define RADIO_SLEEP_TO_RX       2 // [ms]
 
 /*!
  * Radio complete Wake-up Time with margin for temperature compensation
  */
-#define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
+#define RADIO_WAKEUP_TIME       ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
 
 /*!
  * Radio FSK modem parameters
@@ -120,7 +120,7 @@ typedef struct
 /*!
  * Radio hardware and global parameters
  */
-typedef struct SX1276_s
+typedef struct SX1278_s
 {
     uint8_t        Reset;
     uint8_t        Dio0;
@@ -131,7 +131,7 @@ typedef struct SX1276_s
     uint8_t        Dio5;
     //Spi_t          Spi;
     RadioSettings_t Settings;
-}SX1276_t;
+}SX1278_t;
 
 /*!
  * Hardware IO IRQ callback function definition
@@ -139,12 +139,12 @@ typedef struct SX1276_s
 typedef void ( DioIrqHandler )( void );
 
 /*!
- * SX1276 definitions
+ * SX1278 definitions
  */
-#define XTAL_FREQ                                   32000000
-#define FREQ_STEP                                   61.03515625
+#define XTAL_FREQ            32000000
+#define FREQ_STEP            61.03515625
 
-#define RX_BUFFER_SIZE                              256
+#define RX_BUFFER_SIZE       256
 
 /*!
  * ============================================================================
@@ -157,28 +157,28 @@ typedef void ( DioIrqHandler )( void );
  *
  * \param [IN] events Structure containing the driver callback functions
  */
-void SX1276Init( RadioEvents_t *events );
+void SX1278Init( RadioEvents_t *events );
 
 /*!
  * Return current radio status
  *
  * \param status Radio status.[RF_IDLE, RF_RX_RUNNING, RF_TX_RUNNING]
  */
-RadioState_t SX1276GetStatus( void );
+RadioState_t SX1278GetStatus( void );
 
 /*!
  * \brief Configures the radio with the given modem
  *
  * \param [IN] modem Modem to be used [0: FSK, 1: LoRa] 
  */
-void SX1276SetModem( RadioModems_t modem );
+void SX1278SetModem( RadioModems_t modem );
 
 /*!
  * \brief Sets the channels configuration
  *
  * \param [IN] freq         Channel RF frequency
  */
-void SX1276SetChannel( uint32_t freq );
+void SX1278SetChannel( uint32_t freq );
 
 /*!
  * \brief Sets the channels configuration
@@ -189,19 +189,19 @@ void SX1276SetChannel( uint32_t freq );
  *
  * \retval isFree         [true: Channel is free, false: Channel is not free]
  */
-bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
+bool SX1278IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
 
 /*!
  * \brief Generates a 32 bits random value based on the RSSI readings
  *
  * \remark This function sets the radio in LoRa modem mode and disables 
  *         all interrupts.
- *         After calling this function either SX1276SetRxConfig or
- *         SX1276SetTxConfig functions must be called.
+ *         After calling this function either SX1278SetRxConfig or
+ *         SX1278SetTxConfig functions must be called.
  *
  * \retval randomValue    32 bits random value
  */
-uint32_t SX1276Random( void );
+uint32_t SX1278Random( void );
 
 /*!
  * \brief Sets the reception parameters
@@ -244,7 +244,7 @@ uint32_t SX1276Random( void );
  * \param [IN] rxContinuous Sets the reception in continuous mode
  *                          [false: single mode, true: continuous mode]
  */
-void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
+void SX1278SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          uint32_t datarate, uint8_t coderate,
                          uint32_t bandwidthAfc, uint16_t preambleLen,
                          uint16_t symbTimeout, bool fixLen,
@@ -289,7 +289,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
  *                          LoRa: [0: not inverted, 1: inverted]
  * \param [IN] timeout      Transmission timeout [ms]
  */
-void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, 
+void SX1278SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, 
                         uint32_t bandwidth, uint32_t datarate,
                         uint8_t coderate, uint16_t preambleLen,
                         bool fixLen, bool crcOn, bool FreqHopOn,
@@ -305,7 +305,7 @@ void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
  *
  * \retval airTime        Computed airTime (us) for the given packet payload length
  */
-uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
+uint32_t SX1278GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
 
 /*!
  * \brief Sends the buffer of size. Prepares the packet to be sent and sets
@@ -314,35 +314,35 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
  * \param [IN]: buffer     Buffer pointer
  * \param [IN]: size       Buffer size
  */
-void SX1276Send( uint8_t *buffer, uint8_t size );
+void SX1278Send( uint8_t *buffer, uint8_t size );
     
 /*!
  * \brief Sets the radio in sleep mode
  */
-void SX1276SetSleep( void );
+void SX1278SetSleep( void );
 
 /*!
  * \brief Sets the radio in standby mode
  */
-void SX1276SetStby( void );
+void SX1278SetStby( void );
 
 /*!
  * \brief Sets the radio in reception mode for the given time
  * \param [IN] timeout Reception timeout [ms] [0: continuous, others timeout]
  */
-void SX1276SetRx( uint32_t timeout );
+void SX1278SetRx( uint32_t timeout );
 
 /*!
  * \brief Start a Channel Activity Detection
  */
-void SX1276StartCad( void );
+void SX1278StartCad( void );
 
 /*!
  * \brief Reads the current RSSI value
  *
  * \retval rssiValue Current RSSI value in [dBm]
  */
-int16_t SX1276ReadRssi( RadioModems_t modem );
+int16_t SX1278ReadRssi( RadioModems_t modem );
 
 /*!
  * \brief Writes the radio register at the specified address
@@ -350,7 +350,7 @@ int16_t SX1276ReadRssi( RadioModems_t modem );
  * \param [IN]: addr Register address
  * \param [IN]: data New register value
  */
-void SX1276Write( uint8_t addr, uint8_t data );
+void SX1278Write( uint8_t addr, uint8_t data );
 
 /*!
  * \brief Reads the radio register at the specified address
@@ -358,7 +358,7 @@ void SX1276Write( uint8_t addr, uint8_t data );
  * \param [IN]: addr Register address
  * \retval data Register value
  */
-uint8_t SX1276Read( uint8_t addr );
+uint8_t SX1278Read( uint8_t addr );
 
 /*!
  * \brief Writes multiple radio registers starting at address
@@ -367,7 +367,7 @@ uint8_t SX1276Read( uint8_t addr );
  * \param [IN] buffer Buffer containing the new register's values
  * \param [IN] size   Number of registers to be written
  */
-void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
+void SX1278WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Reads multiple radio registers starting at address
@@ -376,7 +376,7 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [OUT] buffer Buffer where to copy the registers data
  * \param [IN] size Number of registers to be read
  */
-void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
+void SX1278ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Sets the maximum payload length.
@@ -384,11 +384,13 @@ void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
  * \param [IN] max        Maximum payload length in bytes
  */
-void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+void SX1278SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
+uint8_t SX1278GetVersion(void);
 uint32_t SX1278LoRaGetRFFrequency( void );
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __SX1276_H__
+#endif // __SX1278_H__

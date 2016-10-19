@@ -164,7 +164,7 @@ bool SPIClass::isEnabled()
 SPIClass SPI(HAL_SPI_INTERFACE1);
 
 #if Wiring_SPI1
-SPIClass SPI1(HAL_SPI_INTERFACE2);
+SPIClass SPI_1(HAL_SPI_INTERFACE2);
 #endif
 
 #endif  // INTOROBOT_WIRING_NO_SPI

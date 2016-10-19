@@ -6,18 +6,18 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: SX1276 FSK modem registers and bits definitions
+Description: SX1278 FSK modem registers and bits definitions
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __SX1276_REGS_FSK_H__
-#define __SX1276_REGS_FSK_H__
+#ifndef __SX1278_REGS_FSK_H__
+#define __SX1278_REGS_FSK_H__
 
 /*!
  * ============================================================================
- * SX1276 Internal registers Address
+ * SX1278 Internal registers Address
  * ============================================================================
  */
 #define REG_FIFO                                    0x00
@@ -111,7 +111,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * ============================================================================
- * SX1276 FSK bits control definition
+ * SX1278 FSK bits control definition
  * ============================================================================
  */
 
@@ -1125,4 +1125,4 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_PLL_BANDWIDTH_225                        0x80
 #define RF_PLL_BANDWIDTH_300                        0xC0  // Default
 
-#endif // __SX1276_REGS_FSK_H__
+#endif // __SX1278_REGS_FSK_H__

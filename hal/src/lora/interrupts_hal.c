@@ -142,7 +142,10 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     {
         HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
     }
-
+    else if (gpio_port == GPIOC )
+    {
+        HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    }
     /* Enable and set EXTI line Interrupt to the lowest priority */
     HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource], 13, 0); // 14 or 13, which one
     HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );

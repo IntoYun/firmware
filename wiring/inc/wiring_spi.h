@@ -112,7 +112,7 @@ extern SPIClass SPI;
 #undef SPI1
 #endif  // SPI1
 
-extern SPIClass SPI1;
+extern SPIClass SPI_1;
 
 #endif  // Wiring_SPI1
 

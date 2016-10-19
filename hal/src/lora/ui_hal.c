@@ -21,15 +21,15 @@
 #include "ui_hal.h"
 
 
-#define RGB_R_GPIO_PIN       GPIO_PIN_1
-#define RGB_R_GPIO_PORT      GPIOB
-#define RGB_G_GPIO_PIN       GPIO_PIN_13
-#define RGB_G_GPIO_PORT      GPIOB
-#define RGB_B_GPIO_PIN       GPIO_PIN_14
-#define RGB_B_GPIO_PORT      GPIOB
+#define RGB_R_GPIO_PIN       GPIO_PIN_0
+#define RGB_R_GPIO_PORT      GPIOA
+#define RGB_G_GPIO_PIN       GPIO_PIN_1
+#define RGB_G_GPIO_PORT      GPIOA
+#define RGB_B_GPIO_PIN       GPIO_PIN_10
+#define RGB_B_GPIO_PORT      GPIOA
 
-#define MODE_BOTTON_GPIO_PIN       GPIO_PIN_2
-#define MODE_BOTTON_GPIO_PORT      GPIOB
+#define MODE_BOTTON_GPIO_PIN       GPIO_PIN_9
+#define MODE_BOTTON_GPIO_PORT      GPIOA
 
 
 volatile uint32_t BUTTON_last_state = 0;

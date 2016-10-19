@@ -24,7 +24,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #include <stdio.h>
 #include <stdint.h>
 #include "radio.h"
-#include "sx1276.h"
+#include "sx1278.h"
 #include "timer.h"
 
 #include "LoRaMacCrypto.h"

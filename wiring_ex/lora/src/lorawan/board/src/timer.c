@@ -21,8 +21,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc_hal_lora.h"
 #include "stm32l1xx.h"
 #include "service_debug.h"
-
-
 /*!
  * This flag is used to make sure we have looped through the main several time to avoid race issues
  */

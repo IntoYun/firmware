@@ -3,9 +3,11 @@
 
 
 #include "../src/lorawan/radio/inc/radio.h"
-#include "../src/lorawan/board/inc/sx1276-board.h"
+#include "../src/lorawan/board/inc/sx1278-board.h"
 
-#include "../src/lorawan/radio/inc/sx1276.h"
+#include "../src/lorawan/radio/inc/sx1278.h"
+#include "../src/lorawan/board/inc/timer.h"
+#include "../src/lorawan/mac/inc/LoRaMac.h"
 
 
 
