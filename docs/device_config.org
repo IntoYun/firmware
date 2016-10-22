@@ -2,18 +2,16 @@
  设备通过配置可以连入网络，并连接上平台。
 具体设备配置的操作是：进入到配置模式（在 app 模式下，长按侧边模式键 3 秒，出现红灯长亮松开按键，设备会进入到红灯闪烁的配置状态），使用手机进行配置。
 
-设备board意义：
+设备 board 意义：
 | Product | 出厂灌入秘钥 | 出厂未灌入秘钥 |
 |---------+--------------+----------------|
 | atom    | 888000       | 887000         |
 | neutron | 888001       | 887001         |
 | nut     | 888002       | 887002         |
 
-at_mode意义：
-at_mode = 1 : 设备已经有deviec_id和access_token
-at_mode = 0 : 设备没有access_token
-
-以下是设备配置流程，代码以neutron为例。
+at_mode 意义：
+at_mode = 1 : 设备已经有 deviec_id 和 access_token
+at_mode = 0 : 设备没有 access_token
 
 #+begin_src ditaa :file device_config.png :cmdline -r -s 0.8
 
@@ -22,6 +20,7 @@ at_mode = 0 : 设备没有access_token
                                                  | 配置开始 |
                                                  |   cRED   |
                                                  +-----+----+
+                                                       |
                                                        |
                                                        V
                                                  +-----+--------------+
@@ -67,7 +66,7 @@ at_mode = 0 : 设备没有access_token
                                                        |
                                                        V
                                                  +-----+----------------+
-                         arduino设备创建方式     |                      |  IntoRobot设备创建方式
+                         arduino 设备创建方式     |                      |  IntoRobot 设备创建方式
                                                  | at_mode 存在并且为 1 |
                 +--------------否----------------+                      +--------------是----------------+
                 |                                |   cRED               |                                |
@@ -133,10 +132,3 @@ at_mode = 0 : 设备没有access_token
                                                  |   cRED    |
                                                  +-----------+
 #+end_src
-
-
-
-
-
-
-
