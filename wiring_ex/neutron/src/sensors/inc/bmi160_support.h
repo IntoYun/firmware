@@ -160,6 +160,7 @@ BMI160_RETURN_FUNCTION_TYPE bmi160_interrupt_configuration(void);
  *	@return : communication result
  */
 void bmi160_delay_ms(u32 msek);
+void bmi160_set_range(uint8_t accel_range, uint8_t gyro_range);
 
 #ifdef INCLUDE_BMI160API
 /*!

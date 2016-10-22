@@ -60,6 +60,7 @@ class BMI160Sensor
     public:
         BMI160Sensor();
         bool isEnabled(void);
+        void setRange(uint8_t accel_range, uint8_t gyro_range);
         void begin(void);
         void getAccelData(int16_t accel[3]);
         void getGyroData(int16_t gyro[3]);
@@ -131,6 +132,8 @@ class NeutronSensors
         void begin(void);
 
         // BMI160 and BMM150 sensor
+
+        void setBMI160Range(uint8_t accel_range, uint8_t gyro_range);
         void getAccelData(int16_t accel[3]);
         void getGyroData(int16_t gyro[3]);
         void getMagData(int16_t mag[3]);

@@ -91,6 +91,16 @@ BMI160_RETURN_FUNCTION_TYPE bmi160_initialize_sensor(void)
 	com_rslt += bmi160_config_running_mode(STANDARD_UI_9DOF_FIFO);
 	return com_rslt;
 }
+
+void bmi160_set_range(uint8_t accel_range, uint8_t gyro_range)
+{
+  bmi160_set_accel_range(accel_range);
+  s_bmi160.delay_msec(BMI160_GEN_READ_WRITE_DELAY);/* bmi160_delay_ms in ms*/
+  bmi160_set_gyro_range(gyro_range);
+  s_bmi160.delay_msec(BMI160_GEN_READ_WRITE_DELAY);/* bmi160_delay_ms in ms*/
+}
+
+
 /*!
  *	@brief This Function used to read the sensor data using
  *	different running mode

@@ -80,6 +80,10 @@
 
 #include "stdio.h"
 
+#if (PLATFORM_ID == 1)
+ #include "wiring_neutron.h"
+#endif
+
 using namespace intorobot;
 
 #endif /* APPLICATION_H_ */

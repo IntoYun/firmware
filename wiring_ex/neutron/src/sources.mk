@@ -7,15 +7,14 @@
 
 TARGET_WIRING_EX_SRC_PATH = $(WIRING_EX_MODULE_PATH)/$(PLATFORM_NAME)/src
 
-TARGET_WIRING_EX_SRC_INC_PATH = $(TARGET_WIRING_EX_SRC_PATH)/sensors/inc
-INCLUDE_DIRS += $(TARGET_WIRING_EX_SRC_INC_PATH)
-
 
 # C source files included in this build.
 CSRC += $(call target_files,$(TARGET_WIRING_EX_SRC_PATH)/,*.c)
+CSRC += $(call target_files,$(TARGET_WIRING_EX_SRC_PATH)/sensors/src/,*.c)
 
 # enumerate target cpp files
 CPPSRC += $(call target_files,$(TARGET_WIRING_EX_SRC_PATH)/,*.cpp)
+CPPSRC += $(call target_files,$(TARGET_WIRING_EX_SRC_PATH)/sensors/src/,*.cpp)
 
 # ASM source files included in this build.
 ASRC +=

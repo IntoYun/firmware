@@ -81,6 +81,12 @@ bool BMI160Sensor::isEnabled(void)
     return isEnabledFlag;
 }
 
+void BMI160Sensor::setRange(uint8_t accel_range, uint8_t gyro_range)
+{
+    bmi160_set_range(accel_range, gyro_range);
+}
+
+
 void BMI160Sensor::begin(void)
 {
     if(isEnabledFlag)
@@ -327,6 +333,10 @@ bool NeutronSensors::isEnabled(void)
     return isEnabledFlag;
 }
 
+void NeutronSensors::setBMI160Range(uint8_t accel_range, uint8_t gyro_range)
+{
+    BMI160.setRange(accel_range, gyro_range);
+}
 void NeutronSensors::begin(void)
 {
     if (isEnabledFlag)

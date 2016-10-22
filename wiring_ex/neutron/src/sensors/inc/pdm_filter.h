@@ -46,8 +46,8 @@ typedef struct {
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/
-#define HTONS(A)  ((((u16)(A) & 0xff00) >> 8) | \
-                   (((u16)(A) & 0x00ff) << 8))
+#define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
+                   (((uint16_t)(A) & 0x00ff) << 8))
 
 /* Exported functions ------------------------------------------------------- */ 
 void PDM_Filter_Init(PDMFilter_InitStruct * Filter);
