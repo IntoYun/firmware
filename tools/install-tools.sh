@@ -32,6 +32,11 @@ if [ $sysType = "Linux" ]; then
         tar -zxf esptool-0.4.11-linux64.tar.gz
         mv  esptool-0.4.11-linux64 ../esptool
 
+        echo -e "\033[40;32m 3. install xtensa esp32 toolchain\033[0m"
+        wget -nc https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-59.tar.gz
+        tar -zxf xtensa-esp32-elf-linux64-1.22.0-59.tar.gz
+        mv  xtensa-esp32-elf ../xtensa-esp32-elf
+
     else
         echo -e "\033[40;32m 2. install st-flash\033[0m"
         wget -nc https://github.com/IntoRobot/stlink/releases/download/1.2.0/stlink-1.2.0-linux32.tar.gz
@@ -77,6 +82,11 @@ elif [ $sysType = "Darwin" ]; then
 
     echo -e "\033[40;32m 5. install dfu-util\033[0m"
     brew install dfu-util
+
+    echo -e "\033[40;32m 3. install xtensa esp32 toolchain\033[0m"
+    wget -nc https://dl.espressif.com/dl/xtensa-esp32-elf-osx-1.22.0-59.tar.gz
+    tar -zxf xtensa-esp32-elf-osx-1.22.0-59.tar.gz
+    mv  xtensa-esp32-elf ../xtensa-esp32-elf
 
 else
     echo -e "\033[40;32m unsupported system, exit \033[0m"
