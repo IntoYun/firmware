@@ -49,5 +49,4 @@
 #+end_src
 
 #+RESULTS:
-[[file:network_cloud_connection.png]]
 

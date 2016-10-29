@@ -48,6 +48,10 @@ ifeq ("$(PLATFORM)","gprs")
 PLATFORM_ID = 6
 endif
 
+ifeq ("$(PLATFORM)","fig")
+PLATFORM_ID=7
+endif
+
 ifeq ("$(PLATFORM)","newhal")
 PLATFORM_ID=60000
 endif
@@ -141,6 +145,16 @@ MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot gprs, 128k flash, 16k sram
 PLATFORM_DFU = 0x08000000
 DEFAULT_PRODUCT_ID=6
+endif
+
+ifeq ("$(PLATFORM_ID)","7") #fig
+ARCH=xtensa
+PLATFORM=fig
+PLATFORM_DEVICE=fig
+PLATFORM_NAME=fig
+PLATFORM_MCU=ESP32-Arduino
+PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
+DEFAULT_PRODUCT_ID=7
 endif
 
 ifeq ("$(PLATFORM_ID)","60000") #newhal
