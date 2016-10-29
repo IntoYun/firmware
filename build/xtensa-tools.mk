@@ -3,11 +3,32 @@
 #
 
 # 定义编译器和工具的前缀
+ifeq ($(PLATFORM_ID), 7) # for fig
+GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-esp32-elf/bin/
+GCC_PREFIX ?= xtensa-esp32-elf-
+
+
+CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H
+
+CFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -ffunction-sections -fdata-sections -mlongcalls -nostdlib -MMD -std=gnu99 -fstrict-volatile-bitfields
+
+CPPFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -fno-rtti -ffunction-sections -fdata-sections -mlongcalls -nostdlib -MMD -std=gnu++11 -fno-exceptions -fstrict-volatile-bitfields
+
+ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
+
+
+
+
+
+
+
+
+
+else # for nut and neutron-net
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-
 
 include $(COMMON_BUILD)/common-tools.mk
-
 
 CDEFINES += -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -DF_CPU=80000000L -DARDUINO=10605 -DESP8266
 
@@ -50,3 +71,5 @@ endif
 
 UPLOAD_VERB ?= -v
 UPLOAD_RESET ?= nodemcu
+
+endif # endif for neutron-net and nut
