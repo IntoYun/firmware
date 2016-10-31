@@ -7,8 +7,9 @@ ifeq ($(PLATFORM_ID), 7) # for fig
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-esp32-elf/bin/
 GCC_PREFIX ?= xtensa-esp32-elf-
 
+include $(COMMON_BUILD)/common-tools.mk
 
-CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H
+CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32
 
 CFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -ffunction-sections -fdata-sections -mlongcalls -nostdlib -MMD -std=gnu99 -fstrict-volatile-bitfields
 
@@ -17,14 +18,8 @@ CPPFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unu
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 
 
-
-
-
-
-
-
-
 else # for nut and neutron-net
+
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-
 
