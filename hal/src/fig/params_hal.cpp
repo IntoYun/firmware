@@ -23,24 +23,18 @@
 #include "params_hal.h"
 #include "eeprom_hal.h"
 #include "memory_hal.h"
+#include "flash_map.h"
 #include "intorobot_macros.h"
 #include "service_debug.h"
-
-
-#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)
-#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x10FFF)
-
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x11000)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x17FFF)
 
 
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888004"
-#define INTOROBOT_BOARD_TYPE1   "887004"
-#define INTOROBOT_BOARD_NAME    "lora"
+#define INTOROBOT_BOARD_TYPE    "888005"
+#define INTOROBOT_BOARD_TYPE1   "887005"
+#define INTOROBOT_BOARD_NAME    "fig"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
@@ -118,10 +112,10 @@ void read_boot_params(boot_params_t *pboot_params) {
     uint32_t len = sizeof(boot_params_t);
 
     memset(pboot_params, 0, sizeof(boot_params_t));
-    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS-FLASH_BOOT_PARAMS_START_ADDRESS)) {
+    if(len > (BOOT_PARAMS_END_ADDR-BOOT_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Read(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
+    HAL_FLASH_Interminal_Read(BOOT_PARAMS_START_ADDR, (uint32_t *)pboot_params, len);
 }
 
 /*
@@ -130,11 +124,11 @@ void read_boot_params(boot_params_t *pboot_params) {
 void save_boot_params(boot_params_t *pboot_params) {
     uint32_t len = sizeof(boot_params_t);
 
-    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS - FLASH_BOOT_PARAMS_START_ADDRESS)) {
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Write(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(BOOT_PARAMS_START_ADDR));
+    HAL_FLASH_Interminal_Write(BOOT_PARAMS_START_ADDR, (uint32_t *)pboot_params, len);
 }
 
 void save_system_params(system_params_t *psystem_params);
@@ -145,10 +139,10 @@ void read_system_params(system_params_t *psystem_params) {
     uint32_t len = sizeof(system_params_t);
 
     memset(psystem_params, 0, sizeof(system_params_t));
-    if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS-FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
+    if(len > (SYSTEM_PARAMS_END_ADDR-SYSTEM_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
+    HAL_FLASH_Interminal_Read(SYSTEM_PARAMS_START_ADDR, (uint32_t *)psystem_params, len);
 }
 
 /*
@@ -157,11 +151,11 @@ void read_system_params(system_params_t *psystem_params) {
 void save_system_params(system_params_t *psystem_params) {
     uint32_t len = sizeof(system_params_t);
 
-    if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS - FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
+    if(len > (SYSTEM_PARAMS_END_ADDR - SYSTEM_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
+    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(SYSTEM_PARAMS_START_ADDR));
+    HAL_FLASH_Interminal_Write(SYSTEM_PARAMS_START_ADDR, (uint32_t *)psystem_params, len);
 }
 
 /*
@@ -235,14 +229,14 @@ int HAL_PARAMS_Set_Boot_boot_version(uint32_t version) {
 /*
  * 读取设置启动标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_boot_flag(void) {
-    return intorobot_boot_params.boot_flag;
+BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void) {
+    return (BOOT_FLAG_TypeDef)intorobot_boot_params.boot_flag;
 }
 
 /*
  * 保存设置启动标志
  * */
-int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag) {
     intorobot_boot_params.boot_flag = flag;
     return 0;
 }
@@ -250,15 +244,74 @@ int HAL_PARAMS_Set_Boot_boot_flag(uint16_t flag) {
 /*
  * 读取设置是否恢复默认参数标志
  * */
-uint16_t HAL_PARAMS_Get_Boot_initparam_flag(void) {
-    return intorobot_boot_params.initparam_flag;
+INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void) {
+    return (INITPARAM_FLAG_TypeDef)intorobot_boot_params.initparam_flag;
 }
 
 /*
  * 保存设置是否恢复默认参数标志
  * */
-int HAL_PARAMS_Set_Boot_initparam_flag(uint16_t flag) {
+int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     intorobot_boot_params.initparam_flag = flag;
+    return 0;
+}
+/********************************************************************************
+ *  添加参数
+ ********************************************************************************/
+extern "C" {
+    uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
+    int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
+    int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+    uint32_t HAL_PARAMS_Get_Boot_boot_size(void);
+    int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
+}
+
+/*
+ * 读取ota文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void) {
+    // return intorobot_boot_params.ota_app_size;
+    return 0;
+}
+
+/*
+ * 保存ota文件大小
+ * */
+int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
+    // intorobot_boot_params.ota_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取默认应用文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_def_app_size(void) {
+    // return intorobot_boot_params.def_app_size;
+    return 0;
+}
+
+/*
+ * 保存默认应用文件大小
+ * */
+int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
+    // intorobot_boot_params.def_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取升级boot文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_boot_size(void) {
+    // return intorobot_boot_params.boot_size;
+    return 0;
+}
+
+/*
+ * 保存升级boot文件大小
+ * */
+int HAL_PARAMS_Set_Boot_boot_size(uint32_t size) {
+    // intorobot_boot_params.boot_size = size;
     return 0;
 }
 

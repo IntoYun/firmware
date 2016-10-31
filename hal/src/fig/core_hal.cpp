@@ -24,14 +24,13 @@
 #include "core_hal.h"
 #include "watchdog_hal.h"
 #include "rng_hal.h"
-#include "rgbled_hal.h"
+// #include "rgbled_hal.h"
 #include "ota_flash_hal.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "hw_config.h"
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
-#include "stm32l1xx_it.h"
 #include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/
@@ -80,7 +79,7 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
 //    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
-    Set_System();
+    // Set_System();
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
@@ -99,25 +98,25 @@ void HAL_Core_Config(void)
     HAL_RNG_Initial();
 
     HAL_IWDG_Initial();
-    HAL_LED_Initial();
+    // HAL_LED_Initial();
 
 #ifdef DFU_BUILD_ENABLE
     //Load_SystemFlags();
 #endif
 
-    HAL_LED_RGB_Color(255, 255, 255);
+    // HAL_LED_RGB_Color(255, 255, 255);
 }
 
 void HAL_Core_Setup(void)
 {
     HAL_IWDG_Config(DISABLE);
-    bootloader_update_if_needed();
+    // bootloader_update_if_needed();
     HAL_Bootloader_Lock(true);
 }
 
 void HAL_Core_System_Reset(void)
 {
-    NVIC_SystemReset();
+    // NVIC_SystemReset();
 }
 
 void HAL_Core_System_Reset_Ex(int reason, uint32_t data, void *reserved)
@@ -202,8 +201,8 @@ void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
  *******************************************************************************/
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
-    System1MsTick();
+    // HAL_IncTick();
+    // System1MsTick();
 
     if (TimingDelay != 0x00)
     {

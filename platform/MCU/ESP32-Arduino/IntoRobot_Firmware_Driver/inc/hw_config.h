@@ -33,8 +33,8 @@
 #include <stdbool.h>
 #include "sdkqueue.h"
 #include "hw_ticks.h"
-#include "esp8266_timer.h"
-#include "esp8266_peri.h"
+// #include "esp8266_timer.h"
+// #include "esp8266_peri.h"
 #include "stdlib_noniso.h"
 #include "service_debug.h"
 
@@ -42,16 +42,16 @@
 extern "C" {
 #endif
 
-#include "c_types.h"
-#include "ets_sys.h"
-#include "os_type.h"
-#include "osapi.h"
-#include "mem.h"
-#include "user_interface.h"
-#include "cont.h"
-#include "espconn.h"
-#include "lwip/err.h"
-#include "lwip/dns.h"
+// #include "c_types.h"
+// #include "ets_sys.h"
+// #include "os_type.h"
+// #include "osapi.h"
+// #include "mem.h"
+// #include "user_interface.h"
+// #include "cont.h"
+// #include "espconn.h"
+// #include "lwip/err.h"
+// #include "lwip/dns.h"
 
 #ifdef __cplusplus
 }

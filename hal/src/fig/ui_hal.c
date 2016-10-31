@@ -17,20 +17,14 @@
  ******************************************************************************
  */
 #include "hw_config.h"
-#include "pinmap_hal.h"
 #include "ui_hal.h"
+#include "service_debug.h"
 
+#define RGB_GPIO_PIN               5
+#define MODE_BOTTON_GPIO_PIN       0
 
-#define RGB_R_GPIO_PIN       GPIO_PIN_1
-#define RGB_R_GPIO_PORT      GPIOB
-#define RGB_G_GPIO_PIN       GPIO_PIN_13
-#define RGB_G_GPIO_PORT      GPIOB
-#define RGB_B_GPIO_PIN       GPIO_PIN_14
-#define RGB_B_GPIO_PORT      GPIOB
-
-#define MODE_BOTTON_GPIO_PIN       GPIO_PIN_2
-#define MODE_BOTTON_GPIO_PORT      GPIOB
-
+//extern void espShow(uint8_t pin, uint32_t color, uint8_t brightness);
+/* extern void ICACHE_RAM_ATTR espShow(uint8_t pin, uint32_t color, uint8_t brightness); */
 
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
@@ -38,25 +32,7 @@ volatile uint32_t TimingLED;
 volatile rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
-    uint8_t red,green,blue;
-
-    red = color>>16 & 0xFF;
-    green = color>>8 & 0xFF;
-    blue = color & 0xFF;
-    if(red)
-        HAL_GPIO_WritePin(RGB_R_GPIO_PORT, RGB_R_GPIO_PIN, GPIO_PIN_RESET);
-    else
-        HAL_GPIO_WritePin(RGB_R_GPIO_PORT, RGB_R_GPIO_PIN, GPIO_PIN_SET);
-
-    if(green)
-        HAL_GPIO_WritePin(RGB_G_GPIO_PORT, RGB_G_GPIO_PIN, GPIO_PIN_RESET);
-    else
-        HAL_GPIO_WritePin(RGB_G_GPIO_PORT, RGB_G_GPIO_PIN, GPIO_PIN_SET);
-
-    if(blue)
-        HAL_GPIO_WritePin(RGB_B_GPIO_PORT, RGB_B_GPIO_PIN, GPIO_PIN_RESET);
-    else
-        HAL_GPIO_WritePin(RGB_B_GPIO_PORT, RGB_B_GPIO_PIN, GPIO_PIN_SET);
+    espShow(RGB_GPIO_PIN, color, 15);
 }
 
 void RGB_Color_Toggle(void) {
@@ -72,34 +48,24 @@ void RGB_Color_Toggle(void) {
 
 void HAL_UI_Initial(void)
 {
-    //三色灯管脚初始化
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitTypeDef  GPIO_InitStruct;
-    GPIO_InitStruct.Pin = RGB_R_GPIO_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(RGB_R_GPIO_PORT, &GPIO_InitStruct);
-    GPIO_InitStruct.Pin = RGB_G_GPIO_PIN;
-    HAL_GPIO_Init(RGB_G_GPIO_PORT, &GPIO_InitStruct);
-    GPIO_InitStruct.Pin = RGB_B_GPIO_PIN;
-    HAL_GPIO_Init(RGB_B_GPIO_PORT, &GPIO_InitStruct);
+#if 0
+    // initial rgb pin
+    GPF(RGB_GPIO_PIN) = GPFFS(GPFFS_GPIO(RGB_GPIO_PIN));
+    GPC(RGB_GPIO_PIN) = (GPC(RGB_GPIO_PIN) & (0xF << GPCI));
+    GPES = (1 << RGB_GPIO_PIN); //Enable
+    // gpio write low
+    GPOC = (1 << RGB_GPIO_PIN);
 
-    HAL_GPIO_WritePin(RGB_R_GPIO_PORT, RGB_R_GPIO_PIN, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(RGB_G_GPIO_PORT, RGB_G_GPIO_PIN, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(RGB_B_GPIO_PORT, RGB_B_GPIO_PIN, GPIO_PIN_SET);
-
-    //侧边配置按键管脚初始化
-    GPIO_InitStruct.Pin = MODE_BOTTON_GPIO_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(MODE_BOTTON_GPIO_PORT, &GPIO_InitStruct);
+    // initial button pin
+    GPF(MODE_BOTTON_GPIO_PIN) = GPFFS(GPFFS_GPIO(MODE_BOTTON_GPIO_PIN));
+    GPEC = (1 << MODE_BOTTON_GPIO_PIN); //Disable
+    GPC(MODE_BOTTON_GPIO_PIN) = (GPC(MODE_BOTTON_GPIO_PIN) & (0xF << GPCI)) | (1 << GPCD);
+#endif
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
 {
-    return HAL_GPIO_ReadPin(MODE_BOTTON_GPIO_PORT, MODE_BOTTON_GPIO_PIN);
+    return GPIP(MODE_BOTTON_GPIO_PIN);
 }
 
 uint32_t HAL_UI_Mode_Button_Pressed(void)
@@ -138,6 +104,10 @@ void HAL_UI_RGB_Blink(uint32_t color, uint16_t period)
 void HAL_UI_RGB_Breath(uint32_t color, uint16_t period)
 {
     HAL_UI_RGB_Blink(color, period);
+}
+
+void HAL_UI_UserLED_Control(uint8_t value)
+{
 }
 
 void HAL_UI_SysTick_Handler(void)

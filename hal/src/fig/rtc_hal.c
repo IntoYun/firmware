@@ -27,8 +27,6 @@
 #include "hw_config.h"
 #include "rtc_hal.h"
 
-RTC_HandleTypeDef RtcHandle;
-
 void HAL_RTC_Initial(void)
 {
 
@@ -36,7 +34,10 @@ void HAL_RTC_Initial(void)
 
 time_t HAL_RTC_Get_UnixTime(void)
 {
-    return 0;
+    uint32_t rtc_time = system_get_rtc_time();
+    uint32_t cal_time = system_rtc_clock_cali_proc();
+    time_t time = rtc_time * ((cal_time*1000) >> 12)/1000 / 1000; // sencods
+    return time;
 }
 
 void HAL_RTC_Set_UnixTime(time_t value)

@@ -18,10 +18,10 @@
 */
 
 #include "wiring_udp.h"
-#include "socket_hal.h"
 #include "inet_hal.h"
 #include "intorobot_macros.h"
 #include "wiring_network.h"
+#include "wlan_hal.h"
 
 using namespace intorobot;
 
@@ -104,9 +104,9 @@ uint8_t UDP::begin(IPAddress ip, uint16_t port, uint16_t localport, network_inte
             tSocketAddr.sa_data[5] = ip[3];
 
             uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
-            DEBUG("_sock %d connect",_sock);
+            // DEBUG("_sock %d connect",_sock);
             bound = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
-            DEBUG("_sock %d connected=%d",_sock, bound);
+            // DEBUG("_sock %d connected=%d",_sock, bound);
             HAL_NET_SetNetWatchDog(ot);
             _remoteIP = ip;
             _remotePort = port;
