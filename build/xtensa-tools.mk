@@ -17,6 +17,8 @@ CPPFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unu
 
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 
+FLASH_MODE ?= qio
+FLASH_FEQ ?= 40m
 
 else # for nut and neutron-net
 
