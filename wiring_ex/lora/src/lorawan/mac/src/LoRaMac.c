@@ -880,10 +880,15 @@ static void OnRadioTxDone( void )
     {
         TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
         TimerStart( &RxWindowTimer1 );
+
+        DEBUG("turn on rx window timer1");
+
         if( LoRaMacDeviceClass != CLASS_C )
         {
             TimerSetValue( &RxWindowTimer2, RxWindow2Delay );
             TimerStart( &RxWindowTimer2 );
+
+            DEBUG("turn on rx window timer2");
         }
         if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
         {
@@ -909,6 +914,8 @@ static void OnRadioTxDone( void )
         McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
         ChannelsNbRepCounter++;
     }
+
+    DEBUG("tx done");
 }
 
 static void PrepareRxDoneAbort( void )
@@ -1004,6 +1011,9 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             {
                 LoRaMacJoinComputeSKeys( LoRaMacAppKey, LoRaMacRxPayload + 1, LoRaMacDevNonce, LoRaMacNwkSKey, LoRaMacAppSKey );
 
+                DEBUG("devNoce0 = %d",LoRaMacRxPayload[0]);
+                DEBUG("devNoce1 = %d",LoRaMacRxPayload[1]);
+
                 LoRaMacNetID = ( uint32_t )LoRaMacRxPayload[4];
                 LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[5] << 8 );
                 LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[6] << 16 );
@@ -1058,6 +1068,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             else
             {
                 MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+                DEBUG("lora event status join fail");
             }
             break;
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
@@ -1327,6 +1338,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     // Trig OnMacCheckTimerEvent call as soon as possible
     TimerSetValue( &MacStateCheckTimer, 1 );
     TimerStart( &MacStateCheckTimer );
+
+    DEBUG("rx done");
 }
 
 static void OnRadioTxTimeout( void )
@@ -1391,6 +1404,7 @@ static void OnRadioRxTimeout( void )
 
 static void OnMacStateCheckTimerEvent( void )
 {
+    DEBUG("OnMacStateCheckTimerEvent");
     TimerStop( &MacStateCheckTimer );
     bool txTimeout = false;
 
@@ -1452,6 +1466,8 @@ static void OnMacStateCheckTimerEvent( void )
                     LoRaMacFlags.Bits.MacDone = 0;
                     // Sends the same frame again
                     ScheduleTx( );
+
+                    DEBUG("MacStateCheckTimerEvent schedule tx");
                 }
             }
         }
@@ -1486,6 +1502,8 @@ static void OnMacStateCheckTimerEvent( void )
                 LoRaMacFlags.Bits.MacDone = 0;
                 // Sends the same frame again
                 ScheduleTx( );
+
+                DEBUG("AckTimeoutRetry == true");
             }
             else
             {
@@ -1555,6 +1573,7 @@ static void OnMacStateCheckTimerEvent( void )
 
 static void OnTxDelayedTimerEvent( void )
 {
+    DEBUG("OnTxDelayedTimerEvent");
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
 
@@ -1573,7 +1592,11 @@ static void OnTxDelayedTimerEvent( void )
          * the frame again, because the network server keeps track of the random
          * LoRaMacDevNonce values to prevent reply attacks. */
         PrepareFrame( &macHdr, &fCtrl, 0, NULL, 0 );
+
+        DEBUG("OnTxDelayedTimerEvent scheduletx prepare frame");
     }
+
+    DEBUG("OnTxDelayedTimerEvent scheduletx");
 
     ScheduleTx( );
 }
@@ -2654,6 +2677,8 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
     McpsConfirm.AckReceived = false;
     McpsConfirm.UpLinkCounter = UpLinkCounter;
 
+    DEBUG("Send scheduletx");
+
     status = ScheduleTx( );
 
     return status;
@@ -2914,6 +2939,8 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
             LoRaMacJoinComputeMic( LoRaMacBuffer, LoRaMacBufferPktLen & 0xFF, LoRaMacAppKey, &mic );
 
+            DEBUG("mic = %x",mic);
+
             LoRaMacBuffer[LoRaMacBufferPktLen++] = mic & 0xFF;
             LoRaMacBuffer[LoRaMacBufferPktLen++] = ( mic >> 8 ) & 0xFF;
             LoRaMacBuffer[LoRaMacBufferPktLen++] = ( mic >> 16 ) & 0xFF;
@@ -3047,6 +3074,8 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
 
     Radio.SetChannel( channel.Frequency );
 
+    DEBUG("set lora freq = %d",channel.Frequency);
+
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     if( LoRaMacParams.ChannelsDatarate == DR_7 )
     { // High Speed FSK channel
@@ -3060,12 +3089,16 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
         Radio.SetMaxPayloadLength( MODEM_LORA, LoRaMacBufferPktLen );
         Radio.SetTxConfig( MODEM_LORA, txPower, 0, 1, datarate, 1, 8, false, true, 0, 0, false, 3e3 );
         TxTimeOnAir = Radio.TimeOnAir( MODEM_LORA, LoRaMacBufferPktLen );
+
+        DEBUG("set lora high speed channel ");
     }
     else
     { // Normal LoRa channel
         Radio.SetMaxPayloadLength( MODEM_LORA, LoRaMacBufferPktLen );
         Radio.SetTxConfig( MODEM_LORA, txPower, 0, 0, datarate, 1, 8, false, true, 0, 0, false, 3e3 );
         TxTimeOnAir = Radio.TimeOnAir( MODEM_LORA, LoRaMacBufferPktLen );
+
+        DEBUG("set lora normal speed channel ");
     }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
     Radio.SetMaxPayloadLength( MODEM_LORA, LoRaMacBufferPktLen );
