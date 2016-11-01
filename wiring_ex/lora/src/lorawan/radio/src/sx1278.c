@@ -358,7 +358,8 @@ static void RxChainCalibration( void )
     }
 
     // Sets a Frequency in HF band
-    SX1278SetChannel( 868000000 );
+    /* SX1278SetChannel( 868000000 ); */
+    SX1278SetChannel( 434000000 );
 
     // Launch Rx chain calibration for HF band
     SX1278Write( REG_IMAGECAL, ( SX1278Read( REG_IMAGECAL ) & RF_IMAGECAL_IMAGECAL_MASK ) | RF_IMAGECAL_IMAGECAL_START );
@@ -1423,7 +1424,7 @@ void SX1278OnTimeoutIrq( void )
 void SX1278OnDio0Irq( void )
 {
 
-    DEBUG("DIO0 interrupt");
+//    DEBUG("DIO0 interrupt");
     volatile uint8_t irqFlags = 0;
 
     switch( SX1278.Settings.State )
@@ -1819,14 +1820,14 @@ void SX1278OnDio4Irq( void )
 
 void SX1278OnDio5Irq( void )
 {
-    DEBUG("DIO5 interrupt");
+//    DEBUG("DIO5 interrupt");
     switch( SX1278.Settings.Modem )
     {
     case MODEM_FSK:
         DEBUG("dio5 mode fask");
         break;
     case MODEM_LORA:
-        DEBUG("dio5 mode lora");
+ //       DEBUG("dio5 mode lora");
         break;
     default:
         break;

@@ -9,6 +9,7 @@
 #include "../src/lorawan/board/inc/timer.h"
 #include "../src/lorawan/mac/inc/LoRaMac.h"
 
+#include "../src/lorawan/board/inc/utilities.h"
 
 
 

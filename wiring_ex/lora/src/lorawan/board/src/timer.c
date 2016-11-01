@@ -135,7 +135,7 @@ void TimerStart( TimerEvent_t *obj )
 
 static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
-   
+
     uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps
     uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
 
@@ -186,12 +186,12 @@ static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
             }
         }
     }
-    
+
 }
 
 static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
-    
+
     TimerEvent_t* cur = TimerListHead;
 
     if( cur != NULL )
@@ -204,16 +204,16 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
     obj->IsRunning = true;
     TimerListHead = obj;
     TimerSetTimeout( TimerListHead );
-    
+
 }
 
 void TimerIrqHandler( void )
 {
-    
+
     uint32_t elapsedTime = 0;
 
     elapsedTime = TimerGetValue( );
-    
+
     if( elapsedTime >= TimerListHead->Timestamp )
     {
         TimerListHead->Timestamp = 0;
@@ -245,12 +245,12 @@ void TimerIrqHandler( void )
             TimerSetTimeout( TimerListHead );
         }
     }
-    
+
 }
 
 void TimerStop( TimerEvent_t *obj )
 {
-    
+
     __disable_irq( );
 
     uint32_t elapsedTime = 0;
@@ -334,7 +334,7 @@ void TimerStop( TimerEvent_t *obj )
         }
     }
     __enable_irq( );
-      
+
 }
 
 static bool TimerExists( TimerEvent_t *obj )
@@ -387,11 +387,11 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-    
+
     HasLoopedThroughMain = 0;
-    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
     RtcSetTimeout( obj->Timestamp );
-    
+
 }
 
 void TimerLowPowerHandler( void )
@@ -411,12 +411,12 @@ void TimerLowPowerHandler( void )
             }
         }
     }
-    
+
 }
 
 void RTC_Alarm_IRQHandler( void )
 {
     RTC_Alarm_IRQ();
     TimerIrqHandler();
-    DEBUG("rtc timer");
+//    DEBUG("rtc timer");
 }

@@ -129,6 +129,12 @@ void DelayMs(uint32_t ms);
 
 uint8_t GetBoardPowerSource( void );
 
+uint8_t BoardGetBatteryLevel(void);
+
+uint32_t BoardGetRandomSeed( void );
+
+void BoardGetUniqueId( uint8_t *id );
+
 #ifdef __cplusplus
 }
 #endif
