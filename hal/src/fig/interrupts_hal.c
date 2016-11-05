@@ -25,12 +25,103 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "interrupts_hal.h"
+#include "gpio_hal.h"
+#include "pinmap_impl.h"
+#include "rom/gpio.h"
+#include "soc/gpio_struct.h"
+#include "soc/gpio_reg.h"
+
+#define ETS_GPIO_INUM       4
+
+typedef void (*voidFuncPtr)(void);
+static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
+
+/* static void IRAM_ATTR __onPinInterrupt(void *arg) */
+static void  __onPinInterrupt(void *arg)
+{
+    uint32_t gpio_intr_status_l=0;
+    uint32_t gpio_intr_status_h=0;
+
+    gpio_intr_status_l = GPIO.status;
+    gpio_intr_status_h = GPIO.status1.val;
+    GPIO.status_w1tc = gpio_intr_status_l;//Clear intr for gpio0-gpio31
+    GPIO.status1_w1tc.val = gpio_intr_status_h;//Clear intr for gpio32-39
+
+    uint8_t pin=0;
+    if(gpio_intr_status_l) {
+        do {
+            if(gpio_intr_status_l & ((uint32_t)1 << pin)) {
+                if(__pinInterruptHandlers[pin]) {
+                    __pinInterruptHandlers[pin]();
+                }
+            }
+        } while(++pin<32);
+    }
+    if(gpio_intr_status_h) {
+        pin=32;
+        do {
+            if(gpio_intr_status_h & ((uint32_t)1 << (pin - 32))) {
+                if(__pinInterruptHandlers[pin]) {
+                    __pinInterruptHandlers[pin]();
+                }
+            }
+        } while(++pin<GPIO_PIN_COUNT);
+    }
+}
+
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if (gpio_pin > 39) {
+        return;
+    }
+
+    static bool interrupt_initialized = false;
+    static int core_id = 0;
+
+    if(!interrupt_initialized) {
+        interrupt_initialized = true;
+        core_id = xPortGetCoreID();
+        ESP_INTR_DISABLE(ETS_GPIO_INUM);
+        intr_matrix_set(core_id, ETS_GPIO_INTR_SOURCE, ETS_GPIO_INUM);
+        xt_set_interrupt_handler(ETS_GPIO_INUM, &__onPinInterrupt, NULL);
+        ESP_INTR_ENABLE(ETS_GPIO_INUM);
+    }
+    __pinInterruptHandlers[gpio_pin] = (voidFuncPtr)handler;
+    ESP_INTR_DISABLE(ETS_GPIO_INUM);
+    if(core_id) { //APP_CPU
+        GPIO.pin[gpio_pin].int_ena = 1;
+    } else { //PRO_CPU
+        GPIO.pin[gpio_pin].int_ena = 4;
+    }
+
+    if (mode == CHANGE) {
+        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_ANYEGDE;
+    }
+    else if(mode == RISING) {
+        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_POSEDGE;
+    }
+    else if(mode== FALLING) {
+        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_NEGEDGE;
+    }
+
+    ESP_INTR_ENABLE(ETS_GPIO_INUM);
 }
 
 void HAL_Interrupts_Detach(uint16_t pin)
 {
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if (gpio_pin > 39) {
+        return;
+    }
+
+    __pinInterruptHandlers[gpio_pin] = NULL;
+    ESP_INTR_DISABLE(ETS_GPIO_INUM);
+    GPIO.pin[gpio_pin].int_ena = 0;
+    GPIO.pin[gpio_pin].int_type = 0;
+    ESP_INTR_ENABLE(ETS_GPIO_INUM);
 }
 
 void HAL_Interrupts_Enable_All(void)
