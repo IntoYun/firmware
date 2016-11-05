@@ -26,6 +26,8 @@
 #include "delay_hal.h"
 #include "hw_config.h"
 #include "watchdog_hal.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 /**
  * Updated by HAL_1Ms_Tick()
@@ -40,8 +42,8 @@ volatile uint32_t TimingDelay;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HAL_Delay_Milliseconds(uint32_t nTime)
+void HAL_Delay_Milliseconds(uint32_t ms)
 {
-    
+    vTaskDelay(ms / portTICK_PERIOD_MS);
 }
 

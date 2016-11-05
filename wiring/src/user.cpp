@@ -35,7 +35,7 @@ void setup() __attribute((weak));
 void loop() __attribute((weak));
 
 // needed on ARM GCC
-#if PLATFORM_ID!=2
+#if PLATFORM_ID !=2
 /**
  * Declare weak setup/loop implementations so that they are always defined.
  */

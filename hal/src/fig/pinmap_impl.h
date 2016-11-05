@@ -21,7 +21,7 @@
 #define PINMAP_IMPL_H
 
 #include "hw_config.h"
-
+#include "pinmap_hal.h"
 
 #ifdef	__cplusplus
 extern "C" {
