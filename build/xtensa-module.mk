@@ -54,6 +54,11 @@ bin: $(TARGET_BASE).bin
 hex: $(TARGET_BASE).hex
 lst: $(TARGET_BASE).lst
 
+esptool-py: $(TARGET_BASE).bin # for esp32
+	$(call,echo,)
+	$(call,echo,'Flashing $< using esptool-py to address')
+	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) 0x1000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/bootloader.bin 0x4000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin 0x10000 $<
+
 esptool: $(TARGET_BASE).bin
 	@echo Flashing $< using esptool to address
 ifeq ("$(MODULE)","bootloader")
@@ -80,7 +85,7 @@ size: $(TARGET_BASE).elf
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
 ifeq ($(PLATFORM_ID), 7) # for fig
-	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_FEQ) -o $@ $<
+	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
 
 else # for nut neutron-net
 ifeq ("$(MODULE)","bootloader")

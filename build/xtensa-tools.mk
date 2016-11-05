@@ -17,8 +17,21 @@ CPPFLAGS += -w -Os -g3 -Wpointer-arith -Wno-error=unused-function -Wno-error=unu
 
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+UPLOAD_PORT ?= /dev/ttyUSB0
+SUDO ?= sudo
+endif
+
+ifeq ($(UNAME_S),Darwin)
+#UPLOAD_PORT ?= /dev/cu.usbmodem1411
+UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
+endif
+
+# UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 921600
 FLASH_MODE ?= qio
-FLASH_FEQ ?= 40m
+FLASH_SPEED ?= 40m
 
 else # for nut and neutron-net
 
@@ -44,7 +57,6 @@ CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-in
 CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11
 
 ASFLAGS += -c -g -x assembler-with-cpp -MMD
-
 
 # Board definitions
 FLASH_SIZE ?= 16M    #此处必须是16M  此时用户参数区才会在1M 的最后16K上

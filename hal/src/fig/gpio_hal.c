@@ -1,26 +1,29 @@
 /**
- ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+******************************************************************************
+Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation, either
+version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, see <http://www.gnu.org/licenses/>.
+******************************************************************************
 */
 
 /* Includes -----------------------------------------------------------------*/
 #include "hw_config.h"
 #include "gpio_hal.h"
 #include "pinmap_impl.h"
+#include "soc/gpio_struct.h"
+#include "soc/io_mux_reg.h"
+#include "esp32-hal.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -30,7 +33,49 @@
 
 /* Private variables --------------------------------------------------------*/
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
-uint8_t esp8266_gpioToFn[16] = {0x34, 0x18, 0x38, 0x14, 0x3C, 0x40, 0x1C, 0x20, 0x24, 0x28, 0x2C, 0x30, 0x04, 0x08, 0x0C, 0x10};
+
+const uint8_t esp32_gpioToFn[40] = {
+    0x44,//0
+    0x88,//1
+    0x40,//2
+    0x84,//3
+    0x48,//4
+    0x6c,//5
+    0x60,//6
+    0x64,//7
+    0x68,//8
+    0x54,//9
+    0x58,//10
+    0x5c,//11
+    0x34,//12
+    0x38,//13
+    0x30,//14
+    0x3c,//15
+    0x4c,//16
+    0x50,//17
+    0x70,//18
+    0x74,//19
+    0x78,//20
+    0x7c,//21
+    0x80,//22
+    0x8c,//23
+    0xFF,//N/A
+    0x24,//25
+    0x28,//26
+    0x2c,//27
+    0xFF,//N/A
+    0xFF,//N/A
+    0xFF,//N/A
+    0xFF,//N/A
+    0x1c,//32
+    0x20,//33
+    0x14,//34
+    0x18,//35
+    0x04,//36
+    0x08,//37
+    0x0c,//38
+    0x10 //39
+};
 
 /* Extern variables ---------------------------------------------------------*/
 
@@ -39,7 +84,7 @@ uint8_t esp8266_gpioToFn[16] = {0x34, 0x18, 0x38, 0x14, 0x3C, 0x40, 0x1C, 0x20, 
 inline bool is_valid_pin(pin_t pin) __attribute__((always_inline));
 inline bool is_valid_pin(pin_t pin)
 {
-    return pin<TOTAL_PINS;
+    return (pin < TOTAL_PINS);
 }
 
 PinMode HAL_Get_Pin_Mode(pin_t pin)
@@ -49,8 +94,7 @@ PinMode HAL_Get_Pin_Mode(pin_t pin)
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     if (!is_valid_pin(pin))
         return PF_NONE;
@@ -59,8 +103,6 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
     if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral!=NONE)
         return PF_TIMER;
     return PF_DIO;
-    #endif
-    return 0;
 }
 
 /*
@@ -69,71 +111,97 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
  */
 void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16)
-    {
-        switch (setMode)
-        {
-            case OUTPUT:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                GPES = (1 << gpio_pin); //Enable
-                PIN_MAP[pin].pin_mode = OUTPUT;
-                break;
 
-            case INPUT:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPEC = (1 << gpio_pin); //Disable
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                PIN_MAP[pin].pin_mode = INPUT;
-                break;
-
-            case INPUT_PULLUP:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPEC = (1 << gpio_pin); //Disable
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                GPF(gpio_pin) |= (1 << GPFPU);  // Enable  Pullup
-                PIN_MAP[pin].pin_mode = INPUT_PULLUP;
-                break;
-
-            default:
-                break;
-        }
+    if (gpio_pin > 39 || esp32_gpioToFn[gpio_pin] == 0xFF) {
+        return;
     }
-    else if(gpio_pin == 16)
+
+    uint32_t pinFunction = 0, pinControl = 0;
+
+    switch (setMode)
     {
-        switch (setMode)
-        {
-            case OUTPUT:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GP16E |= 1;
-                PIN_MAP[pin].pin_mode = OUTPUT;
-                break;
+        case OUTPUT:
+            if(gpio_pin < 32) {
+                GPIO.enable_w1ts = ((uint32_t)1 << gpio_pin);
+            } else {
+                GPIO.enable1_w1ts.val = ((uint32_t)1 << (gpio_pin - 32));
+            }
+            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
 
-            case INPUT:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GP16E &= ~1;
-                PIN_MAP[pin].pin_mode = INPUT;
-                break;
+            // common part
+            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
+            pinFunction |= FUN_IE;//input enable but required for output as well?
+            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction;
+            GPIO.pin[gpio_pin].val = pinControl;
 
-            case INPUT_PULLDOWN:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GPF16 |= (1 << GP16FPD);//Enable Pulldown
-                GP16E &= ~1;
-                PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
-                break;
+            PIN_MAP[pin].pin_mode = OUTPUT;
+            break;
 
-            default:
-                break;
-        }
+        case INPUT:
+            if(pin < 32) {
+                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
+            } else {
+                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
+            }
+            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
+
+            // common part
+            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
+            pinFunction |= FUN_IE;//input enable but required for output as well?
+            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction;
+            GPIO.pin[gpio_pin].val = pinControl;
+
+            PIN_MAP[pin].pin_mode = INPUT;
+            break;
+
+        case INPUT_PULLUP:
+            if(pin < 32) {
+                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
+            } else {
+                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
+            }
+            pinFunction |= FUN_PU;
+            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
+
+            // common part
+            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
+            pinFunction |= FUN_IE;//input enable but required for output as well?
+            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction;
+            GPIO.pin[gpio_pin].val = pinControl;
+
+            PIN_MAP[pin].pin_mode = INPUT_PULLUP;
+            break;
+
+        case INPUT_PULLDOWN:
+            if(pin < 32) {
+                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
+            } else {
+                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
+            }
+            pinFunction |= FUN_PD;
+            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
+
+            // common part
+            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
+            pinFunction |= FUN_IE;//input enable but required for output as well?
+            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction;
+            GPIO.pin[gpio_pin].val = pinControl;
+
+            PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
+            break;
+
+        default:
+            break;
     }
-    #endif
+
+    /* // common part */
+    /* pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers? */
+    /* pinFunction |= FUN_IE;//input enable but required for output as well? */
+
+    /* ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction; */
+    /* GPIO.pin[gpio_pin].val = pinControl; */
 }
 
 /*
@@ -157,18 +225,26 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
  */
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        if(value) GPOS = (1 << gpio_pin);
-        else GPOC = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        if(value) GP16O |= 1;
-        else GP16O &= ~1;
+
+    if (gpio_pin > 39) {
+        return;
     }
-    #endif
+
+    if(value) {
+        if(gpio_pin < 32) {
+            GPIO.out_w1ts = ((uint32_t)1 << gpio_pin);
+        } else {
+            GPIO.out1_w1ts.val = ((uint32_t)1 << (gpio_pin - 32));
+        }
+    } else {
+        if(gpio_pin < 32) {
+            GPIO.out_w1tc = ((uint32_t)1 << gpio_pin);
+        } else {
+            GPIO.out1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
+        }
+    }
 }
 
 /*
@@ -176,18 +252,14 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
  */
 int32_t HAL_GPIO_Read(uint16_t pin)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
-    if(gpio_pin < 16){
-        return GPIP(gpio_pin);
-    } else if(gpio_pin == 16){
-        return GP16I & 0x01;
+    if(gpio_pin < 32) {
+        return (GPIO.in >> gpio_pin) & 0x1;
+    } else {
+        return (GPIO.in1.val >> (gpio_pin - 32)) & 0x1;
     }
-    #endif
-    return 0;
 }
 
 /*
@@ -197,9 +269,9 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
-  #if 0
-    EESP82666_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
-#define pinReadFast(_pin) ( SOLO_PIN_MAP[_pin].gpio_pin < 16 ? GPIP(SOLO_PIN_MAP[_pin].gpio_pin) : (GP16I&0x01))
+    #if 0
+    EESP32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
+#define pinReadFast(_pin) HAL_pinReadFast(_pin)
 
     // FIXME: SYTME_TICK_COUNTER change to system_get_time which return the micro seconds
     volatile uint32_t timeoutStart = system_get_time(); // total 3 seconds for entire function!
@@ -239,43 +311,42 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 
 void HAL_pinSetFast(pin_t pin)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        GPOS = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        GP16O |= 1;
+
+    if(gpio_pin < 32) {
+        GPIO.out_w1ts = ((uint32_t)1 << gpio_pin);
+    } else {
+        GPIO.out1_w1ts.val = ((uint32_t)1 << (gpio_pin - 32));
     }
-    #endif
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        GPOC = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        GP16O &= ~1;
+    if(gpio_pin > 39) {
+        return 0;
     }
-    #endif
+
+    if(gpio_pin < 32) {
+        GPIO.out_w1tc = ((uint32_t)1 << gpio_pin);
+    } else {
+        GPIO.out1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
+    }
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
-  #if 0
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        return GPIP(gpio_pin);
-    } else if(gpio_pin == 16){
-        return GP16I & 0x01;
+
+    if(gpio_pin > 39) {
+        return 0;
     }
-    #endif
-    return 0;
+    if(gpio_pin < 32) {
+        return (GPIO.in >> gpio_pin) & 0x1;
+    } else {
+        return (GPIO.in1.val >> (gpio_pin - 32)) & 0x1;
+    }
 }
-
-

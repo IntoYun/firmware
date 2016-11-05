@@ -56,9 +56,9 @@ typedef enum {
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
 
-typedef struct EESP82666_Pin_Info  EESP82666_Pin_Info;
+typedef struct EESP32_Pin_Info  EESP32_Pin_Info;
 
-EESP82666_Pin_Info* HAL_Pin_Map(void);
+EESP32_Pin_Info* HAL_Pin_Map(void);
 
 /* Exported macros -----------------------------------------------------------*/
 
@@ -66,24 +66,35 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS 31
-#define TOTAL_ANALOG_PINS 1
-#define TOTAL_DIGITAL_PINS 10
-#define FIRST_ANALOG_PIN 30
+#define TOTAL_PINS 26
+#define TOTAL_ANALOG_PINS 10
+#define TOTAL_DIGITAL_PINS 11 // include KEY, TXD0, RXD0 RST, and D7 is D6
+#define FIRST_ANALOG_PIN  14
 
-#define D0 0
-#define D1 1
-#define D2 2
-#define D3 3
-#define D4 4
-#define D5 5
-#define D6 6
-#define D7 7
-#define TX 8
-#define RX 9
+#define D0  0
+#define D1  1
+#define D2  2
+#define D3  3
+#define D4  4
+#define D5  5
+#define D6  6
+#define D7  7
+#define TX  8
+#define RX  9
+#define KEY 10
 
-#define A0 30
+#define A0  14
+#define A1  15
+#define A2  16
+#define A3  17
+#define A4  18
+#define A5  19
+#define A6  20
+#define A7  21
+#define A8  22
+#define A9  23
 
+// Below have not ajust yet
 // SPI pins
 #define SS   D5
 #define SCK  D2
@@ -102,7 +113,7 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS       2
+#define TOTAL_USARTS       3
 
 
 #define TIM_PWM_FREQ 500 //500Hz
