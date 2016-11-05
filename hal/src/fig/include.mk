@@ -24,4 +24,10 @@ LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 # ASFLAGS += -I$(COMMON_BUILD)/startup/arm
 # ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
 #
+
+
+# LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32_out.ld -T esp32.common.ld -T esp32.rom.ld -T esp32.peripherals.ld -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
+
+# LIBS += gcc c m halhal core net80211 phy rtc pp wpa smartconfig btdm_app bt driver esp32 crypto expat freertos json log lwip mbedtls nghttp nvs_flash spi_flash tcpip_adapter newlib vfs
+
 endif

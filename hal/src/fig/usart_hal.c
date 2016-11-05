@@ -36,17 +36,10 @@
 #include "soc/uart_struct.h"
 #include "soc/io_mux_reg.h"
 #include "soc/gpio_sig_map.h"
+#include "pinmap_impl.h"
 
-/* static uart_t _uart_bus_array[3] = { */
-/*     {(volatile uart_dev_t *)(DR_REG_UART_BASE), NULL, 0, NULL}, */
-/*     {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL}, */
-/*     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL} */
-/* }; */
-/* static uart_t _uart_bus_array[TOTAL_USARTS] = { */
-/*     {(volatile uart_dev_t *)(DR_REG_UART_BASE), NULL, 0, NULL}, */
-/*     {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL}, */
-/*     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL} */
-/* }; */
+#define UART_MUTEX_LOCK()    do {} while (xSemaphoreTake(usartMap[serial]->uart->lock, portMAX_DELAY) != pdPASS)
+#define UART_MUTEX_UNLOCK()  xSemaphoreGive(usartMap[serial]->uart->lock)
 
 struct uart_struct_t {
     uart_dev_t * dev;
@@ -94,17 +87,18 @@ ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-     { 0, TX, RX},           // USART 0
-     { 1, D3, D4},           // USART 1
-     { 2, A3, A4},           // USART 2
+     { 0, TX, RX},           // USART 0 TX, RX
+     { 1, D3, D4},           // USART 1 D3, D4
+     { 2, A3, A4},           // USART 2 A3, A4
 };
 
-static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
-    if(serial > 2)
-    {return;}
+    /* if(serial > 2) */
+    /* {return;} */
     usartMap[serial] = &USART_MAP[serial];
 
     usartMap[serial]->usart_enabled = false;
@@ -114,11 +108,11 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
 
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baudrate)
 {
-    if (serial > 2)
-    {return;}
+    /* if (serial > 2) */
+    /* {return;} */
     uint16_t queueLen = 256;
     bool inverted = false;
-    uint32_t config = 30; // 8N1, need to be checked
+    uint32_t config = SERIAL_8N1;
 
     usartMap[serial]->uart = &_uart_bus_array[serial];
 
@@ -142,8 +136,12 @@ void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baudrate)
     usartMap[serial]->uart->dev->conf0.val = config;
     UART_MUTEX_UNLOCK();
 
-    uartAttachRx(usartMap[serial]->uart, usartMap[serial]->usart_rx_pin, inverted);
-    uartAttachTx(usartMap[serial]->uart, usartMap[serial]->usart_tx_pin, inverted);
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t tx_pin = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin;
+    pin_t rx_pin = PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
+
+    uartAttachRx(usartMap[serial]->uart, rx_pin, inverted);
+    uartAttachTx(usartMap[serial]->uart, tx_pin, inverted);
 
     usartMap[serial]->usart_enabled = true;
 }
@@ -175,6 +173,11 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
     while(usartMap[serial]->uart->dev->status.rxfifo_cnt == 0x7F);
     usartMap[serial]->uart->dev->fifo.rw_byte = data;
     UART_MUTEX_UNLOCK();
+    /* HAL_GPIO_Write(D7, 1); */
+    /* HAL_Delay_Milliseconds(2000); */
+    /* HAL_GPIO_Write(D7, 0); */
+    /* HAL_Delay_Milliseconds(100); */
+
 
     return 0;
 }

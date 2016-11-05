@@ -19,6 +19,9 @@
 
 #include "hw_config.h"
 #include "timer_hal.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "sdkconfig.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,7 +41,9 @@
  */
 system_tick_t HAL_Timer_Get_Micro_Seconds(void)
 {
-    return GetSystem1UsTick();
+    uint32_t ccount;
+    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
 }
 
 /*
@@ -46,5 +51,5 @@ system_tick_t HAL_Timer_Get_Micro_Seconds(void)
  */
 system_tick_t HAL_Timer_Get_Milli_Seconds(void)
 {
-    return GetSystem1MsTick();
+    return xTaskGetTickCount() * portTICK_PERIOD_MS;
 }

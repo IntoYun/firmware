@@ -23,7 +23,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "pinmap_impl.h"
 #include "soc/gpio_struct.h"
 #include "soc/io_mux_reg.h"
-#include "esp32-hal.h"
+/* #include "esp32-hal.h" */
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -32,6 +32,12 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 /* Private macro ------------------------------------------------------------*/
 
 /* Private variables --------------------------------------------------------*/
+
+
+#define ESP_REG(addr) *((volatile uint32_t *)(addr))
+
+#define NOP() asm volatile ("nop")
+
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
 
 const uint8_t esp32_gpioToFn[40] = {
@@ -140,7 +146,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             break;
 
         case INPUT:
-            if(pin < 32) {
+            if(gpio_pin < 32) {
                 GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
             } else {
                 GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
@@ -157,7 +163,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             break;
 
         case INPUT_PULLUP:
-            if(pin < 32) {
+            if(gpio_pin < 32) {
                 GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
             } else {
                 GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
@@ -175,7 +181,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             break;
 
         case INPUT_PULLDOWN:
-            if(pin < 32) {
+            if(gpio_pin < 32) {
                 GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
             } else {
                 GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));

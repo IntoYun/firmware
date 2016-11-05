@@ -242,6 +242,7 @@ void TwoWire::reset()
     delay(50);
 }
 
+
 #ifndef INTOROBOT_WIRING_NO_I2C
 
 TwoWire& __fetch_global_Wire()
