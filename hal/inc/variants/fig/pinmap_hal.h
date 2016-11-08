@@ -114,6 +114,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define LED_USER  D6
 
 #define TOTAL_USARTS       3
+#define TOTAL_I2CS         2
 
 
 #define TIM_PWM_FREQ 500 //500Hz

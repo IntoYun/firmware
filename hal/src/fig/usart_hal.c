@@ -53,6 +53,7 @@ static uart_t _uart_bus_array[3] = {
     {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL},
     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL}
 };
+
 // default pin
 // rxpin = RX, GPIO_NUM_3
 // txpin = TX, GPIO_NUM_1
@@ -70,7 +71,6 @@ typedef struct ESP32_USART_Info {
     uint8_t usart_rx_pin;
 
     bool usart_enabled;
-    bool usart_transmitting;
     int peek_char;
     uart_t* uart;
 } ESP32_USART_Info;
@@ -92,7 +92,7 @@ ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
      { 2, A3, A4},           // USART 2 A3, A4
 };
 
-ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
@@ -102,7 +102,6 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
     usartMap[serial] = &USART_MAP[serial];
 
     usartMap[serial]->usart_enabled = false;
-    usartMap[serial]->usart_transmitting = false;
     usartMap[serial]->peek_char = -1;
 }
 
