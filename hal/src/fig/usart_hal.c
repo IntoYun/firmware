@@ -66,7 +66,6 @@ typedef enum USART_Num_Def {
 } USART_Num_Def;
 
 typedef struct ESP32_USART_Info {
-    int usart_nr;
     uint8_t usart_tx_pin;
     uint8_t usart_rx_pin;
 
@@ -81,15 +80,14 @@ typedef struct ESP32_USART_Info {
 ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
 {
     /*
-     * USART_number
      * TX pin
      * RX pin
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-     { 0, TX, RX},           // USART 0 TX, RX
-     { 1, D3, D4},           // USART 1 D3, D4
-     { 2, A3, A4},           // USART 2 A3, A4
+     { TX, RX},           // USART 0 TX, RX
+     { D3, D4},           // USART 1 D3, D4
+     { A3, A4},           // USART 2 A3, A4
 };
 
 static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -172,12 +170,6 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
     while(usartMap[serial]->uart->dev->status.rxfifo_cnt == 0x7F);
     usartMap[serial]->uart->dev->fifo.rw_byte = data;
     UART_MUTEX_UNLOCK();
-    /* HAL_GPIO_Write(D7, 1); */
-    /* HAL_Delay_Milliseconds(2000); */
-    /* HAL_GPIO_Write(D7, 0); */
-    /* HAL_Delay_Milliseconds(100); */
-
-
     return 0;
 }
 
