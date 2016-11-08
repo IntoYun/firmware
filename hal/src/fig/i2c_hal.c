@@ -26,13 +26,122 @@
 /* Includes ------------------------------------------------------------------*/
 #include "i2c_hal.h"
 #include "gpio_hal.h"
+#include "pinmap_impl.h"
+
+#include "esp32-hal-i2c.h"
+#include "esp32-hal.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "rom/ets_sys.h"
+#include "soc/i2c_reg.h"
+#include "soc/i2c_struct.h"
+#include "soc/dport_reg.h"
+
+#define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
+
+#define I2C_SCL_IDX(p)  ((p==0)?I2CEXT0_SCL_OUT_IDX:((p==1)?I2CEXT1_SCL_OUT_IDX:0))
+#define I2C_SDA_IDX(p) ((p==0)?I2CEXT0_SDA_OUT_IDX:((p==1)?I2CEXT1_SDA_OUT_IDX:0))
+
+struct i2c_struct_t {
+    i2c_dev_t * dev;
+    xSemaphoreHandle lock;
+    uint8_t num;
+};
+
+enum {
+    I2C_CMD_RSTART,
+    I2C_CMD_WRITE,
+    I2C_CMD_READ,
+    I2C_CMD_STOP,
+    I2C_CMD_END
+};
+
+#define I2C_MUTEX_LOCK()    do {} while (xSemaphoreTake(i2cMap[i2c]->i2c->lock, portMAX_DELAY) != pdPASS)
+#define I2C_MUTEX_UNLOCK()  xSemaphoreGive(i2cMap[i2c]->i2c->lock)
+
+static i2c_t _i2c_bus_array[2] = {
+    {(volatile i2c_dev_t *)(DR_REG_I2C_EXT_BASE), NULL, 0},
+    {(volatile i2c_dev_t *)(DR_REG_I2C1_EXT_BASE), NULL, 1}
+};
+
+// default pin
+// I2C SCL D0 GPIO21
+// I2C SDA D1 GPIO22
+// The other is define by self which can be changed
+// We define below
+typedef enum I2C_Num_Def {
+    I2C_0 = 0,
+    I2C_1 = 1
+} I2C_Num_Def;
+
+typedef struct ESP32_I2C_Info {
+    uint8_t i2c_num;
+    uint8_t scl_pin;
+    uint8_t sda_pin;
+
+    bool enabled;
+    int peek_char;
+    i2c_t* i2c;
+    uint8_t rxBuffer[BUFFER_LENGTH];
+    uint8_t rxBufferIndex;
+    uint8_t rxBufferLength;
+    uint8_t txBuffer[BUFFER_LENGTH];
+    uint8_t txBufferIndex;
+    uint8_t txBufferLength;
+    uint8_t txAddress;
+    uint8_t transmitting;
+    void (*callback_onRequest)(void);
+    void (*callback_onReceive)(int);
+} ESP32_I2C_Info;
+
+/*
+ * I2C mapping
+ */
+ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
+{
+        /*
+         * i2c_number
+         * scl pin
+         * sda pin
+         * <i2c enabled> used internally and does not appear below
+         */
+        { 0, D0, D1},           // I2C 0  D0, D1
+        { 1, A2, A3}           //  I2C 1  A2, A3
+};
+
+static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
+    i2cMap[i2c] = &I2C_MAP[i2c];
+
+    i2cMap[i2c]->enabled = false;
+    i2cMap[i2c]->peek_char = -1;
+    i2cMap[i2c]->transmitting = 0;
 }
 
 void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
 {
+    uint32_t period = (APB_CLK_FREQ/speed) / 2;
+
+    if(i2cMap[i2c]->i2c == NULL){
+        return;
+    }
+
+    I2C_MUTEX_LOCK();
+    i2cMap[i2c]->i2c->dev->scl_low_period.scl_low_period = period;
+    i2cMap[i2c]->i2c->dev->scl_high_period.period = period;
+
+    i2cMap[i2c]->i2c->dev->scl_start_hold.time = 50;
+    i2cMap[i2c]->i2c->dev->scl_rstart_setup.time = 50;
+
+    i2cMap[i2c]->i2c->dev->scl_stop_hold.time   = 50;
+    i2cMap[i2c]->i2c->dev->scl_stop_setup.time = 50;
+
+    i2cMap[i2c]->i2c->dev->sda_hold.time     = 25;
+    i2cMap[i2c]->i2c->dev->sda_sample.time = 25;
+    I2C_MUTEX_UNLOCK();
 }
 
 void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
@@ -41,64 +150,143 @@ void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 
 void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
 {
+    if(i2c > 1){
+        return;
+    }
+
+    i2cMap[i2c]->i2c = &_i2c_bus_array[i2c];
+
+    if(i2cMap[i2c]->i2c->lock == NULL){
+        i2cMap[i2c]->i2c->lock = xSemaphoreCreateMutex();
+        if(i2cMap[i2c]->i2c->lock == NULL) {
+            return;
+        }
+    }
+
+    if(i2c == 0) {
+        SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG,DPORT_I2C_EXT0_CLK_EN);
+        CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG,DPORT_I2C_EXT0_RST);
+    } else {
+        SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG,DPORT_I2C_EXT1_CLK_EN);
+        CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG,DPORT_I2C_EXT1_RST);
+    }
+
+    I2C_MUTEX_LOCK();
+    i2cMap[i2c]->i2c->dev->ctr.val = 0;
+    i2cMap[i2c]->i2c->dev->ctr.ms_mode = (address == 0);
+    i2cMap[i2c]->i2c->dev->ctr.sda_force_out = 1 ;
+    i2cMap[i2c]->i2c->dev->ctr.scl_force_out = 1 ;
+    i2cMap[i2c]->i2c->dev->ctr.clk_en = 1;
+
+    i2cMap[i2c]->i2c->dev->timeout.tout = 2000;
+    i2cMap[i2c]->i2c->dev->fifo_conf.nonfifo_en = 0;
+
+    i2cMap[i2c]->i2c->dev->slave_addr.val = 0;
+    if (address) {
+        i2cMap[i2c]->i2c->dev->slave_addr.addr = address;
+        i2cMap[i2c]->i2c->dev->slave_addr.en_10bit = false;
+    }
+    I2C_MUTEX_UNLOCK();
+
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t scl_pin = PIN_MAP[i2cMap[i2c]->scl_pin].gpio_pin;
+    pin_t sda_pin = PIN_MAP[i2cMap[i2c]->sda_pin].gpio_pin;
+
+    i2cAttachSCL(i2cMap[i2c]->i2c, scl_pin);
+    i2cAttachSDA(i2cMap[i2c]->i2c, sda_pin);
+    HAL_I2C_Flush_Data(i2c, NULL);
 }
 
 void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
 {
+    // xxx: To be done
 }
 
 uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop,void* reserved)
 {
-    return 0;
+    if (quantity > BUFFER_LENGTH) {
+        quantity = BUFFER_LENGTH;
+    }
+    size_t receiveLength = i2cRead(i2cMap[i2c]->i2c, address, false, i2cMap[i2c]->rxBuffer, quantity, stop) == 0? quantity: 0;
+    i2cMap[i2c]->rxBufferIndex = 0;
+    i2cMap[i2c]->rxBufferLength = receiveLength;
+    return receiveLength;
 }
 
 void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* reserved)
 {
+    i2cMap[i2c]->transmitting = 1;
+    i2cMap[i2c]->txAddress = address;
+    i2cMap[i2c]->txBufferIndex = 0;
+    i2cMap[i2c]->txBufferLength = 0;
 }
 
 uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reserved)
 {
-  return 0;
+    int8_t ret = i2cWrite(i2cMap[i2c]->i2c, i2cMap[i2c]->txAddress, false, i2cMap[i2c]->txBuffer, i2cMap[i2c]->txBufferLength, stop);
+    i2cMap[i2c]->txBufferIndex = 0;
+    i2cMap[i2c]->txBufferLength = 0;
+    i2cMap[i2c]->transmitting = 0;
+    return 0;
 }
 
 uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
 {
-  return 0;
+    if (i2cMap[i2c]->transmitting) {
+        if (i2cMap[i2c]->txBufferLength >= BUFFER_LENGTH) {
+            return 0;
+        }
+        i2cMap[i2c]->txBuffer[i2cMap[i2c]->txBufferIndex++] = data;
+        i2cMap[i2c]->txBufferLength = i2cMap[i2c]->txBufferIndex;
+        return 0;
+    }
+    return 1;
 }
 
 int32_t HAL_I2C_Available_Data(HAL_I2C_Interface i2c,void* reserved)
 {
-  return 0;
+    return (i2cMap[i2c]->rxBufferLength - i2cMap[i2c]->rxBufferIndex);
 }
 
 int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
 {
-  return 0;
+    int value = -1;
+    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength){
+        value = i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex++];
+    }
+    return value;
 }
 
 int32_t HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
 {
-    return 0;
+    int value = -1;
+    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength){
+        value = i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex];
+    }
+    return value;
 }
 
 void HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
 {
-  // XXX: to be implemented.
+    i2cMap[i2c]->rxBufferIndex = 0;
+    i2cMap[i2c]->rxBufferLength = 0;
+    i2cMap[i2c]->txBufferIndex = 0;
+    i2cMap[i2c]->txBufferLength = 0;
 }
 
 bool HAL_I2C_Is_Enabled(HAL_I2C_Interface i2c,void* reserved)
 {
-    return false;
+    return i2cMap[i2c]->enabled;
 }
 
 void HAL_I2C_Set_Callback_On_Receive(HAL_I2C_Interface i2c, void (*function)(int),void* reserved)
 {
-
+    i2cMap[i2c]->callback_onReceive = function;
 }
 
 void HAL_I2C_Set_Callback_On_Request(HAL_I2C_Interface i2c, void (*function)(void),void* reserved)
 {
-
+    i2cMap[i2c]->callback_onRequest = function;
 }
 
 /*******************************************************************************
