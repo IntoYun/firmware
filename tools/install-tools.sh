@@ -36,7 +36,6 @@ if [ $sysType = "Linux" ]; then
         wget -nc https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-59.tar.gz
         tar -zxf xtensa-esp32-elf-linux64-1.22.0-59.tar.gz
         mv  xtensa-esp32-elf ../xtensa-esp32-elf
-
     else
         echo -e "\033[40;32m 2. install st-flash\033[0m"
         wget -nc https://github.com/IntoRobot/stlink/releases/download/1.2.0/stlink-1.2.0-linux32.tar.gz
