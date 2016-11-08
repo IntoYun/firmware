@@ -66,8 +66,8 @@ static i2c_t _i2c_bus_array[2] = {
 };
 
 // default pin
-// I2C SCL D0 GPIO21
-// I2C SDA D1 GPIO22
+// I2C SDA D0 GPIO21
+// I2C SCL D1 GPIO22
 // The other is define by self which can be changed
 // We define below
 typedef enum I2C_Num_Def {
@@ -76,12 +76,10 @@ typedef enum I2C_Num_Def {
 } I2C_Num_Def;
 
 typedef struct ESP32_I2C_Info {
-    uint8_t i2c_num;
-    uint8_t scl_pin;
-    uint8_t sda_pin;
+    uint8_t I2C_SCL_Pin;
+    uint8_t I2C_SDA_Pin;
 
-    bool enabled;
-    int peek_char;
+    bool I2C_Enabled;
     i2c_t* i2c;
     uint8_t rxBuffer[BUFFER_LENGTH];
     uint8_t rxBufferIndex;
@@ -101,13 +99,12 @@ typedef struct ESP32_I2C_Info {
 ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
 {
         /*
-         * i2c_number
          * scl pin
          * sda pin
          * <i2c enabled> used internally and does not appear below
          */
-        { 0, D0, D1},           // I2C 0  D0, D1
-        { 1, A2, A3}           //  I2C 1  A2, A3
+        { D1, D0},           // I2C 0  D1, D0
+        { A3, A2}           //  I2C 1  A3, A2
 };
 
 static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
@@ -116,8 +113,7 @@ void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
     i2cMap[i2c] = &I2C_MAP[i2c];
 
-    i2cMap[i2c]->enabled = false;
-    i2cMap[i2c]->peek_char = -1;
+    i2cMap[i2c]->I2C_Enabled = false;
     i2cMap[i2c]->transmitting = 0;
 }
 
@@ -189,8 +185,8 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     I2C_MUTEX_UNLOCK();
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t scl_pin = PIN_MAP[i2cMap[i2c]->scl_pin].gpio_pin;
-    pin_t sda_pin = PIN_MAP[i2cMap[i2c]->sda_pin].gpio_pin;
+    pin_t scl_pin = PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin;
+    pin_t sda_pin = PIN_MAP[i2cMap[i2c]->I2C_SDA_Pin].gpio_pin;
 
     i2cAttachSCL(i2cMap[i2c]->i2c, scl_pin);
     i2cAttachSDA(i2cMap[i2c]->i2c, sda_pin);
@@ -276,7 +272,7 @@ void HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
 
 bool HAL_I2C_Is_Enabled(HAL_I2C_Interface i2c,void* reserved)
 {
-    return i2cMap[i2c]->enabled;
+    return i2cMap[i2c]->I2C_Enabled;
 }
 
 void HAL_I2C_Set_Callback_On_Receive(HAL_I2C_Interface i2c, void (*function)(int),void* reserved)
