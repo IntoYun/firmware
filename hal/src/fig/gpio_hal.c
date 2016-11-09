@@ -23,6 +23,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "pinmap_impl.h"
 #include "soc/gpio_struct.h"
 #include "soc/io_mux_reg.h"
+#include "usart_hal.h"
 /* #include "esp32-hal.h" */
 
 /* Private typedef ----------------------------------------------------------*/
@@ -32,6 +33,35 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 /* Private macro ------------------------------------------------------------*/
 
 /* Private variables --------------------------------------------------------*/
+
+#if 0
+
+#include "gpio_hal.h"
+#include "pinmap_hal.h"
+#include "delay_hal.h"
+#include "usart_hal.h"
+
+void setup()
+{
+    HAL_Pin_Mode(D7, OUTPUT);
+    HAL_USART_Initial(HAL_USART_SERIAL1);
+    HAL_USART_Begin(HAL_USART_SERIAL1, 115200);
+}
+
+void loop()
+{
+    HAL_GPIO_Write(D7, 1);
+    HAL_Delay_Milliseconds(1000);
+    HAL_GPIO_Write(D7, 0);
+    HAL_Delay_Milliseconds(1000);
+
+    uint8_t data = 'a';
+    HAL_USART_Write_Data(HAL_USART_SERIAL1, data);
+
+}
+#endif
+
+
 
 
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
@@ -200,6 +230,15 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 
         default:
             break;
+    }
+
+    HAL_USART_Initial(HAL_USART_SERIAL1);
+    HAL_USART_Begin(HAL_USART_SERIAL1, 115200);
+
+    while(1){
+      uint8_t data = 'a';
+      HAL_USART_Write_Data(HAL_USART_SERIAL1, data);
+      HAL_Delay_Milliseconds(1000);
     }
 
     /* // common part */
