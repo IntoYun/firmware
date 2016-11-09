@@ -17,7 +17,6 @@
   ******************************************************************************
 */
 
-// #include "core_hal.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -39,26 +38,21 @@ void initWiFi() {}
 // void loop() __attribute__((weak));
 // void loop() {}
 
+// extern void loop() __attribute__((weak));
+// extern void setup() __attribute__((weak));
 // extern "C"{
-// void loop() __attribute__((weak));
-// void setup() __attribute__((weak));
-// }
-
-// extern "C" {
-//     void setup();
-//     void loop();
-// }
-
-// extern void setup();
 // extern void loop();
+// extern void setup();
+// }
+extern "C"{
+void loop();
+void setup();
+}
 
-// extern "C"{
 // void loop() __attribute__((weak));
 // void setup() __attribute__((weak));
-// }
 
-#if 1
-
+#if 0
 #include "gpio_hal.h"
 #include "pinmap_hal.h"
 #include "delay_hal.h"
@@ -80,14 +74,16 @@ void loop()
 
     uint8_t data = 'a';
     HAL_USART_Write_Data(HAL_USART_SERIAL1, data);
-}
 
+}
 #endif
+
+// extern void app_loop();
 
 void loopTask(void *pvParameters)
 {
-    #if 1
     bool setup_done = false;
+    static int abc = 0;
     for(;;) {
         if(!setup_done) {
             startWiFi();
@@ -95,9 +91,8 @@ void loopTask(void *pvParameters)
             setup_done = true;
         }
         loop();
+        // app_loop();
     }
-    #endif
-    // app_loop();
 }
 
 extern "C" void app_main()

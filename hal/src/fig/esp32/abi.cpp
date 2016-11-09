@@ -18,8 +18,6 @@
 
  using __cxxabiv1::__guard;
 
-#if 1
-
 void *operator new(size_t size)
 {
     return malloc(size);
@@ -45,15 +43,13 @@ extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
 
 void __cxa_pure_virtual(void)
 {
-   abort();
+    abort();
 }
 
 void __cxa_deleted_virtual(void)
 {
-   abort();
+    abort();
 }
-
-#endif
 
 #if 1
 typedef struct {
@@ -84,8 +80,6 @@ extern "C" void __cxa_guard_abort(__guard* pg)
 }
 #endif
 
-
-#if 1
 extern "C" void __cxa_throw_bad_array_new_length()
 {
     abort();
@@ -118,5 +112,3 @@ void __throw_out_of_range(const char* str)
     abort();
 }
 }
-
-#endif
