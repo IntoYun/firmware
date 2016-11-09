@@ -40,9 +40,6 @@
 
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 
-#define I2C_SCL_IDX(p)  ((p==0)?I2CEXT0_SCL_OUT_IDX:((p==1)?I2CEXT1_SCL_OUT_IDX:0))
-#define I2C_SDA_IDX(p) ((p==0)?I2CEXT0_SDA_OUT_IDX:((p==1)?I2CEXT1_SDA_OUT_IDX:0))
-
 struct i2c_struct_t {
     i2c_dev_t * dev;
     xSemaphoreHandle lock;
@@ -107,7 +104,8 @@ ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
         { A3, A2}           //  I2C 1  A3, A2
 };
 
-static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
+/* static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc) */
+ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
@@ -146,6 +144,7 @@ void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 
 void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
 {
+    #if 0
     if(i2c > 1){
         return;
     }
@@ -183,6 +182,10 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
         i2cMap[i2c]->i2c->dev->slave_addr.en_10bit = false;
     }
     I2C_MUTEX_UNLOCK();
+    #endif
+    i2cMap[i2c]->i2c = i2cInit(i2c, 0, false);
+
+    i2cSetFrequency(i2cMap[i2c]->i2c, 100000);
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t scl_pin = PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin;
