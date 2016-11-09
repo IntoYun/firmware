@@ -123,4 +123,15 @@ USARTSerial& __fetch_global_Serial2()
 }
 #endif
 // optional Serial2 is instantiated from libraries/Serial2/Serial2.h
+
+#if Wiring_Serial3
+
+USARTSerial& __fetch_global_Serial3()
+{
+    static USARTSerial serial3(HAL_USART_SERIAL2);
+    return serial3;
+}
+#endif
+
+
 #endif

@@ -97,6 +97,11 @@ extern USARTSerial& __fetch_global_Serial1();
 extern USARTSerial& __fetch_global_Serial2();
 #endif
 
+#if Wiring_Serial3
+#define Serial2 __fetch_global_Serial3()
+extern USARTSerial& __fetch_global_Serial3();
+#endif
+
 #endif
 
 #endif
