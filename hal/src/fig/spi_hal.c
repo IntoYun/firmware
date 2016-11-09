@@ -109,7 +109,7 @@ static ESP32_SPI_Info *spiMap[TOTAL_SPIS]; // pointer to SPI_MAP[] containing SP
 
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    if(spi > 3){
+    if(spi > 2){
         return;
     }
     spiMap[spi] = &SPI_MAP[spi];
@@ -135,9 +135,11 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
     if(spi == 0) { // HSPI (2)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_1);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_1);
+        spiMap[spi]->spi->num = 2;
     } else if(spi == 1) { // VSPI (3)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_2);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_2);
+        spiMap[spi]->spi->num = 3;
     } else {
         return;
         /* SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN); */
@@ -160,6 +162,8 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
     for(i=0; i<16; i++) {
         spiMap[spi]->spi->dev->data_buf[i] = 0x00000000;
     }
+
+
     SPI_MUTEX_UNLOCK();
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -208,7 +212,12 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
 
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
-    spiSetBitOrder(spiMap[spi]->spi, order);
+  if (order == SPI_MSBFIRST){
+    spiSetBitOrder(spiMap[spi]->spi, SPI_MSBFIRST);
+  }
+  else if (order == SPI_LSBFIRST) {
+    spiSetBitOrder(spiMap[spi]->spi, SPI_LSBFIRST);
+  }
 }
 
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
@@ -218,7 +227,9 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-    spiSetClockDiv(spiMap[spi]->spi, rate);
+
+    uint32_t clockDiv = spiFrequencyToClockDiv(1000000 * rate);
+    spiSetClockDiv(spiMap[spi]->spi, clockDiv);
 }
 
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
