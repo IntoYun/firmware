@@ -28,6 +28,7 @@
 #include "watchdog_hal.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp32-hal.h"
 
 /**
  * Updated by HAL_1Ms_Tick()
@@ -45,5 +46,35 @@ volatile uint32_t TimingDelay;
 void HAL_Delay_Milliseconds(uint32_t ms)
 {
     vTaskDelay(ms / portTICK_PERIOD_MS);
+}
+
+uint32_t micros()
+{
+  uint32_t ccount;
+  __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+  return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
+  //return system_get_time();
+}
+
+uint32_t millis()
+{
+  return xTaskGetTickCount() * portTICK_PERIOD_MS;
+}
+
+
+/**
+ * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
+ * @param  uSec: specifies the delay time length, in milliseconds.
+ * @retval None
+ */
+void HAL_Delay_Microseconds(uint32_t uSec)
+{
+  if(uSec) {
+    unsigned long endat = micros();
+    endat += uSec;
+    while(micros() < endat) {
+      NOP();
+    }
+  }
 }
 

@@ -159,6 +159,13 @@ extern "C" void HAL_SysTick_Handler(void)
 
 void app_loop(void)
 {
+    static bool first_time = true;
+    if (first_time == true){
+        setup();
+        first_time = false;
+    }
+    loop();
+    #if 0
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
@@ -179,6 +186,7 @@ void app_loop(void)
         DECLARE_SYS_HEALTH(RAN_Loop);
         _post_loop();
     }
+    #endif
 }
 
 static void load_system_fwlib_version(void)

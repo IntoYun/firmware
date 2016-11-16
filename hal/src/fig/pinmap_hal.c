@@ -56,31 +56,30 @@
 #define GPIO31                     31
 #define GPIO32                     32
 #define GPIO33                     33
-#define GPIO34                     34
-#define GPIO35                     35
-#define GPIO36                     36
-#define GPIO37                     37
-#define GPIO38                     38
-#define GPIO39                     39
+#define GPIO34                     34 /* input mode only */
+#define GPIO35                     35 /* input mode only */ 
+#define GPIO36                     36 /* input mode only */
+#define GPIO37                     37 /* input mode only */
+#define GPIO38                     38 /* input mode only */
+#define GPIO39                     39 /* input mode only */
 
-
-#define GPIO_PinSource0            ((uint8_t)0x00)
-#define GPIO_PinSource1            ((uint8_t)0x01)
-#define GPIO_PinSource2            ((uint8_t)0x02)
-#define GPIO_PinSource3            ((uint8_t)0x03)
-#define GPIO_PinSource4            ((uint8_t)0x04)
-#define GPIO_PinSource5            ((uint8_t)0x05)
-#define GPIO_PinSource6            ((uint8_t)0x06)
-#define GPIO_PinSource7            ((uint8_t)0x07)
-#define GPIO_PinSource8            ((uint8_t)0x08)
-#define GPIO_PinSource9            ((uint8_t)0x09)
-#define GPIO_PinSource10           ((uint8_t)0x0A)
-#define GPIO_PinSource11           ((uint8_t)0x0B)
-#define GPIO_PinSource12           ((uint8_t)0x0C)
-#define GPIO_PinSource13           ((uint8_t)0x0D)
-#define GPIO_PinSource14           ((uint8_t)0x0E)
-#define GPIO_PinSource15           ((uint8_t)0x0F)
-#define GPIO_PinSource16           ((uint8_t)0x10)
+/* #define GPIO_PinSource0            ((uint8_t)0x00) */
+/* #define GPIO_PinSource1            ((uint8_t)0x01) */
+/* #define GPIO_PinSource2            ((uint8_t)0x02) */
+/* #define GPIO_PinSource3            ((uint8_t)0x03) */
+/* #define GPIO_PinSource4            ((uint8_t)0x04) */
+/* #define GPIO_PinSource5            ((uint8_t)0x05) */
+/* #define GPIO_PinSource6            ((uint8_t)0x06) */
+/* #define GPIO_PinSource7            ((uint8_t)0x07) */
+/* #define GPIO_PinSource8            ((uint8_t)0x08) */
+/* #define GPIO_PinSource9            ((uint8_t)0x09) */
+/* #define GPIO_PinSource10           ((uint8_t)0x0A) */
+/* #define GPIO_PinSource11           ((uint8_t)0x0B) */
+/* #define GPIO_PinSource12           ((uint8_t)0x0C) */
+/* #define GPIO_PinSource13           ((uint8_t)0x0D) */
+/* #define GPIO_PinSource14           ((uint8_t)0x0E) */
+/* #define GPIO_PinSource15           ((uint8_t)0x0F) */
+/* #define GPIO_PinSource16           ((uint8_t)0x10) */
 
 
 /* #define ADC_Channel_0  ((uint8_t)0x00) */
@@ -108,10 +107,10 @@ EESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* D7            - 07 */ { GPIO27, NONE, NONE, NONE, PIN_MODE_NONE },
 /* TX            - 08 */ { GPIO1,  NONE, NONE, NONE, PIN_MODE_NONE },
 /* RX            - 09 */ { GPIO3,  NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 10 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 11 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 12 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 13 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 10 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 11 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 12 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 13 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
 /* A0            - 14 */ { GPIO36, NONE, NONE, NONE, PIN_MODE_NONE },
 /* A1            - 15 */ { GPIO39, NONE, NONE, NONE, PIN_MODE_NONE },
 /* A2            - 16 */ { GPIO25, NONE, NONE, NONE, PIN_MODE_NONE },
@@ -122,8 +121,8 @@ EESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* A7            - 21 */ { GPIO13, NONE, NONE, NONE, PIN_MODE_NONE },
 /* A8            - 22 */ { GPIO2,  NONE, NONE, NONE, PIN_MODE_NONE },
 /* A9            - 23 */ { GPIO4,  NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 24 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
-/* NOT USED      - 25 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 24 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
+/* NOT USED      - 25 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
 };
 
 EESP32_Pin_Info* HAL_Pin_Map() {

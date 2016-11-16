@@ -86,7 +86,6 @@ size: $(TARGET_BASE).elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
 ifeq ($(PLATFORM_ID), 7) # for fig
 	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
-
 else # for nut neutron-net
 ifeq ("$(MODULE)","bootloader")
 	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true

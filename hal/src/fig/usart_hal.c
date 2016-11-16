@@ -105,6 +105,11 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
 
 void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baudrate)
 {
+    HAL_USART_BeginConfig(serial, baudrate, 0, 0);
+}
+
+void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baudrate, uint32_t config_ex, void *ptr)
+{
     /* if (serial > 2) */
     /* {return;} */
     uint16_t queueLen = 256;

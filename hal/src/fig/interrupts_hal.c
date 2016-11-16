@@ -30,6 +30,9 @@
 #include "rom/gpio.h"
 #include "soc/gpio_struct.h"
 #include "soc/gpio_reg.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_intr.h"
 
 #define ETS_GPIO_INUM       4
 
@@ -88,7 +91,8 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
         xt_set_interrupt_handler(ETS_GPIO_INUM, &__onPinInterrupt, NULL);
         ESP_INTR_ENABLE(ETS_GPIO_INUM);
     }
-    __pinInterruptHandlers[gpio_pin] = (voidFuncPtr)handler;
+    /* __pinInterruptHandlers[gpio_pin] = (voidFuncPtr)handler; */
+    __pinInterruptHandlers[gpio_pin] = handler;
     ESP_INTR_DISABLE(ETS_GPIO_INUM);
     if(core_id) { //APP_CPU
         GPIO.pin[gpio_pin].int_ena = 1;
@@ -97,13 +101,16 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     }
 
     if (mode == CHANGE) {
-        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_ANYEGDE;
+        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_ANYEGDE; */
+        GPIO.pin[gpio_pin].int_type = 3;
     }
     else if(mode == RISING) {
-        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_POSEDGE;
+        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_POSEDGE; */
+        GPIO.pin[gpio_pin].int_type = 1;
     }
     else if(mode== FALLING) {
-        GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_NEGEDGE;
+        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_NEGEDGE; */
+        GPIO.pin[gpio_pin].int_type = 2;
     }
 
     ESP_INTR_ENABLE(ETS_GPIO_INUM);

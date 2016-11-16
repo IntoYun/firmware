@@ -75,5 +75,5 @@
 
 #define MAC_SEC_START                    6    //mac地址暂存扇区
 #define MAC_SEC_NUM                      1    //mac 地址暂存扇区个数
-#define FLASH_MAC_START_ADDR           MAC_SEC_START * SPI_FLASH_SEC_SIZE      //boot参数起始地址
+#define FLASH_MAC_START_ADDR           MAC_SEC_START * SPI_FLASH_SEC_SIZE
 #endif /*FLASH_MAP_H_*/

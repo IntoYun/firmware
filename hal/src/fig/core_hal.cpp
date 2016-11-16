@@ -40,13 +40,19 @@ void initWiFi() {}
 
 // extern void loop() __attribute__((weak));
 // extern void setup() __attribute__((weak));
-
+// extern "C"{
 // extern void loop();
 // extern void setup();
+// }
+extern "C"{
+void loop();
+void setup();
+}
 
 // void loop() __attribute__((weak));
 // void setup() __attribute__((weak));
 
+#if 0
 #include "gpio_hal.h"
 #include "pinmap_hal.h"
 #include "delay_hal.h"
@@ -70,6 +76,8 @@ void loop()
     HAL_USART_Write_Data(HAL_USART_SERIAL1, data);
 
 }
+#endif
+
 // extern void app_loop();
 
 void loopTask(void *pvParameters)
