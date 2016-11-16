@@ -190,6 +190,7 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t scl_pin = PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin;
     pin_t sda_pin = PIN_MAP[i2cMap[i2c]->I2C_SDA_Pin].gpio_pin;
+    HALllljj
 
     i2cAttachSCL(i2cMap[i2c]->i2c, scl_pin);
     i2cAttachSDA(i2cMap[i2c]->i2c, sda_pin);

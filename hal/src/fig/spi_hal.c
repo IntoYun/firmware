@@ -43,6 +43,8 @@
 #include "soc/dport_reg.h"
 
 
+#include "usart_hal.h"
+
 struct spi_struct_t {
     spi_dev_t * dev;
     xSemaphoreHandle lock;
@@ -52,25 +54,22 @@ struct spi_struct_t {
 #define SPI_MUTEX_LOCK()    do {} while (xSemaphoreTake(spiMap[spi]->spi->lock, portMAX_DELAY) != pdPASS)
 #define SPI_MUTEX_UNLOCK()  xSemaphoreGive(spiMap[spi]->spi->lock)
 
-static spi_t _spi_bus_array[2] = {
-    /* {(volatile spi_dev_t *)(DR_REG_SPI0_BASE), NULL, 0}, */
-    /* {(volatile spi_dev_t *)(DR_REG_SPI1_BASE), NULL, 1}, */
+static spi_t _spi_bus_array[4] = {
+    {(volatile spi_dev_t *)(DR_REG_SPI0_BASE), NULL, 0},
+    {(volatile spi_dev_t *)(DR_REG_SPI1_BASE), NULL, 1},
     {(volatile spi_dev_t *)(DR_REG_SPI2_BASE), NULL, 2}, // HSPI
     {(volatile spi_dev_t *)(DR_REG_SPI3_BASE), NULL, 3}  // VSPI
 };
 
 
 // default pin
+// The pin definition can be changed to any pin
 //               VSPI                 HSPI
 // SCK          GPIO18(  )         GPIO14(A5)
 // MISO         GPIO19(D2)         GPIO12(A6)
 // MOSI         GPIO23(  )         GPIO13(A7)
 // SS           GPIO5 (D5)         GPIO15(A4)
 
-// HSPI
-
-// The other is define by self which can be changed
-// We define below
 typedef enum SPI_Num_Def {
     SPI_0 = 0
     /* ,SPI_1 = 1 */
@@ -87,9 +86,9 @@ typedef struct ESP32_SPI_Info {
     /* uint8_t SPI_Data_Mode; */
     /* uint8_t SPI_Bit_Order; */
 
-    bool SPI_Bit_Order_Set;
-    bool SPI_Data_Mode_Set;
-    bool SPI_Clock_Divider_Set;
+    /* bool SPI_Bit_Order_Set; */
+    /* bool SPI_Data_Mode_Set; */
+    /* bool SPI_Clock_Divider_Set; */
     bool SPI_Enabled;
     bool SPI_USE_HW_SS;
 
@@ -109,13 +108,13 @@ static ESP32_SPI_Info *spiMap[TOTAL_SPIS]; // pointer to SPI_MAP[] containing SP
 
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    if(spi > 2){
-        return;
-    }
+    /* if(spi > 2){ */
+    /*     return; */
+    /* } */
     spiMap[spi] = &SPI_MAP[spi];
-    spiMap[spi]->SPI_Bit_Order_Set     = false;
-    spiMap[spi]->SPI_Data_Mode_Set     = false;
-    spiMap[spi]->SPI_Clock_Divider_Set = false;
+    /* spiMap[spi]->SPI_Bit_Order_Set     = false; */
+    /* spiMap[spi]->SPI_Data_Mode_Set     = false; */
+    /* spiMap[spi]->SPI_Clock_Divider_Set = false; */
     spiMap[spi]->SPI_Enabled           = false;
     spiMap[spi]->SPI_USE_HW_SS         = false;
     spiMap[spi]->spi                   = NULL;
@@ -123,7 +122,23 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
-    spiMap[spi]->spi = &_spi_bus_array[spi];
+    HAL_USART_Begin(0, 115200);
+    if (spi == 0)
+    {
+      for(int i = 0; i < 10; i++){
+        HAL_USART_Write_Data(0, 'c');
+      }
+    }
+    uint32_t clockDiv = spiFrequencyToClockDiv(1000000);
+    if (spi == 0) {
+        spiMap[spi]->spi = spiStartBus( HSPI, clockDiv, SPI_MODE0, SPI_MSBFIRST);
+        HAL_USART_Write_Data(0, 'd');
+    }
+    #if 0
+    if (spi == 0) {
+      spiMap[spi]->spi = &_spi_bus_array[2];
+    }
+    /* spiMap[spi]->spi = &_spi_bus_array[spi]; */
 
     if(spiMap[spi]->spi->lock == NULL){
         spiMap[spi]->spi->lock = xSemaphoreCreateMutex();
@@ -135,18 +150,23 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
     if(spi == 0) { // HSPI (2)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_1);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_1);
-        spiMap[spi]->spi->num = 2;
+        if (spi == 0)
+          {
+            for(int i = 0; i < 10; i++){
+              HAL_USART_Write_Data(0, 'b');
+            }
+          }
+
+        /* spiMap[spi]->spi->num = 2; */
     } else if(spi == 1) { // VSPI (3)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_2);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_2);
-        spiMap[spi]->spi->num = 3;
+        /* spiMap[spi]->spi->num = 3; */
     } else {
         return;
         /* SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN); */
         /* CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST); */
     }
-
-    uint32_t clockDiv = spiFrequencyToClockDiv(1000000);
 
     spiStopBus(spiMap[spi]->spi);
     spiSetDataMode(spiMap[spi]->spi, SPI_MODE0);
@@ -163,8 +183,8 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
         spiMap[spi]->spi->dev->data_buf[i] = 0x00000000;
     }
 
-
     SPI_MUTEX_UNLOCK();
+    #endif
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t sck  = PIN_MAP[spiMap[spi]->SPI_SCK_Pin].gpio_pin;
@@ -212,12 +232,15 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
 
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
+  spiSetBitOrder(spiMap[spi]->spi, order);
+  #if 0
   if (order == SPI_MSBFIRST){
     spiSetBitOrder(spiMap[spi]->spi, SPI_MSBFIRST);
   }
   else if (order == SPI_LSBFIRST) {
     spiSetBitOrder(spiMap[spi]->spi, SPI_LSBFIRST);
   }
+  #endif
 }
 
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
@@ -227,13 +250,44 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-
-    uint32_t clockDiv = spiFrequencyToClockDiv(1000000 * rate);
-    spiSetClockDiv(spiMap[spi]->spi, clockDiv);
+    switch (rate) {
+    case 0x00: { // SPI_CLOCK_DIV2
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV2);
+      break;
+    }
+    case 0x08: { // SPI_CLOCK_DIV4
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV4);
+      break;
+    }
+    case 0x10: {
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV8);
+      break;
+    }
+    case 0x18: {
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV16);
+      break;
+    }
+    case 0x20: {
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV32);
+      break;
+    }
+    case 0x28: {
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV64);
+      break;
+    }
+    case 0x30: {
+      spiSetClockDiv(spiMap[spi]->spi, SPI_CLOCK_DIV128);
+      break;
+    }
+    default:
+      break;
+    }
 }
 
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
+    /* HAL_USART_Write_Data(0, 'a'); */
+    HAL_USART_Write_Data(0, (uint8_t) data);
     spiWriteByte(spiMap[spi]->spi, (uint8_t)data);
     return spiReadByte(spiMap[spi]->spi);
 }
