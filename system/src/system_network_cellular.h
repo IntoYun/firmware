@@ -20,6 +20,10 @@
 #ifndef SYSTEM_NETWORK_CELLULAR_H
 #define	SYSTEM_NETWORK_CELLULAR_H
 
+
+#include "intorobot_config.h"
+#ifdef configWIRING_CELLULAR_ENABLE
+
 #include "system_network_internal.h"
 #include "cellular_hal.h"
 #include "interrupts_hal.h"
@@ -88,7 +92,7 @@ protected:
         		cellular_cancel(false, HAL_IsISR(), NULL);
     }
 
- 
+
 
     void on_now() override {
         cellular_on(NULL);
@@ -134,22 +138,24 @@ public:
     int set_credentials(NetworkCredentials* creds) override { /* n/a */ return -1; }
 
     void connect_cancel(bool cancel) override {
-    		// only cancel if presently connecting
-    		bool require_cancel = false;
-    		ATOMIC_BLOCK() {
-    			if (connecting)
-    			{
-    				if (cancel!=connect_cancelled) {
-    					require_cancel = true;
-    					connect_cancelled = cancel;
-    				}
-    			}
-    		}
-    		if (require_cancel)
-    			cellular_cancel(cancel, HAL_IsISR(), NULL);
+        // only cancel if presently connecting
+        bool require_cancel = false;
+        ATOMIC_BLOCK() {
+            if (connecting)
+            {
+                if (cancel!=connect_cancelled) {
+                    require_cancel = true;
+                    connect_cancelled = cancel;
+                }
+            }
+        }
+        if (require_cancel)
+            cellular_cancel(cancel, HAL_IsISR(), NULL);
     }
 
     void set_error_count(unsigned count) override { /* n/a */ }
 };
+
+#endif
 
 #endif

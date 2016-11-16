@@ -44,7 +44,6 @@ volatile uint8_t INTOROBOT_WLAN_SLEEP;
 WiFiNetworkInterface wifi;
 ManagedNetworkInterface& network = wifi;
 inline NetworkInterface& nif(network_interface_t _nif) { return wifi; }
-#define Wiring_Network 1
 #endif
 
 #ifdef configWIRING_CELLULAR_ENABLE
@@ -52,7 +51,6 @@ inline NetworkInterface& nif(network_interface_t _nif) { return wifi; }
 CellularNetworkInterface cellular;
 ManagedNetworkInterface& network = cellular;
 inline NetworkInterface& nif(network_interface_t _nif) { return cellular; }
-#define Wiring_Network 1
 #endif
 
 

@@ -25,6 +25,13 @@
 #define SYSTEM_NETWORK_H
 
 #include "intorobot_config.h"
+
+#ifdef configNO_NETWORK
+#define NEWORK_FN(x,y) (y)
+#else
+#define NEWORK_FN(x,y) (x)
+#endif
+
 #ifndef configNO_NETWORK
 
 #include "inet_hal.h"
@@ -84,6 +91,7 @@ int network_set_credentials(network_handle_t network, uint32_t flags, NetworkCre
 bool network_clear_credentials(network_handle_t network, uint32_t flags, NetworkCredentials* creds, void* reserved);
 
 void network_setup(network_handle_t network, uint32_t flags, void* reserved);
+void manage_ip_config();
 
 /**
  * Disable automatic listening mode when no credentials are configured.

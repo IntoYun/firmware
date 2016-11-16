@@ -33,19 +33,19 @@ extern "C" {
 #endif
 
 typedef enum eSystemHealth_ {
-  FIRST_RETRY = 1,
-  SECOND_RETRY = 2,
-  THIRD_RETRY = 3,
-  ENTERED_Config,
-  ENTERED_Main,
-  ENTERED_WLAN_Loop,
-  ENTERED_Setup,
-  ENTERED_Loop,
-  RAN_Loop,
-  PRESERVE_APP,
-  ENTER_DFU_APP_REQUEST=0xEDFA,
-  ENTER_SAFE_MODE_APP_REQUEST=0x5AFE,
-  CLEARED_WATCHDOG=0xFFFF
+    FIRST_RETRY = 1,
+    SECOND_RETRY = 2,
+    THIRD_RETRY = 3,
+    ENTERED_Config,
+    ENTERED_Main,
+    ENTERED_WLAN_Loop,
+    ENTERED_Setup,
+    ENTERED_Loop,
+    RAN_Loop,
+    PRESERVE_APP,
+    ENTER_DFU_APP_REQUEST=0xEDFA,
+    ENTER_SAFE_MODE_APP_REQUEST=0x5AFE,
+    CLEARED_WATCHDOG=0xFFFF
 } eSystemHealth;
 
 #if PLATFORM_ID!=2

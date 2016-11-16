@@ -25,7 +25,7 @@ at_mode = 0 : 设备没有 access_token
                                                        V
                                                  +-----+--------------+
                                                  |                    |
-                                                 | 核心板进入配置模式 | manage_imlink_config();
+                                                 | 核心板进入配置模式 | manage_setup_config();
                                                  |                    |
                                                  |   cRED             |
                                                  +-----+--------------+

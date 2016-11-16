@@ -23,7 +23,7 @@
 
 #include "cellular_internal.h"
 
-namespace spark {
+namespace intorobot {
 
     CellularSignal CellularClass::RSSI() {
         CellularSignal sig;

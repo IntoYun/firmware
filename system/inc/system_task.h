@@ -24,8 +24,8 @@
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPARK_WLAN_H
-#define __SPARK_WLAN_H
+#ifndef SYSTEM_TASK_H_
+#define SYSTEM_TASK_H_
 
 #include "socket_hal.h"
 #include "system_cloud.h"
@@ -74,9 +74,10 @@ unsigned backoff_period(unsigned connection_attempts);
  */
 void* system_internal(int item, void* reserved);
 
+void manage_setup_config();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /*__SPARK_WLAN_H*/
+#endif  /*SYSTEM_TASK_H_*/

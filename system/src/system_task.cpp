@@ -94,9 +94,18 @@ inline uint8_t in_cloud_backoff_period()
     return (HAL_Timer_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
 }
 
+/**
+ * Use usb serial ymodem flasher to update firmware.
+ */
+void manage_serial_flasher()
+{
+
+}
+
+#ifndef configNO_NETWORK
+
 void Network_Setup(void)
 {
-#if !PARTICLE_NO_NETWORK
     network.setup();
 
     // don't automatically connect when threaded since we want the thread to start asap
@@ -111,24 +120,9 @@ void Network_Setup(void)
         system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
     network_connection_attempt_init();
-#endif
 
-#if !SPARK_NO_CLOUD
-    intorobot_cloud_init();
-#endif
+    CLOUD_FN(intorobot_cloud_init(), (void)0);
 }
-
-/**
- * Use usb serial ymodem flasher to update firmware.
- */
-void manage_serial_flasher()
-{
-
-}
-
-/**
- * Reset or initialize the network connection as required.
- */
 
 void manage_network_connection()
 {
@@ -137,25 +131,26 @@ void manage_network_connection()
 
     bool was_connected = network.connected();
 
-    //DEBUG_D("network: checking\r\n");
     if (network.status()) {
-        //DEBUG_D("network connected\r\n");
         if(!was_connected) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }
     }
     else
     {
-        //DEBUG_D("network connection failed\r\n");
         if(was_connected) {
+#ifndef configNO_CLOUD
             g_intorobot_cloud_connected = 0;
+#endif
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }
     }
     network_connection_attempted();
 }
 
-#ifndef SPARK_NO_CLOUD
+#endif
+
+#ifndef configNO_CLOUD
 /**
  * Establishes a socket connection to the cloud if not already present.
  * - attempts to open a socket to the cloud
@@ -223,32 +218,51 @@ void manage_cloud_connection(void)
 }
 #endif
 
-// These are internal methods
-void manage_imlink_config(void)
-{
 #ifdef configSETUP_ENABLE
+// These are internal methods
+void manage_setup_config(void)
+{
     if(HAL_PARAMS_Get_System_config_flag())
     {
         DEBUG_D(("enter device config\r\n"));
         system_rgb_blink(RGB_COLOR_RED, 1000);
+#ifdef configSETUP_OVER_USBSERIAL_ENABLE
         DeviceConfigUsb.init();
+#endif
+#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
         DeviceConfigUsart.init();
+#endif
+#ifdef configSETUP_OVER_UDP_ENABLE
         DeviceConfigUdp.init();
-
+#endif
         while(1)
         {
-            if( DeviceConfigUsb.process() || DeviceConfigUdp.process() || DeviceConfigUsart.process() )
+#ifdef configSETUP_OVER_USBSERIAL_ENABLE
+            if( DeviceConfigUsb.process() )
             {
-                DEBUG_D(("exit  device config\r\n"));
-                HAL_PARAMS_Set_System_config_flag(0);
-                HAL_PARAMS_Save_Params();
                 break;
             }
+#endif
+#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
+            if( DeviceConfigUsart.process() )
+            {
+                break;
+            }
+#endif
+#ifdef configSETUP_OVER_UDP_ENABLE
+            if( DeviceConfigUdp.process() )
+            {
+                break;
+            }
+#endif
+            DEBUG_D(("exit  device config\r\n"));
+            HAL_PARAMS_Set_System_config_flag(0);
+            HAL_PARAMS_Save_Params();
             HAL_Core_System_Yield();
         }
     }
-#endif
 }
+#endif
 
 void system_process_loop(void)
 {
@@ -256,8 +270,8 @@ void system_process_loop(void)
     while (1) {
 #endif
         manage_serial_flasher();
-        manage_network_connection();
-        manage_ip_config();
+        NEWORK_FN(manage_network_connection(), (void)0);
+        NEWORK_FN(manage_ip_config(), (void)0);
         CLOUD_FN(manage_cloud_connection(), (void)0);
 #if PLATFORM_THREADING
     }

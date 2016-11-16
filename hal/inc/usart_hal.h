@@ -46,10 +46,10 @@ nty of
 
 /* Exported types ------------------------------------------------------------*/
 typedef enum HAL_USART_Serial {
-  HAL_USART_SERIAL1 = 0,    //maps to USART_TX_RX
-  HAL_USART_SERIAL2 = 1,
-  HAL_USART_SERIAL3 = 2,
-  HAL_USART_SERIAL4 = 3
+    HAL_USART_SERIAL1 = 0,    //maps to USART_TX_RX
+    HAL_USART_SERIAL2 = 1,
+    HAL_USART_SERIAL3 = 2,
+    HAL_USART_SERIAL4 = 3
 } HAL_USART_Serial;
 
 /* Exported constants --------------------------------------------------------*/

@@ -38,10 +38,9 @@ enum eWanTimings
 };
 
 extern volatile uint8_t INTOROBOT_WLAN_STARTED;
+extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
 
 extern volatile uint8_t SPARK_LED_FADE;
-void manage_imlink_config();
-void manage_ip_config();
 
 extern uint32_t wlan_watchdog_duration;
 extern uint32_t wlan_watchdog_base;
@@ -73,7 +72,6 @@ inline void CLR_WLAN_WD() {
  */
 struct NetworkInterface
 {
-
     virtual network_interface_t network_interface()=0;
     virtual void setup()=0;
 
@@ -161,7 +159,7 @@ public:
             WLAN_CONNECTING = 0;
             WLAN_CONNECTED = 0;
             WLAN_DHCP = 0;
-            intorobot_cloud_disconnect();
+            CLOUD_FN(intorobot_cloud_disconnect(), (void)0);
             disconnect_now();
             config_clear();
         }
@@ -214,11 +212,11 @@ public:
             off_now();
 
             INTOROBOT_WLAN_SLEEP = 1;
-#if !SPARK_NO_CLOUD
+
             if (disconnect_cloud) {
-                intorobot_cloud_flag_disconnect();
+                CLOUD_FN(intorobot_cloud_flag_disconnect(), (void)0);
             }
-#endif
+
             INTOROBOT_WLAN_STARTED = 0;
             WLAN_DHCP = 0;
             WLAN_CONNECTED = 0;

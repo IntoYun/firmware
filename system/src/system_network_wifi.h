@@ -20,6 +20,8 @@
 #ifndef SYSTEM_NETWORK_WIFI_H
 #define	SYSTEM_NETWORK_WIFI_H
 
+#include "intorobot_config.h"
+#ifdef configWIRING_WIFI_ENABLE
 
 #include "system_network_internal.h"
 #include "wlan_hal.h"
@@ -82,5 +84,7 @@ public:
         wlan_set_error_count(count);
     }
 };
+
+#endif
 
 #endif

@@ -25,9 +25,10 @@
 #ifndef SYSTEM_CONFIG_H_
 #define SYSTEM_CONFIG_H_
 
+#include "intorobot_config.h"
+
 #ifdef configSETUP_ENABLE
 
-#include "wiring_platform.h"
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
 #include "wiring_tcpclient.h"
@@ -86,6 +87,7 @@ public:
     void clearSecurityInfo(void);
     void testDevice(aJsonObject* value_Object);
 };
+#ifdef configSETUP_OVER_USBSERIAL_ENABLE
 
 class UsbDeviceConfig : public DeviceConfig
 {
@@ -103,6 +105,11 @@ public:
     virtual void sendComfirm(int status);
 };
 
+extern UsbDeviceConfig DeviceConfigUsb;
+#endif
+
+#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
+
 class UsartDeviceConfig: public DeviceConfig
 {
 public:
@@ -118,6 +125,11 @@ public:
     virtual void close(void);
     virtual void sendComfirm(int status);
 };
+
+extern UsartDeviceConfig DeviceConfigUsart;
+#endif
+
+#ifdef configSETUP_OVER_TCP_ENABLE
 
 class TcpDeviceConfig : public DeviceConfig
 {
@@ -135,6 +147,11 @@ public:
     virtual void sendComfirm(int status);
 };
 
+extern TcpDeviceConfig DeviceConfigTcp;
+#endif
+
+#ifdef configSETUP_OVER_UDP_ENABLE
+
 class UdpDeviceConfig : public DeviceConfig
 {
 public:
@@ -150,10 +167,8 @@ public:
     virtual void sendComfirm(int status);
 };
 
-extern UsbDeviceConfig DeviceConfigUsb;
-extern UsartDeviceConfig DeviceConfigUsart;
-extern TcpDeviceConfig DeviceConfigTcp;
 extern UdpDeviceConfig DeviceConfigUdp;
+#endif
 
 #endif
 

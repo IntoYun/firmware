@@ -20,6 +20,7 @@
 #ifndef SYSTEM_SETUP_H_
 #define SYSTEM_SETUP_H_
 
+#if 0
 #include <string.h>
 #include "intorobot_config.h"
 #include "wiring_usbserial.h"
@@ -128,5 +129,6 @@ public:
     virtual void handle(char c) override;
 };
 
+#endif
 #endif
 #endif

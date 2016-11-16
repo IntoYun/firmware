@@ -17,6 +17,9 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+#ifndef configNO_CLOUD
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -35,8 +38,6 @@
 #include "ota_flash_hal.h"
 #include "core_hal.h"
 #include "ajson.h"
-
-#ifndef INTOROBOT_NO_CLOUD
 
 volatile uint8_t g_intorobot_network_connected = 0;    //网络连接状态 1连接 0断开
 volatile uint8_t g_intorobot_cloud_connected = 0;      //平台连接状态 1连接上了
