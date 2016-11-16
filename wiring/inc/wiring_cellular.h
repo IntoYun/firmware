@@ -18,18 +18,18 @@
  */
 
 #ifndef WIRING_CELLULAR_H_
-#define	WIRING_CELLULAR_H_
+#define WIRING_CELLULAR_H_
 
-#include "wiring_platform.h"
+#include "intorobot_config.h"
+
+#ifdef configWIRING_CELLULAR_ENABLE
+
 #include "wiring_network.h"
 #include "system_network.h"
-
-#if Wiring_Cellular
-
 #include "cellular_hal.h"
 #include "wiring_cellular_printable.h"
 
-namespace spark {
+namespace intorobot {
 
 class CellularClass : public NetworkClass
 {
@@ -121,8 +121,8 @@ public:
 
 extern CellularClass Cellular;
 
-}   // namespace Spark
+}   // namespace intorobot
 
 #endif  // Wiring_Cellular
-#endif	/* SPARK_WIRING_CELLULAR_H */
+#endif	/* WIRING_CELLULAR_H_ */
 

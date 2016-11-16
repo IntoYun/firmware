@@ -21,8 +21,8 @@
 #define SYSTEM_SETUP_H_
 
 #include <string.h>
+#include "intorobot_config.h"
 #include "wiring_usbserial.h"
-#include "wiring_platform.h"
 
 #if PLATFORM_ID>2
 #define SETUP_OVER_SERIAL1 1
@@ -48,7 +48,7 @@ struct SystemSetupConsoleConfig
 };
 
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 struct WiFiSetupConsoleConfig : SystemSetupConsoleConfig
 {
     ConnectCallback connect_callback;
@@ -85,7 +85,7 @@ private:
 
 };
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 class WiFiSetupConsole : public SystemSetupConsole<WiFiSetupConsoleConfig>
 {
     using super = SystemSetupConsole<WiFiSetupConsoleConfig>;
@@ -110,7 +110,7 @@ private:
 };
 #endif
 
-#if Wiring_Cellular
+#ifdef configWIRING_CELLULAR_ENABLE
 class CellularSetupConsoleConfig : SystemSetupConsoleConfig
 {
 

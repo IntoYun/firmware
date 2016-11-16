@@ -21,7 +21,6 @@
 #define WIRING_I2S_H_
 
 #include "wiring.h"
-#include "wiring_platform.h"
 #include "i2s_hal.h"
 
 class I2SClass {

@@ -17,6 +17,10 @@
  ******************************************************************************
  */
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring_tcpclient.h"
 #include "wiring_network.h"
 #include "system_task.h"
@@ -219,3 +223,5 @@ IPAddress TCPClient::remoteIP()
 {
     return _remoteIP;
 }
+
+#endif

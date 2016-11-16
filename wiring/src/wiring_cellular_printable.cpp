@@ -21,7 +21,7 @@
 #include "wiring_print.h"
 #include "string.h"
 
-#if Wiring_Cellular
+#ifdef configWIRING_CELLULAR_ENABLE
 
 size_t CellularSignal::printTo(Print& p) const
 {

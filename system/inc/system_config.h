@@ -25,6 +25,9 @@
 #ifndef SYSTEM_CONFIG_H_
 #define SYSTEM_CONFIG_H_
 
+#ifdef configSETUP_ENABLE
+
+#include "wiring_platform.h"
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
 #include "wiring_tcpclient.h"
@@ -152,6 +155,7 @@ extern UsartDeviceConfig DeviceConfigUsart;
 extern TcpDeviceConfig DeviceConfigTcp;
 extern UdpDeviceConfig DeviceConfigUdp;
 
+#endif
 
 #endif /*SYSTEM_CONFIG_H_*/
 

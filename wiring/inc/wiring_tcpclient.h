@@ -20,6 +20,11 @@
 #ifndef __WIRING_TCPCLIENT_H
 #define __WIRING_TCPCLIENT_H
 
+
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "system_network.h"
 #include "wiring_client.h"
 #include "wiring_ipaddress.h"
@@ -68,5 +73,7 @@ class TCPClient : public Client {
         IPAddress _remoteIP;
         inline int bufferCount();
 };
+
+#endif
 
 #endif //__WIRING_TCPCLIENT_H

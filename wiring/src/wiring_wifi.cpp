@@ -24,7 +24,7 @@
 #include "system_tick_hal.h"
 #include <string.h>
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 
 namespace intorobot {
 

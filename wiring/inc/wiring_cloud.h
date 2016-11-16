@@ -20,6 +20,9 @@
 #ifndef WIRING_CLOUD_H_
 #define WIRING_CLOUD_H_
 
+#include "intorobot_config.h"
+#ifndef configNO_CLOUD
+
 #include <stdio.h>
 #include "wiring_string.h"
 //#include "events.h"
@@ -186,5 +189,7 @@ class CloudClass: public Print{
 };
 
 extern CloudClass IntoRobot;
+
+#endif
 
 #endif

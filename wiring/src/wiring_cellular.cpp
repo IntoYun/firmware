@@ -19,7 +19,7 @@
 
 #include "wiring_cellular.h"
 
-#if Wiring_Cellular
+#ifdef configWIRING_CELLULAR_ENABLE
 
 #include "cellular_internal.h"
 

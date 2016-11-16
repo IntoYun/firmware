@@ -20,7 +20,6 @@
 #include "system_user.h"
 #include <stddef.h>
 #include <string.h>
-#include "wiring_platform.h"
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
 #include "wiring_watchdog.h"
@@ -55,30 +54,35 @@ void loop() {
  * overhead when serial events are not required.
  */
 void serialEventRun() __attribute__((weak));
-
 void serialEvent() __attribute__((weak));
-void serialEvent1() __attribute__((weak));
 
 #if PLATFORM_ID==2
 // gcc doesn't allow weak functions to not exist, so they must be defined.
 __attribute__((weak)) void serialEvent() {}
-__attribute__((weak)) void serialEvent1() {}
 #endif
 
-#if Wiring_Serial2
+#ifdef configWIRING_USARTSERIAL1_ENABLE
+void serialEvent1() __attribute__((weak));
+#endif
+
+#ifdef configWIRING_USARTSERIAL2_ENABLE
 void serialEvent2() __attribute__((weak));
 #endif
 
-#if Wiring_Serial3
+#ifdef configWIRING_USARTSERIAL3_ENABLE
 void serialEvent3() __attribute__((weak));
 #endif
 
-#if Wiring_Serial4
+#ifdef configWIRING_USARTSERIAL4_ENABLE
 void serialEvent4() __attribute__((weak));
 #endif
 
-#if Wiring_Serial5
+#ifdef configWIRING_USARTSERIAL5_ENABLE
 void serialEvent5() __attribute__((weak));
+#endif
+
+#ifdef configWIRING_USBSERIAL_ENABLE
+void usbSerialEvent() __attribute__((weak));
 #endif
 
 void _post_loop()
@@ -95,28 +99,30 @@ void serialEventRun()
     if (serialEvent && Serial.available()>0)
         serialEvent();
 
-    //if (serialEvent1 && Serial1.available()>0)
-    //    serialEvent1();
+#ifdef configWIRING_USARTSERIAL1_ENABLE
+    if (serialEvent1 && Serial1.available()>0)
+        serialEvent1();
+#endif
 
-#if Wiring_Serial2
+#ifdef configWIRING_USARTSERIAL2_ENABLE
     if (serialEventRun2) serialEventRun2();
 #endif
 
-#if Wiring_Serial3
+#ifdef configWIRING_USARTSERIAL3_ENABLE
     if (serialEventRun3) serialEventRun3();
 #endif
 
-#if Wiring_Serial4
+#ifdef configWIRING_USARTSERIAL4_ENABLE
     if (serialEventRun4) serialEventRun4();
 #endif
 
-#if Wiring_Serial5
+#ifdef configWIRING_USARTSERIAL5_ENABLE
     if (serialEventRun5) serialEventRun5();
 #endif
 
-#if Wiring_USBSerial1
-    if (usbSerialEvent1 && USBSerial1.available()>0)
-        usbSerialEvent1();
+#ifdef configWIRING_USBSERIAL_ENABLE
+    if (usbSerialEvent && SerialUSB.available()>0)
+        usbSerialEvent();
 #endif
 }
 

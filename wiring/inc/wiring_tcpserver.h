@@ -20,6 +20,10 @@
 #ifndef WIRING_TCPSERVER_H_
 #define WIRING_TCPSERVER_H_
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring.h"
 #include "system_network.h"
 
@@ -43,5 +47,7 @@ class TCPServer : public Print {
         void stop();
         using Print::write;
 };
+
+#endif
 
 #endif

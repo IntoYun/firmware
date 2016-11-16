@@ -20,7 +20,7 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
-#if Wiring_WiFi == 1
+#ifdef configWIRING_WIFI_ENABLE
 
 test(wifi_resolve_3_levels)
 {

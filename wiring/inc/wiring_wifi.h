@@ -20,9 +20,9 @@
 #ifndef WIRING_WIFI_H_
 #define WIRING_WIFI_H_
 
-#include "wiring_platform.h"
+#include "intorobot_config.h"
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 
 #include "wiring_network.h"
 #include "wlan_hal.h"

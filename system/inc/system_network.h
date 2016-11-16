@@ -24,21 +24,15 @@
 #ifndef SYSTEM_NETWORK_H
 #define SYSTEM_NETWORK_H
 
+#include "intorobot_config.h"
+#ifndef configNO_NETWORK
+
 #include "inet_hal.h"
 #include "wlan_hal.h"
 #include "intorobot_macros.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef PARTICLE_NO_NETWORK
-#define PARTICLE_NO_NETWORK 0
-#endif
-
-#if PARTICLE_NO_NETWORK
-#undef SPARK_NO_CLOUD
-#define SPARK_NO_CLOUD 1
 #endif
 
 /**
@@ -101,6 +95,7 @@ const int WIFI_CONNECT_SKIP_LISTEN = 1;
 }
 #endif
 
+#endif
 
 #endif	/* SYSTEM_NETWORK_H */
 

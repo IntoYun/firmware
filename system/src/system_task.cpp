@@ -16,7 +16,8 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#include "wiring_platform.h"
+
+#include "intorobot_config.h"
 //#include "wiring_system.h"
 #include "system_task.h"
 #include "system_cloud.h"
@@ -225,6 +226,7 @@ void manage_cloud_connection(void)
 // These are internal methods
 void manage_imlink_config(void)
 {
+#ifdef configSETUP_ENABLE
     if(HAL_PARAMS_Get_System_config_flag())
     {
         DEBUG_D(("enter device config\r\n"));
@@ -245,6 +247,7 @@ void manage_imlink_config(void)
             HAL_Core_System_Yield();
         }
     }
+#endif
 }
 
 void system_process_loop(void)

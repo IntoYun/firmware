@@ -23,7 +23,7 @@
 
 #include "testapi.h"
 
-#if Wiring_WiFi == 1
+#ifdef configWIRING_WIFI_ENABLE
 
 test(api_wifi_config)
 {

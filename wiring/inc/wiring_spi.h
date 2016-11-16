@@ -21,7 +21,6 @@
 #define WIRING_SPI_H_
 
 #include "wiring.h"
-#include "wiring_platform.h"
 #include "spi_hal.h"
 
 typedef void (*wiring_spi_dma_transfercomplete_callback_t)(void);
@@ -103,11 +102,11 @@ public:
   bool isEnabled(void);
 };
 
-#ifndef INTOROBOT_WIRING_NO_SPI
+#ifdef configWIRING_SPI_ENABLE
 
 extern SPIClass SPI;
 
-#if Wiring_SPI1
+#ifdef configWIRING_SPI1_ENABLE
 #ifdef SPI1
 #undef SPI1
 #endif  // SPI1
@@ -116,6 +115,6 @@ extern SPIClass SPI_1;
 
 #endif  // Wiring_SPI1
 
-#endif  // INTOROBOT_WIRING_NO_SPI
+#endif  // configWIRING_SPI_ENABLE
 
 #endif

@@ -20,6 +20,9 @@
 #ifndef SYSTEM_NETWORK_INTERNAL_H
 #define SYSTEM_NETWORK_INTERNAL_H
 
+#include "intorobot_config.h"
+#ifndef configNO_NETWORK
+
 #include "system_setup.h"
 #include "wiring_ticks.h"
 #include "system_event.h"
@@ -273,5 +276,6 @@ class ManagedIPNetworkInterface : public ManagedNetworkInterface
 
 };
 
-#endif/* SYSTEM_NETWORK_INTERNAL_H */
+#endif
 
+#endif/* SYSTEM_NETWORK_INTERNAL_H */

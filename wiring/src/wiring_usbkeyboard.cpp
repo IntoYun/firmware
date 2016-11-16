@@ -17,8 +17,9 @@
   ******************************************************************************
 */
 
-#ifdef INTOROBOT_USB_KEYBOARD
 #include "wiring_usbkeyboard.h"
+
+#ifdef configWIRING_USBKEYBOARD_ENABLE
 
 #define SHIFT 0x80
 

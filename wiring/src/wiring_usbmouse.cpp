@@ -17,8 +17,9 @@
   ******************************************************************************
 */
 
-#ifdef INTOROBOT_USB_MOUSE
 #include "wiring_usbmouse.h"
+
+#ifdef configWIRING_USBMOUSE_ENABLE
 
 //
 // Constructor

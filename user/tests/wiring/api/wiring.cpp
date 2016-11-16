@@ -159,31 +159,36 @@ test(api_wiring_globals)
 {
 	void* ptrs[] = {
 			&SPI,
-#if Wiring_SPI1
+#ifdef configWIRING_SPI1_ENABLE
 			&SPI1,
 #endif
-#if Wiring_SPI2
+#ifdef configWIRING_SPI2_ENABLE
 			&SPI2,
 #endif
 			&Serial,
 			&Wire,
-#if Wiring_Wire1
+#ifdef configWIRING_WIRE1_ENABLE
 			&Wire1,
 #endif
-#if Wiring_Wire3
+#ifdef configWIRING_WIRE2_ENABLE
+			&Wire2,
+#endif
+#ifdef configWIRING_WIRE3_ENABLE
 			&Wire3,
 #endif
+#ifdef configWIRING_USARTSERIAL1_ENABLE
 			&Serial1,
-#if Wiring_Serial2
+#endif
+#ifdef configWIRING_USARTSERIAL2_ENABLE
 			&Serial2,
 #endif
-#if Wiring_Serial3
+#ifdef configWIRING_USARTSERIAL3_ENABLE
 			&Serial3,
 #endif
-#if Wiring_Serial4
+#ifdef configWIRING_USARTSERIAL4_ENABLE
 			&Serial4,
 #endif
-#if Wiring_Serial5
+#ifdef configWIRING_USARTSERIAL_ENABLE
 			&Serial5,
 #endif
 			&EEPROM,

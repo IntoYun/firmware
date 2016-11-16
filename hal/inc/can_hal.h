@@ -30,6 +30,9 @@
 #if PLATFORM_ID == 0 //atom
  #define TOTAL_CAN   1
  #define HAL_HAS_CAN_D1_D2
+#elif PLATFORM_ID == 50000 //anytest
+ #define TOTAL_CAN   1
+ #define HAL_HAS_CAN_D1_D2
 #else
  #define TOTAL_CAN   0
 #endif

@@ -152,3 +152,4 @@ public:
     void set_error_count(unsigned count) override { /* n/a */ }
 };
 
+#endif

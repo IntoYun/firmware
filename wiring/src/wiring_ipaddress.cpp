@@ -49,7 +49,7 @@ IPAddress::IPAddress(const uint8_t* address)
 
 IPAddress::operator bool()
 {
-#if Wiring_IPv6
+#ifdef configWIRING_IPV6_ENABLE
 #error handle me!
 #else
     return address.ipv4!=0;
