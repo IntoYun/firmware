@@ -47,7 +47,6 @@ void USB_USART_Initial(uint32_t baudRate)
     {
         if (!baudRate && LineCoding.bitrate > 0)
         {
-            USB_Cable_Config(DISABLE);
             USBD_Stop(&USBD_Device);
             USBD_DeInit(&USBD_Device);
         }
@@ -61,10 +60,6 @@ void USB_USART_Initial(uint32_t baudRate)
             USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
             /* Start Device Process */
             USBD_Start(&USBD_Device);
-
-            USB_Cable_Config(DISABLE);
-            delay(100);
-            USB_Cable_Config(ENABLE);
         }
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;

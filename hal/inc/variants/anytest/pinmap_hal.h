@@ -65,9 +65,10 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS        48
-#define TOTAL_ANALOG_PINS 16
-#define FIRST_ANALOG_PIN  30
+#define TOTAL_PINS             46
+#define TOTAL_ANALOG_PINS      16
+#define TOTAL_DIGITAL_PINS     16
+#define FIRST_ANALOG_PIN       30
 
 #define D0  0
 #define D1  1
@@ -95,6 +96,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define D23 23
 #define D24 24
 
+
 #define A0  30
 #define A1  31
 #define A2  32
@@ -113,40 +115,39 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A15 45
 
 //uart pin
-#define TX  A3
-#define RX  A2
+#define TX  A7
+#define RX  A8
 
 //uart1 pin
-#define TX1 D1
-#define RX1 D0
+#define TX1 D23
+#define RX1 D22
+
+//uart2 pin
+#define TX2 D13
+#define RX2 D12
 
 // SPI pins
-#define SS    A4
-#define SCK   A5
-#define MISO  A6
-#define MOSI  A7
+#define SS    A9
+#define SCK   A10
+#define MISO  A11
+#define MOSI  A12
 
-#define SS1   D2
-#define SCK1  D3
-#define MISO1 D4
-#define MOSI1 D5
+#define SS1   D21
+#define SCK1  D20
+#define MISO1 D19
+#define MOSI1 D18
 
 // I2C pins
-#define SDA  D8
-#define SCL  D9
+#define SDA  D2
+#define SCL  D3
 
 // I2C1 pins
-#define SDA1  D0
-#define SCL1  D1
+#define SDA1  D22
+#define SCL1  D23
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-
-//bridge uart pin
-#define BRIDGE_TX  47
-#define BRIDGE_RX  46
-
 #define LED_USER  D7
 
 #define TOTAL_USARTS    3
