@@ -33,7 +33,7 @@ UPLOAD_SPEED ?= 921600
 FLASH_MODE ?= qio
 FLASH_SPEED ?= 40m
 
-else # for nut and neutron-net
+else # for nut and neutron-net w67
 
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-

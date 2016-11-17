@@ -78,6 +78,22 @@
 #define Wiring_Serial3 1
 #endif
 
+#if PLATFORM_ID==8      // w67
+#define Wiring_WiFi 1
+#define Wiring_IPv6 1
+#define Wiring_SPI1 1
+#define Wiring_Serial2 1
+#endif
+
+#if PLATFORM_ID==9     // w323
+#define Wiring_WiFi 1
+#define Wiring_IPv6 1
+#define Wiring_SPI1 1
+#define Wiring_Serial2 1
+#define Wiring_Serial3 1
+#endif
+
+
 #ifndef Wiring_SPI1
 #define Wiring_SPI1 0
 #endif

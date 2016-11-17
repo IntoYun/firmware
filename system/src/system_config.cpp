@@ -29,6 +29,7 @@
 #include "wlan_hal.h"
 #include "wiring_wifi.h"
 #include "string_convert.h"
+#include "system_mode.h"
 
 using namespace intorobot;
 
