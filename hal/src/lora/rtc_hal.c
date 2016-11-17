@@ -1001,7 +1001,6 @@ static RtcCalendar_t RtcGetCalendar( void )
 }
 
 
-//static uint8_t flag = 0;
 /*!
  * \brief RTC IRQ Handler of the RTC Alarm
  */
@@ -1013,17 +1012,5 @@ void RTC_Alarm_IRQ( void )
     RtcComputeWakeUpTime( );
     BlockLowPowerDuringTask( false );
 
-//    HAL_Pin_Mode(D7,OUTPUT);
-//    if(flag == 0)
-//   {
-//       HAL_GPIO_Write(D7,1);
-//       flag = 1;
-//   }
-//    else
-//        {
-//            HAL_GPIO_Write(D7,0);
-//            flag = 0;
-//
-//        }
     /* TimerIrqHandler( ); */
 }

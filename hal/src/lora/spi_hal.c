@@ -118,7 +118,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     /* SPI SCK GPIO pin configuration  */
     GPIO_InitStruct.Pin       = spiMap[spi]->SPI_SCK_Pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;//GPIO_PULLUP;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = spiMap[spi]->SPI_AF_Mapping;
 
@@ -337,7 +337,7 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
     }
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
@@ -373,7 +373,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
             break;
     }
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Data_Mode_Set = true;
     //DEBUG("Leave HAL_SPI_Set_Data_Mode...");
 }
@@ -388,7 +388,7 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
     //DEBUG("Enter HAL_SPI_Set_Clock_Divider...");
     spiMap[spi]->SpiHandle.Init.BaudRatePrescaler = rate;
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Clock_Divider_Set = true;
 
 }
@@ -401,7 +401,7 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
  */
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
-    //DEBUG("Enter HAL_SPI_Send_Receive_Data...");
+    /* DEBUG("Enter HAL_SPI_Send_Receive_Data..."); */
     if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE)
         return 0;
     uint8_t dataTrans = data;
@@ -418,7 +418,7 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
     //{}
     uint16_t rxData = rxDataTrans;
     /*DEBUG("The Output Data: %d", rxData);*/
-    //DEBUG("Leave HAL_SPI_Send_Recevice_Data...");
+    /* DEBUG("Leave HAL_SPI_Send_Recevice_Data..."); */
     return rxData;
 }
 

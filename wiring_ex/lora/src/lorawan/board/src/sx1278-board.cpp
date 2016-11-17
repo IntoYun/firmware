@@ -107,12 +107,12 @@ void SX1278IoIrqInit( DioIrqHandler **irqHandlers )
       GpioSetInterrupt( &SX1278.DIO4, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[4] );
       GpioSetInterrupt( &SX1278.DIO5, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[5] );
     */
-    attachInterrupt(DIO0, irqHandlers[0], RISING, 8, 0);
-    attachInterrupt(DIO1, irqHandlers[1], RISING, 8, 0);
-    attachInterrupt(DIO2, irqHandlers[2], RISING, 8, 0);
-    attachInterrupt(DIO3, irqHandlers[3], RISING, 8, 0);
-    attachInterrupt(DIO4, irqHandlers[4], RISING, 8, 0);
-    attachInterrupt(DIO5, irqHandlers[5], RISING, 8, 0);
+    attachInterrupt(DIO0, irqHandlers[0], RISING, 1, 0);
+    attachInterrupt(DIO1, irqHandlers[1], RISING, 1, 0);
+    attachInterrupt(DIO2, irqHandlers[2], RISING, 1, 0);
+    attachInterrupt(DIO3, irqHandlers[3], RISING, 1, 0);
+    attachInterrupt(DIO4, irqHandlers[4], RISING, 1, 0);
+    attachInterrupt(DIO5, irqHandlers[5], RISING, 1, 0);
 }
 
 void SX1278IoDeInit( void )

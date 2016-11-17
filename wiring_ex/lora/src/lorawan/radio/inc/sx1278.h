@@ -386,8 +386,12 @@ void SX1278ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  */
 void SX1278SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
+//******************************************************
 uint8_t SX1278GetVersion(void);
+
 uint32_t SX1278LoRaGetRFFrequency( void );
+
+uint32_t SX1278LoRaGetErrorRFFrequency( void );
 
 #ifdef __cplusplus
 }
