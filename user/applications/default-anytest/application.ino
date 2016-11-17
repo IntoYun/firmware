@@ -1,35 +1,20 @@
 /*
- * nut 默认程序
+ * anytest 默认程序
  */
-#include "application.h"
 
-#define SMARTLIGHT_CMD_SWITCH    "channel/smartLight_0/cmd/switch"   //开关命令
-#define SMARTLIGHT_DATA_STATUS   "channel/smartLight_0/data/status"  //开关状态
-
-#define LEDPIN    D7    //定义灯泡控制引脚
-
-void smartLightSwitchCb(uint8_t *payload, uint32_t len)
-{
-    if(payload[0] == '1')
-    {
-        digitalWrite(LEDPIN, LOW);     //nut 低电平 打开灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
-    }
-    else
-    {
-        digitalWrite(LEDPIN, HIGH);      //nut 高电平 关闭灯泡
-        IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
-    }
-}
+#define LED_PIN D7
 
 void setup()
 {
-    //初始化
-    pinMode(LEDPIN, OUTPUT);
-    //接收灯开关命令
-    IntoRobot.subscribe(SMARTLIGHT_CMD_SWITCH, NULL, smartLightSwitchCb);
+    pinMode(LED_PIN, OUTPUT);
 }
 
+// the loop function runs over and over again forever
 void loop()
 {
+    digitalWrite(LED_PIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_PIN, LOW);
+    delay(1000);
 }
+

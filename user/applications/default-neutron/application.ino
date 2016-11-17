@@ -1,7 +1,6 @@
 /*
  * nutron 默认程序
  */
-#include "application.h"
 
 #define SMARTLIGHT_CMD_SWITCH    "channel/smartLight_0/cmd/switch"   //开关命令
 #define SMARTLIGHT_DATA_STATUS   "channel/smartLight_0/data/status"  //开关状态
