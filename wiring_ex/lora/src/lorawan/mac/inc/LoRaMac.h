@@ -73,12 +73,12 @@ extern "C" {
 /*!
  * Join accept receive delay 1 in ms
  */
-#define JOIN_ACCEPT_DELAY1                          5000
+#define JOIN_ACCEPT_DELAY1                          4850//5000
 
 /*!
  * Join accept receive delay 2 in ms
  */
-#define JOIN_ACCEPT_DELAY2                          6000
+#define JOIN_ACCEPT_DELAY2                          4950//6000
 
 /*!
  * Class A&B maximum receive window delay in ms

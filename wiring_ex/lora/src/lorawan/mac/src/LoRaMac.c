@@ -217,12 +217,14 @@ const uint8_t Datarates[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  */
-const uint8_t MaxPayloadOfDatarate[] = { 59, 59, 59, 123, 250, 250, 250, 250 };
+/* const uint8_t MaxPayloadOfDatarate[] = { 59, 59, 59, 123, 250, 250, 250, 250 }; */
+const uint8_t MaxPayloadOfDatarate[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
-const uint8_t MaxPayloadOfDatarateRepeater[] = { 59, 59, 59, 123, 230, 230, 230, 230 };
+/* const uint8_t MaxPayloadOfDatarateRepeater[] = { 59, 59, 59, 123, 230, 230, 230, 230 }; */
+const uint8_t MaxPayloadOfDatarateRepeater[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
 
 /*!
  * Tx output powers table definition
@@ -863,10 +865,12 @@ static void OnRadioTxDone( void )
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
+        /* DEBUG("class type = %d",LoRaMacDeviceClass); */
     }
     else
     {
         OnRxWindow2TimerEvent( );
+        /* DEBUG("OnRxWindow2TimerEvent"); */
     }
 
     // Store last Tx channel
@@ -881,14 +885,16 @@ static void OnRadioTxDone( void )
         TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
         TimerStart( &RxWindowTimer1 );
 
-        DEBUG("turn on rx window timer1");
+        DEBUG("rxwindowtimer1 = %d",RxWindow1Delay);
+        /* DEBUG("turn on rx window timer1 = %d",RxWindowDelay); */
 
         if( LoRaMacDeviceClass != CLASS_C )
         {
             TimerSetValue( &RxWindowTimer2, RxWindow2Delay );
             TimerStart( &RxWindowTimer2 );
 
-            DEBUG("turn on rx window timer2");
+            DEBUG("rxwindowtimer2 = %d",RxWindow2Delay);
+            /* DEBUG("turn on rx window timer2"); */
         }
         if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
         {
@@ -942,6 +948,12 @@ static void PrepareRxDoneAbort( void )
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
+    DEBUG("rx done");
+    for(uint16_t i=0; i<size;i++)
+        {
+            DEBUG("dat = %d",payload[i]);
+        }
+
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
     bool skipIndication = false;
@@ -1339,7 +1351,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     TimerSetValue( &MacStateCheckTimer, 1 );
     TimerStart( &MacStateCheckTimer );
 
-    DEBUG("rx done");
+    DEBUG("exit rx done");
 }
 
 static void OnRadioTxTimeout( void )
@@ -1356,6 +1368,7 @@ static void OnRadioTxTimeout( void )
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     LoRaMacFlags.Bits.MacDone = 1;
+
 }
 
 static void OnRadioRxError( void )
@@ -1378,10 +1391,13 @@ static void OnRadioRxError( void )
         MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
         LoRaMacFlags.Bits.MacDone = 1;
     }
+
+    DEBUG("on radio rx error");
 }
 
 static void OnRadioRxTimeout( void )
 {
+    DEBUG("mode data = %x",SX1278Read(0x01));
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1400,11 +1416,12 @@ static void OnRadioRxTimeout( void )
         MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
         LoRaMacFlags.Bits.MacDone = 1;
     }
+
+    DEBUG("on radio tx timeout");
 }
 
 static void OnMacStateCheckTimerEvent( void )
 {
-    DEBUG("OnMacStateCheckTimerEvent");
     TimerStop( &MacStateCheckTimer );
     bool txTimeout = false;
 
@@ -1464,10 +1481,10 @@ static void OnMacStateCheckTimerEvent( void )
                 else
                 {
                     LoRaMacFlags.Bits.MacDone = 0;
+
                     // Sends the same frame again
                     ScheduleTx( );
 
-                    DEBUG("MacStateCheckTimerEvent schedule tx");
                 }
             }
         }
@@ -1500,10 +1517,10 @@ static void OnMacStateCheckTimerEvent( void )
                     LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
                 }
                 LoRaMacFlags.Bits.MacDone = 0;
+
                 // Sends the same frame again
                 ScheduleTx( );
 
-                DEBUG("AckTimeoutRetry == true");
             }
             else
             {
@@ -1569,11 +1586,13 @@ static void OnMacStateCheckTimerEvent( void )
         LoRaMacPrimitives->MacMcpsIndication( &McpsIndication );
         LoRaMacFlags.Bits.McpsInd = 0;
     }
+
+    DEBUG("out OnMacStateCheckTimerEvent");
 }
 
 static void OnTxDelayedTimerEvent( void )
 {
-    DEBUG("OnTxDelayedTimerEvent");
+    /* DEBUG("OnTxDelayedTimerEvent"); */
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
 
@@ -1596,7 +1615,7 @@ static void OnTxDelayedTimerEvent( void )
         DEBUG("OnTxDelayedTimerEvent scheduletx prepare frame");
     }
 
-    DEBUG("OnTxDelayedTimerEvent scheduletx");
+    /* DEBUG("OnTxDelayedTimerEvent scheduletx"); */
 
     ScheduleTx( );
 }
@@ -1606,6 +1625,8 @@ static void OnRxWindow1TimerEvent( void )
     uint16_t symbTimeout = 5; // DR_2, DR_1, DR_0
     int8_t datarate = 0;
     uint32_t bandwidth = 0; // LoRa 125 kHz
+
+    DEBUG("startup rx window 1");
 
     TimerStop( &RxWindowTimer1 );
     RxSlot = 0;
@@ -1688,6 +1709,8 @@ static void OnRxWindow2TimerEvent( void )
 {
     uint16_t symbTimeout = 5; // DR_2, DR_1, DR_0
     uint32_t bandwidth = 0; // LoRa 125 kHz
+
+    DEBUG("startup rx window 2");
 
     TimerStop( &RxWindowTimer2 );
     RxSlot = 1;
@@ -1917,9 +1940,14 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
     uint8_t downlinkDatarate = Datarates[datarate];
     RadioModems_t modem;
 
+    DEBUG("into rx window setup");
+
     if( Radio.GetStatus( ) == RF_IDLE )
     {
         Radio.SetChannel( freq );
+
+        /* DEBUG("lora freq = %d",freq); */
+        Radio.SetChannel( 434000000);//debug
 
         // Store downlink datarate
         McpsIndication.RxDatarate = ( uint8_t ) datarate;
@@ -1929,11 +1957,19 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
         {
             modem = MODEM_FSK;
             Radio.SetRxConfig( modem, 50e3, downlinkDatarate * 1e3, 0, 83.333e3, 5, 0, false, 0, true, 0, 0, false, rxContinuous );
+
+            DEBUG("lora set fsk");
         }
         else
         {
             modem = MODEM_LORA;
-            Radio.SetRxConfig( modem, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
+            /* Radio.SetRxConfig( modem, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous ); */
+            /* Radio.SetRxConfig( modem, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, false, rxContinuous ); */
+            Radio.SetRxConfig( modem, 0, 7, 1, 0, 8, 1023, false, 0, true, 0, 0, true,  0);
+            DEBUG("bandwidth = %d",bandwidth);
+            DEBUG("downlinkDatarate = %d",downlinkDatarate);
+            DEBUG("timeout = %d",timeout);
+            DEBUG("rxContinuous = %d",rxContinuous);
         }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
         modem = MODEM_LORA;
@@ -1949,6 +1985,7 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
             Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarate[datarate] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
         }
 
+
         if( rxContinuous == false )
         {
             Radio.Rx( LoRaMacParams.MaxRxWindow );
@@ -1958,6 +1995,8 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
             Radio.Rx( 0 ); // Continuous mode
         }
     }
+
+    DEBUG("exit rx windows setup");
 }
 
 static bool Rx2FreqInRange( uint32_t freq )
@@ -2677,7 +2716,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
     McpsConfirm.AckReceived = false;
     McpsConfirm.UpLinkCounter = UpLinkCounter;
 
-    DEBUG("Send scheduletx");
+    /* DEBUG("Send scheduletx"); */
 
     status = ScheduleTx( );
 
@@ -2727,6 +2766,8 @@ static LoRaMacStatus_t ScheduleTx( )
 
         return LORAMAC_STATUS_OK;
     }
+
+    /* DEBUG("out ScheduleTx"); */
 }
 
 static uint16_t RetransmissionDutyCylce( void )
@@ -3074,8 +3115,9 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
 
     Radio.SetChannel( channel.Frequency );
 
-    DEBUG("set lora freq = %d",channel.Frequency);
+    /* DEBUG("set lora freq = %d",channel.Frequency); */
 
+    Radio.SetChannel( 434000000);//debug
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     if( LoRaMacParams.ChannelsDatarate == DR_7 )
     { // High Speed FSK channel
@@ -3095,9 +3137,11 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     else
     { // Normal LoRa channel
         Radio.SetMaxPayloadLength( MODEM_LORA, LoRaMacBufferPktLen );
-        Radio.SetTxConfig( MODEM_LORA, txPower, 0, 0, datarate, 1, 8, false, true, 0, 0, false, 3e3 );
+        /* Radio.SetTxConfig( MODEM_LORA, txPower, 0, 0, datarate, 1, 8, false, true, 0, 0, false, 3e3 ); */
+        Radio.SetTxConfig( MODEM_LORA, txPower, 0, 0, 7, 1, 8, false, true, 0, 0, false, 3e3 );
         TxTimeOnAir = Radio.TimeOnAir( MODEM_LORA, LoRaMacBufferPktLen );
 
+        DEBUG("datarate = %d ",datarate);
         DEBUG("set lora normal speed channel ");
     }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
@@ -3116,6 +3160,8 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     #error "Please define a frequency band in the compiler options."
 #endif
 
+    //debug
+    DEBUG("txTimeOnAir = %d",TxTimeOnAir);
     // Store the time on air
     McpsConfirm.TxTimeOnAir = TxTimeOnAir;
     MlmeConfirm.TxTimeOnAir = TxTimeOnAir;
@@ -3124,10 +3170,19 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
     TimerStart( &MacStateCheckTimer );
 
+    /* DEBUG("SendFrameOnChannel radio send data"); */
     // Send now
     Radio.Send( LoRaMacBuffer, LoRaMacBufferPktLen );
 
+    /* DEBUG("SendFrameOnChannel radio send success"); */
+    /* for(uint32_t i=0; i< LoRaMacBufferPktLen;i++) */
+    /* { */
+    /*     DEBUG("buffer = %x",LoRaMacBuffer[i]); */
+    /* } */
+
     LoRaMacState |= MAC_TX_RUNNING;
+
+    /* DEBUG("out SendFrameOnChannel"); */
 
     return LORAMAC_STATUS_OK;
 }
@@ -3972,6 +4027,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 {
+    DEBUG("send application data");
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     LoRaMacHeader_t macHdr;
     uint8_t fPort = 0;

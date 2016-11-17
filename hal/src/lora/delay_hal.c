@@ -49,12 +49,12 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
         HAL_IWDG_Feed();
 
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
-
         if (elapsed_millis > nTime)
         {
             break;
         }
     }
+
 }
 
 /*******************************************************************************

@@ -46,7 +46,7 @@ extern "C" {
     { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH, 0x40 },\
 }                                                 \
 
-#define RF_MID_BAND_THRESH                          525000000
+#define RF_MID_BAND_THRESH                         435000000 //525000000
 
 
 /*!

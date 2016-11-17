@@ -201,7 +201,7 @@ SX1278_t SX1278;
 DioIrqHandler *DioIrq[] = { SX1278OnDio0Irq, SX1278OnDio1Irq,
                             SX1278OnDio2Irq, SX1278OnDio3Irq,
                             SX1278OnDio4Irq, SX1278OnDio5Irq
-                          };//NULL };
+                          };
 
 /*!
  * Tx and Rx timers
@@ -210,21 +210,7 @@ TimerEvent_t TxTimeoutTimer;
 TimerEvent_t RxTimeoutTimer;
 TimerEvent_t RxTimeoutSyncWord;
 
-uint8_t SX1278GetVersion(void)
-{
-    return SX1278Read( REG_LR_VERSION );
-}
 
-uint32_t SX1278LoRaGetRFFrequency( void )
-{
-    uint32_t RFFrequency;
-    uint8_t freq[3];
-    SX1278ReadBuffer( REG_LR_FRFMSB, freq, 3 );
-    RFFrequency = ( ( uint32_t )freq[0] << 16 ) | ( ( uint32_t )freq[1] << 8 ) | ( ( uint32_t )freq[2]  );
-    RFFrequency = ( uint32_t )( ( double )RFFrequency * ( double )FREQ_STEP );
-
-    return RFFrequency;
-}
 /*
  * Radio driver functions implementation
  */
@@ -872,11 +858,13 @@ void SX1278Send( uint8_t *buffer, uint8_t size )
             {
                 SX1278Write( REG_LR_INVERTIQ, ( ( SX1278Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
                 SX1278Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
+
             }
             else
             {
                 SX1278Write( REG_LR_INVERTIQ, ( ( SX1278Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
                 SX1278Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
+
             }
 
             SX1278.Settings.LoRaPacketHandler.Size = size;
@@ -897,11 +885,13 @@ void SX1278Send( uint8_t *buffer, uint8_t size )
             // Write payload buffer
             SX1278WriteFifo( buffer, size );
             txTimeout = SX1278.Settings.LoRa.TxTimeout;
+
         }
         break;
     }
 
     SX1278SetTx( txTimeout );
+
 }
 
 void SX1278SetSleep( void )
@@ -911,6 +901,8 @@ void SX1278SetSleep( void )
 
     SX1278SetOpMode( RF_OPMODE_SLEEP );
     SX1278.Settings.State = RF_IDLE;
+
+    /* DEBUG("set 1278 sleep"); */
 }
 
 void SX1278SetStby( void )
@@ -920,6 +912,8 @@ void SX1278SetStby( void )
 
     SX1278SetOpMode( RF_OPMODE_STANDBY );
     SX1278.Settings.State = RF_IDLE;
+
+    DEBUG("set 1278 stdby");
 }
 
 void SX1278SetRx( uint32_t timeout )
@@ -1044,7 +1038,7 @@ void SX1278SetRx( uint32_t timeout )
                                                   RFLR_IRQFLAGS_VALIDHEADER |
                                                   RFLR_IRQFLAGS_TXDONE |
                                                   RFLR_IRQFLAGS_CADDONE |
-                                                  RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
+                                                  // RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL |
                                                   RFLR_IRQFLAGS_CADDETECTED );
 
                 // DIO0=RxDone
@@ -1090,6 +1084,7 @@ void SX1278SetRx( uint32_t timeout )
             SX1278SetOpMode( RFLR_OPMODE_RECEIVER_SINGLE );
         }
     }
+
 }
 
 void SX1278SetTx( uint32_t timeout )
@@ -1248,6 +1243,7 @@ void SX1278SetOpMode( uint8_t opMode )
             SX1278SetAntSw( 0 );
         }
     }
+
     SX1278Write( REG_OPMODE, ( SX1278Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );
 }
 
@@ -1369,6 +1365,7 @@ void SX1278SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
         }
         break;
     case MODEM_LORA:
+        DEBUG("max payload len = %d",max);
         SX1278Write( REG_LR_PAYLOADMAXLENGTH, max );
         break;
     }
@@ -1376,6 +1373,9 @@ void SX1278SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
 
 void SX1278OnTimeoutIrq( void )
 {
+
+    DEBUG("into sx1278 on time out irq");
+
     switch( SX1278.Settings.State )
     {
     case RF_RX_RUNNING:
@@ -1404,6 +1404,10 @@ void SX1278OnTimeoutIrq( void )
                 TimerStop( &RxTimeoutSyncWord );
             }
         }
+        //debug
+        /* SX1278Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXTIMEOUT ); */
+        /* SX1278.Settings.State = RF_IDLE; */
+
         if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
         {
             RadioEvents->RxTimeout( );
@@ -1424,13 +1428,13 @@ void SX1278OnTimeoutIrq( void )
 void SX1278OnDio0Irq( void )
 {
 
-//    DEBUG("DIO0 interrupt");
+   /* DEBUG("DIO0 interrupt"); */
     volatile uint8_t irqFlags = 0;
 
     switch( SX1278.Settings.State )
     {
         case RF_RX_RUNNING:
-            //TimerStop( &RxTimeoutTimer );
+            /* TimerStop( &RxTimeoutTimer ); */
             // RxDone interrupt
             switch( SX1278.Settings.Modem )
             {
@@ -1538,6 +1542,9 @@ void SX1278OnDio0Irq( void )
                         }
                         break;
                     }
+
+                    //debug
+                    /* DEBUG("error frequency = %d",SX1278LoRaGetErrorRFFrequency()); */
 
                     SX1278.Settings.LoRaPacketHandler.SnrValue = SX1278Read( REG_LR_PKTSNRVALUE );
                     if( SX1278.Settings.LoRaPacketHandler.SnrValue & 0x80 ) // The SNR sign bit is 1
@@ -1666,6 +1673,7 @@ void SX1278OnDio1Irq( void )
                 {
                     RadioEvents->RxTimeout( );
                 }
+
                 break;
             default:
                 break;
@@ -1694,6 +1702,7 @@ void SX1278OnDio1Irq( void )
                 break;
             }
             break;
+
         default:
             break;
     }
@@ -1820,16 +1829,44 @@ void SX1278OnDio4Irq( void )
 
 void SX1278OnDio5Irq( void )
 {
-//    DEBUG("DIO5 interrupt");
+   DEBUG("DIO5 interrupt");
     switch( SX1278.Settings.Modem )
     {
     case MODEM_FSK:
-        DEBUG("dio5 mode fask");
         break;
     case MODEM_LORA:
- //       DEBUG("dio5 mode lora");
         break;
     default:
         break;
     }
 }
+
+
+// lz add
+uint8_t SX1278GetVersion(void)
+{
+    return SX1278Read( REG_LR_VERSION );
+}
+
+uint32_t SX1278LoRaGetRFFrequency( void )
+{
+    uint32_t RFFrequency;
+    uint8_t freq[3];
+    SX1278ReadBuffer( REG_LR_FRFMSB, freq, 3 );
+    RFFrequency = ( ( uint32_t )freq[0] << 16 ) | ( ( uint32_t )freq[1] << 8 ) | ( ( uint32_t )freq[2]  );
+    RFFrequency = ( uint32_t )( ( double )RFFrequency * ( double )FREQ_STEP );
+
+    return RFFrequency;
+}
+
+uint32_t SX1278LoRaGetErrorRFFrequency( void )
+{
+    uint32_t errorFreq;
+    uint8_t freq[3];
+    SX1278ReadBuffer( REG_LR_FEIMSB, freq, 3 );
+    errorFreq = ( ( uint32_t )freq[0] << 16 ) | ( ( uint32_t )freq[1] << 8 ) | ( ( uint32_t )freq[2]  );
+    /* errorFreq = ( uint32_t )( ( double )errorFreq * ( double )FREQ_STEP ); */
+
+    return errorFreq;
+}
+
