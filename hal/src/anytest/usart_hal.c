@@ -32,19 +32,20 @@
 
 #define USART_QUEUE_SIZE             256
 
-UART_HandleTypeDef UartHandle_A2A3;    // USART2 A2(PA3)-RX A3(PA2)-TX
-UART_HandleTypeDef UartHandle_D0D1;    // USART3 D0(PB11)-RX D1(PB10)-TX
-UART_HandleTypeDef UartHandle_BRIDGE;  // USART1 Bridge
 
-SDK_QUEUE Usart_Rx_Queue_A2A3;
-SDK_QUEUE Usart_Rx_Queue_D0D1;
-SDK_QUEUE Usart_Rx_Queue_BRIDGE;
+UART_HandleTypeDef UartHandle_SERIAL1;    // USART2 A8(PA3)-RX A7(PA2)-TX
+UART_HandleTypeDef UartHandle_SERIAL2;    // USART3 D22(PB11)-RX D23(PB10)-TX
+UART_HandleTypeDef UartHandle_SERIAL3;    // USART3 D12(PB11)-RX D13(PB10)-TX
+
+SDK_QUEUE Usart_Rx_Queue_SERIAL1;
+SDK_QUEUE Usart_Rx_Queue_SERIAL2;
+SDK_QUEUE Usart_Rx_Queue_SERIAL3;
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
-    USART_A2_A3 = 0,
-    USART_D0_D1 = 1,
-    USART_BRIDGE = 2
+    USART_SERIAL1 = 0,
+    USART_SERIAL2 = 1,
+    USART_SERIAL3 = 2,
 };
 
 
@@ -86,7 +87,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      */
     { USART2, USART2_IRQn, TX, RX },                      // USART 2
     { USART3, USART3_IRQn, TX1, RX1 },                    // USART 3
-    { USART1, USART1_IRQn, BRIDGE_TX, BRIDGE_RX }         // USART 1
+    { USART1, USART3_IRQn, TX2, RX2 },                    // USART 1
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -95,23 +96,23 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1)
     {
-        usartMap[serial] = &USART_MAP[USART_A2_A3];
-        usartMap[serial]->uart_handle = &UartHandle_A2A3;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
+        usartMap[serial] = &USART_MAP[USART_SERIAL1];
+        usartMap[serial]->uart_handle = &UartHandle_SERIAL1;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_SERIAL1;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     else if(serial == HAL_USART_SERIAL2)
     {
-        usartMap[serial] = &USART_MAP[USART_D0_D1];
-        usartMap[serial]->uart_handle = &UartHandle_D0D1;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_D0D1;
+        usartMap[serial] = &USART_MAP[USART_SERIAL2];
+        usartMap[serial]->uart_handle = &UartHandle_SERIAL2;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_SERIAL2;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     else
     {
-        usartMap[serial] = &USART_MAP[USART_BRIDGE];
-        usartMap[serial]->uart_handle = &UartHandle_BRIDGE;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_BRIDGE;
+        usartMap[serial] = &USART_MAP[USART_SERIAL3];
+        usartMap[serial]->uart_handle = &UartHandle_SERIAL3;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_SERIAL3;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, USART_QUEUE_SIZE);
     }
     usartMap[serial]->usart_enabled = false;

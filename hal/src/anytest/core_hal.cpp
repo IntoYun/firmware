@@ -90,10 +90,12 @@ void HAL_Core_Config(void)
 
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
-    for (pin_t pin=0; pin<=7; pin++)
-//        HAL_Pin_Mode(pin, INPUT);
-    for (pin_t pin=30; pin<=37; pin++)
-//        HAL_Pin_Mode(pin, INPUT);
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_SWJ_DISABLE();
+    for (pin_t pin=A0; pin<=A15; pin++)
+        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin=D0; pin<=D24; pin++)
+        HAL_Pin_Mode(pin, INPUT);
 #endif
 
     HAL_RTC_Initial();

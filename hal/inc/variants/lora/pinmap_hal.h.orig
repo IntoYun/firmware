@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include "intorobot_config.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -65,95 +66,68 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
+<<<<<<< HEAD
+#define TOTAL_PINS   49//36 
+#define TOTAL_ANALOG_PINS 6
+#define FIRST_ANALOG_PIN  30
+=======
 #define TOTAL_PINS             46
-#define TOTAL_ANALOG_PINS      16
-#define TOTAL_DIGITAL_PINS     16
+#define TOTAL_ANALOG_PINS      6
+#define TOTAL_DIGITAL_PINS     8
 #define FIRST_ANALOG_PIN       30
+>>>>>>> feature/anytest
 
-#define D0  0
-#define D1  1
-#define D2  2
-#define D3  3
-#define D4  4
-#define D5  5
-#define D6  6
-#define D7  7
-#define D8  8
-#define D9  9
-#define D10 10
-#define D11 11
-#define D12 12
-#define D13 13
-#define D14 14
-#define D15 15
-#define D16 16
-#define D17 17
-#define D18 18
-#define D19 19
-#define D20 20
-#define D21 21
-#define D22 22
-#define D23 23
-#define D24 24
+#define D0 0
+#define D1 1
+#define D2 2
+#define D3 3
+#define D4 4
+#define D5 5
+#define D6 6
+#define D7 7
+
+#define A0 30
+#define A1 31
+#define A2 32
+#define A3 33
+#define A4 34
+#define A5 35
+
+// lora pins
+#define RESET_EN    36
+#define NSS_SPI1    37
+#define DIO0        38
+#define DIO1        39
+#define DIO2        40
+#define DIO3        41
+#define DIO4        42
+#define DIO5        43
+#define RX_EN       44
+#define TX_EN       45
+//#define A6 36
+//#define A7 37
+
+// Uart pins
+#define TX A0
+#define RX A1
 
 
-#define A0  30
-#define A1  31
-#define A2  32
-#define A3  33
-#define A4  34
-#define A5  35
-#define A6  36
-#define A7  37
-#define A8  38
-#define A9  39
-#define A10 40
-#define A11 41
-#define A12 42
-#define A13 43
-#define A14 44
-#define A15 45
-
-//uart pin
-#define TX  A7
-#define RX  A8
-
-//uart1 pin
-#define TX1 D23
-#define RX1 D22
-
-//uart2 pin
-#define TX2 D13
-#define RX2 D12
-
-// SPI pins
-#define SS    A9
-#define SCK   A10
-#define MISO  A11
-#define MOSI  A12
-
-#define SS1   D21
-#define SCK1  D20
-#define MISO1 D19
-#define MOSI1 D18
+#define SS   D7
+#define SCK  D4
+#define MISO D5
+#define MOSI D6
 
 // I2C pins
-#define SDA  D2
-#define SCL  D3
+#define SDA  D1
+#define SCL  D0
 
-// I2C1 pins
-#define SDA1  D22
-#define SCL1  D23
 
-// The following pins are only defined for easy access during development.
-// Will be removed later as they are internal I/O and users
-// should not have too easy of access or bad code could do harm.
 #define LED_USER  D7
 
-#define TOTAL_USARTS    3
-#define TOTAL_SPIS      2
-#define TOTAL_I2CS      2
-#define TOTAL_CANS      1
+#define TOTAL_USARTS    1
+#define TOTAL_SPIS      1
+#define TOTAL_I2CS      1
+
 
 #define LSBFIRST 0
 #define MSBFIRST 1
