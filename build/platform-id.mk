@@ -52,6 +52,14 @@ ifeq ("$(PLATFORM)","fig")
 PLATFORM_ID=7
 endif
 
+ifeq ("$(PLATFORM)","w67")
+PLATFORM_ID=8
+endif
+ifeq ("$(PLATFORM)","w323")
+PLATFORM_ID=9
+endif
+
+
 ifeq ("$(PLATFORM)","newhal")
 PLATFORM_ID=60000
 endif
@@ -156,6 +164,30 @@ PLATFORM_MCU=ESP32-Arduino
 PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
 DEFAULT_PRODUCT_ID=7
 endif
+
+
+ifeq ("$(PLATFORM_ID)","8") #w67
+ARCH=xtensa
+PLATFORM=w67
+PLATFORM_DEVICE=w67
+PLATFORM_NAME=w67
+PLATFORM_MCU=ESP8266-Arduino
+PRODUCT_DESC=IntoRobot w67, ESP8266, 4MB Flash
+DEFAULT_PRODUCT_ID=8
+endif
+
+ifeq ("$(PLATFORM_ID)","9") #w323
+ARCH=xtensa
+PLATFORM=w323
+PLATFORM_DEVICE=w323
+PLATFORM_NAME=w323
+PLATFORM_MCU=ESP32-Arduino
+PRODUCT_DESC=IntoRobot w323, ESP32, 4MB Flash
+DEFAULT_PRODUCT_ID=9
+endif
+
+
+
 
 ifeq ("$(PLATFORM_ID)","60000") #newhal
 PLATFORM=newhal

@@ -1,0 +1,1 @@
+../nut/linker_nut_app.ld
