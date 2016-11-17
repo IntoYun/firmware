@@ -198,7 +198,7 @@ template<typename Config> void SystemSetupConsole<Config>::read_line(char *dst, 
         serial.read();
 }
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 
 inline bool setup_serial1() {
 	uint8_t value = 0;
@@ -360,7 +360,7 @@ void WiFiSetupConsole::exit()
 #endif
 
 
-#if Wiring_Cellular
+#ifdef configWIRING_CELLULAR_ENABLE
 
 CellularSetupConsole::CellularSetupConsole(CellularSetupConsoleConfig& config)
  : SystemSetupConsole(config)

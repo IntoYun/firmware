@@ -57,8 +57,10 @@ PLATFORM_ID=8
 endif
 ifeq ("$(PLATFORM)","w323")
 PLATFORM_ID=9
-endif
 
+ifeq ("$(PLATFORM)","anytest")
+PLATFORM_ID=50000
+endif
 
 ifeq ("$(PLATFORM)","newhal")
 PLATFORM_ID=60000
@@ -165,6 +167,7 @@ PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
 DEFAULT_PRODUCT_ID=7
 endif
 
+<<<<<<< HEAD
 
 ifeq ("$(PLATFORM_ID)","8") #w67
 ARCH=xtensa
@@ -189,6 +192,19 @@ endif
 
 
 
+=======
+ifeq ("$(PLATFORM_ID)","50000") #anytest
+PLATFORM=anytest
+PLATFORM_DEVICE=STM32F103xB
+PLATFORM_NAME=anytest
+PLATFORM_MCU=STM32F1xx
+MCU_CORE=cortex-m3
+PRODUCT_DESC=IntoRobot anytest, 128k flash, 20k sram
+PLATFORM_DFU = 0x08007000
+DEFAULT_PRODUCT_ID=0
+endif
+
+>>>>>>> feature/bugfix
 ifeq ("$(PLATFORM_ID)","60000") #newhal
 PLATFORM=newhal
 # needed for conditional compilation of some stm32 specific files

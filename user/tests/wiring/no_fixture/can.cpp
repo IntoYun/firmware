@@ -26,10 +26,10 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
-#ifdef HAL_HAS_CAN_D1_D2
+#ifdef configWIRING_CAN_ENABLE
 
-test(CAN_D1_D2_ReceivesTransmittedMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_ReceivesTransmittedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
 
     CANMessage tx;
@@ -48,8 +48,8 @@ test(CAN_D1_D2_ReceivesTransmittedMessage) {
     assertEqual(rx.data[0], 10);
 }
 
-test(CAN_D1_D2_ReceivesAcceptedMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_ReceivesAcceptedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only standard message 0x100
     can.addFilter(0x100, 0x7FF);
@@ -67,8 +67,8 @@ test(CAN_D1_D2_ReceivesAcceptedMessage) {
     assertEqual(hasMessage, true);
 }
 
-test(CAN_D1_D2_DoesntReceiveFilteredMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_DoesntReceiveFilteredMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only standard message 0x100
     can.addFilter(0x100, 0x7FF);
@@ -86,8 +86,8 @@ test(CAN_D1_D2_DoesntReceiveFilteredMessage) {
     assertEqual(hasMessage, false);
 }
 
-test(CAN_D1_D2_ReceivesTransmittedExtendedMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_ReceivesTransmittedExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
 
     CANMessage tx;
@@ -108,8 +108,8 @@ test(CAN_D1_D2_ReceivesTransmittedExtendedMessage) {
     assertEqual(rx.data[0], 10);
 }
 
-test(CAN_D1_D2_ReceivesAcceptedExtendedMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_ReceivesAcceptedExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only extended message 0x3000
     can.addFilter(0x3000, 0x7FF, CAN_FILTER_EXTENDED);
@@ -128,8 +128,8 @@ test(CAN_D1_D2_ReceivesAcceptedExtendedMessage) {
     assertEqual(hasMessage, true);
 }
 
-test(CAN_D1_D2_DoesntReceiveFilteredExtendedMessage) {
-    CANChannel can(CAN_D1_D2);
+test(CAN_INTERFACE1_DoesntReceiveFilteredExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE1);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only extended message 0x3000
     can.addFilter(0x3000, 0x7FF, CAN_FILTER_EXTENDED);
@@ -148,12 +148,12 @@ test(CAN_D1_D2_DoesntReceiveFilteredExtendedMessage) {
     assertEqual(hasMessage, false);
 }
 
-#endif // HAL_HAS_CAN_D1_D2
+#endif
 
-#ifdef HAL_HAS_CAN_C4_C5
+#ifdef configWIRING_CAN1_ENABLE
 
-test(CAN_C4_C5_ReceivesTransmittedMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_ReceivesTransmittedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
 
     CANMessage tx;
@@ -172,8 +172,8 @@ test(CAN_C4_C5_ReceivesTransmittedMessage) {
     assertEqual(rx.data[0], 10);
 }
 
-test(CAN_C4_C5_ReceivesAcceptedMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_ReceivesAcceptedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only standard message 0x100
     can.addFilter(0x100, 0x7FF);
@@ -191,8 +191,8 @@ test(CAN_C4_C5_ReceivesAcceptedMessage) {
     assertEqual(hasMessage, true);
 }
 
-test(CAN_C4_C5_DoesntReceiveFilteredMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_DoesntReceiveFilteredMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only standard message 0x100
     can.addFilter(0x100, 0x7FF);
@@ -210,8 +210,8 @@ test(CAN_C4_C5_DoesntReceiveFilteredMessage) {
     assertEqual(hasMessage, false);
 }
 
-test(CAN_C4_C5_ReceivesTransmittedExtendedMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_ReceivesTransmittedExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
 
     CANMessage tx;
@@ -232,8 +232,8 @@ test(CAN_C4_C5_ReceivesTransmittedExtendedMessage) {
     assertEqual(rx.data[0], 10);
 }
 
-test(CAN_C4_C5_ReceivesAcceptedExtendedMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_ReceivesAcceptedExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only extended message 0x3000
     can.addFilter(0x3000, 0x7FF, CAN_FILTER_EXTENDED);
@@ -252,8 +252,8 @@ test(CAN_C4_C5_ReceivesAcceptedExtendedMessage) {
     assertEqual(hasMessage, true);
 }
 
-test(CAN_C4_C5_DoesntReceiveFilteredExtendedMessage) {
-    CANChannel can(CAN_C4_C5);
+test(CAN_INTERFACE2_DoesntReceiveFilteredExtendedMessage) {
+    CANChannel can(HAL_CAN_INTERFACE2);
     can.begin(500000, CAN_TEST_MODE);
     // Accept only extended message 0x3000
     can.addFilter(0x3000, 0x7FF, CAN_FILTER_EXTENDED);
@@ -272,4 +272,4 @@ test(CAN_C4_C5_DoesntReceiveFilteredExtendedMessage) {
     assertEqual(hasMessage, false);
 }
 
-#endif // HAL_HAS_CAN_C4_C5
+#endif

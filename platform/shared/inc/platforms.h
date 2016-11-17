@@ -31,6 +31,7 @@
 #define PLATFORM_NUT                 4
 #define PLATFORM_LORA                5
 #define PLATFORM_GPRS                6
+#define PLATFORM_ANYTEST             50000
 
 
 #endif	/* PLATFORMS_H */

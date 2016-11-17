@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include "intorobot_config.h"
 
 
 #ifdef __cplusplus
@@ -100,17 +101,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 //#define A7 37
 
 // Uart pins
-//#define CTS A0
-//#define RTS A1
-
 #define TX A0
 #define RX A1
 
-// SPI pins
-// #define SS   A2
-// #define SCK  A3
-// #define MISO A4
-// #define MOSI A5
 
 #define SS   D7 
 #define SCK  D4
@@ -121,33 +114,13 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA  D1
 #define SCL  D0
 
-// The following pins are only defined for easy access during development.
-// Will be removed later as they are internal I/O and users
-// should not have too easy of access or bad code could do harm.
-//#define ESP_BOOT_UC         60
-//#define ESP_RESET_UC        61
-//#define RGBR_UC             62
-//#define RGBG_UC             63
-//#define RGBB_UC             64
-//
-//#define LIGHT_SENSOR_UC     65
-//#define SENSOR_SDA_UC       66
-//#define SENSOR_SCL_UC       67
-//
-//#define ESP8266_TXD_UC      68
-//#define ESP8266_RXD_UC      69
-
 
 #define LED_USER  D7
 
-#define TOTAL_USARTS        2
+#define TOTAL_USARTS    1
+#define TOTAL_SPIS      1
+#define TOTAL_I2CS      1
 
-
-
-
-#define TIM_PWM_FREQ 500 //500Hz
-
-#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
 
 #define LSBFIRST 0
 #define MSBFIRST 1

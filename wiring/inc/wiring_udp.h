@@ -20,6 +20,10 @@
 #ifndef WIRING_UDP_H_
 #define WIRING_UDP_H_
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring.h"
 #include "wiring_printable.h"
 #include "wiring_stream.h"
@@ -230,5 +234,7 @@ public:
 
 	using Print::write;
 };
+
+#endif
 
 #endif

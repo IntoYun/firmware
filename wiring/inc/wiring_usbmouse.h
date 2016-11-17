@@ -20,7 +20,9 @@
 #ifndef WIRING_USBMOUSE_H_
 #define WIRING_USBMOUSE_H_
 
-#ifdef INTOROBOT_USB_MOUSE
+#include "intorobot_config.h"
+
+#ifdef configWIRING_USBMOUSE_ENABLE
 #include "wiring.h"
 
 #define MOUSE_LEFT		0x01

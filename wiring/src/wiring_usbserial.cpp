@@ -19,6 +19,9 @@
 
 #include "wiring_usbserial.h"
 
+#ifdef configWIRING_USBSERIAL_ENABLE
+
+
 //
 // Constructor
 //
@@ -82,11 +85,10 @@ int USBSerial::peek()
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
-#ifdef INTOROBOT_USB_SERIAL
-USBSerial& _fetch_global_serial()
+USBSerial& _fetch_global_usbserial()
 {
-	static USBSerial _globalSerial;
-	return _globalSerial;
+	static USBSerial _globalUSBSerial;
+	return _globalUSBSerial;
 }
 
 #endif

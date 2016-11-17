@@ -21,7 +21,6 @@
 #define WIRING_I2C_H_
 
 #include "wiring_stream.h"
-#include "wiring_platform.h"
 #include "i2c_hal.h"
 
 
@@ -72,12 +71,12 @@ public:
   void reset();
 };
 
-#ifndef INTOROBOT_WIRING_NO_I2C
+#ifdef configWIRING_WIRE_ENABLE
 
 #define Wire __fetch_global_Wire()
 TwoWire& __fetch_global_Wire();
 
-#if Wiring_Wire1
+#ifdef configWIRING_WIRE1_ENABLE
 #ifdef Wire1
 #undef Wire1
 #endif  // Wire1

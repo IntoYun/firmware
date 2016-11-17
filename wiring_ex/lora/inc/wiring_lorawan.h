@@ -12,15 +12,5 @@
 #include "../src/lorawan/board/inc/utilities.h"
 
 
-
-
-
-
-
-
-
-
-
-
-#endif /* BRIDGE_H_ */
+#endif /* WIRING_LORAWAN_H_ */
 

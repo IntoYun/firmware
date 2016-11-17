@@ -105,7 +105,7 @@ bool USARTSerial::isEnabled() {
     return HAL_USART_Is_Enabled(_serial);
 }
 
-#ifndef INTOROBOT_WIRING_NO_USART_SERIAL
+#ifdef configWIRING_USARTSERIAL_ENABLE
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 USARTSerial& __fetch_global_Serial1()
@@ -114,8 +114,7 @@ USARTSerial& __fetch_global_Serial1()
     return serial1;
 }
 
-#if Wiring_Serial2
-
+#ifdef configWIRING_USARTSERIAL1_ENABLE
 USARTSerial& __fetch_global_Serial2()
 {
     static USARTSerial serial2(HAL_USART_SERIAL2);

@@ -17,6 +17,10 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring_udp.h"
 #include "inet_hal.h"
 #include "intorobot_macros.h"
@@ -289,3 +293,5 @@ int UDP::leaveMulticast(const IPAddress& ip)
     HAL_IPAddress address = ip.raw();
     return socket_leave_multicast(&address, _nif, 0);
 }
+
+#endif

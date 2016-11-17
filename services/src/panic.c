@@ -17,15 +17,15 @@
   ******************************************************************************
 */
 
-#include <stdint.h>
+#include "intorobot_config.h"
 #include "intorobot_macros.h"
+#include <stdint.h>
 #include "panic.h"
 #include "service_debug.h"
 #include "ui_hal.h"
 #include "delay_hal.h"
 #include "watchdog_hal.h"
 #include "interrupts_hal.h"
-#include "hal_platform.h"
 #include "core_hal.h"
 
 

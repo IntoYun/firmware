@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
-
+#include "intorobot_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,10 +66,10 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS 26
-#define TOTAL_ANALOG_PINS 10
-#define TOTAL_DIGITAL_PINS 11 // include KEY, TXD0, RXD0 RST, and D7 is D6
-#define FIRST_ANALOG_PIN  14
+#define TOTAL_PINS           26
+#define TOTAL_ANALOG_PINS    10
+#define TOTAL_DIGITAL_PINS   11 // include KEY, TXD0, RXD0 RST, and D7 is D6
+#define FIRST_ANALOG_PIN     14
 
 #define D0  0
 #define D1  1
@@ -107,19 +107,15 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define RGB_UC             9
-#define BUTTON_UC          10
+#define RGB_UC          9
+#define BUTTON_UC       10
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS       3
-#define TOTAL_I2CS         2
-#define TOTAL_SPIS         1
+#define TOTAL_USARTS    3
+#define TOTAL_SPIS      1
+#define TOTAL_I2CS      2
 
-
-#define TIM_PWM_FREQ 500 //500Hz
-
-#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
 
 #define LSBFIRST 0
 #define MSBFIRST 1

@@ -24,14 +24,14 @@
 
 /*
  * @brief Should take an integer 0-255 and create a PWM signal with a duty cycle from 0-100%.
- * TIM_PWM_FREQ is set at 500 Hz
+ * configTIM_PWM_FREQ is set at 500 Hz
  * @param pin: The select pin
  * @param value: The duty: 0-255
  * @retval None
  */
 void HAL_PWM_Write(uint16_t pin, uint8_t value)
 {
-    HAL_PWM_Write_With_Frequency_Ext(pin, (uint16_t)value, TIM_PWM_FREQ);
+    HAL_PWM_Write_With_Frequency_Ext(pin, (uint16_t)value, configTIM_PWM_FREQ);
 }
 
 /*
@@ -49,14 +49,14 @@ void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_freq
 /*
  * @brief Should take an integer within the limits of set resolution (8-bit or 16-bit)
  * and create a PWM signal with a duty cycle from 0-100%.
- * TIM_PWM_FREQ is set at 500 Hz
+ * configTIM_PWM_FREQ is set at 500 Hz
  * @param pin: The select pin
  * @param value: The duty: 0-255
  * @retval None
  */
 void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
 {
-    HAL_PWM_Write_With_Frequency_Ext(pin, value, TIM_PWM_FREQ);
+    HAL_PWM_Write_With_Frequency_Ext(pin, value, configTIM_PWM_FREQ);
 }
 
 /*

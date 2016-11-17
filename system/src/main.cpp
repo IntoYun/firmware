@@ -80,6 +80,7 @@ volatile uint32_t BUTTON_press_time;
 
 extern "C" void HAL_SysTick_Handler(void)
 {
+#ifndef configNO_SETUPBUTTON_UI
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
     if(BUTTON_press_time)
     {
@@ -155,6 +156,7 @@ extern "C" void HAL_SysTick_Handler(void)
             BUTTON_Mode = BUTTON_MODE_NONE;
         }
     }
+#endif
 }
 
 void app_loop(void)
@@ -220,15 +222,18 @@ void app_setup_and_loop_initial(void)
     set_system_mode(DEFAULT);
 
     DEBUG_D("welcome from IntoRobot!\r\n");
-    String s = intorobot_deviceID();
-    DEBUG_D("Device %s started\r\n", s.c_str());
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
+#ifdef configHAL_USB_CDC_ENABLE
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
-    manage_imlink_config();
+#endif
 
-    Network_Setup();
+#ifdef configSETUP_ENABLE
+    manage_setup_config();
+#endif
+
+    NEWORK_FN(Network_Setup(), (void)0);
 
 #if PLATFORM_THREADING
     create_system_task();

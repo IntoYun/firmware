@@ -151,7 +151,9 @@
 #define PREPSTRING(x) PREPSTRING2(x)
 
 #if PLATFORM_ID == PLATFORM_ATOM
-#define INTERNAL_FLASH_SIZE                 (0x20000)
+    #define INTERNAL_FLASH_SIZE                 (0x20000)
+#elif PLATFORM_ID == PLATFORM_ANYTEST
+    #define INTERNAL_FLASH_SIZE                 (0x20000)
 #else
     #pragma message "PLATFORM_ID is " PREPSTRING(PLATFORM_ID)
     #error "Unknown PLATFORM_ID"

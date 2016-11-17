@@ -19,6 +19,8 @@
 
 extern "C" void yield(void);
 
+#include "intorobot_config.h"
+#ifndef configNO_CLOUD
 
 #include "wiring_constants.h"
 #include "wiring_arduino.h"
@@ -608,3 +610,5 @@ MqttClientClass& MqttClientClass::setStream(Stream& stream){
 int MqttClientClass::state() {
     return this->_state;
 }
+
+#endif

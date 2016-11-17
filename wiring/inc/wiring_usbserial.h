@@ -17,11 +17,14 @@
   ******************************************************************************
 */
 
-#ifndef __SPARK_WIRING_USBSERIAL_H
-#define __SPARK_WIRING_USBSERIAL_H
+#ifndef WIRING_USBSERIAL_H_
+#define WIRING_USBSERIAL_H_
+
+#include "intorobot_config.h"
+
+#ifdef configWIRING_USBSERIAL_ENABLE
 
 #include "wiring_stream.h"
-#include "wiring_platform.h"
 #include "usb_hal.h"
 #include "system_task.h"
 #include "wiring_startup.h"
@@ -90,8 +93,10 @@ private:
 	bool _blocking;
 };
 
-extern USBSerial& _fetch_global_serial();
+extern USBSerial& _fetch_global_usbserial();
 
-#define SerialUSB _fetch_global_serial()
+#define SerialUSB _fetch_global_usbserial()
+
+#endif
 
 #endif

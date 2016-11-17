@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include "intorobot_config.h"
 
 
 #ifdef __cplusplus
@@ -65,9 +66,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS  40 
-#define TOTAL_ANALOG_PINS  8 
-#define FIRST_ANALOG_PIN  30
+#define TOTAL_PINS            40
+#define TOTAL_ANALOG_PINS     8
+#define FIRST_ANALOG_PIN      30
 
 #define D0 0
 #define D1 1
@@ -90,10 +91,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A9 39
 
 
-// Uart pins
-//#define CTS A0
-//#define RTS A1
-//usart2
+//usart
 #define TX A2
 #define RX A3
 
@@ -103,47 +101,20 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define MISO A6
 #define MOSI A7
 
-// #define SS1   D2
-// #define SCK1  D3
-// #define MISO1 D4
-// #define MOSI1 D5
-
 //I2C1 pins
 #define SDA  D0
 #define SCL  D1
 
-//I2C2 pins 
+//I2C2 pins
 #define SDA1 D7
 #define SCL1 D6
 
+#define LED_USER  D7
 
-// The following pins are only defined for easy access during development.
-// Will be removed later as they are internal I/O and users
-// should not have too easy of access or bad code could do harm.
-//#define ESP_BOOT_UC         60
-//#define ESP_RESET_UC        61
-//#define RGBR_UC             62
-//#define RGBG_UC             63
-//#define RGBB_UC             64
-//
-//#define LIGHT_SENSOR_UC     65
-//#define SENSOR_SDA_UC       66
-//#define SENSOR_SCL_UC       67
-//
-//#define ESP8266_TXD_UC      68
-//#define ESP8266_RXD_UC      69
+#define TOTAL_USARTS    1
+#define TOTAL_SPIS      1
+#define TOTAL_I2CS      1
 
-
-#define LED_USER  D5
-
-#define TOTAL_USARTS       1 
-
-
-
-
-#define TIM_PWM_FREQ 500 //500Hz
-
-#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
 
 #define LSBFIRST 0
 #define MSBFIRST 1

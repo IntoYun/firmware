@@ -30,7 +30,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
-#ifdef USB_CDC_ENABLE
+#ifdef configHAL_USB_CDC_ENABLE
 /*******************************************************************************
  * Function Name  : USB_USART_Init
  * Description    : Start USB-USART protocol.
@@ -109,7 +109,7 @@ void USB_USART_Flush_Data(void)
 }
 #endif
 
-#ifdef USB_HID_ENABLE
+#ifdef configHAL_USB_HID_ENABLE
 /*******************************************************************************
  * Function Name : USB_HID_Send_Report.
  * Description   : Send HID Report Info to Host.

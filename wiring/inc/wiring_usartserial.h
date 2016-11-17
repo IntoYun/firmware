@@ -20,9 +20,9 @@
 #ifndef WIRING_USARTSERIAL_H_
 #define WIRING_USARTSERIAL_H_
 
+#include "intorobot_config.h"
 #include "wiring_stream.h"
 #include "usart_hal.h"
-#include "wiring_platform.h"
 
 class USARTSerial : public Stream
 {
@@ -59,22 +59,27 @@ public:
   bool isEnabled(void);
 };
 
-#if Wiring_Serial2
+#ifdef configWIRING_USARTSERIAL1_ENABLE
+void serialEventRun1(void) __attribute__((weak));
+void serialEvent1(void) __attribute__((weak));
+#endif
+
+#ifdef configWIRING_USARTSERIAL2_ENABLE
 void serialEventRun2(void) __attribute__((weak));
 void serialEvent2(void) __attribute__((weak));
 #endif
 
-#if Wiring_Serial3
+#ifdef configWIRING_USARTSERIAL3_ENABLE
 void serialEventRun3(void) __attribute__((weak));
 void serialEvent3(void) __attribute__((weak));
 #endif
 
-#if Wiring_Serial4
+#ifdef configWIRING_USARTSERIAL4_ENABLE
 void serialEventRun4(void) __attribute__((weak));
 void serialEvent4(void) __attribute__((weak));
 #endif
 
-#if Wiring_Serial5
+#ifdef configWIRING_USARTSERIAL5_ENABLE
 void serialEventRun5(void) __attribute__((weak));
 void serialEvent5(void) __attribute__((weak));
 #endif
@@ -87,12 +92,11 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
         handler();
 }
 
-
-#ifndef INTOROBOT_WIRING_NO_USART_SERIAL
+#ifdef configWIRING_USARTSERIAL_ENABLE
 #define Serial __fetch_global_Serial1()
 extern USARTSerial& __fetch_global_Serial1();
 
-#if Wiring_Serial2
+#ifdef configWIRING_USARTSERIAL1_ENABLE
 #define Serial1 __fetch_global_Serial2()
 extern USARTSerial& __fetch_global_Serial2();
 #endif

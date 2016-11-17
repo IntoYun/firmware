@@ -19,15 +19,14 @@
 
 
 #ifndef DEBUG_OUTPUT_HANDLER_H_
-#define	DEBUG_OUTPUT_HANDLER_H_
+#define DEBUG_OUTPUT_HANDLER_H_
 
-#include "wiring_platform.h"
 #include "wiring_usartserial.h"
 #include "wiring_usbserial.h"
 #include "service_debug.h"
 #include "delay_hal.h"
 
-#ifdef INTOROBOT_USB_SERIAL
+#ifdef configWIRING_USBSERIAL_ENABLE
 struct SerialUSBDebugOutput
 {
     SerialUSBDebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
@@ -44,7 +43,7 @@ struct SerialUSBDebugOutput
 };
 #endif
 
-#ifndef INTOROBOT_WIRING_NO_USART_SERIAL
+#ifdef configWIRING_USARTSERIAL_ENABLE
 struct SerialDebugOutput
 {
     SerialDebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)
@@ -60,7 +59,7 @@ struct SerialDebugOutput
 
 };
 
-#if Wiring_Serial2
+#ifdef configWIRING_USARTSERIAL1_ENABLE
 struct Serial1DebugOutput
 {
     Serial1DebugOutput(int baud=115200, LoggerOutputLevel level=ALL_LEVEL)

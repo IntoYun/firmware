@@ -55,7 +55,7 @@ test(PWM_NoAnalogWriteWhenPinSelectedIsNotTimerChannel) {
     analogWrite(pin, 100);
     // then
     //analogWrite has a default PWM frequency of 500Hz
-    assertNotEqual(HAL_PWM_Get_Frequency(pin), TIM_PWM_FREQ);
+    assertNotEqual(HAL_PWM_Get_Frequency(pin), configTIM_PWM_FREQ);
     //To Do : Add test for remaining pins if required
 }
 
@@ -84,7 +84,7 @@ test(PWM_AnalogWriteOnPinResultsInCorrectFrequency) {
     analogWrite(pin, 150);
     // then
     //analogWrite has a default PWM frequency of 500Hz
-    assertEqual(HAL_PWM_Get_Frequency(pin), TIM_PWM_FREQ);
+    assertEqual(HAL_PWM_Get_Frequency(pin), configTIM_PWM_FREQ);
     pinMode(pin, INPUT);
     });
 }

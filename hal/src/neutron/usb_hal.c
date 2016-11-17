@@ -25,7 +25,7 @@
 #include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
-#ifdef USB_CDC_ENABLE
+#ifdef configHAL_USB_CDC_ENABLE
 
 /* Private define ------------------------------------------------------------*/
 
@@ -175,7 +175,7 @@ void OTG_FS_IRQHandler(void)
 
 #endif
 
-#ifdef USB_HID_ENABLE
+#ifdef configHAL_USB_HID_ENABLE
 /*******************************************************************************
  * Function Name : USB_HID_Send_Report.
  * Description   : Send HID Report Info to Host.

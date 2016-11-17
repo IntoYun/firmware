@@ -24,21 +24,22 @@
 #ifndef SYSTEM_NETWORK_H
 #define SYSTEM_NETWORK_H
 
+#include "intorobot_config.h"
+
+#ifdef configNO_NETWORK
+#define NEWORK_FN(x,y) (y)
+#else
+#define NEWORK_FN(x,y) (x)
+#endif
+
+#ifndef configNO_NETWORK
+
 #include "inet_hal.h"
 #include "wlan_hal.h"
 #include "intorobot_macros.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef PARTICLE_NO_NETWORK
-#define PARTICLE_NO_NETWORK 0
-#endif
-
-#if PARTICLE_NO_NETWORK
-#undef SPARK_NO_CLOUD
-#define SPARK_NO_CLOUD 1
 #endif
 
 /**
@@ -90,6 +91,7 @@ int network_set_credentials(network_handle_t network, uint32_t flags, NetworkCre
 bool network_clear_credentials(network_handle_t network, uint32_t flags, NetworkCredentials* creds, void* reserved);
 
 void network_setup(network_handle_t network, uint32_t flags, void* reserved);
+void manage_ip_config();
 
 /**
  * Disable automatic listening mode when no credentials are configured.
@@ -101,6 +103,7 @@ const int WIFI_CONNECT_SKIP_LISTEN = 1;
 }
 #endif
 
+#endif
 
 #endif	/* SYSTEM_NETWORK_H */
 

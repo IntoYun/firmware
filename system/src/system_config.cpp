@@ -17,6 +17,10 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
+
+#include "intorobot_config.h"
+#ifdef configSETUP_ENABLE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "system_config.h"
@@ -31,7 +35,9 @@
 #include "string_convert.h"
 #include "system_mode.h"
 
+#ifndef configNO_NETWORK
 using namespace intorobot;
+#endif
 
 static volatile uint32_t config_timeout_start;
 static volatile uint32_t config_timeout_duration;
@@ -729,6 +735,7 @@ void DeviceConfig::testDevice(aJsonObject* value_object)
 #endif
 }
 
+#ifdef configSETUP_OVER_USBSERIAL_ENABLE
 void UsbDeviceConfig::init(void)
 {
     serialusb.begin(115200);    //
@@ -777,6 +784,10 @@ void UsbDeviceConfig::close(void)
     //none do
 }
 
+UsbDeviceConfig DeviceConfigUsb;
+#endif
+
+#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
 void UsartDeviceConfig::init(void)
 {
     serial.begin(115200);    //
@@ -825,6 +836,10 @@ void UsartDeviceConfig::close(void)
     //none do
 }
 
+UsartDeviceConfig DeviceConfigUsart;
+#endif
+
+#ifdef configSETUP_OVER_UDP_ENABLE
 
 void UdpDeviceConfig::init(void)
 {
@@ -904,8 +919,7 @@ void UdpDeviceConfig::close(void)
     Udp.stop();
 }
 
-
-UsbDeviceConfig DeviceConfigUsb;
-UsartDeviceConfig DeviceConfigUsart;
-//TcpDeviceConfig DeviceConfigTcp;
 UdpDeviceConfig DeviceConfigUdp;
+#endif
+
+#endif

@@ -103,7 +103,7 @@ test(system_freememory) {
 }
 
 test(system_waitfor) {
-#if Wiring_WiFi == 1
+#ifdef configWIRING_WIFI_ENABLE
     API_COMPILE(System.waitCondition([]{return WiFi.ready();}));
     API_COMPILE(waitFor(WiFi.ready, 10000));
     API_COMPILE(waitUntil(WiFi.ready));

@@ -19,7 +19,7 @@
 
 #include "testapi.h"
 
-#if Wiring_Cellular == 1
+#ifdef configWIRING_CELLULAR_ENABLE
 
 test(api_cellular_rssi) {
     CellularSignal sig;

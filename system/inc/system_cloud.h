@@ -20,6 +20,16 @@
 #ifndef SYSTEM_CLOUD_H_
 #define SYSTEM_CLOUD_H_
 
+#include "intorobot_config.h"
+
+#ifdef configNO_CLOUD
+#define CLOUD_FN(x,y) (y)
+#else
+#define CLOUD_FN(x,y) (x)
+#endif
+
+#ifndef configNO_CLOUD
+
 #include "static_assert.h"
 #include "wiring_string.h"
 #include <string.h>
@@ -100,6 +110,8 @@ bool intorobot_cloud_flag_auto_connect();
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* SYSTEM_CLOUD_H_ */

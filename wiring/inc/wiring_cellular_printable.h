@@ -20,13 +20,13 @@
 #ifndef WIRING_CELLULAR_PRINTABLE_H_
 #define WIRING_CELLULAR_PRINTABLE_H_
 
-#include "wiring_platform.h"
+#include "intorobot_config.h"
+
+#ifdef configWIRING_CELLULAR_ENABLE
+
 #include "wiring_printable.h"
 #include "wiring_string.h"
 #include <string.h>
-
-#if Wiring_Cellular
-
 #include "cellular_hal.h"
 #include "modem/inc/enums_hal.h"
 
@@ -130,4 +130,4 @@ bool operator==(const CellularBand& lhs,const T& rhs) {
 
 #endif // Wiring_Cellular
 
-#endif // __SPARK_WIRING_CELLULAR_PRINTABLE_H
+#endif // WIRING_CELLULAR_PRINTABLE_H_

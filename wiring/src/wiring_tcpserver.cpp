@@ -17,6 +17,10 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"
 #include "wiring_network.h"
@@ -113,3 +117,5 @@ size_t TCPServer::write(const uint8_t *buffer, size_t size)
 {
     return _client.write(buffer, size);
 }
+
+#endif

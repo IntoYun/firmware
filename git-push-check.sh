@@ -26,7 +26,8 @@ echo "check fig !!!"
 cd main && make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n
 echo "check w67 !!!"
 cd main && make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n
-
+echo "check anytest bootloader and app !!!"
+make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n
 
 
 echo "github push check success!!!"

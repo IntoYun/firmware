@@ -17,9 +17,14 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+#ifndef configNO_CLOUD
+
 #include "wiring_cloud.h"
 
 size_t CloudClass::write(uint8_t byte)
 {return intorobot_debug_info_write(byte);}
 
 CloudClass IntoRobot;
+
+#endif

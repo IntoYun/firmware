@@ -17,6 +17,9 @@
  ******************************************************************************
  */
 
+#include "intorobot_config.h"
+#ifndef configNO_NETWORK
+
 #include "wiring_ticks.h"
 #include "system_setup.h"
 #include "system_network.h"
@@ -36,27 +39,20 @@ uint32_t wlan_watchdog_duration;
 volatile uint8_t INTOROBOT_WLAN_STARTED;
 volatile uint8_t INTOROBOT_WLAN_SLEEP;
 
-#if Wiring_WiFi
+#ifdef configWIRING_WIFI_ENABLE
 #include "system_network_wifi.h"
 WiFiNetworkInterface wifi;
 ManagedNetworkInterface& network = wifi;
 inline NetworkInterface& nif(network_interface_t _nif) { return wifi; }
-#define Wiring_Network 1
 #endif
 
-#if Wiring_Cellular
+#ifdef configWIRING_CELLULAR_ENABLE
 #include "system_network_cellular.h"
 CellularNetworkInterface cellular;
 ManagedNetworkInterface& network = cellular;
 inline NetworkInterface& nif(network_interface_t _nif) { return cellular; }
-#define Wiring_Network 1
 #endif
 
-#ifndef Wiring_Network
-#define Wiring_Network 0
-#endif
-
-#if Wiring_Network
 
 const void* network_config(network_handle_t network, uint32_t param, void* reserved)
 {
