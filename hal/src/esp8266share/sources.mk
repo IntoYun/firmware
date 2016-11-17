@@ -1,11 +1,9 @@
 
-TARGET_HAL_SRC_PATH = $(TARGET_HAL_PATH)/src/$(PLATFORM_NAME)
+# TARGET_HAL_ESP8266_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp8266share
 
-CSRC += $(call target_files,$(TARGET_HAL_SRC_PATH)/,*.c)
+CSRC += $(call target_files,$(TARGET_HAL_ESP8266_SHARE_PATH)/,*.c)
 
-CPPSRC += $(call target_files,$(TARGET_HAL_SRC_PATH)/,*.cpp)
+CPPSRC += $(call target_files,$(TARGET_HAL_ESP8266_SHARE_PATH)/,*.cpp)
 
 # ASM source files included in this build.
-ASRC += $(call target_files,$(TARGET_HAL_SRC_PATH)/,*.S)
-
-
+ASRC += $(call target_files,$(TARGET_HAL_ESP8266_SHARE_SRC_PATH)/,*.S)
