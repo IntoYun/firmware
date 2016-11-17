@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
+#include "intorobot_config.h"
 
 
 #ifdef __cplusplus
@@ -115,11 +116,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define TOTAL_USARTS       3
 #define TOTAL_I2CS         2
 #define TOTAL_SPIS         1
-
-
-#define TIM_PWM_FREQ 500 //500Hz
-
-#define SERVO_TIM_PWM_FREQ 50//50Hz                                                                                      //20ms = 50Hz
 
 #define LSBFIRST 0
 #define MSBFIRST 1
