@@ -66,7 +66,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         /* Enable the USB disconnect GPIO clock */
-        __HAL_RCC_GPIOB_CLK_ENABLE();
+        __HAL_RCC_GPIOA_CLK_ENABLE();
 
         /* /\* USB_DISCONNECT used as USB pull-up *\/ */
         /* GPIO_InitStruct.Pin = USB_DISCONNECT_PIN; */

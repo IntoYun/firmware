@@ -151,7 +151,7 @@ void USB_USART_Send_Data(uint8_t Data)
         USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
         //while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
         USBD_CDC_TransmitPacket(&USBD_Device);
-        HAL_Delay_Microseconds(100);
+        HAL_Delay_Microseconds(300);
     }
 
     //TODO

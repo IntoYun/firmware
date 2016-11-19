@@ -45,8 +45,8 @@
 
 /* config wring wire */
 #define configWIRING_WIRE_ENABLE
-#define configWIRING_WIRE1_ENABLE
-#define configWIRING_WIRE2_ENABLE
+// #define configWIRING_WIRE1_ENABLE
+// #define configWIRING_WIRE2_ENABLE
 
 /* config wring spi */
 #define configWIRING_SPI_ENABLE

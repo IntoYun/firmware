@@ -49,10 +49,10 @@ typedef struct STM32_SPI_Info {
     GPIO_TypeDef* SPI_MOSI_Port;
     //GPIO_TypeDef SPI_SS_Port;
 
-    uint8_t SPI_SCK_Pin;
-    uint8_t SPI_MISO_Pin;
-    uint8_t SPI_MOSI_Pin;
-    uint8_t SPI_SS_Pin;
+    uint16_t SPI_SCK_Pin;
+    uint16_t SPI_MISO_Pin;
+    uint16_t SPI_MOSI_Pin;
+    uint16_t SPI_SS_Pin;
     /* uint8_t SPI_AF_Mapping; */
 
     DMA_HandleTypeDef hdma_tx;
