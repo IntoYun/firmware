@@ -76,10 +76,10 @@ typedef enum SPI_Num_Def {
 } SPI_Num_Def;
 
 typedef struct ESP32_SPI_Info {
-    uint8_t SPI_SCK_Pin;
-    uint8_t SPI_MISO_Pin;
-    uint8_t SPI_MOSI_Pin;
-    uint8_t SPI_SS_Pin;
+    uint16_t SPI_SCK_Pin;
+    uint16_t SPI_MISO_Pin;
+    uint16_t SPI_MOSI_Pin;
+    uint16_t SPI_SS_Pin;
 
     uint32_t SPI_Clock_Div;
 

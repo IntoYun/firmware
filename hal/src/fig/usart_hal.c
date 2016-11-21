@@ -66,8 +66,8 @@ typedef enum USART_Num_Def {
 } USART_Num_Def;
 
 typedef struct ESP32_USART_Info {
-    uint8_t usart_tx_pin;
-    uint8_t usart_rx_pin;
+    uint16_t usart_tx_pin;
+    uint16_t usart_rx_pin;
 
     bool usart_enabled;
     int peek_char;
