@@ -96,6 +96,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define TX A2
 #define RX A3
 
+#define TX1 D6
+#define RX1 D7
 // SPI pins
 #define SS   A4
 #define SCK  A5
@@ -112,9 +114,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D7
 
-#define TOTAL_USARTS    1
-#define TOTAL_SPIS      1
-#define TOTAL_I2CS      1
+#define TOTAL_USARTS   2 
+#define TOTAL_SPIS     1
+#define TOTAL_I2CS     2 
 
 
 #define LSBFIRST 0
