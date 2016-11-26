@@ -35,7 +35,6 @@ tools/gcc-arm-none-eabi
 tools/xtensa-lx106-elf
 tools/xtensa-esp32-elf
 tools/esptool
-tools/esptool-py
 tools/stlink
 
 #用户例子
