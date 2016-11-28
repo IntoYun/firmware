@@ -61,7 +61,7 @@ make PLATFORM=lora clean all DEBUG_BUILD=y USE_SWD=y program-dfu
 
 make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool 
 
-make PLATFORM=fig clean all DEBUG_BUILD=y USE_SWD=y esptool 
+make PLATFORM=fig clean all DEBUG_BUILD=y USE_SWD=y esptool-py 
 ```
 
 DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的烧录工具。
