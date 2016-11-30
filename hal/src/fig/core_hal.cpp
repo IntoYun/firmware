@@ -87,11 +87,14 @@ void loopTask(void *pvParameters)
     for(;;) {
         if(!setup_done) {
             startWiFi();
+            HAL_UI_Initial();
+            HAL_UI_RGB_Color(RGB_COLOR_RED);
+            // HAL_UI_RGB_Color(RGB_COLOR_GREEN);
+            // HAL_UI_RGB_Color(RGB_COLOR_BLUE);
             setup();
             setup_done = true;
         }
         loop();
-        // app_loop();
     }
 }
 

@@ -29,6 +29,7 @@ make PLATFORM=atom clean all APP=default-atom
 make PLATFORM=neutron clean all APP=default-neutron
 make PLATFORM=nut clean all APP=default-nut
 make PLATFORM=lora clean all APP=default-lora
+make PLATFORM=fig clean all APP=default-fig
 ```
 
 
