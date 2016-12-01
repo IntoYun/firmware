@@ -21,11 +21,12 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "service_debug.h"
 #include "gpio_hal.h"
 
-#define RGB_R_GPIO_PIN       27
-#define RGB_G_GPIO_PIN       21
-#define RGB_B_GPIO_PIN       22
+#define RGB_R_GPIO_PIN       LED_R
+#define RGB_G_GPIO_PIN       LED_G
+#define RGB_B_GPIO_PIN       LED_B
 
-#define MODE_BOTTON_GPIO_PIN       0
+#define MODE_BOTTON_GPIO_PIN       KEY
+
 
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
