@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include "enums_hal.h"
 #include "wlan_hal.h"
-#include "wiring_process.h"
+#include "wiring_ex_process.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {

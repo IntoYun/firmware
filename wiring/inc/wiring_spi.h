@@ -111,9 +111,16 @@ extern SPIClass SPI;
 #undef SPI1
 #endif  // SPI1
 
-extern SPIClass SPI_1;
-
+extern SPIClass SPI1;
 #endif  // Wiring_SPI1
+
+#ifdef configWIRING_SPI2_ENABLE
+#ifdef SPI2
+#undef SPI2
+#endif  // SPI2
+
+extern SPIClass SPI2;
+#endif  // Wiring_SPI2
 
 #endif  // configWIRING_SPI_ENABLE
 

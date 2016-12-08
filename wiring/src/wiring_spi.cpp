@@ -163,7 +163,11 @@ bool SPIClass::isEnabled()
 SPIClass SPI(HAL_SPI_INTERFACE1);
 
 #ifdef configWIRING_SPI1_ENABLE
-SPIClass SPI_1(HAL_SPI_INTERFACE2);
+SPIClass SPI1(HAL_SPI_INTERFACE2);
+#endif
+
+#ifdef configWIRING_SPI2_ENABLE
+SPIClass SPI2(HAL_SPI_INTERFACE3);
 #endif
 
 #endif  //configWIRING_SPI_ENABLE

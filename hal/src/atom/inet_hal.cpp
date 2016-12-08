@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include "inet_hal.h"
 #include "enums_hal.h"
-#include "wiring_process.h"
+#include "wiring_ex_process.h"
 
 
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,

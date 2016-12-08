@@ -26,12 +26,12 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
+#include "stdio.h"
 #include "system_version.h"
 
-#ifdef SPARK_PLATFORM
+#ifdef INTOROBOT_PLATFORM
 #include "platform_headers.h"
 #endif
-
 
 #include "wiring.h"
 #include "wiring_cloud.h"
@@ -47,6 +47,7 @@
 #include "wiring_usbkeyboard.h"
 #include "wiring_spi.h"
 #include "wiring_i2c.h"
+#include "wiring_i2s.h"
 #include "wiring_servo.h"
 #include "wiring_wifi.h"
 #include "wiring_network.h"
@@ -62,27 +63,19 @@
 #include "wiring_version.h"
 #include "wiring_watchdog.h"
 #include "wiring_thread.h"
+#include "wiring_ext.h"
+//#include "wiring_audio.h"
 #include "fast_pin.h"
 #include "string_convert.h"
 #include "debug_output_handler.h"
-#include "variant.h"
-
-#include "wiring_i2s.h"
-//#include "wiring_audio.h"
-
-#include "wiring_ext.h"
-#include "system_config.h"
 
 // this was being implicitly pulled in by some of the other headers
 // adding here for backwards compatibility.
+#include "system_config.h"
 #include "system_task.h"
 #include "system_user.h"
 
-#include "stdio.h"
-
-#if (PLATFORM_ID == 1)
- #include "wiring_neutron.h"
-#endif
+#include "wiring_ex.h"
 
 using namespace intorobot;
 

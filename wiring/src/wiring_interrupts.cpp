@@ -101,8 +101,8 @@ void detachInterrupt(uint16_t pin)
  *******************************************************************************/
 void noInterrupts(void)
 {
-  //Only disable the interrupts that are exposed to the user
-  HAL_Interrupts_Disable_All();
+    //Only disable the interrupts that are exposed to the user
+    HAL_Interrupts_Disable_All();
 }
 
 
@@ -114,8 +114,8 @@ void noInterrupts(void)
  *******************************************************************************/
 void interrupts(void)
 {
-  //Only enable the interrupts that are exposed to the user
-  HAL_Interrupts_Enable_All();
+    //Only enable the interrupts that are exposed to the user
+    HAL_Interrupts_Enable_All();
 }
 
 /*

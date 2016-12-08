@@ -6,18 +6,22 @@
  */
 
 #ifndef PLATFORM_HEADERS_H
-#define	PLATFORM_HEADERS_H
+#define PLATFORM_HEADERS_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
+// These headers contain platform-specific defines.
+#include "gpio_hal.h"
+#include "hw_config.h"
+#include "pinmap_impl.h"
+#include "variant.h"
+//#include "deepsleep_hal_impl.h"
 
-
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* PLATFORM_HEADERS_H */
+#endif /* PLATFORM_HEADERS_H */
 

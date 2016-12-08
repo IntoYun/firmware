@@ -24,7 +24,7 @@
 #include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "intorobot_macros.h"
-#include "wiring_process.h"
+#include "wiring_ex_process.h"
 #include "service_debug.h"
 
 

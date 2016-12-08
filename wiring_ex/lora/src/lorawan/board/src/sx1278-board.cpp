@@ -243,15 +243,15 @@ void SpiSetNss(uint8_t val)
 
 uint8_t SpiInOut( uint8_t outData )
 {
-    SPI_1.transfer(outData);
+    SPI1.transfer(outData);
 }
 
 void SX1278BoardInit(void)
 {
-    SPI_1.setBitOrder(MSBFIRST);
-    SPI_1.setClockDivider(SPI_CLOCK_DIV16);
-    SPI_1.setDataMode(0);
-    SPI_1.begin();
+    SPI1.setBitOrder(MSBFIRST);
+    SPI1.setClockDivider(SPI_CLOCK_DIV16);
+    SPI1.setDataMode(0);
+    SPI1.begin();
     SX1278IoInit();
 }
 

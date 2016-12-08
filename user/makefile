@@ -9,7 +9,7 @@ include ../build/platform-id.mk
 
 ifeq ("","$(INTOROBOT_NO_PLATFORM)")
 DEPENDENCIES += platform
-CFLAGS += -DSPARK_PLATFORM
+CFLAGS += -DINTOROBOT_PLATFORM
 endif
 
 WARNINGS_AS_ERRORS ?= n
