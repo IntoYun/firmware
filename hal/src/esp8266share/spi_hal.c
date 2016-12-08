@@ -62,7 +62,7 @@ void writeBytes_(uint8_t * data, uint8_t size);
 void transferBytes_(uint8_t * out, uint8_t * in, uint8_t size);
 inline void setDataBits(uint16_t bits);
 
-void setHwCs(bool use) {
+void ICACHE_FLASH_ATTR setHwCs(bool use) {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     unsigned char ss_pin = PIN_MAP[SS].gpio_pin;
     if(use) {
@@ -90,11 +90,11 @@ void setHwCs(bool use) {
  * @param reg
  * @return
  */
-static uint32_t ClkRegToFreq(spiClk_t * reg) {
+static uint32_t ICACHE_FLASH_ATTR ClkRegToFreq(spiClk_t * reg) {
     return (ESP8266_CLOCK / ((reg->regPre + 1) * (reg->regN + 1)));
 }
 
-void setClockDivider(uint32_t clockDiv) {
+void ICACHE_FLASH_ATTR setClockDivider(uint32_t clockDiv) {
     if(clockDiv == 0x80000000) {
         GPMUX |= (1 << 9); // Set bit 9 if sysclock required
     } else {
@@ -103,7 +103,7 @@ void setClockDivider(uint32_t clockDiv) {
     SPI1CLK = clockDiv;
 }
 
-void setFrequency(uint32_t freq) {
+void ICACHE_FLASH_ATTR setFrequency(uint32_t freq) {
     static uint32_t lastSetFrequency = 0;
     static uint32_t lastSetRegister = 0;
 
@@ -186,7 +186,7 @@ void setFrequency(uint32_t freq) {
 
 }
 
-void setBitOrder(uint8_t bitOrder)
+void ICACHE_FLASH_ATTR setBitOrder(uint8_t bitOrder)
 {
     if(bitOrder == MSBFIRST) {
         SPI1C &= ~(SPICWBO | SPICRBO);
@@ -196,7 +196,7 @@ void setBitOrder(uint8_t bitOrder)
 
 }
 
-void setDataMode(uint8_t dataMode)
+void ICACHE_FLASH_ATTR setDataMode(uint8_t dataMode)
 {
     /**
      SPI_MODE0 0x00 - CPOL: 0  CPHA: 0
@@ -222,13 +222,13 @@ void setDataMode(uint8_t dataMode)
 }
 
 
-inline void setDataBits(uint16_t bits) {
+inline void ICACHE_FLASH_ATTR setDataBits(uint16_t bits) {
     const uint32_t mask = ~((SPIMMOSI << SPILMOSI) | (SPIMMISO << SPILMISO));
     bits--;
     SPI1U1 = ((SPI1U1 & mask) | ((bits << SPILMOSI) | (bits << SPILMISO)));
 }
 
-uint8_t transfer(uint8_t data) {
+uint8_t ICACHE_FLASH_ATTR transfer(uint8_t data) {
     while(SPI1CMD & SPIBUSY) {}
     // reset to 8Bit mode
     setDataBits(8);
@@ -238,12 +238,12 @@ uint8_t transfer(uint8_t data) {
     return (uint8_t) (SPI1W0 & 0xff);
 }
 
-void HAL_SPI_Initial(HAL_SPI_Interface spi)
+void ICACHE_FLASH_ATTR HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
     useHwCs = false;
 }
 
-void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
+void ICACHE_FLASH_ATTR HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     /* DEBUG("Enter HAL_SPI_Begin..."); */
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -276,7 +276,7 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
     SPI1C1 = 0;
 }
 
-void HAL_SPI_End(HAL_SPI_Interface spi)
+void ICACHE_FLASH_ATTR HAL_SPI_End(HAL_SPI_Interface spi)
 {
     /* DEBUG("Enter HAL_SPI_End..."); */
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -309,36 +309,36 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
     }
 }
 
-void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
+void ICACHE_FLASH_ATTR HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t bitOrder)
 {
     /* DEBUG("Enter HAL_SPI_Set_Bit_Order..."); */
     setBitOrder(bitOrder);
 }
 
-void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
+void ICACHE_FLASH_ATTR HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t dataMode)
 {
     /* DEBUG("Enter HAL_SPI_Set_Data_Mode..."); */
     setDataMode(dataMode);
 }
 
-void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
+void ICACHE_FLASH_ATTR HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
     /* DEBUG("Enter HAL_SPI_Set_Clock_Mode..."); */
     setClockDivider(rate);
 }
 
-uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
+uint16_t ICACHE_FLASH_ATTR HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
     /* DEBUG("Enter HAL_SPI_Send_Receive_Mode..."); */
     return transfer((uint8_t)data);
 }
 
-bool HAL_SPI_Is_Enabled(HAL_SPI_Interface spi)
+bool ICACHE_FLASH_ATTR HAL_SPI_Is_Enabled(HAL_SPI_Interface spi)
 {
     return false;
 }
 
-void HAL_SPI_DMA_Transfer(HAL_SPI_Interface spi, void* tx_buffer, void* rx_buffer, uint32_t length, HAL_SPI_DMA_UserCallback userCallback)
+void ICACHE_FLASH_ATTR HAL_SPI_DMA_Transfer(HAL_SPI_Interface spi, void* tx_buffer, void* rx_buffer, uint32_t length, HAL_SPI_DMA_UserCallback userCallback)
 {
 }
 

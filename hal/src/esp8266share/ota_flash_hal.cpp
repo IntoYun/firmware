@@ -38,7 +38,7 @@ extern "C"
 
 
 /*从flash起始地址复制至目标地址*/
-bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t size)
+bool ICACHE_FLASH_ATTR copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t size)
 {
     // require regions to be aligned
     if (src_addr & 0xfff != 0 ||
@@ -69,7 +69,7 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
     return true;
 }
 
-static bool bootloader_requires_update(void)
+static bool ICACHE_FLASH_ATTR bootloader_requires_update(void)
 {
     char subsys_ver[32] = {0}, temp[16] = {0};
     char *ptr = NULL;
@@ -94,7 +94,7 @@ static bool bootloader_requires_update(void)
     return false;
 }
 
-static bool bootloader_update(void)
+static bool ICACHE_FLASH_ATTR bootloader_update(void)
 {
     int count=3;
     uint32_t boot_size = HAL_PARAMS_Get_Boot_boot_size();
@@ -113,7 +113,7 @@ static bool bootloader_update(void)
 }
 
 /*注意 该函数不要随意更改*/
-bool HAL_Bootloader_Update_If_Needed(void)
+bool ICACHE_FLASH_ATTR HAL_Bootloader_Update_If_Needed(void)
 {
     bool updated = false;
     /*注意 bootloader升级过程不允许保存参数，因为bootloader暂放在系统参数存储区*/
@@ -123,32 +123,32 @@ bool HAL_Bootloader_Update_If_Needed(void)
     return updated;
 }
 
-down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
+down_status_t ICACHE_FLASH_ATTR HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
     return esp8266_downOnlineApp(host, param, md5);
 }
 
-down_status_t HAL_OTA_Get_App_Download_Status(void)
+down_status_t ICACHE_FLASH_ATTR HAL_OTA_Get_App_Download_Status(void)
 {
     return esp8266_getDownOnlineAppStatus();
 }
 
-void HAL_OTA_Update_App(void)
+void ICACHE_FLASH_ATTR HAL_OTA_Update_App(void)
 {
     HAL_Core_Enter_Ota_Update_Mode();
 }
 
-down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
+down_status_t ICACHE_FLASH_ATTR HAL_OTA_Download_Subsys(const char *host, const char *param)
 {
     return esp8266_downDefaultApp(host, param);
 }
 
-down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
+down_status_t ICACHE_FLASH_ATTR HAL_OTA_Get_Subsys_Download_Status(void)
 {
     return esp8266_getDownDefaultAppStatus();
 }
 
-void HAL_OTA_Upadate_Subsys(void)
+void ICACHE_FLASH_ATTR HAL_OTA_Upadate_Subsys(void)
 {
     int count=3;
     uint32_t def_app_size = HAL_PARAMS_Get_Boot_def_app_size();
@@ -165,7 +165,7 @@ void HAL_OTA_Upadate_Subsys(void)
     HAL_PARAMS_Save_Params();
 }
 
-uint8_t HAL_OTA_Get_Download_Progress()
+uint8_t ICACHE_FLASH_ATTR HAL_OTA_Get_Download_Progress()
 {
     return esp8266_getDownloadProgress();
 }

@@ -28,7 +28,7 @@
 #include "hw_config.h"
 //#include "gpio_hal_h"
 
-void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
+void ICACHE_FLASH_ATTR HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
 {
 }
 
@@ -37,7 +37,7 @@ void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
  * Should return a 16-bit value, 0-65536 (0 = LOW, 65536 = HIGH)
  * Note: ADC input voltage range is 0 - 1.0V
  */
-int32_t HAL_ADC_Read(uint16_t pin)
+int32_t ICACHE_FLASH_ATTR HAL_ADC_Read(uint16_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
@@ -51,7 +51,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
 /*
  * @brief Initialize the ADC peripheral.
  */
-void HAL_ADC_DMA_Init()
+void ICACHE_FLASH_ATTR HAL_ADC_DMA_Init()
 {
 
 }

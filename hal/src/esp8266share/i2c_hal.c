@@ -91,7 +91,7 @@ void twi_setClock(unsigned int freq){
     else twi_dcount = 1;//about 700KHz
 #endif
 }
-void twi_init(unsigned char sda, unsigned char scl){
+void ICACHE_FLASH_ATTR twi_init(unsigned char sda, unsigned char scl){
     twi_sda = sda;
     twi_scl = scl;
     /* __pinMode(twi_sda, INPUT_PULLUP); */
@@ -110,7 +110,7 @@ void twi_init(unsigned char sda, unsigned char scl){
     twi_setClockStretchLimit(230); // default value is 230 uS
 }
 
-void twi_stop(void){
+void ICACHE_FLASH_ATTR twi_stop(void){
     /* __pinMode(twi_sda, INPUT); */
     GPF(twi_sda) = GPFFS(GPFFS_GPIO(twi_sda));//Set mode to GPIO
     GPEC = (1 << twi_sda); //Disable
@@ -131,7 +131,7 @@ static void twi_delay(unsigned char v){
 #pragma GCC diagnostic pop
 }
 
-static bool twi_write_start(void) {
+static bool ICACHE_FLASH_ATTR twi_write_start(void) {
     SCL_HIGH();
     SDA_HIGH();
     if (SDA_READ() == 0) return false;
@@ -141,7 +141,7 @@ static bool twi_write_start(void) {
     return true;
 }
 
-static bool twi_write_stop(void){
+static bool ICACHE_FLASH_ATTR twi_write_stop(void){
     uint32_t i = 0;
     SCL_LOW();
     SDA_LOW();
@@ -155,7 +155,7 @@ static bool twi_write_stop(void){
 }
 
 
-static bool twi_write_bit(bool bit) {
+static bool ICACHE_FLASH_ATTR twi_write_bit(bool bit) {
     uint32_t i = 0;
     SCL_LOW();
     if (bit) SDA_HIGH();
@@ -167,7 +167,7 @@ static bool twi_write_bit(bool bit) {
     return true;
 }
 
-static bool twi_read_bit(void) {
+static bool ICACHE_FLASH_ATTR twi_read_bit(void) {
     uint32_t i = 0;
     SCL_LOW();
     SDA_HIGH();
@@ -179,7 +179,7 @@ static bool twi_read_bit(void) {
     return bit;
 }
 
-static bool twi_write_byte(unsigned char byte) {
+static bool ICACHE_FLASH_ATTR twi_write_byte(unsigned char byte) {
     unsigned char bit;
     for (bit = 0; bit < 8; bit++) {
         twi_write_bit(byte & 0x80);
@@ -188,7 +188,7 @@ static bool twi_write_byte(unsigned char byte) {
     return !twi_read_bit();//NACK/ACK
 }
 
-static unsigned char twi_read_byte(bool nack) {
+static unsigned char ICACHE_FLASH_ATTR twi_read_byte(bool nack) {
     unsigned char byte = 0;
     unsigned char bit;
     for (bit = 0; bit < 8; bit++) byte = (byte << 1) | twi_read_bit();
@@ -196,7 +196,7 @@ static unsigned char twi_read_byte(bool nack) {
     return byte;
 }
 
-unsigned char twi_writeTo(unsigned char address, unsigned char * buf, unsigned int len, unsigned char sendStop){
+unsigned char ICACHE_FLASH_ATTR twi_writeTo(unsigned char address, unsigned char * buf, unsigned int len, unsigned char sendStop){
     unsigned int i;
     if(!twi_write_start()) return 4;//line busy
     if(!twi_write_byte(((address << 1) | 0) & 0xFF)) {
@@ -220,7 +220,7 @@ unsigned char twi_writeTo(unsigned char address, unsigned char * buf, unsigned i
     return 0;
 }
 
-unsigned char twi_readFrom(unsigned char address, unsigned char* buf, unsigned int len, unsigned char sendStop){
+unsigned char ICACHE_FLASH_ATTR twi_readFrom(unsigned char address, unsigned char* buf, unsigned int len, unsigned char sendStop){
     unsigned int i;
     if(!twi_write_start()) return 4;//line busy
     if(!twi_write_byte(((address << 1) | 1) & 0xFF)) {
@@ -241,21 +241,21 @@ unsigned char twi_readFrom(unsigned char address, unsigned char* buf, unsigned i
 }
 
 
-void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Initial...");
 }
 
-void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
 {
     twi_setClock(speed);
 }
 
-void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 {
 }
 
-void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Begin...");
     // only for default pin
@@ -268,11 +268,11 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     HAL_I2C_Flush_Data(1, NULL);
 }
 
-void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
 {
     twi_stop();
 }
-uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop,void* reserved)
+uint32_t ICACHE_FLASH_ATTR HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop,void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Request_Data...");
     if(quantity > BUFFER_LENGTH){
@@ -285,7 +285,7 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
     return read;
 }
 
-void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* reserved)
 {
     transmitting = 1;
     txAddress = address;
@@ -294,7 +294,7 @@ void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* res
 
 }
 
-uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reserved)
+uint8_t ICACHE_FLASH_ATTR HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reserved)
 {
     int8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, stop);
     txBufferIndex = 0;
@@ -303,7 +303,7 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
     return ret;
 }
 
-uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
+uint32_t ICACHE_FLASH_ATTR HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
 {
     //DEBUG("Enter HAL_I2C_Write_Data...");
     //DEBUG("data: %d", data);
@@ -322,7 +322,7 @@ uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
     return 1;
 }
 
-int32_t HAL_I2C_Available_Data(HAL_I2C_Interface i2c,void* reserved)
+int32_t ICACHE_FLASH_ATTR HAL_I2C_Available_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int result = rxBufferLength - rxBufferIndex;
 
@@ -335,7 +335,7 @@ int32_t HAL_I2C_Available_Data(HAL_I2C_Interface i2c,void* reserved)
     return result;
 }
 
-int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
+int32_t ICACHE_FLASH_ATTR HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int value = -1;
     if(rxBufferIndex < rxBufferLength){
@@ -345,7 +345,7 @@ int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
     return value;
 }
 
-int32_t HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
+int32_t ICACHE_FLASH_ATTR HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int value = -1;
     if(rxBufferIndex < rxBufferLength){
@@ -354,7 +354,7 @@ int32_t HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
     return value;
 }
 
-void HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     rxBufferIndex = 0;
     rxBufferLength = 0;
@@ -364,17 +364,17 @@ void HAL_I2C_Flush_Data(HAL_I2C_Interface i2c,void* reserved)
     // XXX: to be implemented.
 }
 
-bool HAL_I2C_Is_Enabled(HAL_I2C_Interface i2c,void* reserved)
+bool ICACHE_FLASH_ATTR HAL_I2C_Is_Enabled(HAL_I2C_Interface i2c,void* reserved)
 {
     return false;
 }
 
-void HAL_I2C_Set_Callback_On_Receive(HAL_I2C_Interface i2c, void (*function)(int),void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Set_Callback_On_Receive(HAL_I2C_Interface i2c, void (*function)(int),void* reserved)
 {
 
 }
 
-void HAL_I2C_Set_Callback_On_Request(HAL_I2C_Interface i2c, void (*function)(void),void* reserved)
+void ICACHE_FLASH_ATTR HAL_I2C_Set_Callback_On_Request(HAL_I2C_Interface i2c, void (*function)(void),void* reserved)
 {
 
 }
