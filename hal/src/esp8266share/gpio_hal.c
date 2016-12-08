@@ -42,12 +42,12 @@ inline bool is_valid_pin(pin_t pin)
     return pin<TOTAL_PINS;
 }
 
-PinMode HAL_Get_Pin_Mode(pin_t pin)
+PinMode ICACHE_FLASH_ATTR HAL_Get_Pin_Mode(pin_t pin)
 {
     return (!is_valid_pin(pin)) ? PIN_MODE_NONE : HAL_Pin_Map()[pin].pin_mode;
 }
 
-PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
+PinFunction ICACHE_FLASH_ATTR HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -64,7 +64,7 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
  * @brief Set the mode of the pin to OUTPUT, INPUT, INPUT_PULLUP,
  * or INPUT_PULLDOWN
  */
-void HAL_Pin_Mode(pin_t pin, PinMode setMode)
+void ICACHE_FLASH_ATTR HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -134,7 +134,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 /*
  * @brief Saves a pin mode to be recalled later.
  */
-void HAL_GPIO_Save_Pin_Mode(PinMode mode)
+void ICACHE_FLASH_ATTR HAL_GPIO_Save_Pin_Mode(PinMode mode)
 {
     digitalPinModeSaved = mode;
 }
@@ -142,7 +142,7 @@ void HAL_GPIO_Save_Pin_Mode(PinMode mode)
 /*
  * @brief Recalls a saved pin mode.
  */
-PinMode HAL_GPIO_Recall_Pin_Mode()
+PinMode ICACHE_FLASH_ATTR HAL_GPIO_Recall_Pin_Mode()
 {
     return digitalPinModeSaved;
 }
@@ -150,7 +150,7 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
 /*
  * @brief Sets a GPIO pin to HIGH or LOW.
  */
-void HAL_GPIO_Write(uint16_t pin, uint8_t value)
+void ICACHE_FLASH_ATTR HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -167,7 +167,7 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 /*
  * @brief Reads the value of a GPIO pin. Should return either 1 (HIGH) or 0 (LOW).
  */
-int32_t HAL_GPIO_Read(uint16_t pin)
+int32_t ICACHE_FLASH_ATTR HAL_GPIO_Read(uint16_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -225,7 +225,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     return (system_get_time() - pulseStart);
 }
 
-void HAL_pinSetFast(pin_t pin)
+void ICACHE_FLASH_ATTR HAL_pinSetFast(pin_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -237,7 +237,7 @@ void HAL_pinSetFast(pin_t pin)
     }
 }
 
-void HAL_pinResetFast(pin_t pin)
+void ICACHE_FLASH_ATTR HAL_pinResetFast(pin_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
@@ -248,7 +248,7 @@ void HAL_pinResetFast(pin_t pin)
     }
 }
 
-int32_t HAL_pinReadFast(pin_t pin)
+int32_t ICACHE_FLASH_ATTR HAL_pinReadFast(pin_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;

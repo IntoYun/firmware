@@ -43,8 +43,6 @@
 #include "soc/dport_reg.h"
 
 
-#include "usart_hal.h"
-
 struct spi_struct_t {
     spi_dev_t * dev;
     xSemaphoreHandle lock;
@@ -65,21 +63,21 @@ static spi_t _spi_bus_array[4] = {
 // default pin
 // The pin definition can be changed to any pin
 //               VSPI                 HSPI
-// SCK          GPIO18(  )         GPIO14(A5)
-// MISO         GPIO19(D2)         GPIO12(A6)
-// MOSI         GPIO23(  )         GPIO13(A7)
+// SCK          GPIO18(D2)         GPIO14(A5)
+// MISO         GPIO19(D0)         GPIO12(A6)
+// MOSI         GPIO23(D1)         GPIO13(A7)
 // SS           GPIO5 (D5)         GPIO15(A4)
 
 typedef enum SPI_Num_Def {
     SPI_0 = 0
-    /* ,SPI_1 = 1 */
+    ,SPI_1 = 1
 } SPI_Num_Def;
 
 typedef struct ESP32_SPI_Info {
-    uint8_t SPI_SCK_Pin;
-    uint8_t SPI_MISO_Pin;
-    uint8_t SPI_MOSI_Pin;
-    uint8_t SPI_SS_Pin;
+    uint16_t SPI_SCK_Pin;
+    uint16_t SPI_MISO_Pin;
+    uint16_t SPI_MOSI_Pin;
+    uint16_t SPI_SS_Pin;
 
     uint32_t SPI_Clock_Div;
 
@@ -100,8 +98,8 @@ typedef struct ESP32_SPI_Info {
  */
 ESP32_SPI_Info SPI_MAP[TOTAL_SPIS] =
 {
-    {A5, A6, A7, A4}  // SCK MISO MOSI SS
-    /* ,{ } */
+    {D2, D0, D1, D5},  // VSPI SCK MISO MOSI SS
+    {A5, A6, A7, A4}   // HSPI SCK MISO MOSI SS
 };
 
 static ESP32_SPI_Info *spiMap[TOTAL_SPIS]; // pointer to SPI_MAP[] containing SPI peripheral register locations (etc)
@@ -122,22 +120,15 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
-    HAL_USART_Begin(0, 115200);
-    if (spi == 0)
-    {
-      for(int i = 0; i < 10; i++){
-        HAL_USART_Write_Data(0, 'c');
-      }
-    }
     uint32_t clockDiv = spiFrequencyToClockDiv(1000000);
+
     if (spi == 0) {
-        spiMap[spi]->spi = spiStartBus( HSPI, clockDiv, SPI_MODE0, SPI_MSBFIRST);
-        HAL_USART_Write_Data(0, 'd');
+        spiMap[spi]->spi = &_spi_bus_array[3]; // default VSPI
     }
-    #if 0
-    if (spi == 0) {
-      spiMap[spi]->spi = &_spi_bus_array[2];
+    else if (spi == 1) {
+        spiMap[spi]->spi = &_spi_bus_array[2]; // HSPI
     }
+
     /* spiMap[spi]->spi = &_spi_bus_array[spi]; */
 
     if(spiMap[spi]->spi->lock == NULL){
@@ -147,21 +138,16 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
         }
     }
 
-    if(spi == 0) { // HSPI (2)
-        SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_1);
-        CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_1);
-        if (spi == 0)
-          {
-            for(int i = 0; i < 10; i++){
-              HAL_USART_Write_Data(0, 'b');
-            }
-          }
-
-        /* spiMap[spi]->spi->num = 2; */
-    } else if(spi == 1) { // VSPI (3)
+    if(spi == 0) { // VSPI (3)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_2);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_2);
-        /* spiMap[spi]->spi->num = 3; */
+        spiMap[spi]->spi->num = 3;
+
+    } else if(spi == 1) { // HSPI (2)
+        SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN_1);
+        CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_SPI_RST_1);
+        spiMap[spi]->spi->num = 2;
+
     } else {
         return;
         /* SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_SPI_CLK_EN); */
@@ -184,7 +170,6 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
     }
 
     SPI_MUTEX_UNLOCK();
-    #endif
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t sck  = PIN_MAP[spiMap[spi]->SPI_SCK_Pin].gpio_pin;

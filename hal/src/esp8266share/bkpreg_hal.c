@@ -15,7 +15,7 @@
 
 #define RTC_MEM ((volatile uint32_t*)0x60001200)
 
-int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
+int32_t ICACHE_FLASH_ATTR HAL_Core_Backup_Register(uint32_t BKP_DR)
 {
     switch (BKP_DR)
     {
@@ -53,7 +53,7 @@ int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
     return -1;
 }
 
-void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
+void ICACHE_FLASH_ATTR HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
 {
     uint32_t BKP_DR_Address = HAL_Core_Backup_Register(BKP_DR);
     if (BKP_DR_Address != -1)
@@ -62,7 +62,7 @@ void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data)
     }
 }
 
-uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
+uint32_t ICACHE_FLASH_ATTR HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
 {
     uint32_t BKP_DR_Address = HAL_Core_Backup_Register(BKP_DR);
     if (BKP_DR_Address != -1)

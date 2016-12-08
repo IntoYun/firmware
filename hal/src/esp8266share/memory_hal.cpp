@@ -30,7 +30,7 @@ static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
  * @param  None
  * @retval The sector of a given address
  */
-uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
+uint32_t ICACHE_FLASH_ATTR HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
     return address/FLASH_SECTOR_SIZE;
 }
@@ -40,7 +40,7 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
  * @param  None
  * @retval The sector of a given address
  */
-HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
+HAL_Flash_StatusTypeDef ICACHE_FLASH_ATTR HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
@@ -62,7 +62,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
     return result;
 }
 
-HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
+HAL_Flash_StatusTypeDef ICACHE_FLASH_ATTR HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
@@ -84,7 +84,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
     return result;
 }
 
-HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
+HAL_Flash_StatusTypeDef ICACHE_FLASH_ATTR HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *pdata, uint32_t datalen)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 

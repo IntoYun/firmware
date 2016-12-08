@@ -55,7 +55,7 @@ void delay_end(void* arg) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HAL_Delay_Milliseconds(uint32_t nTime)
+void ICACHE_FLASH_ATTR HAL_Delay_Milliseconds(uint32_t nTime)
 {
     volatile system_tick_t start_millis, current_millis, elapsed_millis;
 
@@ -86,7 +86,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
  * Output         : None
  * Return         : None
  *******************************************************************************/
-void HAL_Delay_Microseconds(uint32_t uSec)
+void ICACHE_FLASH_ATTR HAL_Delay_Microseconds(uint32_t uSec)
 {
     os_delay_us(uSec);
 }

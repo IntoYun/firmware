@@ -35,7 +35,7 @@
 
 UART_HandleTypeDef UartHandle_SERIAL1;    // USART2 A8(PA3)-RX A7(PA2)-TX
 UART_HandleTypeDef UartHandle_SERIAL2;    // USART3 D22(PB11)-RX D23(PB10)-TX
-UART_HandleTypeDef UartHandle_SERIAL3;    // USART3 D12(PB11)-RX D13(PB10)-TX
+UART_HandleTypeDef UartHandle_SERIAL3;    // USART3 D12(PA10)-RX D13(PA9)-TX
 
 SDK_QUEUE Usart_Rx_Queue_SERIAL1;
 SDK_QUEUE Usart_Rx_Queue_SERIAL2;
@@ -87,7 +87,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      */
     { USART2, USART2_IRQn, TX, RX },                      // USART 2
     { USART3, USART3_IRQn, TX1, RX1 },                    // USART 3
-    { USART1, USART3_IRQn, TX2, RX2 },                    // USART 1
+    { USART1, USART1_IRQn, TX2, RX2 },                    // USART 1
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -329,19 +329,19 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
     }
 }
 
-// Serial2 interrupt handler
+// Serial interrupt handler
 void USART2_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
 }
 
-// Serial3 interrupt handler
+// Serial1 interrupt handler
 void USART3_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL2);
 }
 
-// Serial1 interrupt handler
+// Serial2 interrupt handler
 void USART1_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL3);

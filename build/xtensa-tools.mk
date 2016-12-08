@@ -3,7 +3,8 @@
 #
 
 # 定义编译器和工具的前缀
-ifeq ($(PLATFORM_ID), 7) # for fig
+# ifeq ($(PLATFORM_ID), 7) # for fig
+ifeq ($(strip $(PLATFORM_ID)),$(filter $(PLATFORM_ID),7 9)) # for fig w323
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-esp32-elf/bin/
 GCC_PREFIX ?= xtensa-esp32-elf-
 

@@ -494,7 +494,7 @@ int8_t findServoIndex(uint16_t pin)
 }
 
 
-void HAL_Servo_Attach(uint16_t pin)
+void ICACHE_FLASH_ATTR HAL_Servo_Attach(uint16_t pin)
 {
     int8_t pin_severindex = findServoIndex(pin);
     if (pin_severindex != -1) {
@@ -508,25 +508,25 @@ void HAL_Servo_Attach(uint16_t pin)
     }
 }
 
-void HAL_Servo_Detach(uint16_t pin)
+void ICACHE_FLASH_ATTR HAL_Servo_Detach(uint16_t pin)
 {
     int8_t pin_severindex = findServoIndex(pin);
     myServo[pin_severindex]->detach();
 }
 
-void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
+void ICACHE_FLASH_ATTR HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
     int8_t pin_severindex = findServoIndex(pin);
     myServo[pin_severindex]->write(pulseWidth);
 }
 
-uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
+uint16_t ICACHE_FLASH_ATTR HAL_Servo_Read_Pulse_Width(uint16_t pin)
 {
     int8_t pin_severindex = findServoIndex(pin);
     return myServo[pin_severindex]->read();
 }
 
-uint16_t HAL_Servo_Read_Frequency(uint16_t pin)
+uint16_t ICACHE_FLASH_ATTR HAL_Servo_Read_Frequency(uint16_t pin)
 {
     return 0;
 }

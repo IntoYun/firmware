@@ -84,7 +84,8 @@ size: $(TARGET_BASE).elf
 # Create a bin file from ELF file
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
-ifeq ($(PLATFORM_ID), 7) # for fig
+# ifeq ($(PLATFORM_ID), 7) # for fig
+ifeq ($(strip $(PLATFORM_ID)),$(filter $(PLATFORM_ID),7 9)) # for fig w323
 	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
 else # for nut neutron-net
 ifeq ("$(MODULE)","bootloader")

@@ -146,7 +146,7 @@ static void do_global_ctors(void) {
 }
 
 extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
-void init_done() {
+void ICACHE_FLASH_ATTR init_done() {
     gdb_init();
     do_global_ctors();
     printf("\n%08x\n", intorobot_subsys_version);
@@ -156,7 +156,7 @@ void init_done() {
     esp_schedule();
 }
 
-extern "C" void user_init(void) {
+extern "C" void ICACHE_FLASH_ATTR user_init(void) {
     struct rst_info *rtc_info_ptr = system_get_rst_info();
     memcpy((void *) &resetInfo, (void *) rtc_info_ptr, sizeof(resetInfo));
     uart_div_modify(0, UART_CLK_FREQ / (115200));
@@ -174,7 +174,7 @@ extern "C" void user_init(void) {
     system_init_done_cb(&init_done);
 }
 
-void HAL_Core_Init(void)
+void ICACHE_FLASH_ATTR HAL_Core_Init(void)
 {
 
 }
@@ -184,7 +184,7 @@ void SysTick_Handler(void* arg);
 static os_timer_t systick_timer;
 static os_timer_t system_loop_timer;
 
-void HAL_Core_Config(void)
+void ICACHE_FLASH_ATTR HAL_Core_Config(void)
 {
     //滴答定时器  //处理三色灯和模式处理
     os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
@@ -203,7 +203,7 @@ void HAL_Core_Config(void)
     HAL_UI_Initial();
 }
 
-void HAL_Core_Load_params(void)
+void ICACHE_FLASH_ATTR HAL_Core_Load_params(void)
 {
     // load params
     HAL_PARAMS_Load_System_Params();
@@ -234,7 +234,7 @@ void HAL_Core_Load_params(void)
     }
 }
 
-void HAL_Core_Setup(void)
+void ICACHE_FLASH_ATTR HAL_Core_Setup(void)
 {
     esp8266_setMode(WIFI_STA);
     esp8266_setDHCP(true);
@@ -246,31 +246,31 @@ void HAL_Core_Setup(void)
 }
 
 extern "C" void __real_system_restart_local();
-void HAL_Core_System_Reset(void)
+void ICACHE_FLASH_ATTR HAL_Core_System_Reset(void)
 {
     HAL_Core_Write_Backup_Register(BKP_DR_03, 0x7DEA);
     __real_system_restart_local();
 }
 
-void HAL_Core_Enter_DFU_Mode(bool persist)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_DFU_Mode(bool persist)
 {
 }
 
-void HAL_Core_Enter_Config_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Config_Mode(void)
 {
     HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
-void HAL_Core_Enter_Firmware_Recovery_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Firmware_Recovery_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_DEFAULT_RESTORE);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
-void HAL_Core_Enter_Com_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Com_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_SERIAL_COM);
     HAL_PARAMS_Save_Params();
@@ -280,14 +280,14 @@ void HAL_Core_Enter_Com_Mode(void)
  * 恢复出厂设置 不清除密钥
  */
 
-void HAL_Core_Enter_Factory_Reset_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Factory_Reset_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_FACTORY_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
-void HAL_Core_Enter_Ota_Update_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Ota_Update_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
@@ -297,22 +297,22 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
 /**
  * 恢复出厂设置 清除密钥
  */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Factory_All_Reset_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
 
-void HAL_Core_Enter_Safe_Mode(void* reserved)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Safe_Mode(void* reserved)
 {
 }
 
-void HAL_Core_Enter_Bootloader(bool persist)
+void ICACHE_FLASH_ATTR HAL_Core_Enter_Bootloader(bool persist)
 {
 }
 
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
+uint16_t ICACHE_FLASH_ATTR HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
     char data[32];
     uint16_t templen;
@@ -333,13 +333,13 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 typedef void (*app_system_loop_handler)(void);
 app_system_loop_handler APP_System_Loop_Handler = NULL;
 
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
+void ICACHE_FLASH_ATTR HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {
     APP_System_Loop_Handler = handler;
 }
 
 static uint32_t g_at_system_loop = false;
-void system_loop_handler(uint32_t interval_us)
+void ICACHE_FLASH_ATTR system_loop_handler(uint32_t interval_us)
 {
     if( true == g_at_system_loop )
         return;
@@ -354,19 +354,19 @@ void system_loop_handler(uint32_t interval_us)
     }
 }
 
-void SysTick_Handler(void* arg)
+void ICACHE_FLASH_ATTR SysTick_Handler(void* arg)
 {
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
 }
 
-void HAL_Core_System_Loop(void)
+void ICACHE_FLASH_ATTR HAL_Core_System_Loop(void)
 {
     optimistic_yield(100);
     system_loop_handler(100);
 }
 
-void HAL_Core_System_Yield(void)
+void ICACHE_FLASH_ATTR HAL_Core_System_Yield(void)
 {
     optimistic_yield(100);
 }

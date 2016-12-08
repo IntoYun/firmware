@@ -91,10 +91,11 @@ void HAL_Core_Config(void)
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     __HAL_RCC_AFIO_CLK_ENABLE();
-    __HAL_AFIO_REMAP_SWJ_DISABLE();
+    __HAL_AFIO_REMAP_SWJ_NOJTAG();
+    // __HAL_AFIO_REMAP_SWJ_DISABLE();
     for (pin_t pin=A0; pin<=A15; pin++)
         HAL_Pin_Mode(pin, INPUT);
-    for (pin_t pin=D0; pin<=D24; pin++)
+    for (pin_t pin=D0; pin<=D25; pin++)
         HAL_Pin_Mode(pin, INPUT);
 #endif
 
@@ -102,7 +103,7 @@ void HAL_Core_Config(void)
     HAL_RNG_Initial();
     HAL_IWDG_Initial();
     HAL_UI_Initial();
-    USB_Cable_Initial();
+    // USB_Cable_Initial();
 }
 
 void HAL_Core_Load_params(void)

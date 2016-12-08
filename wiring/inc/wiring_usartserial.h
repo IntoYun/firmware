@@ -101,7 +101,7 @@ extern USARTSerial& __fetch_global_Serial1();
 extern USARTSerial& __fetch_global_Serial2();
 #endif
 
-#if Wiring_Serial3
+#ifdef configWIRING_USARTSERIAL2_ENABLE  //Wiring_Serial3
 #define Serial2 __fetch_global_Serial3()
 extern USARTSerial& __fetch_global_Serial3();
 #endif

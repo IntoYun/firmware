@@ -126,7 +126,7 @@ static uint8_t s_servoCount = 0;            // the total number of attached s_se
 // similiar to map but will have increased accuracy that provides a more
 // symetric api (call it and use result to reverse will provide the original value)
 // 
-int improved_map(int value, int minIn, int maxIn, int minOut, int maxOut)
+int ICACHE_FLASH_ATTR improved_map(int value, int minIn, int maxIn, int minOut, int maxOut)
 {
     const int rangeIn = maxIn - minIn;
     const int rangeOut = maxOut - minOut;
@@ -146,7 +146,7 @@ template <class T>
 static void Servo_Handler(T* timer) ICACHE_RAM_ATTR;
 
 template <class T>
-static void Servo_Handler(T* timer)
+static void ICACHE_FLASH_ATTR Servo_Handler(T* timer)
 {
     uint8_t servoIndex;
 
@@ -262,7 +262,7 @@ static boolean isTimerActive(ServoTimerSequence timerId)
 //-------------------------------------------------------------------
 // Servo class methods
 
-ServoHal::ServoHal()
+ICACHE_FLASH_ATTR ServoHal::ServoHal()
 {
     if (s_servoCount < MAX_SERVOS) {
         // assign a servo index to this instance
@@ -283,12 +283,12 @@ ServoHal::ServoHal()
     }
 }
 
-uint8_t ServoHal::attach(int pin)
+uint8_t ICACHE_FLASH_ATTR ServoHal::attach(int pin)
 {
     return attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-uint8_t ServoHal::attach(int pin, int minUs, int maxUs)
+uint8_t ICACHE_FLASH_ATTR ServoHal::attach(int pin, int minUs, int maxUs)
 {
     ServoTimerSequence timerId;
 
@@ -316,7 +316,7 @@ uint8_t ServoHal::attach(int pin, int minUs, int maxUs)
     return _servoIndex;
 }
 
-void ServoHal::detach()
+void ICACHE_FLASH_ATTR ServoHal::detach()
 {
     ServoTimerSequence timerId;
 
@@ -325,7 +325,7 @@ void ServoHal::detach()
     }
 }
 
-void ServoHal::write(int value)
+void ICACHE_FLASH_ATTR ServoHal::write(int value)
 {
     // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
     if (value < MIN_PULSE_WIDTH) {
@@ -338,7 +338,7 @@ void ServoHal::write(int value)
     writeMicroseconds(value);
 }
 
-void ServoHal::writeMicroseconds(int value)
+void ICACHE_FLASH_ATTR ServoHal::writeMicroseconds(int value)
 {
     // ensure channel is valid
     if ((_servoIndex < MAX_SERVOS)) {
@@ -349,14 +349,14 @@ void ServoHal::writeMicroseconds(int value)
     }
 }
 
-int ServoHal::read() // return the value as degrees
+int ICACHE_FLASH_ATTR ServoHal::read() // return the value as degrees
 {
     // read returns the angle for an assumed 0-180, so we calculate using 
     // the normal min/max constants and not user defined ones
     return improved_map(readMicroseconds(), MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, 0, 180);
 }
 
-int ServoHal::readMicroseconds()
+int ICACHE_FLASH_ATTR ServoHal::readMicroseconds()
 {
     unsigned int pulsewidth;
     if (_servoIndex != INVALID_SERVO) {
@@ -369,7 +369,7 @@ int ServoHal::readMicroseconds()
     return pulsewidth;
 }
 
-bool ServoHal::attached()
+bool ICACHE_FLASH_ATTR ServoHal::attached()
 {
     return s_servos[_servoIndex].info.isActive;
 }
