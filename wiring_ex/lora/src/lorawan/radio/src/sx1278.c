@@ -1249,7 +1249,7 @@ void SX1278SetOpMode( uint8_t opMode )
 
 void SX1278SetModem( RadioModems_t modem )
 {
-    assert_param( ( SX1278.Spi.Spi.Instance != NULL ) );
+    //assert_param( ( SX1278.Spi.Spi.Instance != NULL ) );
 
     if( SX1278.Settings.Modem == modem )
     {

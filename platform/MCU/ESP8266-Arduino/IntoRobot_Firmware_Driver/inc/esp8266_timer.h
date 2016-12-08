@@ -94,8 +94,8 @@ void timer0_detachInterrupt(void);
 #define xt_rsil(level) (__extension__({uint32_t state; __asm__ __volatile__("rsil %0," __STRINGIFY(level) : "=a" (state)); state;}))
 #define xt_wsr_ps(state)  __asm__ __volatile__("wsr %0,ps; isync" :: "a" (state) : "memory")
 
-#define interrupts() xt_rsil(0)
-#define noInterrupts() xt_rsil(15)
+//#define interrupts() xt_rsil(0)
+//#define noInterrupts() xt_rsil(15)
 
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )

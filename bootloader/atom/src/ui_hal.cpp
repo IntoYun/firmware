@@ -1,4 +1,3 @@
-
 #include "hw_config.h"
 #include "ui_hal.h"
 

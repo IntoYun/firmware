@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 #include "hw_config.h"
-#include "wiring_process.h"
+#include "wiring_ex_process.h"
 #include "ui_hal.h"
 
 #define USER_LED_GPIO_PIN       GPIO_PIN_9

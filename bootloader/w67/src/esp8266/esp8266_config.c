@@ -1,5 +1,4 @@
 #include "hw_config.h"
-#include "hw_timer.h"
 #include "esp8266_config.h"
 
 
@@ -28,28 +27,6 @@ void SystemClock_Config(void)
         ets_delay_us(150);
     }
 }
-/**
- * @brief  This function handles SysTick Handler.
- * @param  None
- * @retval None
- */
-void SysTick_Handler(void)
-{
-    HAL_UI_SysTick_Handler();
-}
-
-/**
- * @brief  System Clock Configuration
- * @param  96M
- * @retval None
- */
-void HwTimer_config(void)
-{
-    //开启1ms滴答定时器
-    hw_timer_init(FRC1_SOURCE, 1);
-    hw_timer_set_func(SysTick_Handler);
-    hw_timer_arm(1000);
-}
 
 /**
  * @brief  Configures Main system clocks & power.
@@ -61,8 +38,7 @@ void Set_System(void)
     zero_bss();
     SystemClock_Config();
     ets_wdt_disable();   //必须禁止看门口，因为从应用软重启进入boot，看门狗是打开的，烧写的时候将导致重启。
-    HwTimer_config();
-    HAL_UI_Initial();
+    esp8266_gpioToFn[0] = 0x34; //没什么具体含义 只是为了编译-bs .data 能通过。
 }
 
 void delay(uint32_t ms)

@@ -39,7 +39,7 @@ namespace Flashee {
 
 FlashDevice::~FlashDevice() { }
 
-#ifdef SPARK_PLATFORM
+#ifdef INTOROBOT_PLATFORM
     static SparkExternalFlashDevice directFlash;
 #else
     static FakeFlashDevice directFlash(512, 4096);

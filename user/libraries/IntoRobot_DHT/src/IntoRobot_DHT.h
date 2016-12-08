@@ -25,7 +25,7 @@
 #include "math.h"
 
 #define MAXTIMINGS     85 
-#define TIME_US_BIT_1  40 // Êı¾İ1µÄãĞÖµÊ±¼ä µ¥Î»us
+#define TIME_US_BIT_1  40 // æ•°æ®1çš„é˜ˆå€¼æ—¶é—´ å•ä½us
 
 #define DHT11  11
 #define AM2302 22

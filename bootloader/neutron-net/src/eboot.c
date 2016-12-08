@@ -16,6 +16,9 @@
 extern void ets_wdt_enable(void);
 extern void ets_wdt_disable(void);
 
+//没什么具体含义 只是为了编译-bs .data 能通过。
+uint8_t tempData[16] = {0x34, 0x18, 0x38, 0x14, 0x3C, 0x40, 0x1C, 0x20, 0x24, 0x28, 0x2C, 0x30, 0x04, 0x08, 0x0C, 0x10};
+
 /*从flash中导入应用*/
 int load_app_from_flash_raw(const uint32_t flash_addr)
 {

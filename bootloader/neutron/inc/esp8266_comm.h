@@ -25,7 +25,7 @@ Distributed as-is; no warranty is given.
 extern "C" {
 #endif
 
-#include "hw_config.h"
+//#include "hw_config.h"
 #include "boot_mode.h"
 
 // Common Responses

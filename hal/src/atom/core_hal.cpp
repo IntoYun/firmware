@@ -33,8 +33,8 @@
 #include "stm32f1xx_it.h"
 #include "delay_hal.h"
 #include "params_hal.h"
-#include "wiring_bridge.h"
-#include "wiring_process.h"
+#include "wiring_ex_bridge.h"
+#include "wiring_ex_process.h"
 #include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/

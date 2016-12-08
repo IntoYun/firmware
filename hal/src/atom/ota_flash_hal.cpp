@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 #include "ota_flash_hal.h"
-#include "wiring_process.h"
+#include "wiring_ex_process.h"
 #include "core_hal.h"
 
 uint8_t down_progress=0;

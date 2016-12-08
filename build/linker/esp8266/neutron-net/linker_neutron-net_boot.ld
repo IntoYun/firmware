@@ -4,7 +4,7 @@ MEMORY
 {
   dport0_0_seg :                      	org = 0x3FF00000, len = 0x10
   dram0_0_seg :                       	org = 0x3FFE8000, len = 0x14000
-  iram1_0_seg :                       	org = 0x4010f000, len = 0x7000
+  iram1_0_seg :                       	org = 0x40108000, len = 0x7000
   irom0_0_seg :                       	org = 0x40240000, len = 0x32000
 }
 
@@ -20,6 +20,11 @@ PHDRS
 
 /*  Default entry point:  */
 ENTRY(main)
+EXTERN(_DebugExceptionVector)
+EXTERN(_DoubleExceptionVector)
+EXTERN(_KernelExceptionVector)
+EXTERN(_NMIExceptionVector)
+EXTERN(_UserExceptionVector)
 PROVIDE(_memmap_vecbase_reset = 0x40000000);
 /* Various memory-map dependent cache attribute settings: */
 _memmap_cacheattr_wb_base = 0x00000110;
@@ -68,25 +73,6 @@ SECTIONS
 
   .data : ALIGN(4)
   {
-    _heap_start = ABSOLUTE(.);
-/*    _stack_sentry = ALIGN(0x8); */
-  } >dram0_0_seg :dram0_0_bss_phdr
-/* __stack = 0x3ffc8000; */
-
-  .text : ALIGN(4)
-  {
-    _stext = .;
-    _text_start = ABSOLUTE(.);
-    *(.entry.text)
-    *(.init.literal)
-    *(.init)
-    *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-    *(.fini.literal)
-    *(.fini)
-    *(.gnu.version)
-    _text_end = ABSOLUTE(.);
-    _etext = .;
-    . = ALIGN (8);
     _data_start = ABSOLUTE(.);
     *(.data)
     *(.data.*)
@@ -100,8 +86,12 @@ SECTIONS
     *(.gnu.linkonce.s2.*)
     *(.jcr)
     _data_end = ABSOLUTE(.);
-  . = ALIGN (8);
+  } >dram0_0_seg :dram0_0_phdr
+
+  .rodata : ALIGN(4)
+  {
     _rodata_start = ABSOLUTE(.);
+    *(.sdk.version)
     *(.rodata)
     *(.rodata.*)
     *(.gnu.linkonce.r.*)
@@ -129,13 +119,16 @@ SECTIONS
     *(.xt_except_desc_end)
     *(.dynamic)
     *(.gnu.version_d)
-    . = ALIGN(4);   /* this table MUST be 4-byte aligned */
+    . = ALIGN(4);		/* this table MUST be 4-byte aligned */
     _bss_table_start = ABSOLUTE(.);
     LONG(_bss_start)
     LONG(_bss_end)
     _bss_table_end = ABSOLUTE(.);
     _rodata_end = ABSOLUTE(.);
+  } >dram0_0_seg :dram0_0_phdr
 
+  .bss ALIGN(8) (NOLOAD) : ALIGN(4)
+  {
     . = ALIGN (8);
     _bss_start = ABSOLUTE(.);
     *(.dynsbss)
@@ -153,6 +146,48 @@ SECTIONS
     *(COMMON)
     . = ALIGN (8);
     _bss_end = ABSOLUTE(.);
+    _heap_start = ABSOLUTE(.);
+/*    _stack_sentry = ALIGN(0x8); */
+  } >dram0_0_seg :dram0_0_bss_phdr
+/* __stack = 0x3ffc8000; */
+
+  .text : ALIGN(4)
+  {
+    _stext = .;
+    _text_start = ABSOLUTE(.);
+    *(.UserEnter.text)
+    . = ALIGN(16);
+    *(.DebugExceptionVector.text)
+    . = ALIGN(16);
+    *(.NMIExceptionVector.text)
+    . = ALIGN(16);
+    *(.KernelExceptionVector.text)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    . = ALIGN(16);
+    *(.UserExceptionVector.text)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    . = ALIGN(16);
+    *(.DoubleExceptionVector.text)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    LONG(0)
+    . = ALIGN (16);
+    *(.entry.text)
+    *(.init.literal)
+    *(.init)
+    *(.literal .text .literal.* .text.* .iram.text .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
+    *(.fini.literal)
+    *(.fini)
+    *(.gnu.version)
+    _text_end = ABSOLUTE(.);
+    _etext = .;
   } >iram1_0_seg :iram1_0_phdr
 
   .lit4 : ALIGN(4)

@@ -29,7 +29,7 @@ IntoRobot_DHT::IntoRobot_DHT(uint8_t pin, uint8_t type)
 
 void IntoRobot_DHT::begin(void) 
 {
-    // ÉèÖÃÒı½Å
+    // è®¾ç½®å¼•è„š
 	pinMode(_pin, INPUT);
 	digitalWrite(_pin, HIGH);
 	_lastreadtime = 0;
@@ -158,7 +158,7 @@ boolean IntoRobot_DHT::read(void)
 	uint8_t counter = 0;
 	uint8_t j = 0, i;
 	unsigned long currenttime;
-    // 2sºó²Å¿ªÊ¼¶ÁÈ¡´«¸ĞÆ÷Êı¾İ
+    // 2såæ‰å¼€å§‹è¯»å–ä¼ æ„Ÿå™¨æ•°æ®
 	currenttime = millis();
 	if (currenttime < _lastreadtime) 
 	{
@@ -167,18 +167,18 @@ boolean IntoRobot_DHT::read(void)
 	
 	if (!firstreading && ((currenttime - _lastreadtime) < 2000)) 
 	{
-		return true; //ÑÓÊ±(2000 - (currenttime - _lastreadtime));
+		return true; //å»¶æ—¶(2000 - (currenttime - _lastreadtime));
 	}
 	firstreading = false;
 	_lastreadtime = millis();
 
 	data[0] = data[1] = data[2] = data[3] = data[4] = 0;
   
-	digitalWrite(_pin, HIGH); //À­¸ßµçÆ½ µÈ´ı250ms
+	digitalWrite(_pin, HIGH); //æ‹‰é«˜ç”µå¹³ ç­‰å¾…250ms
 	delay(250);
 	pinMode(_pin, OUTPUT);
 	digitalWrite(_pin, LOW);
-	delay(20); //¿ªÊ¼ĞÅºÅ 20ms
+	delay(20); //å¼€å§‹ä¿¡å· 20ms
 	noInterrupts();
 	digitalWrite(_pin, HIGH);
 	//delayMicroseconds(40);
@@ -198,7 +198,7 @@ boolean IntoRobot_DHT::read(void)
         }
 		laststate = digitalRead(_pin);
 		if (counter == 255) break;
-        //ºöÂÔÇ°3¸öµçÆ½
+        //å¿½ç•¥å‰3ä¸ªç”µå¹³
 		if ((i >= 4) && (i%2 == 0))
 		{
 			data[j/8] <<= 1;
@@ -210,7 +210,7 @@ boolean IntoRobot_DHT::read(void)
 	}
 
 	interrupts();
-    //Ğ£ÑéÊı¾İ
+    //æ ¡éªŒæ•°æ®
 	if ((j >= 40) && (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) ) 
     {
 		return true;

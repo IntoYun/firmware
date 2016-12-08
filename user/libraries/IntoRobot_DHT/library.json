@@ -1,9 +1,0 @@
-﻿{
-  "name": "IntoRobot_DHT",
-  "author": "robin",
-  "maintainer": "IntoRobot Team",
-  "license": "MIT",
-  "version": "0.0.1",
-  "description": "DHT11/21/22和AM2301/02温湿度传感器库"
-}
-

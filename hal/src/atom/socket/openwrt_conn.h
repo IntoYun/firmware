@@ -27,7 +27,7 @@
 #include "pipe_hal.h"
 #include "hw_config.h"
 #include "enums_hal.h"
-#include "wiring_bridge.h"
+#include "wiring_ex_bridge.h"
 
 
 #undef putc

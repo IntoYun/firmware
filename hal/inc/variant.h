@@ -23,10 +23,11 @@
   ******************************************************************************
  */
 
-#ifndef   VARIANT_H_
-#define   VARIANT_H_
+#ifndef VARIANT_H_
+#define VARIANT_H_
 
-#include "hw_config.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /** @addtogroup Exported_types
   * @{
@@ -40,13 +41,13 @@ typedef const int32_t sc32;  /*!< Read Only */
 typedef const int16_t sc16;  /*!< Read Only */
 typedef const int8_t sc8;   /*!< Read Only */
 
-typedef __IO int32_t  vs32;
-typedef __IO int16_t  vs16;
-typedef __IO int8_t   vs8;
+typedef volatile int32_t  vs32;
+typedef volatile int16_t  vs16;
+typedef volatile int8_t   vs8;
 
-typedef __I int32_t vsc32;  /*!< Read Only */
-typedef __I int16_t vsc16;  /*!< Read Only */
-typedef __I int8_t vsc8;   /*!< Read Only */
+typedef volatile const int32_t vsc32;  /*!< Read Only */
+typedef volatile const int16_t vsc16;  /*!< Read Only */
+typedef volatile const int8_t vsc8;   /*!< Read Only */
 
 typedef uint32_t  u32;
 typedef uint16_t u16;
@@ -56,31 +57,13 @@ typedef const uint32_t uc32;  /*!< Read Only */
 typedef const uint16_t uc16;  /*!< Read Only */
 typedef const uint8_t uc8;   /*!< Read Only */
 
-typedef __IO uint32_t  vu32;
-typedef __IO uint16_t vu16;
-typedef __IO uint8_t  vu8;
+typedef volatile uint32_t  vu32;
+typedef volatile uint16_t vu16;
+typedef volatile uint8_t  vu8;
 
-typedef __I uint32_t vuc32;  /*!< Read Only */
-typedef __I uint16_t vuc16;  /*!< Read Only */
-typedef __I uint8_t vuc8;   /*!< Read Only */
-
-
-//#define HIGH    0x1
-//#define LOW     0x0
-
-#define ON      0x1
-#define OFF     0x0
-
-//#define boolean bool
-#define NONE ((uint8_t)0xFF)
-
-
-#define PI 3.1415926535897932384626433832795
-#define HALF_PI 1.5707963267948966192313216916398
-#define TWO_PI 6.283185307179586476925286766559
-#define DEG_TO_RAD 0.017453292519943295769236907684886
-#define RAD_TO_DEG 57.295779513082320876798154814105
-#define EULER 2.718281828459045235360287471352
+typedef volatile const uint32_t vuc32;  /*!< Read Only */
+typedef volatile const uint16_t vuc16;  /*!< Read Only */
+typedef volatile const uint8_t vuc8;   /*!< Read Only */
 
 #endif /* VARIANT_H_ */
 
