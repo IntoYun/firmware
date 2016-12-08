@@ -38,7 +38,7 @@ uint32_t tone_freq = configTIM_PWM_FREQ;
 
 void t1IntHandler();
 
-static int8_t ICACHE_FLASH_ATTR toneBegin(uint8_t _pin) {
+static int8_t toneBegin(uint8_t _pin) {
     int8_t _index = -1;
 
     // if we're already using the pin, reuse it.
@@ -59,7 +59,7 @@ static int8_t ICACHE_FLASH_ATTR toneBegin(uint8_t _pin) {
     return _index;
 }
 
-void ICACHE_FLASH_ATTR disableTimer(uint8_t _index) {
+void disableTimer(uint8_t _index) {
     tone_pins[_index] = 255;
 
     switch (tone_timers[_index]) {
@@ -88,7 +88,7 @@ ICACHE_RAM_ATTR void t1IntHandler() {
     }
 }
 
-void ICACHE_FLASH_ATTR HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
+void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
 {
     int8_t _index;
 
@@ -123,7 +123,7 @@ void ICACHE_FLASH_ATTR HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t 
     }
 }
 
-void ICACHE_FLASH_ATTR HAL_Tone_Stop(uint8_t pin)
+void HAL_Tone_Stop(uint8_t pin)
 {
     for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
         if (tone_pins[i] == pin) {
@@ -135,12 +135,12 @@ void ICACHE_FLASH_ATTR HAL_Tone_Stop(uint8_t pin)
     HAL_GPIO_Write(pin, 0);
 }
 
-uint32_t ICACHE_FLASH_ATTR HAL_Tone_Get_Frequency(uint8_t pin)
+uint32_t HAL_Tone_Get_Frequency(uint8_t pin)
 {
     return tone_freq;
 }
 
-bool ICACHE_FLASH_ATTR HAL_Tone_Is_Stopped(uint8_t pin)
+bool HAL_Tone_Is_Stopped(uint8_t pin)
 {
     for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
         if (tone_pins[i] == pin) {

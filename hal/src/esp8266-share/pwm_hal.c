@@ -43,7 +43,7 @@ uint16_t pwm_steps[17];
 uint8_t pwm_steps_len = 0;
 uint32_t pwm_steps_mask[17];
 
-int ICACHE_FLASH_ATTR pwm_sort_array(uint16_t a[], uint16_t al){
+int pwm_sort_array(uint16_t a[], uint16_t al){
     uint16_t i, j;
     for (i = 1; i < al; i++) {
         uint16_t tmp = a[i];
@@ -58,7 +58,7 @@ int ICACHE_FLASH_ATTR pwm_sort_array(uint16_t a[], uint16_t al){
     return bl;
 }
 
-uint32_t ICACHE_FLASH_ATTR pwm_get_mask(uint16_t value){
+uint32_t pwm_get_mask(uint16_t value){
     uint32_t mask = 0;
     int i;
     for(i=0; i<17; i++){
@@ -67,7 +67,7 @@ uint32_t ICACHE_FLASH_ATTR pwm_get_mask(uint16_t value){
     return mask;
 }
 
-void ICACHE_FLASH_ATTR prep_pwm_steps(){
+void prep_pwm_steps(){
     if(pwm_mask == 0){
         pwm_steps_len = 0;
         return;
@@ -125,7 +125,7 @@ void ICACHE_RAM_ATTR pwm_timer_isr(){
     }
 }
 
-void ICACHE_FLASH_ATTR pwm_start_timer(){
+void pwm_start_timer(){
     timer1_disable();
     timer1_attachInterrupt(pwm_timer_isr);
     timer1_enable(TIM_DIV1, TIM_EDGE, TIM_SINGLE);
@@ -139,7 +139,7 @@ void ICACHE_FLASH_ATTR pwm_start_timer(){
  * @param value: The duty: 0-255
  * @retval None
  */
-void ICACHE_FLASH_ATTR HAL_PWM_Write(uint16_t pin, uint8_t value)
+void HAL_PWM_Write(uint16_t pin, uint8_t value)
 {
     HAL_PWM_Write_With_Frequency_Ext(pin, (uint16_t)value, configTIM_PWM_FREQ);
 }
@@ -151,7 +151,7 @@ void ICACHE_FLASH_ATTR HAL_PWM_Write(uint16_t pin, uint8_t value)
  * @param pwm_frequency: The frequency.
  * @retval None
  */
-void ICACHE_FLASH_ATTR HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_frequency)
+void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_frequency)
 {
     HAL_PWM_Write_With_Frequency_Ext(pin, (uint16_t)value, pwm_frequency);
 }
@@ -164,7 +164,7 @@ void ICACHE_FLASH_ATTR HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value,
  * @param value: The duty: 0-255
  * @retval None
  */
-void ICACHE_FLASH_ATTR HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
+void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
 {
     HAL_PWM_Write_With_Frequency_Ext(pin, value, configTIM_PWM_FREQ);
 }
@@ -178,7 +178,7 @@ void ICACHE_FLASH_ATTR HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
  * @param pwm_frequency: The frequency.
  * @retval None
  */
-void ICACHE_FLASH_ATTR HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm_frequency)
+void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm_frequency)
 {
     bool start_timer = false;
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -206,28 +206,28 @@ void ICACHE_FLASH_ATTR HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t v
     }
 }
 
-uint16_t ICACHE_FLASH_ATTR HAL_PWM_Get_Frequency(uint16_t pin)
+uint16_t HAL_PWM_Get_Frequency(uint16_t pin)
 {
     return HAL_PWM_Get_Frequency_Ext(pin);
 }
 
-uint16_t ICACHE_FLASH_ATTR HAL_PWM_Get_AnalogValue(uint16_t pin)
+uint16_t HAL_PWM_Get_AnalogValue(uint16_t pin)
 {
     return HAL_PWM_Get_AnalogValue_Ext(pin);
 }
 
 
-uint32_t ICACHE_FLASH_ATTR HAL_PWM_Get_Frequency_Ext(uint16_t pin)
+uint32_t HAL_PWM_Get_Frequency_Ext(uint16_t pin)
 {
     return pwm_freq;
 }
 
-uint32_t ICACHE_FLASH_ATTR HAL_PWM_Get_AnalogValue_Ext(uint16_t pin)
+uint32_t HAL_PWM_Get_AnalogValue_Ext(uint16_t pin)
 {
     return 0;
 }
 
-uint32_t ICACHE_FLASH_ATTR HAL_PWM_Get_Max_Frequency(uint16_t pin)
+uint32_t HAL_PWM_Get_Max_Frequency(uint16_t pin)
 {
     return 0;
 }

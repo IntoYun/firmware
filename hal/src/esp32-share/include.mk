@@ -3,7 +3,7 @@
 # Note: The name must be unique within this build and should be
 #       based on the root of the project
 # TARGET_HAL_SRC_INC_PATH = $(TARGET_HAL_PATH)/src/$(PLATFORM_NAME)
-TARGET_HAL_ESP32_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp32share
+TARGET_HAL_ESP32_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp32-share
 
 INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)
 INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/esp32

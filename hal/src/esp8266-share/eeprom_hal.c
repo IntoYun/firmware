@@ -39,7 +39,7 @@ static uint32_t sector = 0;
 static uint8_t* eeprom_mem = NULL;
 static size_t size;
 
-void ICACHE_FLASH_ATTR HAL_EEPROM_Init(void)
+void HAL_EEPROM_Init(void)
 {
     sector = EEPROM_SEC_START;
 
@@ -54,7 +54,7 @@ void ICACHE_FLASH_ATTR HAL_EEPROM_Init(void)
     /* interrupts(); */
 }
 
-uint8_t ICACHE_FLASH_ATTR HAL_EEPROM_Read(uint32_t address)
+uint8_t HAL_EEPROM_Read(uint32_t address)
 {
     if (address < 0 || (size_t)address >= size) {
         return;
@@ -67,7 +67,7 @@ uint8_t ICACHE_FLASH_ATTR HAL_EEPROM_Read(uint32_t address)
 
 
 // EEPROM write and commit
-void ICACHE_FLASH_ATTR HAL_EEPROM_Write(uint32_t address, uint8_t data)
+void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
     if (address < 0 || (size_t)address >= size) {
         return;
@@ -90,7 +90,7 @@ void ICACHE_FLASH_ATTR HAL_EEPROM_Write(uint32_t address, uint8_t data)
     /* interrupts(); */
 }
 
-size_t ICACHE_FLASH_ATTR HAL_EEPROM_Length()
+size_t HAL_EEPROM_Length()
 {
     return size;
 }

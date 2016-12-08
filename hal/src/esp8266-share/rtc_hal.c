@@ -32,7 +32,7 @@ void HAL_RTC_Initial(void)
 
 }
 
-time_t ICACHE_FLASH_ATTR HAL_RTC_Get_UnixTime(void)
+time_t HAL_RTC_Get_UnixTime(void)
 {
     uint32_t rtc_time = system_get_rtc_time();
     uint32_t cal_time = system_rtc_clock_cali_proc();

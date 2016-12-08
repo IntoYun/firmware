@@ -2,7 +2,7 @@
 # Define the prefix to this directory.
 # Note: The name must be unique within this build and should be
 #       based on the root of the project
-TARGET_HAL_ESP8266_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp8266share
+TARGET_HAL_ESP8266_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp8266-share
 
 INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)
 INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)/esp8266

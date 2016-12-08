@@ -89,6 +89,7 @@ ifeq ($(strip $(PLATFORM_ID)),$(filter $(PLATFORM_ID),7 9)) # for fig w323
 	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
 else # for nut neutron-net
 ifeq ("$(MODULE)","bootloader")
+#	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 else
 	$(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec

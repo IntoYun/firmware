@@ -19,11 +19,11 @@
 #include "ext_hal.h"
 #include "Arduino_Nut.h"
 
-void ICACHE_FLASH_ATTR disable_irq(void)
+void disable_irq(void)
 {
     xt_rsil(15);
 }
-void ICACHE_FLASH_ATTR enable_irq(void)
+void enable_irq(void)
 {
     xt_rsil(0);
 }

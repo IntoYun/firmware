@@ -54,7 +54,7 @@ void USB_USART_Initial(uint32_t baudRate)
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
- uint8_t  USB_USART_Available_Data(void)
+uint8_t USB_USART_Available_Data(void)
 {
     return HAL_USART_Available_Data(0);
 }
@@ -65,7 +65,7 @@ void USB_USART_Initial(uint32_t baudRate)
  * Input          : None
  * Return         : Data.
  *******************************************************************************/
-int32_t  USB_USART_Receive_Data(uint8_t peek)
+int32_t USB_USART_Receive_Data(uint8_t peek)
 {
     if ( peek == 0 ) {
         return HAL_USART_Read_Data(0);
@@ -81,7 +81,7 @@ int32_t  USB_USART_Receive_Data(uint8_t peek)
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-int32_t  USB_USART_Available_Data_For_Write(void)
+int32_t USB_USART_Available_Data_For_Write(void)
 {
     return HAL_USART_Available_Data_For_Write(0);
 }
@@ -92,7 +92,7 @@ int32_t  USB_USART_Available_Data_For_Write(void)
  * Input          : Data.
  * Return         : None.
  *******************************************************************************/
-void  USB_USART_Send_Data(uint8_t Data)
+void USB_USART_Send_Data(uint8_t Data)
 {
     HAL_USART_Write_Data(0, Data);
 }
@@ -103,7 +103,7 @@ void  USB_USART_Send_Data(uint8_t Data)
  * Input          : None.
  * Return         : None.
  *******************************************************************************/
-void  USB_USART_Flush_Data(void)
+void USB_USART_Flush_Data(void)
 {
     HAL_USART_Flush_Data(0);
 }
@@ -124,16 +124,16 @@ void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 
 
 
-unsigned int  USB_USART_Baud_Rate(void)
+unsigned int USB_USART_Baud_Rate(void)
 {
     return 115200;
 }
 
-void  USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
+void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
 {
 }
 
-int32_t  USB_USART_Flush_Output(unsigned timeout, void* reserved)
+int32_t USB_USART_Flush_Output(unsigned timeout, void* reserved)
 {
     return 0;
 }

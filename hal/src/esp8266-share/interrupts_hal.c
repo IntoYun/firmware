@@ -51,13 +51,13 @@ static uint32_t savedPS = 0;
 
 void ICACHE_RAM_ATTR HAL_EXTI_Handler(void);
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Initial(void)
+void HAL_Interrupts_Initial(void)
 {
     ETS_GPIO_INTR_ATTACH(HAL_EXTI_Handler, &interrupt_reg);
     ETS_GPIO_INTR_ENABLE();
 }
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
+void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -101,7 +101,7 @@ void ICACHE_FLASH_ATTR HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler 
 }
 
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Detach(uint16_t pin)
+void HAL_Interrupts_Detach(uint16_t pin)
 {
     EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
@@ -124,22 +124,22 @@ void ICACHE_FLASH_ATTR HAL_Interrupts_Detach(uint16_t pin)
     exti_channels[GPIO_PinSource].data = NULL;
 }
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Enable_All(void)
+void HAL_Interrupts_Enable_All(void)
 {
     xt_rsil(0);
 }
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Disable_All(void)
+void HAL_Interrupts_Disable_All(void)
 {
     xt_rsil(15);
 }
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Suspend(void)
+void HAL_Interrupts_Suspend(void)
 {
     savedPS = xt_rsil(15); // stop other interrupts
 }
 
-void ICACHE_FLASH_ATTR HAL_Interrupts_Restore(void)
+void HAL_Interrupts_Restore(void)
 {
     xt_wsr_ps(savedPS);
 }

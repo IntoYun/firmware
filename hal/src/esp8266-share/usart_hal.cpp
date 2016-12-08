@@ -111,7 +111,7 @@ static void uart_ignore_char(char c)
 {
 }
 
-void ICACHE_FLASH_ATTR HAL_USART_Initial(HAL_USART_Serial serial)
+void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1) {
         usartMap[serial] = &USART_MAP[USART_0];
@@ -125,12 +125,12 @@ void ICACHE_FLASH_ATTR HAL_USART_Initial(HAL_USART_Serial serial)
     usartMap[serial]->peek_char = -1;
 }
 
-void ICACHE_FLASH_ATTR HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
+void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 {
     HAL_USART_BeginConfig(serial, baud, 0, 0); // Default serial configuration is 8N1
 }
 
-void ICACHE_FLASH_ATTR HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
+void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
     if( true == usartMap[serial]->usart_enabled )
     {
@@ -242,7 +242,7 @@ void HAL_USART_End(HAL_USART_Serial serial)
     usartMap[serial]->peek_char = -1;
 }
 
-uint32_t ICACHE_FLASH_ATTR HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
+uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 {
     if (!usartMap[serial] || !(usartMap[serial]->usart_enabled)) {
         return 0;
@@ -252,12 +252,12 @@ uint32_t ICACHE_FLASH_ATTR HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t
     return 1;
 }
 
-uint32_t ICACHE_FLASH_ATTR HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
+uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
     return 1;
 }
 
-int32_t ICACHE_FLASH_ATTR HAL_USART_Available_Data(HAL_USART_Serial serial)
+int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
     // if serial refer to uart1, not right, uart1 don't have rx pin
     if ( ( HAL_USART_SERIAL2 == serial) || !usartMap[serial] || !usartMap[serial]->usart_enabled) {
@@ -274,7 +274,7 @@ int32_t ICACHE_FLASH_ATTR HAL_USART_Available_Data(HAL_USART_Serial serial)
     return result;
 }
 
-int32_t ICACHE_FLASH_ATTR HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
+int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
 {
     if (!usartMap[serial] || !usartMap[serial]->usart_enabled) {
         return 0;
@@ -282,7 +282,7 @@ int32_t ICACHE_FLASH_ATTR HAL_USART_Available_Data_For_Write(HAL_USART_Serial se
     return static_cast<int>(UART_TX_FIFO_SIZE - ((USS(usartMap[serial]->usart_nr) >> USTXC) & 0xff));
 }
 
-int32_t ICACHE_FLASH_ATTR HAL_USART_Read_Data(HAL_USART_Serial serial)
+int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
 {
     if ((HAL_USART_SERIAL1 != serial) || !usartMap[serial] || !usartMap[serial]->usart_enabled){
         return -1;
@@ -301,7 +301,7 @@ int32_t ICACHE_FLASH_ATTR HAL_USART_Read_Data(HAL_USART_Serial serial)
     return USF(usartMap[serial]->usart_nr) & 0xff;
 }
 
-int32_t ICACHE_FLASH_ATTR HAL_USART_Peek_Data(HAL_USART_Serial serial)
+int32_t HAL_USART_Peek_Data(HAL_USART_Serial serial)
 {
     if ((HAL_USART_SERIAL1 != serial) || !usartMap[serial] || !usartMap[serial]->usart_enabled){
         return -1;
@@ -314,7 +314,7 @@ int32_t ICACHE_FLASH_ATTR HAL_USART_Peek_Data(HAL_USART_Serial serial)
     return usartMap[serial]->peek_char;
 }
 
-void ICACHE_FLASH_ATTR HAL_USART_Flush_Data(HAL_USART_Serial serial)
+void HAL_USART_Flush_Data(HAL_USART_Serial serial)
 {
     if (!usartMap[serial] || !usartMap[serial]->usart_enabled) {
         return;
@@ -325,7 +325,7 @@ void ICACHE_FLASH_ATTR HAL_USART_Flush_Data(HAL_USART_Serial serial)
     }
 }
 
-bool ICACHE_FLASH_ATTR HAL_USART_Is_Enabled(HAL_USART_Serial serial)
+bool HAL_USART_Is_Enabled(HAL_USART_Serial serial)
 {
     return usartMap[serial]->usart_enabled;
 }
