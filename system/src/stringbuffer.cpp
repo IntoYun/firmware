@@ -1,33 +1,29 @@
-/**
- ******************************************************************************
- * @file     : sringbuffer.cpp
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
- ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
+/*
+ * aJson
+ * stringbuffer.c
+ *
+ *  http://interactive-matter.org/
+ *
+ *  This file is part of aJson.
+ *
+ *  aJson is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  aJson is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  You should have received a copy of the GNU General Public License
+ *  along with aJson.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Created on: 14.10.2010
+ *      Author: marcus
  */
-
-
 #include <stdlib.h>
 #include <string.h>
 #include "stringbuffer.h"
-
 
 //Default buffer size for strings
 #define BUFFER_SIZE 256
@@ -65,16 +61,6 @@ string_buffer *stringBufferCreate(void)
     return result;
 }
 
-/*********************************************************************************
-  *Function		:
-  *Description	:
-  *Input		:
-  *Output		:
-  *Return		:
-  *author		:
-  *date			:
-  *Others		:
-**********************************************************************************/
 char stringBufferAdd(char value, string_buffer* buffer)
 {
     if (buffer->string_length >= buffer->memory)
@@ -99,16 +85,6 @@ char stringBufferAdd(char value, string_buffer* buffer)
     return 0;
 }
 
-/*********************************************************************************
-  *Function		:
-  *Description	:
-  *Input		:
-  *Output		:
-  *Return		:
-  *author		:
-  *date			:
-  *Others		:
-**********************************************************************************/
 char* stringBufferToString(string_buffer* buffer)
     {
     //this is the realloc dependent function - it does not work
@@ -136,16 +112,6 @@ char* stringBufferToString(string_buffer* buffer)
     return result;
 }
 
-/*********************************************************************************
-  *Function		:
-  *Description	:
-  *Input		:
-  *Output		:
-  *Return		:
-  *author		:
-  *date			:
-  *Others		:
-**********************************************************************************/
 void stringBufferFree(string_buffer* buffer)
 {
     if (buffer == NULL)

@@ -22,7 +22,7 @@
 
 #define INTERNAL_FLASH_START            ((uint32_t)0x08000000)
 #define INTERNAL_FLASH_SIZE             (0x80000)
-#define INTERNAL_FLASH_END_ADDRESS      ((uint32_t)INTERNAL_FLASH_START+INTERNAL_FLASH_SIZE)	//For 512KB Internal Flash
+#define INTERNAL_FLASH_END_ADDRESS      ((uint32_t)INTERNAL_FLASH_START+INTERNAL_FLASH_SIZE-1)	//For 512KB Internal Flash
 
 /*
  *  16+16k   bootloader

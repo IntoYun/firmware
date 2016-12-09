@@ -22,8 +22,8 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
  */
-#ifndef SYSTEM_CONFIG_H_
-#define SYSTEM_CONFIG_H_
+#ifndef SYSTEM_EX_SETUP_H_
+#define SYSTEM_EX_SETUP_H_
 
 #include "intorobot_config.h"
 
@@ -36,66 +36,74 @@
 #include "wiring_udp.h"
 #include "ajson.h"
 
-
-//data type
+//设备配置指令
 typedef enum{
-    DEVICE_CONFIG_GET_BASE_INFO,        //获取设备基础信息
-    DEVICE_CONFIG_GET_WIFI_LIST,        //获取wifi列表
-    DEVICE_CONFIG_SET_WIFI_CREDENTIALS, //设置wifi信息
-    DEVICE_CONFIG_SET_BOUND_INFO,       //设置设备绑定信息
-    DEVICE_CONFIG_GET_WIFI_STATUS,      //查询wifi连接状态
-    DEVICE_CONFIG_RESTART_NETWORK,      //重启网络
-    DEVICE_CONFIG_GET_INFO,             //获取设备信息
-    DEVICE_CONFIG_INIT_DEVICEINFO,      //灌入密钥
-    DEVICE_CONFIG_SET_INFO,             //设置设备信息
-    DEVICE_CONFIG_RESET_FAC,            //设备恢复出厂设置
-    DEVICE_CONFIG_REBOOT,               //设备重启
-    DEVICE_CONFIG_CLEAR_SECURITY_INFO,  //设备清除密钥
-    DEVICE_CONFIG_TEST,                 //设备测试
-    DEVICE_CONFIG_ERROR
-}DeviceConfigCmdType;
+    //查询类
+    DEVICE_SETUP_HELLO,                   //获取设备基础信息
+    DEVICE_SETUP_CHECK_WIFI,              //获取wifi状态
+    DEVICE_SETUP_GET_WIFI_LIST,           //获取wifi列表
+    DEVICE_SETUP_GET_NETWORK_STATUS,      //查询网络状态
+    DEVICE_SETUP_GET_INFO,                //获取设备信息
+    //设置类
+    DEVICE_SETUP_SEND_WIFI_INFO,          //设置wifi信息
+    DEVICE_SETUP_SET_NETWORK_CREDENTIALS, //设置网络接入凭证
+    DEVICE_SETUP_SET_DEVICE_INFO,         //设置设备信息
+    DEVICE_SETUP_SET_SECURITY,            //设置设备安全信息
+    DEVICE_SETUP_SET_INFO,                //设置设备信息
+    //执行类
+    DEVICE_SETUP_RESTART_NETWORK,         //重启网络
+    DEVICE_SETUP_RESET,                   //设备恢复出厂设置
+    DEVICE_SETUP_REBOOT,                  //设备重启
+    DEVICE_SETUP_EXIT,                    //退出配置模式
+    //测试类
+    DEVICE_SETUP_TEST,                    //设备测试
+    DEVICE_SETUP_ERROR
+}DeviceSetupCmdType;
 
-
-class DeviceConfig
+class DeviceSetup
 {
 public:
-	aJsonClass aJson;
+    aJsonClass aJson;
 
 public:
-	DeviceConfig(void){}
+    DeviceSetup(void){}
 
-	virtual int available(void)=0;
-	virtual int read(void)=0;
-	virtual String readString(void)=0;
-	virtual size_t write(const uint8_t *buffer, size_t size)=0;
-	virtual void close(void)=0;
+    virtual int available(void)=0;
+    virtual int read(void)=0;
+    virtual String readString(void)=0;
+    virtual size_t write(const uint8_t *buffer, size_t size)=0;
+    virtual void close(void)=0;
     virtual void sendComfirm(int status);
 
-	DeviceConfigCmdType getMessageType(char *s);
+    DeviceSetupCmdType getMessageType(char *s);
 
-	bool process(void);
-	void getDeviceBaseInfo(void);
-	void getApScanList(void);
-	bool setWifiCredentials(aJsonObject* value_Object);
-    void setDeviceBoundInfo(aJsonObject* value_Object);
-    void getWifiStatus(void);
-    void restartNetwork(void);
-    void getDeviceInfo(void);
-    void setDeviceInfo(aJsonObject* value_Object);
-    void resetDeviceFac(void);
-    void rebootDevice(void);
-    void clearSecurityInfo(void);
-    void testDevice(aJsonObject* value_Object);
+    bool process(void);
+
+    void dealHello(void);
+    void dealCheckWifi(void);
+    void dealGetNetworkStatus(void);
+    void dealGetWifiList(void);
+    void dealGetInfo(void);
+
+    void dealSendWifiInfo(aJsonObject* value_Object);
+    void dealSetNetworkCredentials(aJsonObject* value_Object);
+    void dealSendDeviceInfo(aJsonObject* value_Object);
+    void dealSetSecurity(aJsonObject* value_Object);
+    void dealSetInfo(aJsonObject* value_Object);
+
+    void dealRestartNetwork(void);
+    void dealReset(void);
+    void dealReboot(void);
+    void dealTest(aJsonObject* value_Object);
 };
-#ifdef configSETUP_OVER_USBSERIAL_ENABLE
 
-class UsbDeviceConfig : public DeviceConfig
+class UsbDeviceSetup : public DeviceSetup
 {
 public:
-	USBSerial &serialusb;
+    USBSerial &serialusb;
 
 public:
-	UsbDeviceConfig(USBSerial &_s = SerialUSB):serialusb(_s){}
+    UsbDeviceSetup(USBSerial &_s = SerialUSB):serialusb(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);
@@ -105,18 +113,13 @@ public:
     virtual void sendComfirm(int status);
 };
 
-extern UsbDeviceConfig DeviceConfigUsb;
-#endif
-
-#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
-
-class UsartDeviceConfig: public DeviceConfig
+class UsartDeviceSetup: public DeviceSetup
 {
 public:
 	USARTSerial &serial;
 
 public:
-	UsartDeviceConfig(USARTSerial &_s = Serial):serial(_s){}
+	UsartDeviceSetup(USARTSerial &_s = Serial):serial(_s){}
     void init();
     virtual int available(void);
     virtual int read(void);
@@ -126,12 +129,7 @@ public:
     virtual void sendComfirm(int status);
 };
 
-extern UsartDeviceConfig DeviceConfigUsart;
-#endif
-
-#ifdef configSETUP_OVER_TCP_ENABLE
-
-class TcpDeviceConfig : public DeviceConfig
+class TcpDeviceSetup : public DeviceSetup
 {
 public:
     TCPServer server;
@@ -147,12 +145,7 @@ public:
     virtual void sendComfirm(int status);
 };
 
-extern TcpDeviceConfig DeviceConfigTcp;
-#endif
-
-#ifdef configSETUP_OVER_UDP_ENABLE
-
-class UdpDeviceConfig : public DeviceConfig
+class UdpDeviceSetup : public DeviceSetup
 {
 public:
     UDP Udp;
@@ -167,10 +160,8 @@ public:
     virtual void sendComfirm(int status);
 };
 
-extern UdpDeviceConfig DeviceConfigUdp;
-#endif
+void manage_setup_config();
 
 #endif
-
-#endif /*SYSTEM_CONFIG_H_*/
+#endif
 

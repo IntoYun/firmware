@@ -59,11 +59,8 @@
 
 
 /* config setup */
-//#define configSETUP_ENABLE
-//#define configSETUP_OVER_USBSERIAL_ENABLE
-//#define configSETUP_OVER_USARTSERIAL_ENABLE
-//#define configSETUP_OVER_TCP_ENABLE
-//#define configSETUP_OVER_UDP_ENABLE
+#define configSETUP_ENABLE
+
 
 /* config network */
 #define configNO_NETWORK

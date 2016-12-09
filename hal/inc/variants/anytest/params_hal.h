@@ -46,6 +46,19 @@ typedef enum
     INITPARAM_FLAG_ALL_RESET         = 2
 } INITPARAM_FLAG_TypeDef;
 
+typedef enum
+{
+    AT_MODE_FLAG_NONE            = 0, //没有密钥信息
+    AT_MODE_FLAG_ABP             = 1, //Activation By Personalization  //已经灌好密钥
+    AT_MODE_FLAG_OTAA_INACTIVE   = 2, //Over-The-Air Activation //灌装激活码  未激活
+    AT_MODE_FLAG_OTAA_ACTIVE     = 3  //灌装激活码 已激活
+} AT_MODE_FLAG_TypeDef;
+
+typedef enum
+{
+    SV_SELECT_FLAG_DEFAULT       = 0, //使用默认参数
+    SV_SELECT_FLAG_CUSTOM        = 1 //使用自定义参数
+} SV_SELECT_FLAG_TypeDef;
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -75,8 +88,8 @@ uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);
 uint16_t HAL_PARAMS_Get_System_access_token(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_access_token(const char* buffer);
-uint16_t HAL_PARAMS_Get_System_at_mode(void);
-int HAL_PARAMS_Set_System_at_mode(uint16_t flag);
+AT_MODE_FLAG_TypeDef HAL_PARAMS_Get_System_at_mode(void);
+int HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_TypeDef flag);
 
 float HAL_PARAMS_Get_System_zone(void);
 int HAL_PARAMS_Set_System_zone(float zone);
@@ -86,8 +99,8 @@ int HAL_PARAMS_Get_System_sv_port(void);
 int HAL_PARAMS_Set_System_sv_port(int port);
 uint16_t HAL_PARAMS_Get_System_dw_domain(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_dw_domain(const char* buffer);
-uint16_t HAL_PARAMS_Get_System_sv_select(void);
-int HAL_PARAMS_Set_System_sv_select(uint16_t flag);
+SV_SELECT_FLAG_TypeDef HAL_PARAMS_Get_System_sv_select(void);
+int HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_TypeDef flag);
 
 uint16_t HAL_PARAMS_Get_System_fwlib_ver(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_fwlib_ver(const char* buffer);
@@ -96,7 +109,13 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer);
 
 uint16_t HAL_PARAMS_Get_System_config_flag(void);
 int HAL_PARAMS_Set_System_config_flag(uint16_t flag);
+uint16_t HAL_PARAMS_Get_System_activation_code(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_activation_code(const char* buffer);
 
+uint16_t HAL_PARAMS_Get_System_http_domain(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_http_domain(const char* buffer);
+int HAL_PARAMS_Get_System_http_port(void);
+int HAL_PARAMS_Set_System_http_port(int port);
 
 #ifdef __cplusplus
 }

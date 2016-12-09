@@ -23,7 +23,7 @@
 #include "intorobot_config.h"
 #ifndef configNO_NETWORK
 
-#include "system_setup.h"
+//#include "system_setup.h"
 #include "wiring_ticks.h"
 #include "system_event.h"
 #include "system_network.h"

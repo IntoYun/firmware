@@ -6,4 +6,4 @@ TARGET_HAL_SRC_INC_PATH = $(TARGET_HAL_PATH)/src/$(PLATFORM_NAME)
 
 INCLUDE_DIRS += $(TARGET_HAL_SRC_INC_PATH)
 
-include $(TARGET_HAL_PATH)/src/esp32_share/include.mk
+include $(TARGET_HAL_PATH)/src/esp32-share/include.mk

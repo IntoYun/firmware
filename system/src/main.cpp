@@ -50,6 +50,7 @@
 #include "wiring_cellular_printable.h"
 #include "system_rgbled.h"
 #include "system_version.h"
+#include "system_ex_setup.h"
 
 using namespace intorobot;
 

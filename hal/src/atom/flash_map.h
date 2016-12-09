@@ -32,19 +32,17 @@
  * 7000-1FFFF  100k   应用程序区
  */
 
-
 #define BOOT_ADDR                        ((uint32_t)0x08000000)//0000-4FFF
-// #define BOOT_END_ADDR                    ((uint32_t)0x08004FFF)//0000-4FFF
-// #define EEPROM_START_ADDR                ((uint32_t)0x08005000)//5000-5FFF
-// #define EEPROM_END_ADDR                  ((uint32_t)0x08005FFF)//5000-5FFF
-// #define BOOT_PARAMS_START_ADDR           ((uint32_t)0x08006000)//6000-63FF
-// #define BOOT_PARAMS_END_ADDR             ((uint32_t)0x080063FF)//6000-63FF
+#define BOOT_END_ADDR                    ((uint32_t)0x08004FFF)//0000-4FFF
+#define EEPROM_START_ADDR                ((uint32_t)0x08005000)//5000-5FFF
+#define EEPROM_END_ADDR                  ((uint32_t)0x08005FFF)//5000-5FFF
+#define BOOT_PARAMS_START_ADDR           ((uint32_t)0x08006000)//6000-63FF
+#define BOOT_PARAMS_END_ADDR             ((uint32_t)0x080063FF)//6000-63FF
 #define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x08006400)//6400-6FFF
 #define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x08006FFF)
-#define APP_ADDR                         ((uint32_t)0x08007000)//100K
 
 #define EEPROM_ADDR                      ((uint32_t)0x08005000)
+#define APP_ADDR                         ((uint32_t)0x08007000)//100K
 
 #endif /*FLASH_MAP_H_*/
-
 
