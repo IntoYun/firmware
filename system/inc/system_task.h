@@ -74,7 +74,6 @@ unsigned backoff_period(unsigned connection_attempts);
  */
 void* system_internal(int item, void* reserved);
 
-void manage_setup_config();
 
 #ifdef __cplusplus
 }

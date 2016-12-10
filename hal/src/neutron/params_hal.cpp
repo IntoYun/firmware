@@ -334,14 +334,14 @@ int HAL_PARAMS_Set_System_access_token(const char* buffer) {
 /*
  * 读取at_mode标志
  * */
-uint16_t HAL_PARAMS_Get_System_at_mode(void) {
-    return intorobot_system_params.at_mode;
+AT_MODE_FLAG_TypeDef HAL_PARAMS_Get_System_at_mode(void) {
+    return (AT_MODE_FLAG_TypeDef)intorobot_system_params.at_mode;
 }
 
 /*
  * 保存at_mode标志
  * */
-int HAL_PARAMS_Set_System_at_mode(uint16_t flag) {
+int HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_TypeDef flag) {
     intorobot_system_params.at_mode = flag;
     return 0;
 }
@@ -439,14 +439,14 @@ int HAL_PARAMS_Set_System_dw_domain(const char* buffer) {
 /*
  * 读取sv_select标志
  * */
-uint16_t HAL_PARAMS_Get_System_sv_select(void) {
-    return intorobot_system_params.sv_select;
+SV_SELECT_FLAG_TypeDef HAL_PARAMS_Get_System_sv_select(void) {
+    return (SV_SELECT_FLAG_TypeDef)intorobot_system_params.sv_select;
 }
 
 /*
  * 保存sv_select标志
  * */
-int HAL_PARAMS_Set_System_sv_select(uint16_t flag) {
+int HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_TypeDef flag) {
     intorobot_system_params.sv_select = flag;
     return 0;
 }
@@ -523,6 +523,82 @@ uint16_t HAL_PARAMS_Get_System_config_flag(void) {
  * */
 int HAL_PARAMS_Set_System_config_flag(uint16_t flag) {
     intorobot_system_params.config_flag = flag;
+    return 0;
+}
+
+/*添加激活码*/
+/*
+ * 读取设备activation_code
+ * */
+uint16_t HAL_PARAMS_Get_System_activation_code(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.activation_code), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.activation_code, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置设备activation_code
+ * */
+int HAL_PARAMS_Set_System_activation_code(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.activation_code)-1, strlen(buffer));
+        memset(intorobot_system_params.activation_code, 0, sizeof(intorobot_system_params.activation_code));
+        memcpy(intorobot_system_params.activation_code, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
+/*
+ * 读取http服务器域名
+ * */
+uint16_t HAL_PARAMS_Get_System_http_domain(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.http_domain), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.http_domain, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置http服务器域名
+ * */
+int HAL_PARAMS_Set_System_http_domain(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.http_domain)-1, strlen(buffer));
+        memset(intorobot_system_params.http_domain, 0, sizeof(intorobot_system_params.http_domain));
+        memcpy(intorobot_system_params.http_domain, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
+/*
+ * 读取http服务器端口号
+ * */
+int HAL_PARAMS_Get_System_http_port(void) {
+    return intorobot_system_params.http_port;
+}
+
+/*
+ * 设置http服务器端口号
+ * */
+int HAL_PARAMS_Set_System_http_port(int port) {
+    intorobot_system_params.http_port = port;
     return 0;
 }
 

@@ -47,15 +47,7 @@ CFLAGS += -MD -MP -MF $@.d
 LDFLAGS += $(LIBS_EXT)
 LDFLAGS += $(patsubst %,-L%,$(LIB_DIRS))
 
-ifneq ($(PLATFORM_ID),2)
 WHOLE_ARCHIVE=y
-else
-ifneq ($(MAKE_OS),OSX)
-WHOLE_ARCHIVE=y
-endif
-endif
-
-WHOLE_ARCHIVE?=n
 ifeq ($(WHOLE_ARCHIVE),y)
 LDFLAGS += -Wl,--whole-archive $(patsubst %,-l%,$(LIBS)) -Wl,--no-whole-archive
 else

@@ -21,7 +21,7 @@
 #ifndef configNO_NETWORK
 
 #include "wiring_ticks.h"
-#include "system_setup.h"
+//#include "system_setup.h"
 #include "system_network.h"
 #include "system_network_internal.h"
 #include "system_cloud.h"

@@ -34,6 +34,7 @@
 #include "stm32l1xx_it.h"
 #include "service_debug.h"
 #include "params_hal.h"
+#include "bkpreg_hal.h"
 
 /* Private typedef ----------------------------------------------------------*/
 

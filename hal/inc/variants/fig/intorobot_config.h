@@ -21,7 +21,7 @@
 #define INTOROBOT_CONFIG_H_
 
 /* config hal function. */
-//#define configHAL_USB_CDC_ENABLE
+#define configHAL_USB_CDC_ENABLE
 //#define configHAL_USB_HID_ENABLE
 
 /* config wiring communication type. */
@@ -31,7 +31,7 @@
 //#define configWIRING_IPV6_ENABLE
 
 /* config wiring usb serial. */
-//#define configWIRING_USBSERIAL_ENABLE
+#define configWIRING_USBSERIAL_ENABLE
 //#define configWIRING_USBMOUSE_ENABLE
 //#define configWIRING_USBKEYBOARD_ENABLE
 
@@ -60,10 +60,7 @@
 
 /* config setup */
 #define configSETUP_ENABLE
-//#define configSETUP_OVER_USBSERIAL_ENABLE
-#define configSETUP_OVER_USARTSERIAL_ENABLE
-#define configSETUP_OVER_TCP_ENABLE
-#define configSETUP_OVER_UDP_ENABLE
+
 
 /* config network */
 //#define configNO_NETWORK

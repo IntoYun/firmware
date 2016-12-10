@@ -135,10 +135,9 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     if(dtoken_Object == NULL)
     {flag=1;}
 
-
     if(0==flag)
     {
-        if (0x01 == HAL_PARAMS_Get_System_sv_select()) {
+        if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
             char down_domain[36]={0};
             HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
             domain+=down_domain;
@@ -246,7 +245,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
 
     if(0==flag)
     {
-        if (0x01 == HAL_PARAMS_Get_System_sv_select()) {
+        if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
             char down_domain[36]={0};
             HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
             domain+=down_domain;
@@ -677,7 +676,7 @@ int intorobot_cloud_connect(void)
     //set intorobot server
     char sv_domain[32]={0};
     int sv_port;
-    if(0x01 == HAL_PARAMS_Get_System_sv_select()) {
+    if(SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
         HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
         sv_port=HAL_PARAMS_Get_System_sv_port();
     }

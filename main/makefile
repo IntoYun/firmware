@@ -5,13 +5,7 @@ include ../build/platform-id.mk
 include ../build/top-level-module.mk
 include ../build/macros.mk
 
-ifeq ($(PLATFORM_ID),0)
 export COMPILE_LTO?=n
-endif
-
-ifeq ($(PLATFORM_ID),1)
-export COMPILE_LTO?=n
-endif
 
 PLATFORM_DFU_LEAVE = y
 BUILD_PATH_EXT = $(BUILD_TARGET_PLATFORM)$(USER_FLAVOR)
@@ -24,12 +18,12 @@ ifeq ($(PLATFORM_THREADING),1)
 MAKE_DEPENDENCIES = newlib_nano
 endif
 
-ifeq ($(PLATFORM_ID),3)# neutron-net
+ifeq ("$(PLATFORM)","neutron-net")# neutron-net
 MAKE_DEPENDENCIES += platform subsys
 LIB_DEPS += $(PLATFORM_LIB_DEP) $(SUBSYS_LIB_DEP)
 else
-MAKE_DEPENDENCIES += user wiring wiring_ex hal system services platform
-LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(WIRING_EX_LIB_DEP) $(HAL_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(PLATFORM_LIB_DEP)
+MAKE_DEPENDENCIES += user wiring wiring_ex hal system system_ex services platform
+LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(WIRING_EX_LIB_DEP) $(HAL_LIB_DEP) $(SYSTEM_LIB_DEP) $(SYSTEM_EX_LIB_DEP) $(SERVICES_LIB_DEP) $(PLATFORM_LIB_DEP)
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)
@@ -40,15 +34,13 @@ LIB_DIRS += $(dir $(LIB_DEPS))
 # Target this makefile is building.
 ifeq ("$(ARCH)","arm")
 TARGET=elf bin hex size
-else
-ifeq ("$(ARCH)","xtensa")
+else ifeq ($(strip $(ARCH)),$(filter $(ARCH),xtensa-lx106 xtensa-esp32))
 TARGET=elf bin size
 else
 TARGET=exe
 endif
-endif
 
-ifeq ($(PLATFORM_ID),3)# neutron-net neutron esp8266程序 不是默认应用程序
+ifeq ("$(PLATFORM)","neutron-net")# neutron-net neutron esp8266程序 不是默认应用程序
 TARGET_FILE_NAME ?= $(PLATFORM)
 else
 TARGET_FILE_NAME ?= default-$(PLATFORM)

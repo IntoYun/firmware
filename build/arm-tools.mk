@@ -14,7 +14,7 @@ include $(COMMON_BUILD)/common-tools.mk
 
 # C 编译参数
 CFLAGS += -mcpu=$(MCU_CORE)
-ifeq ($(PLATFORM_ID),1) # neutron
+ifeq ("$(PLATFORM)","neutron")
 CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 

@@ -33,6 +33,7 @@
 #include "stm32f1xx_it.h"
 #include "delay_hal.h"
 #include "params_hal.h"
+#include "bkpreg_hal.h"
 #include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/

@@ -1,31 +1,31 @@
-/**
- ******************************************************************************
- * @file        : ajson.h
- * @author   : robin
- * @version  : V1.0.0
- * @date      : 6-December-2014
- * @brief      :  
- ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+/*
+ Copyright (c) 2001, Interactive Matter, Marcus Nowotny
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ Based on the cJSON Library, Copyright (C) 2009 Dave Gamble
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 #ifndef   AJSON_H_
 #define   AJSON_H_
 
-#include "wiring_usartserial.h"
+#include "wiring_print.h"
+#include "wiring_stream.h"
 #include "wiring_client.h"
 #include "wiring.h"
 
@@ -33,14 +33,13 @@
  * Definitions
  ******************************************************************************/
 // aJson Types:
-#define aJson_False 0
-#define aJson_True 1
-#define aJson_NULL 2
-#define aJson_Int 3
-#define aJson_Float 4
-#define aJson_String 5
-#define aJson_Array 6
-#define aJson_Object 7
+#define aJson_NULL 0
+#define aJson_Boolean 1
+#define aJson_Int 2
+#define aJson_Float 3
+#define aJson_String 4
+#define aJson_Array 5
+#define aJson_Object 6
 
 #define aJson_IsReference 128
 
@@ -48,8 +47,9 @@
 #define EOF -1
 #endif
 
+#define PRINT_BUFFER_LEN 1024
 // The aJson structure:
-typedef struct aJsonObject 
+typedef struct aJsonObject
 {
     char *name; // The item's name string, if this item is the child of, or is in the list of subitems of an object.
     struct aJsonObject *next, *prev; // next/prev allow you to walk array/object chains. Alternatively, use GetArraySize/GetArrayItem/GetObjectItem
@@ -57,7 +57,7 @@ typedef struct aJsonObject
 
     char type; // The type of the item, as above.
 
-    union 
+    union
     {
         char *valuestring; // The item's string, if type==aJson_String
         char valuebool; //the items value for true & false
@@ -70,7 +70,7 @@ typedef struct aJsonObject
  * it is meant to abstract out differences between Stream (e.g. serial
  * stream) and Client (which may or may not be connected) or provide even
  * stream-ish interface to string buffers. */
-class aJsonStream : public Print 
+class aJsonStream : public Print
 {
     public:
         aJsonStream(Stream *stream_): stream_obj(stream_), bucket(EOF) {}
@@ -128,10 +128,24 @@ class aJsonStream : public Print
         int bucket;
 };
 
+/* JSON stream that consumes data from a connection (usually
+ * Ethernet client) until the connection is closed. */
+class aJsonClientStream : public aJsonStream {
+public:
+	aJsonClientStream(Client *stream_)
+		: aJsonStream(NULL), client_obj(stream_)
+		{}
+
+private:
+	virtual int getch(void);
+
+	Client *client_obj;
+	virtual inline Client *stream() { return client_obj; }
+};
 /* JSON stream that is bound to input and output string buffer. This is
  * for internal usage by string-based aJsonClass methods. */
 /* TODO: Elastic output buffer support. */
-class aJsonStringStream : public aJsonStream 
+class aJsonStringStream : public aJsonStream
 {
     public:
         /* Either of inbuf, outbuf can be NULL if you do not care about
@@ -182,8 +196,7 @@ class aJsonClass
         aJsonObject* getObjectItem(aJsonObject *object, const char *string);
         // These calls create a aJsonObject item of the appropriate type.
         aJsonObject* createNull(void);
-        aJsonObject* createTrue(void);
-        aJsonObject* createFalse(void);
+	    aJsonObject* createItem(bool b);
         aJsonObject* createItem(char b);
         aJsonObject* createItem(int num);
         aJsonObject* createItem(double num);
@@ -211,8 +224,6 @@ class aJsonClass
         void replaceItemInObject(aJsonObject *object, const char *string, aJsonObject *newitem);
         void addNullToObject(aJsonObject* object, const char* name);
         void addBooleanToObject(aJsonObject* object, const char* name, bool b);
-        void addTrueToObject(aJsonObject* object, const char* name);
-        void addFalseToObject(aJsonObject* object, const char* name);
         void addNumberToObject(aJsonObject* object, const char* name, int n);
         void addNumberToObject(aJsonObject* object, const char* name, double n);
         void addStringToObject(aJsonObject* object, const char* name,const char* s);
@@ -239,6 +250,5 @@ bool jsonGetValue(uint8_t *payload, const char *string, unsigned long &ret_ulong
 bool jsonGetValue(uint8_t *payload, const char *string, float &ret_float);
 bool jsonGetValue(uint8_t *payload, const char *string, double &ret_double);
 
-//
 #endif /*AJSON_H_*/
 

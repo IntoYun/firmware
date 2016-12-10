@@ -34,20 +34,6 @@
 /* Exported types ------------------------------------------------------------*/
 typedef enum
 {
-    BKP_DR_01 = 0x01,
-    BKP_DR_02 = 0x02,
-    BKP_DR_03 = 0x03,
-    BKP_DR_04 = 0x04,
-    BKP_DR_05 = 0x05,
-    BKP_DR_06 = 0x06,
-    BKP_DR_07 = 0x07,
-    BKP_DR_08 = 0x08,
-    BKP_DR_09 = 0x09,
-    BKP_DR_10 = 0x10
-} BKP_DR_TypeDef;
-
-typedef enum
-{
     PIN_RESET = 0x01,
     SOFTWARE_RESET = 0x02,
     WATCHDOG_RESET = 0x03,
@@ -226,9 +212,6 @@ bool HAL_Feature_Get(HAL_Feature feature);
  * Externally defined function that is called before user constructors.
  */
 extern void module_user_init_hook(void);
-
-int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved);
-int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved);
 
 #ifdef __cplusplus
 }

@@ -1,27 +1,31 @@
-/**
- ******************************************************************************
- * @file        : ajson.cpp
- * @author   : robin
- * @version  : V1.0.0
- * @date      : 6-December-2014
- * @brief      :
- ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+/*
+   Copyright (c) 2001, Interactive Matter, Marcus Nowotny
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+   Based on the cJSON Library, Copyright (C) 2009 Dave Gamble
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+   */
+
+// aJSON
+// aJson Library for Arduino.
+// This library is suited for Atmega328 based Arduinos.
+// The RAM on ATmega168 based Arduinos is too limited
 
 /******************************************************************************
  * Includes
@@ -44,86 +48,10 @@
 //how much digits after . for float
 #define FLOAT_PRECISION 5
 
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-bool aJsonStringStream::available(void)
-{
-    if (bucket != EOF)
-    return true;
-    return inbuf_len > 0;
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-int aJsonStringStream::getch(void)
-{
-       if (bucket != EOF)
-    {
-        int ret = bucket;
-        bucket = EOF;
-        return ret;
-    }
-    if (!inbuf || !inbuf_len)
-    {
-        return EOF;
-    }
-    char ch = *inbuf++;
-    inbuf_len--;
-    return ch;
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-size_t aJsonStringStream::write(uint8_t ch)
-{
-    if (!outbuf || outbuf_len <= 1)
-    {
-        return 0;
-    }
-    *outbuf++ = ch; outbuf_len--;
-    *outbuf = 0;
-    return 1;
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 bool aJsonStream::available(void)
 {
     if (bucket != EOF)
-    return true;
+        return true;
     while (stream()->available())
     {
         /* Make an effort to skip whitespace. */
@@ -137,16 +65,6 @@ bool aJsonStream::available(void)
     return false;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::getch(void)
 {
     if (bucket != EOF)
@@ -164,46 +82,16 @@ int aJsonStream::getch(void)
     return stream()->read();
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonStream::ungetch(char ch)
 {
     bucket = ch;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 size_t aJsonStream::write(uint8_t ch)
 {
     return stream()->write(ch);
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 size_t aJsonStream::readBytes(uint8_t *buffer, size_t len)
 {
     for (size_t i = 0; i < len; i++)
@@ -218,17 +106,92 @@ size_t aJsonStream::readBytes(uint8_t *buffer, size_t len)
     return len;
 }
 
+int aJsonClientStream::getch()
+{
+    if (bucket != EOF)
+    {
+        int ret = bucket;
+        bucket = EOF;
+        return ret;
+    }
+    while (!stream()->available() && stream()->connected()) /* spin */;
+    if (!stream()->available()) // therefore, !stream()->connected()
+    {
+        stream()->stop();
+        return EOF;
+    }
+    return stream()->read();
+}
+bool aJsonStringStream::available(void)
+{
+    if (bucket != EOF)
+        return true;
+    return inbuf_len > 0;
+}
+
+int aJsonStringStream::getch(void)
+{
+    if (bucket != EOF)
+    {
+        int ret = bucket;
+        bucket = EOF;
+        return ret;
+    }
+    if (!inbuf || !inbuf_len)
+    {
+        return EOF;
+    }
+    char ch = *inbuf++;
+    inbuf_len--;
+    return ch;
+}
+
+size_t aJsonStringStream::write(uint8_t ch)
+{
+    if (!outbuf || outbuf_len <= 1)
+    {
+        return 0;
+    }
+    *outbuf++ = ch; outbuf_len--;
+    *outbuf = 0;
+    return 1;
+}
+
+// Internal constructor.
+aJsonObject *aJsonClass::newItem(void)
+{
+    aJsonObject* node = (aJsonObject*)malloc(sizeof(aJsonObject));
+    if (node)
+    {memset(node, 0, sizeof(aJsonObject));}
+    return node;
+}
+
+// Delete a aJsonObject structure.
+void aJsonClass::deleteItem(aJsonObject *c)
+{
+    aJsonObject *next;
+    while (c)
+    {
+        next = c->next;
+        if (!(c->type & aJson_IsReference) && c->child)
+        {
+            deleteItem(c->child);
+        }
+        if ((c->type == aJson_String) && c->valuestring)
+        {
+            free(c->valuestring);
+        }
+        if (c->name)
+        {
+            free(c->name);
+        }
+        free(c);
+        c = next;
+    }
+}
+
+
 // Parse the input text to generate a number, and populate the result into item.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::parseNumber(aJsonObject *item)
 {
     int i = 0;
@@ -252,12 +215,12 @@ int aJsonStream::parseNumber(aJsonObject *item)
         }
     }
     if (in >= '0' && in <= '9')
-    do
-    {
-        i = (i * 10) + (in - '0');
-        in = this->getch();
-    }
-    while (in >= '0' && in <= '9'); // Number?
+        do
+        {
+            i = (i * 10) + (in - '0');
+            in = this->getch();
+        }
+        while (in >= '0' && in <= '9'); // Number?
     //end of integer part � or isn't it?
     if (!(in == '.' || in == 'e' || in == 'E'))
     {
@@ -301,7 +264,7 @@ int aJsonStream::parseNumber(aJsonObject *item)
         }
 
         n = sign * n * pow(10.0, ((double) scale + (double) subscale
-        * (double) signsubscale)); // number = +/- number.fraction * 10^+/- exponent
+                    * (double) signsubscale)); // number = +/- number.fraction * 10^+/- exponent
 
         item->valuefloat = n;
         item->type = aJson_Float;
@@ -312,16 +275,6 @@ int aJsonStream::parseNumber(aJsonObject *item)
 }
 
 // Render the number nicely from the given item into a string.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printInt(aJsonObject *item)
 {
     if (item != NULL)
@@ -332,16 +285,6 @@ int aJsonStream::printInt(aJsonObject *item)
     return 0;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printFloat(aJsonObject *item)
 {
     if (item != NULL)
@@ -380,16 +323,6 @@ int aJsonStream::printFloat(aJsonObject *item)
 }
 
 // Parse the input text into an unescaped cstring, and populate item.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::parseString(aJsonObject *item)
 {
     //we do not need to skip here since the first byte should be '\"'
@@ -475,16 +408,6 @@ int aJsonStream::parseString(aJsonObject *item)
 }
 
 // Render the cstring provided to an escaped version that can be printed.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printStringPtr(const char *str)
 {
     this->print("\"");
@@ -538,31 +461,11 @@ int aJsonStream::printStringPtr(const char *str)
 }
 
 // Invote print_string_ptr (which is useful) on an item.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printString(aJsonObject *item)
 {
     return this->printStringPtr(item->valuestring);
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 // Utility to jump whitespace and cr/lf
 int aJsonStream::skip(void)
 {
@@ -582,16 +485,6 @@ int aJsonStream::skip(void)
 // Utility to flush our buffer in case it contains garbage
 // since the parser will return the buffer untouched if it
 // cannot understand it.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::flush(void)
 {
     int in = this->getch();
@@ -602,17 +495,60 @@ int aJsonStream::flush(void)
     return EOF;
 }
 
+
+// Parse an object - create a new root, and populate.
+aJsonObject *aJsonClass::parse(char *value)
+{
+    aJsonStringStream stringStream(value, NULL);
+    aJsonObject* result = parse(&stringStream);
+    return result;
+}
+
+// Parse an object - create a new root, and populate.
+aJsonObject *aJsonClass::parse(aJsonStream* stream)
+{
+    return parse(stream, NULL);
+}
+
+// Parse an object - create a new root, and populate.
+aJsonObject *aJsonClass::parse(aJsonStream* stream, char** filter)
+{
+    if (stream == NULL)
+    {
+        return NULL;
+    }
+    aJsonObject *c = newItem();
+    if (!c)
+    {return NULL;} /* memory fail */
+
+    stream->skip();
+    if (stream->parseValue(c, filter) == EOF)
+    {
+        deleteItem(c);
+        return NULL;
+    }
+    return c;
+}
+
+// Render a aJsonObject item/entity/structure to text.
+int aJsonClass::print(aJsonObject* item, aJsonStream* stream)
+{
+    return stream->printValue(item);
+}
+
+char *aJsonClass::print(aJsonObject* item)
+{
+    char* outBuf = (char*) malloc(PRINT_BUFFER_LEN); /* XXX: Dynamic size. */
+    if (outBuf == NULL)
+    {
+        return NULL;
+    }
+    aJsonStringStream stringStream(NULL, outBuf, PRINT_BUFFER_LEN);
+    print(item, &stringStream);
+    return outBuf;
+}
+
 // Parser core - when encountering text, process appropriately.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::parseValue(aJsonObject *item, char** filter)
 {
     if (this->skip() == EOF)
@@ -671,8 +607,8 @@ int aJsonStream::parseValue(aJsonObject *item, char** filter)
         }
         if (!strncmp(buffer, "false", 5))
         {
-            item->type = aJson_False;
-            item->valuebool = 0;
+            item->type = aJson_Boolean;
+            item->valuebool = false;
             return 0;
         }
     }
@@ -686,8 +622,8 @@ int aJsonStream::parseValue(aJsonObject *item, char** filter)
         }
         if (!strncmp(buffer, "true", 4))
         {
-            item->type = aJson_True;
-            item->valuebool = -1;
+            item->type = aJson_Boolean;
+            item->valuebool = true;
             return 0;
         }
     }
@@ -695,16 +631,6 @@ int aJsonStream::parseValue(aJsonObject *item, char** filter)
 }
 
 // Render a value to text.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printValue(aJsonObject *item)
 {
     int result = 0;
@@ -718,11 +644,13 @@ int aJsonStream::printValue(aJsonObject *item)
         case aJson_NULL:
             result = this->print("null");
             break;
-        case aJson_False:
-            result = this->print("false");
-            break;
-        case aJson_True:
-            result = this->print("true");
+        case aJson_Boolean:
+            if(item->valuebool){
+                result = this->print("true");
+            }
+            else{
+                result = this->print("false");
+            }
             break;
         case aJson_Int:
             result = this->printInt(item);
@@ -744,16 +672,7 @@ int aJsonStream::printValue(aJsonObject *item)
 }
 
 // Build an array from input text.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
+
 int aJsonStream::parseArray(aJsonObject *item, char** filter)
 {
     int in = this->getch();
@@ -811,16 +730,6 @@ int aJsonStream::parseArray(aJsonObject *item, char** filter)
 }
 
 // Render an array to text
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printArray(aJsonObject *item)
 {
     if (item == NULL)
@@ -856,16 +765,6 @@ int aJsonStream::printArray(aJsonObject *item)
 }
 
 // Build an object from the text.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::parseObject(aJsonObject *item, char** filter)
 {
     int in = this->getch();
@@ -939,16 +838,6 @@ int aJsonStream::parseObject(aJsonObject *item, char** filter)
 }
 
 // Render an object to text.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 int aJsonStream::printObject(aJsonObject *item)
 {
     if (item == NULL)
@@ -991,227 +880,32 @@ int aJsonStream::printObject(aJsonObject *item)
     return 0;
 }
 
-// Internal constructor.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::newItem(void)
-{
-    aJsonObject* node = (aJsonObject*)malloc(sizeof(aJsonObject));
-    if (node)
-    {memset(node, 0, sizeof(aJsonObject));}
-    return node;
-}
-
-// Delete a aJsonObject structure.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-void aJsonClass::deleteItem(aJsonObject *c)
-{
-    aJsonObject *next;
-    while (c)
-    {
-        next = c->next;
-        if (!(c->type & aJson_IsReference) && c->child)
-        {
-            deleteItem(c->child);
-        }
-        if ((c->type == aJson_String) && c->valuestring)
-        {
-            free(c->valuestring);
-        }
-        if (c->name)
-        {
-            free(c->name);
-        }
-        free(c);
-        c = next;
-    }
-}
-
-// Parse an object - create a new root, and populate.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::parse(char *value)
-{
-    aJsonStringStream stringStream(value, NULL);
-    aJsonObject* result = parse(&stringStream);
-    return result;
-}
-
-// Parse an object - create a new root, and populate.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::parse(aJsonStream* stream)
-{
-    return parse(stream, NULL);
-}
-
-// Parse an object - create a new root, and populate.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::parse(aJsonStream* stream, char** filter)
-{
-    if (stream == NULL)
-    {
-        return NULL;
-    }
-    aJsonObject *c = newItem();
-    if (!c)
-    {return NULL;} /* memory fail */
-
-    stream->skip();
-    if (stream->parseValue(c, filter) == EOF)
-    {
-        deleteItem(c);
-        return NULL;
-    }
-    return c;
-}
-
-// Render a aJsonObject item/entity/structure to text.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-int aJsonClass::print(aJsonObject* item, aJsonStream* stream)
-{
-    return stream->printValue(item);
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-char *aJsonClass::print(aJsonObject* item)
-{
-    char* outBuf = (char*)malloc(1024); /* XXX: Dynamic size. */
-    if (outBuf == NULL)
-    {
-        return NULL;
-    }
-    aJsonStringStream stringStream(NULL, outBuf, 1024);
-    print(item, &stringStream);
-    return outBuf;
-}
-
 // Get Array size/item / object item.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 unsigned char aJsonClass::getArraySize(aJsonObject *array)
 {
     aJsonObject *c = array->child;
     unsigned char i = 0;
     while (c)
-    i++, c = c->next;
+        i++, c = c->next;
     return i;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::getArrayItem(aJsonObject *array, unsigned char item)
 {
     aJsonObject *c = array->child;
     while (c && item > 0)
-    item--, c = c->next;
+        item--, c = c->next;
     return c;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::getObjectItem(aJsonObject *object, const char *string)
 {
     aJsonObject *c = object->child;
     while (c && strcasecmp(c->name, string))
-    c = c->next;
+        c = c->next;
     return c;
 }
 // Utility for array list handling.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::suffixObject(aJsonObject *prev, aJsonObject *item)
 {
     prev->next = item;
@@ -1219,21 +913,11 @@ void aJsonClass::suffixObject(aJsonObject *prev, aJsonObject *item)
 }
 
 // Utility for handling references.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createReference(aJsonObject *item)
 {
     aJsonObject *ref = newItem();
     if (!ref)
-    return 0;
+        return 0;
     memcpy(ref, item, sizeof(aJsonObject));
     ref->name = 0;
     ref->type |= aJson_IsReference;
@@ -1242,21 +926,11 @@ aJsonObject *aJsonClass::createReference(aJsonObject *item)
 }
 
 // Add item to array/object.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addItemToArray(aJsonObject *array, aJsonObject *item)
 {
     aJsonObject *c = array->child;
     if (!item)
-    return;
+        return;
     if (!c)
     {
         array->child = item;
@@ -1264,292 +938,139 @@ void aJsonClass::addItemToArray(aJsonObject *array, aJsonObject *item)
     else
     {
         while (c && c->next)
-        c = c->next;
+            c = c->next;
         suffixObject(c, item);
     }
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addItemToObject(aJsonObject *object, const char *string, aJsonObject *item)
 {
     if (!item)
-    return;
+        return;
     if (item->name)
-    free(item->name);
+        free(item->name);
 
     //item->name = strdup(string);
-		item->name=(char *)malloc(strlen(string)+1);
-		strcpy(item->name,string);
+    item->name=(char *)malloc(strlen(string)+1);
+    strcpy(item->name,string);
 
     addItemToArray(object, item);
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addItemReferenceToArray(aJsonObject *array, aJsonObject *item)
 {
     addItemToArray(array, createReference(item));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addItemReferenceToObject(aJsonObject *object, const char *string, aJsonObject *item)
 {
     addItemToObject(object, string, createReference(item));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::detachItemFromArray(aJsonObject *array, unsigned char which)
 {
     aJsonObject *c = array->child;
     while (c && which > 0)
-    c = c->next, which--;
+        c = c->next, which--;
     if (!c)
-    return 0;
+        return 0;
     if (c->prev)
-    c->prev->next = c->next;
+        c->prev->next = c->next;
     if (c->next)
-    c->next->prev = c->prev;
+        c->next->prev = c->prev;
     if (c == array->child)
-    array->child = c->next;
+        array->child = c->next;
     c->prev = c->next = 0;
     return c;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::deleteItemFromArray(aJsonObject *array, unsigned char which)
 {
     deleteItem(detachItemFromArray(array, which));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::detachItemFromObject(aJsonObject *object, const char *string)
 {
     unsigned char i = 0;
     aJsonObject *c = object->child;
     while (c && strcasecmp(c->name, string))
-    i++, c = c->next;
+        i++, c = c->next;
     if (c)
-    return detachItemFromArray(object, i);
+        return detachItemFromArray(object, i);
     return 0;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::deleteItemFromObject(aJsonObject *object, const char *string)
 {
     deleteItem(detachItemFromObject(object, string));
 }
 
 // Replace array/object items with new ones.
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::replaceItemInArray(aJsonObject *array, unsigned char which, aJsonObject *newitem)
 {
     aJsonObject *c = array->child;
     while (c && which > 0)
-    c = c->next, which--;
+        c = c->next, which--;
     if (!c)
-    return;
+        return;
     newitem->next = c->next;
     newitem->prev = c->prev;
     if (newitem->next)
-    newitem->next->prev = newitem;
+        newitem->next->prev = newitem;
     if (c == array->child)
-    array->child = newitem;
+        array->child = newitem;
     else
-    newitem->prev->next = newitem;
+        newitem->prev->next = newitem;
     c->next = c->prev = 0;
     deleteItem(c);
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::replaceItemInObject(aJsonObject *object, const char *string, aJsonObject *newitem)
 {
     unsigned char i = 0;
     aJsonObject *c = object->child;
     while (c && strcasecmp(c->name, string))
-    i++, c = c->next;
+        i++, c = c->next;
     if (c)
     {
-
-	    //newitem->name = strdup(string);
-			newitem->name=(char *)malloc(strlen(string)+1);
-			strcpy(newitem->name,string);
-
-    replaceItemInArray(object, i, newitem);
+        //newitem->name = strdup(string);
+        newitem->name=(char *)malloc(strlen(string)+1);
+        strcpy(newitem->name,string);
+        replaceItemInArray(object, i, newitem);
     }
 }
 
 // Create basic types:
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createNull(void)
 {
     aJsonObject *item = newItem();
     if (item)
-    item->type = aJson_NULL;
+        item->type = aJson_NULL;
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::createTrue(void)
+aJsonObject *aJsonClass::createItem(bool b)
 {
     aJsonObject *item = newItem();
-    if (item)
-    {
-        item->type = aJson_True;
-        item->valuebool = -1;
+    if (item){
+        item->type = aJson_Boolean;
+        item->valuebool = b;
     }
+
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-aJsonObject *aJsonClass::createFalse(void)
-{
-    aJsonObject *item = newItem();
-    if (item)
-    {
-        item->type = aJson_False;
-        item->valuebool = 0;
-    }
-    return item;
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createItem(char b)
 {
     aJsonObject *item = newItem();
     if (item)
     {
-        item->type = b ? aJson_True : aJson_False;
+        item->type = aJson_Boolean;
         item->valuebool = b ? -1 : 0;
     }
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createItem(int num)
 {
     aJsonObject *item = newItem();
@@ -1561,16 +1082,6 @@ aJsonObject *aJsonClass::createItem(int num)
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createItem(double num)
 {
     aJsonObject *item = newItem();
@@ -1582,16 +1093,6 @@ aJsonObject *aJsonClass::createItem(double num)
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createItem(const char *string)
 {
     aJsonObject *item = newItem();
@@ -1599,61 +1100,29 @@ aJsonObject *aJsonClass::createItem(const char *string)
     {
         item->type = aJson_String;
         //item->valuestring = strdup(string);
-
-				item->valuestring=(char *)malloc(strlen(string)+1);
-				strcpy(item->valuestring,string);
-
+        item->valuestring=(char *)malloc(strlen(string)+1);
+        strcpy(item->valuestring,string);
     }
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createArray(void)
 {
     aJsonObject *item = newItem();
     if (item)
-    item->type = aJson_Array;
+        item->type = aJson_Array;
     return item;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createObject(void)
 {
     aJsonObject *item = newItem();
     if (item)
-    item->type = aJson_Object;
+        item->type = aJson_Object;
     return item;
 }
 
 // Create Arrays:
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createIntArray(int *numbers, unsigned char count)
 {
     unsigned char i;
@@ -1662,24 +1131,14 @@ aJsonObject *aJsonClass::createIntArray(int *numbers, unsigned char count)
     {
         n = createItem(numbers[i]);
         if (!i)
-        a->child = n;
+            a->child = n;
         else
-        suffixObject(p, n);
+            suffixObject(p, n);
         p = n;
     }
     return a;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createFloatArray(double *numbers, unsigned char count)
 {
     unsigned char i;
@@ -1688,24 +1147,14 @@ aJsonObject *aJsonClass::createFloatArray(double *numbers, unsigned char count)
     {
         n = createItem(numbers[i]);
         if (!i)
-        a->child = n;
+            a->child = n;
         else
-        suffixObject(p, n);
+            suffixObject(p, n);
         p = n;
     }
     return a;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createDoubleArray(double *numbers, unsigned char count)
 {
     unsigned char i;
@@ -1714,24 +1163,14 @@ aJsonObject *aJsonClass::createDoubleArray(double *numbers, unsigned char count)
     {
         n = createItem(numbers[i]);
         if (!i)
-        a->child = n;
+            a->child = n;
         else
-        suffixObject(p, n);
+            suffixObject(p, n);
         p = n;
     }
     return a;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 aJsonObject *aJsonClass::createStringArray(const char **strings, unsigned char count)
 {
     unsigned char i;
@@ -1740,464 +1179,385 @@ aJsonObject *aJsonClass::createStringArray(const char **strings, unsigned char c
     {
         n = createItem(strings[i]);
         if (!i)
-        a->child = n;
+            a->child = n;
         else
-        suffixObject(p, n);
+            suffixObject(p, n);
         p = n;
     }
     return a;
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addNullToObject(aJsonObject* object, const char* name)
 {
     addItemToObject(object, name, createNull());
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addBooleanToObject(aJsonObject* object, const char* name, bool b)
 {
-    addItemToObject(object, name, (b ? createTrue() : createFalse()));
+    addItemToObject(object, name, createItem(b));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-void aJsonClass::addTrueToObject(aJsonObject* object, const char* name)
-{
-    addItemToObject(object, name, createTrue());
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
-void aJsonClass::addFalseToObject(aJsonObject* object, const char* name)
-{
-    addItemToObject(object, name, createFalse());
-}
-
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, int n)
 {
     addItemToObject(object, name, createItem(n));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, double n)
 {
     addItemToObject(object, name, createItem(n));
 }
 
-/*********************************************************************************
-  *Function	      :
-  *Description	:
-  *Input		      :
-  *Output		:
-  *Return		:
-  *author		:
-  *date		      :
-  *Others		:
-**********************************************************************************/
 void aJsonClass::addStringToObject(aJsonObject* object, const char* name, const char* s)
 {
     addItemToObject(object, name, createItem(s));
 }
 
-//TODO conversion routines btw. float & int types?
-
-/*
-bool jsonGetValue(uint8_t *payload, const char *string, bool &ret_bool)
-{
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_False)
-     {
-         ret_bool = 0;
-     }
-     else if( typeObject->type == aJson_True)
-     {
-         ret_bool = 1;
-     }
-     else if ((typeObject->type == aJson_Int)&&(typeObject->valueint == 0))
-     {
-         ret_bool = 0;
-     }
-     else if ((typeObject->type == aJson_Int)&&(typeObject->valueint == 1))
-     {
-         ret_bool = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
-}*/
 bool jsonGetValue(uint8_t *payload, const char *string, char &ret_char)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_False)
-     {
-         ret_char = 0;
-     }
-     else if (typeObject->type == aJson_True)
-     {
-         ret_char = 1;
-     }
-     else if( (typeObject->type == aJson_Int)&&(typeObject->valueint >= -128) && (typeObject->valueint <= 127))
-     {
-         ret_char= typeObject->valueint;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return -1;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_char = 0;
+        }
+        else
+        {
+            ret_char = 1;
+        }
+    }
+    else if( (typeObject->type == aJson_Int)&&(typeObject->valueint >= -128) && (typeObject->valueint <= 127))
+    {
+        ret_char= typeObject->valueint;
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return -1;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, String &ret_string)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_String )
-     {
-         ret_string = typeObject->valuestring;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_String )
+    {
+        ret_string = typeObject->valuestring;
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, uint8_t &ret_u8)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_False)
-     {
-         ret_u8 = 0;
-     }
-     else if (typeObject->type == aJson_True)
-     {
-         ret_u8 = 1;
-     }
-     else if ((typeObject->type == aJson_Int)&& (typeObject->valueint >= 0) && (typeObject->valueint <= 255))
-     {
-         ret_u8 = typeObject->valueint;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_u8 = 0;
+        }
+        else
+        {
+            ret_u8 = 1;
+        }
+    }
+    else if ((typeObject->type == aJson_Int)&& (typeObject->valueint >= 0) && (typeObject->valueint <= 255))
+    {
+        ret_u8 = typeObject->valueint;
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, short &ret_short)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( (typeObject->type == aJson_Int) && (typeObject->valueint >= -32768) &&(typeObject->valueint <= 32767))
-     {
-         ret_short = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_short = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_short = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( (typeObject->type == aJson_Int) && (typeObject->valueint >= -32768) &&(typeObject->valueint <= 32767))
+    {
+        ret_short = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_short = 0;
+        }
+        else
+        {
+            ret_short = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, unsigned short &ret_ushort)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 65535) )
-     {
-         ret_ushort = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_ushort = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_ushort = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 65535) )
+    {
+        ret_ushort = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_ushort = 0;
+        }
+        else
+        {
+            ret_ushort = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
 
 bool jsonGetValue(uint8_t *payload, const char *string, int &ret_int)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_Int )
-     {
-         ret_int = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_int = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_int = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_Int )
+    {
+        ret_int = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_int = 0;
+        }
+        else
+        {
+            ret_int = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, unsigned int &ret_uint)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 2147483648) )
-     {
-         ret_uint = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_uint = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_uint = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 2147483648) )
+    {
+        ret_uint = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_uint = 0;
+        }
+        else
+        {
+            ret_uint = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, long &ret_long)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_Int )
-     {
-         ret_long = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_long = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_long = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_Int )
+    {
+        ret_long = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_long = 0;
+        }
+        else
+        {
+            ret_long = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, unsigned long &ret_ulong)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 2147483648) )
-     {
-         ret_ulong = typeObject->valueint;
-     }
-     else if( typeObject->type == aJson_False )
-     {
-         ret_ulong = 0;
-     }
-     else if ( typeObject->type == aJson_True)
-     {
-         ret_ulong = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( (typeObject->type == aJson_Int) && (typeObject->valueint >= 0) &&(typeObject->valueint <= 2147483648) )
+    {
+        ret_ulong = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_ulong = 0;
+        }
+        else
+        {
+            ret_ulong = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, float &ret_float)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( (typeObject->type == aJson_Float)&&(typeObject->valuefloat >= (-3.40e38) )&& (typeObject->valuefloat <= (3.40e38)) )
-     {
-         ret_float = (float)typeObject->valuefloat;
-     }
-     else if( ( typeObject->type == aJson_Int )&& (typeObject->valueint >= -16777216 ) && (typeObject->valueint <= 16777216) )
-     {
-         ret_float = (float)typeObject->valueint;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( (typeObject->type == aJson_Float)&&(typeObject->valuefloat >= (-3.40e38) )&& (typeObject->valuefloat <= (3.40e38)) )
+    {
+        ret_float = (float)typeObject->valuefloat;
+    }
+    else if( ( typeObject->type == aJson_Int )&& (typeObject->valueint >= -16777216 ) && (typeObject->valueint <= 16777216) )
+    {
+        ret_float = (float)typeObject->valueint;
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+
 bool jsonGetValue(uint8_t *payload, const char *string, double &ret_double)
 {
-     aJsonClass aJson;
-     aJsonObject *root = aJson.parse((char *)payload);
-     if (root == NULL)
-     {
-         return false;
-     }
-     aJsonObject* typeObject = aJson.getObjectItem(root, string);
-     if( typeObject->type == aJson_Float )
-     {
-         ret_double = typeObject->valuefloat;
-     }
-     else if( typeObject->type == aJson_Int )
-     {
-         ret_double = typeObject->valueint;
-     }
-     else if (typeObject->type == aJson_False)
-     {
-         ret_double = 0;
-     }
-     else if (typeObject->type == aJson_True)
-     {
-         ret_double = 1;
-     }
-     else
-     {
-         aJson.deleteItem(root);
-         return false;
-     }
-     aJson.deleteItem(root);
-     return true;
+    aJsonClass aJson;
+    aJsonObject *root = aJson.parse((char *)payload);
+    if (root == NULL)
+    {
+        return false;
+    }
+    aJsonObject* typeObject = aJson.getObjectItem(root, string);
+    if( typeObject->type == aJson_Float )
+    {
+        ret_double = typeObject->valuefloat;
+    }
+    else if( typeObject->type == aJson_Int )
+    {
+        ret_double = typeObject->valueint;
+    }
+    else if( typeObject->type == aJson_Boolean)
+    {
+        if( typeObject->valuebool == false)
+        {
+            ret_double = 0;
+        }
+        else
+        {
+            ret_double = 1;
+        }
+    }
+    else
+    {
+        aJson.deleteItem(root);
+        return false;
+    }
+    aJson.deleteItem(root);
+    return true;
 }
+

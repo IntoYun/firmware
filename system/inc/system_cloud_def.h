@@ -24,14 +24,14 @@
 #define INTOROBOT_API_VER             "v1"
 
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
-//#define INTOROBOT_SUBSYSTEM_UPDATE_URL "/downloads/neutron/"
-#define INTOROBOT_SUBSYSTEM_UPDATE_URL "/downloads/nut/"
 
-#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
 #define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
+#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
+#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
 
 #define INTOROBOT_SERVER_PORT          1883
 #define INTOROBOT_SERVER_TLS_PORT      8883
+#define INTOROBOT_HTTP_PORT            1883
 
 //maqtt will
 #define INTOROBOT_MQTT_WILL_TOPIC      "platform/default/info/online"

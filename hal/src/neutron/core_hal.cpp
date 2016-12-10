@@ -35,6 +35,7 @@
 #include "service_debug.h"
 #include "concurrent_hal.h"
 #include "params_hal.h"
+#include "bkpreg_hal.h"
 #include "parser.h"
 #include "eeprom_hal.h"
 

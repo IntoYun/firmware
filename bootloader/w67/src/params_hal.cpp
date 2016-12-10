@@ -1,7 +1,7 @@
 #if 0
 // pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
 // full hal library.
-#include "../src/esp8266share/params_hal.cpp"
+#include "../src/esp8266-share/params_hal.cpp"
 
 #else
 
@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "intorobot_macros.h"

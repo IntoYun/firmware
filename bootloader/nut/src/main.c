@@ -11,7 +11,7 @@
 #include "esp8266/esp8266_config.h"
 #include "params_hal.h"
 #include "ui_hal.h"
-#include "core_hal.h"
+#include "bkpreg_hal.h"
 #include "boot_debug.h"
 
 

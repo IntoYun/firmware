@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "intorobot_macros.h"
 #include "service_debug.h"
@@ -38,8 +37,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888004"
-#define INTOROBOT_BOARD_TYPE1   "887004"
+#define INTOROBOT_BOARD_TYPE    "888006"
+#define INTOROBOT_BOARD_TYPE1   "887006"
 #define INTOROBOT_BOARD_NAME    "lora"
 
 
@@ -324,14 +323,14 @@ int HAL_PARAMS_Set_System_access_token(const char* buffer) {
 /*
  * 读取at_mode标志
  * */
-uint16_t HAL_PARAMS_Get_System_at_mode(void) {
-    return intorobot_system_params.at_mode;
+AT_MODE_FLAG_TypeDef HAL_PARAMS_Get_System_at_mode(void) {
+    return (AT_MODE_FLAG_TypeDef)intorobot_system_params.at_mode;
 }
 
 /*
  * 保存at_mode标志
  * */
-int HAL_PARAMS_Set_System_at_mode(uint16_t flag) {
+int HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_TypeDef flag) {
     intorobot_system_params.at_mode = flag;
     return 0;
 }
@@ -429,14 +428,14 @@ int HAL_PARAMS_Set_System_dw_domain(const char* buffer) {
 /*
  * 读取sv_select标志
  * */
-uint16_t HAL_PARAMS_Get_System_sv_select(void) {
-    return intorobot_system_params.sv_select;
+SV_SELECT_FLAG_TypeDef HAL_PARAMS_Get_System_sv_select(void) {
+    return (SV_SELECT_FLAG_TypeDef)intorobot_system_params.sv_select;
 }
 
 /*
  * 保存sv_select标志
  * */
-int HAL_PARAMS_Set_System_sv_select(uint16_t flag) {
+int HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_TypeDef flag) {
     intorobot_system_params.sv_select = flag;
     return 0;
 }

@@ -12,7 +12,7 @@ else
 MAKE_DEPENDENCIES = platform
 LIB_DEPS += $(PLATFORM_LIB_DEP)
 endif
-DEPENDENCIES = platform hal services
+DEPENDENCIES = platform services
 # dependent on HAL headers, but not the library
 LIBS += $(MAKE_DEPENDENCIES)
 LIB_DIRS += $(dir $(LIB_DEPS))
@@ -20,12 +20,10 @@ LIB_DIRS += $(dir $(LIB_DEPS))
 # Target this makefile is building.
 ifeq ("$(ARCH)","arm")
 TARGET=elf bin hex size
-else
-ifeq ("$(ARCH)","xtensa")
-TARGET=elf bin
+else ifeq ($(strip $(ARCH)),$(filter $(ARCH),xtensa-lx106 xtensa-esp32))
+TARGET=elf bin size
 else
 TARGET=none
-endif
 endif
 
 TARGET_FILE_NAME ?= $(PLATFORM)-boot

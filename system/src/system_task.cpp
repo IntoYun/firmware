@@ -26,7 +26,6 @@
 #include "system_network_internal.h"
 #include "system_update.h"
 #include "system_rgbled.h"
-#include "system_config.h"
 #include "intorobot_macros.h"
 #include "string.h"
 #include "system_tick_hal.h"
@@ -214,52 +213,6 @@ void manage_cloud_connection(void)
     {
         establish_cloud_connection();
         handle_cloud_connection();
-    }
-}
-#endif
-
-#ifdef configSETUP_ENABLE
-// These are internal methods
-void manage_setup_config(void)
-{
-    if(HAL_PARAMS_Get_System_config_flag())
-    {
-        DEBUG_D(("enter device config\r\n"));
-        system_rgb_blink(RGB_COLOR_RED, 1000);
-#ifdef configSETUP_OVER_USBSERIAL_ENABLE
-        DeviceConfigUsb.init();
-#endif
-#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
-        DeviceConfigUsart.init();
-#endif
-#ifdef configSETUP_OVER_UDP_ENABLE
-        DeviceConfigUdp.init();
-#endif
-        while(1)
-        {
-#ifdef configSETUP_OVER_USBSERIAL_ENABLE
-            if( DeviceConfigUsb.process() )
-            {
-                break;
-            }
-#endif
-#ifdef configSETUP_OVER_USARTSERIAL_ENABLE
-            if( DeviceConfigUsart.process() )
-            {
-                break;
-            }
-#endif
-#ifdef configSETUP_OVER_UDP_ENABLE
-            if( DeviceConfigUdp.process() )
-            {
-                break;
-            }
-#endif
-            DEBUG_D(("exit  device config\r\n"));
-            HAL_PARAMS_Set_System_config_flag(0);
-            HAL_PARAMS_Save_Params();
-            HAL_Core_System_Yield();
-        }
     }
 }
 #endif

@@ -5,7 +5,7 @@
 
 #else
 
-#include "core_hal.h"
+#include "bkpreg_hal.h"
 #include "hw_config.h"
 
 extern RTC_HandleTypeDef RtcHandle;
