@@ -5,10 +5,12 @@
 
 #else
 
-#include "Arduino_Nut.h"
 #include "hw_config.h"
 #include "eagle_soc.h"
 #include "service_debug.h"
+
+#define xt_rsil(level) (__extension__({uint32_t state; __asm__ __volatile__("rsil %0," __STRINGIFY(level) : "=a" (state)); state;}))
+#define _BV(b) (1UL << (b))
 
 static uint32_t _getCycleCount(void) __attribute__((always_inline));
 static inline uint32_t _getCycleCount(void) {

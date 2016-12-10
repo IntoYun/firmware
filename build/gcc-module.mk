@@ -118,11 +118,7 @@ size: $(TARGET_BASE).elf
 # Create a bin file from ELF file
 %.bin : %.elf
 	$(call echo,'Invoking: ARM GNU Create Flash Image')
-ifeq ($(PLATFORM_ID),3) # neutron-net
-	#$(ESP_TOOL) -eo $(ESP_ROOT)/bootloaders/eboot/eboot.elf -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bp 4096 -ec -eo $(MAIN_ELF) -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
-else
 	$(VERBOSE)$(OBJCOPY) -O binary $< $@
-endif
 
 $(TARGET_BASE).elf : $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
 	$(call echo,'Building target: $@')

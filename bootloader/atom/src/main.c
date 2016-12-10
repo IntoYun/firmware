@@ -29,7 +29,7 @@
 #include "hw_config.h"
 #include "boot_mode.h"
 #include "ui_hal.h"
-#include "core_hal.h"
+#include "bkpreg_hal.h"
 #include "boot_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/

@@ -32,6 +32,7 @@
 #include "service_debug.h"
 #include "delay_hal.h"
 #include "params_hal.h"
+#include "bkpreg_hal.h"
 #include "memory_hal.h"
 #include "Arduino_Nut.h"
 #include "Schedule.h"

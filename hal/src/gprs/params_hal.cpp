@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "intorobot_macros.h"
 #include "service_debug.h"
@@ -38,9 +37,9 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888004"
-#define INTOROBOT_BOARD_TYPE1   "887004"
-#define INTOROBOT_BOARD_NAME    "lora"
+#define INTOROBOT_BOARD_TYPE    "888007"
+#define INTOROBOT_BOARD_TYPE1   "887007"
+#define INTOROBOT_BOARD_NAME    "gprs"
 
 
 uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)

@@ -997,12 +997,11 @@ void manage_setup_config(void)
             {
                 break;
             }
-
-            DEBUG_D(("exit  device config\r\n"));
-            HAL_PARAMS_Set_System_config_flag(0);
-            HAL_PARAMS_Save_Params();
             HAL_Core_System_Yield();
         }
+        DEBUG_D(("exit  device config\r\n"));
+        HAL_PARAMS_Set_System_config_flag(0);
+        HAL_PARAMS_Save_Params();
     }
 }
 

@@ -7,28 +7,51 @@ else
 VERBOSE=""
 fi
 
-echo "github push check begin!!!"
-
 export INTOROBOT_DEVELOP=1
-echo "check atom bootloader and app!!!"
-make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=default-atom
-echo "check neutron bootloader and app!!!"
+
+echo "github push check begin!!!"
+echo "------------------------创客核心板-------------------------"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!neutron!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=default-neutron
-echo "check nut bootloader and app!!!"
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!nut!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=nut clean all COMPILE_LTO=n APP=default-nut
-echo "check lora bootloader and app!!!"
-make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
-echo "check gprs bootloader and app!!!"
-make $VERBOSE PLATFORM=gprs clean all COMPILE_LTO=n APP=default-gprs
-echo "check neutron-net bootloader and app!!!"
-make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
-#echo "check fig !!!"
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!atom!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=default-atom
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!fig!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n
-#echo "check w67 !!!"
-#make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n
-echo "check anytest bootloader and app !!!"
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!lora!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!gprs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=gprs clean all COMPILE_LTO=n APP=default-gprs
+echo "------------------------------------------------------------"
+
+echo "------------------------商业模块-------------------------"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w67!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w323!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!l6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=default-l6
+echo "------------------------------------------------------------"
+
+echo "------------------------其他-------------------------"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!gcc!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#make $VERBOSE PLATFORM=gcc clean all COMPILE_LTO=n
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!neutron-net!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
+
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!anytest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n
 
+echo "------------------------------------------------------------"
 echo "github push check success!!!"
 
 exit 0

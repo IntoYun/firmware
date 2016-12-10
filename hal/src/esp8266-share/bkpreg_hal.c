@@ -1,4 +1,4 @@
-#include "core_hal.h"
+#include "bkpreg_hal.h"
 #include "hw_config.h"
 
 #define RTC_BKP_DR0                       ((uint32_t)0x00000000U)

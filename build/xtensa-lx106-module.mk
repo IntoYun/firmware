@@ -17,7 +17,7 @@ include $(MODULE_PATH)/import.mk
 DEPS_INCLUDE_SCRIPTS =$(foreach module,$(DEPENDENCIES),$(PROJECT_ROOT)/$(module)/import.mk)
 include $(DEPS_INCLUDE_SCRIPTS)
 
-include $(COMMON_BUILD)/xtensa-module-defaults.mk
+include $(COMMON_BUILD)/xtensa-lx106-module-defaults.mk
 
 include $(call rwildcard,$(MODULE_PATH)/,build.mk)
 
@@ -54,11 +54,6 @@ bin: $(TARGET_BASE).bin
 hex: $(TARGET_BASE).hex
 lst: $(TARGET_BASE).lst
 
-esptool-py: $(TARGET_BASE).bin # for esp32
-	$(call,echo,)
-	$(call,echo,'Flashing $< using esptool-py to address')
-	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) 0x1000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/bootloader.bin 0x4000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin 0x10000 $<
-
 esptool: $(TARGET_BASE).bin
 	@echo Flashing $< using esptool to address
 ifeq ("$(MODULE)","bootloader")
@@ -84,17 +79,10 @@ size: $(TARGET_BASE).elf
 # Create a bin file from ELF file
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
-# ifeq ($(PLATFORM_ID), 7) # for fig
-ifeq ($(strip $(PLATFORM_ID)),$(filter $(PLATFORM_ID),7 9)) # for fig w323
-	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
-else # for nut neutron-net
 ifeq ("$(MODULE)","bootloader")
-#	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 else
 	$(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
-endif
-
 endif
 	$(call echo,)
 

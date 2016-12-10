@@ -34,7 +34,7 @@ void setup() __attribute((weak));
 void loop() __attribute((weak));
 
 // needed on ARM GCC
-#if PLATFORM_ID !=2
+#if PLATFORM_ID != 201
 /**
  * Declare weak setup/loop implementations so that they are always defined.
  */
@@ -56,7 +56,7 @@ void loop() {
 void serialEventRun() __attribute__((weak));
 void serialEvent() __attribute__((weak));
 
-#if PLATFORM_ID==2
+#if PLATFORM_ID==201
 // gcc doesn't allow weak functions to not exist, so they must be defined.
 __attribute__((weak)) void serialEvent() {}
 #endif

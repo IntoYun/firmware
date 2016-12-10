@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "intorobot_macros.h"
@@ -31,8 +30,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888001"
-#define INTOROBOT_BOARD_TYPE1   "887001"
+#define INTOROBOT_BOARD_TYPE    "888203"
+#define INTOROBOT_BOARD_TYPE1   "887203"
 #define INTOROBOT_BOARD_NAME    "anytest"
 
 
