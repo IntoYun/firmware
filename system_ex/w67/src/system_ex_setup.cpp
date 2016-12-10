@@ -18,7 +18,7 @@
 */
 
 #include "intorobot_config.h"
-#ifdef configSETUP_ENABLE
+// #ifdef configSETUP_ENABLE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -604,6 +604,202 @@ void DeviceSetup::dealReboot(void)
 
 void DeviceSetup::dealTest(aJsonObject* value_object)
 {
+    testItem_t testItem;
+    if(value_object == NULL)
+    {
+        return;
+    }
+    else
+    {
+    }
+
+    aJsonObject* itemObject = aJson.getObjectItem(value_object, "item");
+    if(itemObject == NULL)
+    {
+        aJson.deleteItem(value_object);
+        return ;
+    }
+
+    if(strcmp(itemObject->valuestring,"digitalWrite") == 0)
+    {
+        aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
+        if(pinObject == NULL)
+        {
+            aJson.deleteItem(pinObject);
+            return;
+        }
+
+        aJsonObject* valObject = aJson.getObjectItem(value_object,"val");
+        if(valObject == NULL)
+        {
+            aJson.deleteItem(valObject);
+            return;
+        }
+
+        if(strcmp(valObject->valuestring,"HIGH") == 0)
+        {
+            testItem = TEST_DIGITAL_WRITE_HIGH;
+        }
+        else
+        {
+            testItem = TEST_DIGITAL_WRITE_LOW;
+        }
+    }
+    else if(strcmp(itemObject->valuestring,"analogRead") == 0)
+    {
+        testItem = TEST_ANALOG_READ;
+    }
+    else if(strcmp(itemObject->valuestring,"selfTest") == 0)
+    {
+        testItem = TEST_SELF_TEST;
+    }
+    else if(strcmp(itemObject->valuestring,"wifiCheck") == 0)
+    {
+        testItem = TEST_WIFI_CHECK;
+    }
+    else if(strcmp(itemObject->valuestring,"loraCheck") == 0)
+    {
+        testItem = TEST_LORA_CHECK;
+    }
+    else if(strcmp(itemObject->valuestring,"sensorData") == 0)
+    {
+        testItem = TEST_SENSOR_DATA;
+    }
+
+    aJsonObject* root = aJson.createObject();
+    char* strPtr = nullptr;
+
+    switch(testItem)
+    {
+        case TEST_DIGITAL_WRITE_HIGH:
+            {
+                uint8_t pin;
+                for(pin = D0; pin <= D6; pin++)
+                {
+                    pinMode(pin,OUTPUT);
+                }
+                pinMode(10,OUTPUT);
+                pinMode(11,OUTPUT);
+
+                for(pin = D0; pin <= D6; pin++)
+                {
+                    digitalWrite(pin,HIGH);
+                }
+
+                digitalWrite(10,HIGH);
+                digitalWrite(11,HIGH);
+
+                aJson.addNumberToObject(root, "status", 200);
+                strPtr = aJson.print(root);
+                write((unsigned char *)strPtr, strlen(strPtr));
+                free(strPtr);
+            }
+            break;
+
+        case TEST_DIGITAL_WRITE_LOW:
+            {
+                uint8_t pin;
+                for(pin = D0; pin <= D6; pin++)
+                {
+                    pinMode(pin,OUTPUT);
+                }
+                pinMode(10,OUTPUT);
+                pinMode(11,OUTPUT);
+
+                for(pin = D0; pin <= D6; pin++)
+                {
+                    digitalWrite(pin,LOW);
+                }
+
+                digitalWrite(10,LOW);
+                digitalWrite(11,LOW);
+
+                aJson.addNumberToObject(root, "status", 200);
+                strPtr = aJson.print(root);
+                write((unsigned char *)strPtr, strlen(strPtr));
+                free(strPtr);
+            }
+            break;
+
+        case TEST_ANALOG_READ:
+            {
+                aJson.addNumberToObject(root, "status", 200);
+                aJson.addNumberToObject(root, "value", analogRead(A0));
+                strPtr = aJson.print(root);
+                write((unsigned char *)strPtr, strlen(strPtr));
+                free(strPtr);
+            }
+            break;
+
+        case TEST_SELF_TEST:
+            {
+                aJson.addNumberToObject(root, "status", 200);
+                strPtr = aJson.print(root);
+                write((unsigned char *)strPtr, strlen(strPtr));
+                free(strPtr);
+            }
+            break;
+
+        case TEST_WIFI_CHECK:
+            {
+                    WiFiAccessPoint ap[20];
+                    int found = WiFi.scan(ap, 20);
+                    if(found != 3 )  // if(WiFi.ready())  //wifi连通
+                    {
+                        aJson.addNumberToObject(root, "status", 200);
+                        aJson.addNumberToObject(root, "listnum",found);
+                        aJsonObject* ssidlistarray = aJson.createArray();
+                        if (ssidlistarray == NULL)
+                        {
+                            aJson.deleteItem(root);
+                            return;
+                        }
+                        aJson.addItemToObject(root, "ssidlist", ssidlistarray);
+
+                        for(int n = 0; n < found; n++)
+                        {
+                            aJsonObject* ssid_object = aJson.createObject();
+                            if (ssid_object == NULL)
+                            {
+                                aJson.deleteItem(root);
+                                return;
+                            }
+                            aJson.addItemToArray(ssidlistarray, ssid_object);
+                            aJson.addStringToObject(ssid_object, "ssid", ap[n].ssid);
+                            aJson.addNumberToObject(ssid_object, "entype", ap[n].security);
+                            aJson.addNumberToObject(ssid_object, "signal", ap[n].rssi);
+                        }
+                        // aJson.addStringToObject(root, "ssid", WiFi.SSID());
+                        // aJson.addNumberToObject(root, "rssi", WiFi.RSSI());
+                    }
+                    else
+                    {
+                        aJson.addNumberToObject(root, "status", 201);
+                        aJson.addStringToObject(root, "ssid", WiFi.SSID());
+                    }
+                    strPtr = aJson.print(root);
+                    write((unsigned char *)strPtr, strlen(strPtr));
+                    free(strPtr);
+            }
+            break;
+
+        case TEST_LORA_CHECK:
+            {
+                sendComfirm(201);
+            }
+            break;
+
+        case TEST_SENSOR_DATA:
+            {
+                sendComfirm(201);
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    aJson.deleteItem(root);
 #if 0
     aJsonObject* object = (aJsonObject* )NULL;
     aJsonObject* object1 = (aJsonObject* )NULL;
@@ -925,30 +1121,30 @@ UdpDeviceSetup DeviceSetupUdp;
 // These are internal methods
 void manage_setup_config(void)
 {
-    if(HAL_PARAMS_Get_System_config_flag())
+    // if(HAL_PARAMS_Get_System_config_flag())
     {
         DEBUG_D(("enter device config\r\n"));
-        system_rgb_blink(RGB_COLOR_RED, 1000);
+        // system_rgb_blink(RGB_COLOR_RED, 1000);
         DeviceSetupUsart.init();
-        DeviceSetupUdp.init();
+        // DeviceSetupUdp.init();
         while(1)
         {
             if( DeviceSetupUsart.process() )
             {
-                break;
+                // break;
             }
 
-            if( DeviceSetupUdp.process() )
-            {
-                break;
-            }
+            // if( DeviceSetupUdp.process() )
+            // {
+            //     break;
+            // }
 
-            DEBUG_D(("exit  device config\r\n"));
-            HAL_PARAMS_Set_System_config_flag(0);
-            HAL_PARAMS_Save_Params();
-            HAL_Core_System_Yield();
+            // DEBUG_D(("exit  device config\r\n"));
+            // HAL_PARAMS_Set_System_config_flag(0);
+            // HAL_PARAMS_Save_Params();
+            // HAL_Core_System_Yield();
         }
     }
 }
 
-#endif
+// #endif

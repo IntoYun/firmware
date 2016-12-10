@@ -60,6 +60,17 @@ typedef enum{
     DEVICE_SETUP_ERROR
 }DeviceSetupCmdType;
 
+typedef enum
+{
+    TEST_DIGITAL_WRITE_HIGH = 0, //测试数字高
+    TEST_DIGITAL_WRITE_LOW,     //测试数字低
+    TEST_ANALOG_READ,           //测试AD
+    TEST_SELF_TEST,             //自测
+    TEST_WIFI_CHECK,            //测试WIFI
+    TEST_LORA_CHECK,            //测试lora
+    TEST_SENSOR_DATA            //测试传感器
+}testItem_t;
+
 class DeviceSetup
 {
 public:

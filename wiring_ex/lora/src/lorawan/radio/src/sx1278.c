@@ -18,6 +18,7 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 #include "sx1278.h"
 #include "sx1278-board.h"
 #include "timer.h"
+#include "service_debug.h"
 /*
  * Local types definition
  */

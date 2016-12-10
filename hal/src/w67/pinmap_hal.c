@@ -22,24 +22,24 @@
 #include "pinmap_impl.h"
 #include <stddef.h>
 
-#define GPIO0                      0
-#define GPIO1                      1
-#define GPIO2                      2
-#define GPIO3                      3
-#define GPIO4                      4
-#define GPIO5                      5
-#define GPIO6                      6
-#define GPIO7                      7
-#define GPIO8                      8
-#define GPIO9                      9
-#define GPIO10                     10
-#define GPIO11                     11
-#define GPIO12                     12
-#define GPIO13                     13
-#define GPIO14                     14
-#define GPIO15                     15
-#define GPIO16                     16
-#define GPIO17                     17
+#define GPIO_0                      0
+#define GPIO_1                      1
+#define GPIO_2                      2
+#define GPIO_3                      3
+#define GPIO_4                      4
+#define GPIO_5                      5
+#define GPIO_6                      6
+#define GPIO_7                      7
+#define GPIO_8                      8
+#define GPIO_9                      9
+#define GPIO_10                     10
+#define GPIO_11                     11
+#define GPIO_12                     12
+#define GPIO_13                     13
+#define GPIO_14                     14
+#define GPIO_15                     15
+#define GPIO_16                     16
+#define GPIO_17                     17
 
 
 #define GPIO_PinSource0            ((uint8_t)0x00)
@@ -76,18 +76,18 @@ EESP82666_Pin_Info __PIN_MAP[TOTAL_PINS] =
  * pin_mode (NONE by default, can be set to OUTPUT, INPUT, or other types)
  */
 
-/* D0            - 00 */ { GPIO2, GPIO_PinSource2, NONE, TIM1, PIN_MODE_NONE },
-/* D1            - 01 */ { GPIO4, GPIO_PinSource4, NONE, TIM1, PIN_MODE_NONE },
-/* D2            - 02 */ { GPIO14, GPIO_PinSource14, NONE, TIM1, PIN_MODE_NONE },
-/* D3            - 03 */ { GPIO12, GPIO_PinSource12, NONE, TIM1, PIN_MODE_NONE },
-/* D4            - 04 */ { GPIO13, GPIO_PinSource13, NONE, TIM1, PIN_MODE_NONE },
-/* D5            - 05 */ { GPIO15, GPIO_PinSource15, NONE, TIM1, PIN_MODE_NONE },
-/* D6            - 06 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
-/* D7            - 07 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
-/* TX            - 08 */ { GPIO1, GPIO_PinSource1, NONE, TIM1, PIN_MODE_NONE },
-/* RX            - 09 */ { GPIO3, GPIO_PinSource3, NONE, TIM1, PIN_MODE_NONE },
-/* LED           - 10 */ { GPIO5, NONE, NONE, TIM1, NONE },
-/* KEY           - 11 */ { GPIO0, NONE, NONE, TIM1, NONE },
+/* D0            - 00 */ { GPIO_2, GPIO_PinSource2, NONE, TIM1, PIN_MODE_NONE },
+/* D1            - 01 */ { GPIO_4, GPIO_PinSource4, NONE, TIM1, PIN_MODE_NONE },
+/* D2            - 02 */ { GPIO_14, GPIO_PinSource14, NONE, TIM1, PIN_MODE_NONE },
+/* D3            - 03 */ { GPIO_12, GPIO_PinSource12, NONE, TIM1, PIN_MODE_NONE },
+/* D4            - 04 */ { GPIO_13, GPIO_PinSource13, NONE, TIM1, PIN_MODE_NONE },
+/* D5            - 05 */ { GPIO_15, GPIO_PinSource15, NONE, TIM1, PIN_MODE_NONE },
+/* D6            - 06 */ { GPIO_16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
+/* D7            - 07 */ { GPIO_16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
+/* TX            - 08 */ { GPIO_1, GPIO_PinSource1, NONE, TIM1, PIN_MODE_NONE },
+/* RX            - 09 */ { GPIO_3, GPIO_PinSource3, NONE, TIM1, PIN_MODE_NONE },
+/* LED           - 10 */ { GPIO_5, NONE, NONE, TIM1, NONE },
+/* KEY           - 11 */ { GPIO_0, NONE, NONE, TIM1, NONE },
 /* NOT USED      - 12 */ { NONE, NONE, NONE, NONE, NONE },
 /* NOT USED      - 13 */ { NONE, NONE, NONE, NONE, NONE },
 /* NOT USED      - 14 */ { NONE, NONE, NONE, NONE, NONE },
@@ -106,7 +106,7 @@ EESP82666_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* NOT USED      - 27 */ { NONE, NONE, NONE, NONE, NONE },
 /* NOT USED      - 28 */ { NONE, NONE, NONE, NONE, NONE },
 /* NOT USED      - 29 */ { NONE, NONE, NONE, NONE, NONE },
-/* A0            - 30 */ { GPIO17, NONE, ADC_Channel_0, NONE, NONE }
+/* A0            - 30 */ { GPIO_17, NONE, ADC_Channel_0, NONE, NONE }
 };
 
 EESP82666_Pin_Info* HAL_Pin_Map() {

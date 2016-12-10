@@ -66,7 +66,6 @@ uint8_t txBuffer[BUFFER_LENGTH];
 
 /* static int default_sda_pin = D2; */
 /* static int default_scl_pin = D3; */
-
 static int default_sda_pin = D1;
 static int default_scl_pin = D0;
 

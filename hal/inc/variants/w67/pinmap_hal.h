@@ -72,36 +72,61 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define TOTAL_DIGITAL_PINS      10
 #define FIRST_ANALOG_PIN        30
 
-#define D0 0
-#define D1 1
-#define D2 2
-#define D3 3
-#define D4 4
-#define D5 5
-#define D6 6
-#define D7 7
-#define TX 8
-#define RX 9
-#define LED 10
-#define KEY 11
+// #define D0 0
+// #define D1 1
+// #define D2 2
+// #define D3 3
+// #define D4 4
+// #define D5 5
+// #define D6 6
+// #define D7 7
 
-#define A0 30
+
+#define GPIO2  0
+#define GPIO4  1
+#define GPIO14 2
+#define GPIO12 3
+#define GPIO13 4
+#define GPIO15 5
+#define GPIO16 6
+#define GPIO1  8
+#define GPIO3  9
+#define GPIO5  10
+#define GPIO0  11
+
+#define D0 GPIO2
+#define D1 GPIO4
+#define D2 GPIO14
+#define D3 GPIO12
+#define D4 GPIO13
+#define D5 GPIO15
+#define D6 GPIO16
+// #define D7 7
+
+
+#define TX   GPIO1
+#define RX   GPIO3
+#define LED  GPIO5
+#define KEY  GPIO0
+
+#define GPIO17 30
+#define A0  GPIO17
 
 // SPI pins
-#define SS   D5
-#define SCK  D2
-#define MISO D3
-#define MOSI D4
+#define SS   GPIO15 //D5
+#define SCK  GPIO14 //D2
+#define MISO GPIO12 //D3
+#define MOSI GPIO13 //D4
 
 // I2C pins
-#define SDA  D1
-#define SCL  D0
+#define SDA  GPIO4 //D1
+#define SCL  GPIO2 //D0
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
 
-#define LED_USER  D6
+#define LED_USER  GPIO16 // D6
 
 #define TOTAL_USARTS        2
 #define TOTAL_SPIS          1
