@@ -30,7 +30,9 @@
 
 struct i2c_struct_t {
     i2c_dev_t * dev;
+#if !CONFIG_DISABLE_HAL_LOCKS
     xSemaphoreHandle lock;
+#endif
     uint8_t num;
 };
 
@@ -42,6 +44,15 @@ enum {
     I2C_CMD_END
 };
 
+#if CONFIG_DISABLE_HAL_LOCKS
+#define I2C_MUTEX_LOCK()
+#define I2C_MUTEX_UNLOCK()
+
+static i2c_t _i2c_bus_array[2] = {
+    {(volatile i2c_dev_t *)(DR_REG_I2C_EXT_BASE), 0},
+    {(volatile i2c_dev_t *)(DR_REG_I2C1_EXT_BASE), 1}
+};
+#else
 #define I2C_MUTEX_LOCK()    do {} while (xSemaphoreTake(i2c->lock, portMAX_DELAY) != pdPASS)
 #define I2C_MUTEX_UNLOCK()  xSemaphoreGive(i2c->lock)
 
@@ -49,13 +60,14 @@ static i2c_t _i2c_bus_array[2] = {
     {(volatile i2c_dev_t *)(DR_REG_I2C_EXT_BASE), NULL, 0},
     {(volatile i2c_dev_t *)(DR_REG_I2C1_EXT_BASE), NULL, 1}
 };
+#endif
 
 i2c_err_t i2cAttachSCL(i2c_t * i2c, int8_t scl)
 {
     if(i2c == NULL){
         return I2C_ERROR_DEV;
     }
-    pinMode(scl, OUTPUT);
+    pinMode(scl, OUTPUT_OPEN_DRAIN);
     pinMatrixOutAttach(scl, I2C_SCL_IDX(i2c->num), false, false);
     pinMatrixInAttach(scl, I2C_SCL_IDX(i2c->num), false);
     return I2C_ERROR_OK;
@@ -112,6 +124,13 @@ void i2cSetCmd(i2c_t * i2c, uint8_t index, uint8_t op_code, uint8_t byte_num, bo
     i2c->dev->command[index].op_code = op_code;
 }
 
+void i2cResetCmd(i2c_t * i2c){
+    int i;
+    for(i=0;i<16;i++){
+        i2c->dev->command[i].val = 0;
+    }
+}
+
 void i2cResetFiFo(i2c_t * i2c)
 {
     i2c->dev->fifo_conf.tx_fifo_rst = 1;
@@ -138,6 +157,7 @@ i2c_err_t i2cWrite(i2c_t * i2c, uint16_t address, bool addr_10bit, uint8_t * dat
         uint8_t dataSend = willSend;
 
         i2cResetFiFo(i2c);
+        i2cResetCmd(i2c);
 
         //CMD START
         i2cSetCmd(i2c, 0, I2C_CMD_RSTART, 0, false, false, false);
@@ -222,6 +242,7 @@ i2c_err_t i2cRead(i2c_t * i2c, uint16_t address, bool addr_10bit, uint8_t * data
     I2C_MUTEX_LOCK();
 
     i2cResetFiFo(i2c);
+    i2cResetCmd(i2c);
 
     //CMD START
     i2cSetCmd(i2c, 0, I2C_CMD_RSTART, 0, false, false, false);
@@ -344,12 +365,14 @@ i2c_t * i2cInit(uint8_t i2c_num, uint16_t slave_addr, bool addr_10bit_en)
 
     i2c_t * i2c = &_i2c_bus_array[i2c_num];
 
+#if !CONFIG_DISABLE_HAL_LOCKS
     if(i2c->lock == NULL){
         i2c->lock = xSemaphoreCreateMutex();
         if(i2c->lock == NULL) {
             return NULL;
         }
     }
+#endif
 
     if(i2c_num == 0) {
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG,DPORT_I2C_EXT0_CLK_EN);
@@ -366,7 +389,7 @@ i2c_t * i2cInit(uint8_t i2c_num, uint16_t slave_addr, bool addr_10bit_en)
     i2c->dev->ctr.scl_force_out = 1 ;
     i2c->dev->ctr.clk_en = 1;
 
-    i2c->dev->timeout.tout = 2000;
+    i2c->dev->timeout.tout = 400000;//clocks max=1048575
     i2c->dev->fifo_conf.nonfifo_en = 0;
 
     i2c->dev->slave_addr.val = 0;

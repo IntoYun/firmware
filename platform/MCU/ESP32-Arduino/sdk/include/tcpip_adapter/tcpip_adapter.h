@@ -64,18 +64,22 @@ typedef struct {
     ip4_addr_t gw;
 } tcpip_adapter_ip_info_t;
 
+typedef struct {
+    ip6_addr_t ip;
+} tcpip_adapter_ip6_info_t;
+
 typedef dhcps_lease_t tcpip_adapter_dhcps_lease_t;
 
 #if CONFIG_DHCP_STA_LIST 
 typedef struct {
     uint8_t mac[6];
     ip4_addr_t ip;
-}tcpip_adapter_sta_info_t;
+} tcpip_adapter_sta_info_t;
 
 typedef struct {
     tcpip_adapter_sta_info_t sta[ESP_WIFI_MAX_CONN_NUM];
     int num;
-}tcpip_adapter_sta_list_t;
+} tcpip_adapter_sta_list_t;
 #endif
 
 #endif
@@ -94,6 +98,7 @@ typedef struct {
 typedef enum {
     TCPIP_ADAPTER_IF_STA = 0,     /**< ESP32 station interface */
     TCPIP_ADAPTER_IF_AP,          /**< ESP32 soft-AP interface */
+    TCPIP_ADAPTER_IF_ETH,     /**< ESP32 ethernet interface */
     TCPIP_ADAPTER_IF_MAX
 } tcpip_adapter_if_t;
 
@@ -211,6 +216,35 @@ esp_err_t tcpip_adapter_get_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_i
  */
 esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_ip_info_t *ip_info);
 
+/**
+ * @brief  create interface's linklocal IPv6 information
+ *
+ * @note this function will create a linklocal IPv6 address about input interface,
+ *       if this address status changed to preferred, will call event call back ,
+ *       notify user linklocal IPv6 address has been verified
+ *
+ * @param[in]  tcpip_if: the interface which we want to set IP information
+ *
+ *
+ * @return ESP_OK
+ *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS
+ */
+esp_err_t tcpip_adapter_create_ip6_linklocal(tcpip_adapter_if_t tcpip_if);
+
+/**
+ * @brief  get interface's linkloacl IPv6 information
+ *
+ * There has an IPv6 information copy in adapter library, if interface is up,and IPv6 info
+ * is preferred,it will get IPv6 linklocal IP successfully
+ *
+ * @param[in]  tcpip_if: the interface which we want to set IP information
+ * @param[in]  if_ip6: If successful, IPv6 information will be returned in this argument.
+ *
+ * @return ESP_OK
+ *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS
+ */
+esp_err_t tcpip_adapter_get_ip6_linklocal(tcpip_adapter_if_t tcpip_if, ip6_addr_t *if_ip6);
+
 #if 0
 esp_err_t tcpip_adapter_get_mac(tcpip_adapter_if_t tcpip_if, uint8_t *mac);
 
@@ -321,6 +355,10 @@ esp_err_t tcpip_adapter_dhcpc_start(tcpip_adapter_if_t tcpip_if);
  */
 esp_err_t tcpip_adapter_dhcpc_stop(tcpip_adapter_if_t tcpip_if);
 
+
+
+esp_err_t tcpip_adapter_eth_input(void *buffer, uint16_t len, void *eb);
+
 /**
  * @brief  Get data from station interface
  *
@@ -354,11 +392,12 @@ esp_err_t tcpip_adapter_ap_input(void *buffer, uint16_t len, void *eb);
  *
  * @param[in]  void *dev: adapter interface
  *
- * @return WIFI_IF_STA
- *         WIFI_IF_AP
- *         WIFI_IF_MAX
+ * @return ESP_IF_WIFI_STA
+ *         ESP_IF_WIFI_AP
+           ESP_IF_ETH
+ *         ESP_IF_MAX
  */
-wifi_interface_t tcpip_adapter_get_wifi_if(void *dev);
+esp_interface_t tcpip_adapter_get_esp_if(void *dev);
 
 /**
  * @brief  Get the station information list
@@ -371,6 +410,31 @@ wifi_interface_t tcpip_adapter_get_wifi_if(void *dev);
  *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS
  */
 esp_err_t tcpip_adapter_get_sta_list(wifi_sta_list_t *wifi_sta_list, tcpip_adapter_sta_list_t *tcpip_sta_list);
+
+#define TCPIP_HOSTNAME_MAX_SIZE    31
+/**
+ * @brief  Set the hostname to the interface
+ *
+ * @param[in]   tcpip_if: the interface which we will set the hostname
+ * @param[in]   hostname: the host name for set the interfce
+ *
+ * @return ESP_OK:success
+ *         ESP_ERR_TCPIP_ADAPTER_IF_NOT_READY:interface status error
+ *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS:parameter error
+ */
+esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char *hostname);
+
+/**
+ * @brief  Get the hostname from the interface
+ *
+ * @param[in]   tcpip_if: the interface which we will get the hostname
+ * @param[in]   hostname: the host name from the interfce
+ *
+ * @return ESP_OK:success
+ *         ESP_ERR_TCPIP_ADAPTER_IF_NOT_READY:interface status error
+ *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS:parameter error
+ */
+esp_err_t tcpip_adapter_get_hostname(tcpip_adapter_if_t tcpip_if, const char **hostname);
 
 #ifdef __cplusplus
 }

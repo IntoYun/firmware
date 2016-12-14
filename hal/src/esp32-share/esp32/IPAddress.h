@@ -51,6 +51,9 @@ public:
     IPAddress(const uint8_t *address);
     virtual ~IPAddress() {}
 
+    bool fromString(const char *address);
+    bool fromString(const String &address) { return fromString(address.c_str()); }
+
     // Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
     operator uint32_t() const
@@ -78,7 +81,7 @@ public:
     IPAddress& operator=(uint32_t address);
 
     virtual size_t printTo(Print& p) const;
-    String toString();
+    String toString() const;
 
     friend class EthernetClass;
     friend class UDP;

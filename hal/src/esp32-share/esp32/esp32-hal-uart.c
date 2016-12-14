@@ -33,18 +33,29 @@
 #define UART_REG_BASE(u)    ((u==0)?DR_REG_UART_BASE:(      (u==1)?DR_REG_UART1_BASE:(    (u==2)?DR_REG_UART2_BASE:0)))
 #define UART_RXD_IDX(u)     ((u==0)?U0RXD_IN_IDX:(          (u==1)?U1RXD_IN_IDX:(         (u==2)?U2RXD_IN_IDX:0)))
 #define UART_TXD_IDX(u)     ((u==0)?U0TXD_OUT_IDX:(         (u==1)?U1TXD_OUT_IDX:(        (u==2)?U2TXD_OUT_IDX:0)))
-#define UART_INUM(u)        ((u==0)?ETS_UART0_INUM:(        (u==1)?ETS_UART1_INUM:(       (u==2)?ETS_UART2_INUM:0)))
 #define UART_INTR_SOURCE(u) ((u==0)?ETS_UART0_INTR_SOURCE:( (u==1)?ETS_UART1_INTR_SOURCE:((u==2)?ETS_UART2_INTR_SOURCE:0)))
 
 static int s_uart_debug_nr = 0;
 
 struct uart_struct_t {
     uart_dev_t * dev;
+#if !CONFIG_DISABLE_HAL_LOCKS
     xSemaphoreHandle lock;
+#endif
     uint8_t num;
     xQueueHandle queue;
 };
 
+#if CONFIG_DISABLE_HAL_LOCKS
+#define UART_MUTEX_LOCK()
+#define UART_MUTEX_UNLOCK()
+
+static uart_t _uart_bus_array[3] = {
+    {(volatile uart_dev_t *)(DR_REG_UART_BASE), 0, NULL},
+    {(volatile uart_dev_t *)(DR_REG_UART1_BASE), 1, NULL},
+    {(volatile uart_dev_t *)(DR_REG_UART2_BASE), 2, NULL}
+};
+#else
 #define UART_MUTEX_LOCK()    do {} while (xSemaphoreTake(uart->lock, portMAX_DELAY) != pdPASS)
 #define UART_MUTEX_UNLOCK()  xSemaphoreGive(uart->lock)
 
@@ -53,6 +64,7 @@ static uart_t _uart_bus_array[3] = {
     {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL},
     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL}
 };
+#endif
 
 static void IRAM_ATTR _uart_isr(void *arg)
 {
@@ -163,12 +175,14 @@ uart_t* uartBegin(uint8_t uart_nr, uint32_t baudrate, uint32_t config, int8_t rx
 
     uart_t* uart = &_uart_bus_array[uart_nr];
 
+#if !CONFIG_DISABLE_HAL_LOCKS
     if(uart->lock == NULL) {
         uart->lock = xSemaphoreCreateMutex();
         if(uart->lock == NULL) {
             return NULL;
         }
     }
+#endif
 
     if(queueLen && uart->queue == NULL) {
         uart->queue = xQueueCreate(queueLen, sizeof(uint8_t)); //initialize the queue
@@ -379,6 +393,7 @@ int log_printf(const char *format, ...)
         }
     }
     vsnprintf(temp, len+1, format, arg);
+#if !CONFIG_DISABLE_HAL_LOCKS
     if(_uart_bus_array[s_uart_debug_nr].lock){
         while (xSemaphoreTake(_uart_bus_array[s_uart_debug_nr].lock, portMAX_DELAY) != pdPASS);
         ets_printf("%s", temp);
@@ -386,6 +401,9 @@ int log_printf(const char *format, ...)
     } else {
         ets_printf("%s", temp);
     }
+#else
+    ets_printf("%s", temp);
+#endif
     va_end(arg);
     if(len > 64){
         free(temp);

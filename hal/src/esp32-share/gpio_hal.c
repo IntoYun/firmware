@@ -33,7 +33,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 /* Private variables --------------------------------------------------------*/
 
-
+#if    1
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 
 #define NOP() asm volatile ("nop")
@@ -82,8 +82,62 @@ const uint8_t esp32_gpioToFn[40] = {
     0x0c,//38
     0x10 //39
 };
-
+#endif
 /* Extern variables ---------------------------------------------------------*/
+
+#if 0
+#define ETS_GPIO_INUM       12
+
+const int8_t esp32_adc2gpio[20] = {36, -1, -1, 39, 32, 33, 34, 35, -1, -1, 4, 0, 2, 15, 13, 12, 14, 27, 25, 26};
+
+const DRAM_ATTR esp32_gpioMux_t esp32_gpioMux[GPIO_PIN_COUNT]={
+    {0x44, 11, 11, 1},
+    {0x88, -1, -1, -1},
+    {0x40, 12, 12, 2},
+    {0x84, -1, -1, -1},
+    {0x48, 10, 10, 0},
+    {0x6c, -1, -1, -1},
+    {0x60, -1, -1, -1},
+    {0x64, -1, -1, -1},
+    {0x68, -1, -1, -1},
+    {0x54, -1, -1, -1},
+    {0x58, -1, -1, -1},
+    {0x5c, -1, -1, -1},
+    {0x34, 15, 15, 5},
+    {0x38, 14, 14, 4},
+    {0x30, 16, 16, 6},
+    {0x3c, 13, 13, 3},
+    {0x4c, -1, -1, -1},
+    {0x50, -1, -1, -1},
+    {0x70, -1, -1, -1},
+    {0x74, -1, -1, -1},
+    {0x78, -1, -1, -1},
+    {0x7c, -1, -1, -1},
+    {0x80, -1, -1, -1},
+    {0x8c, -1, -1, -1},
+    {0, -1, -1, -1},
+    {0x24, 6, 18, -1}, //DAC1
+    {0x28, 7, 19, -1}, //DAC2
+    {0x2c, 17, 17, 7},
+    {0, -1, -1, -1},
+    {0, -1, -1, -1},
+    {0, -1, -1, -1},
+    {0, -1, -1, -1},
+    {0x1c, 9, 4, 9},
+    {0x20, 8, 5, 8},
+    {0x14, 4, 6, -1},
+    {0x18, 5, 7, -1},
+    {0x04, 0, 0, -1},
+    {0x08, 1, -1, -1},
+    {0x0c, 2, -1, -1},
+    {0x10, 3, 3, -1}
+};
+
+typedef void (*voidFuncPtr)(void);
+static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
+
+#include "driver/rtc_io.h"
+#endif
 
 /* Private function prototypes ----------------------------------------------*/
 
@@ -121,6 +175,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
     if (gpio_pin > 39 || esp32_gpioToFn[gpio_pin] == 0xFF) {
+    /* if (gpio_pin > 39 || esp32_gpioMux_t[gpio_pin] == 0xFF) { */
         return;
     }
 

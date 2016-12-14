@@ -65,8 +65,8 @@
  */
 #define SMEMCPY(dst,src,len)            memcpy(dst,src,len)
 
-extern unsigned long os_random(void);
-#define LWIP_RAND	rand
+#define LWIP_RAND       rand
+
 /*
    ------------------------------------
    ---------- Memory options ----------
@@ -200,13 +200,35 @@ extern unsigned long os_random(void);
  */
 #define LWIP_DHCP                       1
 
+#define DHCP_MAXRTX                     0
 
-#define DHCP_MAXRTX						0   //(*(volatile uint32*)0x600011E0)
 /*
    ------------------------------------
    ---------- AUTOIP options ----------
    ------------------------------------
 */
+#if CONFIG_MDNS
+ /**
+  * LWIP_AUTOIP==1: Enable AUTOIP module.
+  */
+#define LWIP_AUTOIP                     1
+
+/**
+* LWIP_DHCP_AUTOIP_COOP==1: Allow DHCP and AUTOIP to be both enabled on
+* the same interface at the same time.
+*/
+#define LWIP_DHCP_AUTOIP_COOP           1
+
+/**
+* LWIP_DHCP_AUTOIP_COOP_TRIES: Set to the number of DHCP DISCOVER probes
+* that should be sent before falling back on AUTOIP. This can be set
+* as low as 1 to get an AutoIP address very quickly, but you should
+* be prepared to handle a changing IP address when DHCP overrides
+* AutoIP.
+*/
+#define LWIP_DHCP_AUTOIP_COOP_TRIES     2
+#endif
+
 /*
    ----------------------------------
    ---------- SNMP options ----------
@@ -308,6 +330,19 @@ extern unsigned long os_random(void);
    ---------- LOOPIF options ----------
    ------------------------------------
 */
+#if CONFIG_MDNS
+/**
+ * LWIP_NETIF_LOOPBACK==1: Support sending packets with a destination IP
+ * address equal to the netif IP address, looping them back up the stack.
+ */
+#define LWIP_NETIF_LOOPBACK             1
+
+/**
+ * LWIP_LOOPBACK_MAX_PBUFS: Maximum number of pbufs on queue for loopback
+ * sending for each netif (0 = disabled)
+ */
+#define LWIP_LOOPBACK_MAX_PBUFS         8
+#endif
 
 /*
    ------------------------------------
@@ -344,22 +379,21 @@ extern unsigned long os_random(void);
  * The queue size value itself is platform-dependent, but is passed to
  * sys_mbox_new() when tcpip_init is called.
  */
-#define TCPIP_MBOX_SIZE                 16
+#define TCPIP_MBOX_SIZE                 32
 
 /**
  * DEFAULT_UDP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_UDP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_UDP_RECVMBOX_SIZE       16
+#define DEFAULT_UDP_RECVMBOX_SIZE       6
 
 /**
  * DEFAULT_TCP_RECVMBOX_SIZE: The mailbox size for the incoming packets on a
  * NETCONN_TCP. The queue size value itself is platform-dependent, but is passed
  * to sys_mbox_new() when the recvmbox is created.
  */
-#define DEFAULT_TCP_RECVMBOX_SIZE       16
-//#define DEFAULT_TCP_RECVMBOX_SIZE       6
+#define DEFAULT_TCP_RECVMBOX_SIZE       6
 
 /**
  * DEFAULT_ACCEPTMBOX_SIZE: The mailbox size for the incoming connections.
@@ -413,6 +447,15 @@ extern unsigned long os_random(void);
  * This option is set via menuconfig.
  */
 #define SO_REUSE                        CONFIG_LWIP_SO_REUSE
+
+#if CONFIG_MDNS
+/**
+ * SO_REUSE_RXTOALL==1: Pass a copy of incoming broadcast/multicast packets
+ * to all local matches if SO_REUSEADDR is turned on.
+ * WARNING: Adds a memcpy for every packet if passing to more than one pcb!
+ */
+#define SO_REUSE_RXTOALL                1
+#endif
 
 /*
    ----------------------------------------
@@ -512,9 +555,11 @@ extern unsigned long os_random(void);
  */
 #define TCPIP_DEBUG                     LWIP_DBG_OFF
 
+
 /* Enable all Espressif-only options */
 
 #define ESP_LWIP                        1
+#define ESP_LWIP_ARP                    1
 #define ESP_PER_SOC_TCP_WND             1
 #define ESP_THREAD_SAFE                 1
 #define ESP_THREAD_SAFE_DEBUG           LWIP_DBG_OFF
@@ -525,6 +570,9 @@ extern unsigned long os_random(void);
 #define ESP_RANDOM_TCP_PORT             1
 #define ESP_IP4_ATON                    1
 #define ESP_LIGHT_SLEEP                 1
+#define ESP_L2_TO_L3_COPY               CONFIG_L2_TO_L3_COPY
+#define ESP_CNT_DEBUG                   0
+#define ESP_DUAL_CORE                   0
 
 #define TCP_WND_DEFAULT                      (4*TCP_MSS)
 #define TCP_SND_BUF_DEFAULT                  (2*TCP_MSS)
@@ -547,7 +595,6 @@ extern unsigned char misc_prof_get_tcp_snd_buf(void);
 #define DHCP_DEBUG                      LWIP_DBG_OFF
 #define LWIP_DEBUG                      LWIP_DBG_OFF
 #define TCP_DEBUG                       LWIP_DBG_OFF
-#define ESP_THREAD_SAFE_DEBUG           LWIP_DBG_OFF
 
 #define CHECKSUM_CHECK_UDP              0
 #define CHECKSUM_CHECK_IP               0

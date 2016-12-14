@@ -20,7 +20,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "ui_hal.h"
-
+#include <stdio.h>
+#include "esp_system.h"
+#include "nvs_flash.h"
 
 void initVariant() __attribute__((weak));
 void initVariant() {}
@@ -83,19 +85,26 @@ void loop()
 
 void loopTask(void *pvParameters)
 {
+    // printf("Restarting now.\n");
+    // fflush(stdout);
+    // esp_restart();
+
     bool setup_done = false;
     static int abc = 0;
     for(;;) {
         if(!setup_done) {
-            startWiFi();
+            // startWiFi();
             // HAL_UI_Initial();
             // HAL_UI_RGB_Color(RGB_COLOR_RED);
             // HAL_UI_RGB_Color(RGB_COLOR_GREEN);
             // HAL_UI_RGB_Color(RGB_COLOR_BLUE);
             setup();
             setup_done = true;
+            // printf("Restarting now.\n");
         }
         loop();
+
+        // printf("running now.\n");
     }
 }
 
@@ -104,6 +113,7 @@ extern "C" void app_main()
     init();
     initVariant();
     initWiFi();
+    // nvs_flash_init();
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
 }
 
