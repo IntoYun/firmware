@@ -87,8 +87,8 @@ int USBSerial::peek()
 // Preinstantiate Objects //////////////////////////////////////////////////////
 USBSerial& _fetch_global_usbserial()
 {
-	static USBSerial _globalUSBSerial;
-	return _globalUSBSerial;
+    static USBSerial _globalUSBSerial;
+    return _globalUSBSerial;
 }
 
 #endif

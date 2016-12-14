@@ -1,4 +1,3 @@
-
 WIRING_MODULE_NAME=wiring
 WIRING_MODULE_PATH ?= $(PROJECT_ROOT)/$(WIRING_MODULE_NAME)
 include $(call rwildcard,$(WIRING_MODULE_PATH)/,include.mk)

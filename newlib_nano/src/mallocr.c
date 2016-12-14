@@ -1,4 +1,4 @@
-#if PLATFORM_ID!=201
+#if PLATFORM_ID!=888201
 /*
  * Copyright (c) 2012, 2013 ARM Ltd
  * All rights reserved.

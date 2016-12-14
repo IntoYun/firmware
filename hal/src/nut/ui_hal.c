@@ -32,7 +32,7 @@ volatile uint32_t TimingLED;
 volatile rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
-    espShow(RGB_GPIO_PIN, color, 25);
+    espShow(RGB_GPIO_PIN, color, 20);
 }
 
 void RGB_Color_Toggle(void) {

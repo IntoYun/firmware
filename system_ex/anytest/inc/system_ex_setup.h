@@ -26,10 +26,8 @@
 #define SYSTEM_EX_SETUP_H_
 
 #include "intorobot_config.h"
-
 #ifdef configSETUP_ENABLE
 
-void manage_setup_config();
 
 #endif
 #endif

@@ -48,9 +48,9 @@
 #include "wiring_interrupts.h"
 #include "wiring_cellular.h"
 #include "wiring_cellular_printable.h"
-#include "system_rgbled.h"
 #include "system_version.h"
-#include "system_ex_setup.h"
+#include "system_ex_usermode.h"
+#include "system_product.h"
 
 using namespace intorobot;
 
@@ -61,105 +61,6 @@ using namespace intorobot;
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-volatile button_mode_t BUTTON_Mode = BUTTON_MODE_NONE;
-volatile uint32_t BUTTON_press_time;
-
-
-/*******************************************************************************
- * Function Name  : HAL_SysTick_Handler
- * Description    : Decrements the various Timing variables related to SysTick.
- * Input          : None
- * Output         : None.
- * Return         : None.
- *******************************************************************************/
-#define TIMING_CONFIG_MODE           3000   //进入配置模式判断时间
-#define TIMING_DEFAULT_RESTORE_MODE  7000   //进入默认固件灯程序升级判断时间
-#define TIMING_SERIAL_COM_MODE       10000  //进入串口转接程序判断时间
-#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
-#define TIMING_NC                    20000  //无操作判断时间
-#define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
-
-extern "C" void HAL_SysTick_Handler(void)
-{
-#ifndef configNO_SETUPBUTTON_UI
-    BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-    if(BUTTON_press_time)
-    {
-        if( BUTTON_press_time > TIMING_ALL_RESET_MODE ) {
-            if(BUTTON_Mode!=BUTTON_MODE_RESET) {
-                BUTTON_Mode=BUTTON_MODE_RESET; //恢复出厂设置  清除密钥
-                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);//黄灯打开
-            }
-        }
-        else if( BUTTON_press_time > TIMING_NC ) {
-            if(BUTTON_Mode!=BUTTON_MODE_NC) {
-                BUTTON_Mode=BUTTON_MODE_NC; //退出
-                HAL_UI_RGB_Color(RGB_COLOR_BLACK);//关灯
-            }
-        }
-        else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE ) {
-            if(BUTTON_Mode!=BUTTON_MODE_FAC) {
-                BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
-                HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
-            }
-        }
-        else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE ) {
-            if(BUTTON_Mode!=BUTTON_MODE_COM) {
-                BUTTON_Mode=BUTTON_MODE_COM;//进入串口转发程序
-                HAL_UI_RGB_Color(RGB_COLOR_BLUE);//蓝灯打开
-            }
-        }
-        else if( BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE ) {
-            if(BUTTON_Mode!=BUTTON_MODE_DEFFW) {
-                BUTTON_Mode=BUTTON_MODE_DEFFW; //恢复默认出厂程序
-                HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
-            }
-        }
-        else if( BUTTON_press_time > TIMING_CONFIG_MODE ) {
-            if(BUTTON_Mode!=BUTTON_MODE_CONFIG) {
-                BUTTON_Mode=BUTTON_MODE_CONFIG; //wifi配置模式
-                HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
-            }
-        }
-    }
-    else
-    {
-        switch(BUTTON_Mode)
-        {
-            case BUTTON_MODE_CONFIG:
-                HAL_Core_Enter_Config_Mode();
-                break;
-
-            case BUTTON_MODE_DEFFW:
-                HAL_Core_Enter_Firmware_Recovery_Mode();
-                break;
-
-            case BUTTON_MODE_COM:
-                HAL_Core_Enter_Com_Mode();
-                break;
-
-            case BUTTON_MODE_FAC:
-                HAL_Core_Enter_Factory_Reset_Mode();
-                break;
-
-            case BUTTON_MODE_NC:
-                HAL_Core_System_Reset();
-                break;
-
-            case BUTTON_MODE_RESET:
-                HAL_Core_Enter_Factory_All_Reset_Mode();
-                break;
-
-            default:
-                break;
-        }
-        if(BUTTON_MODE_NONE != BUTTON_Mode) {
-            BUTTON_Mode = BUTTON_MODE_NONE;
-        }
-    }
-#endif
-}
-
 void app_loop(void)
 {
     static bool first_time = true;
@@ -168,6 +69,7 @@ void app_loop(void)
         first_time = false;
     }
     loop();
+
     #if 0
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
 
@@ -232,6 +134,21 @@ void app_setup_and_loop_initial(void)
 
 #ifdef configSETUP_ENABLE
     manage_setup_config();
+#endif
+
+#if 1
+    product_details_t product_details;
+    system_product_instance().get_product_details(product_details);
+    DEBUG_D("product_firmware_version=%d\r\n", product_details .product_firmware_version);
+    DEBUG_D("product_id=%s\r\n", product_details.product_id);
+    DEBUG_D("product_secret=%s\r\n", product_details.product_secret);
+    DEBUG_D("platform_id=%s\r\n", product_details.platform_id);
+    DEBUG_D("platform_name=%s\r\n", product_details.platform_name);
+    DEBUG_D("product_button_pressed=%d\r\n", product_details.product_button_pressed);
+    DEBUG_D("product_button_pin=%d\r\n", product_details.product_button_pin);
+    DEBUG_D("product_button_pressed_time=%d\r\n", product_details.product_button_pressed_time);
+    DEBUG_D("product_indicator_pin=%d\r\n", product_details.product_indicator_pin);
+    DEBUG_D("product_indicator_period=%d\r\n", product_details.product_indicator_period);
 #endif
 
     NEWORK_FN(Network_Setup(), (void)0);

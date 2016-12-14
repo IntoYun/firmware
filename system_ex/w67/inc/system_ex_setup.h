@@ -155,7 +155,9 @@ public:
     virtual void sendComfirm(int status);
 };
 
-void manage_setup_config();
+
+extern UsartDeviceSetup DeviceSetupUsart;
+extern UdpDeviceSetup DeviceSetupUdp;
 
 #endif
 #endif

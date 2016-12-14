@@ -20,9 +20,7 @@
 #include "intorobot_config.h"
 #ifdef configSETUP_ENABLE
 
-// These are internal methods
-void manage_setup_config(void)
-{
-}
+#include "system_ex_setup.h"
+
 
 #endif

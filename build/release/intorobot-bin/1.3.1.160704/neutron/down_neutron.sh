@@ -6,7 +6,7 @@ ST_FLASH=./tools/st-flash
 
 #esptool下载参数
 UPLOAD_SPEED=230400
-UPLOAD_PORT=/dev/cu.usbmodem1411
+UPLOAD_PORT=/dev/cu.usbmodem141421
 UPLOAD_VERB=-v
 UPLOAD_RESET=nodemcu
 

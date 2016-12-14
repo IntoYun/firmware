@@ -24,7 +24,7 @@
 #include "wiring_usartserial.h"
 #include "wiring_usbserial.h"
 #include "service_debug.h"
-#include "delay_hal.h"
+#include "wiring_ex.h"
 
 #ifdef configWIRING_USBSERIAL_ENABLE
 struct SerialUSBDebugOutput
