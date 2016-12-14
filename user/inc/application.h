@@ -60,7 +60,7 @@
 #include "wiring_time.h"
 #include "wiring_tone.h"
 #include "wiring_eeprom.h"
-#include "wiring_version.h"
+#include "wiring_product.h"
 #include "wiring_watchdog.h"
 #include "wiring_thread.h"
 #include "wiring_ext.h"

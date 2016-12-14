@@ -23,62 +23,62 @@ ifneq (,$(PLATFORM))
 
 ################创客核心板####################
 ifeq ("$(PLATFORM)","neutron")
-PLATFORM_ID = 002
+PLATFORM_ID = 888002
 endif
 
 ifeq ("$(PLATFORM)","nut")
-PLATFORM_ID = 003
+PLATFORM_ID = 888003
 endif
 
 ifeq ("$(PLATFORM)","atom")
-PLATFORM_ID = 004
+PLATFORM_ID = 888004
 endif
 
 ifeq ("$(PLATFORM)","fig")
-PLATFORM_ID = 005
+PLATFORM_ID = 888005
 endif
 
 ifeq ("$(PLATFORM)","lora")
-PLATFORM_ID = 006
+PLATFORM_ID = 888006
 endif
 
 ifeq ("$(PLATFORM)","gprs")
-PLATFORM_ID = 007
+PLATFORM_ID = 888007
 endif
 
 #add 此处添加创客核心板
 
 ################商业模块####################
 ifeq ("$(PLATFORM)","w67")
-PLATFORM_ID = 101
+PLATFORM_ID = 888101
 endif
 
 ifeq ("$(PLATFORM)","w323")
-PLATFORM_ID = 102
+PLATFORM_ID = 888102
 endif
 
 ifeq ("$(PLATFORM)","l6")
-PLATFORM_ID = 103
+PLATFORM_ID = 888103
 endif
 #add  此处添加模块
 
 ################其他####################
 ifeq ("$(PLATFORM)","gcc")
-PLATFORM_ID = 201
+PLATFORM_ID = 888201
 endif
 
 ifeq ("$(PLATFORM)","neutron-net")
-PLATFORM_ID = 202
+PLATFORM_ID = 888202
 endif
 
 ifeq ("$(PLATFORM)","anytest")
-PLATFORM_ID = 203
+PLATFORM_ID = 888203
 endif
 #add  此处添加其他
 
 ################示例####################
 ifeq ("$(PLATFORM)","newhal")
-PLATFORM_ID = 60000
+PLATFORM_ID = 600000
 endif
 
 
@@ -97,7 +97,7 @@ endif
 ARCH=arm
 
 ################创客核心板####################
-ifeq ("$(PLATFORM_ID)","002") #neutron
+ifeq ("$(PLATFORM_ID)","888002") #neutron
 PLATFORM=neutron
 PLATFORM_DEVICE=STM32F411xE
 PLATFORM_NAME=neutron
@@ -106,20 +106,20 @@ MCU_CORE=cortex-m4
 PRODUCT_DESC=IntoRobot neutron, 512k flash, 128k sram
 PLATFORM_DFU = 0x08020000
 PLATFORM_THREADING=1
-DEFAULT_PRODUCT_ID=002
+DEFAULT_PRODUCT_ID=888002
 endif
 
-ifeq ("$(PLATFORM_ID)","003") #nut
+ifeq ("$(PLATFORM_ID)","888003") #nut
 ARCH=xtensa-lx106
 PLATFORM=nut
 PLATFORM_DEVICE=nut
 PLATFORM_NAME=nut
 PLATFORM_MCU=ESP8266-Arduino
 PRODUCT_DESC=IntoRobot nut, ESP8266, 4MB Flash
-DEFAULT_PRODUCT_ID=003
+DEFAULT_PRODUCT_ID=888003
 endif
 
-ifeq ("$(PLATFORM_ID)","004") #atom  bootloader
+ifeq ("$(PLATFORM_ID)","888004") #atom  bootloader
 PLATFORM=atom
 PLATFORM_DEVICE=STM32F103xB
 PLATFORM_NAME=atom
@@ -127,20 +127,20 @@ PLATFORM_MCU=STM32F1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot Atom, 128k flash, 20k sram
 PLATFORM_DFU = 0x08007000
-DEFAULT_PRODUCT_ID=004
+DEFAULT_PRODUCT_ID=888004
 endif
 
-ifeq ("$(PLATFORM_ID)","005") #fig
+ifeq ("$(PLATFORM_ID)","888005") #fig
 ARCH=xtensa-esp32
 PLATFORM=fig
 PLATFORM_DEVICE=fig
 PLATFORM_NAME=fig
 PLATFORM_MCU=ESP32-Arduino
 PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
-DEFAULT_PRODUCT_ID=005
+DEFAULT_PRODUCT_ID=888005
 endif
 
-ifeq ("$(PLATFORM_ID)","006") #lora
+ifeq ("$(PLATFORM_ID)","888006") #lora
 PLATFORM=lora
 PLATFORM_DEVICE=STM32L151xB
 PLATFORM_NAME=lora
@@ -148,10 +148,10 @@ PLATFORM_MCU=STM32L1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot lora, 128k flash, 16k sram
 PLATFORM_DFU = 0x08000000
-DEFAULT_PRODUCT_ID=006
+DEFAULT_PRODUCT_ID=888006
 endif
 
-ifeq ("$(PLATFORM_ID)","007") #gprs
+ifeq ("$(PLATFORM_ID)","888007") #gprs
 PLATFORM=gprs
 PLATFORM_DEVICE=STM32L151xB
 PLATFORM_NAME=gprs
@@ -159,45 +159,45 @@ PLATFORM_MCU=STM32L1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot gprs, 128k flash, 16k sram
 PLATFORM_DFU = 0x08000000
-DEFAULT_PRODUCT_ID=007
+DEFAULT_PRODUCT_ID=888007
 endif
 # 此处新增创客核心板
 
 ################商业模块####################
-ifeq ("$(PLATFORM_ID)","101") #w67
+ifeq ("$(PLATFORM_ID)","888101") #w67
 ARCH=xtensa-lx106
 PLATFORM=w67
 PLATFORM_DEVICE=w67
 PLATFORM_NAME=w67
 PLATFORM_MCU=ESP8266-Arduino
 PRODUCT_DESC=IntoRobot w67, ESP8266, 4MB Flash
-DEFAULT_PRODUCT_ID=101
+DEFAULT_PRODUCT_ID=888101
 endif
 
-ifeq ("$(PLATFORM_ID)","102") #w323
+ifeq ("$(PLATFORM_ID)","888102") #w323
 ARCH=xtensa-esp32
 PLATFORM=w323
 PLATFORM_DEVICE=w323
 PLATFORM_NAME=w323
 PLATFORM_MCU=ESP32-Arduino
 PRODUCT_DESC=IntoRobot w323, ESP32, 4MB Flash
-DEFAULT_PRODUCT_ID=102
+DEFAULT_PRODUCT_ID=888102
 endif
 
-ifeq ("$(PLATFORM_ID)","103") #l6
-PLATFORM=lora
+ifeq ("$(PLATFORM_ID)","888103") #l6
+PLATFORM=l6
 PLATFORM_DEVICE=STM32L151xB
-PLATFORM_NAME=lora
+PLATFORM_NAME=l6
 PLATFORM_MCU=STM32L1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot lora, 128k flash, 16k sram
 PLATFORM_DFU = 0x08000000
-DEFAULT_PRODUCT_ID=103
+DEFAULT_PRODUCT_ID=888103
 endif
 # 此处新增模块
 
 ################其他####################
-ifeq ("$(PLATFORM_ID)","201") # gcc
+ifeq ("$(PLATFORM_ID)","888201") # gcc
 ARCH=gcc
 PLATFORM=gcc
 PLATFORM_DEVICE=gcc
@@ -207,20 +207,20 @@ PRODUCT_DESC=GCC xcompile
 # explicitly exclude platform headers
 INTOROBOT_NO_PLATFORM=1
 DEFAULT_PRODUCT_ID=2
-PLATFORM_BOOTLOADER=201
+PLATFORM_BOOTLOADER=888201
 endif
 
-ifeq ("$(PLATFORM_ID)","202") #neutron-net
+ifeq ("$(PLATFORM_ID)","888202") #neutron-net
 ARCH=xtensa-lx106
 PLATFORM=neutron-net
 PLATFORM_DEVICE=neutron-net
 PLATFORM_NAME=neutron-net
 PLATFORM_MCU=ESP8266
 PRODUCT_DESC=ESP8266 4MB Flash
-DEFAULT_PRODUCT_ID=202
+DEFAULT_PRODUCT_ID=888202
 endif
 
-ifeq ("$(PLATFORM_ID)","203") #anytest
+ifeq ("$(PLATFORM_ID)","888203") #anytest
 PLATFORM=anytest
 PLATFORM_DEVICE=STM32F103xB
 PLATFORM_NAME=anytest
@@ -228,13 +228,13 @@ PLATFORM_MCU=STM32F1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot anytest, 128k flash, 20k sram
 PLATFORM_DFU = 0x08007000
-DEFAULT_PRODUCT_ID=203
+DEFAULT_PRODUCT_ID=888203
 endif
 # 此处新增其他
 
 
 ################实例####################
-ifeq ("$(PLATFORM_ID)","60000") #newhal
+ifeq ("$(PLATFORM_ID)","600000") #newhal
 PLATFORM=newhal
 # needed for conditional compilation of some stm32 specific files
 PLATFORM_DEVICE=newhalcpu
@@ -247,7 +247,7 @@ PRODUCT_DESC=Test platform for producing a new HAL implementation
 USBD_VID_INTOROBOT=0x1D50
 USBD_PID_DFU=0x607F
 USBD_PID_CDC=0x607D
-DEFAULT_PRODUCT_ID=60000
+DEFAULT_PRODUCT_ID=600000
 PLATFORM_BOOTLOADER=0
 endif
 
@@ -281,6 +281,10 @@ PLATFORM_THREADING ?= 0
 PLATFORM_BOOTLOADER ?= 1
 CDEFINES += -DPLATFORM_THREADING=$(PLATFORM_THREADING)
 CDEFINES += -DPLATFORM_ID=$(PLATFORM_ID) -DPLATFORM_NAME=$(PLATFORM_NAME)
+
+PRODUCT_FIRMWARE_VERSION ?= 65535
+CDEFINES += -DPRODUCT_ID=$(PRODUCT_ID)
+CDEFINES += -DPRODUCT_FIRMWARE_VERSION=$(PRODUCT_FIRMWARE_VERSION)
 
 MODULE_FUNCTION_NONE            :=0
 MODULE_FUNCTION_RESOURCE        :=1

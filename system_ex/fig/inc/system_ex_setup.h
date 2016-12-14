@@ -160,7 +160,10 @@ public:
     virtual void sendComfirm(int status);
 };
 
-void manage_setup_config();
+
+extern UsbDeviceSetup DeviceSetupUsb;
+extern UsartDeviceSetup DeviceSetupUsart;
+extern UdpDeviceSetup DeviceSetupUdp;
 
 #endif
 #endif

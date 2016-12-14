@@ -2,10 +2,10 @@
 /* Linker Script for ld -N */
 MEMORY
 {
-  dport0_0_seg :                        org = 0x3FF00000, len = 0x10
-  dram0_0_seg :                         org = 0x3FFE8000, len = 0x14000
-  iram1_0_seg :                         org = 0x40100000, len = 0x8000
-  irom0_0_seg :                         org = 0x40208010, len = 0xfeff0
+  dport0_0_seg :                      	org = 0x3FF00000, len = 0x10
+  dram0_0_seg :                       	org = 0x3FFE8000, len = 0x14000
+  iram1_0_seg :                       	org = 0x40108000, len = 0x7000
+  irom0_0_seg :                       	org = 0x40240000, len = 0x32000
 }
 
 PHDRS
@@ -19,7 +19,7 @@ PHDRS
 
 
 /*  Default entry point:  */
-ENTRY(call_user_start)
+ENTRY(main)
 EXTERN(_DebugExceptionVector)
 EXTERN(_DoubleExceptionVector)
 EXTERN(_KernelExceptionVector)
@@ -182,7 +182,7 @@ SECTIONS
     *(.entry.text)
     *(.init.literal)
     *(.init)
-    *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
+    *(.literal .text .literal.* .text.* .iram.text .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)

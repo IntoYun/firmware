@@ -793,54 +793,6 @@ void DeviceSetup::dealTest(aJsonObject* value_object)
 #endif
 }
 
-void UsbDeviceSetup::init(void)
-{
-    serialusb.begin(115200);    //
-    while (!serialusb); // wait for a serial connection
-}
-
-int UsbDeviceSetup::available(void)
-{
-    return serialusb.available();
-}
-
-int UsbDeviceSetup::read(void)
-{
-    return serialusb.read();
-}
-
-String UsbDeviceSetup::readString(void)
-{
-    return serialusb.readString();
-}
-
-size_t UsbDeviceSetup::write(const uint8_t *buffer, size_t size)
-{
-    for(size_t i = 0;i<size;i++)
-    {
-        serialusb.write(buffer[i]);
-    }
-    return size;
-}
-
-void UsbDeviceSetup::sendComfirm(int status)
-{
-    aJsonObject* root = aJson.createObject();
-    if (root == NULL)
-    {return;}
-
-    aJson.addNumberToObject(root, "status", status);
-    char* string = aJson.print(root);
-    write((unsigned char *)string, strlen(string));
-    free(string);
-    aJson.deleteItem(root);
-}
-
-void UsbDeviceSetup::close(void)
-{
-    //none do
-}
-
 void UsartDeviceSetup::init(void)
 {
     serial.begin(115200);    //
@@ -967,42 +919,7 @@ void UdpDeviceSetup::close(void)
     Udp.stop();
 }
 
-UsbDeviceSetup DeviceSetupUsb;
 UsartDeviceSetup DeviceSetupUsart;
 UdpDeviceSetup DeviceSetupUdp;
-
-// These are internal methods
-void manage_setup_config(void)
-{
-    if(HAL_PARAMS_Get_System_config_flag())
-    {
-        DEBUG_D(("enter device config\r\n"));
-        system_rgb_blink(RGB_COLOR_RED, 1000);
-        DeviceSetupUsb.init();
-        DeviceSetupUsart.init();
-        DeviceSetupUdp.init();
-        while(1)
-        {
-            if( DeviceSetupUsb.process() )
-            {
-                break;
-            }
-
-            if( DeviceSetupUsart.process() )
-            {
-                break;
-            }
-
-            if( DeviceSetupUdp.process() )
-            {
-                break;
-            }
-            HAL_Core_System_Yield();
-        }
-        DEBUG_D(("exit  device config\r\n"));
-        HAL_PARAMS_Set_System_config_flag(0);
-        HAL_PARAMS_Save_Params();
-    }
-}
 
 #endif

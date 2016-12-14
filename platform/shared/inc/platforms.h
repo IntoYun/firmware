@@ -24,20 +24,20 @@
 #ifndef PLATFORMS_H
 #define PLATFORMS_H
 
-#define PLATFORM_NEUTRON             002
-#define PLATFORM_NUT                 003
-#define PLATFORM_ATOM                004
-#define PLATFORM_FIG                 005
-#define PLATFORM_LORA                006
-#define PLATFORM_GPRS                007
+#define PLATFORM_NEUTRON             888002
+#define PLATFORM_NUT                 888003
+#define PLATFORM_ATOM                888004
+#define PLATFORM_FIG                 888005
+#define PLATFORM_LORA                888006
+#define PLATFORM_GPRS                888007
 
-#define PLATFORM_W67                 101
-#define PLATFORM_W323                102
-#define PLATFORM_L6                  103
+#define PLATFORM_W67                 888101
+#define PLATFORM_W323                888102
+#define PLATFORM_L6                  888103
 
-#define PLATFORM_GCC                 201
-#define PLATFORM_NEUTRON_NET         202
-#define PLATFORM_ANYTEST             203
+#define PLATFORM_GCC                 888201
+#define PLATFORM_NEUTRON_NET         888202
+#define PLATFORM_ANYTEST             888203
 
 
 #endif	/* PLATFORMS_H */

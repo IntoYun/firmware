@@ -627,34 +627,4 @@ void UsartDeviceSetup::close(void)
 
 UsbDeviceSetup DeviceSetupUsb;
 UsartDeviceSetup DeviceSetupUsart;
-
-// These are internal methods
-void manage_setup_config(void)
-{
-    if(HAL_PARAMS_Get_System_config_flag())
-    {
-        DEBUG_D(("enter device config\r\n"));
-        system_rgb_blink(RGB_COLOR_RED, 1000);
-        DeviceSetupUsb.init();
-        DeviceSetupUsart.init();
-        while(1)
-        {
-            if( DeviceSetupUsb.process() )
-            {
-                break;
-            }
-
-            if( DeviceSetupUsart.process() )
-            {
-                break;
-            }
-
-            DEBUG_D(("exit  device config\r\n"));
-            HAL_PARAMS_Set_System_config_flag(0);
-            HAL_PARAMS_Save_Params();
-            HAL_Core_System_Yield();
-        }
-    }
-}
-
 #endif

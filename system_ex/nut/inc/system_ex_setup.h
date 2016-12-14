@@ -97,22 +97,6 @@ public:
     void dealTest(aJsonObject* value_Object);
 };
 
-class UsbDeviceSetup : public DeviceSetup
-{
-public:
-    USBSerial &serialusb;
-
-public:
-    UsbDeviceSetup(USBSerial &_s = SerialUSB):serialusb(_s){}
-    void init();
-    virtual int available(void);
-    virtual int read(void);
-    virtual String readString(void);
-    virtual size_t write(const uint8_t *buf, size_t size);
-    virtual void close(void);
-    virtual void sendComfirm(int status);
-};
-
 class UsartDeviceSetup: public DeviceSetup
 {
 public:
@@ -160,7 +144,9 @@ public:
     virtual void sendComfirm(int status);
 };
 
-void manage_setup_config();
+
+extern UsartDeviceSetup DeviceSetupUsart;
+extern UdpDeviceSetup DeviceSetupUdp;
 
 #endif
 #endif

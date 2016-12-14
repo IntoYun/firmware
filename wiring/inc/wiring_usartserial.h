@@ -93,17 +93,17 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 }
 
 #ifdef configWIRING_USARTSERIAL_ENABLE
-#define Serial __fetch_global_Serial1()
 extern USARTSerial& __fetch_global_Serial1();
+#define Serial __fetch_global_Serial1()
 
 #ifdef configWIRING_USARTSERIAL1_ENABLE
-#define Serial1 __fetch_global_Serial2()
 extern USARTSerial& __fetch_global_Serial2();
+#define Serial1 __fetch_global_Serial2()
 #endif
 
 #ifdef configWIRING_USARTSERIAL2_ENABLE  //Wiring_Serial3
-#define Serial2 __fetch_global_Serial3()
 extern USARTSerial& __fetch_global_Serial3();
+#define Serial2 __fetch_global_Serial3()
 #endif
 
 #endif
