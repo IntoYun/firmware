@@ -45,7 +45,9 @@
 
 struct i2c_struct_t {
     i2c_dev_t * dev;
+#if !CONFIG_DISABLE_HAL_LOCKS
     xSemaphoreHandle lock;
+#endif
     uint8_t num;
 };
 
@@ -103,7 +105,7 @@ ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
          * sda pin
          * <i2c enabled> used internally and does not appear below
          */
-        { D1, D0},           // I2C 0  D1, D0
+        { D2, D0},           // I2C 0  D1, D0
         { A3, A2}           //  I2C 1  A3, A2
 };
 
@@ -187,13 +189,29 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     }
     I2C_MUTEX_UNLOCK();
     #endif
+
+    /* i2cMap[i2c]->i2c = &_i2c_bus_array[i2c]; */
+
     i2cMap[i2c]->i2c = i2cInit(i2c, 0, false);
+
+    i2cMap[i2c]->i2c->num = i2c;
 
     i2cSetFrequency(i2cMap[i2c]->i2c, 100000);
 
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t scl_pin = PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin;
     pin_t sda_pin = PIN_MAP[i2cMap[i2c]->I2C_SDA_Pin].gpio_pin;
+
+    printf("i2c scl pin: %d \n",scl_pin);
+    printf("i2c sda pin: %d \n",sda_pin);
+
+    /* HAL_Pin_Mode(i2cMap[i2c]->I2C_SCL_Pin,OPEN_DRAIN); */
+    /* pinMatrixOutAttach(scl_pin, I2C_SCL_IDX(i2cMap[i2c]->i2c->num), false, false); */
+    /* pinMatrixInAttach(scl_pin, I2C_SCL_IDX(i2cMap[i2c]->i2c->num), false); */
+
+    /* HAL_Pin_Mode(i2cMap[i2c]->I2C_SDA_Pin,OPEN_DRAIN); */
+    /* pinMatrixOutAttach(sda_pin, I2C_SDA_IDX(i2cMap[i2c]->i2c->num), false, false); */
+    /* pinMatrixInAttach(sda_pin, I2C_SDA_IDX(i2cMap[i2c]->i2c->num), false); */
 
     i2cAttachSCL(i2cMap[i2c]->i2c, scl_pin);
     i2cAttachSDA(i2cMap[i2c]->i2c, sda_pin);

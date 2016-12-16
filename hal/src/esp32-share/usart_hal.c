@@ -50,7 +50,7 @@ struct uart_struct_t {
 
 static uart_t _uart_bus_array[3] = {
     {(volatile uart_dev_t *)(DR_REG_UART_BASE), NULL, 0, NULL},
-    /* {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL}, */
+    {(volatile uart_dev_t *)(DR_REG_UART1_BASE), NULL, 1, NULL},
     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL}
 };
 
@@ -62,7 +62,7 @@ static uart_t _uart_bus_array[3] = {
 typedef enum USART_Num_Def {
     USART_0 = 0,
     USART_1 = 1,
-    /* USART_2 = 2 */
+    USART_2 = 2
 } USART_Num_Def;
 
 typedef struct ESP32_USART_Info {
@@ -86,8 +86,8 @@ ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart transmitting> used internally and does not appear below
      */
      { TX, RX},           // USART0 TX, RX
-     { D3, D4},           // USART2 D3, D4
-     /* { A3, A4},           // USART 2 A3, A4 */
+     { D3, D4},           // USART1 D3, D4
+     { A3, A4},           // USART2 A3, A4
 };
 
 static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -172,7 +172,8 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
         return;
     }
     UART_MUTEX_LOCK();
-    while(usartMap[serial]->uart->dev->status.rxfifo_cnt == 0x7F);
+    /* while(usartMap[serial]->uart->dev->status.rxfifo_cnt == 0x7F); */
+    while(usartMap[serial]->uart->dev->status.txfifo_cnt == 0x7F);
     usartMap[serial]->uart->dev->fifo.rw_byte = data;
     UART_MUTEX_UNLOCK();
     return 0;

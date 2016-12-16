@@ -70,6 +70,8 @@ i2c_err_t i2cAttachSCL(i2c_t * i2c, int8_t scl)
     pinMode(scl, OUTPUT_OPEN_DRAIN);
     pinMatrixOutAttach(scl, I2C_SCL_IDX(i2c->num), false, false);
     pinMatrixInAttach(scl, I2C_SCL_IDX(i2c->num), false);
+
+    printf("set i2c scl pin ok \n");
     return I2C_ERROR_OK;
 }
 
@@ -92,6 +94,8 @@ i2c_err_t i2cAttachSDA(i2c_t * i2c, int8_t sda)
     pinMode(sda, OUTPUT_OPEN_DRAIN);
     pinMatrixOutAttach(sda, I2C_SDA_IDX(i2c->num), false, false);
     pinMatrixInAttach(sda, I2C_SDA_IDX(i2c->num), false);
+
+    printf("set i2c sda pin ok \n");
     return I2C_ERROR_OK;
 }
 

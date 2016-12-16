@@ -84,6 +84,7 @@ void spiAttachSCK(spi_t * spi, int8_t sck)
         }
     }
     pinMode(sck, OUTPUT);
+    /* HAL_Pin_Mode(2,OUTPUT); */
     pinMatrixOutAttach(sck, SPI_CLK_IDX(spi->num), false, false);
 }
 

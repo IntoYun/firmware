@@ -182,7 +182,8 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
-    return -1;
+    // return -1;
+    return esp8266_status();
 }
 
 /**

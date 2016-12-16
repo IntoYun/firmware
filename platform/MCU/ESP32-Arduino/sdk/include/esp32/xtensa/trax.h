@@ -51,7 +51,7 @@ extern "C" {
 #define	TRAX_MIN_TRACEMEM	64
 
 /* For basic debugging */
-#define DEBUG 0
+// #define DEBUG 0
 
 #include <stdbool.h>
 

@@ -69,8 +69,8 @@ static spi_t _spi_bus_array[4] = {
 // SS           GPIO5 (D5)         GPIO15(A4)
 
 typedef enum SPI_Num_Def {
-    SPI_0 = 0
-    ,SPI_1 = 1
+    SPI_0 = 0,
+    SPI_1 = 1
 } SPI_Num_Def;
 
 typedef struct ESP32_SPI_Info {
@@ -272,7 +272,8 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
     /* HAL_USART_Write_Data(0, 'a'); */
-    HAL_USART_Write_Data(0, (uint8_t) data);
+    /* HAL_USART_Write_Data(0, (uint8_t) data); */
+    printf("spi data : %d \n",data);
     spiWriteByte(spiMap[spi]->spi, (uint8_t)data);
     return spiReadByte(spiMap[spi]->spi);
 }

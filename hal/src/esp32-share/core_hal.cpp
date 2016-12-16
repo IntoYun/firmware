@@ -16,6 +16,7 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
+#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -23,6 +24,41 @@
 #include <stdio.h>
 #include "esp_system.h"
 #include "nvs_flash.h"
+
+#include "freertos/event_groups.h"
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_event_loop.h"
+
+#define EXAMPLE_WIFI_SSID  "MOLMC_NETGRAR"
+#define EXAMPLE_WIFI_PASS   "26554422"
+
+const static char *TAG = "WIFI demo";
+
+
+static EventGroupHandle_t wifi_event_group;
+
+static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
+{
+    switch(event->event_id) {
+    case SYSTEM_EVENT_STA_START:
+        esp_wifi_connect();
+        break;
+    case SYSTEM_EVENT_STA_GOT_IP:
+        xEventGroupSetBits(wifi_event_group, 0x1);//CONNECTED_BIT);
+        // openssl_client_init();
+        break;
+    case SYSTEM_EVENT_STA_DISCONNECTED:
+        /* This is a workaround as ESP32 WiFi libs don't currently
+           auto-reassociate. */
+        esp_wifi_connect(); 
+        xEventGroupClearBits(wifi_event_group, 0x1);//CONNECTED_BIT);
+        break;
+    default:
+        break;
+    }
+    return ESP_OK;
+}
 
 void initVariant() __attribute__((weak));
 void initVariant() {}
@@ -33,8 +69,37 @@ void init() {}
 void startWiFi() __attribute__((weak));
 void startWiFi() {}
 
+wifi_config_t wifi_config = {
+    {
+         EXAMPLE_WIFI_SSID,    //"MOLMC_NETGRAR",
+         EXAMPLE_WIFI_PASS,//"26554422",
+    },
+};
+
 void initWiFi() __attribute__((weak));
-void initWiFi() {}
+void initWiFi() {
+    tcpip_adapter_init();
+    wifi_event_group = xEventGroupCreate();
+    ESP_ERROR_CHECK( esp_event_loop_init(wifi_event_handler, NULL) );
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    // printf("wifi init:%d \n",esp_wifi_init(&cfg));
+    // while(1);
+    ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+    ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+    strcpy(wifi_config.sta.ssid, "MOLMC_NETGRAR");//EXAMPLE_WIFI_SSID;
+    strcpy(wifi_config.sta.password, "26554422");//EXAMPLE_WIFI_SSID;
+    // wifi_config_t wifi_config = {
+    //     .sta = {
+    //         .ssid = EXAMPLE_WIFI_SSID,    //"MOLMC_NETGRAR",
+    //         .password = EXAMPLE_WIFI_PASS,//"26554422",
+    //     },
+    // };
+    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+    ESP_LOGI(TAG, "start the WIFI SSID:[%s] password:[%s]\n", EXAMPLE_WIFI_SSID, EXAMPLE_WIFI_PASS);
+    ESP_ERROR_CHECK( esp_wifi_start() );
+
+}
 
 // void setup() __attribute__((weak));
 // void setup() {}
@@ -85,10 +150,6 @@ void loop()
 
 void loopTask(void *pvParameters)
 {
-    // printf("Restarting now.\n");
-    // fflush(stdout);
-    // esp_restart();
-
     bool setup_done = false;
     static int abc = 0;
     for(;;) {
@@ -112,8 +173,9 @@ extern "C" void app_main()
 {
     init();
     initVariant();
-    initWiFi();
+
     // nvs_flash_init();
+    initWiFi();
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
 }
 

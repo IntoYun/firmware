@@ -18,7 +18,7 @@
 */
 
 #include "intorobot_config.h"
-// #ifdef configSETUP_ENABLE
+#ifdef configSETUP_ENABLE
 
 #include <stdio.h>
 #include <stdlib.h>

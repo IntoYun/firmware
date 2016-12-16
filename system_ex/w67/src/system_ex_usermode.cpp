@@ -33,15 +33,15 @@ void manage_setup_config(void)
     if(HAL_PARAMS_Get_System_config_flag())
     {
         DEBUG_D(("enter device config\r\n"));
-        DeviceSetupUsb.init();
+        // DeviceSetupUsb.init();
         DeviceSetupUsart.init();
         DeviceSetupUdp.init();
         while(1)
         {
-            if( DeviceSetupUsb.process() )
-            {
-                break;
-            }
+            // if( DeviceSetupUsb.process() )
+            // {
+            //     break;
+            // }
 
             if( DeviceSetupUsart.process() )
             {
@@ -52,7 +52,7 @@ void manage_setup_config(void)
             {
                 break;
             }
-            HAL_Core_System_Yield();
+            // HAL_Core_System_Yield();
         }
         DEBUG_D(("exit  device config\r\n"));
         HAL_PARAMS_Set_System_config_flag(0);
