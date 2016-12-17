@@ -19,28 +19,6 @@
 
 #include "system_product.h"
 
-IntoRobotProduct::IntoRobotProduct()
-{
-    product_firmware_version = PRODUCT_FIRMWARE_VERSION;     //产品程序版本号
-    strcpy(product_id, stringify(PRODUCT_ID));               //产品ID
-    strcpy(product_secret, stringify(PRODUCT_SECRET));       //产品密钥
-
-    strcpy(platform_id, stringify(PLATFORM_ID));             //模组编号
-    strcpy(platform_name, stringify(PLATFORM_NAME));         //模组名称
-
-    product_button_pressed = false;   //产品按键是否按下
-    product_button_pin = 0xffff;      //产品按键GPIO口
-    product_button_pressed_time = 0;  //产品按下时间
-
-    product_indicator_pin = 0xffff;   //产品指示灯GPIO口
-    product_indicator_period = 0;     //产品指示灯周期
-}
-
-IntoRobotProduct::~IntoRobotProduct()
-{
-
-}
-
 IntoRobotProduct &system_product_instance(void)
 {
     static IntoRobotProduct intorobot_product;

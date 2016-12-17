@@ -74,6 +74,11 @@ bool network_ready(network_handle_t network, uint32_t param, void* reserved)
     return nif(network).ready();
 }
 
+bool network_status(network_handle_t network, uint32_t param, void* reserved)
+{
+    return nif(network).status();
+}
+
 bool network_connecting(network_handle_t network, uint32_t param, void* reserved)
 {
     return nif(network).connecting();

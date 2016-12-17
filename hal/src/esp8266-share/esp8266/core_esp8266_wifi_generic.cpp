@@ -54,7 +54,7 @@ static volatile uint32_t esp8266_wifi_timeout_duration;
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
     esp8266_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_wifi_timeout_duration = dur;
-    DEBUG("esp8266 WIFI WD Set %d",(dur));
+    //DEBUG("esp8266 WIFI WD Set %d",(dur));
 }
 inline bool IS_WIFI_TIMEOUT() {
     return esp8266_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
@@ -62,7 +62,7 @@ inline bool IS_WIFI_TIMEOUT() {
 
 inline void CLR_WIFI_TIMEOUT() {
     esp8266_wifi_timeout_duration = 0;
-    DEBUG("esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
+    //DEBUG("esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
 }
 
 
@@ -205,7 +205,7 @@ bool _smartConfigDone = false;
 void smartConfigCallback(uint32_t st, void* result) {
     sc_status status = (sc_status) st;
 
-    DEBUG_D("status=%d\r\n",status);
+    DEBUG_D("beginSmartConfig status = %d \r\n", status);
     if(status == SC_STATUS_LINK) {
         station_config* sta_conf = reinterpret_cast<station_config*>(result);
 
@@ -221,6 +221,7 @@ void smartConfigCallback(uint32_t st, void* result) {
  * Start SmartConfig
  */
 bool esp8266_beginSmartConfig() {
+    DEBUG_D("esp8266_beginSmartConfig\r\n");
     if(_smartConfigStarted) {
         return false;
     }
@@ -231,7 +232,6 @@ bool esp8266_beginSmartConfig() {
     }
 
     if(smartconfig_start(reinterpret_cast<sc_callback_t>(&smartConfigCallback), 0)) {
-        DEBUG_D("smartconfig_start\r\n");
         _smartConfigStarted = true;
         _smartConfigDone = false;
         return true;
@@ -244,6 +244,7 @@ bool esp8266_beginSmartConfig() {
  *  Stop SmartConfig
  */
 bool esp8266_stopSmartConfig() {
+    DEBUG_D("esp8266_stopSmartConfig\r\n");
     if(!_smartConfigStarted) {
         return true;
     }
@@ -329,9 +330,9 @@ int esp8266_disconnect()
     return 0;
 }
 
-wl_status_t esp8266_status() {
+wl_status_t esp8266_status()
+{
     station_status_t status = wifi_station_get_connect_status();
-
     switch(status) {
         case STATION_GOT_IP:
             return WL_CONNECTED;

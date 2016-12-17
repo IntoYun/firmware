@@ -64,6 +64,7 @@
 #include "wiring_watchdog.h"
 #include "wiring_thread.h"
 #include "wiring_ext.h"
+#include "wiring_system.h"
 //#include "wiring_audio.h"
 #include "fast_pin.h"
 #include "string_convert.h"
@@ -71,7 +72,6 @@
 
 // this was being implicitly pulled in by some of the other headers
 // adding here for backwards compatibility.
-//#include "system_setup.h"
 #include "system_task.h"
 #include "system_user.h"
 

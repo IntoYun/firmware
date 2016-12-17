@@ -237,10 +237,6 @@ void HAL_Core_Load_params(void)
 
 void HAL_Core_Setup(void)
 {
-    esp8266_setMode(WIFI_STA);
-    esp8266_setDHCP(true);
-    esp8266_setAutoConnect(false);
-    esp8266_setAutoReconnect(true);
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_params();
     HAL_Bootloader_Update_If_Needed();
@@ -259,9 +255,9 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-    HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
+    //HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
+    //HAL_PARAMS_Save_Params();
+    //HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)

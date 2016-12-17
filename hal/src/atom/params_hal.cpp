@@ -497,23 +497,23 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
 /*
  * 读取参数配置标志
  * */
-uint16_t HAL_PARAMS_Get_System_config_flag(void) {
+CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
     Process Proc;
 
     Proc.begin("device_config");
     Proc.addParameter("CHECK");
     int res = Proc.run();
     if(res == 0)
-        intorobot_system_params.config_flag = 1;
+        intorobot_system_params.config_flag = CONFIG_FLAG_IMLINK_SERIAL;
     else
-        intorobot_system_params.config_flag = 0;
-    return intorobot_system_params.config_flag;
+        intorobot_system_params.config_flag = CONFIG_FLAG_NONE;
+    return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
 }
 
 /*
  * 保存参数配置标志
  * */
-int HAL_PARAMS_Set_System_config_flag(uint16_t flag) {
+int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag) {
     //因为atom的按键在openwrt端，所以需要特殊处理
     intorobot_system_params.config_flag = flag;
     if(0 == flag)

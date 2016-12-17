@@ -46,7 +46,7 @@ enum SystemEvents {
     setup_end = wifi_listen_end,
     setup_all = wifi_listen,
     network_credentials = 1<<4,
-    network_status = 1<<5,
+//    network_status = 1<<5,
     //cloud_status = 1<<6,           // parameter is 0 for disconnected, 1 for connecting, 2 for connecting (handshake), 3 for connecting (setup), 8 connected.. other values reserved.
     button_status = 1<<7,            // parameter is >0 for time pressed in ms (when released) or 0 for just pressed.
     firmware_update = 1<<8,          // parameter is 0 for begin, 1 for OTA complete, -1 for error.
@@ -114,3 +114,4 @@ void system_unsubscribe_event(system_event_t events, system_event_handler_t* han
  * @param pointer
  */
 void system_notify_event(system_event_t event, uint32_t data=0, void* pointer=nullptr, void (*fn)(void* data)=nullptr, void* fndata=nullptr);
+

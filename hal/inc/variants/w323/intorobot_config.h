@@ -59,6 +59,10 @@
 
 /* config setup */
 #define configSETUP_ENABLE
+//#define configSETUP_USBSERIAL_ENABLE
+#define configSETUP_USARTSERIAL_ENABLE
+#define configSETUP_TCP_ENABLE
+#define configSETUP_UDP_ENABLE
 
 /* config network */
 //#define configNO_NETWORK
@@ -67,10 +71,10 @@
 //#define configNO_CLOUD
 
 /* config rgb ui */
-//#define configNO_RGB_UI
+#define configNO_RGB_UI
 
 /* config setup button ui */
-//#define configNO_SETUPBUTTON_UI
+#define configNO_SETUPBUTTON_UI
 
 /* config panic */
 #define configPANIC_BUT_KEEP_CALM

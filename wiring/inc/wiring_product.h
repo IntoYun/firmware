@@ -41,41 +41,15 @@ struct __ApplicationProductVersion {
     }
 };
 
-struct __ApplicationPlatformID {
-    __ApplicationPlatformID(char *id) {
-        system_product_instance().set_platform_id(id);
+struct __ApplicationProductMode {
+    __ApplicationProductMode(product_mode_t mode) {
+        system_product_instance().set_product_mode(mode);
     }
 };
 
-struct __ApplicationPlatformName {
-    __ApplicationPlatformName(char *name) {
-        system_product_instance().set_platform_name(name);
-    }
-};
-
-struct __ApplicationProductButton {
-    __ApplicationProductButton(uint16_t pin) {
-        system_product_instance().set_product_button(pin);
-    }
-};
-
-struct __ApplicationProductIndicator {
-    __ApplicationProductIndicator(uint16_t pin, uint16_t period) {
-        system_product_instance().set_product_indicator(pin, period);
-    }
-};
-/*
-#ifdef PRODUCT_ID
-#undef PRODUCT_ID
-#endif
-*/
-
-#define PLATFORM_ID(x)             __ApplicationPlatformID __appPlatformID(stringify(x));
-#define PLATFORM_NAME(x)           __ApplicationPlatformName __appPlatformName(stringify(x));
 #define PRODUCT_ID(x)              __ApplicationProductID __appProductID(stringify(x));
 #define PRODUCT_SECRET(x)          __ApplicationProductSecret __appProductSecret(stringify(x));
 #define PRODUCT_VERSION(x)         __ApplicationProductVersion __appProductVersion(x);
-#define PRODUCT_BUTTON(x)          __ApplicationProductButton __appProductButton(x);
-#define PRODUCT_INDICATOR(x,y)       __ApplicationProductIndicator __appProductIndicator(x,y);
+#define PRODUCT_MODE(x)              __ApplicationProductMode __appProductMode(x);
 
-#endif	/* __WIRING_PRODUCT_H */
+#endif /* __WIRING_PRODUCT_H */
