@@ -26,8 +26,8 @@ LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32
 #zbx
 # LIBS += gcc c m halhal core net80211 phy rtc pp wpa smartconfig btdm_app bt driver esp32 expat freertos json log lwip mbedtls nghttp nvs_flash spi_flash tcpip_adapter newlib vfs
 #lz
-# LIBS += gcc c m app_update bt btdm_app c coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
-LIBS += gcc c m app_update bt btdm_app coexist core driver esp32 ethernet expat freertos halhal json log lwip mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
+LIBS += gcc c m app_update bt btdm_app c coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
+# LIBS += gcc c m app_update bt btdm_app coexist core driver esp32 ethernet expat freertos halhal json log lwip mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
 
 
 TARGET_INTOROBOT_PATH = $(PLATFORM_MCU_PATH)/IntoRobot_Firmware_Driver

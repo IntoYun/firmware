@@ -43,7 +43,10 @@
 
 struct uart_struct_t {
     uart_dev_t * dev;
+
+#if !CONFIG_DISABLE_HAL_LOCKS
     xSemaphoreHandle lock;
+#endif
     uint8_t num;
     xQueueHandle queue;
 };
@@ -115,8 +118,21 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baudrate, uint32_t 
     uint16_t queueLen = 256;
     bool inverted = false;
     uint32_t config = SERIAL_8N1;
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    pin_t tx_pin = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin;
+    pin_t rx_pin = PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
 
+
+    usartMap[serial]->uart = uartBegin(serial,baudrate,config,rx_pin,tx_pin,queueLen,false);
+
+    usartMap[serial]->uart->num = serial;
+
+#if 0
     usartMap[serial]->uart = &_uart_bus_array[serial];
+    usartMap[serial]->uart->num = serial;
+    printf("serial num : %d \n",usartMap[serial]->uart->num);
+
+#if !CONFIG_DISABLE_HAL_LOCKS
 
     if(usartMap[serial]->uart->lock == NULL) {
         usartMap[serial]->uart->lock = xSemaphoreCreateMutex();
@@ -124,6 +140,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baudrate, uint32_t 
             return NULL;
         }
     }
+#endif
 
     if(queueLen && usartMap[serial]->uart->queue == NULL) {
         usartMap[serial]->uart->queue = xQueueCreate(queueLen, sizeof(uint8_t)); //initialize the queue
@@ -144,7 +161,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baudrate, uint32_t 
 
     uartAttachRx(usartMap[serial]->uart, rx_pin, inverted);
     uartAttachTx(usartMap[serial]->uart, tx_pin, inverted);
-
+#endif
     usartMap[serial]->usart_enabled = true;
 }
 

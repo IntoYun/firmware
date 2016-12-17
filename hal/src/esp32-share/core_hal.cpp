@@ -174,8 +174,9 @@ extern "C" void app_main()
     init();
     initVariant();
 
-    // nvs_flash_init();
-    initWiFi();
+   // printf("flash stauts :%d", nvs_flash_init());
+
+    // initWiFi();
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
 }
 
