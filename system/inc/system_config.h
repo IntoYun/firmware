@@ -22,8 +22,8 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
  */
-#ifndef SYSTEM_EX_SETUP_H_
-#define SYSTEM_EX_SETUP_H_
+#ifndef SYSTEM_CONFIG_H_
+#define SYSTEM_CONFIG_H_
 
 #include "intorobot_config.h"
 
@@ -39,26 +39,26 @@
 //设备配置指令
 typedef enum{
     //查询类
-    DEVICE_SETUP_HELLO,                   //获取设备基础信息
-    DEVICE_SETUP_CHECK_WIFI,              //获取wifi状态
-    DEVICE_SETUP_GET_WIFI_LIST,           //获取wifi列表
-    DEVICE_SETUP_GET_NETWORK_STATUS,      //查询网络状态
-    DEVICE_SETUP_GET_INFO,                //获取设备信息
+    DEVICE_CONFIG_HELLO,                   //获取设备基础信息
+    DEVICE_CONFIG_CHECK_WIFI,              //获取wifi状态
+    DEVICE_CONFIG_GET_WIFI_LIST,           //获取wifi列表
+    DEVICE_CONFIG_GET_NETWORK_STATUS,      //查询网络状态
+    DEVICE_CONFIG_GET_INFO,                //获取设备信息
     //设置类
-    DEVICE_SETUP_SEND_WIFI_INFO,          //设置wifi信息
-    DEVICE_SETUP_SET_NETWORK_CREDENTIALS, //设置网络接入凭证
-    DEVICE_SETUP_SET_DEVICE_INFO,         //设置设备信息
-    DEVICE_SETUP_SET_SECURITY,            //设置设备安全信息
-    DEVICE_SETUP_SET_INFO,                //设置设备信息
+    DEVICE_CONFIG_SEND_WIFI_INFO,          //设置wifi信息
+    DEVICE_CONFIG_SET_NETWORK_CREDENTIALS, //设置网络接入凭证
+    DEVICE_CONFIG_SET_DEVICE_INFO,         //设置设备信息
+    DEVICE_CONFIG_SET_SECURITY,            //设置设备安全信息
+    DEVICE_CONFIG_SET_INFO,                //设置设备信息
     //执行类
-    DEVICE_SETUP_RESTART_NETWORK,         //重启网络
-    DEVICE_SETUP_RESET,                   //设备恢复出厂设置
-    DEVICE_SETUP_REBOOT,                  //设备重启
-    DEVICE_SETUP_EXIT,                    //退出配置模式
+    DEVICE_CONFIG_RESTART_NETWORK,         //重启网络
+    DEVICE_CONFIG_RESET,                   //设备恢复出厂设置
+    DEVICE_CONFIG_REBOOT,                  //设备重启
+    DEVICE_CONFIG_EXIT,                    //退出配置模式
     //测试类
-    DEVICE_SETUP_TEST,                    //设备测试
-    DEVICE_SETUP_ERROR
-}DeviceSetupCmdType;
+    DEVICE_CONFIG_TEST,                    //设备测试
+    DEVICE_CONFIG_ERROR
+}DeviceConfigCmdType;
 
 typedef enum
 {
@@ -71,13 +71,14 @@ typedef enum
     TEST_SENSOR_DATA            //测试传感器
 }testItem_t;
 
-class DeviceSetup
+class DeviceConfig
 {
 public:
     aJsonClass aJson;
 
 public:
-    DeviceSetup(void){}
+    DeviceConfig(void){}
+    ~DeviceConfig(void){}
 
     virtual int available(void)=0;
     virtual int read(void)=0;
@@ -86,9 +87,9 @@ public:
     virtual void close(void)=0;
     virtual void sendComfirm(int status);
 
-    DeviceSetupCmdType getMessageType(char *s);
+    DeviceConfigCmdType getMessageType(char *s);
 
-    bool process(void);
+    int process(void);
 
     void dealHello(void);
     void dealCheckWifi(void);
@@ -108,13 +109,16 @@ public:
     void dealTest(aJsonObject* value_Object);
 };
 
-class UsartDeviceSetup: public DeviceSetup
+#ifdef configSETUP_USBSERIAL_ENABLE
+class UsbDeviceConfig : public DeviceConfig
 {
 public:
-	USARTSerial &serial;
+    USBSerial &serialusb;
 
 public:
-	UsartDeviceSetup(USARTSerial &_s = Serial):serial(_s){}
+    UsbDeviceConfig(USBSerial &_s = SerialUSB):serialusb(_s){}
+    ~UsbDeviceConfig(){}
+
     void init();
     virtual int available(void);
     virtual int read(void);
@@ -123,14 +127,39 @@ public:
     virtual void close(void);
     virtual void sendComfirm(int status);
 };
+#endif
 
-class TcpDeviceSetup : public DeviceSetup
+#ifdef configSETUP_USARTSERIAL_ENABLE
+class UsartDeviceConfig: public DeviceConfig
 {
 public:
-    TCPServer server;
+    USARTSerial &serial;
+
+public:
+    UsartDeviceConfig(USARTSerial &_s = Serial):serial(_s){}
+    ~UsartDeviceConfig(){}
+
+    void init();
+    virtual int available(void);
+    virtual int read(void);
+    virtual String readString(void);
+    virtual size_t write(const uint8_t *buf, size_t size);
+    virtual void close(void);
+    virtual void sendComfirm(int status);
+};
+#endif
+
+#ifdef configSETUP_TCP_ENABLE
+class TcpDeviceConfig: public DeviceConfig
+{
+public:
+    TCPServer server=TCPServer(80);
     TCPClient client,client_bak;
 
 public:
+    TcpDeviceConfig(void){}
+    ~TcpDeviceConfig(void){}
+
     void init(void);
     virtual int available(void);
     virtual int read(void);
@@ -139,13 +168,18 @@ public:
     virtual void close(void);
     virtual void sendComfirm(int status);
 };
+#endif
 
-class UdpDeviceSetup : public DeviceSetup
+#ifdef configSETUP_UDP_ENABLE
+class UdpDeviceConfig : public DeviceConfig
 {
 public:
     UDP Udp;
 
 public:
+    UdpDeviceConfig(void){}
+    ~UdpDeviceConfig(void){}
+
     void init(void);
     virtual int available(void);
     virtual int read(void);
@@ -154,10 +188,46 @@ public:
     virtual void close(void);
     virtual void sendComfirm(int status);
 };
+#endif
+
+#ifdef configSETUP_USBSERIAL_ENABLE
+extern UsbDeviceConfig DeviceSetupSerial;
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+extern UsartDeviceConfig DeviceSetupSerial;
+#endif
+#ifdef configSETUP_TCP_ENABLE
+extern TcpDeviceConfig DeviceSetupAp;
+#endif
+#ifdef configSETUP_UDP_ENABLE
+extern UdpDeviceConfig DeviceSetupImlink;
+#endif
+
+typedef enum
+{
+  SYSTEM_CONFIG_MODE_AUTOMATIC = 0,
+  SYSTEM_CONFIG_MODE_MANUAL,
+} system_config_mode_t;
+
+typedef enum
+{
+    SYSTEM_CONFIG_TYPE_NONE = 0,       //非配置模式
+    SYSTEM_CONFIG_TYPE_IMLINK_SERIAL,  //进入串口配置模式
+    SYSTEM_CONFIG_TYPE_AP_SERIAL,      //进入ap+串口配置模式
+    SYSTEM_CONFIG_TYPE_SERIAL,         //串口配置模式
+    SYSTEM_CONFIG_TYPE_IMLINK,         //进入imlink配置模式
+    SYSTEM_CONFIG_TYPE_AP              //进入ap配置模式
+}system_config_type_t;
 
 
-extern UsartDeviceSetup DeviceSetupUsart;
-extern UdpDeviceSetup DeviceSetupUdp;
+void set_system_config_mode(system_config_mode_t mode);
+system_config_mode_t get_system_config_mode();
+void set_system_config_type(system_config_type_t config_type);
+system_config_type_t get_system_config_type();
+void system_config_initial(void);
+int  system_config_process(void);
+void system_config_setup(void);
+void manage_system_config();
 
 #endif
 #endif

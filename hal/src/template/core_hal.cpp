@@ -183,11 +183,6 @@ bool HAL_Feature_Get(HAL_Feature feature)
     return false;
 }
 
-int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length)
-{
-    return -1;
-}
-
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
 {
    //APP_LineCodingBitRateHandler = handler;

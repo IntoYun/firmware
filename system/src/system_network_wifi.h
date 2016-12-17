@@ -60,7 +60,8 @@ public:
 
         int result = wlan_set_credentials(credentials);
         if (!result)
-            system_notify_event(network_credentials, network_credentials_added, credentials);
+        {}
+            //system_notify_event(network_credentials, network_credentials_added, credentials);
         return result;
     }
 

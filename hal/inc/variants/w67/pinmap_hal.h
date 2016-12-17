@@ -81,6 +81,8 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 // #define D6 6
 // #define D7 7
 
+#define GPIO17 30
+#define A0  GPIO17
 
 #define GPIO2  0
 #define GPIO4  1
@@ -101,16 +103,13 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define D4 GPIO13
 #define D5 GPIO15
 #define D6 GPIO16
-// #define D7 7
+#define D7 D67
 
 
 #define TX   GPIO1
 #define RX   GPIO3
 #define LED  GPIO5
 #define KEY  GPIO0
-
-#define GPIO17 30
-#define A0  GPIO17
 
 // SPI pins
 #define SS   GPIO15 //D5

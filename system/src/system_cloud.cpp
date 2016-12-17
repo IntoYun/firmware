@@ -18,7 +18,6 @@
 */
 
 #include "intorobot_config.h"
-#ifndef configNO_CLOUD
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,6 +38,7 @@
 #include "core_hal.h"
 #include "ajson.h"
 
+#ifndef configNO_CLOUD
 volatile uint8_t g_intorobot_network_connected = 0;    //网络连接状态 1连接 0断开
 volatile uint8_t g_intorobot_cloud_connected = 0;      //平台连接状态 1连接上了
 
@@ -361,14 +361,6 @@ void fill_mqtt_topic(String &fulltopic, const char *topic, const char *device_id
     {sprintf(temp,"%s/%s/", INTOROBOT_API_VER, device_id);}
     fulltopic=temp;
     fulltopic+=topic;
-}
-
-String intorobot_deviceID(void)
-{
-    char device_id[32]={0};
-
-    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-    return device_id;
 }
 
 bool intorobot_cloud_init(void)
@@ -721,9 +713,19 @@ int intorobot_cloud_handle(void)
     return -1;
 }
 
+#endif
+
+String intorobot_deviceID(void)
+{
+    char device_id[32]={0};
+
+    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+    return device_id;
+}
+
 void intorobot_process(void)
 {
     HAL_Core_System_Loop();
 }
 
-#endif
+

@@ -23,6 +23,7 @@
 #include "flash_map.h"
 #include "memory_hal.h"
 #include "macaddr_hal.h"
+#include "delay_hal.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -51,8 +52,10 @@ wlan_result_t wlan_deactivate()
 
 int wlan_connect()
 {
+    int result = 0;
     if(wlan_status()) {
-        return esp8266_connect();
+        result = esp8266_connect();
+        return result;
     }
     else {
         return 0;
@@ -109,8 +112,7 @@ int wlan_set_credentials(WLanCredentials* c)
 
 void wlan_Imlink_start()
 {
-    esp8266_setAutoReconnect(false);
-    wlan_disconnect();
+    HAL_Delay_Milliseconds(2000);  //调用连接后需要延时一段时间，否则直接进入imlink模式，配置不了，不确定是否还会影响其他功能。chenkaiyao 2016-12-16
     esp8266_beginSmartConfig();
 }
 
@@ -125,11 +127,14 @@ imlink_status_t wlan_Imlink_get_status()
 void wlan_Imlink_stop()
 {
     esp8266_stopSmartConfig();
-    esp8266_setAutoReconnect(true);
 }
 
 void wlan_setup()
 {
+    esp8266_setMode(WIFI_STA);
+    esp8266_setDHCP(true);
+    esp8266_setAutoConnect(true);
+    esp8266_setAutoReconnect(true);
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)

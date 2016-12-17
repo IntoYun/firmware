@@ -20,6 +20,9 @@
 #ifndef  SYSTEM_MQTTCLIENT_H_
 #define  SYSTEM_MQTTCLIENT_H_
 
+#include "intorobot_config.h"
+
+#ifndef configNO_CLOUD
 #include "wiring_constants.h"
 #include "wiring_ipaddress.h"
 #include "wiring_tcpclient.h"
@@ -147,5 +150,6 @@ public:
    int state();
 };
 
+#endif
 
 #endif

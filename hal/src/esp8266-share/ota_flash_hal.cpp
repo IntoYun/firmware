@@ -78,13 +78,13 @@ static bool bootloader_requires_update(void)
     if(HAL_Core_Get_Subsys_Version(subsys_ver, sizeof(subsys_ver)))
     {
         uint32_t boot_ver = HAL_PARAMS_Get_Boot_boot_version();
-        DEBUG_D("boot %s boot_ver = %d \r\n", subsys_ver, boot_ver);
+        //DEBUG_D("boot %s boot_ver = %d \r\n", subsys_ver, boot_ver);
         if(boot_ver)
         {
             memset(temp, 0, sizeof(temp));
             ptr = strrchr(subsys_ver, '.');
             boot_ver1 = atoi(ptr+1);
-            DEBUG_D("boot_ver=%d  boot_ver1=%d \r\n", boot_ver, boot_ver1);
+            //DEBUG_D("boot_ver=%d  boot_ver1=%d \r\n", boot_ver, boot_ver1);
             if(boot_ver != boot_ver1)
             {
                 return true;

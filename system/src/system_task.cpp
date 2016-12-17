@@ -128,12 +128,12 @@ void manage_network_connection()
     if (in_network_backoff_period())
         return;
 
-    bool was_connected = network.connected();
-
+    static bool was_connected = false;
     if (network.status()) {
         if(!was_connected) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }
+        was_connected = true;
     }
     else
     {
@@ -143,6 +143,7 @@ void manage_network_connection()
 #endif
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }
+        was_connected = false;
     }
     network_connection_attempted();
 }

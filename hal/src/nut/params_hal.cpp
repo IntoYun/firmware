@@ -553,14 +553,14 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
 /*
  * 读取参数配置标志
  * */
-uint16_t HAL_PARAMS_Get_System_config_flag(void) {
-   return intorobot_system_params.config_flag;
+CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
+   return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
 }
 
 /*
  * 保存参数配置标志
  * */
-int HAL_PARAMS_Set_System_config_flag(uint16_t flag) {
+int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag) {
     intorobot_system_params.config_flag = flag;
     return 0;
 }

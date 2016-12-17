@@ -28,7 +28,6 @@
 #define CLOUD_FN(x,y) (x)
 #endif
 
-#ifndef configNO_CLOUD
 
 #include "static_assert.h"
 #include "wiring_string.h"
@@ -36,6 +35,7 @@
 #include <time.h>
 #include <stdint.h>
 
+#ifndef configNO_CLOUD
 
 #define MAX_CALLBACK_NUM    32
 
@@ -86,7 +86,6 @@ struct CloudDebugBuffer
 extern "C" {
 #endif
 
-String intorobot_deviceID(void);
 bool intorobot_cloud_init(void);
 uint8_t intorobot_publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
 uint8_t intorobot_subscribe(const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
@@ -101,7 +100,6 @@ bool intorobot_cloud_flag_connected(void);
 void intorobot_cloud_disconnect(void);
 int intorobot_cloud_connect(void);
 int intorobot_cloud_handle(void);
-void intorobot_process(void);
 
 void intorobot_cloud_flag_connect(void);
 void intorobot_cloud_flag_disconnect(void);
@@ -113,5 +111,8 @@ bool intorobot_cloud_flag_auto_connect();
 #endif
 
 #endif
+
+String intorobot_deviceID(void);
+void intorobot_process(void);
 
 #endif	/* SYSTEM_CLOUD_H_ */

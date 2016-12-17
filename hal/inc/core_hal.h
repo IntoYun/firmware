@@ -175,29 +175,6 @@ typedef enum HAL_SystemClock
  */
 unsigned HAL_Core_System_Clock(HAL_SystemClock clock, void* reserved);
 
-
-typedef enum hal_system_config_t
-{
-    SYSTEM_CONFIG_NONE,
-    SYSTEM_CONFIG_DEVICE_KEY,
-    SYSTEM_CONFIG_SERVER_KEY,
-
-    SYSTEM_CONFIG_SOFTAP_PREFIX,
-    SYSTEM_CONFIG_SOFTAP_SUFFIX,
-    SYSTEM_CONFIG_SOFTAP_HOSTNAMES
-
-} hal_system_config_t;
-
-/**
- * Sets a system configuration item.
- * @param config_item       The item to set
- * @param data              The data to set to
- * @param length            The length of the data.
- * @return      0 on success.
- */
-int HAL_Set_System_Config(hal_system_config_t config_item, const void* data, unsigned length);
-
-
 typedef enum HAL_Feature {
     FEATURE_RETAINED_MEMORY=1,       // [write only] retained memory on backup power
     FEATURE_WARM_START,              // [read only] set to true if previous retained memory contents are available]

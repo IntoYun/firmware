@@ -2,7 +2,7 @@ MODULE=system_ex
 SYSTEM_EX_MODULE_PATH=.
 BUILD_PATH_EXT = $(SYSTEM_EX_BUILD_PATH_EXT)
 
-DEPENDENCIES = hal services system wiring
+DEPENDENCIES = hal services system wiring wiring_ex
 ifeq ("","$(INTOROBOT_NO_PLATFORM)")
 DEPENDENCIES += platform
 CFLAGS += -DINTOROBOT_PLATFORM
