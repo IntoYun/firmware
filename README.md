@@ -1,6 +1,10 @@
 # firmware
-intorobot 开源固件, 包括atom, neutron, nut, lora, fig等产品。
+IntoRobot 固件源代码工程, 支持intorobot创客模块和IntoRobot商业模组。
 
+```
+创客核心板（包括三色灯、按键、usb接口等）：atom, neutron, nut, lora, fig等。
+商业模组（单纯模组，不包括其他附属器件）：w6, w7, w32, w33, l6等。
+```
 ## 快速开始
 ### 通过git下载仓库代码
 打开终端，进入到目的路径，输入下面命令：
@@ -11,7 +15,7 @@ intorobot 开源固件, 包括atom, neutron, nut, lora, fig等产品。
 
 ### 安装编译和烧录工具
 
-安装需要的编译和烧录工具，包括arm-none-eabi-gcc, st-flash, xtensa, esptool。运行以下命令就可以安装：
+安装需要的编译和烧录工具，包括arm-none-eabi-gcc, xtensa-lx106, xtensa-esp32, st-flash, dfu-util、esptool、esptool-py。运行以下命令就可以安装：
 
 ```
 cd tools
@@ -25,27 +29,35 @@ sudo ./install-tools.sh
 在firmware目录下，可以进行各个产品的编译。编译默认固件的命令主要如下：
 
 ```
-make PLATFORM=atom clean all APP=default-atom
 make PLATFORM=neutron clean all APP=default-neutron
 make PLATFORM=nut clean all APP=default-nut
-make PLATFORM=lora clean all APP=default-lora
+make PLATFORM=atom clean all APP=default-atom
 make PLATFORM=fig clean all APP=default-fig
+make PLATFORM=lora clean all APP=default-lora
+make PLATFORM=gprs clean all APP=default-gprs
+
+make PLATFORM=w67 clean all APP=default-w67
+make PLATFORM=w323 clean all APP=default-w323
+make PLATFORM=l6 clean all APP=default-l6
 ```
-
-
 
 
 其中，*PLATFORM=product_name*也可以替换成*PLATFORM_ID=product_id*.产品的名称和ID的关系如下表（详情请参见build/platform-id.mk）：
 
 | Name         | PLATFORM_ID |
 |--------------|:-----------:|
-| atom         | 0           |
-| neutron      | 1           |
-| gcc          | 2           |
-| neutron-net  | 3           |
-| nut          | 4           |
-| lora         | 5           |
-| fig          | 6           |
+| neutron      | 888002      |
+| nut          | 888003      |
+| atom         | 888004      |
+| fig          | 888005      |
+| lora         | 888006      |
+| gprs         | 888007      |
+| w67          | 888101      |
+| w323         | 888102      |
+| l6           | 888103      |
+| gcc          | 888201      |
+| neutron-net  | 888202      |
+| anytest      | 888203      |
 
 进入到main目录下，可以选择更多的编译选项，还可以进行烧录。
 以下常用的编译及烧录命令：
@@ -60,9 +72,20 @@ make PLATFORM=neutron clean all program-dfu
 make PLATFORM=lora clean all DEBUG_BUILD=y USE_SWD=y st-flash
 make PLATFORM=lora clean all DEBUG_BUILD=y USE_SWD=y program-dfu
 
-make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool 
+make PLATFORM=gprs clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=gprs clean all DEBUG_BUILD=y USE_SWD=y program-dfu
 
-make PLATFORM=fig clean all DEBUG_BUILD=y USE_SWD=y esptool-py 
+make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool
+
+make PLATFORM=fig clean all DEBUG_BUILD=y USE_SWD=y esptool-py
+
+make PLATFORM=w67 clean all DEBUG_BUILD=y USE_SWD=y esptool
+
+make PLATFORM=w323 clean all DEBUG_BUILD=y USE_SWD=y esptool-py
+
+make PLATFORM=l6 clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=l6 clean all DEBUG_BUILD=y USE_SWD=y program-dfu
+
 ```
 
 DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的烧录工具。
@@ -78,7 +101,7 @@ DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的�
 | **docs**       | 一些相关的文档 |
 | **hal**        | 硬件描述层接口 |
 | **main**       | 编译烧录各个固件的上层文件夹 |
-| **newlib_nano**| 动态编译使用的文件，暂未使用 |
+| **newlib_nano**| 主要用于操作系统内存管理保护 |
 | **platform**   | 各个产品芯片的提供的库，属于最底层代码 |
 | **services**   | 主要是调试功能 |
 | **system**     | 提供连接网络，配置，连接intorobot平台，在线编程，固件更新等功能 |
@@ -95,9 +118,11 @@ DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的�
 
 实现编译的主体:
 
-arm-xxx.mk实现包括atom，neutron（stm32f411ce部分）， lora等的编译。
+arm-xxx.mk实现包括atom, neutron, lora, gprs, l6等的编译。
 
-xtensa-xxx.mk实现esp8266相关的编译，包括neutron（esp8266部分），nut等。
+xtensa-lx106-xxx.mk实现esp8266相关的编译，包括neutron-net,nut, w67等。
+
+xtensa-esp32-xxx.mk实现esp32相关的编译，包括fig, w323等。
 
 linker存放链接文件，startup包含启动文件。
 
@@ -109,7 +134,7 @@ linker存放链接文件，startup包含启动文件。
 
 ### hal
 
-硬件描述层接口，它调用platform模块的代码，实现了各个底层接口。这些接口被bootloader, services, system, wiring模块调用。用户如果新增产品，需要在这里实现相应的接口。
+硬件描述层接口，它调用platform模块的代码，实现了各个底层接口。这些接口被bootloader, services, system, wiring, wiring_ex模块调用。用户如果新增产品，需要在这里实现相应的接口。
 
 ### main
 
@@ -117,7 +142,7 @@ linker存放链接文件，startup包含启动文件。
 
 ### newlib_nano
 
-动态编译使用的文件，暂未使用。
+主要用于操作系统内存管理保护, neutorn使用到
 
 ### platform
 
