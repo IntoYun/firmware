@@ -21,7 +21,7 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!atom!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=default-atom
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!fig!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n
+#make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=default-atom
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!lora!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
@@ -32,10 +32,10 @@ echo "------------------------------------------------------------"
 
 echo "------------------------商业模块-------------------------"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w67!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n
+make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=default-w67
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w323!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n
+#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=default-w323
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!l6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=default-l6
@@ -49,7 +49,7 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!neutron-net!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!anytest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n
+make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=default-anytest
 
 echo "------------------------------------------------------------"
 echo "github push check success!!!"
