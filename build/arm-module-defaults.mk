@@ -22,7 +22,7 @@ ifdef START_YMODEM_FLASHER_SERIAL_SPEED
 CDEFINES += -DSTART_YMODEM_FLASHER_SERIAL_SPEED=$(START_YMODEM_FLASHER_SERIAL_SPEED)
 endif
 
-CDEFINES += -DSPARK=1 -DPARTICLE=1
+CDEFINES += -DINTOROBOT=1
 
 # disable COMPILE_LTO when JTAG is enabled since it obfuscates the symbol mapping
 # breaking step debugging
