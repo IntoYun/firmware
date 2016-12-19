@@ -63,11 +63,8 @@ uint8_t txAddress = 0;
 uint8_t rxBuffer[BUFFER_LENGTH];
 uint8_t txBuffer[BUFFER_LENGTH];
 
-
-/* static int default_sda_pin = D2; */
-/* static int default_scl_pin = D3; */
-static int default_sda_pin = D1;
-static int default_scl_pin = D0;
+static int default_sda_pin = SDA;
+static int default_scl_pin = SCL;
 
 void twi_setClockStretchLimit(uint32_t limit){
     twi_clockStretchLimit = limit * TWI_CLOCK_STRETCH_MULTIPLIER;

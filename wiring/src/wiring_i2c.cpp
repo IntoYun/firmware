@@ -211,8 +211,8 @@ void TwoWire::reset()
 
     if (_i2c==HAL_I2C_INTERFACE1)
     {
-        _SCA = D0;
-        _SCL = D1;
+        _SCA = SDA;
+        _SCL = SCL;
     }
     else
     {

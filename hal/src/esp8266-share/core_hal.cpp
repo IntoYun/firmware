@@ -192,7 +192,7 @@ void HAL_Core_Config(void)
     os_timer_arm(&systick_timer, 1, 1);
 
     //Wiring pins default to inputs
-    for (pin_t pin=D0; pin<=D6; pin++)
+    for (pin_t pin=FIRST_DIGITAL_PIN; pin<=TOTAL_DIGITAL_PINS; pin++)
     {
         //HAL_Pin_Mode(pin, INPUT);
     }
