@@ -657,7 +657,7 @@ void DeviceConfig::dealReboot(void)
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
 {
-#if 0
+#if  1 
     testItem_t testItem;
     if(value_object == NULL)
     {
@@ -728,20 +728,20 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_DIGITAL_WRITE_HIGH:
             {
                 uint8_t pin;
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 4; pin <= 10; pin++)
                 {
                     pinMode(pin,OUTPUT);
                 }
-                pinMode(10,OUTPUT);
-                pinMode(11,OUTPUT);
+                // pinMode(0,OUTPUT);
+                pinMode(2,OUTPUT);
 
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 4; pin <= 10; pin++)
                 {
                     digitalWrite(pin,HIGH);
                 }
 
-                digitalWrite(10,HIGH);
-                digitalWrite(11,HIGH);
+                // digitalWrite(0,HIGH);
+                digitalWrite(2,HIGH);
 
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
@@ -753,20 +753,20 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_DIGITAL_WRITE_LOW:
             {
                 uint8_t pin;
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 4; pin <= 10; pin++)
                 {
                     pinMode(pin,OUTPUT);
                 }
-                pinMode(10,OUTPUT);
-                pinMode(11,OUTPUT);
+                // pinMode(0,OUTPUT);
+                pinMode(2,OUTPUT);
 
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 4; pin <= 10; pin++)
                 {
                     digitalWrite(pin,LOW);
                 }
 
-                digitalWrite(10,LOW);
-                digitalWrite(11,LOW);
+                // digitalWrite(0,LOW);
+                digitalWrite(2,LOW);
 
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
@@ -778,7 +778,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_ANALOG_READ:
             {
                 aJson.addNumberToObject(root, "status", 200);
-                aJson.addNumberToObject(root, "value", analogRead(A0));
+                aJson.addNumberToObject(root, "value", analogRead(ADC));
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
                 free(strPtr);
