@@ -66,7 +66,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             40
+#define TOTAL_PINS             38
 #define TOTAL_ANALOG_PINS      8
 #define TOTAL_DIGITAL_PINS     8
 #define FIRST_ANALOG_PIN       30
@@ -88,9 +88,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A5 35
 #define A6 36
 #define A7 37
-#define A8 38
-#define A9 39
-
 
 //usart
 #define TX A2
@@ -112,12 +109,11 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA1 D7
 #define SCL1 D6
 
-#define LED_USER  D7
+#define LED_USER  D5
 
-#define TOTAL_USARTS   2 
+#define TOTAL_USARTS   2
 #define TOTAL_SPIS     1
-#define TOTAL_I2CS     2 
-
+#define TOTAL_I2CS     2
 
 #define LSBFIRST 0
 #define MSBFIRST 1

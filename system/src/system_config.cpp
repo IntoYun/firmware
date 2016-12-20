@@ -663,7 +663,7 @@ void DeviceConfig::dealReboot(void)
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
 {
-#if  1
+#if  0
     testItem_t testItem;
     if(value_object == NULL)
     {

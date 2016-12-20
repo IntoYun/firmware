@@ -43,7 +43,6 @@ void HAL_System_Config(void)
 {
     Set_System();
     HAL_RTC_Initial();
-    HAL_UI_Initial();
     usart_debug_initial(115200);
 }
 

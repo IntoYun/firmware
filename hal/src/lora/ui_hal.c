@@ -73,7 +73,7 @@ void RGB_Color_Toggle(void) {
 void HAL_UI_Initial(void)
 {
     //三色灯管脚初始化
-    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitTypeDef  GPIO_InitStruct;
     GPIO_InitStruct.Pin = RGB_R_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;

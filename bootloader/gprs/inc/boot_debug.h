@@ -7,7 +7,6 @@ extern "C" {
 
 #include "service_debug.h"
 
-
 #define BOOT_DEBUG_SWITCH
 
 #ifdef BOOT_DEBUG_SWITCH
@@ -15,7 +14,6 @@ extern "C" {
 #else
 #define BOOT_DEBUG
 #endif
-
 
 #ifdef __cplusplus
 }

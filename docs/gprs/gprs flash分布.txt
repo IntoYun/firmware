@@ -1,12 +1,25 @@
 stm32l151:
 
-1.boot程序区          24k
+1.boot程序区          28k
 2.boot参数区          1k 
 3.应用参数区          3k
-4.应用程序区          100k
+4.应用程序区          96k
 
 flash:
-1.bootloader         
-2.默认程序
-3.升级缓存区
-4.bootloader缓存区
+1.默认程序            96K
+2.OTA程序缓存区       96K
+3.bootloader缓存区   28K
+
+
+
+stm32f411:
+
+1.boot程序区          32k
+2.boot参数区          eeprom 
+3.应用参数区          64k
+4.应用程序区          384k
+
+flash:
+1.默认程序            384K
+2.OTA程序缓存区       384K
+3.bootloader缓存区   32K

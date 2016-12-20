@@ -7,11 +7,11 @@ ENTRY(Reset_Handler)
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32F4xx definitions with 512K Flash and 128K RAM
+Linker subscript for STM32L151xb definitions with 128K Flash and 16K RAM
 */
 
 /* higher address of the user mode stack */
-_estack = ORIGIN(SRAM)+LENGTH(SRAM);  /* end of 128K SRAM */
+_estack = ORIGIN(SRAM)+LENGTH(SRAM)-1;  /* end of 16K SRAM 0x20003FFF*/
 
 /* include the sections management sub-script for FLASH mode */
 

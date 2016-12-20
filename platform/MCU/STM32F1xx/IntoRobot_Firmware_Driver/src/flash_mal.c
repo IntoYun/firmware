@@ -70,7 +70,7 @@ uint32_t EndOfFlashPage(flash_device_t device, uint32_t address)
         uint16_t page = (address-INTERNAL_FLASH_START) / INTERNAL_FLASH_PAGE_SIZE;
         end = (page+1) * INTERNAL_FLASH_PAGE_SIZE;
     }
-#if USE_SERIAL_FLASH
+#ifdef USE_SERIAL_FLASH
     else if (device==FLASH_SERIAL)
     {
         uint16_t sector = address / sFLASH_PAGESIZE;

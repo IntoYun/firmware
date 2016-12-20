@@ -11,15 +11,15 @@
 #include "ui_hal.h"
 
 
-#define RGB_R_GPIO_PIN       GPIO_PIN_0
-#define RGB_R_GPIO_PORT      GPIOA
-#define RGB_G_GPIO_PIN       GPIO_PIN_1
-#define RGB_G_GPIO_PORT      GPIOA
-#define RGB_B_GPIO_PIN       GPIO_PIN_10
+#define RGB_R_GPIO_PIN       GPIO_PIN_4
+#define RGB_R_GPIO_PORT      GPIOB
+#define RGB_G_GPIO_PIN       GPIO_PIN_5
+#define RGB_G_GPIO_PORT      GPIOB
+#define RGB_B_GPIO_PIN       GPIO_PIN_8
 #define RGB_B_GPIO_PORT      GPIOA
 
-#define MODE_BOTTON_GPIO_PIN       GPIO_PIN_9
-#define MODE_BOTTON_GPIO_PORT      GPIOA
+#define MODE_BOTTON_GPIO_PIN       GPIO_PIN_2
+#define MODE_BOTTON_GPIO_PORT      GPIOB
 
 
 volatile uint32_t BUTTON_last_state = 0;
@@ -63,6 +63,7 @@ void RGB_Color_Toggle(void) {
 void HAL_UI_Initial(void)
 {
     //三色灯管脚初始化
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef  GPIO_InitStruct;
     GPIO_InitStruct.Pin = RGB_R_GPIO_PIN;

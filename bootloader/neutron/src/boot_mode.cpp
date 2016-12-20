@@ -107,8 +107,6 @@ void USBD_CDC_Process(void)
     }
     if(len)
     {
-        //BOOT_DEBUG("esp8266 %d\r\n", len);
-        //delay(2);
         USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
         while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
     }
@@ -127,8 +125,6 @@ void USBD_CDC_Process(void)
     }
     if(len)
     {
-        //delay(2);
-        //BOOT_DEBUG("usb %d\r\n", len);
         HAL_UART_Transmit(&UartHandleEsp8266, TxBuffer, len, 2000);//2000ms
     }
 }

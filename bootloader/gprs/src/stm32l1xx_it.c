@@ -46,7 +46,9 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern UART_HandleTypeDef UartHandleCellular;
 /* Private function prototypes -----------------------------------------------*/
+void HAL_USART1_Cellular_Handler(UART_HandleTypeDef *huart);
 /* Private functions ---------------------------------------------------------*/
 
 /******************************************************************************/
@@ -169,6 +171,16 @@ void SysTick_Handler(void)
 void USB_LP_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd);
+}
+
+/**
+ * @brief  This function handles UART interrupt request.
+ * @param  None
+ * @retval None
+ */
+void USART1_IRQHandler(void)
+{
+    HAL_USART1_Cellular_Handler(&UartHandleCellular);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

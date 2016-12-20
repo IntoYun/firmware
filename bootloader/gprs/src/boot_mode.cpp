@@ -1,6 +1,5 @@
 #include "hw_config.h"
 #include "boot_mode.h"
-#include "memory_hal.h"
 #include "params_hal.h"
 #include "ui_hal.h"
 #include "flash_map.h"
@@ -8,6 +7,9 @@
 #include "boot_debug.h"
 
 #define UPDATE_BLINK_PERIOD 100
+
+extern UART_HandleTypeDef UartHandleCellular;
+extern SDK_QUEUE USART_Cellular_Queue;
 
 pFunction JumpToApplication;
 uint32_t JumpAddress;
@@ -27,6 +29,19 @@ void start_app(void)
     }
 }
 
+bool FLASH_Restore(Firmware_TypeDef FmType)
+{
+    if(DEFAULT_FIRWARE == FmType)
+    {
+        FLASH_Restore(EXTERNAL_FLASH_FAC_ADDRESS);
+    }
+    else
+    {
+        FLASH_Restore(EXTERNAL_FLASH_OTA_ADDRESS);
+    }
+    return true;
+}
+
 void USBD_DFU_Init(void)
 {
     USBD_Init(&USBD_Device, &DFU_Desc, 0);
@@ -35,22 +50,118 @@ void USBD_DFU_Init(void)
     USBD_Start(&USBD_Device);
 }
 
+void USBD_CDC_Init(void)
+{
+    USBD_Init(&USBD_Device, &VCP_Desc, 0);
+    USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+    USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+    USBD_Start(&USBD_Device);
+}
+
+void USBD_CDC_Process(void)
+{
+    uint8_t TxBuffer[1024];
+    uint32_t len=0;
+
+    len=0;
+    while(!sdkIsQueueEmpty(&USART_Cellular_Queue))
+    {
+        if(len < sizeof(TxBuffer))
+        {
+            sdkGetQueueData(&USART_Cellular_Queue, &TxBuffer[len++]);
+        }
+        else
+        {
+            break;
+        }
+    }
+    if(len)
+    {
+        USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
+        while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
+    }
+
+    len=0;
+    while(!sdkIsQueueEmpty(&USB_Rx_Queue))
+    {
+        if(len < sizeof(TxBuffer))
+        {
+            sdkGetQueueData(&USB_Rx_Queue, &TxBuffer[len++]);
+        }
+        else
+        {
+            break;
+        }
+    }
+    if(len)
+    {
+        HAL_UART_Transmit(&UartHandleCellular, TxBuffer, len, 2000);//2000ms
+    }
+}
+
+bool DEFAULT_Flash_Reset(void)
+{
+    return FLASH_Restore(DEFAULT_FIRWARE);
+}
+
+bool OTA_Flash_Reset(void)
+{
+    return FLASH_Restore(OTA_FIRWARE);
+}
+
+void Enter_Default_RESTORE_Mode(void)
+{
+    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
+    if(DEFAULT_Flash_Reset())
+    {
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
+        HAL_PARAMS_Save_Params();
+    }
+    else
+    {
+        System_Reset();
+    }
+}
+
+void Enter_Serail_Com_Mode(void)
+{
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
+    HAL_PARAMS_Save_Params();
+    USBD_CDC_Init();
+    while (1)
+    {
+        USBD_CDC_Process();
+    }
+}
+
 void Enter_Factory_RESTORE_Mode(void)
 {
     HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
-    delay(1000);
-    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
-    HAL_PARAMS_Save_Params();
+    if(DEFAULT_Flash_Reset())
+    {
+        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
+        HAL_PARAMS_Save_Params();
+    }
+    else
+    {
+        System_Reset();
+    }
 }
 
-void Enter_Factory_ALL_RESTORE_Mode(void)
+void Enter_OTA_Update_Mode(void)
 {
     HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
-    delay(1000);
-    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_ALL_RESET);
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
-    HAL_PARAMS_Save_Params();
+    if(OTA_Flash_Reset())
+    {
+        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
+        HAL_PARAMS_Save_Params();
+    }
+    else
+    {
+        System_Reset();
+    }
 }
 
 void Enter_DFU_Mode(void)

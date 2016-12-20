@@ -105,7 +105,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define TX A0
 #define RX A1
 
-
 #define SS   D7
 #define SCK  D4
 #define MISO D5
@@ -115,13 +114,11 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA  D1
 #define SCL  D0
 
-
 #define LED_USER  D7
 
 #define TOTAL_USARTS    1
 #define TOTAL_SPIS      1
 #define TOTAL_I2CS      1
-
 
 #define LSBFIRST 0
 #define MSBFIRST 1

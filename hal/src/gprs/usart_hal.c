@@ -71,7 +71,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },                                // USART 2
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },          // USART 2
     { USART3, GPIO_AF7_USART3, USART3_IRQn, TX1, RX1 }         // USART 1
 };
 
@@ -89,7 +89,6 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
     }
     else
     {
-        
         usartMap[serial] = &USART_MAP[USART_D6_D7];
         usartMap[serial]->uart_handle = &UartHandle_D6D7;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_D6D7;
@@ -121,8 +120,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     }
     else
     {
-        
-        __HAL_RCC_GPIOA_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_USART3_CLK_ENABLE();
     }
 
@@ -132,7 +130,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     GPIO_InitStruct.Pin       = PIN_MAP[usartMap[serial]->usart_tx_pin].gpio_pin|PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;//GPIO_SPEED_FAST;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = usartMap[serial]->usart_alternate;
     HAL_GPIO_Init(PIN_MAP[usartMap[serial]->usart_rx_pin].gpio_peripheral, &GPIO_InitStruct);
 
@@ -203,7 +201,6 @@ void HAL_USART_End(HAL_USART_Serial serial)
     }
     else
     {
-        
         __HAL_RCC_USART3_FORCE_RESET();
         __HAL_RCC_USART3_RELEASE_RESET();
     }
@@ -234,6 +231,7 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
+    HAL_UART_Transmit(usartMap[serial]->uart_handle, (uint8_t *)&data, 2, 100);//100ms
     return 1;
 }
 
@@ -300,4 +298,10 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
 void USART2_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
+}
+
+// Serial3 interrupt handler
+void USART3_IRQHandler(void)
+{
+    HAL_USART_Handler(HAL_USART_SERIAL2);
 }

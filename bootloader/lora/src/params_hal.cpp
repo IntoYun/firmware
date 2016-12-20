@@ -12,7 +12,7 @@
 #include "intorobot_macros.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
-#include "service_debug.h"
+
 
 
 boot_params_t intorobot_boot_params;         //bootloader参数
@@ -75,11 +75,8 @@ void save_boot_params(boot_params_t *pboot_params) {
     if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-    DEBUG_D("11111\r\n");
     flashStore.erase(BOOT_PARAMS_START_ADDR, len);
-    DEBUG_D("2222\r\n");
     flashStore.write(BOOT_PARAMS_START_ADDR, pboot_params, len);
-    DEBUG_D("3333\r\n");
 }
 
 void save_system_params(system_params_t *psystem_params);
@@ -142,7 +139,6 @@ void HAL_PARAMS_Init_Boot_Params(void) {
 void HAL_PARAMS_Load_Boot_Params(void) {
     read_boot_params(&intorobot_boot_params);
     if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
-        DEBUG_D("HAL_PARAMS_Load_Boot_Params\r\n");
         HAL_PARAMS_Init_Boot_Params();
     }
 }
@@ -153,7 +149,6 @@ void HAL_PARAMS_Load_Boot_Params(void) {
 void HAL_PARAMS_Load_System_Params(void) {
     read_system_params(&intorobot_system_params);
     if( SYSTEM_PARAMS_HEADER != intorobot_system_params.header ) {
-        DEBUG_D("HAL_PARAMS_Load_System_Params\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
 }

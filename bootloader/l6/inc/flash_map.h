@@ -22,28 +22,23 @@
 
 #define INTERNAL_FLASH_START            ((uint32_t)0x08000000)
 #define INTERNAL_FLASH_SIZE             (0x20000)
-#define INTERNAL_FLASH_END_ADDRESS      ((uint32_t)INTERNAL_FLASH_START+INTERNAL_FLASH_SIZE-1)	//For 128KB Internal Flash
+#define INTERNAL_FLASH_END_ADDRESS      ((uint32_t)INTERNAL_FLASH_START+INTERNAL_FLASH_SIZE-1) //For 128KB Internal Flash
 
 /*
- *  16+16k   bootloader
- *  16+16k   eeprom模拟区
- *  64k      应用系统参数区
- *  128*3k   应用程序区
+ *  24k     bootloader
+ *  1k      bootloader参数区
+ *  3k      应用系统参数区
+ *  100k    应用程序区
  */
-
-
 #define BOOTLOADER_START_ADDR            ((uint32_t)0x08000000)
+#define APPLICATION_START_ADDR           ((uint32_t)0x08007000)
+
 #define EEPROM_START_ADDR                ((uint32_t)0x08008000)
 
-#define BOOT_PARAMS_START_ADDR           ((uint32_t)0x10000)
-#define BOOT_PARAMS_END_ADDR             ((uint32_t)0x10FFF)
-#define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x11000)
-#define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x17FFF)
-
-#define BOOT_ADDR                        ((uint32_t)0x08000000)
-#define EEPROM_ADDR                      ((uint32_t)0x08008000)
-#define APP_ADDR                         ((uint32_t)0x08020000)
-
+#define BOOT_PARAMS_START_ADDR           ((uint32_t)0x08006000)
+#define BOOT_PARAMS_END_ADDR             ((uint32_t)0x080063FF)
+#define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x08006400)
+#define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x08006FFF)
 
 #endif /*FLASH_MAP_H_*/
 

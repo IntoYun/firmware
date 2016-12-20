@@ -54,8 +54,8 @@ extern "C" {
 
 //Bootloader firmware at the start of internal flash
 #define USB_DFU_ADDRESS             INTERNAL_FLASH_START
-//Main firmware begin address after 24KB (6 x 4K) from start of flash
-#define CORE_FW_ADDRESS             ((uint32_t)0x08006000)
+//Main firmware begin address after 28KB (7 x 4K) from start of flash
+#define CORE_FW_ADDRESS             ((uint32_t)0x08008000)
 #define APP_START_MASK              ((uint32_t)0x2FFFC000)
 
 /* Internal Flash page size */
@@ -63,24 +63,24 @@ extern "C" {
 #define INTERNAL_FLASH_SECTOR_SIZE    ((uint32_t)0x1000)      //4k Byte
 
 #define USER_FIRMWARE_IMAGE_LOCATION CORE_FW_ADDRESS
-#define FIRMWARE_IMAGE_SIZE           0x19000      //100K (firmware size)
-
+#define FIRMWARE_IMAGE_SIZE           0x18000      //96K (firmware size)
+#define BOOTLOADER_IMAGE_SIZE         0x7000       //28K (bootloader size)
 
 #ifdef USE_SERIAL_FLASH
 /* External Flash memory address where Factory programmed core firmware is located */
-#define EXTERNAL_FLASH_FAC_ADDRESS  ((uint32_t)0x4000)
-/* External Flash memory address where core firmware will be saved for backup/restore */
-#define EXTERNAL_FLASH_BKP_ADDRESS  ((uint32_t)EXTERNAL_FLASH_FAC_ADDRESS)
+#define EXTERNAL_FLASH_FAC_ADDRESS  ((uint32_t)0x00)
 /* External Flash memory address where OTA upgraded core firmware will be saved */
 #define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_FAC_ADDRESS + FIRMWARE_IMAGE_SIZE))
+/* External Flash memory address where OTA upgraded bootloader will be saved */
+#define EXTERNAL_FLASH_OTA_BOOTLOADER_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_OTA_ADDRESS + FIRMWARE_IMAGE_SIZE))
 #endif
 
 #if FIRMWARE_IMAGE_SIZE > INTERNAL_FLASH_SIZE
 #   error "FIRMWARE_IMAGE_SIZE too large to fit into internal flash"
 #endif
 
-/* Bootloader Flash regions that needs to be protected: 0x08000000 - 0x08005FFF */
-#define BOOTLOADER_FLASH_PAGES      (OB_WRP1_PAGES0TO15|OB_WRP1_PAGES16TO31|OB_WRP1_PAGES32TO47|OB_WRP1_PAGES48TO63|OB_WRP1_PAGES64TO79|OB_WRP1_PAGES80TO95)
+/* Bootloader Flash regions that needs to be protected: 0x08000000 - 0x08006FFF */
+#define BOOTLOADER_FLASH_PAGES      (OB_WRP1_PAGES0TO15|OB_WRP1_PAGES16TO31|OB_WRP1_PAGES32TO47|OB_WRP1_PAGES48TO63|OB_WRP1_PAGES64TO79|OB_WRP1_PAGES80TO95|OB_WRP1_PAGES96TO111)
 
 
 void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors);
