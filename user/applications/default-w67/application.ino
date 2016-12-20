@@ -47,7 +47,14 @@ void setup()
 {
     //初始化
     pinMode(LEDPIN, OUTPUT);
-    pinMode(GPIO16, OUTPUT);
+    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL == System.configStatus())
+    {
+        digitalWrite(GPIO16, LOW);
+    }
+    else
+    {
+        digitalWrite(GPIO16, HIGH);
+    }
     attachInterrupt(GPIO0, systemConfigKeyDeal, CHANGE);
     //接收灯开关命令
     IntoRobot.subscribe(SMARTLIGHT_CMD_SWITCH, NULL, smartLightSwitchCb);

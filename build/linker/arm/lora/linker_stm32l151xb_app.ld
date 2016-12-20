@@ -1,10 +1,10 @@
 /*
 *****************************************************************************
 **
-**  File        : linker_stm32f2xx_dfu.ld
+**  File        : linker_stm32l151xb_boot.ld
 **
-**  Abstract    : Linker script for STM32F205xx Device with
-**                1MByte FLASH, 128KByte SRAM
+**  Abstract    : Linker script for STM32L151xb Device with
+**                128KByte FLASH, 16KByte SRAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -39,7 +39,7 @@ _Minimum_Stack_Size = 0x400;
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
+Linker subscript for STM32L1xx definitions with 128K Flash and 16K RAM
 */
 
 /* Memory Spaces Definitions */
@@ -47,7 +47,7 @@ Linker subscript for STM32F205xx definitions with 1024K Flash and 128K RAM
 MEMORY
 {
     SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 16K
-    APP_FLASH (rx)    : ORIGIN = 0x08020000, LENGTH = 512K-0x20000
+    APP_FLASH (rx)    : ORIGIN = 0x08006000, LENGTH = 128K-0x6000
 }
 
 INCLUDE linker_stm32l151xb_common.ld

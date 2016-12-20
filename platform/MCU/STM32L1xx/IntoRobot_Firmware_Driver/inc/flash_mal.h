@@ -54,13 +54,13 @@ extern "C" {
 
 //Bootloader firmware at the start of internal flash
 #define USB_DFU_ADDRESS             INTERNAL_FLASH_START
-//Main firmware begin address after 128KB (4 x 16K + 64K) from start of flash
-#define CORE_FW_ADDRESS             ((uint32_t)0x08020000)
-#define APP_START_MASK              ((uint32_t)0x2FF10000)
+//Main firmware begin address after 24KB (6 x 4K) from start of flash
+#define CORE_FW_ADDRESS             ((uint32_t)0x08006000)
+#define APP_START_MASK              ((uint32_t)0x2FFFC000)
 
 /* Internal Flash page size */
 #define INTERNAL_FLASH_PAGE_SIZE      ((uint32_t)256)         //256Byte
-#define INTERNAL_FLASH_SECTOR_SIZE    ((uint32_t)0x1000)      //2k Byte
+#define INTERNAL_FLASH_SECTOR_SIZE    ((uint32_t)0x1000)      //4k Byte
 
 #define USER_FIRMWARE_IMAGE_LOCATION CORE_FW_ADDRESS
 #define FIRMWARE_IMAGE_SIZE           0x19000      //100K (firmware size)
@@ -79,8 +79,8 @@ extern "C" {
 #   error "FIRMWARE_IMAGE_SIZE too large to fit into internal flash"
 #endif
 
-/* Bootloader Flash regions that needs to be protected: 0x08000000 - 0x08006FFF */
-#define BOOTLOADER_FLASH_PAGES      (OB_WRP1_PAGES0TO15|OB_WRP1_PAGES16TO31|OB_WRP1_PAGES32TO47|OB_WRP1_PAGES48TO63|OB_WRP1_PAGES64TO79|OB_WRP1_PAGES80TO95|OB_WRP1_PAGES96TO111)
+/* Bootloader Flash regions that needs to be protected: 0x08000000 - 0x08005FFF */
+#define BOOTLOADER_FLASH_PAGES      (OB_WRP1_PAGES0TO15|OB_WRP1_PAGES16TO31|OB_WRP1_PAGES32TO47|OB_WRP1_PAGES48TO63|OB_WRP1_PAGES64TO79|OB_WRP1_PAGES80TO95)
 
 
 void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors);

@@ -270,8 +270,11 @@ void DeviceConfig::dealCheckWifi(void)
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return;}
+
+    network_status(0, 0, NULL);
     if(WiFi.ready())  //wifi连通
     {
+        manage_ip_config();
         aJson.addNumberToObject(root, "status", 200);
         aJson.addStringToObject(root, "ssid", WiFi.SSID());
         aJson.addNumberToObject(root, "rssi", WiFi.RSSI());
@@ -306,6 +309,7 @@ void DeviceConfig::dealGetWifiList(void)
 #ifdef configWIRING_WIFI_ENABLE
     WiFiAccessPoint ap[20];
 
+    wlan_Imlink_stop();
     int found = WiFi.scan(ap, 20);
     if(found < 1)
     {
@@ -438,6 +442,7 @@ void DeviceConfig::dealGetInfo(void)
 void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
+    wlan_Imlink_stop();
     aJsonObject* ssid_Object = aJson.getObjectItem(value_Object, "ssid");
     aJsonObject* passwd_Object = aJson.getObjectItem(value_Object, "passwd");
 
@@ -455,8 +460,9 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
         {
             int setWifiFlag = 1; // 0: success; 1 fail
             WiFi.setCredentials(pSsid, pPasswd);
-            sendComfirm(200);
         }
+        sendComfirm(200);
+        return;
     }
     sendComfirm(201);
 #endif
@@ -728,20 +734,15 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_DIGITAL_WRITE_HIGH:
             {
                 uint8_t pin;
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 0; pin <= 10; pin++)
                 {
                     pinMode(pin,OUTPUT);
                 }
-                pinMode(10,OUTPUT);
-                pinMode(11,OUTPUT);
 
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 0; pin <= 10; pin++)
                 {
                     digitalWrite(pin,HIGH);
                 }
-
-                digitalWrite(10,HIGH);
-                digitalWrite(11,HIGH);
 
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
@@ -753,21 +754,15 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_DIGITAL_WRITE_LOW:
             {
                 uint8_t pin;
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 0; pin <= 10; pin++)
                 {
                     pinMode(pin,OUTPUT);
                 }
-                pinMode(10,OUTPUT);
-                pinMode(11,OUTPUT);
 
-                for(pin = D0; pin <= D6; pin++)
+                for(pin = 0; pin <= 10; pin++)
                 {
                     digitalWrite(pin,LOW);
                 }
-
-                digitalWrite(10,LOW);
-                digitalWrite(11,LOW);
-
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
@@ -778,7 +773,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_ANALOG_READ:
             {
                 aJson.addNumberToObject(root, "status", 200);
-                aJson.addNumberToObject(root, "value", analogRead(A0));
+                aJson.addNumberToObject(root, "value", analogRead(ADC));
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
                 free(strPtr);
