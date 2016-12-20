@@ -53,7 +53,6 @@ void Enter_Factory_ALL_RESTORE_Mode(void)
     HAL_PARAMS_Save_Params();
 }
 
-
 void Enter_DFU_Mode(void)
 {
     HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);

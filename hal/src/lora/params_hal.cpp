@@ -24,6 +24,7 @@
 #include "memory_hal.h"
 #include "intorobot_macros.h"
 #include "service_debug.h"
+#include "flash_storage_impl.h"
 
 
 #define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)

@@ -31,7 +31,6 @@ namespace intorobot {
     class APArrayPopulator
     {
         WiFiAccessPoint* results;
-        int count;
         int index;
 
         void addResult(WiFiAccessPoint* result) {
@@ -41,6 +40,8 @@ namespace intorobot {
         }
 
     protected:
+        int count;
+
         static void callback(WiFiAccessPoint* result, void* cookie)
         {
             ((APArrayPopulator*)cookie)->addResult(result);
@@ -60,7 +61,7 @@ namespace intorobot {
 
         int start()
         {
-            return wlan_scan(callback, this);
+            return std::min(count, wlan_scan(callback, this));
         }
     };
 
@@ -70,10 +71,9 @@ namespace intorobot {
 
         int start()
         {
-            return wlan_get_credentials(callback, this);
+            return std::min(count, wlan_get_credentials(callback, this));
         }
     };
-
 
     int WiFiClass::scan(WiFiAccessPoint* results, size_t result_count) {
         APScan apScan(results, result_count);

@@ -17,7 +17,7 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
 #if 0
     uint32_t sector = 0;
-// STM32L151C8T6 16K-SRAM 64K-Flash
+
     if((address < ADDR_FLASH_SECTOR_1) && (address >= ADDR_FLASH_SECTOR_0))
     {
         sector = OB_WRP1_PAGES0TO15;//LASH_SECTOR_0;
@@ -33,7 +33,6 @@ uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
     else
         sector = OB_WRP1_PAGES16TO31;//FLASH_SECTOR_3;
     }
-
     return sector;
 #endif
 }

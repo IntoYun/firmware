@@ -25,6 +25,23 @@
 #include "macaddr_hal.h"
 #include "delay_hal.h"
 
+static volatile uint32_t wlan_timeout_start;
+static volatile uint32_t wlan_timeout_duration;
+
+inline void WLAN_TIMEOUT(uint32_t dur) {
+    wlan_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    wlan_timeout_duration = dur;
+    DEBUG("WLAN WD Set %d",(dur));
+}
+inline bool IS_WLAN_TIMEOUT() {
+    return wlan_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-wlan_timeout_start)>wlan_timeout_duration);
+}
+
+inline void CLR_WLAN_TIMEOUT() {
+    wlan_timeout_duration = 0;
+    DEBUG("WLAN WD Cleared, was %d", wlan_timeout_duration);
+}
+
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
     return 0;
@@ -87,18 +104,17 @@ int wlan_connected_rssi(void)
 int wlan_set_credentials(WLanCredentials* c)
 {
     struct station_config conf;
-    strcpy(reinterpret_cast<char*>(conf.ssid), c->ssid);
+    strcpy((char*)(conf.ssid), c->ssid);
 
     if(c->password) {
         if (strlen(c->password) == 64) // it's not a passphrase, is the PSK
-            memcpy(reinterpret_cast<char*>(conf.password), c->password, 64);
+            memcpy((char*)(conf.password), c->password, 64);
         else
-            strcpy(reinterpret_cast<char*>(conf.password), c->password);
+            strcpy((char*)(conf.password), c->password);
     } else {
         *conf.password = 0;
     }
     conf.bssid_set = 0;
-
     ETS_UART_INTR_DISABLE();
     // workaround for #1997: make sure the value of ap_number is updated and written to flash
     // to be removed after SDK update
@@ -185,10 +201,108 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 
 }
 
+WLanSecurityType toSecurityType(AUTH_MODE authmode)
+{
+    switch(authmode)
+    {
+        case AUTH_OPEN:
+            return WLAN_SEC_UNSEC;
+            break;
+        case AUTH_WEP:
+            return WLAN_SEC_WEP;
+            break;
+        case AUTH_WPA_PSK:
+            return WLAN_SEC_WPA;
+            break;
+        case AUTH_WPA2_PSK:
+        case AUTH_WPA_WPA2_PSK:
+            return WLAN_SEC_WPA2;
+            break;
+        case AUTH_MAX:
+            return WLAN_SEC_NOT_SET;
+            break;
+    }
+}
+
+WLanSecurityCipher toCipherType(AUTH_MODE authmode)
+{
+    switch(authmode)
+    {
+        case AUTH_WEP:
+            return WLAN_CIPHER_AES;
+            break;
+        case AUTH_WPA_PSK:
+            return WLAN_CIPHER_TKIP;
+            break;
+        default:
+            break;
+    }
+    return WLAN_CIPHER_NOT_SET;
+}
+
+struct WlanScanInfo
+{
+    wlan_scan_result_t callback;
+    void* callback_data;
+    int count;
+    bool completed;
+};
+
+WlanScanInfo scanInfo;
+void scan_done_cb(void *arg, STATUS status)
+{
+    WiFiAccessPoint data;
+
+    if(status == OK)
+    {
+        int i = 0;
+        bss_info *it = (bss_info*)arg;
+        for(; it; it = STAILQ_NEXT(it, next), i++)
+        {
+            memset(&data, 0, sizeof(WiFiAccessPoint));
+            memcpy(data.ssid, it->ssid, it->ssid_len);
+            data.ssidLength = it->ssid_len;
+            memcpy(data.bssid, it->bssid, 6);
+            data.security = toSecurityType(it->authmode);
+            data.cipher = toCipherType(it->authmode);
+            data.channel = it->channel;
+            data.rssi = it->rssi;
+            scanInfo.callback(&data, scanInfo.callback_data);
+        }
+        scanInfo.count = i;
+        scanInfo.completed = true;
+    }
+}
+
+extern "C" {
+void optimistic_yield(uint32_t interval_us);
+}
+
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
-    // return -1;
-    return esp8266_status();
+    esp8266_setMode(WIFI_STA);
+    memset((void *)&scanInfo, 0, sizeof(struct WlanScanInfo));
+    scanInfo.callback = callback;
+    scanInfo.callback_data = cookie;
+    scanInfo.count = 0;
+    scanInfo.completed = false;
+    if(wifi_station_scan(NULL, scan_done_cb))
+    {
+        WLAN_TIMEOUT(5000);
+        while(!scanInfo.completed)
+        {
+            optimistic_yield(100);
+            if(IS_WLAN_TIMEOUT()) {
+                CLR_WLAN_TIMEOUT();
+                break;
+            }
+        }
+        return scanInfo.count;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 /**
@@ -196,13 +310,11 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
  */
 int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
 {
-    // Reading credentials from the CC3000 is not possible
     return 0;
 }
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
-
 
 /**
  * wifi set station and ap mac addr

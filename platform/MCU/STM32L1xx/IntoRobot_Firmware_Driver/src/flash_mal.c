@@ -27,6 +27,7 @@
 #include "hw_config.h"
 #include "flash_mal.h"
 #include <string.h>
+#include "service_debug.h"
 
 /* Private functions ---------------------------------------------------------*/
 static inline uint16_t InternalSectorToWriteProtect(uint32_t startAddress)
@@ -135,6 +136,7 @@ bool FLASH_WriteProtectMemory(flash_device_t flashDeviceID, uint32_t startAddres
         uint16_t OB_WRP_Sector = InternalSectorToWriteProtect(startAddress);
         uint16_t end = InternalSectorToWriteProtect(startAddress+length-1)<<1;
 
+        DEBUG_D("OB_WRP_Sector = %d   end=%d \r\n", OB_WRP_Sector, end);
         if (OB_WRP_Sector < OB_WRP1_PAGES0TO15)
         {
             return false;
@@ -142,6 +144,7 @@ bool FLASH_WriteProtectMemory(flash_device_t flashDeviceID, uint32_t startAddres
 
         while (!(OB_WRP_Sector & end))
         {
+            DEBUG_D("11111\r\n");
             if (protect)
             {
                 FLASH_WriteProtection_Enable(OB_WRP_Sector);
@@ -167,7 +170,7 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
     {
         return false;
     }
-
+    DEBUG_D("FLASH_EraseMemory\r\n");
     if (flashDeviceID == FLASH_INTERNAL)
     {
         /* Check which sector has to be erased */
@@ -178,6 +181,7 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
             return false;
         }
 
+        DEBUG_D("flashPage = %d\r\n", flashPage);
         /* Disable memory write protection if any */
         FLASH_WriteProtectMemory(FLASH_INTERNAL, startAddress, length, false);
 
@@ -187,6 +191,7 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
         /* Define the number of Internal Flash pages to be erased */
         numPages = FLASH_PagesMask(length, INTERNAL_FLASH_PAGE_SIZE);
 
+        DEBUG_D("numPages = %d\r\n", numPages);
         uint32_t PAGEError = 0;
         FLASH_EraseInitTypeDef EraseInitStruct;
         EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
@@ -194,9 +199,11 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
         EraseInitStruct.NbPages     = numPages;
         if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK)
         {
+            DEBUG_D("HAL_FLASHEx_Erase false\r\n");
             return false;
         }
 
+        DEBUG_D("33333333\r\n");
         /* Locks the FLASH Program Erase Controller */
         HAL_FLASH_Lock();
 
@@ -438,9 +445,11 @@ void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors)
     FLASH_OBProgramInitTypeDef OBInit;
     uint32_t SectorsWRPStatus = 0xFFF;
 
+    DEBUG_D("FLASH_WriteProtection_Enable\r\n");
     HAL_FLASHEx_OBGetConfig(&OBInit);
     SectorsWRPStatus = OBInit.WRPSector0To31 & FLASH_Sectors;
 
+    DEBUG_D("SectorsWRPStatus = %d\r\n", SectorsWRPStatus);
     if (SectorsWRPStatus != 0)
     {
         /* If FLASH_Sectors are not write protected, enable the write protection */
@@ -451,12 +460,14 @@ void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors)
         /* Allow Access to Flash control registers and user Flash */
         HAL_FLASH_Unlock();
 
+    DEBUG_D("111111\r\n");
         /* Enable FLASH_Sectors write protection */
         OBInit.OptionType = OPTIONBYTE_WRP;
         OBInit.WRPState   = WRPSTATE_ENABLE;
         OBInit.WRPSector0To31  = FLASH_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
+    DEBUG_D("2222\r\n");
         /* Start the Option Bytes programming process */
         if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
@@ -486,19 +497,22 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
     FLASH_OBProgramInitTypeDef OBInit;
     uint32_t SectorsWRPStatus = 0xFFF;
 
+    /* Allow Access to Flash control registers and user Flash */
+    HAL_FLASH_Unlock();
+
+    /* Allow Access to option bytes sector */
+    HAL_FLASH_OB_Unlock();
+
+    DEBUG_D("FLASH_WriteProtection_Disable\r\n");
     /* Get FLASH_Sectors write protection status */
     HAL_FLASHEx_OBGetConfig(&OBInit);
     SectorsWRPStatus = OBInit.WRPSector0To31 & FLASH_Sectors;
 
+    DEBUG_D("SectorsWRPStatus = %d\r\n", SectorsWRPStatus);
     if (SectorsWRPStatus == 0)
     {
         /* If FLASH_Sectors are write protected, disable the write protection */
-
-        /* Allow Access to option bytes sector */
-        HAL_FLASH_OB_Unlock();
-
-        /* Allow Access to Flash control registers and user Flash */
-        HAL_FLASH_Unlock();
+        DEBUG_D("1111111111\r\n");
 
         /* Disable FLASH_Sectors write protection */
         OBInit.OptionType = OPTIONBYTE_WRP;
@@ -506,6 +520,7 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
         OBInit.WRPSector0To31  = FLASH_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
+        DEBUG_D("2222222222\r\n");
         /* Start the Option Bytes programming process */
         if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
@@ -515,6 +530,7 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
             }
         }
 
+        DEBUG_D("333333\r\n");
         /* Prevent Access to option bytes sector */
         HAL_FLASH_OB_Lock();
 
