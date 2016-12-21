@@ -34,6 +34,7 @@
 #include "string_convert.h"
 #include "system_mode.h"
 #include "system_task.h"
+#include "system_test.h"
 
 #ifndef configNO_NETWORK
 using namespace intorobot;
@@ -733,16 +734,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
     {
         case TEST_DIGITAL_WRITE_HIGH:
             {
-                uint8_t pin;
-                for(pin = 1; pin <= 10; pin++)
-                {
-                    pinMode(pin,OUTPUT);
-                }
-
-                for(pin = 1; pin <= 10; pin++)
-                {
-                    digitalWrite(pin,HIGH);
-                }
+                SetPinLevel(HIGH);
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
@@ -752,16 +744,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 
         case TEST_DIGITAL_WRITE_LOW:
             {
-                uint8_t pin;
-                for(pin = 1; pin <= 10; pin++)
-                {
-                    pinMode(pin,OUTPUT);
-                }
-
-                for(pin = 1; pin <= 10; pin++)
-                {
-                    digitalWrite(pin,LOW);
-                }
+                SetPinLevel(LOW);
                 aJson.addNumberToObject(root, "status", 200);
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
@@ -772,7 +755,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         case TEST_ANALOG_READ:
             {
                 aJson.addNumberToObject(root, "status", 200);
-                aJson.addNumberToObject(root, "value", analogRead(ADC));
+                aJson.addNumberToObject(root, "value", ReadAnalogVal());
                 strPtr = aJson.print(root);
                 write((unsigned char *)strPtr, strlen(strPtr));
                 free(strPtr);
@@ -790,9 +773,10 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 
         case TEST_WIFI_CHECK:
             {
-                    WiFiAccessPoint ap[20];
-                    int found = WiFi.scan(ap, 20);
-                    if(found != 3 )  // if(WiFi.ready())  //wifi连通
+                    wlan_Imlink_stop();
+                    WiFiAccessPoint ap[10];
+                    int found = WiFi.scan(ap, 10);
+                    if(found > 0 )
                     {
                         aJson.addNumberToObject(root, "status", 200);
                         aJson.addNumberToObject(root, "listnum",found);
@@ -817,13 +801,10 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
                             aJson.addNumberToObject(ssid_object, "entype", ap[n].security);
                             aJson.addNumberToObject(ssid_object, "signal", ap[n].rssi);
                         }
-                        // aJson.addStringToObject(root, "ssid", WiFi.SSID());
-                        // aJson.addNumberToObject(root, "rssi", WiFi.RSSI());
                     }
                     else
                     {
                         aJson.addNumberToObject(root, "status", 201);
-                        aJson.addStringToObject(root, "ssid", WiFi.SSID());
                     }
                     strPtr = aJson.print(root);
                     write((unsigned char *)strPtr, strlen(strPtr));

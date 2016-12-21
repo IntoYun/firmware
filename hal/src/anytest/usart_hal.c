@@ -30,7 +30,7 @@
 #include "pinmap_impl.h"
 #include "gpio_hal.h"
 
-#define USART_QUEUE_SIZE             256
+#define USART_QUEUE_SIZE           2048
 
 
 UART_HandleTypeDef UartHandle_SERIAL1;    // USART2 A8(PA3)-RX A7(PA2)-TX
