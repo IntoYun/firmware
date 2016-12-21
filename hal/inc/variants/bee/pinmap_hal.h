@@ -26,7 +26,6 @@
 #include <stdint.h>
 #include "intorobot_config.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,8 +65,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             49
-#define TOTAL_ANALOG_PINS      6
+#define TOTAL_PINS             70
+#define TOTAL_ANALOG_PINS      8
 #define TOTAL_DIGITAL_PINS     8
 #define FIRST_ANALOG_PIN       30
 
@@ -86,42 +85,53 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A3 33
 #define A4 34
 #define A5 35
-
-// lora pins
-#define RESET_EN    36
-#define NSS_SPI1    37
-#define DIO0        38
-#define DIO1        39
-#define DIO2        40
-#define DIO3        41
-#define DIO4        42
-#define DIO5        43
-#define RX_EN       44
-#define TX_EN       45
-//#define A6 36
-//#define A7 37
+#define A6 36
+#define A7 37
 
 // Uart pins
-#define TX A0
-#define RX A1
+#define CTS A0
+#define RTS A1
 
+#define TX A2
+#define RX A3
 
-#define SS   D7
-#define SCK  D4
-#define MISO D5
-#define MOSI D6
+// SPI pins
+#define SS   A4
+#define SCK  A5
+#define MISO A6
+#define MOSI A7
+
+#define SS1   D4
+#define SCK1  D3
+#define MISO1 D2
+#define MOSI1 D0
 
 // I2C pins
-#define SDA  D1
-#define SCL  D0
+#define SDA  D2
+#define SCL  D1
+
+// The following pins are only defined for easy access during development.
+// Will be removed later as they are internal I/O and users
+// should not have too easy of access or bad code could do harm.
+#define ESP_BOOT_UC         60
+#define ESP_RESET_UC        61
+#define RGBR_UC             62
+#define RGBG_UC             63
+#define RGBB_UC             64
+
+#define LIGHT_SENSOR_UC     65
+#define SENSOR_SDA_UC       66
+#define SENSOR_SCL_UC       67
+
+#define ESP8266_TXD_UC      68
+#define ESP8266_RXD_UC      69
 
 
 #define LED_USER  D7
 
-#define TOTAL_USARTS    1
-#define TOTAL_SPIS      1
-#define TOTAL_I2CS      1
-
+#define TOTAL_USARTS        1
+#define TOTAL_SPIS          1
+#define TOTAL_I2CS          1
 
 #define LSBFIRST 0
 #define MSBFIRST 1

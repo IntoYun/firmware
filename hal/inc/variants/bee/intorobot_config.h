@@ -25,9 +25,9 @@
 //#define configHAL_USB_HID_ENABLE
 
 /* config wiring communication type. */
-//#define configWIRING_WIFI_ENABLE
+#define configWIRING_WIFI_ENABLE
 //#define configWIRING_CELLULAR_ENABLE
-#define configWIRING_LORA_ENABLE
+//#define configWIRING_LORA_ENABLE
 //#define configWIRING_IPV6_ENABLE
 
 /* config wiring usb serial. */
@@ -57,16 +57,18 @@
 //#define configWIRING_CAN_ENABLE
 //#define configWIRING_CAN1_ENABLE
 
-
 /* config setup */
 #define configSETUP_ENABLE
-
+#define configSETUP_USBSERIAL_ENABLE
+//#define configSETUP_USARTSERIAL_ENABLE
+#define configSETUP_TCP_ENABLE
+#define configSETUP_UDP_ENABLE
 
 /* config network */
-#define configNO_NETWORK
+//#define configNO_NETWORK
 
 /* config cloud */
-#define configNO_CLOUD
+//#define configNO_CLOUD
 
 /* config rgb ui */
 //#define configNO_RGB_UI

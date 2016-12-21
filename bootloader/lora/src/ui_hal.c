@@ -7,7 +7,6 @@
 #else
 
 #include "hw_config.h"
-#include "pinmap_hal.h"
 #include "ui_hal.h"
 
 

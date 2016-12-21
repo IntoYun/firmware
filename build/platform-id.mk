@@ -42,8 +42,12 @@ ifeq ("$(PLATFORM)","lora")
 PLATFORM_ID = 888006
 endif
 
-ifeq ("$(PLATFORM)","gprs")
+ifeq ("$(PLATFORM)","bee")
 PLATFORM_ID = 888007
+endif
+
+ifeq ("$(PLATFORM)","gprs")
+PLATFORM_ID = 888008
 endif
 
 #add 此处添加创客核心板
@@ -147,11 +151,23 @@ PLATFORM_NAME=lora
 PLATFORM_MCU=STM32L1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot lora, 128k flash, 16k sram
-PLATFORM_DFU = 0x08008000
+PLATFORM_DFU = 0x08006000
 DEFAULT_PRODUCT_ID=888006
 endif
 
-ifeq ("$(PLATFORM_ID)","888007") #gprs
+ifeq ("$(PLATFORM_ID)","888007") #bee
+PLATFORM=bee
+PLATFORM_DEVICE=STM32F411xE
+PLATFORM_NAME=bee
+PLATFORM_MCU=STM32F4xx
+MCU_CORE=cortex-m4
+PRODUCT_DESC=IntoRobot be, 512k flash, 128k sram
+PLATFORM_DFU = 0x08020000
+PLATFORM_THREADING=1
+DEFAULT_PRODUCT_ID=888007
+endif
+
+ifeq ("$(PLATFORM_ID)","888008") #gprs
 PLATFORM=gprs
 PLATFORM_DEVICE=STM32L151xB
 PLATFORM_NAME=gprs
@@ -161,6 +177,7 @@ PRODUCT_DESC=IntoRobot gprs, 128k flash, 16k sram
 PLATFORM_DFU = 0x08008000
 DEFAULT_PRODUCT_ID=888007
 endif
+
 # 此处新增创客核心板
 
 ################商业模块####################
@@ -191,7 +208,7 @@ PLATFORM_NAME=l6
 PLATFORM_MCU=STM32L1xx
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot lora, 128k flash, 16k sram
-PLATFORM_DFU = 0x08008000
+PLATFORM_DFU = 0x08006000
 DEFAULT_PRODUCT_ID=888103
 endif
 # 此处新增模块

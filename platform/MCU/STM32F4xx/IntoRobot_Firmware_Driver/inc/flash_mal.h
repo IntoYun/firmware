@@ -62,15 +62,16 @@ extern "C" {
 #define INTERNAL_FLASH_PAGE_SIZE    ((uint32_t)0x20000) //128K (3 sectors of 128K each used by main firmware)
 
 #define USER_FIRMWARE_IMAGE_LOCATION CORE_FW_ADDRESS
-#define FIRMWARE_IMAGE_SIZE     0x60000 //384K (monolithic firmware size)
+#define FIRMWARE_IMAGE_SIZE           0x60000      //384K (firmware size)
+#define BOOTLOADER_IMAGE_SIZE         0x8000       //32K  (bootloader size)
 
 #ifdef USE_SERIAL_FLASH
 /* External Flash memory address where Factory programmed core firmware is located */
-#define EXTERNAL_FLASH_FAC_ADDRESS  ((uint32_t)0x4000)
-/* External Flash memory address where core firmware will be saved for backup/restore */
-#define EXTERNAL_FLASH_BKP_ADDRESS  ((uint32_t)EXTERNAL_FLASH_FAC_ADDRESS)
+#define EXTERNAL_FLASH_FAC_ADDRESS  ((uint32_t)0x00)
 /* External Flash memory address where OTA upgraded core firmware will be saved */
 #define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_FAC_ADDRESS + FIRMWARE_IMAGE_SIZE))
+/* External Flash memory address where OTA upgraded bootloader will be saved */
+#define EXTERNAL_FLASH_OTA_BOOTLOADER_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_OTA_ADDRESS + FIRMWARE_IMAGE_SIZE))
 #endif
 
 #if FIRMWARE_IMAGE_SIZE > INTERNAL_FLASH_SIZE

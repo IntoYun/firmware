@@ -29,7 +29,8 @@
 #define PLATFORM_ATOM                888004
 #define PLATFORM_FIG                 888005
 #define PLATFORM_LORA                888006
-#define PLATFORM_GPRS                888007
+#define PLATFORM_BEE                 888007
+#define PLATFORM_GPRS                888008
 
 #define PLATFORM_W67                 888101
 #define PLATFORM_W323                888102

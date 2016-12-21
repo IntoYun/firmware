@@ -42,7 +42,7 @@ Linker subscript for STM32L151XB definitions with 128K Flash and 16K RAM
 MEMORY
 {
     SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 16K
-    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 24K
+    APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 20K
 }
 
 INCLUDE linker_stm32l151xb_common.ld

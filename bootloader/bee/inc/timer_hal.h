@@ -17,37 +17,34 @@
   ******************************************************************************
 */
 
-/* Define to prevent recursive inclusion ------------------------------------*/
-#ifndef __GPIO_HAL_H
-#define __GPIO_HAL_H
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __TIMER_HAL_H
+#define __TIMER_HAL_H
 
-/* Includes -----------------------------------------------------------------*/
-#include "pinmap_hal.h"
+/* Includes ------------------------------------------------------------------*/
+#include "system_tick_hal.h"
 
-/* Exported types -----------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
 
-/* Exported constants -------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
 
-/* Exported macros ----------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 
-/* Exported functions -------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void HAL_Pin_Mode(pin_t pin, PinMode mode);
-PinMode HAL_Get_Pin_Mode(pin_t pin);
-void HAL_GPIO_Write(pin_t pin, uint8_t value);
-int32_t HAL_GPIO_Read(pin_t pin);
-uint32_t HAL_Pulse_In(pin_t pin, uint16_t value);
 
-void HAL_pinSetFast(pin_t pin);
-void HAL_pinResetFast(pin_t pin);
-int32_t HAL_pinReadFast(pin_t pin);
+system_tick_t HAL_Timer_Get_Micro_Seconds(void);
+system_tick_t HAL_Timer_Get_Milli_Seconds(void);
+
+#define HAL_Timer_Microseconds HAL_Timer_Get_Micro_Seconds
+#define HAL_Timer_Milliseconds HAL_Timer_Get_Milli_Seconds
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* __GPIO_HAL_H */
+#endif  /* __TIMER_HAL_H */
