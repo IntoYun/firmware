@@ -56,8 +56,12 @@ typedef enum TestStep
     STEP_CONFIRM_ANALOG_READ_RESULT,
     STEP_SELF_TEST,
     STEP_CONFIRM_SELF_TEST_RESULT,
-    STEP_RF_CHECK,
-    STEP_CONFIRM_RF_CHECK_RESULT,
+    // STEP_RF_CHECK,
+    // STEP_CONFIRM_RF_CHECK_RESULT,
+    STEP_WIFI_CHECK,
+    STEP_CONFIRM_WIFI_CHECK_RESULT,
+    STEP_LORA_CHECK,
+    STEP_CONFIRM_LORA_CHECK_RESULT,
     STEP_SENSOR_DATA,
     STEP_CONFIRM_SENSOR_DATA_RESULT,
     STEP_TEST_END
@@ -213,9 +217,9 @@ bool ReadBoardPinLevel(uint8_t val)
                 pinMode(pin,INPUT);
             }
             delay(10);
-            for(pin = A5;  pin <= A8; pin++)
+            for(pin = D4;  pin <= D8; pin++)
             {
-                if(digitalRead(pin) == val)
+                if(digitalRead(pin) == val && pin != D6)
                 {
                     return false;
                 }
@@ -281,6 +285,7 @@ bool ReceiveTestResult(testItem_t testItem)
         {
             String tmp = readString();
 
+            // Serial1.println(tmp);
             aJsonObject *root = NULL;
             root = aJson.parse((char *)tmp.c_str());
             if (root == NULL)
@@ -357,14 +362,14 @@ bool ReceiveTestResult(testItem_t testItem)
                         case W67:
                         case W3233:
                             if(statusObject->valueint == 200)
-                                {
-                                    OLEDDisplay("selfTest:","OK");
-                                }
+                             {
+                                 OLEDDisplay("selfTest:","OK");
+                             }
                             else
-                                {
-                                    OLEDDisplay("selfTest:","NG");
-                                    testResult = false;
-                                }
+                            {
+                                OLEDDisplay("selfTest:","NG");
+                                testResult = false;
+                            }
                             break;
 
                         case LORA:
@@ -379,7 +384,82 @@ bool ReceiveTestResult(testItem_t testItem)
                 case TEST_WIFI_CHECK:
                     if(statusObject->valueint == 200)
                     {
-                        OLEDDisplay("wifiCheck:","OK");
+                        aJsonObject* listnumtObject = aJson.getObjectItem(root, "listnum");
+                        if(listnumtObject == NULL)
+                        {
+                           aJson.deleteItem(root);
+                           return false;
+                        }
+                        // uint8_t apnum = listnumtObject->valueint;
+                        // Serial1.println(apnum);
+
+                        aJsonObject* ssidlistArrayObject = aJson.getObjectItem(root, "ssidlist");
+                        if(ssidlistArrayObject == NULL)
+                        {
+                            aJson.deleteItem(root);
+                            return false;
+                        }
+
+                        uint8_t arrayNumber = aJson.getArraySize(ssidlistArrayObject);
+                        Serial1.println(arrayNumber);
+
+                        WiFiAccessPoint ap[20];
+
+                        for(uint8_t num = 0; num < arrayNumber; num++)
+                        {
+                            aJsonObject* ssidObject = aJson.getArrayItem(ssidlistArrayObject,num);
+                            if(ssidObject == NULL)
+                            {
+                                aJson.deleteItem(root);
+                                return false;
+                            }
+
+                            aJsonObject* ssidNameObject = aJson.getObjectItem(ssidObject,"ssid");
+                            if(ssidNameObject == NULL)
+                            {
+                                aJson.deleteItem(root);
+                                return false;
+                            }
+
+                            strcpy(ap[num].ssid,ssidNameObject->valuestring);
+                            Serial1.println(ap[num].ssid);
+
+                            aJsonObject* entypeObject = aJson.getObjectItem(ssidObject,"entype");
+                            if(entypeObject == NULL)
+                            {
+                                aJson.deleteItem(root);
+                                return false;
+                            }
+                            // ap[num].security = (WLanSecurityCipher)entypeObject->valueint;
+
+                            aJsonObject* signalObject = aJson.getObjectItem(ssidObject,"signal");
+                            if(signalObject == NULL)
+                            {
+                                aJson.deleteItem(root);
+                                return false;
+                            }
+                            ap[num].rssi = signalObject->valueint;
+                            Serial1.println(ap[num].rssi);
+                        }
+
+                        for(uint8_t i = 0; i < arrayNumber; i++)
+                        {
+                            if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
+                            {
+                                if(ap[i].rssi >= (-60))
+                                {
+                                    OLEDDisplay("wifiCheck:","OK");
+                                    break;
+                                }
+                                else
+                                {
+                                    OLEDDisplay("wifiCheck:","NG");
+                                    testResult = false;
+                                    break;
+                                }
+                            }
+                        }
+                        // OLEDDisplay("wifiCheck:","OK");
                     }
                     else
                     {
@@ -634,51 +714,43 @@ void loop()
             if(ReceiveTestResult(TEST_SELF_TEST))
             {
                 delay(500);
-                step = STEP_RF_CHECK;
+                if(boardType == LORA || boardType == L6)
+                {
+                    step = STEP_LORA_CHECK;
+                }
+                else
+                {
+                    step = STEP_WIFI_CHECK;
+                }
             }
 
             break;
 
-        case STEP_RF_CHECK:
-            if(boardType == LORA && boardType == L6 )
+        case STEP_WIFI_CHECK:
+            OLEDDisplay("test 5:","wifiCheck");
+            SendTestCommand(TEST_WIFI_CHECK);
+            step = STEP_CONFIRM_WIFI_CHECK_RESULT;
+            break;
+
+        case STEP_CONFIRM_WIFI_CHECK_RESULT:
+            if(ReceiveTestResult(TEST_WIFI_CHECK))
             {
-                OLEDDisplay("test 5:","loraCheck");
-                SendTestCommand(TEST_WIFI_CHECK);
+                step = STEP_TEST_END;
             }
-            else
-            {
-                OLEDDisplay("test 5:","wifiCheck");
-                SendTestCommand(TEST_WIFI_CHECK);
-            }
-            step = STEP_CONFIRM_RF_CHECK_RESULT;
 
             break;
 
-        case STEP_CONFIRM_RF_CHECK_RESULT:
+        case STEP_LORA_CHECK:
+            OLEDDisplay("test 5:","loraCheck");
+            SendTestCommand(TEST_LORA_CHECK);
+            step = STEP_CONFIRM_LORA_CHECK_RESULT;
+            break;
 
-            if(boardType == LORA && boardType == L6 )
+        case STEP_CONFIRM_LORA_CHECK_RESULT:
+            if(ReceiveTestResult(TEST_LORA_CHECK))
             {
-                if(ReceiveTestResult(TEST_LORA_CHECK))
-                {
-                    step = STEP_TEST_END;
-                }
-
+                step = STEP_TEST_END;
             }
-            else
-            {
-                if(ReceiveTestResult(TEST_WIFI_CHECK))
-                {
-                    if(boardType == NEUTRON || boardType == NUT)
-                    {
-                        step = STEP_SENSOR_DATA;
-                    }
-                    else
-                    {
-                        step = STEP_TEST_END;
-                    }
-                }
-            }
-
             break;
 
         case STEP_SENSOR_DATA:
