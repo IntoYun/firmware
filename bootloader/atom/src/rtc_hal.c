@@ -41,14 +41,12 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        DEBUG("RCC_OscConfg Error\r\n");
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
-        DEBUG("RCCEx_PeriphCLKConfig Error");
     }
     /*##-2- Enable RTC peripheral Clocks #######################################*/
     /* Enable RTC Clock */
@@ -131,7 +129,6 @@ void HAL_RTC_Initial(void)
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
     {
-        DEBUG("RTC Init Error!");
     }
     RTC_CalendarAlarmConfig();
 }
@@ -168,7 +165,6 @@ static uint8_t dec2hex_direct(uint8_t decData)
             decData = decData / 10;
             iCount++;
         }
-    //DEBUG("hexData: %d", hexData);
     return hexData;
 }
 
@@ -178,9 +174,6 @@ void HAL_RTC_Set_UnixTime(time_t value)
     struct tm *tmTemp = gmtime( &value );
     RTC_DateTypeDef sdatestructure;
     RTC_TimeTypeDef stimestructure;
-    DEBUG("tmTemp = %d",tmTemp->tm_hour);
-    DEBUG("tmTemp = %d",tmTemp->tm_min);
-    DEBUG("tmTemp = %d",tmTemp->tm_sec);
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
     sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
@@ -190,7 +183,6 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetDate failed!");
     }
 
     /*##-2- Configure the Time #################################################*/
@@ -198,16 +190,12 @@ void HAL_RTC_Set_UnixTime(time_t value)
     stimestructure.Hours          = tmTemp->tm_hour;//dec2hex_direct(tmTemp->tm_hour);
     stimestructure.Minutes        = tmTemp->tm_min;//dec2hex_direct(tmTemp->tm_min);
     stimestructure.Seconds        = tmTemp->tm_sec;//dec2hex_direct(tmTemp->tm_sec);
-    DEBUG("%d",stimestructure.Hours); 
-    DEBUG("%d",stimestructure.Minutes); 
-    DEBUG("%d",stimestructure.Seconds); 
     /* stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM; */
     /* stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ; */
     /* stimestructure.StoreOperation = RTC_STOREOPERATION_RESET; */
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetTime failed!");
     }
 }
 
@@ -244,8 +232,6 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
 
     if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        /* Initialization Error */
-        DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
     }
 
 }

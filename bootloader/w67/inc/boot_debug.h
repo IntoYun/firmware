@@ -5,10 +5,13 @@
 extern "C" {
 #endif
 
+#if !defined(RELEASE_BUILD) && !defined(DEBUG_BUILD)
+#warning  "Defaulting to Release Build"
+#define RELEASE_BUILD
+#undef  DEBUG_BUILD
+#endif
 
-//#define BOOT_DEBUG_SWITCH
-
-#ifdef BOOT_DEBUG_SWITCH
+#if defined(DEBUG_BUILD)
 #define BOOT_DEBUG        ets_printf
 #else
 #define BOOT_DEBUG

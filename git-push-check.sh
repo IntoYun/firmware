@@ -26,6 +26,9 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!fig!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!lora!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
 
+echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!bee!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=bee clean all COMPILE_LTO=n APP=default-gprs
+
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!gprs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=gprs clean all COMPILE_LTO=n APP=default-gprs
 echo "------------------------------------------------------------"

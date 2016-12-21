@@ -43,7 +43,6 @@ extern "C" {
 #include "usbd_dfu_if.h"
 #include "hw_ticks.h"
 #include "flash_mal.h"
-#include "flash_access.h"
 #include "system_tick_hal.h"
 #if defined(HAS_SERIAL_FLASH)
 #include "spi_flash.h"

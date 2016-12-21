@@ -5,12 +5,16 @@
 extern "C" {
 #endif
 
-#include "service_debug.h"
+void log_output(const char* msg);
 
-#define BOOT_DEBUG_SWITCH
+#if !defined(RELEASE_BUILD) && !defined(DEBUG_BUILD)
+#warning  "Defaulting to Release Build"
+#define RELEASE_BUILD
+#undef  DEBUG_BUILD
+#endif
 
-#ifdef BOOT_DEBUG_SWITCH
-#define BOOT_DEBUG        DEBUG_D
+#if defined(DEBUG_BUILD)
+#define BOOT_DEBUG        log_output
 #else
 #define BOOT_DEBUG
 #endif

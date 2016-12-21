@@ -27,7 +27,6 @@
 #ifndef HW_CONFIG_H_
 #define HW_CONFIG_H_
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
