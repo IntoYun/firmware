@@ -52,14 +52,22 @@ void USB_USART_Initial(uint32_t baudRate)
         }
         else if (!LineCoding.bitrate)
         {
+            DEBUG("usb cdc init");
             /* Init Device Library */
             USBD_Init(&USBD_Device, &VCP_Desc, 0);
+            DEBUG("usb registers init");
             /* Add Supported Class */
             USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
+
+            DEBUG("usb registers interface init");
             /* Add CDC Interface Class */
             USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
+
+            DEBUG("usb registers interface init");
             /* Start Device Process */
             USBD_Start(&USBD_Device);
+
+            DEBUG("usb start");
         }
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;

@@ -60,8 +60,8 @@
 
 /* config setup */
 #define configSETUP_ENABLE
-#define configSETUP_USBSERIAL_ENABLE
-//#define configSETUP_USARTSERIAL_ENABLE
+// #define configSETUP_USBSERIAL_ENABLE
+#define configSETUP_USARTSERIAL_ENABLE
 //#define configSETUP_TCP_ENABLE
 //#define configSETUP_UDP_ENABLE
 

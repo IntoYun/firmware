@@ -664,7 +664,7 @@ void DeviceConfig::dealReboot(void)
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
 {
-#if  0
+#if 1
     testItem_t testItem;
     if(value_object == NULL)
     {
@@ -773,6 +773,9 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 
         case TEST_WIFI_CHECK:
             {
+                TestWiFi();
+                #if 0
+                #if (PLATFORM_ID != 888006 && PLATFORM_ID != 888103 && PLATFORM_ID != 888007)
                     wlan_Imlink_stop();
                     WiFiAccessPoint ap[10];
                     int found = WiFi.scan(ap, 10);
@@ -809,6 +812,8 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
                     strPtr = aJson.print(root);
                     write((unsigned char *)strPtr, strlen(strPtr));
                     free(strPtr);
+                    #endif
+                    #endif
             }
             break;
 

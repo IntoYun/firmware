@@ -24,7 +24,7 @@
 
 void SetPinLevel(uint8_t level);
 uint16_t ReadAnalogVal(void);
-
+void TestWiFi(void);
 #ifdef __cplusplus
 extern "C" {
 #endif
