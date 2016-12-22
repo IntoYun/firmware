@@ -444,9 +444,9 @@ bool ReceiveTestResult(testItem_t testItem)
 
                         for(uint8_t i = 0; i < arrayNumber; i++)
                         {
-                            if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
+                            if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
                             {
-                                if(ap[i].rssi >= (-60))
+                                if(ap[i].rssi >= (-65))
                                 {
                                     OLEDDisplay("wifiCheck:","OK");
                                     break;
