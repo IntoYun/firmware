@@ -10,12 +10,12 @@
 #include "ui_hal.h"
 
 
-#define RGB_R_GPIO_PIN       GPIO_PIN_1
+#define RGB_R_GPIO_PIN       GPIO_PIN_4
 #define RGB_R_GPIO_PORT      GPIOB
-#define RGB_G_GPIO_PIN       GPIO_PIN_13
+#define RGB_G_GPIO_PIN       GPIO_PIN_5
 #define RGB_G_GPIO_PORT      GPIOB
-#define RGB_B_GPIO_PIN       GPIO_PIN_14
-#define RGB_B_GPIO_PORT      GPIOB
+#define RGB_B_GPIO_PIN       GPIO_PIN_8
+#define RGB_B_GPIO_PORT      GPIOA
 
 #define MODE_BOTTON_GPIO_PIN       GPIO_PIN_2
 #define MODE_BOTTON_GPIO_PORT      GPIOB
