@@ -40,6 +40,8 @@
 using namespace intorobot;
 #endif
 
+typedef size_t (*writeHandler)(const uint8_t *buf, size_t size);
+
 static volatile uint32_t config_timeout_start;
 static volatile uint32_t config_timeout_duration;
 
@@ -664,14 +666,13 @@ void DeviceConfig::dealReboot(void)
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
 {
-#if 1
+    uint16_t pinNum;
+    uint8_t pinLevel;
     testItem_t testItem;
+
     if(value_object == NULL)
     {
         return;
-    }
-    else
-    {
     }
 
     aJsonObject* itemObject = aJson.getObjectItem(value_object, "item");
@@ -689,6 +690,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
             aJson.deleteItem(pinObject);
             return;
         }
+        pinNum = pinObject->valueint;
 
         aJsonObject* valObject = aJson.getObjectItem(value_object,"val");
         if(valObject == NULL)
@@ -699,142 +701,73 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 
         if(strcmp(valObject->valuestring,"HIGH") == 0)
         {
-            testItem = TEST_DIGITAL_WRITE_HIGH;
+            pinLevel = HIGH;
         }
         else
         {
-            testItem = TEST_DIGITAL_WRITE_LOW;
+            pinLevel = LOW;
         }
+        testItem = TEST_DIGITAL_WRITE;
     }
     else if(strcmp(itemObject->valuestring,"analogRead") == 0)
     {
+        aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
+        if(pinObject == NULL)
+        {
+            aJson.deleteItem(pinObject);
+            return;
+        }
+        pinNum = pinObject->valueint;
         testItem = TEST_ANALOG_READ;
     }
     else if(strcmp(itemObject->valuestring,"selfTest") == 0)
     {
         testItem = TEST_SELF_TEST;
     }
-    else if(strcmp(itemObject->valuestring,"wifiCheck") == 0)
+    else if(strcmp(itemObject->valuestring,"rfCheck") == 0)
     {
-        testItem = TEST_WIFI_CHECK;
-    }
-    else if(strcmp(itemObject->valuestring,"loraCheck") == 0)
-    {
-        testItem = TEST_LORA_CHECK;
+        testItem = TEST_RF_CHECK;
     }
     else if(strcmp(itemObject->valuestring,"sensorData") == 0)
     {
         testItem = TEST_SENSOR_DATA;
     }
 
-    aJsonObject* root = aJson.createObject();
-    char* strPtr = nullptr;
-
     switch(testItem)
     {
-        case TEST_DIGITAL_WRITE_HIGH:
+        case TEST_DIGITAL_WRITE:
             {
-                SetPinLevel(HIGH);
-                aJson.addNumberToObject(root, "status", 200);
-                strPtr = aJson.print(root);
-                write((unsigned char *)strPtr, strlen(strPtr));
-                free(strPtr);
-            }
-            break;
-
-        case TEST_DIGITAL_WRITE_LOW:
-            {
-                SetPinLevel(LOW);
-                aJson.addNumberToObject(root, "status", 200);
-                strPtr = aJson.print(root);
-                write((unsigned char *)strPtr, strlen(strPtr));
-                free(strPtr);
+                testDigitalWrite(pinNum,pinLevel,this);
             }
             break;
 
         case TEST_ANALOG_READ:
             {
-                aJson.addNumberToObject(root, "status", 200);
-                aJson.addNumberToObject(root, "value", ReadAnalogVal());
-                strPtr = aJson.print(root);
-                write((unsigned char *)strPtr, strlen(strPtr));
-                free(strPtr);
+                testAnalogRead(pinNum,this);
             }
             break;
 
         case TEST_SELF_TEST:
             {
-                aJson.addNumberToObject(root, "status", 200);
-                strPtr = aJson.print(root);
-                write((unsigned char *)strPtr, strlen(strPtr));
-                free(strPtr);
+                testSelfTest(this);
             }
             break;
 
-        case TEST_WIFI_CHECK:
+        case TEST_RF_CHECK:
             {
-                TestWiFi();
-                #if 0
-                #if (PLATFORM_ID != 888006 && PLATFORM_ID != 888103 && PLATFORM_ID != 888007)
-                    wlan_Imlink_stop();
-                    WiFiAccessPoint ap[10];
-                    int found = WiFi.scan(ap, 10);
-                    if(found > 0 )
-                    {
-                        aJson.addNumberToObject(root, "status", 200);
-                        aJson.addNumberToObject(root, "listnum",found);
-                        aJsonObject* ssidlistarray = aJson.createArray();
-                        if (ssidlistarray == NULL)
-                        {
-                            aJson.deleteItem(root);
-                            return;
-                        }
-                        aJson.addItemToObject(root, "ssidlist", ssidlistarray);
-
-                        for(int n = 0; n < found; n++)
-                        {
-                            aJsonObject* ssid_object = aJson.createObject();
-                            if (ssid_object == NULL)
-                            {
-                                aJson.deleteItem(root);
-                                return;
-                            }
-                            aJson.addItemToArray(ssidlistarray, ssid_object);
-                            aJson.addStringToObject(ssid_object, "ssid", ap[n].ssid);
-                            aJson.addNumberToObject(ssid_object, "entype", ap[n].security);
-                            aJson.addNumberToObject(ssid_object, "signal", ap[n].rssi);
-                        }
-                    }
-                    else
-                    {
-                        aJson.addNumberToObject(root, "status", 201);
-                    }
-                    strPtr = aJson.print(root);
-                    write((unsigned char *)strPtr, strlen(strPtr));
-                    free(strPtr);
-                    #endif
-                    #endif
-            }
-            break;
-
-        case TEST_LORA_CHECK:
-            {
-                sendComfirm(201);
+                testRfCheck(this);
             }
             break;
 
         case TEST_SENSOR_DATA:
             {
-                sendComfirm(201);
+                testSensorData(this);
             }
             break;
 
         default:
             break;
     }
-
-    aJson.deleteItem(root);
-#endif
 }
 
 #ifdef configSETUP_USBSERIAL_ENABLE

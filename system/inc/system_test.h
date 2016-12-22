@@ -22,18 +22,11 @@
 
 #include <stdint.h>
 
-void SetPinLevel(uint8_t level);
-uint16_t ReadAnalogVal(void);
-void TestWiFi(void);
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-#ifdef __cplusplus
-}
-#endif
+void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie);
+void testAnalogRead(uint16_t pin, void* cookie);
+void testSelfTest(void* cookie);
+void testRfCheck(void* cookie);
+void testSensorData(void* cookie);
 
 #endif	/* __SYSTEM_TEST_H */
 

@@ -33,6 +33,9 @@
 // #include "string_convert.h"
 // #include "system_mode.h"
 // #include "system_task.h"
+
+#ifdef configSETUP_ENABLE
+
 #ifndef configNO_NETWORK
 using namespace intorobot;
 #endif
@@ -63,9 +66,13 @@ using namespace intorobot;
 
 #elif (PLATFORM_ID == 888007)
 #define TEST_GPRS
+
 #endif
 
-void SetPinLevel(uint8_t level)
+
+static aJsonClass aJson;
+
+void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 {
 #if defined TEST_ATOM
 
@@ -74,16 +81,32 @@ void SetPinLevel(uint8_t level)
 #elif defined TEST_NUT
 
 #elif defined TEST_W67
-    uint8_t pin;
-    for(pin = 1; pin <= 10; pin++)
+    aJsonObject* root = aJson.createObject();
+    char* strPtr = nullptr;
+
+    if(pin == 0xff)
+    {
+        uint8_t pinNumber;
+        for(pinNumber = 1; pinNumber <= 10; pinNumber++)
+        {
+            pinMode(pinNumber,OUTPUT);
+        }
+
+        for(pinNumber = 1; pinNumber <= 10; pinNumber++)
+        {
+            digitalWrite(pinNumber,value);
+        }
+    }
+    else
     {
         pinMode(pin,OUTPUT);
+        digitalWrite(pin,value);
     }
+    aJson.addNumberToObject(root, "status", 200);
+    strPtr = aJson.print(root);
+    ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
+    free(strPtr);
 
-    for(pin = 1; pin <= 10; pin++)
-    {
-        digitalWrite(pin,level);
-    }
 
 #elif defined TEST_FIG
 
@@ -98,43 +121,70 @@ void SetPinLevel(uint8_t level)
 #endif
 }
 
-uint16_t ReadAnalogVal(void)
+void testAnalogRead(uint16_t pin, void* cookie)
 {
+    aJsonObject* root = aJson.createObject();
+    char* strPtr = nullptr;
+    aJson.addNumberToObject(root, "status", 200);
+    aJson.addNumberToObject(root, "value", analogRead(pin));
+    strPtr = aJson.print(root);
+    ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
+    free(strPtr);
+
 #if defined TEST_ATOM
- return analogRead(A0);
 
 #elif defined TEST_NEUTRON
- return analogRead(A0);
 
 #elif defined TEST_NUT
- return analogRead(A0);
 
 #elif defined TEST_W67
- return analogRead(ADC);
 
 #elif defined TEST_FIG
- return analogRead(A0);
 
 #elif defined TEST_W323
- return analogRead(A0);
 
 #elif defined TEST_LORA
- return analogRead(A0);
 
 #elif defined TEST_L6
- return analogRead(A0);
 
 #elif defined TEST_GPRS
- return analogRead(A0);
-#endif
 
+#endif
 }
 
-void TestWiFi(void)
+void testSelfTest(void* cookie)
+{
+#if defined TEST_ATOM
+
+#elif defined TEST_NEUTRON
+
+#elif defined TEST_NUT
+
+#elif defined TEST_W67
+    aJsonObject* root = aJson.createObject();
+    char* strPtr = nullptr;
+    aJson.addNumberToObject(root, "status", 200);
+    strPtr = aJson.print(root);
+    ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
+    free(strPtr);
+
+#elif defined TEST_FIG
+
+#elif defined TEST_W323
+
+#elif defined TEST_LORA
+
+#elif defined TEST_L6
+
+#elif defined TEST_GPRS
+
+#endif
+}
+
+void testRfCheck(void* cookie)
 {
 #if defined(TEST_ATOM) || defined(TEST_NEUTRON) || defined(TEST_NUT) || defined(TEST_W67) || defined(TEST_FIG) || defined(TEST_W323)
 
-    aJsonClass aJson;
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     wlan_Imlink_stop();
@@ -171,8 +221,20 @@ void TestWiFi(void)
         aJson.addNumberToObject(root, "status", 201);
     }
     strPtr = aJson.print(root);
-    DeviceSetupSerial.write((unsigned char *)strPtr, strlen(strPtr));
+    ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
     free(strPtr);
 
+#elif defined(TEST_LORA) || defined(TEST_L6)
+
 #endif
+
+
 }
+
+void testSensorData(void* cookie)
+{
+
+
+}
+
+#endif

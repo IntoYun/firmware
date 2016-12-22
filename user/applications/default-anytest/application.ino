@@ -26,7 +26,7 @@ enum BoardType
     NUT,
     W67,
     FIG,
-    W3233,
+    W323,
     LORA,
     L6,
     UNKOWN_BOARD_TYPE = 0xfe,
@@ -39,8 +39,9 @@ typedef enum TestItem
     TEST_DIGITAL_WRITE_LOW,
     TEST_ANALOG_READ,
     TEST_SELF_TEST,
-    TEST_WIFI_CHECK,
-    TEST_LORA_CHECK,
+    TEST_RF_CHECK,
+    // TEST_WIFI_CHECK,
+    // TEST_LORA_CHECK,
     TEST_SENSOR_DATA
 }testItem_t;
 
@@ -56,12 +57,12 @@ typedef enum TestStep
     STEP_CONFIRM_ANALOG_READ_RESULT,
     STEP_SELF_TEST,
     STEP_CONFIRM_SELF_TEST_RESULT,
-    // STEP_RF_CHECK,
-    // STEP_CONFIRM_RF_CHECK_RESULT,
-    STEP_WIFI_CHECK,
-    STEP_CONFIRM_WIFI_CHECK_RESULT,
-    STEP_LORA_CHECK,
-    STEP_CONFIRM_LORA_CHECK_RESULT,
+    STEP_RF_CHECK,
+    STEP_CONFIRM_RF_CHECK_RESULT,
+    // STEP_WIFI_CHECK,
+    // STEP_CONFIRM_WIFI_CHECK_RESULT,
+    // STEP_LORA_CHECK,
+    // STEP_CONFIRM_LORA_CHECK_RESULT,
     STEP_SENSOR_DATA,
     STEP_CONFIRM_SENSOR_DATA_RESULT,
     STEP_TEST_END
@@ -136,25 +137,12 @@ uint8_t getBoardType(void)
             }
 
             boardPtr = boardObject->valuestring;
-            // if(strcmp(boardPtr,"888004") == 0) {boardType = ATOM; step = STEP_DIGITAL_WRITE_HIGH;}// atom
-            // else if(strcmp(boardPtr,"888002") == 0) {boardType = NEUTRON; step = STEP_DIGITAL_WRITE_HIGH;}//neutron
-            // else if(strcmp(boardPtr,"888003") == 0) {boardType = NUT; step = STEP_DIGITAL_WRITE_HIGH;}//nut
-            // else if(strcmp(boardPtr,"888101") == 0) {boardType = W67; step = STEP_DIGITAL_WRITE_HIGH;}//w6/7
-            // else if(strcmp(boardPtr,"888005") == 0) {boardType = FIG; step = STEP_DIGITAL_WRITE_HIGH;}//fig
-            // else if(strcmp(boardPtr,"888102") == 0) {boardType = W3233; step = STEP_DIGITAL_WRITE_HIGH;}//w32/33
-            // else if(strcmp(boardPtr,"888006") == 0) {boardType = LORA; step = STEP_DIGITAL_WRITE_HIGH;}//lora
-            // else if(strcmp(boardPtr,"888103") == 0) {boardType = L6; step = STEP_DIGITAL_WRITE_HIGH;}//l6
-            // else
-            // {
-            //     boardType = 0xff; //unknown
-            //     step = STEP_TEST_END;
-            // }
             if(strcmp(boardPtr,"888004") == 0) return ATOM;         // atom
             else if(strcmp(boardPtr,"888002") == 0) return NEUTRON;//neutron
             else if(strcmp(boardPtr,"888003") == 0) return NUT;   //nut
             else if((strcmp(boardPtr,"888101") == 0) || (strcmp(boardPtr,"887101")) == 0) return W67;   //w6/7
             else if(strcmp(boardPtr,"888005") == 0) return FIG;   //fig
-            else if(strcmp(boardPtr,"888102") == 0) return W3233; //w32/33
+            else if(strcmp(boardPtr,"888102") == 0) return W323; //w32/33
             else if(strcmp(boardPtr,"888006") == 0) return LORA; //lora
             else if(strcmp(boardPtr,"888103") == 0) return L6;   //l6
             else
@@ -204,9 +192,6 @@ bool ReadBoardPinLevel(uint8_t val)
 
         case NUT:
         case W67:
-            // pinMode(D5,INPUT);
-            // pinMode(D7,INPUT);
-            // pinMode(D8,INPUT);
             for(pin = D4;  pin <= D8; pin++)
             {
                 pinMode(pin,INPUT);
@@ -232,14 +217,10 @@ bool ReadBoardPinLevel(uint8_t val)
                     return false;
                 }
             }
-            // if(digitalRead(D5) == val) return false;
-            // if(digitalRead(D7) == val) return false;
-            // if(digitalRead(D8) == val) return false;
-
             break;
 
         case FIG:
-        case W3233:
+        case W323:
             for(pin = D0;  pin < D7; pin++)
             {
                 pinMode(pin,INPUT);
@@ -285,7 +266,6 @@ bool ReceiveTestResult(testItem_t testItem)
         {
             String tmp = readString();
 
-            // Serial1.println(tmp);
             aJsonObject *root = NULL;
             root = aJson.parse((char *)tmp.c_str());
             if (root == NULL)
@@ -360,7 +340,7 @@ bool ReceiveTestResult(testItem_t testItem)
                             break;
 
                         case W67:
-                        case W3233:
+                        case W323:
                             if(statusObject->valueint == 200)
                              {
                                  OLEDDisplay("selfTest:","OK");
@@ -381,7 +361,9 @@ bool ReceiveTestResult(testItem_t testItem)
                     }
                     break;
 
-                case TEST_WIFI_CHECK:
+                case TEST_RF_CHECK:
+                if((boardType == ATOM) || (boardType == NEUTRON)||(boardType == NUT)||(boardType == W67)||(boardType == FIG)||(boardType == W323))
+                {
                     if(statusObject->valueint == 200)
                     {
                         aJsonObject* listnumtObject = aJson.getObjectItem(root, "listnum");
@@ -390,8 +372,6 @@ bool ReceiveTestResult(testItem_t testItem)
                            aJson.deleteItem(root);
                            return false;
                         }
-                        // uint8_t apnum = listnumtObject->valueint;
-                        // Serial1.println(apnum);
 
                         aJsonObject* ssidlistArrayObject = aJson.getObjectItem(root, "ssidlist");
                         if(ssidlistArrayObject == NULL)
@@ -401,7 +381,6 @@ bool ReceiveTestResult(testItem_t testItem)
                         }
 
                         uint8_t arrayNumber = aJson.getArraySize(ssidlistArrayObject);
-                        Serial1.println(arrayNumber);
 
                         WiFiAccessPoint ap[20];
 
@@ -422,7 +401,6 @@ bool ReceiveTestResult(testItem_t testItem)
                             }
 
                             strcpy(ap[num].ssid,ssidNameObject->valuestring);
-                            Serial1.println(ap[num].ssid);
 
                             aJsonObject* entypeObject = aJson.getObjectItem(ssidObject,"entype");
                             if(entypeObject == NULL)
@@ -439,13 +417,15 @@ bool ReceiveTestResult(testItem_t testItem)
                                 return false;
                             }
                             ap[num].rssi = signalObject->valueint;
-                            Serial1.println(ap[num].rssi);
                         }
 
+                        bool assignWifi = false;
                         for(uint8_t i = 0; i < arrayNumber; i++)
                         {
-                            if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
+                            // if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
+                            if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
                             {
+                                assignWifi = true;
                                 if(ap[i].rssi >= (-65))
                                 {
                                     OLEDDisplay("wifiCheck:","OK");
@@ -459,18 +439,23 @@ bool ReceiveTestResult(testItem_t testItem)
                                 }
                             }
                         }
-                        // OLEDDisplay("wifiCheck:","OK");
+
+                        if(!assignWifi)
+                        {
+                            OLEDDisplay("Not Open WiFi Network!!!","");
+                            while(1);
+                        }
                     }
                     else
                     {
                         OLEDDisplay("wifiCheck:","NG");
                         testResult = false;
                     }
-
-                    break;
-
-                case TEST_LORA_CHECK:
-                    break;
+                }
+                else if((boardType == LORA)||(boardType == L6))
+                {
+                }
+                break;
 
                 case TEST_SENSOR_DATA:
                     break;
@@ -497,15 +482,16 @@ void SendTestCommand(testItem_t itemCommand)
     {
         case TEST_DIGITAL_WRITE_HIGH:
             aJson.addStringToObject(valueObject, "item", "digitalWrite");
-            aJson.addStringToObject(valueObject, "pin", "all");
+            aJson.addNumberToObject(valueObject, "pin", 255);
             aJson.addStringToObject(valueObject, "val", "HIGH");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
 
             break;
+
         case TEST_DIGITAL_WRITE_LOW:
             aJson.addStringToObject(valueObject, "item", "digitalWrite");
-            aJson.addStringToObject(valueObject, "pin", "all");
+            aJson.addNumberToObject(valueObject, "pin", 255);
             aJson.addStringToObject(valueObject, "val", "LOW");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
@@ -515,7 +501,7 @@ void SendTestCommand(testItem_t itemCommand)
 
         case TEST_ANALOG_READ:
             aJson.addStringToObject(valueObject, "item", "analogRead");
-            aJson.addStringToObject(valueObject, "pin", "A0");
+            aJson.addNumberToObject(valueObject, "pin", 30);
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
 
@@ -528,18 +514,10 @@ void SendTestCommand(testItem_t itemCommand)
 
             break;
 
-        case TEST_WIFI_CHECK:
-            aJson.addStringToObject(valueObject, "item", "wifiCheck");
+        case TEST_RF_CHECK:
+            aJson.addStringToObject(valueObject, "item", "rfCheck");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
-            break;
-
-        case TEST_LORA_CHECK:
-            aJson.addStringToObject(valueObject, "item", "loraCheck");
-            aJson.addNumberToObject(valueObject, "freq", 433);
-            strPtr = aJson.print(root);
-            SerialPrint(strPtr);
-
             break;
 
         case TEST_SENSOR_DATA:
@@ -630,7 +608,7 @@ void loop()
                     step = STEP_DIGITAL_WRITE_HIGH;
                     break;
 
-                case W3233:
+                case W323:
                     display.clearDisplay();
                     display.setCursor(0,0);
                     display.println("W32/33 Test");
@@ -714,49 +692,42 @@ void loop()
             if(ReceiveTestResult(TEST_SELF_TEST))
             {
                 delay(500);
-                if(boardType == LORA || boardType == L6)
+                step = STEP_RF_CHECK;
+            }
+
+            break;
+
+        case STEP_RF_CHECK:
+            OLEDDisplay("test 5:","RFCheck");
+            SendTestCommand(TEST_RF_CHECK);
+            step = STEP_CONFIRM_RF_CHECK_RESULT;
+            break;
+
+        case STEP_CONFIRM_RF_CHECK_RESULT:
+            if(ReceiveTestResult(TEST_RF_CHECK))
+            {
+                if(boardType == NEUTRON || boardType == NUT || boardType == FIG)
                 {
-                    step = STEP_LORA_CHECK;
+                    step = STEP_SENSOR_DATA;
                 }
                 else
                 {
-                    step = STEP_WIFI_CHECK;
+                    step = STEP_TEST_END;
                 }
             }
 
             break;
 
-        case STEP_WIFI_CHECK:
-            OLEDDisplay("test 5:","wifiCheck");
-            SendTestCommand(TEST_WIFI_CHECK);
-            step = STEP_CONFIRM_WIFI_CHECK_RESULT;
-            break;
-
-        case STEP_CONFIRM_WIFI_CHECK_RESULT:
-            if(ReceiveTestResult(TEST_WIFI_CHECK))
-            {
-                step = STEP_TEST_END;
-            }
-
-            break;
-
-        case STEP_LORA_CHECK:
-            OLEDDisplay("test 5:","loraCheck");
-            SendTestCommand(TEST_LORA_CHECK);
-            step = STEP_CONFIRM_LORA_CHECK_RESULT;
-            break;
-
-        case STEP_CONFIRM_LORA_CHECK_RESULT:
-            if(ReceiveTestResult(TEST_LORA_CHECK))
-            {
-                step = STEP_TEST_END;
-            }
-            break;
-
         case STEP_SENSOR_DATA:
+            SendTestCommand(TEST_SENSOR_DATA);
             break;
 
         case STEP_CONFIRM_SENSOR_DATA_RESULT:
+            if(ReceiveTestResult(TEST_RF_CHECK))
+            {
+
+                step = STEP_TEST_END;
+            }
             break;
 
         case STEP_TEST_END:
