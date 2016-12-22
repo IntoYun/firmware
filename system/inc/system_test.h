@@ -20,6 +20,8 @@
 #ifndef SYSTEM_TEST_H_
 #define SYSTEM_TEST_H_
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 
 void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie);

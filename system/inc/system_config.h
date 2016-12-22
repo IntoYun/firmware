@@ -60,15 +60,6 @@ typedef enum{
     DEVICE_CONFIG_ERROR
 }DeviceConfigCmdType;
 
-typedef enum
-{
-    TEST_DIGITAL_WRITE,     //测试数字高低
-    TEST_ANALOG_READ,       //测试AD
-    TEST_SELF_TEST,         //自测
-    TEST_RF_CHECK,          //RF测试
-    TEST_SENSOR_DATA        //测试传感器
-}testItem_t;
-
 class DeviceConfig
 {
 public:

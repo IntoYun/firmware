@@ -310,10 +310,10 @@ void DeviceConfig::dealGetNetworkStatus(void)
 void DeviceConfig::dealGetWifiList(void)
 {
 #ifdef configWIRING_WIFI_ENABLE
-    WiFiAccessPoint ap[20];
+    WiFiAccessPoint ap[10];
 
     wlan_Imlink_stop();
-    int found = WiFi.scan(ap, 20);
+    int found = WiFi.scan(ap, 10);
     if(found < 1)
     {
         sendComfirm(201);
@@ -668,7 +668,6 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 {
     uint16_t pinNum;
     uint8_t pinLevel;
-    testItem_t testItem;
 
     if(value_object == NULL)
     {
@@ -678,7 +677,6 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
     aJsonObject* itemObject = aJson.getObjectItem(value_object, "item");
     if(itemObject == NULL)
     {
-        aJson.deleteItem(value_object);
         return ;
     }
 
@@ -687,7 +685,6 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
         if(pinObject == NULL)
         {
-            aJson.deleteItem(pinObject);
             return;
         }
         pinNum = pinObject->valueint;
@@ -695,7 +692,6 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         aJsonObject* valObject = aJson.getObjectItem(value_object,"val");
         if(valObject == NULL)
         {
-            aJson.deleteItem(valObject);
             return;
         }
 
@@ -707,66 +703,29 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
         {
             pinLevel = LOW;
         }
-        testItem = TEST_DIGITAL_WRITE;
+        testDigitalWrite(pinNum,pinLevel,this);
     }
     else if(strcmp(itemObject->valuestring,"analogRead") == 0)
     {
         aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
         if(pinObject == NULL)
         {
-            aJson.deleteItem(pinObject);
             return;
         }
         pinNum = pinObject->valueint;
-        testItem = TEST_ANALOG_READ;
+        testAnalogRead(pinNum,this);
     }
     else if(strcmp(itemObject->valuestring,"selfTest") == 0)
     {
-        testItem = TEST_SELF_TEST;
+        testSelfTest(this);
     }
     else if(strcmp(itemObject->valuestring,"rfCheck") == 0)
     {
-        testItem = TEST_RF_CHECK;
+        testRfCheck(this);
     }
     else if(strcmp(itemObject->valuestring,"sensorData") == 0)
     {
-        testItem = TEST_SENSOR_DATA;
-    }
-
-    switch(testItem)
-    {
-        case TEST_DIGITAL_WRITE:
-            {
-                testDigitalWrite(pinNum,pinLevel,this);
-            }
-            break;
-
-        case TEST_ANALOG_READ:
-            {
-                testAnalogRead(pinNum,this);
-            }
-            break;
-
-        case TEST_SELF_TEST:
-            {
-                testSelfTest(this);
-            }
-            break;
-
-        case TEST_RF_CHECK:
-            {
-                testRfCheck(this);
-            }
-            break;
-
-        case TEST_SENSOR_DATA:
-            {
-                testSensorData(this);
-            }
-            break;
-
-        default:
-            break;
+        testSensorData(this);
     }
 }
 
