@@ -65,7 +65,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             70
+#define TOTAL_PINS             38
 #define TOTAL_ANALOG_PINS      8
 #define TOTAL_DIGITAL_PINS     8
 #define FIRST_ANALOG_PIN       30
@@ -109,23 +109,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 // I2C pins
 #define SDA  D2
 #define SCL  D1
-
-// The following pins are only defined for easy access during development.
-// Will be removed later as they are internal I/O and users
-// should not have too easy of access or bad code could do harm.
-#define ESP_BOOT_UC         60
-#define ESP_RESET_UC        61
-#define RGBR_UC             62
-#define RGBG_UC             63
-#define RGBB_UC             64
-
-#define LIGHT_SENSOR_UC     65
-#define SENSOR_SDA_UC       66
-#define SENSOR_SCL_UC       67
-
-#define ESP8266_TXD_UC      68
-#define ESP8266_RXD_UC      69
-
 
 #define LED_USER  D7
 
