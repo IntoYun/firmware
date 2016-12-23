@@ -310,10 +310,10 @@ void DeviceConfig::dealGetNetworkStatus(void)
 void DeviceConfig::dealGetWifiList(void)
 {
 #ifdef configWIRING_WIFI_ENABLE
-    WiFiAccessPoint ap[20];
+    WiFiAccessPoint ap[10];
 
     wlan_Imlink_stop();
-    int found = WiFi.scan(ap, 20);
+    int found = WiFi.scan(ap, 10);
     if(found < 1)
     {
         sendComfirm(201);

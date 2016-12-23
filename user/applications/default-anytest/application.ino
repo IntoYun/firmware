@@ -90,6 +90,7 @@ void queryBoard(void)
     char *boardPtr = aJson.print(root);
     SerialPrint(boardPtr);
     free(boardPtr);
+    aJson.deleteItem(root);
     currentTime = timerGetId();
 }
 
@@ -137,17 +138,18 @@ uint8_t getBoardType(void)
             }
 
             boardPtr = boardObject->valuestring;
-            if(strcmp(boardPtr,"888004") == 0) return ATOM;         // atom
-            else if(strcmp(boardPtr,"888002") == 0) return NEUTRON;//neutron
-            else if(strcmp(boardPtr,"888003") == 0) return NUT;   //nut
-            else if((strcmp(boardPtr,"888101") == 0) || (strcmp(boardPtr,"887101")) == 0) return W67;   //w6/7
-            else if(strcmp(boardPtr,"888005") == 0) return FIG;   //fig
-            else if(strcmp(boardPtr,"888102") == 0) return W323; //w32/33
-            else if(strcmp(boardPtr,"888006") == 0) return LORA; //lora
-            else if(strcmp(boardPtr,"888103") == 0) return L6;   //l6
+            if(strcmp(boardPtr,"888004") == 0) {aJson.deleteItem(root);return ATOM;}         // atom
+            else if(strcmp(boardPtr,"888002") == 0) {aJson.deleteItem(root);return NEUTRON;}//neutron
+            else if(strcmp(boardPtr,"888003") == 0) {aJson.deleteItem(root);return NUT;}   //nut
+            else if((strcmp(boardPtr,"888101") == 0) || (strcmp(boardPtr,"887101")) == 0) {aJson.deleteItem(root);return W67;}   //w6/7
+            else if(strcmp(boardPtr,"888005") == 0) {aJson.deleteItem(root);return FIG;}   //fig
+            else if(strcmp(boardPtr,"888102") == 0) {aJson.deleteItem(root);return W323;} //w32/33
+            else if(strcmp(boardPtr,"888006") == 0) {aJson.deleteItem(root);return LORA;} //lora
+            else if(strcmp(boardPtr,"888103") == 0) {aJson.deleteItem(root);return L6;}   //l6
             else
             {
                 boardType = UNKOWN_BOARD_TYPE;
+                aJson.deleteItem(root);
                 return UNKOWN_BOARD_TYPE;
             }
 
@@ -423,7 +425,6 @@ bool ReceiveTestResult(testItem_t testItem)
                         for(uint8_t i = 0; i < arrayNumber; i++)
                         {
                             if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
-                            // if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
                             {
                                 assignWifi = true;
                                 if(ap[i].rssi >= (-65))
@@ -452,9 +453,9 @@ bool ReceiveTestResult(testItem_t testItem)
                         testResult = false;
                     }
                 }
-                else if((boardType == LORA)||(boardType == L6))
-                {
-                }
+                // else if((boardType == LORA)||(boardType == L6))
+                // {
+                // }
                 break;
 
                 case TEST_SENSOR_DATA:
@@ -486,6 +487,7 @@ void SendTestCommand(testItem_t itemCommand)
             aJson.addStringToObject(valueObject, "val", "HIGH");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
 
             break;
 
@@ -495,6 +497,7 @@ void SendTestCommand(testItem_t itemCommand)
             aJson.addStringToObject(valueObject, "val", "LOW");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
 
             break;
 
@@ -504,6 +507,7 @@ void SendTestCommand(testItem_t itemCommand)
             aJson.addNumberToObject(valueObject, "pin", 30);
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
 
             break;
 
@@ -511,6 +515,7 @@ void SendTestCommand(testItem_t itemCommand)
             aJson.addStringToObject(valueObject, "item", "selfTest");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
 
             break;
 
@@ -518,12 +523,14 @@ void SendTestCommand(testItem_t itemCommand)
             aJson.addStringToObject(valueObject, "item", "rfCheck");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
             break;
 
         case TEST_SENSOR_DATA:
             aJson.addStringToObject(valueObject, "item", "sensorData");
             strPtr = aJson.print(root);
             SerialPrint(strPtr);
+            aJson.deleteItem(root);
 
             break;
         default:
@@ -723,9 +730,8 @@ void loop()
             break;
 
         case STEP_CONFIRM_SENSOR_DATA_RESULT:
-            if(ReceiveTestResult(TEST_RF_CHECK))
+            if(ReceiveTestResult(TEST_SENSOR_DATA))
             {
-
                 step = STEP_TEST_END;
             }
             break;
