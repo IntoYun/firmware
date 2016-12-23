@@ -28,8 +28,9 @@ extern "C" {
 
 #define SYSTEM_VERSION_v131  "1.3.1.160704"
 #define SYSTEM_VERSION_v140  "1.4.0.160812"
+#define SYSTEM_VERSION_v141  "1.4.1.161223"
 
-#define SYSTEM_VERSION  SYSTEM_VERSION_v140
+#define SYSTEM_VERSION  SYSTEM_VERSION_v141
 
 
 int system_version(char *pversion);

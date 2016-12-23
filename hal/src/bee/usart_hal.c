@@ -31,7 +31,6 @@ SDK_QUEUE Usart_Rx_Queue_A2A3;
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
     USART_A2_A3 = 0,
-    USART_ESP8266 = 1
 } USART_Num_Def;
 
 /* Private macro -------------------------------------------------------------*/
@@ -73,7 +72,6 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart transmitting> used internally and does not appear below
      */
     { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },                                // USART 2
-    { USART1, GPIO_AF7_USART1, USART1_IRQn, ESP8266_TXD_UC, ESP8266_RXD_UC }         // USART 1
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -88,16 +86,6 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
         usartMap[serial]->uart_handle = &UartHandle_A2A3;
         usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
-        //sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
-    }
-    else {
-        /*
-        usartMap[serial] = &USART_MAP[USART_ESP8266];
-        usartMap[serial]->uart_handle = &UartHandle_ESP8266;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_ESP8266;
-        sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
-        sdkInitialQueue(usartMap[serial]->usart_tx_queue, SDK_MAX_QUEUE_SIZE);
-        */
     }
 
     usartMap[serial]->usart_enabled = false;
@@ -125,12 +113,6 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     if(HAL_USART_SERIAL1 == serial){
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_USART2_CLK_ENABLE();
-    }
-    else{
-        /*
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_USART1_CLK_ENABLE();
-        */
     }
 
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -201,12 +183,6 @@ void HAL_USART_End(HAL_USART_Serial serial)
     if(HAL_USART_SERIAL1 == serial){
         __HAL_RCC_USART2_FORCE_RESET();
         __HAL_RCC_USART2_RELEASE_RESET();
-    }
-    else{
-        /*
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-        */
     }
 
     //Disable the NVIC for UART ##########################################*/
