@@ -47,7 +47,7 @@
 #define EOF -1
 #endif
 
-#define PRINT_BUFFER_LEN 1024
+#define PRINT_BUFFER_LEN 2048
 // The aJson structure:
 typedef struct aJsonObject
 {

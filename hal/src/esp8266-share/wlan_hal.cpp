@@ -248,29 +248,81 @@ struct WlanScanInfo
     bool completed;
 };
 
+struct WlanApSimple
+{
+   uint8_t bssid[6];
+   int rssi;
+};
+
 WlanScanInfo scanInfo;
 void scan_done_cb(void *arg, STATUS status)
 {
     WiFiAccessPoint data;
+    WlanApSimple apSimple;
+    int n = 0, m = 0, j = 0;
+    bss_info *it = (bss_info*)arg;
 
     if(status == OK)
     {
-        int i = 0;
-        bss_info *it = (bss_info*)arg;
-        for(; it; it = STAILQ_NEXT(it, next), i++)
+        //获取ap数量
+        for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
+        scanInfo.count = n;
+
+        //申请内存
+        WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
+        if(pNode == NULL)
         {
-            memset(&data, 0, sizeof(WiFiAccessPoint));
-            memcpy(data.ssid, it->ssid, it->ssid_len);
-            data.ssidLength = it->ssid_len;
-            memcpy(data.bssid, it->bssid, 6);
-            data.security = toSecurityType(it->authmode);
-            data.cipher = toCipherType(it->authmode);
-            data.channel = it->channel;
-            data.rssi = it->rssi;
-            scanInfo.callback(&data, scanInfo.callback_data);
+            scanInfo.completed = true;
+            return;
         }
-        scanInfo.count = i;
+
+        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
+        {
+            memcpy(pNode[n].bssid, it->bssid, 6);
+            pNode[n].rssi = it->rssi;
+        }
+
+        //根据rssi排序
+        for(n = 0; n < scanInfo.count - 1; n++)
+        {
+            j = n;
+            for(m = n+1; m < scanInfo.count; m++)
+            {
+                if(pNode[m].rssi > pNode[j].rssi)
+                {
+                    j = m;
+                }
+            }
+            if(j != n)
+            {
+                memcpy(&apSimple, &pNode[n], sizeof(struct WlanApSimple));
+                memcpy(&pNode[n], &pNode[j], sizeof(struct WlanApSimple));
+                memcpy(&pNode[j], &apSimple, sizeof(struct WlanApSimple));
+            }
+        }
+
+        //填充ap 列表
+        for(n = 0; n < scanInfo.count; n++)
+        {
+            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
+            {
+                if(!memcmp(pNode[n].bssid, it->bssid, 6))
+                {
+                    memset(&data, 0, sizeof(WiFiAccessPoint));
+                    memcpy(data.ssid, it->ssid, it->ssid_len);
+                    data.ssidLength = it->ssid_len;
+                    memcpy(data.bssid, it->bssid, 6);
+                    data.security = toSecurityType(it->authmode);
+                    data.cipher = toCipherType(it->authmode);
+                    data.channel = it->channel;
+                    data.rssi = it->rssi;
+                    scanInfo.callback(&data, scanInfo.callback_data);
+                    break;
+                }
+            }
+        }
         scanInfo.completed = true;
+        free(pNode);
     }
 }
 
@@ -288,7 +340,7 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
     scanInfo.completed = false;
     if(wifi_station_scan(NULL, scan_done_cb))
     {
-        WLAN_TIMEOUT(5000);
+        WLAN_TIMEOUT(6000);
         while(!scanInfo.completed)
         {
             optimistic_yield(100);
