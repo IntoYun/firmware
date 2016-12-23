@@ -422,8 +422,8 @@ bool ReceiveTestResult(testItem_t testItem)
                         bool assignWifi = false;
                         for(uint8_t i = 0; i < arrayNumber; i++)
                         {
-                            // if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
-                            if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
+                            if(strcmp(ap[i].ssid,"IntoRobot-NETGEAR") == 0)
+                            // if(strcmp(ap[i].ssid,"TP-LINK_3816") == 0)
                             {
                                 assignWifi = true;
                                 if(ap[i].rssi >= (-65))
