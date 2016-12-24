@@ -33,7 +33,7 @@
 #include "net_hal.h"
 #include "crc16.h"
 #include "flash_map.h"
-#include "memory_hal.h"
+#include "flash_storage_impl.h"
 
 
 #ifdef putc
@@ -1186,7 +1186,8 @@ bool MDMParser::getBootloader(void)
                         if( crc16 == ((buf[PACKAGE_UNIT] << 8) | (buf[PACKAGE_UNIT+1]))) {
                             DEBUG_D("crc32 success  flash begin\r\n");
                             if( PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR+PACKAGE_UNIT < APP_ADDR ) {
-                                if( HAL_FLASH_STATUS_OK == HAL_FLASH_Interminal_Write(PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR, (uint32_t *)&buf, PACKAGE_UNIT/4) ) {
+                                InternalFlashStore flashStore;
+                                if( flashStore.write(PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR, (uint32_t *)&buf, PACKAGE_UNIT) ) {
                                     DEBUG_D("crc32 success flash end\r\n");
                                     continue;
                                 }
