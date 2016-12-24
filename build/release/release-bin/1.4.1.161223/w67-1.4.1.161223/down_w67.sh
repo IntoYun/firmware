@@ -1,7 +1,9 @@
 #! /bin/bash
 
 #下载工具
-ESP_TOOL=esptool
+
+# ESP_TOOL=esptool
+ESP_TOOL=../../../../../tools/esptool/esptool
 sysType=`uname -s`
 
 #esptool下载参数
