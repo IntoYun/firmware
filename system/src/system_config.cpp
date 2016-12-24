@@ -292,7 +292,7 @@ void DeviceConfig::dealCheckWifi(void)
     aJson.deleteItem(root);
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -353,7 +353,7 @@ void DeviceConfig::dealGetWifiList(void)
     }
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -470,10 +470,10 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
     sendComfirm(201);
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 #ifdef configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -483,10 +483,10 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* value_Object)
     dealSendWifiInfo(value_Object);
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 #ifdef configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -525,7 +525,7 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* value_Object)
     HAL_PARAMS_Save_Params();
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -559,7 +559,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
     }
 #endif
 #ifdef configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -630,14 +630,11 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
             sendComfirm(201);
         }
     }
-    else
-    {
-        sendComfirm(202);
-    }
+    sendComfirm(200);
     HAL_PARAMS_Save_Params();
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 
@@ -650,7 +647,7 @@ void DeviceConfig::dealRestartNetwork(void)
     sendComfirm(200);
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
-    sendComfirm(201);
+    sendComfirm(200);
 #endif
 }
 

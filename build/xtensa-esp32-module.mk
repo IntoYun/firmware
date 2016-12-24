@@ -141,7 +141,7 @@ clean: clean_deps
 	$(VERBOSE)$(RMDIR) $(BUILD_PATH)
 	$(call,echo,)
 
-.PHONY: all postbuild none elf bin hex size esptool
+.PHONY: all postbuild none elf bin hex size esptool-py
 .SECONDARY:
 
 include $(COMMON_BUILD)/recurse.mk
