@@ -24,7 +24,6 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "soc/gpio_struct.h"
 #include "soc/io_mux_reg.h"
 
-#if  1 
 #include "esp32-hal-gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -34,11 +33,9 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "rom/gpio.h"
 #include "soc/gpio_reg.h"
 #include "soc/rtc_io_reg.h"
-#endif
 
 /* #include "esp32-hal.h" */
 
-#if  1 
 
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
 
@@ -129,14 +126,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    /* uint8_t gpio_pin = PIN_MAP[pin].gpio_pin; */
 
-    printf("gpio_pin : %d \n", gpio_pin);
-    /* pinMode(gpio_pin,setMode); */
-
-    #if  1
-
-    #if  1
     if(!digitalPinIsValid(gpio_pin)) {
         return;
     }
@@ -176,109 +166,8 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         }
         //unlock rtc
     }
-#endif
-
-    /* EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map(); */
-    /* pin_t gpio_pin = PIN_MAP[pin].gpio_pin; */
-
-    /* if (gpio_pin > 39 || esp32_gpioMux[gpio_pin].reg == 0) { */
-    /* if (gpio_pin > 39 || esp32_gpioMux_t[gpio_pin] == 0xFF) { */
-        /* return; */
-    /* } */
 
     uint32_t pinFunction = 0, pinControl = 0;
-
-    #if 0
-    switch (setMode)
-    {
-        case OUTPUT:
-            if(gpio_pin > 33)
-            {
-                return; //pins above 33 can be only inputs
-            }
-            else if(gpio_pin < 32) {
-                GPIO.enable_w1ts = ((uint32_t)1 << gpio_pin);
-            } else {
-                GPIO.enable1_w1ts.val = ((uint32_t)1 << (gpio_pin - 32));
-            }
-            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
-
-            // common part
-            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
-            pinFunction |= FUN_IE;//input enable but required for output as well?
-            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
-            GPIO.pin[gpio_pin].val = pinControl;
-
-            PIN_MAP[pin].pin_mode = OUTPUT;
-            break;
-
-        case INPUT:
-            if(gpio_pin < 32) {
-                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
-            } else {
-                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
-            }
-            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
-
-            // common part
-            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
-            pinFunction |= FUN_IE;//input enable but required for output as well?
-            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
-            GPIO.pin[gpio_pin].val = pinControl;
-
-            PIN_MAP[pin].pin_mode = INPUT;
-            break;
-
-        case INPUT_PULLUP:
-            if(gpio_pin < 32) {
-                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
-            } else {
-                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
-            }
-            pinFunction |= FUN_PU;
-            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
-
-            // common part
-            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
-            pinFunction |= FUN_IE;//input enable but required for output as well?
-            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
-            GPIO.pin[gpio_pin].val = pinControl;
-
-            PIN_MAP[pin].pin_mode = INPUT_PULLUP;
-            break;
-
-        case INPUT_PULLDOWN:
-            if(gpio_pin < 32) {
-                GPIO.enable_w1tc = ((uint32_t)1 << gpio_pin);
-            } else {
-                GPIO.enable1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
-            }
-            pinFunction |= FUN_PD;
-            pinFunction |= ((uint32_t)2 << MCU_SEL_S);
-
-            // common part
-            pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers?
-            pinFunction |= FUN_IE;//input enable but required for output as well?
-            ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
-            GPIO.pin[gpio_pin].val = pinControl;
-
-            PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
-            break;
-
-        case OPEN_DRAIN:
-            if(setMode & OPEN_DRAIN){
-            pinControl = (1 << GPIO_PIN0_PAD_DRIVER_S);
-            }
-
-            GPIO.pin[pin].val = pinControl;
-            break;
-
-        default:
-            break;
-    }
-    #endif
-
-    /* printf("set gpio mode \r\n"); */
 
     //lock gpio
     if(setMode & INPUT) {
@@ -326,9 +215,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         pinFunction |= ((uint32_t)(setMode >> 5) << MCU_SEL_S);
     }
 
-
-    printf("gpio mode : %x \n",esp32_gpioMux[gpio_pin].reg);
-
     ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
 
     if(setMode & OPEN_DRAIN) {
@@ -336,15 +222,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     }
 
     GPIO.pin[gpio_pin].val = pinControl;
-
-
-#endif
-    /* // common part */
-    /* pinFunction |= ((uint32_t)2 << FUN_DRV_S);//what are the drivers? */
-    /* pinFunction |= FUN_IE;//input enable but required for output as well? */
-
-    /* ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioToFn[gpio_pin]) = pinFunction; */
-    /* GPIO.pin[gpio_pin].val = pinControl; */
 }
 
 /*
@@ -495,7 +372,6 @@ int32_t HAL_pinReadFast(pin_t pin)
     }
 }
 
-#endif
 
 #if   0 
 // old sdk
