@@ -2,7 +2,7 @@
 IntoRobot 固件源代码工程, 支持intorobot创客模块和IntoRobot商业模组。
 
 ```
-创客核心板（包括三色灯、按键、usb接口等）：atom, neutron, nut, lora, fig等。
+创客核心板（包括三色灯、按键、usb接口等）：atom, neutron, nut, lora, fig, littlebee等。
 商业模组（单纯模组，不包括其他附属器件）：w6, w7, w32, w33, l6等。
 ```
 ## 快速开始
@@ -29,32 +29,38 @@ sudo ./install-tools.sh
 在firmware目录下，可以进行各个产品的编译。编译默认固件的命令主要如下：
 
 ```
-make PLATFORM=neutron clean all APP=default-neutron
-make PLATFORM=nut clean all APP=default-nut
-make PLATFORM=atom clean all APP=default-atom
-make PLATFORM=fig clean all APP=default-fig
-make PLATFORM=lora clean all APP=default-lora
-make PLATFORM=gprs clean all APP=default-gprs
+make PLATFORM=neutron clean all APP=smartLight-default
+make PLATFORM=nut clean all APP=smartLight-default
+make PLATFORM=atom clean all APP=smartLight-default
+make PLATFORM=fig clean all APP=smartLight-default
+make PLATFORM=lora clean all APP=blink
+make PLATFORM=littlebee clean all APP=smartLight-default
 
-make PLATFORM=w67 clean all APP=default-w67
-make PLATFORM=w323 clean all APP=default-w323
-make PLATFORM=l6 clean all APP=default-l6
+make PLATFORM=w67 clean all APP=smartLight-w67
+make PLATFORM=w323 clean all APP=blink
+make PLATFORM=l6 clean all APP=blink
 ```
 
 
 其中，*PLATFORM=product_name*也可以替换成*PLATFORM_ID=product_id*.产品的名称和ID的关系如下表（详情请参见build/platform-id.mk）：
 
-| Name         | PLATFORM_ID |
+| 创客核心板   | PLATFORM_ID |
 |--------------|:-----------:|
 | neutron      | 888002      |
 | nut          | 888003      |
 | atom         | 888004      |
 | fig          | 888005      |
 | lora         | 888006      |
-| gprs         | 888007      |
+| littlebee    | 888007      |
+
+| 商业模块     | PLATFORM_ID |
+|--------------|:-----------:|
 | w67          | 888101      |
 | w323         | 888102      |
 | l6           | 888103      |
+
+| 其他产品     | PLATFORM_ID |
+|--------------|:-----------:|
 | gcc          | 888201      |
 | neutron-net  | 888202      |
 | anytest      | 888203      |
