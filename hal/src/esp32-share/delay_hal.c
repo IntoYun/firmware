@@ -29,7 +29,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp32-hal.h"
-
+#include "service_debug.h"
 /**
  * Updated by HAL_1Ms_Tick()
  */
@@ -48,20 +48,33 @@ void HAL_Delay_Milliseconds(uint32_t ms)
     vTaskDelay(ms / portTICK_PERIOD_MS);
 }
 
-uint32_t micros()
+/* uint32_t micros() */
+/* { */
+/*   uint32_t ccount; */
+/*   __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) ); */
+/*   return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ; */
+/*   //return system_get_time(); */
+/* } */
+
+uint32_t HAL_Timer_Get_Micro_Seconds(void)
 {
-  uint32_t ccount;
-  __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-  return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
-  //return system_get_time();
+    uint32_t ccount;
+    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
 }
+/* uint32_t millis() */
+/* /\* uint32_t HAL_Timer_Get_Milli_Seconds(void) *\/ */
+/* { */
+/*     DEBUG("ffff"); */
+/*   return xTaskGetTickCount() * portTICK_PERIOD_MS; */
+/* } */
 
-uint32_t millis()
+uint32_t HAL_Timer_Get_Milli_Seconds(void)
 {
-  return xTaskGetTickCount() * portTICK_PERIOD_MS;
+    /* DEBUG("gggggg"); */
+    return xTaskGetTickCount() * portTICK_PERIOD_MS;
+    /* return millis(); */
 }
-
-
 /**
  * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
  * @param  uSec: specifies the delay time length, in milliseconds.
@@ -70,9 +83,10 @@ uint32_t millis()
 void HAL_Delay_Microseconds(uint32_t uSec)
 {
   if(uSec) {
-    unsigned long endat = micros();
+    /* unsigned long endat = micros(); */
+      unsigned long endat = HAL_Timer_Get_Micro_Seconds();
     endat += uSec;
-    while(micros() < endat) {
+    while(HAL_Timer_Get_Micro_Seconds() < endat) {
       NOP();
     }
   }

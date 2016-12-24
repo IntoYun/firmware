@@ -63,6 +63,7 @@ void arduino_phy_init()
 }
 #endif
 
+#if 0
 uint32_t IRAM_ATTR micros()
 {
     uint32_t ccount;
@@ -95,6 +96,8 @@ void IRAM_ATTR delayMicroseconds(uint32_t us)
         }
     }
 }
+
+#endif
 
 void initVariant() __attribute__((weak));
 void initVariant() {}

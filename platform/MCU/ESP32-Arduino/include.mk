@@ -18,7 +18,7 @@ INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/spi_flash
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/tcpip_adapter
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/vfs
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/wpa_supplicant
-INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/xtensa-debug-module
+# INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/xtensa-debug-module
 
 LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32_out.ld -T esp32.common.ld -T esp32.rom.ld -T esp32.peripherals.ld -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
 
@@ -26,7 +26,7 @@ LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32
 #zbx
 # LIBS += gcc c m halhal core net80211 phy rtc pp wpa smartconfig btdm_app bt driver esp32 expat freertos json log lwip mbedtls nghttp nvs_flash spi_flash tcpip_adapter newlib vfs
 #lz
-LIBS += gcc c m app_update bt btdm_app c coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
+LIBS += gcc c m app_update bt btdm_app c coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps #xtensa-debug-module
 # LIBS += gcc c m app_update bt btdm_app coexist core driver esp32 ethernet expat freertos halhal json log lwip mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
 
 
