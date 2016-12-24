@@ -12,36 +12,32 @@ export INTOROBOT_DEVELOP=1
 echo "github push check begin!!!"
 echo "------------------------创客核心板-------------------------"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!neutron!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=default-neutron
+make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=smartLight-default
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!nut!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=nut clean all COMPILE_LTO=n APP=default-nut
+make $VERBOSE PLATFORM=nut clean all COMPILE_LTO=n APP=smartLight-default
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!atom!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=default-atom
+make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=smartLight-default
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!fig!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=default-atom
+#make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=blink
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!lora!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=default-lora
+make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=blink
 
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!bee!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=bee clean all COMPILE_LTO=n APP=default-gprs
-
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!gprs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=gprs clean all COMPILE_LTO=n APP=default-gprs
-echo "------------------------------------------------------------"
+echo "!!!!!!!!!!!!!!!!!!!!!!!!littlebee!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+make $VERBOSE PLATFORM=littlebee clean all COMPILE_LTO=n APP=smartLight-default
 
 echo "------------------------商业模块-------------------------"
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w67!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=default-w67
+make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=smartLight-w67
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w323!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=default-w323
+#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=blink
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!l6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=default-l6
+make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=blink
 echo "------------------------------------------------------------"
 
 echo "------------------------其他-------------------------"

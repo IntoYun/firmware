@@ -42,7 +42,7 @@ ifeq ("$(PLATFORM)","lora")
 PLATFORM_ID = 888006
 endif
 
-ifeq ("$(PLATFORM)","bee")
+ifeq ("$(PLATFORM)","littlebee")
 PLATFORM_ID = 888007
 endif
 
@@ -155,10 +155,10 @@ PLATFORM_DFU = 0x08006000
 DEFAULT_PRODUCT_ID=888006
 endif
 
-ifeq ("$(PLATFORM_ID)","888007") #bee
-PLATFORM=bee
+ifeq ("$(PLATFORM_ID)","888007") #littlebee
+PLATFORM=littlebee
 PLATFORM_DEVICE=STM32F411xE
-PLATFORM_NAME=bee
+PLATFORM_NAME=littlebee
 PLATFORM_MCU=STM32F4xx
 MCU_CORE=cortex-m4
 PRODUCT_DESC=IntoRobot be, 512k flash, 128k sram

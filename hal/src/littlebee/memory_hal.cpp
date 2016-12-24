@@ -19,7 +19,6 @@
 
 #include "memory_hal.h"
 #include "hw_config.h"
-
 #if 0
 /**
  * @brief  Gets the sector of a given address
@@ -111,5 +110,4 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
     HAL_FLASH_Lock();
     return (HAL_Flash_StatusTypeDef)flashStatus;
 }
-
 #endif

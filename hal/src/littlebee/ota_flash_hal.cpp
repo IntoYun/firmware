@@ -26,8 +26,10 @@
 #include "parser.h"
 #include "flash_map.h"
 #include "params_hal.h"
-#include "flash_storage_impl.h"
+#include "memory_hal.h"
 #include "service_debug.h"
+
+
 
 static bool bootloader_requires_update(void)
 {
@@ -56,35 +58,6 @@ static bool bootloader_requires_update(void)
 
 static bool bootloader_update(void)
 {
-    const uint32_t buffer_size = 0x400;  //1k 数据块
-    const uint32_t size = 0x8000;    //32k 总大小
-    uint8_t buffer[buffer_size];
-
-    if( false == esp8266MDM.getBootloader() ){
-        return false;
-    }
-
-    uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
-    uint32_t saddr = CACHE_BOOTLOADER_START_ADDR;
-    uint32_t daddr = BOOTLOADER_START_ADDR;
-
-    DEBUG_D("bootloader_update \r\n");
-    InternalFlashStore flashStore;
-    flashStore.eraseSector(BOOTLOADER_START_ADDR);
-    flashStore.eraseSector(BOOTLOADER_START_ADDR + INTERNAL_FLASH_PAGE_SIZE);
-
-    while (left) {
-        if(flashStore.read(saddr, buffer, buffer_size)) {
-            return false;
-        }
-
-        if(flashStore.write(daddr, buffer, buffer_size)) {
-            return false;
-        }
-        saddr += buffer_size;
-        daddr += buffer_size;
-        left  -= buffer_size;
-    }
     return true;
 }
 
@@ -101,38 +74,34 @@ bool HAL_Bootloader_Update_If_Needed(void)
 
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    return (down_status_t)esp8266MDM.downOtaFile(host, param, md5);
+    return DOWNSTATUS_SUCCESS;
 }
 
 down_status_t HAL_OTA_Get_App_Download_Status(void)
 {
-    return (down_status_t)esp8266MDM.getDownOtafileStatus();
+    return DOWNSTATUS_SUCCESS;
 }
 
 void HAL_OTA_Update_App(void)
 {
-    HAL_Core_Enter_Ota_Update_Mode();
 }
 
 down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
 {
-    return (down_status_t)esp8266MDM.downNetFile(host, param);
+    return DOWNSTATUS_SUCCESS;
 }
 
 down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
 {
-    return (down_status_t)esp8266MDM.getDownNetfileStatus();
+    return DOWNSTATUS_SUCCESS;
 }
 
 void HAL_OTA_Upadate_Subsys(void)
 {
-    HAL_Bootloader_Update_If_Needed();
-    esp8266MDM.updateNet();
-    HAL_Delay_Milliseconds(20000);
 }
 
 uint8_t HAL_OTA_Get_Download_Progress()
 {
-    return (uint8_t)esp8266MDM.getDownFileProgress();
+    return 0;
 }
 

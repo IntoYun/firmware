@@ -92,7 +92,7 @@
 //USB OTG Peripheral
 #define USE_USB_OTG_FS
 
-#if PLATFORM_BEE == PLATFORM_ID
+#if PLATFORM_LITTLEBEE == PLATFORM_ID
     #define HAS_SERIAL_FLASH
     #define USE_SERIAL_FLASH
     #define sFLASH_PAGESIZE     0x1000 /* 4096 bytes sector size that needs to be erased */
@@ -148,7 +148,7 @@
 #define PREPSTRING2(x) #x
 #define PREPSTRING(x) PREPSTRING2(x)
 
-#if PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_BEE
+#if PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_LITTLEBEE
 #define INTERNAL_FLASH_SIZE                 (0x80000)
 #else
     #pragma message "PLATFORM_ID is " PREPSTRING(PLATFORM_ID)
