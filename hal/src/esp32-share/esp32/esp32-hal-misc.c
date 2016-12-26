@@ -62,7 +62,7 @@ void arduino_phy_init()
     initialized = true;
 }
 #endif
-
+/*
 uint32_t IRAM_ATTR micros()
 {
     uint32_t ccount;
@@ -111,6 +111,7 @@ void initArduino(){
     initWiFi();
 }
 
+*/
 //used by hal log
 const char * IRAM_ATTR pathToFileName(const char * path){
     size_t i = 0;
@@ -125,4 +126,3 @@ const char * IRAM_ATTR pathToFileName(const char * path){
     }
     return path+pos;
 }
-

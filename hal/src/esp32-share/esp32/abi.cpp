@@ -17,7 +17,7 @@
 #include <stdint.h>
 
 using __cxxabiv1::__guard;
-
+/*
 void *operator new(size_t size)
 {
     return malloc(size);
@@ -37,10 +37,10 @@ void operator delete[](void * ptr)
 {
     free(ptr);
 }
-
+*/
 extern "C" void __cxa_pure_virtual(void) __attribute__ ((__noreturn__));
 extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
-
+/*
 void __cxa_pure_virtual(void)
 {
     abort();
@@ -50,7 +50,7 @@ void __cxa_deleted_virtual(void)
 {
     abort();
 }
-
+*/
 #if 1
 typedef struct {
     uint8_t guard;
@@ -80,6 +80,7 @@ extern "C" void __cxa_guard_abort(__guard* pg)
 }
 #endif
 
+/*
 extern "C" void __cxa_throw_bad_array_new_length()
 {
     abort();
@@ -112,3 +113,4 @@ void __throw_out_of_range(const char* str)
     abort();
 }
 }
+*/

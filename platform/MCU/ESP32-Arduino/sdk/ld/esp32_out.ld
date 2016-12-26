@@ -34,8 +34,6 @@ MEMORY
      Enabling Bluetooth & Trace Memory features in menuconfig will decrease
      the amount of RAM available.
   */
-  /* dram0_0_seg (RW) : org = 0x3FFB0000 + 0x0,  len = 0x50000 - 0x0 - 0x0 */
-
   dram0_0_seg (RW) : org = 0x3FFB0000 + 0x10000,
                                      len = 0x50000 - 0x0 - 0x10000
   /* Flash mapped constant data */

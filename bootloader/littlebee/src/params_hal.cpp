@@ -64,7 +64,6 @@ void read_boot_params(boot_params_t *pboot_params) {
     if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
         return;
     }
-
     for (int num = 0; num<len; num++) {
         pboot[num] = HAL_EEPROM_Read(address+num);
     }
@@ -100,6 +99,8 @@ void read_system_params(system_params_t *psystem_params) {
         return;
     }
     flashStore.read(SYSTEM_PARAMS_START_ADDR, psystem_params, len);
+    for (int num = 0; num<len; num++) {
+    }
 }
 
 /*
@@ -148,6 +149,9 @@ void HAL_PARAMS_Load_Boot_Params(void) {
     read_boot_params(&intorobot_boot_params);
     if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
         //擦除eeprom区域 并初始化
+        InternalFlashStore flashStore;
+        flashStore.eraseSector(EEPROM_START_ADDR);
+        flashStore.eraseSector(EEPROM_START_ADDR + 0x4000);
         HAL_EEPROM_Init();
         HAL_PARAMS_Init_Boot_Params();
     }

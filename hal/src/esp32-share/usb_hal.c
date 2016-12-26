@@ -20,7 +20,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usb_hal.h"
 #include <stdint.h>
-#include "usart_hal.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -33,13 +32,6 @@
  *******************************************************************************/
 void USB_USART_Initial(uint32_t baudRate)
 {
-    if (baudRate) {
-        HAL_USART_Initial(0); // USBSerial is the same with Serial
-        HAL_USART_Begin(0, baudRate);
-    }
-    else {
-        HAL_USART_End(0);
-    }
 }
 
 /*******************************************************************************
@@ -50,7 +42,7 @@ void USB_USART_Initial(uint32_t baudRate)
  *******************************************************************************/
 uint8_t USB_USART_Available_Data(void)
 {
-    return HAL_USART_Available_Data(0);
+    return 0;
 }
 
 /*******************************************************************************
@@ -61,12 +53,7 @@ uint8_t USB_USART_Available_Data(void)
  *******************************************************************************/
 int32_t USB_USART_Receive_Data(uint8_t peek)
 {
-    if ( peek == 0 ) {
-        return HAL_USART_Read_Data(0);
-    }
-    else {
-        return HAL_USART_Peek_Data(0); 
-    }
+    return 0;
 }
 
 /*******************************************************************************
@@ -77,7 +64,7 @@ int32_t USB_USART_Receive_Data(uint8_t peek)
  *******************************************************************************/
 int32_t USB_USART_Available_Data_For_Write(void)
 {
-    return HAL_USART_Available_Data_For_Write(0);
+    return 0;
 }
 
 /*******************************************************************************
@@ -88,7 +75,6 @@ int32_t USB_USART_Available_Data_For_Write(void)
  *******************************************************************************/
 void USB_USART_Send_Data(uint8_t Data)
 {
-    HAL_USART_Write_Data(0, Data);
 }
 
 /*******************************************************************************
@@ -99,7 +85,6 @@ void USB_USART_Send_Data(uint8_t Data)
  *******************************************************************************/
 void USB_USART_Flush_Data(void)
 {
-    HAL_USART_Flush_Data(0);
 }
 #endif
 

@@ -204,7 +204,7 @@ uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
     if(usartMap[serial]->uart == NULL || usartMap[serial]->uart->queue == NULL) {
-        return 0;
+        return -1;
     }
     return uxQueueMessagesWaiting(usartMap[serial]->uart->queue);
 }
@@ -217,25 +217,25 @@ int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)
 int32_t HAL_USART_Read_Data(HAL_USART_Serial serial)
 {
     if(usartMap[serial]->uart == NULL || usartMap[serial]->uart->queue == NULL) {
-        return 0;
+        return -1;
     }
     uint8_t c;
     if(xQueueReceive(usartMap[serial]->uart->queue, &c, 0)) {
         return c;
     }
-    return 0;
+    return -1;
 }
 
 int32_t HAL_USART_Peek_Data(HAL_USART_Serial serial)
 {
     if(usartMap[serial]->uart == NULL || usartMap[serial]->uart->queue == NULL) {
-        return 0;
+        return -1;
     }
     uint8_t c;
     if(xQueuePeek(usartMap[serial]->uart->queue, &c, 0)) {
         return c;
     }
-    return 0;
+    return -1;
 }
 
 void HAL_USART_Flush_Data(HAL_USART_Serial serial)

@@ -75,7 +75,7 @@ void wlan_Imlink_start()
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    return IMLINK_SUCCESS;
+    return IMLINK_DOING;
 }
 
 void wlan_Imlink_stop()

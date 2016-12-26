@@ -83,8 +83,8 @@ extern "C" {
 #define BOOTLOADER_FLASH_PAGES      (OB_WRP1_PAGES0TO15|OB_WRP1_PAGES16TO31|OB_WRP1_PAGES32TO47|OB_WRP1_PAGES48TO63|OB_WRP1_PAGES64TO79)
 
 
-void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors);
-void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors);
+void FLASH_WriteProtection_Enable(uint32_t FLASH_WRP_Sectors);
+void FLASH_WriteProtection_Disable(uint32_t FLASH_WRP_Sectors);
 uint32_t FLASH_PagesMask(uint32_t imageSize, uint32_t pageSize);
 
 

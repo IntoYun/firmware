@@ -24,7 +24,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "soc/gpio_struct.h"
 #include "soc/io_mux_reg.h"
 
-#if  1 
+#if  1
 #include "esp32-hal-gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -38,7 +38,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 /* #include "esp32-hal.h" */
 
-#if  1 
+#if  1
 
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
 
@@ -131,7 +131,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
     /* uint8_t gpio_pin = PIN_MAP[pin].gpio_pin; */
 
-    printf("gpio_pin : %d \n", gpio_pin);
+    //printf("gpio_pin : %d \n", gpio_pin);
     /* pinMode(gpio_pin,setMode); */
 
     #if  1
@@ -327,7 +327,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     }
 
 
-    printf("gpio mode : %x \n",esp32_gpioMux[gpio_pin].reg);
+    //printf("gpio mode : %x \n",esp32_gpioMux[gpio_pin].reg);
 
     ESP_REG(DR_REG_IO_MUX_BASE + esp32_gpioMux[gpio_pin].reg) = pinFunction;
 
@@ -497,7 +497,7 @@ int32_t HAL_pinReadFast(pin_t pin)
 
 #endif
 
-#if   0 
+#if   0
 // old sdk
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 

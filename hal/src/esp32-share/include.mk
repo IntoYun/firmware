@@ -11,7 +11,7 @@ INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/esp32/libb64
 
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
-ifneq (,$(findstring wiring,$(MAKE_DEPENDENCIES)))
+#ifneq (,$(findstring wiring,$(MAKE_DEPENDENCIES)))
 
 # LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC).ld
 
@@ -32,5 +32,5 @@ LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
 # LIBS += gcc c m halhal core net80211 phy rtc pp wpa smartconfig btdm_app bt driver esp32 crypto expat freertos json log lwip mbedtls nghttp nvs_flash spi_flash tcpip_adapter newlib vfs
 
-endif
+#endif
 endif

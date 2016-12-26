@@ -16,19 +16,36 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
+#include <stdio.h>
 #include <string.h>
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "ui_hal.h"
-#include <stdio.h>
 #include "esp_system.h"
 #include "nvs_flash.h"
-
 #include "freertos/event_groups.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
+
+#include "hw_config.h"
+#include "core_hal.h"
+#include "rng_hal.h"
+#include "ui_hal.h"
+#include "ota_flash_hal.h"
+#include "gpio_hal.h"
+#include "interrupts_hal.h"
+#include "syshealth_hal.h"
+#include "intorobot_macros.h"
+#include "rtc_hal.h"
+#include "service_debug.h"
+#include "delay_hal.h"
+#include "timer_hal.h"
+#include "params_hal.h"
+#include "bkpreg_hal.h"
+#include "flash_map.h"
+#include "memory_hal.h"
+
+void HAL_Core_Setup(void);
 
 #define EXAMPLE_WIFI_SSID  "MOLMC_NETGRAR"
 #define EXAMPLE_WIFI_PASS   "26554422"
@@ -101,144 +118,37 @@ void initWiFi() {
 
 }
 
-// void setup() __attribute__((weak));
-// void setup() {}
-// void loop() __attribute__((weak));
-// void loop() {}
-
-// extern void loop() __attribute__((weak));
-// extern void setup() __attribute__((weak));
-// extern "C"{
-// extern void loop();
-// extern void setup();
-// }
-extern "C"{
-void loop();
-void setup();
-}
-
-// void loop() __attribute__((weak));
-// void setup() __attribute__((weak));
-
-#if 0
-#include "gpio_hal.h"
-#include "pinmap_hal.h"
-#include "delay_hal.h"
-#include "usart_hal.h"
-
-void setup()
-{
-    HAL_Pin_Mode(D7, OUTPUT);
-    HAL_USART_Initial(HAL_USART_SERIAL1);
-    HAL_USART_Begin(HAL_USART_SERIAL1, 115200);
-}
-
-void loop()
-{
-    HAL_GPIO_Write(D7, 1);
-    HAL_Delay_Milliseconds(1000);
-    HAL_GPIO_Write(D7, 0);
-    HAL_Delay_Milliseconds(1000);
-
-    uint8_t data = 'a';
-    HAL_USART_Write_Data(HAL_USART_SERIAL1, data);
-
-}
-#endif
-
-// extern void app_loop();
-
+extern "C" void system_loop_handler(uint32_t interval_us);
 void loopTask(void *pvParameters)
 {
-    bool setup_done = false;
-    static int abc = 0;
-    for(;;) {
-        if(!setup_done) {
-            // startWiFi();
-            // HAL_UI_Initial();
-            // HAL_UI_RGB_Color(RGB_COLOR_RED);
-            // HAL_UI_RGB_Color(RGB_COLOR_GREEN);
-            // HAL_UI_RGB_Color(RGB_COLOR_BLUE);
-            setup();
-            setup_done = true;
-            // printf("Restarting now.\n");
-        }
-        loop();
-
-        // printf("running now.\n");
+    app_setup_and_loop_initial();
+    while(1)
+    {
+        app_loop();
+        system_loop_handler(100);
     }
 }
-
+/*
+void SysTick_Handler(void);
+void sysTickHandlerTask(void *pvParameters)
+{
+    while(1)
+    {
+        SysTick_Handler();
+        HAL_Delay_Microseconds(1000);
+        DEBUG_D("1");
+    }
+}
+*/
 extern "C" void app_main()
 {
     init();
     initVariant();
-
-   // printf("flash stauts :%d", nvs_flash_init());
-
     // initWiFi();
-    xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
-}
-
-
-
-
-#if 0
-
-void HAL_Core_Setup(void);
-
-extern "C" void system_loop_handler(uint32_t interval_us);
-
-extern "C" void ets_update_cpu_frequency(int freqmhz);
-void preloop_update_frequency() __attribute__((weak));
-void preloop_update_frequency() {
-#if defined(F_CPU) && (F_CPU == 160000000L)
-    REG_SET_BIT(0x3ff00014, BIT(0));
-    ets_update_cpu_frequency(160);
-#endif
-}
-
-static uint32_t g_micros_at_task_start;
-static uint32_t g_micros_at_system_loop_start;
-
-
-static uint8_t intorobot_app_initial_flag = 0;
-static void loop_wrapper() {
-    preloop_update_frequency();
-    if(!intorobot_app_initial_flag) {
-        app_setup_and_loop_initial();
-        intorobot_app_initial_flag = 1;
-    }
-    system_loop_handler(100);
-    app_loop();
-    run_scheduled_functions();
-    esp_schedule();
-}
-
-static void loop_task(os_event_t *events) {
-    g_micros_at_task_start = system_get_time();
-    cont_run(&g_cont, &loop_wrapper);
-    if (cont_check(&g_cont) != 0) {
-       // panic();
-    }
-}
-
-static void do_global_ctors(void) {
-    void (**p)(void) = &__init_array_end;
-    while (p != &__init_array_start)
-        (*--p)();
-}
-
-extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
-
-void init_done() {
-    gdb_init();
-    do_global_ctors();
-    printf("\n%08x\n", intorobot_subsys_version);
     HAL_Core_Config();
     HAL_Core_Setup();
-    wlan_set_macaddr_when_init();
-    esp_schedule();
+    xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
+    //xTaskCreatePinnedToCore(sysTickHandlerTask, "sysTickHandlerTask", 4096, NULL, 1, NULL, 1); //后期需改造成硬件定时器
 }
 
 void HAL_Core_Init(void)
@@ -246,17 +156,8 @@ void HAL_Core_Init(void)
 
 }
 
-void System_Loop_Handler(void* arg);
-void SysTick_Handler(void* arg);
-static os_timer_t systick_timer;
-static os_timer_t system_loop_timer;
-
 void HAL_Core_Config(void)
 {
-    //滴答定时器  //处理三色灯和模式处理
-    os_timer_setfn(&systick_timer, (os_timer_func_t*)&SysTick_Handler, 0);
-    os_timer_arm(&systick_timer, 1, 1);
-
     //Wiring pins default to inputs
     for (pin_t pin=D0; pin<=D6; pin++)
     {
@@ -303,20 +204,15 @@ void HAL_Core_Load_params(void)
 
 void HAL_Core_Setup(void)
 {
-    esp8266_setMode(WIFI_STA);
-    esp8266_setDHCP(true);
-    esp8266_setAutoConnect(false);
-    esp8266_setAutoReconnect(true);
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_params();
     HAL_Bootloader_Update_If_Needed();
 }
 
-extern "C" void __real_system_restart_local();
 void HAL_Core_System_Reset(void)
 {
     HAL_Core_Write_Backup_Register(BKP_DR_03, 0x7DEA);
-    __real_system_restart_local();
+    esp_restart();
 }
 
 void HAL_Core_Enter_DFU_Mode(bool persist)
@@ -325,9 +221,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-    HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
@@ -381,7 +274,7 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-    char data[32];
+/*    char data[32];
     uint16_t templen;
 
     if (buffer!=NULL && len>0) {
@@ -394,6 +287,7 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
             return templen;
         }
     }
+    */
     return 0;
 }
 
@@ -405,23 +299,24 @@ void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
     APP_System_Loop_Handler = handler;
 }
 
+static uint32_t g_micros_at_system_loop_start;
 static uint32_t g_at_system_loop = false;
 void system_loop_handler(uint32_t interval_us)
 {
     if( true == g_at_system_loop )
         return;
 
-    if ((system_get_time() - g_micros_at_system_loop_start) > interval_us) {
+    if ((HAL_Timer_Get_Micro_Seconds() - g_micros_at_system_loop_start) > interval_us) {
         if (NULL != APP_System_Loop_Handler) {
             g_at_system_loop = true;
             APP_System_Loop_Handler();
             g_at_system_loop = false;
         }
-        g_micros_at_system_loop_start = system_get_time();
+        g_micros_at_system_loop_start = HAL_Timer_Get_Micro_Seconds();
     }
 }
 
-void SysTick_Handler(void* arg)
+void SysTick_Handler(void)
 {
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
@@ -429,13 +324,10 @@ void SysTick_Handler(void* arg)
 
 void HAL_Core_System_Loop(void)
 {
-    optimistic_yield(100);
     system_loop_handler(100);
 }
 
 void HAL_Core_System_Yield(void)
 {
-    optimistic_yield(100);
 }
-#endif
 

@@ -26,15 +26,14 @@
 #include <stdint.h>
 #include "intorobot_config.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Exported types ------------------------------------------------------------*/
-
 typedef uint16_t pin_t;
 
+#if  0 
 typedef enum PinMode {
     INPUT,
     OUTPUT,
@@ -46,6 +45,33 @@ typedef enum PinMode {
     AN_OUTPUT,          //Used internally for DAC Output
     PIN_MODE_NONE=0xFF
 } PinMode;
+#endif
+
+#if  1 
+typedef enum PinMode {
+    INPUT = 0x1,
+    OUTPUT = 0x2,
+    PULLUP = 0x4,
+    INPUT_PULLUP = 0x5,
+    PULLDOWN = 0x08,
+    INPUT_PULLDOWN = 0x09,
+    OPEN_DRAIN = 0x10,
+    OUTPUT_OPEN_DRAIN = 0x12,
+    SPECIAL = 0xF0,
+    FUNCTION_1 = 0x00,
+    FUNCTION_2 = 0x20,
+    FUNCTION_3 = 0x40,
+    FUNCTION_4 = 0x60,
+    FUNCTION_5 = 0x80,
+    FUNCTION_6 = 0xA0,
+    ANALOG = 0xc0,
+    AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
+    AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
+    AN_INPUT,           //Used internally for ADC Input
+    AN_OUTPUT,          //Used internally for DAC Output
+    PIN_MODE_NONE=0xFF
+} PinMode;
+#endif
 
 typedef enum {
     PF_NONE,
@@ -67,10 +93,10 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS                26
-#define TOTAL_ANALOG_PINS         10
-#define TOTAL_DIGITAL_PINS        11 // include KEY, TXD0, RXD0 RST, and D7 is D6
-#define FIRST_ANALOG_PIN          14
+#define TOTAL_PINS           26
+#define TOTAL_ANALOG_PINS    10
+#define TOTAL_DIGITAL_PINS   11 // include KEY, TXD0, RXD0 RST, and D7 is D6
+#define FIRST_ANALOG_PIN     14
 
 #define D0  0
 #define D1  1
@@ -82,6 +108,10 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define D7  7
 #define TX  8
 #define RX  9
+#define LED_R 10
+#define LED_G 11
+#define LED_B 12
+#define KEY   13
 
 #define A0  14
 #define A1  15
@@ -94,28 +124,36 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define A8  22
 #define A9  23
 
-// Below have not ajust yet
 // SPI pins
-#define SS   A4
-#define SCK  A5
-#define MISO A6
-#define MOSI A7
+#define SS   D5
+#define SCK  D2
+#define MISO D0
+#define MOSI D1
+
+// // SPI_1 pins
+// #define SS   A4
+// #define SCK  A5
+// #define MISO A6
+// #define MOSI A7
 
 // I2C pins
 #define SDA  D0
 #define SCL  D1
 
+// I2C_1 pins
+// #define SDA  A2
+// #define SCL  A3
+
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define RGB_UC             9
-#define BUTTON_UC          10
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS       3
-#define TOTAL_I2CS         2
-#define TOTAL_SPIS         1
+#define TOTAL_USARTS    3
+#define TOTAL_SPIS      2
+#define TOTAL_I2CS      2
+
 
 #define LSBFIRST 0
 #define MSBFIRST 1
