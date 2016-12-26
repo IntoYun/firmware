@@ -33,7 +33,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef uint16_t pin_t;
 
-#if  0 
+#if  0
 typedef enum PinMode {
     INPUT,
     OUTPUT,
