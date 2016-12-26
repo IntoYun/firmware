@@ -33,7 +33,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef uint16_t pin_t;
 
-#if  0 
+#if 0
 typedef enum PinMode {
     INPUT,
     OUTPUT,
@@ -47,29 +47,30 @@ typedef enum PinMode {
 } PinMode;
 #endif
 
-#if  1 
+
+#if  1
 typedef enum PinMode {
-    INPUT = 0x1,
-    OUTPUT = 0x2,
-    PULLUP = 0x4,
-    INPUT_PULLUP = 0x5,
-    PULLDOWN = 0x08,
-    INPUT_PULLDOWN = 0x09,
-    OPEN_DRAIN = 0x10,
-    OUTPUT_OPEN_DRAIN = 0x12,
-    SPECIAL = 0xF0,
-    FUNCTION_1 = 0x00,
-    FUNCTION_2 = 0x20,
-    FUNCTION_3 = 0x40,
-    FUNCTION_4 = 0x60,
-    FUNCTION_5 = 0x80,
-    FUNCTION_6 = 0xA0,
-    ANALOG = 0xc0,
-    AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
-    AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
-    AN_INPUT,           //Used internally for ADC Input
-    AN_OUTPUT,          //Used internally for DAC Output
-    PIN_MODE_NONE=0xFF
+        INPUT = 0x1,
+        OUTPUT = 0x2,
+        PULLUP = 0x4,
+        INPUT_PULLUP = 0x5,
+        PULLDOWN = 0x08,
+        INPUT_PULLDOWN = 0x09,
+        OPEN_DRAIN = 0x10,
+        OUTPUT_OPEN_DRAIN = 0x12,
+        SPECIAL = 0xF0,
+        FUNCTION_1 = 0x00,
+        FUNCTION_2 = 0x20,
+        FUNCTION_3 = 0x40,
+        FUNCTION_4 = 0x60,
+        FUNCTION_5 = 0x80,
+        FUNCTION_6 = 0xA0,
+        ANALOG = 0xc0,
+        AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
+        AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
+        AN_INPUT,           //Used internally for ADC Input
+        AN_OUTPUT,          //Used internally for DAC Output
+        PIN_MODE_NONE=0xFF
 } PinMode;
 #endif
 
@@ -130,11 +131,12 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define MISO D0
 #define MOSI D1
 
-// // SPI_1 pins
-// #define SS   A4
-// #define SCK  A5
-// #define MISO A6
-// #define MOSI A7
+// SPI1 pins
+// #define SS1   A4
+// #define SCK1  A5
+// #define MISO1 A6
+// #define MOSI1 A7
+
 
 // I2C pins
 #define SDA  D0
@@ -150,10 +152,9 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS    3
-#define TOTAL_SPIS      2
-#define TOTAL_I2CS      2
-
+#define TOTAL_USARTS       3
+#define TOTAL_I2CS         2
+#define TOTAL_SPIS         2
 
 #define LSBFIRST 0
 #define MSBFIRST 1
