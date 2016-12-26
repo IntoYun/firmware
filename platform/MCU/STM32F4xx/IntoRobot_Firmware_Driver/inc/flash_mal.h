@@ -81,8 +81,8 @@ extern "C" {
 /* Bootloader Flash regions that needs to be protected: 0x08000000 - 0x08007FFF */
 #define BOOTLOADER_FLASH_PAGES      (OB_WRP_SECTOR_0|OB_WRP_SECTOR_1)
 
-void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors);
-void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors);
+void FLASH_WriteProtection_Enable(uint32_t FLASH_WRP_Sectors);
+void FLASH_WriteProtection_Disable(uint32_t FLASH_WRP_Sectors);
 uint32_t FLASH_PagesMask(uint32_t imageSize, uint32_t pageSize);
 
 

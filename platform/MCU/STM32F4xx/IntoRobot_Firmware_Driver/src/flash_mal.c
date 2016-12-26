@@ -469,25 +469,28 @@ bool FLASH_CompareMemory(flash_device_t sourceDeviceID, uint32_t sourceAddress,
     return true;
 }
 
-void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors)
+void FLASH_WriteProtection_Enable(uint32_t FLASH_WRP_Sectors)
 {
     FLASH_OBProgramInitTypeDef OBInit;
     uint32_t SectorsWRPStatus = 0xFFF;
 
     HAL_FLASHEx_OBGetConfig(&OBInit);
-    SectorsWRPStatus = OBInit.WRPSector & FLASH_Sectors;
+    SectorsWRPStatus = OBInit.WRPSector & FLASH_WRP_Sectors;
 
-    if (SectorsWRPStatus != FLASH_Sectors)
+    if (SectorsWRPStatus == FLASH_WRP_Sectors)
     {
-        /* If FLASH_Sectors are not write protected, enable the write protection */
+        /* If FLASH_WRP_Sectors are not write protected, enable the write protection */
 
         /* Allow Access to option bytes sector */
         HAL_FLASH_OB_Unlock();
 
-        /* Enable FLASH_Sectors write protection */
+        /* Allow Access to Flash control registers and user Flash */
+        HAL_FLASH_Unlock();
+
+        /* Enable FLASH_WRP_Sectors write protection */
         OBInit.OptionType = OPTIONBYTE_WRP;
         OBInit.WRPState   = WRPSTATE_ENABLE;
-        OBInit.WRPSector  = FLASH_Sectors;
+        OBInit.WRPSector  = FLASH_WRP_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
         /* Start the Option Bytes programming process */
@@ -499,37 +502,44 @@ void FLASH_WriteProtection_Enable(uint32_t FLASH_Sectors)
         /* Prevent Access to option bytes sector */
         HAL_FLASH_OB_Lock();
 
-        /* Get FLASH_Sectors write protection status */
-        HAL_FLASHEx_OBGetConfig(&OBInit);
-        SectorsWRPStatus = OBInit.WRPSector & FLASH_Sectors;
+        /* Disable the Flash option control register access (recommended to protect
+           the option Bytes against possible unwanted operations) */
+        HAL_FLASH_Lock();
 
-        /* Check if FLASH_Sectors are write protected */
-        if (SectorsWRPStatus == FLASH_Sectors)
+        /* Get FLASH_WRP_Sectors write protection status */
+        HAL_FLASHEx_OBGetConfig(&OBInit);
+        SectorsWRPStatus = OBInit.WRPSector & FLASH_WRP_Sectors;
+
+        /* Check if FLASH_WRP_Sectors are write protected */
+        if (SectorsWRPStatus != FLASH_WRP_Sectors)
         {
         }
     }
 }
 
-void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
+void FLASH_WriteProtection_Disable(uint32_t FLASH_WRP_Sectors)
 {
     FLASH_OBProgramInitTypeDef OBInit;
     uint32_t SectorsWRPStatus = 0xFFF;
 
-    /* Get FLASH_Sectors write protection status */
+    /* Get FLASH_WRP_Sectors write protection status */
     HAL_FLASHEx_OBGetConfig(&OBInit);
-    SectorsWRPStatus = OBInit.WRPSector & FLASH_Sectors;
+    SectorsWRPStatus = OBInit.WRPSector & FLASH_WRP_Sectors;
 
-    if (SectorsWRPStatus == FLASH_Sectors)
+    if (SectorsWRPStatus != FLASH_WRP_Sectors)
     {
-        /* If FLASH_Sectors are write protected, disable the write protection */
+        /* If FLASH_WRP_Sectors are write protected, disable the write protection */
 
         /* Allow Access to option bytes sector */
         HAL_FLASH_OB_Unlock();
 
-        /* Disable FLASH_Sectors write protection */
+        /* Allow Access to Flash control registers and user Flash */
+        HAL_FLASH_Unlock();
+
+        /* Disable FLASH_WRP_Sectors write protection */
         OBInit.OptionType = OPTIONBYTE_WRP;
         OBInit.WRPState   = WRPSTATE_DISABLE;
-        OBInit.WRPSector  = FLASH_Sectors;
+        OBInit.WRPSector  = FLASH_WRP_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
         /* Start the Option Bytes programming process */
@@ -541,12 +551,16 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_Sectors)
         /* Prevent Access to option bytes sector */
         HAL_FLASH_OB_Lock();
 
-        /* Get FLASH_Sectors write protection status */
-        HAL_FLASHEx_OBGetConfig(&OBInit);
-        SectorsWRPStatus = OBInit.WRPSector & FLASH_Sectors;
+        /* Disable the Flash option control register access (recommended to protect
+           the option Bytes against possible unwanted operations) */
+        HAL_FLASH_Lock();
 
-        /* Check if FLASH_Sectors write protection is disabled */
-        if (SectorsWRPStatus == FLASH_Sectors)
+        /* Get FLASH_WRP_Sectors write protection status */
+        HAL_FLASHEx_OBGetConfig(&OBInit);
+        SectorsWRPStatus = OBInit.WRPSector & FLASH_WRP_Sectors;
+
+        /* Check if FLASH_WRP_Sectors write protection is disabled */
+        if (SectorsWRPStatus == FLASH_WRP_Sectors)
         {
         }
     }

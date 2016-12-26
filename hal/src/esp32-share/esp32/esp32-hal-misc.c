@@ -114,6 +114,7 @@ void initArduino(){
     initWiFi();
 }
 
+*/
 //used by hal log
 const char * IRAM_ATTR pathToFileName(const char * path){
     size_t i = 0;
@@ -128,4 +129,3 @@ const char * IRAM_ATTR pathToFileName(const char * path){
     }
     return path+pos;
 }
-

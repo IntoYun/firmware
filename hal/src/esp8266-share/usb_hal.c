@@ -70,7 +70,7 @@ int32_t USB_USART_Receive_Data(uint8_t peek)
  *******************************************************************************/
 int32_t USB_USART_Available_Data_For_Write(void)
 {
-    return HAL_USART_Available_Data_For_Write(HAL_USART_SERIAL1);
+    return 0;
 }
 
 /*******************************************************************************

@@ -35,7 +35,6 @@
  */
 volatile uint32_t TimingDelay;
 
-
 /*******************************************************************************
 * Function Name  : Delay
 * Description    : Inserts a delay time.
@@ -43,52 +42,45 @@ volatile uint32_t TimingDelay;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HAL_Delay_Milliseconds(uint32_t ms)
+void HAL_Delay_Milliseconds(uint32_t millis)
 {
-    vTaskDelay(ms / portTICK_PERIOD_MS);
+#if 0
+    vTaskDelay(millis / portTICK_PERIOD_MS);
+#else
+    volatile system_tick_t start_millis, current_millis, elapsed_millis;
+
+    start_millis = HAL_Timer_Get_Milli_Seconds();
+    while (1)
+    {
+        current_millis = HAL_Timer_Get_Milli_Seconds();
+        elapsed_millis = current_millis - start_millis;
+        //Check for wrapping
+        if (elapsed_millis < 0)
+        {
+            elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
+        }
+
+        if (elapsed_millis >= (long)millis)
+        {
+            break;
+        }
+        system_loop_handler(100);
+    }
+#endif
 }
 
-/* uint32_t micros() */
-/* { */
-/*   uint32_t ccount; */
-/*   __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) ); */
-/*   return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ; */
-/*   //return system_get_time(); */
-/* } */
-
-uint32_t HAL_Timer_Get_Micro_Seconds(void)
-{
-    uint32_t ccount;
-    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-    return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
-}
-/* uint32_t millis() */
-/* /\* uint32_t HAL_Timer_Get_Milli_Seconds(void) *\/ */
-/* { */
-/*     DEBUG("ffff"); */
-/*   return xTaskGetTickCount() * portTICK_PERIOD_MS; */
-/* } */
-
-uint32_t HAL_Timer_Get_Milli_Seconds(void)
-{
-    /* DEBUG("gggggg"); */
-    return xTaskGetTickCount() * portTICK_PERIOD_MS;
-    /* return millis(); */
-}
 /**
  * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
  * @param  uSec: specifies the delay time length, in milliseconds.
  * @retval None
  */
-void HAL_Delay_Microseconds(uint32_t uSec)
+void HAL_Delay_Microseconds(uint32_t micros)
 {
-  if(uSec) {
-    /* unsigned long endat = micros(); */
-      unsigned long endat = HAL_Timer_Get_Micro_Seconds();
-    endat += uSec;
-    while(HAL_Timer_Get_Micro_Seconds() < endat) {
-      NOP();
-    }
-  }
+    if(micros) {
+        unsigned long endat = HAL_Timer_Get_Micro_Seconds();
+        endat += micros;
+        while(HAL_Timer_Get_Micro_Seconds() < endat) {
+            NOP();
+        }
 }
 

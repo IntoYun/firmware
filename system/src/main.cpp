@@ -171,7 +171,6 @@ extern "C" void HAL_SysTick_Handler(void)
 #endif
 }
 
-
 void app_loop(void)
 {
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
@@ -209,8 +208,8 @@ static void load_system_fwlib_version(void)
     if(strcmp(fw_ver1, fw_ver2))
     {
         HAL_PARAMS_Set_System_fwlib_ver(fw_ver1);
+        HAL_PARAMS_Save_Params();
     }
-    HAL_PARAMS_Save_Params();
 }
 
 /*******************************************************************************

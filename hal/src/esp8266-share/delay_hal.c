@@ -48,6 +48,7 @@ void delay_end(void* arg) {
     esp_schedule();
 }
 */
+
 /*******************************************************************************
 * Function Name  : Delay
 * Description    : Inserts a delay time.
@@ -55,7 +56,7 @@ void delay_end(void* arg) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HAL_Delay_Milliseconds(uint32_t nTime)
+void HAL_Delay_Milliseconds(uint32_t millis)
 {
     volatile system_tick_t start_millis, current_millis, elapsed_millis;
 
@@ -70,7 +71,7 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
             elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
         }
 
-        if (elapsed_millis >= (long)nTime)
+        if (elapsed_millis >= (long)millis)
         {
             break;
         }
@@ -86,8 +87,8 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
  * Output         : None
  * Return         : None
  *******************************************************************************/
-void HAL_Delay_Microseconds(uint32_t uSec)
+void HAL_Delay_Microseconds(uint32_t micros)
 {
-    os_delay_us(uSec);
+    os_delay_us(micros);
 }
 

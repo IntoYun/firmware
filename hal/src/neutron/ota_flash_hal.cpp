@@ -71,7 +71,7 @@ static bool bootloader_update(void)
     DEBUG_D("bootloader_update \r\n");
     InternalFlashStore flashStore;
     flashStore.eraseSector(BOOTLOADER_START_ADDR);
-    flashStore.eraseSector(BOOTLOADER_START_ADDR + INTERNAL_FLASH_PAGE_SIZE);
+    flashStore.eraseSector(BOOTLOADER_START_ADDR + 0x4000);
 
     while (left) {
         if(flashStore.read(saddr, buffer, buffer_size)) {

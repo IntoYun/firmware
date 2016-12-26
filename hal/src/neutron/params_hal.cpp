@@ -204,7 +204,7 @@ void HAL_PARAMS_Load_Boot_Params(void) {
         //擦除eeprom区域 并初始化
         InternalFlashStore flashStore;
         flashStore.eraseSector(EEPROM_START_ADDR);
-        flashStore.eraseSector(EEPROM_START_ADDR + INTERNAL_FLASH_PAGE_SIZE);
+        flashStore.eraseSector(EEPROM_START_ADDR + 0x4000);
         HAL_EEPROM_Init();
         HAL_PARAMS_Init_Boot_Params();
     }

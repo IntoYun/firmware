@@ -25,7 +25,7 @@ CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-in
 # C++ 编译参数
 CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11
 
-ASFLAGS += -c -g -x assembler-with-cpp -MMD
+ASFLAGS += -g -x assembler-with-cpp -MMD -mlongcalls
 
 # Board definitions
 FLASH_SIZE ?= 16M    #此处必须是16M  此时用户参数区才会在1M 的最后16K上

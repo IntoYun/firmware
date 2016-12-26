@@ -34,9 +34,9 @@ volatile uint32_t TimingDelay;
   * @param  nTime: specifies the delay time length, in milliseconds.
   * @retval None
   */
-void HAL_Delay_Milliseconds(uint32_t nTime)
+void HAL_Delay_Milliseconds(uint32_t millis)
 {
-    osDelay(nTime);
+    osDelay(millis);
     //vTaskDelay(nTime);
 #if 0
     system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
@@ -60,16 +60,16 @@ void HAL_Delay_Milliseconds(uint32_t nTime)
   * @param  uSec: specifies the delay time length, in milliseconds.
   * @retval None
   */
-void HAL_Delay_Microseconds(uint32_t uSec)
+void HAL_Delay_Microseconds(uint32_t micros)
 {
     volatile uint32_t DWT_START = DWT->CYCCNT;
     // keep DWT_TOTAL from overflowing (max 59.652323s w/72MHz SystemCoreClock)
-    if (uSec > (UINT_MAX / SYSTEM_US_TICKS))
+    if (micros > (UINT_MAX / SYSTEM_US_TICKS))
     {
-        uSec = (UINT_MAX / SYSTEM_US_TICKS);
+        micros = (UINT_MAX / SYSTEM_US_TICKS);
     }
 
-    volatile uint32_t DWT_TOTAL = (SYSTEM_US_TICKS * uSec);
+    volatile uint32_t DWT_TOTAL = (SYSTEM_US_TICKS * micros);
 
     while((DWT->CYCCNT - DWT_START) < DWT_TOTAL)
     {

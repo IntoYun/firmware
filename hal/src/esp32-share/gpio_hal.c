@@ -373,7 +373,7 @@ int32_t HAL_pinReadFast(pin_t pin)
 }
 
 
-#if   0 
+#if   0
 // old sdk
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 
