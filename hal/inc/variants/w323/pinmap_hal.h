@@ -94,63 +94,114 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS           26
+#define TOTAL_PINS           36 //26
 #define TOTAL_ANALOG_PINS    10
 #define TOTAL_DIGITAL_PINS   11 // include KEY, TXD0, RXD0 RST, and D7 is D6
 #define FIRST_ANALOG_PIN     14
 
-#define D0  0
-#define D1  1
-#define D2  2
-#define D3  3
-#define D4  4
-#define D5  5
-#define D6  6
-#define D7  7
-#define TX  8
-#define RX  9
-#define LED_R 10
-#define LED_G 11
-#define LED_B 12
-#define KEY   13
+#define GPIO0 0
+#define GPIO1 1
+#define GPIO2 2
+#define GPIO3 3
+#define GPIO4 4
+#define GPIO5 5
+// #define GPIO12 6
+#define GPIO12 12
+// #define GPIO13 7
+#define GPIO13 13
+// #define GPIO14 8
+#define GPIO14 14
+// #define GPIO15 9
+#define GPIO15 15
+// #define GPIO16 10
+#define GPIO16 16
+// #define GPIO17 11
+#define GPIO17 17
+// #define GPIO18 12
+#define GPIO18 18
+// #define GPIO19 13
+#define GPIO19 19
+// #define GPIO21 14
+#define GPIO21 21
+// #define GPIO22 15
+#define GPIO22 22
+// #define GPIO23 16
+#define GPIO23 23
+// #define GPIO25 17
+#define GPIO25 25
+// #define GPIO26 18
+#define GPIO26 26
+// #define GPIO27 19
+#define GPIO27 27
+// #define GPIO32 20
+#define GPIO32 32
+// #define GPIO33 21
+#define GPIO33 33
+// #define GPIO34 22
+#define GPIO34 34
+// #define GPIO35 23
+#define GPIO35 35
 
-#define A0  14
-#define A1  15
-#define A2  16
-#define A3  17
-#define A4  18
-#define A5  19
-#define A6  20
-#define A7  21
-#define A8  22
-#define A9  23
+// #define D0  0
+// #define D1  1
+// #define D2  2
+// #define D3  3
+// #define D4  4
+// #define D5  5
+// #define D6  6
+// #define D7  7
+#define LED_R 0 //10
+#define LED_G 0//11
+#define LED_B 0//12
+#define KEY   0//13
+
+// #define A0  14
+// #define A1  15
+// #define A2  16
+// #define A3  17
+// #define A4  18
+// #define A5  19
+// #define A6  20
+// #define A7  21
+// #define A8  22
+// #define A9  23
+
+// Serial pins
+#define TX  GPIO1
+#define RX  GPIO3
+
+#define TX1  GPIO17
+#define RX1  GPIO16
+
+#define TX2  GPIO25
+#define RX2  GPIO26
 
 // SPI pins
-#define SS   D5
-#define SCK  D2
-#define MISO D0
-#define MOSI D1
+#define SS   GPIO5  //D5
+#define SCK  GPIO18 //D2
+#define MISO GPIO19 //D0
+#define MOSI GPIO23 //D1
 
 // SPI1 pins
-// #define SS1   A4
-// #define SCK1  A5
-// #define MISO1 A6
-// #define MOSI1 A7
+#define SS1   GPIO26 //A4
+#define SCK1  GPIO15 //A5
+#define MISO1 GPIO14 //A6
+#define MOSI1 GPIO12 //A7
 
 
 // I2C pins
-#define SDA  D0
-#define SCL  D1
+#define SDA  GPIO18 //D0
+#define SCL  GPIO19 //D1
 
 // I2C_1 pins
-// #define SDA  A2
-// #define SCL  A3
+#define SDA1  GPIO25 //A2
+#define SCL1  GPIO26 //A3
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
 
-#define LED_USER  D6
+// #define LED_USER  D6
 
 #define TOTAL_USARTS       3
 #define TOTAL_I2CS         2

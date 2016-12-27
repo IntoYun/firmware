@@ -2,7 +2,7 @@
  * anytest 默认程序
  */
 // 测试板程序
-
+#if 1
 #include "Adafruit_SSD1306.h"
 #include "ajson.h"
 
@@ -143,7 +143,7 @@ uint8_t getBoardType(void)
             else if(strcmp(boardPtr,"888003") == 0) {aJson.deleteItem(root);return NUT;}   //nut
             else if((strcmp(boardPtr,"888101") == 0) || (strcmp(boardPtr,"887101")) == 0) {aJson.deleteItem(root);return W67;}   //w6/7
             else if(strcmp(boardPtr,"888005") == 0) {aJson.deleteItem(root);return FIG;}   //fig
-            else if(strcmp(boardPtr,"888102") == 0) {aJson.deleteItem(root);return W323;} //w32/33
+            else if(strcmp(boardPtr,"888102") == 0|| (strcmp(boardPtr,"887005")) == 0) {aJson.deleteItem(root);return W323;} //w32/33
             else if(strcmp(boardPtr,"888006") == 0) {aJson.deleteItem(root);return LORA;} //lora
             else if(strcmp(boardPtr,"888103") == 0) {aJson.deleteItem(root);return L6;}   //l6
             else
@@ -185,7 +185,7 @@ bool ReadBoardPinLevel(uint8_t val)
 {
     uint8_t pin;
     switch(boardType)
-        {
+    {
         case ATOM:
             break;
 
@@ -193,6 +193,8 @@ bool ReadBoardPinLevel(uint8_t val)
             break;
 
         case NUT:
+            break;
+
         case W67:
             for(pin = D4;  pin <= D8; pin++)
             {
@@ -222,27 +224,56 @@ bool ReadBoardPinLevel(uint8_t val)
             break;
 
         case FIG:
+            break;
+
         case W323:
-            for(pin = D0;  pin < D7; pin++)
+            Serial1.println("set w323 pin");
+            pinMode(D1,INPUT);
+            for(pin = D4;  pin <= D9; pin++)
             {
-                pinMode(pin,INPUT);
+                pinMode(pin,INPUT_PULLUP);
             }
-            for(pin = A0;  pin < A9; pin++)
+            for(pin = D11;  pin <= D14; pin++)
             {
-                pinMode(pin,INPUT);
+                pinMode(pin,INPUT_PULLUP);
             }
+
+            for(pin = A6;  pin <= A14; pin++)
+            {
+                pinMode(pin,INPUT_PULLUP);
+            }
+
             delay(10);
-            for(pin = D0;  pin < D7; pin++)
+
+            if(digitalRead(D1) == val)
+            {
+                Serial1.println("pin = d1");
+                return false;
+            }
+
+            for(pin = D4;  pin <= D9; pin++)
             {
                 if(digitalRead(pin) == val)
                 {
+                    Serial1.printf("pin = %d",pin);
                     return false;
                 }
             }
-            for(pin = A0; pin < A9; pin++)
+
+            for(pin = D11;  pin <= D14; pin++)
             {
                 if(digitalRead(pin) == val)
                 {
+                    Serial1.printf("pin = %d",pin);
+                    return false;
+                }
+            }
+            for(pin = A6; pin <= A14; pin++)
+            {
+                if(digitalRead(pin) == val)
+                {
+                    Serial1.printf("pin = %d",pin);
+                    Serial1.printf("pin value = %d",digitalRead(pin));
                     return false;
                 }
             }
@@ -257,8 +288,7 @@ bool ReadBoardPinLevel(uint8_t val)
 
         default:
             break;
-        }
-
+    }
     return true;
 }
 
@@ -670,7 +700,14 @@ void loop()
             if(ReceiveTestResult(TEST_DIGITAL_WRITE_LOW))
             {
                 delay(500);
-                step = STEP_ANALOG_READ;
+                if(boardType == W323)
+                {
+                    step = STEP_TEST_END;
+                }
+                else
+                {
+                    step = STEP_ANALOG_READ;
+                }
             }
             break;
 
@@ -763,22 +800,30 @@ void loop()
             break;
     }
 }
-
+#endif
 
 #if 0
 #define LED_PIN D7
+// #define LED_PIN A10 
 
 void setup()
 {
     pinMode(LED_PIN, OUTPUT);
+    pinMode(A10,INPUT_PULLUP);
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
+    if(digitalRead(A10) == 0)
+          digitalWrite(LED_PIN, LOW);
+    else 
+        digitalWrite(LED_PIN, HIGH);
+    #if 0
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
     delay(1000);
+    #endif
 }
 #endif

@@ -558,6 +558,8 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * */
 CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
    return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
+    // return CONFIG_FLAG_NONE;
+
 }
 
 /*

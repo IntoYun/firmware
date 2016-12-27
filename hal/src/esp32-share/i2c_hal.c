@@ -105,8 +105,8 @@ ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
          * sda pin
          * <i2c enabled> used internally and does not appear below
          */
-        { D2, D0},           // I2C 0  D1, D0
-        { A3, A2}           //  I2C 1  A3, A2
+        { SCL, SDA},           // I2C 0  D1, D0
+        { SCL1, SDA1}           //  I2C 1  A3, A2
 };
 
 /* static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc) */
@@ -202,8 +202,8 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     pin_t scl_pin = PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin;
     pin_t sda_pin = PIN_MAP[i2cMap[i2c]->I2C_SDA_Pin].gpio_pin;
 
-    printf("i2c scl pin: %d \n",scl_pin);
-    printf("i2c sda pin: %d \n",sda_pin);
+    /* printf("i2c scl pin: %d \n",scl_pin); */
+    /* printf("i2c sda pin: %d \n",sda_pin); */
 
     /* HAL_Pin_Mode(i2cMap[i2c]->I2C_SCL_Pin,OPEN_DRAIN); */
     /* pinMatrixOutAttach(scl_pin, I2C_SCL_IDX(i2cMap[i2c]->i2c->num), false, false); */

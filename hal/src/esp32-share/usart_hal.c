@@ -89,8 +89,8 @@ ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart transmitting> used internally and does not appear below
      */
      { TX, RX},           // USART0 TX, RX
-     { D3, D4},           // USART1 D3, D4
-     { A3, A4},           // USART2 A3, A4
+     { TX1, RX1},           // USART1 D3, D4
+     { TX2, RX2},           // USART2 A3, A4
 };
 
 static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
