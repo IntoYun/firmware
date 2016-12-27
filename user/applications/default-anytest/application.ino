@@ -227,7 +227,6 @@ bool ReadBoardPinLevel(uint8_t val)
             break;
 
         case W323:
-            Serial1.println("set w323 pin");
             pinMode(D1,INPUT);
             for(pin = D4;  pin <= D9; pin++)
             {
@@ -247,7 +246,6 @@ bool ReadBoardPinLevel(uint8_t val)
 
             if(digitalRead(D1) == val)
             {
-                Serial1.println("pin = d1");
                 return false;
             }
 
@@ -255,7 +253,6 @@ bool ReadBoardPinLevel(uint8_t val)
             {
                 if(digitalRead(pin) == val)
                 {
-                    Serial1.printf("pin = %d",pin);
                     return false;
                 }
             }
@@ -264,7 +261,6 @@ bool ReadBoardPinLevel(uint8_t val)
             {
                 if(digitalRead(pin) == val)
                 {
-                    Serial1.printf("pin = %d",pin);
                     return false;
                 }
             }
@@ -272,8 +268,6 @@ bool ReadBoardPinLevel(uint8_t val)
             {
                 if(digitalRead(pin) == val)
                 {
-                    Serial1.printf("pin = %d",pin);
-                    Serial1.printf("pin value = %d",digitalRead(pin));
                     return false;
                 }
             }
