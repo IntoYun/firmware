@@ -82,5 +82,6 @@ void HAL_Delay_Microseconds(uint32_t micros)
         while(HAL_Timer_Get_Micro_Seconds() < endat) {
             NOP();
         }
+    }
 }
 
