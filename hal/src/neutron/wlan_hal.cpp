@@ -99,6 +99,7 @@ void wlan_Imlink_stop()
 
 void wlan_setup()
 {
+
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)

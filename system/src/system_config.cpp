@@ -990,6 +990,7 @@ UdpDeviceConfig DeviceSetupImlink;
 static system_config_mode_t current_system_config_mode = SYSTEM_CONFIG_MODE_AUTOMATIC;  //配置模式处理方式
 static system_config_type_t current_system_config_type = SYSTEM_CONFIG_TYPE_NONE;       //配置类型
 static uint8_t system_config_initial_flag = 0;
+volatile uint8_t g_intorobot_system_config = 0;    //配置状态
 
 void set_system_config_mode(system_config_mode_t mode)
 {
@@ -1008,6 +1009,7 @@ void set_system_config_type(system_config_type_t config_type)
         return;
     }
 
+    g_intorobot_system_config = 1;
     system_config_initial_flag = 0;
 #ifdef configSETUP_UDP_ENABLE
     DeviceSetupImlink.close();
@@ -1016,7 +1018,6 @@ void set_system_config_type(system_config_type_t config_type)
     DeviceSetupAp.close();
 #endif
     DeviceSetupSerial.close();
-
     current_system_config_type = config_type;
     switch(config_type)
     {
@@ -1036,6 +1037,7 @@ void set_system_config_type(system_config_type_t config_type)
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_AP);
             break;
         default:   //退出配置模式
+            g_intorobot_system_config = 0;
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_NONE);
             NEWORK_FN(Network_Setup(), (void)0);
             break;

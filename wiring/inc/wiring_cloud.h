@@ -126,7 +126,7 @@ class CloudClass: public Print{
 
         static uint8_t publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
         {
-            return intorobot_publish(topic, payload, plength, 0, retained);
+            return intorobot_publish(API_VERSION_V1, topic, payload, plength, 0, retained);
         }
 
         static uint8_t subscribe(const char *topic, const char *device_id, void (*callback)(uint8_t*, uint32_t))
@@ -136,7 +136,7 @@ class CloudClass: public Print{
 
         static uint8_t subscribe(const char *topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
         {
-            return intorobot_subscribe(topic, device_id, callback, 0);
+            return intorobot_subscribe(API_VERSION_V1, topic, device_id, callback, 0);
         }
 
         static uint8_t subscribe(const char *topic, const char *device_id, WidgetBaseClass *pWidgetBase)
@@ -146,12 +146,258 @@ class CloudClass: public Print{
 
         static uint8_t subscribe(const char *topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
         {
-            return intorobot_widget_subscribe(topic, device_id, pWidgetBase, 0);
+            return intorobot_widget_subscribe(API_VERSION_V1, topic, device_id, pWidgetBase, 0);
         }
 
         static uint8_t unsubscribe(const char *topic, const char *device_id)
         {
-            return intorobot_unsubscribe(topic, device_id);
+            return intorobot_unsubscribe(API_VERSION_V1, topic, device_id);
+        }
+
+        //添加通用数据收发接口
+        static void addDataPointBool(const uint16_t dpID, const char *permission)
+        {
+            addExternalDataPointBool(NULL, dpID, permission, false, "", 0);
+        }
+
+        static void addDataPointBool(const uint16_t dpID, const char *permission, const bool value)
+        {
+            addExternalDataPointBool(NULL, dpID, permission, value, "", 0);
+        }
+
+        static void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy)
+        {
+            addExternalDataPointBool(NULL, dpID, permission, value, policy, 0);
+        }
+
+        static void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, int lapse)
+        {
+            addExternalDataPointBool(NULL, dpID, permission, value, policy, lapse);
+        }
+
+        static void addDataPointDouble(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution)
+        {
+            addExternalDataPointDouble(NULL, dpID, permission, minValue, maxValue, Resolution, minValue, "", 0);
+        }
+
+        static void addDataPointDouble(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value)
+        {
+            addExternalDataPointDouble(NULL, dpID, permission, minValue, maxValue, Resolution, value, "", 0);
+        }
+
+        static void addDataPointDouble(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy)
+        {
+            addExternalDataPointDouble(NULL, dpID, permission, minValue, maxValue, Resolution, value, policy, 0);
+        }
+
+        static void addDataPointDouble(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy, int lapse)
+        {
+            addExternalDataPointDouble(NULL, dpID, permission, minValue, maxValue, Resolution, value, policy, lapse);
+        }
+
+        static void addDataPointEnum(const uint16_t dpID, const char *permission)
+        {
+            addExternalDataPointEnum(NULL, dpID, permission, 0, "", 0);
+        }
+
+        static void addDataPointEnum(const uint16_t dpID, const char *permission, const int value)
+        {
+            addExternalDataPointEnum(NULL, dpID, permission, value, "", 0);
+        }
+
+        static void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy)
+        {
+            addExternalDataPointEnum(NULL, dpID, permission, value, policy, 0);
+        }
+
+        static void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, int lapse)
+        {
+            addExternalDataPointEnum(NULL, dpID, permission, value, policy, lapse);
+        }
+
+        static void addDataPointString(const uint16_t dpID, const char *permission)
+        {
+            addExternalDataPointString(NULL, dpID, permission, "", "", 0);
+        }
+
+        static void addDataPointString(const uint16_t dpID, const char *permission, const char *value)
+        {
+            addExternalDataPointString(NULL, dpID, permission, value, "", 0);
+        }
+
+        static void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy)
+        {
+            addExternalDataPointString(NULL, dpID, permission, value, policy, 0);
+        }
+
+        static void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, int lapse)
+        {
+            addExternalDataPointString(NULL, dpID, permission, value, policy, lapse);
+        }
+
+        static void addDataPointBinary(const uint16_t dpID, const char *permission)
+        {
+            addExternalDataPointBinary(NULL, dpID, permission, NULL, 0, "", 0);
+        }
+
+        static void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len)
+        {
+            addExternalDataPointBinary(NULL, dpID, permission, value, len, "", 0);
+        }
+
+        static void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy)
+        {
+            addExternalDataPointBinary(NULL, dpID, permission, value, len, policy, 0);
+        }
+
+        static void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, int lapse)
+        {
+            addExternalDataPointBinary(NULL, dpID, permission, value, len, policy, lapse);
+        }
+
+        static void addExternalDataPointBool(const char *device_id, const uint16_t dpID, const char *permission, const bool value, const char *policy, int lapse)
+        {
+
+        }
+
+        static void addExternalDataPointDouble(const char *device_id, const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy, int lapse)
+        {
+
+        }
+
+        static void addExternalDataPointEnum(const char *device_id, const uint16_t dpID, const char *permission, const int value, const char *policy, int lapse)
+        {
+
+        }
+
+        static void addExternalDataPointString(const char *device_id, const uint16_t dpID, const char *permission, const char *value, const char *policy, int lapse)
+        {
+
+        }
+
+        static void addExternalDataPointBinary(const char *device_id, const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, int lapse)
+        {
+
+        }
+
+        bool readDataPoint(const uint16_t dpID, bool &value)
+        {
+            return readDataPoint(NULL, dpID, value);
+        }
+
+        bool readDataPoint(const uint16_t dpID, int &value)
+        {
+            return readDataPoint(NULL, dpID, value);
+        }
+
+        bool readDataPoint(const uint16_t dpID, double &value)
+        {
+            return readDataPoint(NULL, dpID, value);
+        }
+
+        bool readDataPoint(const uint16_t dpID, float &value)
+        {
+            return readDataPoint(NULL, dpID, value);
+        }
+
+        bool readDataPoint(const uint16_t dpID, char *value)
+        {
+            return readDataPoint(NULL, dpID, value);
+        }
+
+        bool readDataPoint(const uint16_t dpID, uint8_t *value, uint16_t &len)
+        {
+            return readDataPoint(NULL, dpID, value, len);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, bool &value)
+        {
+            return readDataPoint(device_id, dpID, value);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, int &value)
+        {
+            return readDataPoint(device_id, dpID, value);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, double &value)
+        {
+            return readDataPoint(device_id, dpID, value);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, float &value)
+        {
+            return readDataPoint(device_id, dpID, value);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, char *value)
+        {
+            return readDataPoint(device_id, dpID, value);
+        }
+
+        bool readDataPoint(const char *device_id, const uint16_t dpID, uint8_t *value, uint16_t &len)
+        {
+            return readDataPoint(device_id, dpID, value, len);
+        }
+
+        void writeDataPoint(const uint16_t dpID, bool value)
+        {
+            writeDataPoint(NULL, dpID, value);
+        }
+
+        void writeDataPoint(const uint16_t dpID, int value)
+        {
+            writeDataPoint(NULL, dpID, value);
+        }
+
+        void writeDataPoint(const uint16_t dpID, double value)
+        {
+            writeDataPoint(NULL, dpID, value);
+        }
+
+        void writeDataPoint(const uint16_t dpID, float value)
+        {
+            writeDataPoint(NULL, dpID, value);
+        }
+
+        void writeDataPoint(const uint16_t dpID, const char *value)
+        {
+            writeDataPoint(NULL, dpID, value);
+        }
+
+        void writeDataPoint(const uint16_t dpID, const uint8_t *value, uint16_t &len)
+        {
+            writeDataPoint(NULL, dpID, value, len);
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, bool value)
+        {
+
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, int value)
+        {
+
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, double value)
+        {
+
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, float value)
+        {
+
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, const char *value)
+        {
+
+        }
+
+        void writeDataPoint(const char *device_id, const uint16_t dpID, const uint8_t *value, uint16_t &len)
+        {
+
         }
 
         static void syncTime(void)

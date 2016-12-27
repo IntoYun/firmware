@@ -26,6 +26,7 @@
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
+#include "esp32-hal-timer.h"
 
 #include "hw_config.h"
 #include "core_hal.h"
@@ -140,6 +141,14 @@ void sysTickHandlerTask(void *pvParameters)
     }
 }
 */
+
+void SysTick_Handler(void);
+hw_timer_t * sysTickTimer;
+#if 0
+#define APB_CLK_FREQ                                ( 80*1000000 )       //unit: Hz
+#define TIMER_DIVIDER   16               /*!< Hardware timer clock divider */
+#define TIMER_SCALE    (TIMER_BASE_CLK / TIMER_DIVIDER)  /*!< used to calculate counter value */
+#endif
 extern "C" void app_main()
 {
     init();
@@ -147,6 +156,14 @@ extern "C" void app_main()
     // initWiFi();
     HAL_Core_Config();
     HAL_Core_Setup();
+
+    /*
+    timerBegin(0, 16, true);
+    timerSetAutoReload(sysTickTimer, false);
+    timerWrite(sysTickTimer, 3.4179*TIMER_SCALE);
+    timerAttachInterrupt(sysTickTimer, &SysTick_Handler, true);
+    */
+
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
     //xTaskCreatePinnedToCore(sysTickHandlerTask, "sysTickHandlerTask", 4096, NULL, 1, NULL, 1); //后期需改造成硬件定时器
 }

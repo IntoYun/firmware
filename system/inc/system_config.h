@@ -209,6 +209,8 @@ typedef enum
 }system_config_type_t;
 
 
+extern volatile uint8_t g_intorobot_system_config;    //配置状态
+
 void set_system_config_mode(system_config_mode_t mode);
 system_config_mode_t get_system_config_mode();
 void set_system_config_type(system_config_type_t config_type);

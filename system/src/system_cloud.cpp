@@ -53,9 +53,9 @@ RGBLEDState led_state;
 
 pCallBack get_subscribe_callback(char * fulltopic);
 WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic);
-void add_subscribe_callback(char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
-void add_widget_subscibe_callback(char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
-void del_subscribe_callback(char * topic, char *device_id);
+void add_subscribe_callback(api_version_t version, char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
+void add_widget_subscibe_callback(api_version_t version, char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
+void del_subscribe_callback(api_version_t version, char * topic, char *device_id);
 void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
@@ -93,7 +93,7 @@ void sync_time_callback(uint8_t *payload, uint32_t len)
     {s_time+=(char)payload[n];}
     Time.setTime(atol(s_time.c_str()));
     //unsubscribe the system time topic
-    intorobot_unsubscribe(INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service");
+    intorobot_unsubscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service");
 }
 
 void ota_update_callback(uint8_t *payload, uint32_t len)
@@ -109,7 +109,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     //DEBUG_D("default:ota_update_callback\r\n");
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
-    intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
     if(root == NULL)
@@ -165,7 +165,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
                     }
                     else if(DOWNSTATUS_DOWNING == status) {
                         progress = HAL_OTA_Get_Download_Progress();
-                        //intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT),false);
+                        //intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT),false);
                         delay(1000);
                     }
                     else if(DOWNSTATUS_FAIL == status) {
@@ -179,7 +179,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
                 break;
         }
         if(!down_status) {
-            intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT), 0, false);
+            intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT), 0, false);
             HAL_OTA_Update_App();
             HAL_Core_System_Reset();
             while(1); //不会运行到地方
@@ -190,10 +190,10 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     if (root != NULL)
     {aJson.deleteItem(root);}
     if (2==flag) {  // board type error
-        intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR, strlen(INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR), 0, false);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR, strlen(INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR), 0, false);
     }
     else {//download fall
-        intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL), 0, false);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL), 0, false);
     }
     led_state.restore();
 }
@@ -214,7 +214,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
     system_rgb_color(RGB_COLOR_YELLOW);
     memset(temp,0,sizeof(temp));
     sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS);
-    intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
     if(root == NULL)
@@ -276,7 +276,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
                         progress = HAL_OTA_Get_Download_Progress();
                         memset(temp,0,sizeof(temp));
                         sprintf(temp,"{\"status\":\"%s\",\"progress\": %d}", INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS, progress);
-                        intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+                        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
                         delay(1000);
                     }
                     else if(DOWNSTATUS_FAIL == status) {
@@ -292,7 +292,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
         if(!down_status) {
             memset(temp,0,sizeof(temp));
             sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC_EXIT, progress);
-            intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+            intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
             HAL_OTA_Upadate_Subsys();
             HAL_Core_System_Reset();
             while(1); //不会运行到地方
@@ -310,7 +310,7 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
     else {//download fall
         sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_FAIL);
     }
-    intorobot_publish(INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
     led_state.restore();
 }
 
@@ -323,7 +323,7 @@ void accesstoken_update_callback(uint8_t *payload, uint32_t len)
     for(n=0; n<len; n++)
     {s_access_token+=(char)payload[n];}
     //send response topic
-    intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_SUCC), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_TOKEN_UPDATE_SUCC), 0, false);
     //save access token
     char access_token[48]={0};
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
@@ -339,7 +339,7 @@ void system_reboot_callback(uint8_t *payload, uint32_t len)
 {
     //DEBUG_D("default:system_reboot_callback\r\n");
     //system reset ready
-    intorobot_publish(INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC), 0, false);
     HAL_Core_System_Reset();
 }
 
@@ -349,16 +349,42 @@ void system_debug_callback(uint8_t *payload, uint32_t len)
     mqtt_receive_debug_info(payload, len);
 }
 
-void fill_mqtt_topic(String &fulltopic, const char *topic, const char *device_id)
+// v2版本控制回调函数
+void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
+{
+
+}
+
+void cloud_action_callback(uint8_t *payload, uint32_t len)
+{
+
+}
+
+void cloud_debug_callback(uint8_t *payload, uint32_t len)
+{
+
+}
+
+void fill_mqtt_topic(String &fulltopic, api_version_t version, const char *topic, const char *device_id)
 {
     char temp[128];
     String sdevice_id=intorobot_deviceID();
 
     memset(temp,0,sizeof(temp));
-    if(device_id == NULL)
-    {sprintf(temp,"%s/%s/", INTOROBOT_API_VER, sdevice_id.c_str());}
+    if( API_VERSION_V1 == version )
+    {
+        if(device_id == NULL)
+        {sprintf(temp,"v1/%s/", sdevice_id.c_str());}
+        else
+        {sprintf(temp,"v1/%s/", device_id);}
+    }
     else
-    {sprintf(temp,"%s/%s/", INTOROBOT_API_VER, device_id);}
+    {
+        if(device_id == NULL)
+        {sprintf(temp,"v2/device/%s/", sdevice_id.c_str());}
+        else
+        {sprintf(temp,"v2/device/%s/", device_id);}
+    }
     fulltopic=temp;
     fulltopic+=topic;
 }
@@ -369,53 +395,58 @@ bool intorobot_cloud_init(void)
     memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
 
     g_mqtt_client = MqttClientClass((char *)INTOROBOT_SERVER_DOMAIN, INTOROBOT_SERVER_PORT, mqtt_client_callback, g_mqtt_tcp_client);
+    // v1版本subscibe
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_UPDATE_TOPIC, NULL, ota_update_callback, 0);                 //固件升级
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_JSON_UPDATE_TOPIC, NULL, subsys_update_callback, 0);         //子系统升级
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_CHANGE_TOKEN_TOPIC, NULL, accesstoken_update_callback, 0);   //更新access token
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_REBOOT_TOPIC, NULL, system_reboot_callback, 0);              //stm32重启
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
 
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_UPDATE_TOPIC, NULL, ota_update_callback, 0);                 //固件升级
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_JSON_UPDATE_TOPIC, NULL, subsys_update_callback, 0);         //子系统升级
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_CHANGE_TOKEN_TOPIC, NULL, accesstoken_update_callback, 0);   //更新access token
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_REBOOT_TOPIC, NULL, system_reboot_callback, 0);              //stm32重启
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
+    // v2版本subscibe
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0);       //从平台获取数据通讯信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);  //从平台获取调试信息
 }
 
-uint8_t intorobot_publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
+uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic;
 
-    fill_mqtt_topic(fulltopic, topic, NULL);
+    fill_mqtt_topic(fulltopic, version, topic, NULL);
     return g_mqtt_client.publish(fulltopic.c_str(), payload, plength, retained);
 }
 
-uint8_t intorobot_subscribe(const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+uint8_t intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
 {
     String fulltopic;
 
-    add_subscribe_callback((char *)topic, (char *)device_id, callback, qos);
-    fill_mqtt_topic(fulltopic, topic, device_id);
+    add_subscribe_callback(version, (char *)topic, (char *)device_id, callback, qos);
+    fill_mqtt_topic(fulltopic, version, topic, device_id);
     return g_mqtt_client.subscribe(fulltopic.c_str(), qos);
 }
 
-uint8_t intorobot_widget_subscribe(const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
+uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
 {
     String fulltopic;
 
-    add_widget_subscibe_callback((char *)topic, (char *)device_id, pWidgetBase, qos);
-    fill_mqtt_topic(fulltopic, topic, device_id);
+    add_widget_subscibe_callback(version, (char *)topic, (char *)device_id, pWidgetBase, qos);
+    fill_mqtt_topic(fulltopic, version, topic, device_id);
     return g_mqtt_client.subscribe(fulltopic.c_str(), qos);
 }
 
-uint8_t intorobot_unsubscribe(const char *topic, const char *device_id)
+uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id)
 {
     String fulltopic;
 
-    del_subscribe_callback((char *)topic, (char *)device_id);
-    fill_mqtt_topic(fulltopic, topic, device_id);
+    del_subscribe_callback(version, (char *)topic, (char *)device_id);
+    fill_mqtt_topic(fulltopic, version, topic, device_id);
     return g_mqtt_client.unsubscribe(fulltopic.c_str());
 }
 
 void intorobot_sync_time(void)
 {
-    intorobot_subscribe(INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
 }
 
 size_t intorobot_debug_info_write(uint8_t byte)
@@ -459,12 +490,25 @@ pCallBack get_subscribe_callback(char * fulltopic)
     for (int i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
         memset(topictmp, 0, sizeof(topictmp));
-        if(g_callback_list.callback_node[i].device_id == NULL) {
-            HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, device_id);
+        if( API_VERSION_V1 == g_callback_list.callback_node[i].version )
+        {
+            if(g_callback_list.callback_node[i].device_id == NULL) {
+                HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+                sprintf(topictmp,"v1/%s/", device_id);
+            }
+            else {
+                sprintf(topictmp,"v1/%s/", g_callback_list.callback_node[i].device_id);
+            }
         }
-        else {
-            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.callback_node[i].device_id);
+        else
+        {
+            if(g_callback_list.callback_node[i].device_id == NULL) {
+                HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+                sprintf(topictmp,"v2/device/%s/", device_id);
+            }
+            else {
+                sprintf(topictmp,"v2/device/%s/", g_callback_list.callback_node[i].device_id);
+            }
         }
         strcat(topictmp,g_callback_list.callback_node[i].topic);
         if (strcmp(fulltopic, topictmp) == 0) {
@@ -474,14 +518,17 @@ pCallBack get_subscribe_callback(char * fulltopic)
     return NULL;
 }
 
-void add_subscribe_callback(char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+void add_subscribe_callback(api_version_t version, char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
 {
     int if_found_topic = 0;
     int i = 0;
 
     for (i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
-        if ((topic == g_callback_list.callback_node[i].topic)&&(device_id == g_callback_list.callback_node[i].device_id))
+        if ((topic == g_callback_list.callback_node[i].topic)
+                &&(device_id == g_callback_list.callback_node[i].device_id)
+                &&(version == g_callback_list.callback_node[i].version)
+                )
         {
             if_found_topic = 1;
             break;
@@ -504,7 +551,8 @@ void add_subscribe_callback(char *topic, char *device_id, void (*callback)(uint8
             g_callback_list.callback_node[g_callback_list.total_callbacks].callback = callback;
             g_callback_list.callback_node[g_callback_list.total_callbacks].qos = qos;
             g_callback_list.callback_node[g_callback_list.total_callbacks].topic = topic;
-            g_callback_list.callback_node[g_callback_list.total_callbacks].device_id= device_id;
+            g_callback_list.callback_node[g_callback_list.total_callbacks].device_id = device_id;
+            g_callback_list.callback_node[g_callback_list.total_callbacks].version = version;
             g_callback_list.total_callbacks ++;
         }
     }
@@ -518,12 +566,25 @@ WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic)
     for (int i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
         memset(topictmp, 0, sizeof(topictmp));
-        if(g_callback_list.widget_callback_node[i].device_id == NULL) {
-            HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, device_id);
+        if( API_VERSION_V1 == g_callback_list.callback_node[i].version )
+        {
+            if(g_callback_list.widget_callback_node[i].device_id == NULL) {
+                HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+                sprintf(topictmp,"v1/%s/", device_id);
+            }
+            else {
+                sprintf(topictmp,"v1/%s/", g_callback_list.widget_callback_node[i].device_id);
+            }
         }
-        else {
-            sprintf(topictmp,"%s/%s/", INTOROBOT_API_VER, g_callback_list.widget_callback_node[i].device_id);
+        else
+        {
+            if(g_callback_list.widget_callback_node[i].device_id == NULL) {
+                HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+                sprintf(topictmp,"v2/device/%s/", device_id);
+            }
+            else {
+                sprintf(topictmp,"v2/device/%s/", g_callback_list.widget_callback_node[i].device_id);
+            }
         }
         strcat(topictmp,g_callback_list.widget_callback_node[i].topic);
         if (strcmp(fulltopic, topictmp) == 0)
@@ -534,14 +595,17 @@ WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic)
     return NULL;
 }
 
-void add_widget_subscibe_callback(char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
+void add_widget_subscibe_callback(api_version_t version, char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
 {
     int if_found_topic = 0;
     int i = 0;
 
     for (i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
-        if ((topic == g_callback_list.widget_callback_node[i].topic)&&(device_id == g_callback_list.widget_callback_node[i].device_id))
+        if ((topic == g_callback_list.widget_callback_node[i].topic)
+                &&(device_id == g_callback_list.widget_callback_node[i].device_id)
+                &&(version == g_callback_list.widget_callback_node[i].version)
+                )
         {
             if_found_topic = 1;
             break;
@@ -564,17 +628,21 @@ void add_widget_subscibe_callback(char *topic, char *device_id, WidgetBaseClass 
             g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].pWidgetBase = pWidgetBase;
             g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].qos = qos;
             g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic = topic;
-            g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id= device_id;
+            g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id = device_id;
+            g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].version = version;
             g_callback_list.total_wcallbacks ++;
         }
     }
 }
 
-void del_subscribe_callback(char * topic, char *device_id)
+void del_subscribe_callback(api_version_t version, char * topic, char *device_id)
 {
     for (int i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
-        if ((topic == g_callback_list.callback_node[i].topic) && (device_id == g_callback_list.callback_node[i].device_id))
+        if ((topic == g_callback_list.callback_node[i].topic)
+                && (device_id == g_callback_list.callback_node[i].device_id)
+                && (version == g_callback_list.callback_node[i].version)
+                )
         {
             memcpy(&g_callback_list.callback_node[i], &g_callback_list.callback_node[i+1], (g_callback_list.total_callbacks - 1 - i) * sizeof(struct CallBackNode));
             memset(&g_callback_list.callback_node[g_callback_list.total_callbacks-1], 0, sizeof(struct CallBackNode));
@@ -585,7 +653,10 @@ void del_subscribe_callback(char * topic, char *device_id)
 
     for (int i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
-        if ((topic == g_callback_list.widget_callback_node[i].topic) && (device_id == g_callback_list.widget_callback_node[i].device_id))
+        if ((topic == g_callback_list.widget_callback_node[i].topic)
+                && (device_id == g_callback_list.widget_callback_node[i].device_id)
+                && (version == g_callback_list.widget_callback_node[i].version)
+                )
         {
             memcpy(&g_callback_list.widget_callback_node[i], &g_callback_list.widget_callback_node[i+1], (g_callback_list.total_wcallbacks - 1 - i) * sizeof(struct WidgetCallBackNode));
             memset(&g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks-1], 0, sizeof(struct WidgetCallBackNode));
@@ -599,13 +670,13 @@ void resubscribe(void)
 {
     for (int i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
-        intorobot_subscribe(g_callback_list.callback_node[i].topic, g_callback_list.callback_node[i].device_id,
+        intorobot_subscribe(g_callback_list.callback_node[i].version, g_callback_list.callback_node[i].topic, g_callback_list.callback_node[i].device_id,
                             g_callback_list.callback_node[i].callback, g_callback_list.callback_node[i].qos);
     }
 
     for (int i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
-        intorobot_widget_subscribe(g_callback_list.widget_callback_node[i].topic, g_callback_list.widget_callback_node[i].device_id,
+        intorobot_widget_subscribe(g_callback_list.widget_callback_node[i].version, g_callback_list.widget_callback_node[i].topic, g_callback_list.widget_callback_node[i].device_id,
                             g_callback_list.widget_callback_node[i].pWidgetBase, g_callback_list.widget_callback_node[i].qos);
     }
 }
@@ -623,7 +694,8 @@ void mqtt_send_debug_info(void)
 
     if(n)
     {
-        g_mqtt_client.publish(INTOROBOT_MQTT_SEND_DEBUG_TOPIC, (uint8_t *)s_debug_info.c_str(), n, false);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_SEND_DEBUG_TOPIC, (uint8_t *)s_debug_info.c_str(), n, 0, false);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_DEBUGRX_TOPIC, (uint8_t *)s_debug_info.c_str(), n, 0, false);
     }
 }
 
@@ -694,7 +766,7 @@ int intorobot_cloud_connect(void)
         HAL_PARAMS_Get_System_subsys_ver(subsys_version, sizeof(subsys_version));
         memset(temp, 0, sizeof(temp));
         sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, subsys_version);
-        intorobot_publish(INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)temp, strlen(temp), 0, true);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)temp, strlen(temp), 0, true);
         //重新订阅
         resubscribe();
         return 0;

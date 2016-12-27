@@ -28,7 +28,7 @@ extern "C" {
 
 #define LOW               0x0
 #define HIGH              0x1
-
+/*
 //GPIO FUNCTIONS
 #define INPUT             0x01
 #define OUTPUT            0x02
@@ -57,6 +57,7 @@ extern "C" {
 #define ONLOW_WE  0x0C
 #define ONHIGH_WE 0x0D
 
+*/
 typedef struct {
     uint8_t reg;      /*!< GPIO register offset from DR_REG_IO_MUX_BASE */
     int8_t rtc;       /*!< RTC GPIO number (-1 if not RTC GPIO pin) */

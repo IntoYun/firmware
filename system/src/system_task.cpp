@@ -21,6 +21,7 @@
 //#include "wiring_system.h"
 #include "system_task.h"
 #include "system_cloud.h"
+#include "system_config.h"
 #include "system_mode.h"
 #include "system_network.h"
 #include "system_network_internal.h"
@@ -223,10 +224,13 @@ void system_process_loop(void)
 #if PLATFORM_THREADING
     while (1) {
 #endif
-        manage_serial_flasher();
-        NEWORK_FN(manage_network_connection(), (void)0);
-        NEWORK_FN(manage_ip_config(), (void)0);
-        CLOUD_FN(manage_cloud_connection(), (void)0);
+        if(!g_intorobot_system_config)
+        {
+            manage_serial_flasher();
+            NEWORK_FN(manage_network_connection(), (void)0);
+            NEWORK_FN(manage_ip_config(), (void)0);
+            CLOUD_FN(manage_cloud_connection(), (void)0);
+        }
 #if PLATFORM_THREADING
     }
 #endif

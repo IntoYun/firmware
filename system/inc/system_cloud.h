@@ -41,6 +41,12 @@
 
 typedef void (*pCallBack)(uint8_t*, uint32_t);
 
+typedef enum
+{
+    API_VERSION_V1 = 1,
+    API_VERSION_V2 = 2
+} api_version_t;
+
 class WidgetBaseClass
 {
 public:
@@ -54,6 +60,7 @@ struct CallBackNode
     uint8_t qos;
     const char *topic;
     const char *device_id;
+    api_version_t version;
 };
 
 struct WidgetCallBackNode
@@ -62,6 +69,7 @@ struct WidgetCallBackNode
     uint8_t qos;
     const char *topic;
     const char *device_id;
+    api_version_t version;
 };
 
 struct CallBackList
@@ -81,16 +89,66 @@ struct CloudDebugBuffer
     volatile unsigned int tail;
 };
 
+typedef enum{
+    DATA_TYPE_BOOL = 0,   //bool型
+    DATA_TYPE_INT,        //数值型 int型
+    DATA_TYPE_FLOAT,      //数值型 float型
+    DATA_TYPE_ENUM,       //枚举型
+    DATA_TYPE_STRING,     //字符串型
+    DATA_TYPE_BINARY      //透传型
+}data_type_t;
+
+//int型属性
+struct int_property_t{
+    int minValue;
+    int maxValue;
+    int Resolution;
+    int intValue;
+};
+
+//float型属性
+struct float_property_t{
+    double minValue;
+    double maxValue;
+    double Resolution;
+    double intValue;
+};
+
+//透传型属性
+struct binary_property_t{
+    const uint8_t *binaryValue;
+    uint16_t binaryLen;
+};
+
+// Property configuration
+struct property_conf {
+    const uint16_t dpID;
+    const data_type_t dataType;
+    const char *permission;
+    const char *device_id;
+    const char *policy;
+    union
+    {
+        bool boolValue;
+        int_property_t intValue;
+        float_property_t floatValue;
+        int enumValue;
+        String stringValue;
+        binary_property_t binaryValue;
+    };
+    long lapse;
+    long runtime;
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 bool intorobot_cloud_init(void);
-uint8_t intorobot_publish(const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
-uint8_t intorobot_subscribe(const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
-uint8_t intorobot_widget_subscribe(const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
-uint8_t intorobot_unsubscribe(const char *topic, const char *device_id);
+uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
+uint8_t intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
+uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
+uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id);
 void intorobot_sync_time(void);
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);

@@ -20,9 +20,6 @@
 #ifndef SYSTEM_CLOUD_DEF_H_
 #define SYSTEM_CLOUD_DEF_H_
 
-
-#define INTOROBOT_API_VER             "v1"
-
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
 
 #define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
@@ -33,6 +30,7 @@
 #define INTOROBOT_SERVER_TLS_PORT      8883
 #define INTOROBOT_HTTP_PORT            1883
 
+//=============================v1 版本topic===================================================
 //maqtt will
 #define INTOROBOT_MQTT_WILL_TOPIC      "platform/default/info/online"
 #define INTOROBOT_MQTT_WILL_QOS        0
@@ -102,6 +100,18 @@
 
 #define INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC   "firmware/default/action/debug"
 #define INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_QOS     0
+
+//=============================v2 版本topic===================================================
+/*publish  topic*/
+#define INTOROBOT_MQTT_RX_TOPIC        "rx"
+#define INTOROBOT_MQTT_REPLY_TOPIC     "reply"
+#define INTOROBOT_MQTT_DEBUGRX_TOPIC   "debugrx"
+#define INTOROBOT_MQTT_INFO_TOPIC      "info"
+
+/*subscribe  topic*/
+#define INTOROBOT_MQTT_TX_TOPIC        "tx"
+#define INTOROBOT_MQTT_ACTION_TOPIC    "action"
+#define INTOROBOT_MQTT_DEBUGTX_TOPIC   "debugtx"
 
 
 #endif	/*SYSTEM_CLOUD_DEF_H_ */
