@@ -89,57 +89,6 @@ struct CloudDebugBuffer
     volatile unsigned int tail;
 };
 
-typedef enum{
-    DATA_TYPE_BOOL = 0,   //bool型
-    DATA_TYPE_INT,        //数值型 int型
-    DATA_TYPE_FLOAT,      //数值型 float型
-    DATA_TYPE_ENUM,       //枚举型
-    DATA_TYPE_STRING,     //字符串型
-    DATA_TYPE_BINARY      //透传型
-}data_type_t;
-
-//int型属性
-struct int_property_t{
-    int minValue;
-    int maxValue;
-    int resolution;
-    int value;
-};
-
-//float型属性
-struct float_property_t{
-    double minValue;
-    double maxValue;
-    double resolution;
-    double value;
-};
-
-//透传型属性
-struct binary_property_t{
-    const uint8_t *value;
-    uint16_t len;
-};
-
-// Property configuration
-struct property_conf {
-    const uint16_t dpID;
-    const data_type_t dataType;
-    const char *permission;
-    const char *device_id;
-    const char *policy;
-    long lapse;
-    long runtime;
-    union
-    {
-        bool boolValue;
-        int_property_t intValue;
-        float_property_t floatValue;
-        int enumValue;
-        String stringValue;
-        binary_property_t binaryValue;
-    };
-};
-
 #ifdef __cplusplus
 extern "C" {
 #endif

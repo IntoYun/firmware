@@ -28,6 +28,7 @@
 #include "wiring_string.h"
 //#include "events.h"
 #include "system_cloud.h"
+#include "system_clouddata.h"
 #include "system_sleep.h"
 //#include "wiring_system.h"
 #include "wiring_watchdog.h"
@@ -35,18 +36,6 @@
 #include "string_convert.h"
 #include <functional>
 #include "service_debug.h"
-
-/// Permission
-#define R "R"
-#define W "W"
-#define RW "RW"
-
-//// Polices
-#define TIMED "timed"
-#define ON_CHANGE "on_change"
-
-
-#define PROPERTIES_MAX 50
 
 class CloudClass: public Print{
 
@@ -145,29 +134,29 @@ class CloudClass: public Print{
             return intorobot_publish(API_VERSION_V1, topic, payload, plength, 0, retained);
         }
 
-        uint8_t subscribe(const char *topic, const char *device_id, void (*callback)(uint8_t*, uint32_t))
+        uint8_t subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
         {
-            return subscribe(topic, device_id, callback, 0);
+            return subscribe(topic, deviceID, callback, 0);
         }
 
-        uint8_t subscribe(const char *topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+        uint8_t subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
         {
-            return intorobot_subscribe(API_VERSION_V1, topic, device_id, callback, 0);
+            return intorobot_subscribe(API_VERSION_V1, topic, deviceID, callback, 0);
         }
 
-        uint8_t subscribe(const char *topic, const char *device_id, WidgetBaseClass *pWidgetBase)
+        uint8_t subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
         {
-            return subscribe(topic, device_id, pWidgetBase, 0);
+            return subscribe(topic, deviceID, pWidgetBase, 0);
         }
 
-        uint8_t subscribe(const char *topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
+        uint8_t subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
         {
-            return intorobot_widget_subscribe(API_VERSION_V1, topic, device_id, pWidgetBase, 0);
+            return intorobot_widget_subscribe(API_VERSION_V1, topic, deviceID, pWidgetBase, 0);
         }
 
-        uint8_t unsubscribe(const char *topic, const char *device_id)
+        uint8_t unsubscribe(const char *topic, const char *deviceID)
         {
-            return intorobot_unsubscribe(API_VERSION_V1, topic, device_id);
+            return intorobot_unsubscribe(API_VERSION_V1, topic, deviceID);
         }
 
         //添加通用数据收发接口
@@ -176,17 +165,17 @@ class CloudClass: public Print{
             addExternalDataPointBool(NULL, dpID, permission, false, "", 0);
         }
 
-        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value)
+        void addDataPointBool(const uint16_t dpID, const char *permission, bool value)
         {
             addExternalDataPointBool(NULL, dpID, permission, value, "", 0);
         }
 
-        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy)
+        void addDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy)
         {
             addExternalDataPointBool(NULL, dpID, permission, value, policy, 0);
         }
 
-        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, int lapse)
+        void addDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
         {
             addExternalDataPointBool(NULL, dpID, permission, value, policy, lapse);
         }
@@ -196,17 +185,17 @@ class CloudClass: public Print{
             addExternalDataPointNumber(NULL, dpID, permission, minValue, maxValue, Resolution, minValue, "", 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, double value)
         {
             addExternalDataPointNumber(NULL, dpID, permission, minValue, maxValue, Resolution, value, "", 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, double value, const char *policy)
         {
             addExternalDataPointNumber(NULL, dpID, permission, minValue, maxValue, Resolution, value, policy, 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy, int lapse)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, double value, const char *policy, int lapse)
         {
             addExternalDataPointNumber(NULL, dpID, permission, minValue, maxValue, Resolution, value, policy, lapse);
         }
@@ -216,17 +205,17 @@ class CloudClass: public Print{
             addExternalDataPointEnum(NULL, dpID, permission, 0, "", 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, int value)
         {
             addExternalDataPointEnum(NULL, dpID, permission, value, "", 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy)
         {
             addExternalDataPointEnum(NULL, dpID, permission, value, policy, 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, int lapse)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
         {
             addExternalDataPointEnum(NULL, dpID, permission, value, policy, lapse);
         }
@@ -236,17 +225,17 @@ class CloudClass: public Print{
             addExternalDataPointString(NULL, dpID, permission, "", "", 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, const char *value)
+        void addDataPointString(const uint16_t dpID, const char *permission, char *value)
         {
             addExternalDataPointString(NULL, dpID, permission, value, "", 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy)
+        void addDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy)
         {
             addExternalDataPointString(NULL, dpID, permission, value, policy, 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, int lapse)
+        void addDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
         {
             addExternalDataPointString(NULL, dpID, permission, value, policy, lapse);
         }
@@ -256,26 +245,45 @@ class CloudClass: public Print{
             addExternalDataPointBinary(NULL, dpID, permission, NULL, 0, "", 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, const uint16_t len)
         {
             addExternalDataPointBinary(NULL, dpID, permission, value, len, "", 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy)
         {
             addExternalDataPointBinary(NULL, dpID, permission, value, len, policy, 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, int lapse)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
         {
             addExternalDataPointBinary(NULL, dpID, permission, value, len, policy, lapse);
         }
 
-        void addExternalDataPointBool(const char *other_device_id, const uint16_t dpID, const char *permission, const bool value, const char *policy, int lapse);
-        void addExternalDataPointNumber(const char *other_device_id, const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, const double value, const char *policy, int lapse);
-        void addExternalDataPointEnum(const char *other_device_id, const uint16_t dpID, const char *permission, const int value, const char *policy, int lapse);
-        void addExternalDataPointString(const char *other_device_id, const uint16_t dpID, const char *permission, const char *value, const char *policy, int lapse);
-        void addExternalDataPointBinary(const char *other_device_id, const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, int lapse);
+        void addExternalDataPointBool(const char *other_device_id, const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
+        {
+            intorobotAddExternalDataPointBool(other_device_id, dpID, permission, value, policy, lapse);
+        }
+
+        void addExternalDataPointNumber(const char *other_device_id, const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy, int lapse)
+        {
+            intorobotAddExternalDataPointNumber(other_device_id, dpID, permission, minValue, maxValue, resolution, value, policy, lapse);
+        }
+
+        void addExternalDataPointEnum(const char *other_device_id, const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
+        {
+            intorobotAddExternalDataPointEnum(other_device_id, dpID, permission, value, policy, lapse);
+        }
+
+        void addExternalDataPointString(const char *other_device_id, const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
+        {
+            intorobotAddExternalDataPointString(other_device_id, dpID, permission, value, policy, lapse);
+        }
+
+        void addExternalDataPointBinary(const char *other_device_id, const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
+        {
+            intorobotAddExternalDataPointBinary(other_device_id, dpID, permission, value, len, policy, lapse);
+        }
 
         bool readDataPoint(const uint16_t dpID, bool &value)
         {
@@ -309,70 +317,73 @@ class CloudClass: public Print{
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, bool &value)
         {
-            return readDataPoint(other_device_id, dpID, value);
+            return intorobotReadDataPointBool(other_device_id, dpID, value);
         }
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, int &value)
         {
-            return readDataPoint(other_device_id, dpID, value);
+            return intorobotReadDataPointInt(other_device_id, dpID, value);
         }
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, double &value)
         {
-            return readDataPoint(other_device_id, dpID, value);
+            return intorobotReadDataPointDouble(other_device_id, dpID, value);
         }
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, float &value)
         {
-            return readDataPoint(other_device_id, dpID, value);
+            return intorobotReadDataPointFloat(other_device_id, dpID, value);
         }
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, char *value)
         {
-            return readDataPoint(other_device_id, dpID, value);
+            return intorobotReadDataPointString(other_device_id, dpID, value);
         }
 
         bool readDataPoint(const char *other_device_id, const uint16_t dpID, uint8_t *value, uint16_t &len)
         {
-            return readDataPoint(other_device_id, dpID, value, len);
+            return intorobotReadDataPointBinary(other_device_id, dpID, value, len);
         }
 
         void writeDataPoint(const uint16_t dpID, bool value)
         {
-            writeDataPoint(NULL, dpID, value);
+            writeDataPoint(dpID, String(value).c_str());
         }
 
         void writeDataPoint(const uint16_t dpID, int value)
         {
-            writeDataPoint(NULL, dpID, value);
+            writeDataPoint(dpID, String(value).c_str());
         }
 
         void writeDataPoint(const uint16_t dpID, double value)
         {
-            writeDataPoint(NULL, dpID, value);
+            writeDataPoint(dpID, String(value).c_str());
         }
 
         void writeDataPoint(const uint16_t dpID, float value)
         {
-            writeDataPoint(NULL, dpID, value);
+            writeDataPoint(dpID, String(value).c_str());
         }
 
-        void writeDataPoint(const uint16_t dpID, const char *value)
+        void writeDataPoint(const uint16_t dpID, String value)
         {
-            writeDataPoint(NULL, dpID, value);
+            writeDataPoint(dpID, value.c_str());
         }
 
-        void writeDataPoint(const uint16_t dpID, const uint8_t *value, uint16_t &len)
+        void writeDataPoint(const uint16_t dpID, char *value)
         {
-            writeDataPoint(NULL, dpID, value, len);
+            intorobotWriteDataPointString(dpID, value);
         }
 
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, bool value);
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, int value);
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, double value);
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, float value);
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, const char *value);
-        void writeDataPoint(const char *other_device_id, const uint16_t dpID, const uint8_t *value, uint16_t &len);
+        void writeDataPoint(const uint16_t dpID, uint8_t *value, uint16_t len)
+        {
+            intorobotWriteDataPointBinary(dpID, value, len);
+        }
+
+        void writeDataPoints(void)
+        {
+            intorobotWriteDataPoints();
+        }
 
         void syncTime(void)
         {
@@ -399,15 +410,10 @@ class CloudClass: public Print{
         }
 
     private:
-        property_conf* properties[PROPERTIES_MAX];
-        int properties_count = 0;
-
         virtual size_t write(uint8_t byte)
         {return intorobot_debug_info_write(byte);}
 
         using Print::write; // pull in write(str) and write(buf, size) from Print
-
-        int discoverProperty(const char* device_name, const char* name);
 };
 
 extern CloudClass IntoRobot;
