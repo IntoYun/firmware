@@ -1,5 +1,5 @@
 /*
- * nut 默认程序
+ * w67 默认程序
  */
 
 //SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);

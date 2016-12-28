@@ -11,12 +11,20 @@ void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 {
     if(payload[0] == '1')
     {
+#if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON
         digitalWrite(LEDPIN, HIGH);     // 打开灯泡
+#else
+        digitalWrite(LEDPIN, LOW);     // 打开灯泡
+#endif
         IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"1");
     }
     else
     {
-        digitalWrite(LEDPIN, LOW);      //关闭灯泡
+#if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON
+        digitalWrite(LEDPIN, LOW);     // 打开灯泡
+#else
+        digitalWrite(LEDPIN, HIGH);     // 打开灯泡
+#endif
         IntoRobot.publish(SMARTLIGHT_DATA_STATUS,"0");
     }
 }

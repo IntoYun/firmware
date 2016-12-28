@@ -31,11 +31,11 @@
 property_conf* properties[PROPERTIES_MAX];
 int properties_count = 0;
 
-int intorobotDiscoverProperty(const char *deviceID, const uint16_t dpID)
+int intorobotDiscoverProperty(const uint16_t dpID)
 {
     for (int i = 0; i <= properties_count; i++)
     {
-        if (properties[i]->deviceID == deviceID && properties[i]->dpID == dpID)
+        if (properties[i]->dpID == dpID)
         {
             return i;
         }
@@ -117,61 +117,85 @@ String intorobotBuildAllPropertyJson(void)
     return PropertyJson;
 }
 
-void intorobotAddExternalDataPointBool(const char *other_device_id, const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
+void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
 {
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        return;
+    }
     // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_BOOL, permission, other_device_id, policy, (long)lapse*1000, 0, false};
+    property_conf* prop = new property_conf {dpID, DATA_TYPE_BOOL, permission, policy, (long)lapse*1000, 0, false};
     prop->value = String(value);
     properties[properties_count] = prop; // Save pointer to scructure
     properties_count++; // count the number of properties
 }
 
-void intorobotAddExternalDataPointNumber(const char *other_device_id, const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double Resolution, double value, const char *policy, int lapse)
+void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse)
 {
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        return;
+    }
+
     property_conf* prop;
     // Create property structure
-    if(Resolution == int(Resolution))
+    if(resolution == int(resolution))
     {
-        prop = new property_conf {dpID, DATA_TYPE_INT, permission, other_device_id, policy, (long)lapse*1000, 0, false};
+        prop = new property_conf {dpID, DATA_TYPE_INT, permission, policy, (long)lapse*1000, 0, false};
         prop->intProperty.minValue = (int)minValue;
         prop->intProperty.maxValue = (int)maxValue;
-        prop->intProperty.resolution = (int)Resolution;
+        prop->intProperty.resolution = (int)resolution;
         prop->value = String((int)value);
     }
     else
     {
-        prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, other_device_id, policy, (long)lapse*1000, 0, false};
+        prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, policy, (long)lapse*1000, 0, false};
         prop->floatProperty.minValue = minValue;
         prop->floatProperty.maxValue = maxValue;
-        prop->floatProperty.resolution = Resolution;
+        prop->floatProperty.resolution = resolution;
         prop->value = String(value);
     }
     properties[properties_count] = prop; // Save pointer to scructure
     properties_count++; // count the number of properties
 }
 
-void intorobotAddExternalDataPointEnum(const char *other_device_id, const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
+void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
 {
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        return;
+    }
+
     // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, other_device_id, policy, (long)lapse*1000, 0, false};
+    property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, false};
     prop->value = String(value);
     properties[properties_count] = prop; // Save pointer to scructure
     properties_count++; // count the number of properties
 }
 
-void intorobotAddExternalDataPointString(const char *other_device_id, const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
+void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
 {
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        return;
+    }
+
     // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_STRING, permission, other_device_id, policy, (long)lapse*1000, 0, false};
+    property_conf* prop = new property_conf {dpID, DATA_TYPE_STRING, permission, policy, (long)lapse*1000, 0, false};
     prop->value = value;
     properties[properties_count] = prop; // Save pointer to scructure
     properties_count++; // count the number of properties
 }
 
-void intorobotAddExternalDataPointBinary(const char *other_device_id, const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
+void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
 {
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        return;
+    }
+
     // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, other_device_id, policy, (long)lapse*1000, 0, 0};
+    property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapse*1000, 0, 0};
     prop->binaryValue = value;
     prop->binaryLen = len;
     properties[properties_count] = prop; // Save pointer to scructure
@@ -180,7 +204,7 @@ void intorobotAddExternalDataPointBinary(const char *other_device_id, const uint
 
 void intorobotWriteDataPointString(const uint16_t dpID, char* value)
 {
-    int i = intorobotDiscoverProperty(NULL, dpID);
+    int i = intorobotDiscoverProperty(dpID);
 
     if (i == -1) {
         // not found, nothing to do
@@ -215,9 +239,9 @@ void intorobotWriteDataPoints(void)
     intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), strlen(payload.c_str()), 0, false);
 }
 
-bool intorobotReadDataPointBool(const char *other_device_id, const uint16_t dpID, bool &value)
+bool intorobotReadDataPointBool(const uint16_t dpID, bool &value)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
@@ -227,9 +251,9 @@ bool intorobotReadDataPointBool(const char *other_device_id, const uint16_t dpID
     return flag;
 }
 
-bool intorobotReadDataPointInt(const char *other_device_id, const uint16_t dpID, int &value)
+bool intorobotReadDataPointInt(const uint16_t dpID, int &value)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
@@ -239,9 +263,9 @@ bool intorobotReadDataPointInt(const char *other_device_id, const uint16_t dpID,
     return flag;
 }
 
-bool intorobotReadDataPointDouble(const char *other_device_id, const uint16_t dpID, double &value)
+bool intorobotReadDataPointDouble(const uint16_t dpID, double &value)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
@@ -251,9 +275,9 @@ bool intorobotReadDataPointDouble(const char *other_device_id, const uint16_t dp
     return flag;
 }
 
-bool intorobotReadDataPointFloat(const char *other_device_id, const uint16_t dpID, float &value)
+bool intorobotReadDataPointFloat(const uint16_t dpID, float &value)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
@@ -263,9 +287,9 @@ bool intorobotReadDataPointFloat(const char *other_device_id, const uint16_t dpI
     return flag;
 }
 
-bool intorobotReadDataPointString(const char *other_device_id, const uint16_t dpID, char *value)
+bool intorobotReadDataPointString(const uint16_t dpID, char *value)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
@@ -275,9 +299,9 @@ bool intorobotReadDataPointString(const char *other_device_id, const uint16_t dp
     return flag;
 }
 
-bool intorobotReadDataPointBinary(const char *other_device_id, const uint16_t dpID, uint8_t *value, uint16_t &len)
+bool intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len)
 {
-    int index = intorobotDiscoverProperty(other_device_id, dpID);
+    int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {

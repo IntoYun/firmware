@@ -78,7 +78,6 @@ struct property_conf {
     const uint16_t dpID;
     const data_type_t dataType;
     const char *permission;
-    const char *deviceID;
     const char *policy;
     long lapse;
     long runtime;
@@ -97,22 +96,22 @@ struct property_conf {
 extern "C" {
 #endif
 
-void intorobotAddExternalDataPointBool(const char *other_device_id, const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse);
-void intorobotAddExternalDataPointNumber(const char *other_device_id, const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse);
-void intorobotAddExternalDataPointEnum(const char *other_device_id, const uint16_t dpID, const char *permission, int value, const char *policy, int lapse);
-void intorobotAddExternalDataPointString(const char *other_device_id, const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse);
-void intorobotAddExternalDataPointBinary(const char *other_device_id, const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse);
+void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse);
+void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse);
+void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse);
+void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse);
+void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse);
 
 void intorobotWriteDataPointString(const uint16_t dpID, char* value);
 void intorobotWriteDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t len);
 void intorobotWriteDataPoints(void);
 
-bool intorobotReadDataPointBool(const char *other_device_id, const uint16_t dpID, bool &value);
-bool intorobotReadDataPointInt(const char *other_device_id, const uint16_t dpID, int &value);
-bool intorobotReadDataPointDouble(const char *other_device_id, const uint16_t dpID, double &value);
-bool intorobotReadDataPointFloat(const char *other_device_id, const uint16_t dpID, float &value);
-bool intorobotReadDataPointString(const char *other_device_id, const uint16_t dpID, char *value);
-bool intorobotReadDataPointBinary(const char *other_device_id, const uint16_t dpID, uint8_t *value, uint16_t &len);
+bool intorobotReadDataPointBool(const uint16_t dpID, bool &value);
+bool intorobotReadDataPointInt(const uint16_t dpID, int &value);
+bool intorobotReadDataPointDouble(const uint16_t dpID, double &value);
+bool intorobotReadDataPointFloat(const uint16_t dpID, float &value);
+bool intorobotReadDataPointString(const uint16_t dpID, char *value);
+bool intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
 
 #ifdef __cplusplus
 }
