@@ -98,8 +98,8 @@ typedef struct ESP32_SPI_Info {
  */
 ESP32_SPI_Info SPI_MAP[TOTAL_SPIS] =
 {
-    {D2, D0, D1, D5},  // VSPI SCK MISO MOSI SS
-    {A5, A6, A7, A4}   // HSPI SCK MISO MOSI SS
+    {SCK, MISO, MOSI, SS},  // VSPI SCK MISO MOSI SS
+    {SCK1, MISO1, MOSI1, SS1}   // HSPI SCK MISO MOSI SS
 };
 
 static ESP32_SPI_Info *spiMap[TOTAL_SPIS]; // pointer to SPI_MAP[] containing SPI peripheral register locations (etc)

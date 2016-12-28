@@ -176,7 +176,7 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
     //Wiring pins default to inputs
-    for (pin_t pin=D0; pin<=D6; pin++)
+    for (pin_t pin=0; pin<=6; pin++)
     {
         //HAL_Pin_Mode(pin, INPUT);
     }
