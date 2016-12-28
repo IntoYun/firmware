@@ -142,8 +142,8 @@ uint8_t getBoardType(void)
             else if(strcmp(boardPtr,"888002") == 0) {aJson.deleteItem(root);return NEUTRON;}//neutron
             else if(strcmp(boardPtr,"888003") == 0) {aJson.deleteItem(root);return NUT;}   //nut
             else if((strcmp(boardPtr,"888101") == 0) || (strcmp(boardPtr,"887101")) == 0) {aJson.deleteItem(root);return W67;}   //w6/7
-            else if(strcmp(boardPtr,"888005") == 0) {aJson.deleteItem(root);return FIG;}   //fig
-            else if(strcmp(boardPtr,"888102") == 0|| (strcmp(boardPtr,"887005")) == 0) {aJson.deleteItem(root);return W323;} //w32/33
+            else if(strcmp(boardPtr,"888005") == 0|| (strcmp(boardPtr,"887005")) == 0) {aJson.deleteItem(root);return FIG;}   //fig
+            else if(strcmp(boardPtr,"888102") == 0|| (strcmp(boardPtr,"887102")) == 0) {aJson.deleteItem(root);return W323;} //w32/33
             else if(strcmp(boardPtr,"888006") == 0) {aJson.deleteItem(root);return LORA;} //lora
             else if(strcmp(boardPtr,"888103") == 0) {aJson.deleteItem(root);return L6;}   //l6
             else
@@ -224,6 +224,33 @@ bool ReadBoardPinLevel(uint8_t val)
             break;
 
         case FIG:
+            for(pin = D4;  pin <= D10; pin++)
+                {
+                    pinMode(pin,INPUT_PULLUP);
+                }
+            for(pin = A5;  pin <= A11; pin++)
+                {
+                    pinMode(pin,INPUT_PULLUP);
+                }
+
+            delay(10);
+
+            for(pin = D4;  pin <= D10; pin++)
+                {
+                    if(digitalRead(pin) == val)
+                        {
+                            return false;
+                        }
+                }
+
+            for(pin = A5;  pin <= A11; pin++)
+                {
+                    if(digitalRead(pin) == val)
+                        {
+                            return false;
+                        }
+                }
+
             break;
 
         case W323:
@@ -694,7 +721,7 @@ void loop()
             if(ReceiveTestResult(TEST_DIGITAL_WRITE_LOW))
             {
                 delay(500);
-                if(boardType == W323)
+                if(boardType == W323 || boardType == FIG)
                 {
                     step = STEP_TEST_END;
                 }

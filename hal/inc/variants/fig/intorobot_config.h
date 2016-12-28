@@ -38,19 +38,19 @@
 /* config wiring usart serial. */
 #define configWIRING_USARTSERIAL_ENABLE
 #define configWIRING_USARTSERIAL1_ENABLE
-// #define configWIRING_USARTSERIAL2_ENABLE
+#define configWIRING_USARTSERIAL2_ENABLE
 //#define configWIRING_USARTSERIAL3_ENABLE
 //#define configWIRING_USARTSERIAL4_ENABLE
 //#define configWIRING_USARTSERIAL5_ENABLE
 
 /* config wring wire */
 #define configWIRING_WIRE_ENABLE
-// #define configWIRING_WIRE1_ENABLE
+#define configWIRING_WIRE1_ENABLE
 //#define configWIRING_WIRE2_ENABLE
 
 /* config wring spi */
 #define configWIRING_SPI_ENABLE
-//#define configWIRING_SPI1_ENABLE
+#define configWIRING_SPI1_ENABLE
 //#define configWIRING_SPI2_ENABLE
 
 /* config wiring can. */

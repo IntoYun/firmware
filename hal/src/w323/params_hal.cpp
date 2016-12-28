@@ -31,8 +31,8 @@ boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
 //board type
-#define INTOROBOT_BOARD_TYPE    "888005"
-#define INTOROBOT_BOARD_TYPE1   "887005"
+#define INTOROBOT_BOARD_TYPE    "888102"
+#define INTOROBOT_BOARD_TYPE1   "887102"
 #define INTOROBOT_BOARD_NAME    "fig"
 
 

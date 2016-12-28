@@ -63,6 +63,37 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     aJson.deleteItem(root);
 
 #elif PLATFORM_ID == PLATFORM_FIG
+    aJsonObject* root = aJson.createObject();
+    char* strPtr = nullptr;
+
+    if(pin == 0xff)
+    {
+        uint8_t pinNumber;
+        for(pinNumber = D0; pinNumber <= D6; pinNumber++)
+        {
+            pinMode(pinNumber,OUTPUT);
+            digitalWrite(pinNumber,value);
+        }
+
+        for(pinNumber = A3; pinNumber <= A9; pinNumber++)
+        {
+            pinMode(pinNumber,OUTPUT);
+            digitalWrite(pinNumber,value);
+        }
+
+    }
+    else
+    {
+        pinMode(pin,OUTPUT);
+        digitalWrite(pin,value);
+    }
+    aJson.addNumberToObject(root, "status", 200);
+    strPtr = aJson.print(root);
+    ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
+    free(strPtr);
+    aJson.deleteItem(root);
+
+
 
 #elif PLATFORM_ID == PLATFORM_W323
 

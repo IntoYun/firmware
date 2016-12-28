@@ -106,8 +106,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define D5  5
 #define D6  6
 #define D7  7
-#define TX  8
-#define RX  9
+
 #define LED_R 10
 #define LED_G 11
 #define LED_B 12
@@ -124,25 +123,37 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define A8  22
 #define A9  23
 
+//Serial pins
+#define TX  8
+#define RX  9
+
+// Serial1 pin
+#define TX1  D3
+#define RX1  D4
+
+// Serial2 pin
+#define TX2  A3
+#define RX2  A4
+
 // SPI pins
 #define SS   D5
 #define SCK  D2
 #define MISO D0
 #define MOSI D1
 
-// // SPI_1 pins
-// #define SS   A4
-// #define SCK  A5
-// #define MISO A6
-// #define MOSI A7
+// SPI_1 pins
+#define SS1   A4
+#define SCK1  A5
+#define MISO1 A6
+#define MOSI1 A8
 
 // I2C pins
 #define SDA  D0
 #define SCL  D1
 
 // I2C_1 pins
-// #define SDA  A2
-// #define SCL  A3
+#define SDA1  A2
+#define SCL1  A3
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
