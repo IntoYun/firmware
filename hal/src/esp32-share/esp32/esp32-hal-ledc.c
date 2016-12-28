@@ -50,7 +50,7 @@ xSemaphoreHandle _ledc_sys_lock;
 ** ledc: 14 => Group: 1, Channel: 6, Timer: 3
 ** ledc: 15 => Group: 1, Channel: 7, Timer: 3
 */
-
+#if 0
 //uint32_t frequency = (80MHz or 1MHz)/((div_num / 256.0)*(1 << bit_num));
 void ledcSetupTimer(uint8_t chan, uint32_t div_num, uint8_t bit_num, bool apb_clk)
 {
@@ -183,3 +183,4 @@ void ledcDetachPin(uint8_t pin)
 {
     pinMatrixOutDetach(pin, false, false);
 }
+#endif

@@ -3,7 +3,7 @@ USER_MODULE_PATH=.
 
 BUILD_PATH_EXT = $(USER_BUILD_PATH_EXT)
 
-DEPENDENCIES = wiring wiring_ex system system_ex services hal
+DEPENDENCIES = wiring wiring_ex system services hal
 
 include ../build/platform-id.mk
 

@@ -6,7 +6,7 @@ WIRING_EX_MODULE_PATH=.
 TARGET_TYPE = a
 BUILD_PATH_EXT = $(BUILD_TARGET_PLATFORM)
 
-DEPENDENCIES = hal services system system_ex wiring platform
+DEPENDENCIES = hal services system wiring platform
 
 include ../build/arm-tlm.mk
 

@@ -31,6 +31,7 @@
 xSemaphoreHandle _sd_sys_lock;
 #endif
 
+#if 0
 uint32_t sdSetup(uint8_t channel, uint32_t freq) //chan 0-7 freq 1220-312500
 {
     if(channel > 7) {
@@ -90,3 +91,4 @@ void sdDetachPin(uint8_t pin)
 {
     pinMatrixOutDetach(pin, false, false);
 }
+#endif

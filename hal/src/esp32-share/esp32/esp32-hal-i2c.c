@@ -62,6 +62,7 @@ static i2c_t _i2c_bus_array[2] = {
 };
 #endif
 
+#if 0
 i2c_err_t i2cAttachSCL(i2c_t * i2c, int8_t scl)
 {
     if(i2c == NULL){
@@ -447,3 +448,4 @@ void i2cInitFix(i2c_t * i2c){
     while(!i2c->dev->command[2].done);
     I2C_MUTEX_UNLOCK();
 }
+#endif

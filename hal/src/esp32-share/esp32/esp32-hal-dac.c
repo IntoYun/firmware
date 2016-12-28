@@ -27,7 +27,7 @@ void IRAM_ATTR __dacWrite(uint8_t pin, uint8_t value)
     if(pin < 25 || pin > 26){
         return;//not dac pin
     }
-    pinMode(pin, ANALOG);
+    //pinMode(pin, ANALOG);
     uint8_t channel = pin - 25;
 
 

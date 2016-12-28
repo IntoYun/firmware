@@ -224,13 +224,17 @@ void system_process_loop(void)
 #if PLATFORM_THREADING
     while (1) {
 #endif
+#ifdef configSETUP_ENABLE
         if(!g_intorobot_system_config)
         {
+#endif
             manage_serial_flasher();
             NEWORK_FN(manage_network_connection(), (void)0);
             NEWORK_FN(manage_ip_config(), (void)0);
             CLOUD_FN(manage_cloud_connection(), (void)0);
+#ifdef configSETUP_ENABLE
         }
+#endif
 #if PLATFORM_THREADING
     }
 #endif

@@ -21,7 +21,7 @@
 #include "soc/rtc_io_reg.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/sens_reg.h"
-
+#if 0
 #define RTC_TOUCH_INUM 13
 
 static uint16_t __touchSleepCycles = 0x1000;
@@ -170,3 +170,4 @@ void __touchAttachInterrupt(uint8_t pin, void (*userFunc)(void), uint16_t thresh
 extern uint16_t touchRead(uint8_t pin) __attribute__ ((weak, alias("__touchRead")));
 extern void touchAttachInterrupt(uint8_t pin, void (*userFunc)(void), uint16_t threshold) __attribute__ ((weak, alias("__touchAttachInterrupt")));
 extern void touchSetCycles(uint16_t measure, uint16_t sleep) __attribute__ ((weak, alias("__touchSetCycles")));
+#endif

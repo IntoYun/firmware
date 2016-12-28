@@ -75,7 +75,7 @@ typedef void (*voidFuncPtr)(void);
 static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
 
 #include "driver/rtc_io.h"
-
+/*
 extern void IRAM_ATTR __pinMode(uint8_t pin, uint8_t mode)
 {
 
@@ -266,4 +266,4 @@ extern void digitalWrite(uint8_t pin, uint8_t val) __attribute__ ((weak, alias("
 extern int digitalRead(uint8_t pin) __attribute__ ((weak, alias("__digitalRead")));
 extern void attachInterrupt(uint8_t pin, voidFuncPtr handler, int mode) __attribute__ ((weak, alias("__attachInterrupt")));
 extern void detachInterrupt(uint8_t pin) __attribute__ ((weak, alias("__detachInterrupt")));
-
+*/
