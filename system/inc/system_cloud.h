@@ -102,22 +102,22 @@ typedef enum{
 struct int_property_t{
     int minValue;
     int maxValue;
-    int Resolution;
-    int intValue;
+    int resolution;
+    int value;
 };
 
 //float型属性
 struct float_property_t{
     double minValue;
     double maxValue;
-    double Resolution;
-    double intValue;
+    double resolution;
+    double value;
 };
 
 //透传型属性
 struct binary_property_t{
-    const uint8_t *binaryValue;
-    uint16_t binaryLen;
+    const uint8_t *value;
+    uint16_t len;
 };
 
 // Property configuration
@@ -127,6 +127,8 @@ struct property_conf {
     const char *permission;
     const char *device_id;
     const char *policy;
+    long lapse;
+    long runtime;
     union
     {
         bool boolValue;
@@ -136,8 +138,6 @@ struct property_conf {
         String stringValue;
         binary_property_t binaryValue;
     };
-    long lapse;
-    long runtime;
 };
 
 #ifdef __cplusplus
