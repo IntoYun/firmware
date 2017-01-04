@@ -29,7 +29,7 @@
 #include "stm32f1xx.h"
 #include "service_debug.h"
 
-#define TONE_TIM_COUNTER_CLOCK_FREQ 1000000 ////TIM Counter clock = 1MHz
+#define TONE_TIM_COUNTER_CLOCK_FREQ 1000000 //TIM Counter clock = 1MHz
 
 TIM_HandleTypeDef TimHandleTone;
 /*
@@ -41,7 +41,6 @@ TIM_HandleTypeDef TimHandleTone;
  */
 void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
 {
-    DEBUG("Enter HAL_Tone_Start ...");
     if(frequency < 20 || frequency > 20000)
     {
         return;//no tone for frequency outside of human audible range
@@ -56,15 +55,10 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         GPIO_InitStruct.Pull  = GPIO_PULLUP;
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 
-        // else if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         {
-            DEBUG("Tone TIM2  Configuration...");
             __HAL_RCC_TIM2_CLK_ENABLE();
-
-            /* GPIO_InitStruct.Alternate = GPIO_AF1_TIM2; */
-            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
-            /* Port Clock enable */
+            GPIO_InitStruct.Pin = PIN_MAP[pin].gpio_pin;
             if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
             {
                 __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -87,18 +81,11 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
             }
             HAL_NVIC_SetPriority(TIM2_IRQn, 0x0E, 0);
             HAL_NVIC_EnableIRQ(TIM2_IRQn);
-            //HAL_TIM2_Handler = Tone_TIM2_Handler;
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM3) )
         {
-            // D0 and A7 share the same TIM3->CHANNEL2, only one can work at a time.
-            // D2 and A6 share the same TIM3->CHANNEL1, only one can work at a time.
-            DEBUG("Tone TIM3  Configuration...");
             __HAL_RCC_TIM3_CLK_ENABLE();
-            /* GPIO_InitStruct.Alternate = GPIO_AF2_TIM3; */
-            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
-
-            /* Port Clock enable */
+            GPIO_InitStruct.Pin = PIN_MAP[pin].gpio_pin;
             if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
             {
                 __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -121,16 +108,11 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
             }
             HAL_NVIC_SetPriority(TIM3_IRQn, 0x0E, 0);
             HAL_NVIC_EnableIRQ(TIM3_IRQn);
-
-            //HAL_TIM3_Handler = Tone_TIM3_Handler;
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM4) )
         {
-            DEBUG("Tone TIM4  Configuration...");
             __HAL_RCC_TIM4_CLK_ENABLE();
-            /* GPIO_InitStruct.Alternate = GPIO_AF3_TIM9; */
-            GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
-            /* Port Clock enable */
+            GPIO_InitStruct.Pin = PIN_MAP[pin].gpio_pin;
             if( (PIN_MAP[pin].gpio_peripheral == GPIOA) )
             {
                 __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -151,9 +133,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
                 __HAL_RCC_GPIOD_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
             }
-            HAL_NVIC_SetPriority(TIM9_IRQn, 0x0E, 0);
-            HAL_NVIC_EnableIRQ(TIM9_IRQn);
-            //HAL_TIM4_Handler = Tone_TIM4_Handler;
+            HAL_NVIC_SetPriority(TIM4_IRQn, 0x0E, 0);
+            HAL_NVIC_EnableIRQ(TIM4_IRQn);
         }
 
         // XXX: Note here SystemCoreClock Should be TIM CLK, here equal
@@ -168,8 +149,6 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         {
             timer_channel_toggle_count = 2 * frequency * duration / 1000; // Change to seconds.
         }
-        DEBUG("Tone TIM_Prescaler: %d", TIM_Prescaler);
-        DEBUG("Tone TIM_CCR: %d", TIM_CCR);
 
         PIN_MAP[pin].timer_ccr = TIM_CCR;
         PIN_MAP[pin].user_property = timer_channel_toggle_count;
@@ -189,24 +168,23 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         /* Set the pulse value for channel 1 */
         sConfig.Pulse = TIM_CCR;
 
-
         if (HAL_TIM_OC_ConfigChannel(&TimHandleTone, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            DEBUG("TIM OC CconfigChannel Error");
+            /* DEBUG("TIM OC CconfigChannel Error"); */
         }
 
         /* Start channel */
         if (HAL_TIM_OC_Start_IT(&TimHandleTone, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             //Error_Handler();
-            DEBUG("TIM OC Start IT Error");
+            /* DEBUG("TIM OC Start IT Error"); */
         }
     }
     else
     {
         // Error
-        DEBUG("The Tone First Error");
+        /* DEBUG("The Tone First Error"); */
     }
 }
 
@@ -317,10 +295,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
     uint32_t uhCapture = 0;
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    // CHANNEL_1: TIM10(D2), TIM11(D5), TIM9(A0), TIM3(A4)
-    // CHANNEL_2: TIM9(D4), TIM3(A5),
-    // CHANNEL_3: TIM2(D0)
-    // CHANNEL_4: TIM2(D1)
+
     if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
     {
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
@@ -359,17 +334,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         }
         else if(htim->Instance == TIM4)
         {
-            if(PIN_MAP[D6].user_property != -1)
+            if(PIN_MAP[D9].user_property != -1)
             {
                 /* Set the Capture Compare Register value */
-                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[D6].timer_ccr));
-                if (PIN_MAP[D6].user_property > 0)
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, (uhCapture + PIN_MAP[D9].timer_ccr));
+                if (PIN_MAP[D9].user_property > 0)
                 {
-                    PIN_MAP[D6].user_property -= 1;
+                    PIN_MAP[D9].user_property -= 1;
                 }
                 else
                 {
-                    HAL_Tone_Stop(D6);
+                    HAL_Tone_Stop(D9);
                 }
             }
         }
@@ -412,17 +387,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         }
         else if(htim->Instance == TIM4)
         {
-            if(PIN_MAP[D7].user_property != -1)
+            if(PIN_MAP[D8].user_property != -1)
             {
                     /* Set the Capture Compare Register value */
-                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[D7].timer_ccr));
-                    if (PIN_MAP[D7].user_property > 0)
+                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, (uhCapture + PIN_MAP[D8].timer_ccr));
+                    if (PIN_MAP[D8].user_property > 0)
                     {
-                        PIN_MAP[D7].user_property -= 1;
+                        PIN_MAP[D8].user_property -= 1;
                     }
                     else
                     {
-                        HAL_Tone_Stop(D7);
+                        HAL_Tone_Stop(D8);
                     }
             }
         }
@@ -433,17 +408,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
         if(htim->Instance == TIM2)
         {
-            if(PIN_MAP[A2].user_property != -1)
+            if(PIN_MAP[A3].user_property != -1)
             {
                 /* Set the Capture Compare Register value */
-                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, (uhCapture + PIN_MAP[A2].timer_ccr));
-                if (PIN_MAP[A2].user_property > 0)
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, (uhCapture + PIN_MAP[A3].timer_ccr));
+                if (PIN_MAP[A3].user_property > 0)
                 {
-                    PIN_MAP[A2].user_property -= 1;
+                    PIN_MAP[A3].user_property -= 1;
                 }
                 else
                 {
-                    HAL_Tone_Stop(A2);
+                    HAL_Tone_Stop(A3);
                 }
             }
         }
@@ -465,17 +440,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         }
         else if(htim->Instance == TIM4)
         {
-            if(PIN_MAP[D8].user_property != -1)
+            if(PIN_MAP[D6].user_property != -1)
             {
                     /* Set the Capture Compare Register value */
-                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, (uhCapture + PIN_MAP[D8].timer_ccr));
-                    if (PIN_MAP[D8].user_property > 0)
+                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, (uhCapture + PIN_MAP[D6].timer_ccr));
+                    if (PIN_MAP[D6].user_property > 0)
                     {
-                        PIN_MAP[D8].user_property -= 1;
+                        PIN_MAP[D6].user_property -= 1;
                     }
                     else
                     {
-                        HAL_Tone_Stop(D8);
+                        HAL_Tone_Stop(D6);
                     }
             }
         }
@@ -486,17 +461,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         uhCapture = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
         if(htim->Instance == TIM2)
         {
-            if(PIN_MAP[A3].user_property != -1)
+            if(PIN_MAP[A2].user_property != -1)
             {
                 /* Set the Capture Compare Register value */
-                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, (uhCapture + PIN_MAP[A3].timer_ccr));
-                if (PIN_MAP[A3].user_property > 0)
+                __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, (uhCapture + PIN_MAP[A2].timer_ccr));
+                if (PIN_MAP[A2].user_property > 0)
                 {
-                    PIN_MAP[A3].user_property -= 1;
+                    PIN_MAP[A2].user_property -= 1;
                 }
                 else
                 {
-                    HAL_Tone_Stop(A3);
+                    HAL_Tone_Stop(A2);
                 }
             }
         }
@@ -518,17 +493,17 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
         }
         else if(htim->Instance == TIM4)
         {
-            if(PIN_MAP[D9].user_property != -1)
+            if(PIN_MAP[D7].user_property != -1)
             {
                     /* Set the Capture Compare Register value */
-                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, (uhCapture + PIN_MAP[D9].timer_ccr));
-                    if (PIN_MAP[D9].user_property > 0)
+                    __HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, (uhCapture + PIN_MAP[D7].timer_ccr));
+                    if (PIN_MAP[D7].user_property > 0)
                     {
-                        PIN_MAP[D9].user_property -= 1;
+                        PIN_MAP[D7].user_property -= 1;
                     }
                     else
                     {
-                        HAL_Tone_Stop(D9);
+                        HAL_Tone_Stop(D7);
                     }
             }
         }

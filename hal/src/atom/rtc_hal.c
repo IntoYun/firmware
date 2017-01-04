@@ -196,9 +196,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
     struct tm *tmTemp = gmtime( &value );
     RTC_DateTypeDef sdatestructure;
     RTC_TimeTypeDef stimestructure;
-    DEBUG("tmTemp = %d",tmTemp->tm_hour);
-    DEBUG("tmTemp = %d",tmTemp->tm_min);
-    DEBUG("tmTemp = %d",tmTemp->tm_sec);
+    /* DEBUG("tmTemp = %d",tmTemp->tm_hour); */
+    /* DEBUG("tmTemp = %d",tmTemp->tm_min); */
+    /* DEBUG("tmTemp = %d",tmTemp->tm_sec); */
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
     sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
@@ -216,9 +216,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
     stimestructure.Hours          = tmTemp->tm_hour;//dec2hex_direct(tmTemp->tm_hour);
     stimestructure.Minutes        = tmTemp->tm_min;//dec2hex_direct(tmTemp->tm_min);
     stimestructure.Seconds        = tmTemp->tm_sec;//dec2hex_direct(tmTemp->tm_sec);
-    DEBUG("%d",stimestructure.Hours); 
-    DEBUG("%d",stimestructure.Minutes); 
-    DEBUG("%d",stimestructure.Seconds); 
+    /* DEBUG("%d",stimestructure.Hours);  */
+    /* DEBUG("%d",stimestructure.Minutes);  */
+    /* DEBUG("%d",stimestructure.Seconds);  */
     /* stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM; */
     /* stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ; */
     /* stimestructure.StoreOperation = RTC_STOREOPERATION_RESET; */
