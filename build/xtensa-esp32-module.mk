@@ -57,7 +57,7 @@ lst: $(TARGET_BASE).lst
 esptool-py: $(TARGET_BASE).bin # for esp32
 	$(call,echo,)
 	$(call,echo,'Flashing $< using esptool-py to address')
-	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) 0x1000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/bootloader.bin 0x8000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin 0x10000 $<
+	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) 0x1000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/bootloader.bin 0x8000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin $(PLATFORM_APP_ADDR) $<
 
 # Display size
 size: $(TARGET_BASE).elf

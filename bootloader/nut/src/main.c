@@ -33,7 +33,14 @@ int main()
 {
     BOOT_DEBUG("boot start...\r\n");
     Set_System();
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+
+    //有时上电时，RGB灯很亮，应该是GPIO5脚，上电过程中管脚状态不确定，需确定。
+    //重复设置5次，避免RGB很亮。
+    for(int i = 0; i < 5; i++)
+    {
+        HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+        delay(1);
+    }
 
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();

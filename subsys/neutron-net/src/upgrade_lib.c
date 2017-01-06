@@ -13,14 +13,14 @@ extern SpiFlashChip *flashchip;
  * Description  : a
  * Parameters   :
  * Returns      :
-*******************************************************************************/
+ *******************************************************************************/
 LOCAL bool ICACHE_FLASH_ATTR
 system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
 {
     bool ret = false;
     if(data == NULL || len == 0)
     {
-    	return true;
+        return true;
     }
     upgrade->buffer = (uint8 *)os_zalloc(len + upgrade->extra);
 
@@ -41,12 +41,12 @@ system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
         if (len > SPI_FLASH_SEC_SIZE) {
 
         } else {
-			//os_printf("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+            //os_printf("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
             /* earse sector, just earse when first enter this zone */
             if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
                 upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
                 spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
-				//os_printf("%x\n",upgrade->fw_bin_sec_earse);
+                //os_printf("%x\n",upgrade->fw_bin_sec_earse);
             }
         }
 
@@ -68,7 +68,7 @@ system_upgrade_internal(struct upgrade_param *upgrade, uint8 *data, uint16 len)
  * Description  : a
  * Parameters   :
  * Returns      :
-*******************************************************************************/
+ *******************************************************************************/
 bool ICACHE_FLASH_ATTR
 system_upgrade(uint8 *data, uint16 len)
 {
@@ -83,7 +83,7 @@ system_upgrade(uint8 *data, uint16 len)
  * Description  : a
  * Parameters   :
  * Returns      :
-*******************************************************************************/
+ *******************************************************************************/
 void ICACHE_FLASH_ATTR
 system_upgrade_init(void)
 {
@@ -101,21 +101,21 @@ system_upgrade_init(void)
     system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
 
     if (DEFAULT_STM32_APP_FILE == filetype) {
-		upgrade->fw_bin_sec = CACHE_DEF_STM32_APP_SEC_START;
-		upgrade->fw_bin_sec_num = CACHE_DEF_STM32_APP_SEC_NUM;
-	}
+        upgrade->fw_bin_sec = CACHE_DEF_STM32_APP_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_DEF_STM32_APP_SEC_NUM;
+    }
     else if (ESP8266_APP_FILE == filetype){
-		upgrade->fw_bin_sec = CACHE_ESP8266_APP_SEC_START;
-		upgrade->fw_bin_sec_num = CACHE_ESP8266_APP_SEC_NUM;
+        upgrade->fw_bin_sec = CACHE_ESP8266_APP_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_ESP8266_APP_SEC_NUM;
     }
     else if (NEUTRON_BOOT_FILE == filetype){
-		upgrade->fw_bin_sec = CACHE_NEUTRON_BOOT_SEC_START;
-		upgrade->fw_bin_sec_num = CACHE_NEUTRON_BOOT_SEC_NUM;
+        upgrade->fw_bin_sec = CACHE_NEUTRON_BOOT_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_NEUTRON_BOOT_SEC_NUM;
     }
     else {
-		upgrade->fw_bin_sec = CACHE_ONLINE_STM32_APP_SEC_START;
-		upgrade->fw_bin_sec_num = CACHE_ONLINE_STM32_APP_SEC_NUM;
-	}
+        upgrade->fw_bin_sec = CACHE_ONLINE_STM32_APP_SEC_START;
+        upgrade->fw_bin_sec_num = CACHE_ONLINE_STM32_APP_SEC_NUM;
+    }
     upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
 }
 
@@ -124,7 +124,7 @@ system_upgrade_init(void)
  * Description  : a
  * Parameters   :
  * Returns      :
-*******************************************************************************/
+ *******************************************************************************/
 void ICACHE_FLASH_ATTR
 system_upgrade_deinit(void)
 {

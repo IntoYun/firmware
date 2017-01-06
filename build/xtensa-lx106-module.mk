@@ -57,9 +57,9 @@ lst: $(TARGET_BASE).lst
 esptool: $(TARGET_BASE).bin
 	@echo Flashing $< using esptool to address
 ifeq ("$(MODULE)","bootloader")
-	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x00000 -cf $^
+	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_BOOT_ADDR) -cf $^
 else
-	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca 0x14000 -cf $^
+	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_APP_ADDR) -cf $^
 endif
 	$(call echo,)
 

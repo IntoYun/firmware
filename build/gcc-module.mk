@@ -59,14 +59,14 @@ none:
 	;
 
 st-flash: $(TARGET_BASE).bin
-	@echo Flashing $< using st-flash to address $(PLATFORM_DFU)
-	st-flash write $< $(PLATFORM_DFU)
+	@echo Flashing $< using st-flash to address $(PLATFORM_APP_ADDR)
+	st-flash write $< $(PLATFORM_APP_ADDR)
 
 ifneq ("$(OPENOCD_HOME)","")
 
 program-openocd: $(TARGET_BASE).bin
-	@echo Flashing $< using openocd to address $(PLATFORM_DFU)
-	$(OPENOCD_HOME)/openocd -f $(OPENOCD_HOME)/tcl/interface/ftdi/particle-ftdi.cfg -f $(OPENOCD_HOME)/tcl/target/stm32f2x.cfg  -c "init; reset halt" -c "flash protect 0 0 11 off" -c "program $< $(PLATFORM_DFU) reset exit"
+	@echo Flashing $< using openocd to address $(PLATFORM_APP_ADDR)
+	$(OPENOCD_HOME)/openocd -f $(OPENOCD_HOME)/tcl/interface/ftdi/particle-ftdi.cfg -f $(OPENOCD_HOME)/tcl/target/stm32f2x.cfg  -c "init; reset halt" -c "flash protect 0 0 11 off" -c "program $< $(PLATFORM_APP_ADDR) reset exit"
 
 endif
 
@@ -89,7 +89,7 @@ else
 endif
 endif
 	@echo Flashing using dfu:
-	$(DFU) -d $(USBD_VID_INTOROBOT):$(USBD_PID_DFU) -a 0 -s $(PLATFORM_DFU)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
+	$(DFU) -d $(USBD_VID_INTOROBOT):$(USBD_PID_DFU) -a 0 -s $(PLATFORM_APP_ADDR)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
 
 # Display size
 size: $(TARGET_BASE).elf

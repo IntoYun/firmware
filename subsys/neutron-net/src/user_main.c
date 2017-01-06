@@ -14,7 +14,7 @@
 #include "user_interface.h"
 #include "user_config.h"
 
-// from sdk 1.5.4.1 version patch
+// from sdk v2.0.0 version
 #include "ets_sys.h"
 /******************************************************************************
  * FunctionName : user_rf_cal_sector_set

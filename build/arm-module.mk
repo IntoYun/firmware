@@ -58,16 +58,16 @@ lst: $(TARGET_BASE).lst
 st-flash: $(TARGET_BASE).bin
 	@echo Flashing $< using st-flash
 ifeq ("$(MODULE)","bootloader")
-	$(ST-FLASH) --reset write $< 0x8000000
+	$(ST-FLASH) --reset write $< $(PLATFORM_BOOT_ADDR)
 else
-	$(ST-FLASH) --reset write $< $(PLATFORM_DFU)
+	$(ST-FLASH) --reset write $< $(PLATFORM_APP_ADDR)
 endif
 
 ifneq ("$(OPENOCD_HOME)","")
 
 program-openocd: $(TARGET_BASE).bin
-	@echo Flashing $< using openocd to address $(PLATFORM_DFU)
-	$(OPENOCD_HOME)/openocd -f $(OPENOCD_HOME)/tcl/interface/ftdi/particle-ftdi.cfg -f $(OPENOCD_HOME)/tcl/target/stm32f2x.cfg  -c "init; reset halt" -c "flash protect 0 0 11 off" -c "program $< $(PLATFORM_DFU) reset exit"
+	@echo Flashing $< using openocd to address $(PLATFORM_APP_ADDR)
+	$(OPENOCD_HOME)/openocd -f $(OPENOCD_HOME)/tcl/interface/ftdi/particle-ftdi.cfg -f $(OPENOCD_HOME)/tcl/target/stm32f2x.cfg  -c "init; reset halt" -c "flash protect 0 0 11 off" -c "program $< $(PLATFORM_APP_ADDR) reset exit"
 
 endif
 
@@ -90,7 +90,7 @@ endif
 endif
 endif
 	@echo Flashing using dfu:
-	$(DFU) -d $(USBD_VID_INTOROBOT):$(USBD_PID_DFU) -a 0 -R -s $(PLATFORM_DFU)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
+	$(DFU) -d $(USBD_VID_INTOROBOT):$(USBD_PID_DFU) -a 0 -R -s $(PLATFORM_APP_ADDR)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
 
 program-serial: $(TARGET_BASE).bin
 ifdef START_YMODEM_FLASHER_SERIAL_SPEED
