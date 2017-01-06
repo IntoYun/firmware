@@ -22,48 +22,41 @@
  *
  */
 
-#ifndef _OSAPI_H_
-#define _OSAPI_H_
+#ifndef __WPA2_ENTERPRISE_H__
+#define __WPA2_ENTERPRISE_H__
 
-#include <string.h>
-#include "user_config.h"
+typedef long os_time_t;
 
-#define os_bzero ets_bzero
-#define os_delay_us ets_delay_us
-#define os_install_putc1 ets_install_putc1
+struct os_time {
+	os_time_t sec;
+	os_time_t usec;
+};
 
-#define os_memcmp ets_memcmp
-#define os_memcpy ets_memcpy
-#define os_memmove ets_memmove
-#define os_memset ets_memset
-#define os_strcat strcat
-#define os_strchr strchr
-#define os_strcmp ets_strcmp
-#define os_strcpy ets_strcpy
-#define os_strlen ets_strlen
-#define os_strncmp ets_strncmp
-#define os_strncpy ets_strncpy
-#define os_strstr ets_strstr
-#ifdef USE_US_TIMER
-#define os_timer_arm_us(a, b, c) ets_timer_arm_new(a, b, c, 0)
-#endif
-#define os_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
-#define os_timer_disarm ets_timer_disarm
-#define os_timer_setfn ets_timer_setfn
+typedef int (* get_time_func_t)(struct os_time *t);
 
-#define os_sprintf  ets_sprintf
+int  wifi_station_set_wpa2_enterprise_auth(int enable);
 
-#ifdef USE_OPTIMIZE_PRINTF
-#define os_printf(fmt, ...) do {	\
-	static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt;	\
-	os_printf_plus(flash_str, ##__VA_ARGS__);	\
-	} while(0)
-#else
-#define os_printf	os_printf_plus
-#endif
+int  wifi_station_set_enterprise_cert_key(u8 *client_cert, int client_cert_len,
+			u8 *private_key, int private_key_len,
+			u8 *private_key_passwd, int private_key_passwd_len);
+void  wifi_station_clear_enterprise_cert_key(void);
 
-unsigned long os_random(void);
-int os_get_random(unsigned char *buf, size_t len);
+int  wifi_station_set_enterprise_ca_cert(u8 *ca_cert, int ca_cert_len);
+void  wifi_station_clear_enterprise_ca_cert(void);
 
-#endif
+int  wifi_station_set_enterprise_username(u8 *username, int len);
+void  wifi_station_clear_enterprise_username(void);
 
+int  wifi_station_set_enterprise_password(u8 *password, int len);
+void  wifi_station_clear_enterprise_password(void);
+
+int  wifi_station_set_enterprise_new_password(u8 *new_password, int len);
+void  wifi_station_clear_enterprise_new_password(void);
+
+void  wifi_station_set_enterprise_disable_time_check(bool disable);
+bool  wifi_station_get_enterprise_disable_time_check(void);
+
+void  wpa2_enterprise_set_user_get_time(get_time_func_t cb);
+
+
+#endif /* __WPA2_ENTERPRISE_H__ */

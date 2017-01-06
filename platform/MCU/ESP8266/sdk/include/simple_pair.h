@@ -22,48 +22,43 @@
  *
  */
 
-#ifndef _OSAPI_H_
-#define _OSAPI_H_
+#ifndef __SIMPLE_PAIR_H__
+#define __SIMPLE_PAIR_H__
 
-#include <string.h>
-#include "user_config.h"
+typedef enum {
+	SP_ST_STA_FINISH = 0,
+	SP_ST_AP_FINISH = 0,
+	SP_ST_AP_RECV_NEG,
+	SP_ST_STA_AP_REFUSE_NEG,
+	/* all following is err */
+	SP_ST_WAIT_TIMEOUT,
+	SP_ST_SEND_ERROR,
+	SP_ST_KEY_INSTALL_ERR,
+	SP_ST_KEY_OVERLAP_ERR,  //means the same macaddr has two different keys 
+	SP_ST_OP_ERROR,
+	SP_ST_UNKNOWN_ERROR,
+	SP_ST_MAX,
+} SP_ST_t;
 
-#define os_bzero ets_bzero
-#define os_delay_us ets_delay_us
-#define os_install_putc1 ets_install_putc1
 
-#define os_memcmp ets_memcmp
-#define os_memcpy ets_memcpy
-#define os_memmove ets_memmove
-#define os_memset ets_memset
-#define os_strcat strcat
-#define os_strchr strchr
-#define os_strcmp ets_strcmp
-#define os_strcpy ets_strcpy
-#define os_strlen ets_strlen
-#define os_strncmp ets_strncmp
-#define os_strncpy ets_strncpy
-#define os_strstr ets_strstr
-#ifdef USE_US_TIMER
-#define os_timer_arm_us(a, b, c) ets_timer_arm_new(a, b, c, 0)
-#endif
-#define os_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
-#define os_timer_disarm ets_timer_disarm
-#define os_timer_setfn ets_timer_setfn
+typedef void (*simple_pair_status_cb_t)(u8 *sa, u8 status);
 
-#define os_sprintf  ets_sprintf
+int register_simple_pair_status_cb(simple_pair_status_cb_t cb);
+void unregister_simple_pair_status_cb(void);
 
-#ifdef USE_OPTIMIZE_PRINTF
-#define os_printf(fmt, ...) do {	\
-	static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt;	\
-	os_printf_plus(flash_str, ##__VA_ARGS__);	\
-	} while(0)
-#else
-#define os_printf	os_printf_plus
-#endif
+int simple_pair_init(void);
+void simple_pair_deinit(void);
 
-unsigned long os_random(void);
-int os_get_random(unsigned char *buf, size_t len);
+int simple_pair_state_reset(void);
+int simple_pair_ap_enter_announce_mode(void);
+int simple_pair_sta_enter_scan_mode(void);
 
-#endif
+int simple_pair_sta_start_negotiate(void);
+int simple_pair_ap_start_negotiate(void);
+int simple_pair_ap_refuse_negotiate(void);
 
+int simple_pair_set_peer_ref(u8 *peer_mac, u8 *tmp_key, u8 *ex_key);
+int simple_pair_get_peer_ref(u8 *peer_mac, u8 *tmp_key, u8 *ex_key);
+
+
+#endif /* __SIMPLE_PAIR_H__ */

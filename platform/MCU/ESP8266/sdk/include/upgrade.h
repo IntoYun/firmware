@@ -22,48 +22,53 @@
  *
  */
 
-#ifndef _OSAPI_H_
-#define _OSAPI_H_
+#ifndef __UPGRADE_H__
+#define __UPGRADE_H__
 
-#include <string.h>
-#include "user_config.h"
+#define SPI_FLASH_SEC_SIZE      4096
+#define LIMIT_ERASE_SIZE		0x10000
 
-#define os_bzero ets_bzero
-#define os_delay_us ets_delay_us
-#define os_install_putc1 ets_install_putc1
+#define USER_BIN1               0x00
+#define USER_BIN2               0x01
 
-#define os_memcmp ets_memcmp
-#define os_memcpy ets_memcpy
-#define os_memmove ets_memmove
-#define os_memset ets_memset
-#define os_strcat strcat
-#define os_strchr strchr
-#define os_strcmp ets_strcmp
-#define os_strcpy ets_strcpy
-#define os_strlen ets_strlen
-#define os_strncmp ets_strncmp
-#define os_strncpy ets_strncpy
-#define os_strstr ets_strstr
-#ifdef USE_US_TIMER
-#define os_timer_arm_us(a, b, c) ets_timer_arm_new(a, b, c, 0)
-#endif
-#define os_timer_arm(a, b, c) ets_timer_arm_new(a, b, c, 1)
-#define os_timer_disarm ets_timer_disarm
-#define os_timer_setfn ets_timer_setfn
+#define UPGRADE_FLAG_IDLE       0x00
+#define UPGRADE_FLAG_START      0x01
+#define UPGRADE_FLAG_FINISH     0x02
 
-#define os_sprintf  ets_sprintf
+#define UPGRADE_FW_BIN1         0x00
+#define UPGRADE_FW_BIN2         0x01
 
-#ifdef USE_OPTIMIZE_PRINTF
-#define os_printf(fmt, ...) do {	\
-	static const char flash_str[] ICACHE_RODATA_ATTR STORE_ATTR = fmt;	\
-	os_printf_plus(flash_str, ##__VA_ARGS__);	\
-	} while(0)
+typedef void (*upgrade_states_check_callback)(void * arg);
+
+//#define UPGRADE_SSL_ENABLE
+
+struct upgrade_server_info {
+    uint8 ip[4];
+    uint16 port;
+
+    uint8 upgrade_flag;
+
+    uint8 pre_version[16];
+    uint8 upgrade_version[16];
+
+    uint32 check_times;
+    uint8 *url;
+
+    upgrade_states_check_callback check_cb;
+    struct espconn *pespconn;
+};
+
+#define UPGRADE_FLAG_IDLE       0x00
+#define UPGRADE_FLAG_START      0x01
+#define UPGRADE_FLAG_FINISH     0x02
+
+void system_upgrade_init();
+void system_upgrade_deinit();
+bool system_upgrade(uint8 *data, uint16 len);
+
+#ifdef UPGRADE_SSL_ENABLE
+bool system_upgrade_start_ssl(struct upgrade_server_info *server);	// not supported now
 #else
-#define os_printf	os_printf_plus
+bool system_upgrade_start(struct upgrade_server_info *server);
 #endif
-
-unsigned long os_random(void);
-int os_get_random(unsigned char *buf, size_t len);
-
 #endif
-
