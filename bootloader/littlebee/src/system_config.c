@@ -100,7 +100,7 @@ void HAL_System_Config(void)
     HAL_UI_Initial();
     usart_cellular_initial(115200);  //通讯采取115200波特率
     Cellular_GPIO_Initial();
-    Cellular_Reset();
+    //Cellular_Reset();
     HAL_EEPROM_Init();   //初始化eeprom区
 }
 
@@ -122,7 +122,9 @@ void Cellular_GPIO_Initial(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET); //PWR_KEY
     //A6 INT
+    /*
     __HAL_RCC_GPIOC_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_13;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -130,6 +132,7 @@ void Cellular_GPIO_Initial(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); //默认高电平
+    */
 }
 
 void Cellular_Reset(void)

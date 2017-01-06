@@ -38,6 +38,9 @@
 #include "bkpreg_hal.h"
 #include "parser.h"
 #include "eeprom_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -45,7 +48,7 @@
 void HAL_Core_Setup(void);
 
 /* Private macro ------------------------------------------------------------*/
-#define APP_TREAD_STACK_SIZE            6144
+#define APPLICATION_STACK_SIZE 6144
 
 /* Private variables --------------------------------------------------------*/
 static TaskHandle_t  app_thread_handle;
@@ -62,30 +65,28 @@ extern volatile uint32_t TimingDelay;
  * The mutex to ensure only one thread manipulates the heap at a given time.
  */
 
-static osSemaphoreId malloc_protect_sem;     //申请释放内存保护信号量
+//static osSemaphoreId malloc_protect_sem;     //申请释放内存保护信号量
+static os_mutex_recursive_t malloc_mutex = 0;
 
-static void init_malloc_semaphore(void)
+//static void init_malloc_semaphore(void)
+static void init_malloc_mutex(void)
 {
-    //创建信号量
-    osSemaphoreDef(MALLOC_SEM);
-    malloc_protect_sem = osSemaphoreCreate(osSemaphore(MALLOC_SEM) , 1);
+    os_mutex_recursive_create(&malloc_mutex);
 }
 
 void __malloc_lock(void* ptr)
 {
-    DEBUG("__malloc_lock=%d",malloc_protect_sem);
-    if (malloc_protect_sem)
-      while(osSemaphoreWait(malloc_protect_sem, 0) != osOK) {}
+    if (malloc_mutex)
+        os_mutex_recursive_lock(malloc_mutex);
 }
 
 void __malloc_unlock(void* ptr)
 {
-    if (malloc_protect_sem)
-        osSemaphoreRelease(malloc_protect_sem);
-    DEBUG("__malloc_unlock=%d",malloc_protect_sem);
+    if (malloc_mutex)
+        os_mutex_recursive_unlock(malloc_mutex);
 }
 
-static void app_task_start(void const *argument)
+static void application_task_start(void const *argument)
 {
     HAL_Core_Setup();
     app_setup_and_loop();
@@ -96,12 +97,9 @@ static void app_task_start(void const *argument)
  */
 int main(void)
 {
-    init_malloc_semaphore();
-    /*app_tread*/
-    osThreadDef(APP_THREAD, app_task_start, osPriorityNormal,0,APP_TREAD_STACK_SIZE/sizeof(portSTACK_TYPE));
-    osThreadCreate(osThread(APP_THREAD),NULL);
-    /* Start scheduler */
-    osKernelStart();
+    init_malloc_mutex();
+    xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
+    vTaskStartScheduler();
     /* we should never get here */
     while (1);
     return 0;
@@ -303,7 +301,7 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-    osSystickHandler();
+    os_systick_handler();
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();

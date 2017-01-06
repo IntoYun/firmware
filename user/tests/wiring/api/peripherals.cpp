@@ -1,6 +1,4 @@
-
 #include "testapi.h"
-#include "spark_wiring_spi.h"
 
 test(SPI_clock)
 {

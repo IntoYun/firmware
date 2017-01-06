@@ -152,13 +152,6 @@ void manage_network_connection()
 #endif
 
 #ifndef configNO_CLOUD
-/**
- * Establishes a socket connection to the cloud if not already present.
- * - attempts to open a socket to the cloud
- *
- * On return, SPARK_CLOUD_SOCKETED is set to true if the socket connection was successful.
- */
-
 void establish_cloud_connection(void)
 {
     if (network.connected())
@@ -168,18 +161,15 @@ void establish_cloud_connection(void)
             if (in_cloud_backoff_period())
                 return;
 
-            //DEBUG_D("Cloud: connecting\r\n");
             int connect_result = intorobot_cloud_connect();
             if (connect_result >= 0)
             {
-                //DEBUG_D("Cloud connected\r\n");
                 g_intorobot_cloud_connected = 1;
                 cloud_failed_connection_attempts = 0;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }
             else
             {
-                //DEBUG_D("Cloud connection failed: %d\r\n", connect_result);
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
                 cloud_connection_failed();

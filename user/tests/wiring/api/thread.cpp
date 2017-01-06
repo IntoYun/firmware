@@ -1,7 +1,7 @@
 #include "testapi.h"
 
 #if PLATFORM_THREADING
-
+/*
 test(api_thread) {
 
     void (*thread_fn)(void *) = NULL;
@@ -37,6 +37,6 @@ test(api_application_watchdog)
 	ApplicationWatchdog wd(30000, System.reset);
 	ApplicationWatchdog wd2(30000, System.reset, stack_size);
 }
-
+*/
 
 #endif

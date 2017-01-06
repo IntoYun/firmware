@@ -23,172 +23,160 @@
 
 #include "testapi.h"
 
-test(api_spark_variable) {
+#ifndef configNO_CLOUD
 
+test(api_intorobot_publish) {
+    bool valueBool = 0;
     int valueInt = 0;
+    int8_t valueInt8 = 0;
+    uint8_t valueUint8 = 0;
+    int16_t valueInt16 = 0;
+    uint16_t valueUint16 = 0;
     int32_t valueInt32 = 0;
     uint32_t valueUint32 = 0;
+    float valueFloat = 0;
     double valueDouble = 0;
-    const char* constValueString = "oh no!";
     char valueString[] = "oh yeah!";
-
     String valueSmartString(valueString);
-    bool boolValue = true;
-    uint8_t uint8Value = 1;
 
-    // API_COMPILE(IntoRobot.variable("mybool", boolValue));
-    // API_COMPILE(IntoRobot.variable("mybool", uint8Value));
+    API_COMPILE(IntoRobot.publish("publish topic name", false));
+    API_COMPILE(IntoRobot.publish("publish topic name", 323));
+    API_COMPILE(IntoRobot.publish("publish topic name", 323.32));
+    API_COMPILE(IntoRobot.publish("publish topic name", "oh yeah!"));
 
-    // API_COMPILE(IntoRobot.variable("myint", &valueInt, INT));
-
-    // API_COMPILE(IntoRobot.variable("mydouble", &valueDouble, DOUBLE));
-
-    // API_COMPILE(IntoRobot.variable("mystring", valueString, STRING));
-    // This doesn't compile and shouldn't
-    // API_COMPILE(IntoRobot.variable("mystring", &valueString, STRING));
-
-    // API_NO_COMPILE(IntoRobot.variable("mystring", constValueString, STRING));
-
-    // API_COMPILE(IntoRobot.variable("mystring", &valueSmartString, STRING));
-
-    // API_COMPILE(IntoRobot.variable("mystring", &valueInt32, INT));
-    // API_COMPILE(IntoRobot.variable("mystring", &valueUint32, INT));
-
-    // API_NO_COMPILE(IntoRobot.variable("mystring", valueUint32));
-    // API_COMPILE(IntoRobot.variable("mystring", valueInt));
-    // API_COMPILE(IntoRobot.variable("mystring", valueInt32));
-    // API_COMPILE(IntoRobot.variable("mystring", valueUint32));
-
-    // API_COMPILE(IntoRobot.variable("mystring", valueDouble));
-
-    // API_COMPILE(IntoRobot.variable("mystring", valueString));
-    // API_COMPILE(IntoRobot.variable("mystring", constValueString));
-    // API_COMPILE(IntoRobot.variable("mystring", valueSmartString));
-    
-    // This should gives a compiler error about too long name
-    // API_COMPILE(IntoRobot.variable("mystring123456789", valueString));
-
+    API_COMPILE(IntoRobot.publish("publish topic name", valueBool));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueInt));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueInt8));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueUint8));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueInt16));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueUint16));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueInt32));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueUint32));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueFloat));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueDouble));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueSmartString));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueString));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueString, strlen(valueString)));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueString, strlen(valueString), 0));
+    API_COMPILE(IntoRobot.publish("publish topic name", valueString, strlen(valueString), 0, 1));
 }
 
-test(api_spark_function) {
-    int (*handler)(String) = NULL;
+test(api_intorobot_subscribe) {
+    void (*handler)(uint8_t*, uint32_t) = NULL;
+    WidgetBaseClass WidgetBase;
 
-    API_COMPILE(IntoRobot.function("name", handler));
-
-    // This should gives a compiler error about too long name
-    //API_COMPILE(IntoRobot.function("superlongfunctionname", handler));
-
-    // Length not checked until run time
-    API_COMPILE(IntoRobot.function(String("name"), handler));
-    const char *longname = "superlongfunctionname";
-    API_COMPILE(IntoRobot.function(longname, handler));
-
-    class MyClass {
-      public:
-        int handler(String arg) { return 0; }
-    } myObj;
-    API_COMPILE(IntoRobot.function("name", &MyClass::handler, &myObj));
+    API_COMPILE(IntoRobot.subscribe("subscribe topic name", NULL, handler));
+    API_COMPILE(IntoRobot.subscribe("subscribe topic name", NULL, handler, 0));
+    API_COMPILE(IntoRobot.subscribe("subscribe topic name", NULL, &WidgetBase));
+    API_COMPILE(IntoRobot.subscribe("subscribe topic name", NULL, &WidgetBase, 0));
 }
 
-test(api_spark_publish) {
-
-    API_COMPILE(IntoRobot.publish("public event name"));
-
-    API_COMPILE(IntoRobot.publish("public event name", "event data"));
-
-    API_COMPILE(IntoRobot.publish("public event name", "event data"));
-
-    API_COMPILE(IntoRobot.publish("public event name", "event data", 60));
-
-    API_COMPILE(IntoRobot.publish("public event name", "event data", 60, PUBLIC));
-
-    API_COMPILE(IntoRobot.publish("private event name", "event data", 60, PRIVATE));
-
-    API_COMPILE(IntoRobot.publish("public event name", PRIVATE));
-
-    API_COMPILE(IntoRobot.publish("public event name", "event data", PRIVATE));
-
-    API_COMPILE(IntoRobot.publish("public event name", PUBLIC));
-
-
-    API_COMPILE(IntoRobot.publish(String("public event name")));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data")));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data")));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data"), 60));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data"), 60, PUBLIC));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data"), 60, PRIVATE));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), PRIVATE));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), String("event data"), PRIVATE));
-
-    API_COMPILE(IntoRobot.publish(String("public event name"), PUBLIC));
-
+test(api_intorobot_unsubscribe) {
+    API_COMPILE(IntoRobot.unsubscribe("unsubscribe topic name", NULL));
 }
 
-test(api_spark_subscribe) {
+test(api_intorobot_addDataPoint) {
+    API_COMPILE(IntoRobot.addDataPointBool(1, UP_ONLY));
+    API_COMPILE(IntoRobot.addDataPointBool(1, UP_ONLY, false));
+    API_COMPILE(IntoRobot.addDataPointBool(1, UP_ONLY, false, TIMED));
+    API_COMPILE(IntoRobot.addDataPointBool(1, UP_ONLY, false, TIMED, 0));
 
-    void (*handler)(const char *event_name, const char *data) = NULL;
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100, 100, 1));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100, 100, 1, 0));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100, 100, 1, 0, TIMED));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100, 100, 1, 0, TIMED, 0));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100.00, 100.00, 0.01));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100.00, 100.00, 0.01, 0));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100.00, 100.00, 0.01, 0, TIMED));
+    API_COMPILE(IntoRobot.addDataPointNumber(1, UP_ONLY, -100.00, 100.00, 0.01, 0, TIMED, 0));
 
-    API_COMPILE(IntoRobot.subscribe("name", handler));
+    API_COMPILE(IntoRobot.addDataPointEnum(1, UP_ONLY));
+    API_COMPILE(IntoRobot.addDataPointEnum(1, UP_ONLY, 0));
+    API_COMPILE(IntoRobot.addDataPointEnum(1, UP_ONLY, 0, TIMED));
+    API_COMPILE(IntoRobot.addDataPointEnum(1, UP_ONLY, 0, TIMED, 0));
 
-    API_COMPILE(IntoRobot.subscribe("name", handler, MY_DEVICES));
+    API_COMPILE(IntoRobot.addDataPointString(1, UP_ONLY));
+    API_COMPILE(IntoRobot.addDataPointString(1, UP_ONLY, "oh yeah!"));
+    API_COMPILE(IntoRobot.addDataPointString(1, UP_ONLY, "oh yeah!", TIMED));
+    API_COMPILE(IntoRobot.addDataPointString(1, UP_ONLY, "oh yeah!", TIMED, 0));
 
-    API_COMPILE(IntoRobot.subscribe("name", handler, "1234"));
-
-
-    API_COMPILE(IntoRobot.subscribe(String("name"), handler));
-
-    API_COMPILE(IntoRobot.subscribe(String("name"), handler, MY_DEVICES));
-
-    API_COMPILE(IntoRobot.subscribe(String("name"), handler, "1234"));
-
-    class MyClass {
-      public:
-        void handler(const char *event_name, const char *data) { }
-    } myObj;
-
-    API_COMPILE(IntoRobot.subscribe("name", &MyClass::handler, &myObj));
-
-    API_COMPILE(IntoRobot.subscribe("name", &MyClass::handler, &myObj, MY_DEVICES));
-
-    API_COMPILE(IntoRobot.subscribe("name", &MyClass::handler, &myObj, "1234"));
-
+    API_COMPILE(IntoRobot.addDataPointBinary(1, UP_ONLY));
+    API_COMPILE(IntoRobot.addDataPointBinary(1, UP_ONLY, "\x31\x32\x33\x34\x35", 5));
+    API_COMPILE(IntoRobot.addDataPointBinary(1, UP_ONLY, "\x31\x32\x33\x34\x35", 5, TIMED));
+    API_COMPILE(IntoRobot.addDataPointBinary(1, UP_ONLY, "\x31\x32\x33\x34\x35", 5, TIMED, 0));
 }
 
-test(api_spark_sleep) {
+test(api_intorobot_readDataPoint) {
+    bool valueBool = 0;
+    int  valueInt = 0;
+    int32_t valueInt32 = 0;
+    uint32_t valueUint32 = 0;
+    float valueFloat = 0;
+    double valueDouble = 0;
+    char valueString[50];
+    String valueSmartString;
+    uint8_t valueBinary[50];
+    uint16_t len;
 
-    API_COMPILE(System.sleep(60));
-
-    API_COMPILE(System.sleep(SLEEP_MODE_WLAN, 60));
-
-    API_COMPILE(System.sleep(SLEEP_MODE_DEEP, 60));
-
-    API_COMPILE(System.sleep(A0, CHANGE));
-    API_COMPILE(System.sleep(A0, RISING));
-    API_COMPILE(System.sleep(A0, FALLING));
-    API_COMPILE(System.sleep(A0, FALLING, 20));
-
-    API_COMPILE(System.sleep(SLEEP_MODE_DEEP));
-
+    API_COMPILE(IntoRobot.readDataPoint(1, valueBool));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueInt));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueInt32));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueUint32));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueFloat));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueDouble));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueSmartString));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueString));
+    API_COMPILE(IntoRobot.readDataPoint(1, valueBinary, len));
 }
 
-test(api_spark_connection) {
+test(api_intorobot_writeDataPoint) {
+    bool valueBool = 0;
+    int valueInt = 0;
+    int8_t valueInt8 = 0;
+    uint8_t valueUint8 = 0;
+    int16_t valueInt16 = 0;
+    uint16_t valueUint16 = 0;
+    int32_t valueInt32 = 0;
+    uint32_t valueUint32 = 0;
+    float valueFloat = 0;
+    double valueDouble = 0;
+    char valueString[] = "oh yeah!";
+    String valueSmartString(valueString);
+
+
+    API_COMPILE(IntoRobot.writeDataPoint(1, true));
+    API_COMPILE(IntoRobot.writeDataPoint(1, 323));
+    API_COMPILE(IntoRobot.writeDataPoint(1, 323.32));
+    API_COMPILE(IntoRobot.writeDataPoint(1, "oh yeah!"));
+    API_COMPILE(IntoRobot.writeDataPoint(1, "\x31\x32\x33\x34\x35", 5));
+
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueBool));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueInt));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueInt8));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueUint8));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueInt16));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueUint16));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueInt32));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueUint32));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueFloat));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueDouble));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueString));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueSmartString));
+    API_COMPILE(IntoRobot.writeDataPoint(1, valueString, strlen(valueString)));
+    API_COMPILE(IntoRobot.writeDataPoints());
+}
+
+test(api_spark_syncTime) {
+    API_COMPILE(IntoRobot.syncTime());
+}
+
+test(api_intorobot_connection) {
     bool connected = false;
-    API_COMPILE(connected=Particle.connected());
+    API_COMPILE(connected=IntoRobot.connected());
     connected++;
     API_COMPILE(IntoRobot.connect());
     API_COMPILE(IntoRobot.disconnect());
     API_COMPILE(IntoRobot.process());
-
-#if HAL_PLATFORM_CLOUD_UDP
-    API_COMPILE(IntoRobot.keepAlive(20 * 60));
-#endif
 }
 
 test(api_spark_deviceID) {
@@ -196,6 +184,9 @@ test(api_spark_deviceID) {
     API_COMPILE(id = IntoRobot.deviceID());
 }
 
-test(api_spark_syncTime) {
-    API_COMPILE(IntoRobot.syncTime());
+test(api_spark_debug) {
+    API_COMPILE(IntoRobot.available());
+    API_COMPILE(IntoRobot.read());
 }
+
+#endif

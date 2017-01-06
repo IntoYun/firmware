@@ -178,7 +178,7 @@ void HAL_Core_Config(void)
     //Wiring pins default to inputs
     for (pin_t pin=0; pin<=6; pin++)
     {
-        //HAL_Pin_Mode(pin, INPUT);
+        HAL_Pin_Mode(pin, INPUT);
     }
 
     HAL_RTC_Initial();
@@ -186,6 +186,20 @@ void HAL_Core_Config(void)
 
     HAL_IWDG_Initial();
     HAL_UI_Initial();
+
+    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
+    delay(1000);
+    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
+    delay(1000);
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
+    delay(1000);
+    HAL_UI_RGB_Color(RGB_COLOR_WHITE);  // color the same with atom
+    delay(2000);
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);  // color the same with atom
+    delay(2000);
+    HAL_UI_RGB_Color(RGB_COLOR_YELLOW);  // color the same with atom
+    delay(2000);
+    HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);  // color the same with atom
 }
 
 void HAL_Core_Load_params(void)

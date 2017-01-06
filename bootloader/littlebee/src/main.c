@@ -185,6 +185,7 @@ int main(void)
     delay(LIGHTTIME);
     HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
 
+    while(1);
     start_app();
     return 0;
 }

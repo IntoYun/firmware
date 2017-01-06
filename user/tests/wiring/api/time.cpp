@@ -1,4 +1,3 @@
-
 #include "testapi.h"
 
 test(time_format)

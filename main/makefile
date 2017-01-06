@@ -32,9 +32,9 @@ LIBS += $(MAKE_DEPENDENCIES)
 LIB_DIRS += $(dir $(LIB_DEPS))
 
 # Target this makefile is building.
-ifeq ("$(ARCH)","arm")
+ifeq ("$(PLATFORM_ARCH)","arm")
 TARGET=elf bin hex size
-else ifeq ($(strip $(ARCH)),$(filter $(ARCH),xtensa-lx106 xtensa-esp32))
+else ifeq ($(strip $(PLATFORM_ARCH)),$(filter $(PLATFORM_ARCH),xtensa-lx106 xtensa-esp32))
 TARGET=elf bin size
 else
 TARGET=exe

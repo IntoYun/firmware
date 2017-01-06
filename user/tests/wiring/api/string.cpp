@@ -1,5 +1,3 @@
-
-
 #include "testapi.h"
 
 test(string_constructor_printable)

@@ -98,7 +98,7 @@ endif
 
 # Determine which is the target device
 
-ARCH=arm
+PLATFORM_ARCH=arm
 
 ################创客核心板####################
 ifeq ("$(PLATFORM_ID)","888002") #neutron
@@ -114,7 +114,7 @@ DEFAULT_PRODUCT_ID=888002
 endif
 
 ifeq ("$(PLATFORM_ID)","888003") #nut
-ARCH=xtensa-lx106
+PLATFORM_ARCH=xtensa-lx106
 PLATFORM=nut
 PLATFORM_DEVICE=nut
 PLATFORM_NAME=nut
@@ -135,7 +135,7 @@ DEFAULT_PRODUCT_ID=888004
 endif
 
 ifeq ("$(PLATFORM_ID)","888005") #fig
-ARCH=xtensa-esp32
+PLATFORM_ARCH=xtensa-esp32
 PLATFORM=fig
 PLATFORM_DEVICE=fig
 PLATFORM_NAME=fig
@@ -182,7 +182,7 @@ endif
 
 ################商业模块####################
 ifeq ("$(PLATFORM_ID)","888101") #w67
-ARCH=xtensa-lx106
+PLATFORM_ARCH=xtensa-lx106
 PLATFORM=w67
 PLATFORM_DEVICE=w67
 PLATFORM_NAME=w67
@@ -192,7 +192,7 @@ DEFAULT_PRODUCT_ID=888101
 endif
 
 ifeq ("$(PLATFORM_ID)","888102") #w323
-ARCH=xtensa-esp32
+PLATFORM_ARCH=xtensa-esp32
 PLATFORM=w323
 PLATFORM_DEVICE=w323
 PLATFORM_NAME=w323
@@ -215,7 +215,7 @@ endif
 
 ################其他####################
 ifeq ("$(PLATFORM_ID)","888201") # gcc
-ARCH=gcc
+PLATFORM_ARCH=gcc
 PLATFORM=gcc
 PLATFORM_DEVICE=gcc
 PLATFORM_NAME=gcc
@@ -228,7 +228,7 @@ PLATFORM_BOOTLOADER=888201
 endif
 
 ifeq ("$(PLATFORM_ID)","888202") #neutron-net
-ARCH=xtensa-lx106
+PLATFORM_ARCH=xtensa-lx106
 PLATFORM=neutron-net
 PLATFORM_DEVICE=neutron-net
 PLATFORM_NAME=neutron-net
@@ -282,7 +282,7 @@ ifeq ("$(PRODUCT_ID)","")
 PRODUCT_ID = $(DEFAULT_PRODUCT_ID)
 endif
 
-ifeq ("$(ARCH)","arm")
+ifeq ("$(PLATFORM_ARCH)","arm")
 MCU_CORE ?= cortex-m3
 PLATFORM_DFU ?= 0x08000000
 # needed for conditional compilation of syshealth_hal.h
@@ -292,6 +292,12 @@ CDEFINES += -D$(PLATFORM_DEVICE)
 CDEFINES += -DUSBD_VID_INTOROBOT=$(USBD_VID_INTOROBOT)
 CDEFINES += -DUSBD_PID_DFU=$(USBD_PID_DFU)
 CDEFINES += -DUSBD_PID_CDC=$(USBD_PID_CDC)
+endif
+
+ifeq ("$(PLATFORM_ARCH)","arm")
+CDEFINES += -DINTOROBOT_ARCH_ARM
+else ifeq ($(strip $(PLATFORM_ARCH)),$(filter $(PLATFORM_ARCH),xtensa-lx106 xtensa-esp32))
+CDEFINES += -DINTOROBOT_ARCH_XTENSA
 endif
 
 PLATFORM_THREADING ?= 0

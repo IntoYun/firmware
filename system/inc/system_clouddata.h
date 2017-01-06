@@ -108,9 +108,12 @@ void intorobotWriteDataPoints(void);
 
 bool intorobotReadDataPointBool(const uint16_t dpID, bool &value);
 bool intorobotReadDataPointInt(const uint16_t dpID, int &value);
+bool intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value);
+bool intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value);
 bool intorobotReadDataPointDouble(const uint16_t dpID, double &value);
 bool intorobotReadDataPointFloat(const uint16_t dpID, float &value);
-bool intorobotReadDataPointString(const uint16_t dpID, char *value);
+bool intorobotReadDataPointString(const uint16_t dpID, String &value);
+bool intorobotReadDataPointStringChar(const uint16_t dpID, char *value);
 bool intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
 
 #ifdef __cplusplus

@@ -8,3 +8,5 @@ CPPSRC += $(call target_files,$(TARGET_HAL_SRC_PATH)/,*.cpp)
 # ASM source files included in this build.
 ASRC += $(call target_files,$(TARGET_HAL_SRC_PATH)/,*.S)
 
+include $(call rwildcard,$(TARGET_HAL_STM32F1XX_SHARE_PATH)/,sources.mk)
+

@@ -20,6 +20,8 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
+#if 0
+
 #if PLATFORM_ID == 6
 
 // Regression test for the WICED deadlock in sys_sem_new
@@ -52,5 +54,7 @@ test(concurrent_semaphore_deadlock)
 
     // No assertion needed. If the test finishes there was no deadlock
 }
+#endif
 
 #endif
+

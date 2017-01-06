@@ -18,7 +18,7 @@
 #ifndef _FLASHEE_EEPROM_H_
 #define _FLASHEE_EEPROM_H_
 
-#ifdef SPARK
+#ifdef INTOROBOT
 #include "application.h"
 #endif
 

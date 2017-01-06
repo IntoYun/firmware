@@ -56,6 +56,7 @@
 #include "wiring_timer.h"
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"
+#include "wiring_httpclient.h"
 #include "wiring_udp.h"
 #include "wiring_time.h"
 #include "wiring_tone.h"

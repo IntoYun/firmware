@@ -24,50 +24,23 @@
 #include "testapi.h"
 
 test(system_api) {
-
-    // API_COMPILE(System.dfu());
-    // API_COMPILE(System.dfu(true));
-
+    API_COMPILE(System.dfu());
+    API_COMPILE(System.dfu(true));
     API_COMPILE(System.factoryReset());
-
     API_COMPILE(System.enterSafeMode());
-
     API_COMPILE(System.reset());
-
     API_COMPILE(System.sleep(60));
-
 }
 
-test(system_sleep)
-{
+test(system_sleep) {
     API_COMPILE(System.sleep(60));
-
     API_COMPILE(System.sleep(SLEEP_MODE_WLAN, 60));
-
     API_COMPILE(System.sleep(SLEEP_MODE_DEEP, 60));
-
     API_COMPILE(System.sleep(SLEEP_MODE_DEEP));
-
     API_COMPILE(System.sleep(A0, CHANGE));
     API_COMPILE(System.sleep(A0, RISING));
     API_COMPILE(System.sleep(A0, FALLING));
     API_COMPILE(System.sleep(A0, FALLING, 20));
-
-    // with network flags
-    API_COMPILE(System.sleep(SLEEP_MODE_WLAN, 60, SLEEP_NETWORK_STANDBY));
-
-    API_COMPILE(System.sleep(SLEEP_MODE_DEEP, 60, SLEEP_NETWORK_STANDBY));
-    API_COMPILE(System.sleep(SLEEP_MODE_DEEP, SLEEP_NETWORK_STANDBY, 60));
-
-    API_COMPILE(System.sleep(SLEEP_MODE_DEEP, SLEEP_NETWORK_STANDBY));
-
-    API_COMPILE(System.sleep(A0, CHANGE, SLEEP_NETWORK_STANDBY));
-    API_COMPILE(System.sleep(A0, RISING, SLEEP_NETWORK_STANDBY));
-    API_COMPILE(System.sleep(A0, FALLING, SLEEP_NETWORK_STANDBY));
-    API_COMPILE(System.sleep(A0, FALLING, 20, SLEEP_NETWORK_STANDBY));
-    API_COMPILE(System.sleep(A0, FALLING, SLEEP_NETWORK_STANDBY, 20));
-
-
 }
 
 test(system_mode) {
@@ -90,11 +63,9 @@ test(system_thread_setting) {
 }
 
 test(system_version) {
-
     API_COMPILE(Serial.println(stringify(SYSTEM_VERSION_STRING)));
     API_COMPILE(Serial.println(SYSTEM_VERSION));
 }
-
 
 test(system_freememory) {
     uint32_t f;
@@ -110,9 +81,8 @@ test(system_waitfor) {
 #endif
 }
 
-
+#if 0
 test(system_config_set) {
-
     API_COMPILE(System.set(SYSTEM_CONFIG_DEVICE_KEY, NULL, 123));
 #if PLATFORM == photon
     API_COMPILE(System.set(SYSTEM_CONFIG_SOFTAP_PREFIX, "hello"));
@@ -160,3 +130,13 @@ test(system_events)
     API_COMPILE(System.on(my_events, handler_event_data_param));
     (void)clicks; // avoid unused variable warning
 }
+
+test(system_config) {
+#ifdef configSETUP_ENABLE
+    API_COMPILE(System.configBegin(SYSTEM_CONFIG_TYPE_NONE));
+    API_COMPILE(System.configEnd());
+    API_COMPILE(System.configStatus());
+    API_COMPILE(System.configProcess());
+#endif
+}
+#endif

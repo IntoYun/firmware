@@ -40,8 +40,6 @@ enum eWanTimings
 extern volatile uint8_t INTOROBOT_WLAN_STARTED;
 extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
 
-extern volatile uint8_t SPARK_LED_FADE;
-
 extern uint32_t wlan_watchdog_duration;
 extern uint32_t wlan_watchdog_base;
 

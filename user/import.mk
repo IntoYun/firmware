@@ -24,7 +24,7 @@ USER_LIB_DEP = $(USER_LIB_DIR)/libuser.a
 CDEFINES += -DINCLUDE_PLATFORM=1
 
 # gcc HAL is different for test driver and test subject
-ifeq "$(SPARK_TEST_DRIVER)" "1"
+ifeq "$(INTOROBOT_TEST_DRIVER)" "1"
 USER_FLAVOR+=-driver
 endif
 

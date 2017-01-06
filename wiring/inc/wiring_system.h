@@ -1,9 +1,6 @@
 /**
  ******************************************************************************
- * @file    spark_wiring_system.h
- * @author  Satish Nair, Zachary Crockett, Matthew McGowan
- ******************************************************************************
-  Copyright (c) 2013-2015 Particle Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -19,6 +16,7 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
  */
+
 
 #ifndef WIRING_SYSTEM_H__
 #define WIRING_SYSTEM_H__
@@ -85,7 +83,7 @@ public:
     }
 #endif
 
-    static void sleep(Spark_Sleep_TypeDef sleepMode, long seconds=0);
+    static void sleep(IntoRobot_Sleep_TypeDef sleepMode, long seconds=0);
     static void sleep(long seconds) { sleep(SLEEP_MODE_WLAN, seconds); }
     static void sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds=0);
     static String deviceID(void) { return intorobot_deviceID(); }

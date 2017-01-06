@@ -67,26 +67,24 @@ extern "C"
 #define UNLOCK()    __modem_unlock()
 
 
-static osSemaphoreId modem_protect_sem;     //申请释放内存保护信号量
+static os_mutex_recursive_t modem_mutex = 0;
 
-void init_modem_semaphore(void)
+void init_modem_mutex(void)
 {
-    osSemaphoreDef(MODEM_SEM);
-    modem_protect_sem = osSemaphoreCreate(osSemaphore(MODEM_SEM) , 1);
+    os_mutex_recursive_create(&modem_mutex);
 }
 
 static void __modem_lock(void)
 {
-    if (modem_protect_sem)
-      while(osSemaphoreWait(modem_protect_sem, 0) != osOK) {}
+    if (modem_mutex)
+        os_mutex_recursive_lock(modem_mutex);
 }
 
 static void __modem_unlock(void)
 {
-    if (modem_protect_sem)
-        osSemaphoreRelease(modem_protect_sem);
+    if (modem_mutex)
+        os_mutex_recursive_unlock(modem_mutex);
 }
-
 
 #ifdef MDM_DEBUG
 #if 0 // colored terminal output using ANSI escape sequences
@@ -361,7 +359,7 @@ void MDMParser::reset(void)
 
 bool MDMParser::init(void)
 {
-    init_modem_semaphore();
+    init_modem_mutex();
     LOCK();
     if (!_init) {
         MDM_INFO("[ Esp8266 init ]");

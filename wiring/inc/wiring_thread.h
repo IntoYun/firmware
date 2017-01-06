@@ -1,10 +1,6 @@
 /**
  ******************************************************************************
- * @file    spark_wiring_thread.h
- * @authors Matthew McGowan
- * @date    03 March 2015
- ******************************************************************************
-  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -18,11 +14,11 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
+  ******************************************************************************
  */
 
-#ifndef SPARK_WIRING_THREAD_H
-#define	SPARK_WIRING_THREAD_H
+#ifndef WIRING_THREAD_H_
+#define WIRING_THREAD_H_
 
 #if 0
 //#if PLATFORM_THREADING
@@ -194,5 +190,5 @@ public:
 
 #endif
 
-#endif	/* SPARK_WIRING_THREAD_H */
+#endif	/* WIRING_THREAD_H_ */
 

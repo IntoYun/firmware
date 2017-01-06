@@ -22,7 +22,7 @@
  */
 
 #ifndef TESTAPI_H
-#define	TESTAPI_H
+#define TESTAPI_H
 
 #include "application.h"
 #include "unit-test/unit-test.h"

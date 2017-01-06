@@ -33,7 +33,7 @@ struct EEPROMCustomObject{
 };
 
 test(EEPROM_Capacity) {
-#if (PLATFORM_ID == 0) // Core
+#if PLATFORM_ID == PLATFORM_ATOM
   uint16_t expectedCapacity = 128;
 #else // Photon/P1/Electron
   uint16_t expectedCapacity = 2048;

@@ -23,8 +23,8 @@ CFLAGS += -g3 -gdwarf-2 -Os -mthumb -fno-strict-aliasing -Wfatal-errors -w -fno-
 
 CONLYFLAGS += -Wno-pointer-sign -std=gnu99
 
-# C++ 编译参数
-CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new -std=gnu++11
+# C++ 编译参数  -fpermissive 把代码的语法错误作为警告,并继续编译进程
+CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new -std=gnu++11 -fpermissive
 
 ASFLAGS += -mcpu=$(MCU_CORE) -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
 

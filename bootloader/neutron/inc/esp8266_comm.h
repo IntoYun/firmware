@@ -1,22 +1,3 @@
-/******************************************************************************
-  SparkFunESP8266WiFi.h
-  ESP8266 WiFi Shield Library Main Header File
-  Jim Lindblom @ SparkFun Electronics
-  Original Creation Date: June 20, 2015
-http://github.com/sparkfun/SparkFun_ESP8266_AT_Arduino_Library
-
-!!! Description Here !!!
-
-Development environment specifics:
-IDE: Arduino 1.6.5
-Hardware Platform: Arduino Uno
-ESP8266 WiFi Shield Version: 1.0
-
-This code is beerware; if you see me (or any other SparkFun employee) at the
-local, and you've found our code helpful, please buy us a round!
-
-Distributed as-is; no warranty is given.
- ******************************************************************************/
 #ifndef ESP8266_COMM_H_
 #define ESP8266_COMM_H_
 

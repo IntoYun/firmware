@@ -263,13 +263,25 @@ bool intorobotReadDataPointInt(const uint16_t dpID, int &value)
     return flag;
 }
 
-bool intorobotReadDataPointDouble(const uint16_t dpID, double &value)
+bool intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value)
 {
     int index = intorobotDiscoverProperty(dpID);
     bool flag = properties[index]->readFlag;
 
     if (index != -1) {
-        value = properties[index]->value.toFloat();
+        value = (int32_t)(properties[index]->value.toInt());
+        properties[index]->readFlag = false;
+    }
+    return flag;
+}
+
+bool intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    bool flag = properties[index]->readFlag;
+
+    if (index != -1) {
+        value = (uint32_t)(properties[index]->value.toInt());
         properties[index]->readFlag = false;
     }
     return flag;
@@ -282,6 +294,42 @@ bool intorobotReadDataPointFloat(const uint16_t dpID, float &value)
 
     if (index != -1) {
         value = properties[index]->value.toFloat();
+        properties[index]->readFlag = false;
+    }
+    return flag;
+}
+
+bool intorobotReadDataPointDouble(const uint16_t dpID, double &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    bool flag = properties[index]->readFlag;
+
+    if (index != -1) {
+        value = properties[index]->value.toFloat();
+        properties[index]->readFlag = false;
+    }
+    return flag;
+}
+
+bool intorobotReadDataPointString(const uint16_t dpID, String &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    bool flag = properties[index]->readFlag;
+
+    if (index != -1) {
+        value = properties[index]->value;
+        properties[index]->readFlag = false;
+    }
+    return flag;
+}
+
+bool intorobotReadDataPointStringChar(const uint16_t dpID, char *value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    bool flag = properties[index]->readFlag;
+
+    if (index != -1) {
+        value = (char *)(properties[index]->value.c_str());
         properties[index]->readFlag = false;
     }
     return flag;

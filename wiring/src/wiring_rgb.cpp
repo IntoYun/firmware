@@ -18,8 +18,6 @@
 */
 
 #include "wiring_rgb.h"
-#include "ui_hal.h"
-
 
 RGBClass::RGBClass() {
     _control=false;

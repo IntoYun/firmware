@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    spark_wiring_can.h
- * @author  Brian Spranger, Julien Vanier
- * @version V1.0.0
- * @date    04-Jan-2016
- * @brief   Header for spark_wiring_can.c module
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or

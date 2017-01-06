@@ -1,3 +1,4 @@
+#if 0
 
 // not hardware specific so test on the photon only to free up space for the core
 #if PLATFORM_ID>=3
@@ -203,5 +204,7 @@ test(LED_ChangeHandlerCalled) {
     // then
     assertChangeHandlerCalledWith(ledAdjust(10),ledAdjust(20),ledAdjust(30));
 }
+
+#endif
 
 #endif

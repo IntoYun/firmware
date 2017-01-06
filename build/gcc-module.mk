@@ -89,7 +89,7 @@ else
 endif
 endif
 	@echo Flashing using dfu:
-	$(DFU) -d $(USBD_VID_SPARK):$(USBD_PID_DFU) -a 0 -s $(PLATFORM_DFU)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
+	$(DFU) -d $(USBD_VID_INTOROBOT):$(USBD_PID_DFU) -a 0 -s $(PLATFORM_DFU)$(if $(PLATFORM_DFU_LEAVE),:leave) -D $<
 
 # Display size
 size: $(TARGET_BASE).elf
@@ -113,7 +113,7 @@ size: $(TARGET_BASE).elf
 # Create a DFU file from bin file
 %.dfu: %.bin
 	@cp $< $@
-	$(DFUSUFFIX) -v $(subst 0x,,$(USBD_VID_SPARK)) -p $(subst 0x,,$(USBD_PID_DFU)) -a $@
+	$(DFUSUFFIX) -v $(subst 0x,,$(USBD_VID_INTOROBOT)) -p $(subst 0x,,$(USBD_PID_DFU)) -a $@
 
 # Create a bin file from ELF file
 %.bin : %.elf

@@ -22,6 +22,8 @@
 
 
 #include <stdint.h>
+#include "ui_hal.h"
+
 
 class RGBClass
 {

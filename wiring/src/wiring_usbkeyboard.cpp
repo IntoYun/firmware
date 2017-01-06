@@ -164,7 +164,7 @@ USBKeyboard::USBKeyboard(void)
 
 void USBKeyboard::begin(void)
 {
-	SPARK_USB_Setup();
+	IntoRobot_USB_Setup();
 }
 
 void USBKeyboard::end(void)

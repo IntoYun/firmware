@@ -39,7 +39,7 @@ void USBMouse::buttons(uint8_t button)
 
 void USBMouse::begin(void)
 {
-	SPARK_USB_Setup();
+	IntoRobot_USB_Setup();
 }
 
 void USBMouse::end(void)

@@ -50,8 +50,8 @@ typedef enum
 class WidgetBaseClass
 {
 public:
-    virtual void begin(void (*UserCallBack)(void));
-    virtual void widgetBaseCallBack(uint8_t *payload, uint32_t len);
+    virtual void begin(void (*UserCallBack)(void)) {}
+    virtual void widgetBaseCallBack(uint8_t *payload, uint32_t len) {}
 };
 
 struct CallBackNode

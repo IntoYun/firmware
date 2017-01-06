@@ -79,7 +79,6 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-//    DECLARE_SYS_HEALTH(ENTERED_SparkCoreConfig);
     Set_System();
 
 #ifdef DFU_BUILD_ENABLE

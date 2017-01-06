@@ -1,10 +1,4 @@
-
 #include "testapi.h"
-#include "spark_wiring_i2c.h"
-#include "Serial2/Serial2.h"
-#include "Serial3/Serial3.h"
-#include "Serial4/Serial4.h"
-#include "Serial5/Serial5.h"
 
 test(api_i2c)
 {
@@ -22,20 +16,18 @@ test(api_wiring_pinMode) {
 }
 
 test(api_wiring_analogWrite) {
-  API_COMPILE(analogWrite(D0, 50));
-  API_COMPILE(analogWrite(D0, 50, 10000));
+    API_COMPILE(analogWrite(D0, 50));
+    API_COMPILE(analogWrite(D0, 50, 10000));
 }
 
-test(api_wiring_wire_setSpeed)
-{
+test(api_wiring_wire_setSpeed) {
     API_COMPILE(Wire.setSpeed(CLOCK_SPEED_100KHZ));
 }
-void D0_callback()
-{
+
+void D0_callback() {
 }
 
 test(api_wiring_interrupt) {
-
     API_COMPILE(interrupts());
     API_COMPILE(noInterrupts());
 
@@ -43,14 +35,14 @@ test(api_wiring_interrupt) {
     API_COMPILE(detachInterrupt(D0));
 
     class MyClass {
-      public:
-        void handler() { }
+        public:
+            void handler() { }
     } myObj;
 
     API_COMPILE(attachInterrupt(D0, &MyClass::handler, &myObj, RISING));
 
 
-    API_COMPILE(attachSystemInterrupt(SysInterrupt_TIM1_CC_IRQ, D0_callback));
+    //API_COMPILE(attachSystemInterrupt(SysInterrupt_TIM1_CC_IRQ, D0_callback));
 
     API_COMPILE(attachInterrupt(D0, D0_callback, RISING, 14));
     API_COMPILE(attachInterrupt(D0, D0_callback, RISING, 14, 0));
@@ -59,79 +51,72 @@ test(api_wiring_interrupt) {
 }
 
 test(api_wiring_usartserial) {
+    API_COMPILE(Serial.halfduplex(true));
+    API_COMPILE(Serial.halfduplex(false));
 
-    API_COMPILE(Serial1.halfduplex(true));
-    API_COMPILE(Serial1.halfduplex(false));
+    API_COMPILE(Serial.blockOnOverrun(false));
+    API_COMPILE(Serial.blockOnOverrun(true));
 
-    API_COMPILE(Serial1.blockOnOverrun(false));
-    API_COMPILE(Serial1.blockOnOverrun(true));
+    API_COMPILE(Serial.availableForWrite());
 
-    API_COMPILE(Serial1.availableForWrite());
+    API_COMPILE(Serial.begin(9600, SERIAL_8N1));
+    API_COMPILE(Serial.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_8N2));
+    API_COMPILE(Serial.end());
 
-    API_COMPILE(Serial1.begin(9600, SERIAL_8N1));
-    API_COMPILE(Serial1.end());
-    API_COMPILE(Serial1.begin(9600, SERIAL_8N2));
-    API_COMPILE(Serial1.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_8E1));
+    API_COMPILE(Serial.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_8E2));
+    API_COMPILE(Serial.end());
 
-    API_COMPILE(Serial1.begin(9600, SERIAL_8E1));
-    API_COMPILE(Serial1.end());
-    API_COMPILE(Serial1.begin(9600, SERIAL_8E2));
-    API_COMPILE(Serial1.end());
-
-    API_COMPILE(Serial1.begin(9600, SERIAL_8O1));
-    API_COMPILE(Serial1.end());
-    API_COMPILE(Serial1.begin(9600, SERIAL_8O2));
-    API_COMPILE(Serial1.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_8O1));
+    API_COMPILE(Serial.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_8O2));
+    API_COMPILE(Serial.end());
 
 
-    API_COMPILE(Serial1.begin(9600, SERIAL_9N1));
-    API_COMPILE(Serial1.end());
-    API_COMPILE(Serial1.begin(9600, SERIAL_9N2));
-    API_COMPILE(Serial1.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_9N1));
+    API_COMPILE(Serial.end());
+    API_COMPILE(Serial.begin(9600, SERIAL_9N2));
+    API_COMPILE(Serial.end());
 }
 
 test(api_wiring_usbserial) {
-    API_COMPILE(Serial.blockOnOverrun(false));
-    API_COMPILE(Serial.blockOnOverrun(true));
-    API_COMPILE(Serial.availableForWrite());
+    API_COMPILE(SerialUSB.blockOnOverrun(false));
+    API_COMPILE(SerialUSB.blockOnOverrun(true));
+    API_COMPILE(SerialUSB.availableForWrite());
 }
 
 void TIM3_callback()
 {
 }
 
-#if PLATFORM_ID>=6
-// system interrupt not available for the core yet.
 test(api_wiring_system_interrupt) {
-
-    API_COMPILE(attachSystemInterrupt(SysInterrupt_TIM3_IRQ, TIM3_callback));
-    API_COMPILE(detachSystemInterrupt(SysInterrupt_TIM3_IRQ));
+    //API_COMPILE(attachSystemInterrupt(SysInterrupt_TIM3_IRQ, TIM3_callback));
+    //API_COMPILE(detachSystemInterrupt(SysInterrupt_TIM3_IRQ));
 }
-#endif
 
 void externalLEDHandler(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 class ExternalLed {
-  public:
-    void handler(uint8_t r, uint8_t g, uint8_t b) {
-    }
+    public:
+        void handler(uint8_t r, uint8_t g, uint8_t b) {
+        }
 } externalLed;
 
 test(api_rgb) {
     bool flag; uint8_t value;
-    API_COMPILE(RGB.brightness(50));
-    API_COMPILE(RGB.brightness(50, false));
     API_COMPILE(flag=RGB.controlled());
     API_COMPILE(RGB.control(true));
     API_COMPILE(RGB.color(255,255,255));
     API_COMPILE(RGB.color(RGB_COLOR_WHITE));
-    API_COMPILE(flag=RGB.brightness());
-    API_COMPILE(RGB.onChange(externalLEDHandler));
-    API_COMPILE(RGB.onChange(&ExternalLed::handler, &externalLed));
+    API_COMPILE(RGB.blink(255,255,255,1000));
+    API_COMPILE(RGB.blink(RGB_COLOR_WHITE, 1000));
+    API_COMPILE(RGB.breath(255,255,255,1000));
+    API_COMPILE(RGB.breath(RGB_COLOR_WHITE, 1000));
     (void)flag; (void)value; // unused
 }
-
 
 test(api_servo_trim)
 {
@@ -157,42 +142,42 @@ test(api_map)
  */
 test(api_wiring_globals)
 {
-	void* ptrs[] = {
-			&SPI,
+    void* ptrs[] = {
+        &SPI,
 #ifdef configWIRING_SPI1_ENABLE
-			&SPI1,
+        &SPI1,
 #endif
 #ifdef configWIRING_SPI2_ENABLE
-			&SPI2,
+        &SPI2,
 #endif
-			&Serial,
-			&Wire,
+        &Serial,
+        &Wire,
 #ifdef configWIRING_WIRE1_ENABLE
-			&Wire1,
+        &Wire1,
 #endif
 #ifdef configWIRING_WIRE2_ENABLE
-			&Wire2,
+        &Wire2,
 #endif
 #ifdef configWIRING_WIRE3_ENABLE
-			&Wire3,
+        &Wire3,
 #endif
 #ifdef configWIRING_USARTSERIAL1_ENABLE
-			&Serial1,
+        &Serial1,
 #endif
 #ifdef configWIRING_USARTSERIAL2_ENABLE
-			&Serial2,
+        &Serial2,
 #endif
 #ifdef configWIRING_USARTSERIAL3_ENABLE
-			&Serial3,
+        &Serial3,
 #endif
 #ifdef configWIRING_USARTSERIAL4_ENABLE
-			&Serial4,
+        &Serial4,
 #endif
-#ifdef configWIRING_USARTSERIAL_ENABLE
-			&Serial5,
+#ifdef configWIRING_USARTSERIAL5_ENABLE
+        &Serial5,
 #endif
-			&EEPROM,
-	};
-	(void)ptrs;
+        &EEPROM,
+    };
+    (void)ptrs;
 }
 

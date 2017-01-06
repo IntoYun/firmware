@@ -21,7 +21,7 @@
 #define SYSTEM_THREADING_H_
 
 #if PLATFORM_THREADING
-
+#include "concurrent_hal.h"
 
 void create_system_task(void);
 void close_system_task(void);

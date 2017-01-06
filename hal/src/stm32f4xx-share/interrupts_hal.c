@@ -81,7 +81,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     DEBUG("Pin: %d", pin);
     uint8_t GPIO_PortSource = 0;    //variable to hold the port number
 
-    //Map the Spark pin to the appropriate port and pin on the STM32
+    //Map the pin to the appropriate port and pin on the STM32
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
     uint16_t gpio_pin = PIN_MAP[pin].gpio_pin;
@@ -143,7 +143,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
  */
 void HAL_Interrupts_Detach(uint16_t pin)
 {
-    //Map the Spark Core pin to the appropriate pin on the STM32
+    //Map the pin to the appropriate pin on the STM32
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     uint16_t gpio_pin = PIN_MAP[pin].gpio_pin;
     uint8_t GPIO_PinSource = PIN_MAP[pin].gpio_pin_source;

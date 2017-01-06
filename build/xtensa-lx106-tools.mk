@@ -22,8 +22,8 @@ CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -ff
 
 CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
 
-# C++ 编译参数
-CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11
+# C++ 编译参数  -fpermissive 把代码的语法错误作为警告,并继续编译进程
+CPPFLAGS += -fno-exceptions -fno-rtti -std=c++11 -fpermissive
 
 ASFLAGS += -g -x assembler-with-cpp -MMD -mlongcalls
 

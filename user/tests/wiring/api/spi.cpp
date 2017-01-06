@@ -1,4 +1,3 @@
-
 #include "testapi.h"
 
 test(spi_clock)
@@ -14,5 +13,4 @@ test(spi_transfer)
 {
     API_COMPILE(SPI.transfer(0));
     API_COMPILE(SPI.transfer(NULL, NULL, 1, NULL));
-    API_COMPILE(SPI.transferCancel());
 }

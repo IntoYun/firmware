@@ -34,11 +34,8 @@ test(GPIO_PinModeSetResultsInCorrectMode) {
             INPUT_PULLDOWN,
             AF_OUTPUT_PUSHPULL,
             AF_OUTPUT_DRAIN,
-            AN_INPUT
-#if (PLATFORM_ID == 6)
-            ,
+            AN_INPUT,
             AN_OUTPUT
-#endif
     };
     int n = sizeof(mode) / sizeof(mode[0]);
     pin_t pin = A0;//pin under test

@@ -25,16 +25,11 @@
 #include "testapi.h"
 
 test(api_ip_address) {
-
     API_COMPILE(IPAddress(HAL_IPAddress()));
-
-
-
 }
 
 
 test(api_tcpserver) {
-
     TCPServer server(80);
     int available = 0;
     API_COMPILE(server.begin());

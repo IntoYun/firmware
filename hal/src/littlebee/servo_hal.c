@@ -37,7 +37,7 @@
 void HAL_Servo_Attach(uint16_t pin)
 {
     DEBUG("Enter HAL_Servo_Attach...");
-    //Map the Spark pin to the appropriate port and pin on the STM32
+    //Map the pin to the appropriate port and pin on the STM32
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
    if(PIN_MAP[pin].timer_peripheral != NULL || PIN_MAP[pin].timer_peripheral != TIM1)
