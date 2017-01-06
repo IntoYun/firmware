@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    pwm.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   PWM test application
- ******************************************************************************
  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
  This library is free software; you can redistribute it and/or
@@ -27,6 +21,7 @@
 #include "pwm_hal.h"
 #include "unit-test/unit-test.h"
 
+#if 0
 
 uint8_t pwm_pins[] = {
 #if defined(STM32F2XX)
@@ -186,3 +181,4 @@ test(PWM_HighFrequencyAnalogWriteOnPinResultsInCorrectPulseWidth) {
             });
 }
 
+#endif

@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    cloud.cpp
- * @authors Matthew McGowan
- * @date    13 January 2015
- ******************************************************************************
  Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
  This library is free software; you can redistribute it and/or
@@ -25,11 +21,11 @@
 
 #ifdef configWIRING_WIFI_ENABLE
 
-test(api_wifi_config)
-{
+test(api_wifi_config) {
     IPAddress address;
     uint8_t* ether = nullptr;
     String ssid;
+
     API_COMPILE(ssid=WiFi.SSID());
     API_COMPILE(address=WiFi.localIP());
     API_COMPILE(address=WiFi.dnsServerIP());
@@ -40,7 +36,6 @@ test(api_wifi_config)
 }
 
 test(api_wifi_resolve) {
-
     API_COMPILE(WiFi.resolve(String("abc.def.com")));
     API_COMPILE(WiFi.resolve("abc.def.com"));
 }
@@ -63,8 +58,7 @@ test(api_wifi_set_credentials) {
     API_COMPILE(WiFi.setCredentials("ssid)","password", WPA2, WLAN_CIPHER_AES));
 }
 
-test(api_wifi_setStaticIP)
-{
+test(api_wifi_setStaticIP) {
     IPAddress myAddress(192,168,1,100);
     IPAddress netmask(255,255,255,0);
     IPAddress gateway(192,168,1,1);
@@ -76,9 +70,9 @@ test(api_wifi_setStaticIP)
     WiFi.useDynamicIP();
 }
 
-test(api_wifi_scan_buffer)
-{
+test(api_wifi_scan_buffer) {
     WiFiAccessPoint ap[20];
+
     int found = WiFi.scan(ap, 20);
     for (int i=0; i<found; i++) {
         Serial.print("ssid: ");
@@ -89,10 +83,9 @@ test(api_wifi_scan_buffer)
     }
 }
 
-
-void wifi_scan_callback(WiFiAccessPoint* wap, void* data)
-{
+void wifi_scan_callback(WiFiAccessPoint* wap, void* data) {
     WiFiAccessPoint& ap = *wap;
+
     Serial.print("ssid: ");
     Serial.println(ap.ssid);
     Serial.print("security: ");
@@ -103,24 +96,20 @@ void wifi_scan_callback(WiFiAccessPoint* wap, void* data)
     Serial.println(ap.rssi);
 }
 
-test(api_wifi_scan_callback)
-{
+test(api_wifi_scan_callback) {
     int result_count = WiFi.scan(wifi_scan_callback);
     (void)result_count;
 }
 
-class FindStrongestSSID
-{
+class FindStrongestSSID {
     char strongest_ssid[33];
     int strongest_rssi;
 
-    static void handle_ap(WiFiAccessPoint* wap, FindStrongestSSID* self)
-    {
+    static void handle_ap(WiFiAccessPoint* wap, FindStrongestSSID* self) {
         self->next(*wap);
     }
 
-    void next(WiFiAccessPoint& ap)
-    {
+    void next(WiFiAccessPoint& ap) {
         if ((ap.rssi < 0) && (ap.rssi > strongest_rssi)) {
             strongest_rssi = ap.rssi;
             strcpy(strongest_ssid, ap.ssid);
@@ -132,8 +121,7 @@ class FindStrongestSSID
     /**
      * Scan WiFi Access Points and retrieve the strongest one.
      */
-    const char* find()
-    {
+    const char* find() {
         strongest_rssi = 1;
         strongest_ssid[0] = 0;
         WiFi.scan(handle_ap, this);
@@ -141,16 +129,16 @@ class FindStrongestSSID
     }
 };
 
-test(api_find_strongest)
-{
+test(api_find_strongest) {
     FindStrongestSSID finder;
+
     const char* ssid = finder.find();
     (void)ssid;
 }
 
-test(api_wifi_ipconfig)
-{
+test(api_wifi_ipconfig) {
     IPAddress address;
+
     API_COMPILE(address=WiFi.localIP());
     API_COMPILE(address=WiFi.gatewayIP());
     API_COMPILE(address=WiFi.dnsServerIP());
@@ -158,9 +146,9 @@ test(api_wifi_ipconfig)
     (void)address;
 }
 
-test(api_wifi_get_credentials)
-{
+test(api_wifi_get_credentials) {
     WiFiAccessPoint ap[10];
+
     int found = WiFi.getCredentials(ap, 10);
     for (int i=0; i<found; i++) {
         Serial.print("ssid: ");

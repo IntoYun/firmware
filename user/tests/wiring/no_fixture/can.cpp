@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    can.cpp
- * @authors Julien Vanier
- * @version V1.0.0
- * @date    10-Jan-2015
- * @brief   CAN bus test application
- ******************************************************************************
   Copyright (c) 2016 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or

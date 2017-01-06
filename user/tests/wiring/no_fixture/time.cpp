@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    time.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   TIME test application
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -22,8 +16,6 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-
-#if PLATFORM_ID>=3
 
 #include "application.h"
 #include "unit-test/unit-test.h"
@@ -104,4 +96,3 @@ test(TIME_concatenate) {
     assertEqual(s.c_str(), (const char*)"Sat Jan 10 13:37:04 2004abcd");
 }
 
-#endif

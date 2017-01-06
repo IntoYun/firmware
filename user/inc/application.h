@@ -32,6 +32,7 @@
 #ifdef INTOROBOT_PLATFORM
 #include "platform_headers.h"
 #endif
+#include "platforms.h"
 
 #include "wiring.h"
 #include "wiring_cloud.h"

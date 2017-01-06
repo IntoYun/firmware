@@ -1,19 +1,41 @@
+/**
+ ******************************************************************************
+ Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
+
+
+#if 0
+
 #include "application.h"
 #include "unit-test/unit-test.h"
 
 #include "inet_hal.h"
 
-const uint32_t spark_io = (62u<<24) | (116u << 16) | (130u<<8) | 8;
-const uint32_t device_spark_io = (54u<<24) | (208u << 16) | (229u<<8) | 4u;
-const char* spark_io_str = "spark.io";
+const uint32_t intorobot_com = (62u<<24) | (116u << 16) | (130u<<8) | 8;
+const uint32_t device_intorobot_com = (54u<<24) | (208u << 16) | (229u<<8) | 4u;
+const char* intorobot_com_str = "intorobot.com";
 
 test(WLAN_Test1_Lookup_IP_From_Hostname)
 {
     char hostname[25];
-    strcpy(hostname, spark_io_str);
+    strcpy(hostname, intorobot_com_str);
     uint32_t ip;
     int result = inet_gethostbyname(hostname, 25, &ip);
-    assertEqual(ip, spark_io);
+    assertEqual(ip, intorobot_com);
     assertMoreOrEqual(result, 0); // cc3000 returns >=0 on success
 }
 
@@ -48,7 +70,7 @@ test(WLAN_Test4_Ping_By_Hostname)
 #if 0
 test(IPAddress_Construct_From_Uint32)
 {
-    IPAddress ip(device_spark_io);
+    IPAddress ip(device_intorobot_com);
 
     assertEqual(ip[3], 4);
     assertEqual(ip[2], 229);
@@ -84,3 +106,4 @@ test(WLAN_Test7_IPAddress_Construct_Uin32_Equal_Octets)
     assertEqual(ip[3], 4);
 }
 
+#endif

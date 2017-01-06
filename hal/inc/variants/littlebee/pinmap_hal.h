@@ -119,6 +119,13 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define LSBFIRST 0
 #define MSBFIRST 1
 
+/*************************************************************/
+/*defined for firmware test only, not for users*/
+#define INTOROBOT_TEST_PIN_DIGITAL          D0
+#define INTOROBOT_TEST_PIN_ADC              A0
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,7 +1,8 @@
 /**
  ******************************************************************************
- * @file    eeprom.cpp
+ * @file    spark.cpp
  * @authors Matthew McGowan
+ * @date    13 January 2015
  ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
@@ -24,8 +25,8 @@
 #include "testapi.h"
 
 test(api_eeprom_read_write) {
-
     uint8_t value = 0;
+
     API_COMPILE(value=EEPROM.read(10));
     API_COMPILE(EEPROM.write(10, value));
     (void)value++; // avoid compiler warning about assigned but unused `length`
@@ -40,16 +41,16 @@ public:
 };
 
 test(api_eeprom_get_put) {
-
     MyClass cls;
+
     API_COMPILE(EEPROM.get(10, cls));
     API_COMPILE(EEPROM.put(10, cls));
 }
 
 test(api_eeprom_begin_end_length) {
-
     EEPtr e(0);
     uint16_t length;
+
     API_COMPILE(e = EEPROM.begin());
     API_COMPILE(e = EEPROM.end());
     API_COMPILE(length = EEPROM.length());

@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    system.cpp
- * @authors Matthew McGowan
- * @date    13 January 2015
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -37,10 +33,10 @@ test(system_sleep) {
     API_COMPILE(System.sleep(SLEEP_MODE_WLAN, 60));
     API_COMPILE(System.sleep(SLEEP_MODE_DEEP, 60));
     API_COMPILE(System.sleep(SLEEP_MODE_DEEP));
-    API_COMPILE(System.sleep(A0, CHANGE));
-    API_COMPILE(System.sleep(A0, RISING));
-    API_COMPILE(System.sleep(A0, FALLING));
-    API_COMPILE(System.sleep(A0, FALLING, 20));
+    API_COMPILE(System.sleep(INTOROBOT_TEST_PIN_DIGITAL, CHANGE));
+    API_COMPILE(System.sleep(INTOROBOT_TEST_PIN_DIGITAL, RISING));
+    API_COMPILE(System.sleep(INTOROBOT_TEST_PIN_DIGITAL, FALLING));
+    API_COMPILE(System.sleep(INTOROBOT_TEST_PIN_DIGITAL, FALLING, 20));
 }
 
 test(system_mode) {

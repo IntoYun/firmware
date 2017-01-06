@@ -25,6 +25,10 @@
 #include "FakeStream.h"
 #include "FakeStreamBuffer.h"
 
+#ifndef typeof
+#define typeof(x) __typeof__(x)
+#endif
+
 enum RunnerState {
     INIT,
     WAITING,

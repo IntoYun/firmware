@@ -24,6 +24,7 @@
 #ifndef PLATFORMS_H
 #define PLATFORMS_H
 
+//创客核心板
 #define PLATFORM_NEUTRON             888002
 #define PLATFORM_NUT                 888003
 #define PLATFORM_ATOM                888004
@@ -32,6 +33,7 @@
 #define PLATFORM_LITTLEBEE           888007
 #define PLATFORM_GPRS                888008
 
+//商业模块
 #define PLATFORM_W67                 888101
 #define PLATFORM_W323                888102
 #define PLATFORM_L6                  888103

@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    eeprom.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   EEPROM test application
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -33,12 +27,14 @@ struct EEPROMCustomObject{
 };
 
 test(EEPROM_Capacity) {
+    /*
 #if PLATFORM_ID == PLATFORM_ATOM
   uint16_t expectedCapacity = 128;
 #else // Photon/P1/Electron
   uint16_t expectedCapacity = 2048;
 #endif
   assertEqual(EEPROM.length(), expectedCapacity);
+  */
 }
 
 test(EEPROM_ReadWriteSucceedsForAllAddressWithInRange) {

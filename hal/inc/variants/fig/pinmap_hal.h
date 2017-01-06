@@ -47,7 +47,7 @@ typedef enum PinMode {
 } PinMode;
 #endif
 
-#if  1 
+#if  1
 typedef enum PinMode {
     INPUT = 0x1,
     OUTPUT = 0x2,
@@ -168,6 +168,14 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define LSBFIRST 0
 #define MSBFIRST 1
+
+
+/*************************************************************/
+/*defined for firmware test only, not for users*/
+#define INTOROBOT_TEST_PIN_DIGITAL          D0
+#define INTOROBOT_TEST_PIN_ADC              A2
+#define INTOROBOT_TEST_PIN_DAC              A3
+
 
 #ifdef __cplusplus
 }

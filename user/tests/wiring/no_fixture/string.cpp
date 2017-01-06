@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    string.cpp
- * @authors mat
- * @date    06 April 2015
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -24,10 +20,7 @@
 
 #include "application.h"
 #include "unit-test/unit-test.h"
-// #include "spark_wiring_string.h"
 
-
-#if PLATFORM_ID>=3
 
 test(String_float_conversion) {
     String one(1);
@@ -72,13 +65,11 @@ test(String_sprintf) {
 }
 
 test(String_remove_to_end) {
-
     assertEqual((const char*)"123", String("123abcd").remove(3));
     assertEqual((const char*)"123456", String("123ab456").remove(3,2));
 }
 
 test(STring_float) {
-
     assertEqual(0.0f, String("abcd").toFloat());
     assertEqual(0.0f, String("0.0").toFloat());
     assertEqual(123.00f, String("123").toFloat());
@@ -86,11 +77,7 @@ test(STring_float) {
     assertEqual(123.00f, String("123abcd").toFloat());
 }
 
-#endif
-
-test(String_printable_constructor)
-{
-
+test(String_printable_constructor) {
     IPAddress address(1,2,3,4);
     assertEqual((const char*)"1.2.3.4", String(address));
 }

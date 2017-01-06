@@ -30,6 +30,8 @@
 #define INTOROBOT_SERVER_TLS_PORT      8883
 #define INTOROBOT_HTTP_PORT            1883
 
+#define NTP_TIMESERVER                 "nl.pool.ntp.org" // Country and region specific
+
 //=============================v1 版本topic===================================================
 //maqtt will
 #define INTOROBOT_MQTT_WILL_TOPIC      "platform/default/info/online"

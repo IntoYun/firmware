@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    gpio.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   GPIO test application
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -38,7 +32,7 @@ test(GPIO_PinModeSetResultsInCorrectMode) {
             AN_OUTPUT
     };
     int n = sizeof(mode) / sizeof(mode[0]);
-    pin_t pin = A0;//pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_ADC;//pin under test
     for(int i=0;i<n;i++)
     {
         // when
@@ -50,7 +44,7 @@ test(GPIO_PinModeSetResultsInCorrectMode) {
 }
 
 test(GPIO_NoDigitalWriteWhenPinModeIsNotSetToOutput) {
-    pin_t pin = D0;//pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_DIGITAL;//pin under test
     // when
     // pin set to INPUT_PULLUP mode, to keep pin from floating and test failing
     pinMode(pin, INPUT_PULLUP);
@@ -71,7 +65,7 @@ test(GPIO_NoDigitalWriteWhenPinSelectedIsOutOfRange) {
 }
 
 test(GPIO_DigitalWriteOnPinResultsInCorrectDigitalRead) {
-    pin_t pin = D0;//pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_DIGITAL;//pin under test
     // when
     pinMode(pin, OUTPUT);
     digitalWrite(pin, HIGH);
@@ -88,7 +82,7 @@ test(GPIO_DigitalWriteOnPinResultsInCorrectDigitalRead) {
 }
 
 test(GPIO_pulseIn_Measures1000usHIGHWithin5Percent) {
-    pin_t pin = D1; // pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_DIGITAL; // pin under test
     // when
     pinMode(pin, OUTPUT);
     analogWrite(pin, 128); // 50% Duty Cycle at 500Hz = 1000us HIGH, 1000us LOW.
@@ -105,7 +99,7 @@ test(GPIO_pulseIn_Measures1000usHIGHWithin5Percent) {
 }
 
 test(GPIO_pulseIn_Measures1000usLOWWithin5Percent) {
-    pin_t pin = D1; // pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_DIGITAL; // pin under test
     // when
     pinMode(pin, OUTPUT);
     analogWrite(pin, 128); // 50% Duty Cycle at 500Hz = 1000us HIGH, 1000us LOW.
@@ -122,7 +116,7 @@ test(GPIO_pulseIn_Measures1000usLOWWithin5Percent) {
 }
 
 test(GPIO_pulseIn_TimesOutAfter3Seconds) {
-    pin_t pin = D1; // pin under test
+    pin_t pin = INTOROBOT_TEST_PIN_DIGITAL; // pin under test
     // when
     pinMode(pin, OUTPUT);
     digitalWrite(pin, HIGH);

@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    testapi.h
- * @authors Matthew McGowan
- * @date    13 January 2015
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or

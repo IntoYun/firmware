@@ -27,7 +27,6 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "service_debug.h"
 #include "system_event.h"
 #include "system_mode.h"
 #include "system_task.h"
@@ -52,6 +51,8 @@
 #include "system_version.h"
 #include "system_product.h"
 #include "system_config.h"
+#include "service_debug.h"
+#include "platforms.h"
 
 using namespace intorobot;
 

@@ -26,6 +26,7 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
+#if 0
 /*
  * SPI Test requires Spark MicroSD Shield with FM25CL64B-G or MB85RS64A FRAM populated for U3,
  *
@@ -162,17 +163,17 @@ test(SPI_Test1_isENABLED) {
 }
 
 test(SPI_Test2_MODE0_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
-    // MODE0 with Chip Select defaulted to A2, manually using D2 instead.
+    // MODE0 with Chip Select defaulted to A2, manually using SS instead.
 
     // Test init
-    pinMode(D2, OUTPUT);
-    digitalWrite(D2, HIGH);
+    pinMode(SS, OUTPUT);
+    digitalWrite(SS, HIGH);
 
     // When - Setting up the SPI bus
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockDivider(SPI_CLOCK_DIV4);  // 72MHz / 4MHz = 18MHz
-    SPI.begin(); // Chip Select line will default to init A2 as OUTPUT, however we're manually using D2
+    SPI.begin(); // Chip Select line will default to init A2 as OUTPUT, however we're manually using SS
 
     // Then - SPI bus is enabled
     assertTrue(SPI.isEnabled());
@@ -192,11 +193,11 @@ test(SPI_Test2_MODE0_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
     }
 
     // When - Write 256 0x00's to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 0x00's back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     assertTrue(status == 0);
 
     for (uint16_t i=0; i<arraySize(buf1); i++)
@@ -226,11 +227,11 @@ test(SPI_Test2_MODE0_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
     }
 
     // When - Write 256 values to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 values back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     assertTrue(status == 0);
 
     for (uint16_t i=0; i<arraySize(buf1); i++)
@@ -248,13 +249,13 @@ test(SPI_Test2_MODE0_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
 }
 
 test(SPI_Test3_MODE3_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
-    // MODE3, with Chip Select forced to D2
+    // MODE3, with Chip Select forced to SS
 
     // When - Setting up the SPI bus
     SPI.setDataMode(SPI_MODE3);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockDivider(SPI_CLOCK_DIV4);  // 72MHz / 4MHz = 18MHz
-    SPI.begin(D2); // Chip Select forced to D2
+    SPI.begin(SS); // Chip Select forced to SS
 
     // Then - SPI bus is enabled
     assertTrue(SPI.isEnabled());
@@ -274,11 +275,11 @@ test(SPI_Test3_MODE3_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
     }
 
     // When - Write 256 0x00's to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 0x00's back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     assertTrue(status == 0);
 
     for (uint16_t i=0; i<arraySize(buf1); i++)
@@ -308,11 +309,11 @@ test(SPI_Test3_MODE3_MSBFIRST_ReadWriteSucceedsWithoutUserIntervention) {
     }
 
     // When - Write 256 values to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 values back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     assertTrue(status == 0);
 
     for (uint16_t i=0; i<arraySize(buf1); i++)
@@ -334,7 +335,7 @@ static void SPI_Test4_Prepare_SPI() {
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockSpeed(100000); // 100kHz
-    SPI.begin(D2); // Chip Select line will default to init A2 as OUTPUT, however we're manually using D2
+    SPI.begin(SS); // Chip Select line will default to init A2 as OUTPUT, however we're manually using SS
 
     // pinMode() doesn't support Open-drain mode with Pull-up enabled
     pinMode(MISO, AF_OUTPUT_DRAIN);
@@ -360,10 +361,10 @@ static void SPI_Test4_Prepare_SPI() {
 }
 
 test(SPI_Test4_MODE0_MSBFIRST_ReadWriteDMAFinishesBeforeCallback) {
-    // MODE0 with Chip Select defaulted to A2, manually using D2 instead.
+    // MODE0 with Chip Select defaulted to A2, manually using SS instead.
     // Test init
-    pinMode(D2, OUTPUT);
-    digitalWrite(D2, HIGH);
+    pinMode(SS, OUTPUT);
+    digitalWrite(SS, HIGH);
 
     SPI_Test4_Prepare_SPI();
     // Then - SPI bus is enabled
@@ -386,11 +387,11 @@ test(SPI_Test4_MODE0_MSBFIRST_ReadWriteDMAFinishesBeforeCallback) {
     }
 
     // When - Write 256 0xaf's to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 0xaf's back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     // Disable SPI and force MISO to go low immediately
     SPI.end();
     digitalWrite(MISO, LOW);
@@ -431,11 +432,11 @@ test(SPI_Test4_MODE0_MSBFIRST_ReadWriteDMAFinishesBeforeCallback) {
 
 
     // When - Write 256 values to FRAM
-    status = FRAMWrite(D2, 0x00, (uint8_t*)buf1, arraySize(buf1));
+    status = FRAMWrite(SS, 0x00, (uint8_t*)buf1, arraySize(buf1));
     assertTrue(status == 0);
 
     // Then - Read 256 values back into buf2 and test for equality
-    status = FRAMRead(D2, 0x00, (uint8_t*)buf2, arraySize(buf1));
+    status = FRAMRead(SS, 0x00, (uint8_t*)buf2, arraySize(buf1));
     // Disable SPI and force MISO to go low immediately
     SPI.end();
     digitalWrite(MISO, LOW);
@@ -451,3 +452,5 @@ test(SPI_Test4_MODE0_MSBFIRST_ReadWriteDMAFinishesBeforeCallback) {
     // Then - SPI bus is disabled
     assertFalse(SPI.isEnabled());
 }
+
+#endif

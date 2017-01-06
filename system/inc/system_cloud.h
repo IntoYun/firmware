@@ -98,7 +98,6 @@ uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* pay
 uint8_t intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
 uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
 uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id);
-void intorobot_sync_time(void);
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
@@ -121,5 +120,6 @@ bool intorobot_cloud_flag_auto_connect();
 
 String intorobot_deviceID(void);
 void intorobot_process(void);
+void intorobot_sync_time(void);
 
 #endif	/* SYSTEM_CLOUD_H_ */

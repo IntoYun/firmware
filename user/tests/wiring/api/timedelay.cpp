@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    timedelay.cpp
- * @authors Matthew McGowan
- * @date    13 January 2015
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -24,13 +20,13 @@
 #include "testapi.h"
 
 test(delay) {
-
     API_COMPILE(delay(100));
     API_COMPILE(delayMicroseconds(100));
 }
 
 test(ticks) {
     uint32_t ticks = 0;
+
     API_COMPILE(ticks=millis());
     API_COMPILE(ticks=micros());
     ticks++;

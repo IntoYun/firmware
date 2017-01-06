@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    tone.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   TONE test application
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or

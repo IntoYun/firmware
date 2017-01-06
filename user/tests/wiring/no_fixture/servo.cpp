@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    servo.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    7-Oct-2014
- * @brief   SERVO test application
- ******************************************************************************
   Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -27,6 +21,7 @@
 #include "servo_hal.h"
 #include "unit-test/unit-test.h"
 
+#if 0
 #if defined(STM32F2XX)
 static pin_t pin = D0, pin2 = D1; // Pins sharing the same hardware timer
 #else
@@ -102,3 +97,4 @@ test(SERVO_DetachDoesntAffectAnotherServoUsingSameTimer) {
     servo2.detach();
     assertTrue(readPulseWidth > pulseWidth - 50 && readPulseWidth < pulseWidth + 50);
 }
+#endif

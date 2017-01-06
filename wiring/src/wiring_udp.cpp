@@ -26,6 +26,7 @@
 #include "intorobot_macros.h"
 #include "wiring_network.h"
 #include "wlan_hal.h"
+#include "wiring_constants.h"
 
 using namespace intorobot;
 

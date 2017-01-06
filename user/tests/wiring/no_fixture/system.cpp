@@ -1,9 +1,27 @@
+/**
+ ******************************************************************************
+  Copyright (c) 2016 IntoRobot Industries, Inc.  All rights reserved.
 
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, either
+  version 3 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
+
+#if 0
 #include "application.h"
 #include "unit-test/unit-test.h"
 
 
-#if PLATFORM_ID >= 3
 test(System_FreeMemory)
 {
     // this test didn't work on the core attempting to allocate the current value of
@@ -20,15 +38,13 @@ test(System_FreeMemory)
         assertLess(free2, free1);
     }
 }
-#endif
 
 test(system_version)
 {
     // uint32_t versionNumber = System.versionNumber();
-
     // char expected[20];
     // sprintf(expected, "%d.%d.%d", (int)BYTE_N(versionNumber,3), (int)BYTE_N(versionNumber,2), (int)BYTE_N(versionNumber,1));
-
     // assertTrue(strcmp(expected,System.version().c_str())==0);
-
 }
+
+#endif

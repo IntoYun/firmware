@@ -24,6 +24,8 @@
 
 #include "wiring_string.h"
 #include "wiring_tcpclient.h"
+#include "wiring_udp.h"
+#include "wiring_wifi.h"
 #include "system_mqttclient.h"
 #include "system_cloud_def.h"
 #include "system_cloud.h"
@@ -37,6 +39,8 @@
 #include "ota_flash_hal.h"
 #include "core_hal.h"
 #include "ajson.h"
+
+using namespace intorobot;
 
 #ifndef configNO_CLOUD
 volatile uint8_t g_intorobot_network_connected = 0;    //网络连接状态 1连接 0断开
@@ -404,9 +408,9 @@ bool intorobot_cloud_init(void)
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
 
     // v2版本subscibe
-    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0);       //从平台获取数据通讯信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
     intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
-    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);  //从平台获取调试信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);   //从平台获取调试信息
 }
 
 uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
@@ -442,11 +446,6 @@ uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const ch
     del_subscribe_callback(version, (char *)topic, (char *)device_id);
     fill_mqtt_topic(fulltopic, version, topic, device_id);
     return g_mqtt_client.unsubscribe(fulltopic.c_str());
-}
-
-void intorobot_sync_time(void)
-{
-    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
 }
 
 size_t intorobot_debug_info_write(uint8_t byte)
@@ -800,4 +799,54 @@ void intorobot_process(void)
     HAL_Core_System_Loop();
 }
 
+static UDP ntp_time_udp;
+/*Send the request packet to the NTP server.*/
+static void send_ntp_request_packet(IPAddress timeServerIP)
+{
+    uint8_t packetBuffer[48];
+
+    memset(packetBuffer, 0, sizeof(packetBuffer));
+    packetBuffer[0] = 0b11100011; // LI, Version, Mode
+    packetBuffer[1] = 0;          // Stratum, or type of clock
+    packetBuffer[2] = 6;          // Polling Interval
+    packetBuffer[3] = 0xEC;       // Peer Clock Precision
+    // 8 bytes of zero for Root Delay & Root Dispersion
+    packetBuffer[12]  = 49;
+    packetBuffer[13]  = 0x4E;
+    packetBuffer[14]  = 49;
+    packetBuffer[15]  = 52;
+    ntp_time_udp.beginPacket(timeServerIP, (int) 123); // NTP Server and Port
+    ntp_time_udp.write((char *)packetBuffer, 48);
+    ntp_time_udp.endPacket();
+}
+
+static time_t get_ntp_time(void)
+{
+    uint8_t packetBuffer[48];
+    IPAddress ntpServer = WiFi.resolve(NTP_TIMESERVER);
+
+    for (int i = 0 ; i < 4 ; i++)
+    {
+        send_ntp_request_packet(ntpServer);
+        uint32_t beginWait = millis();
+        while (millis() - beginWait < 6000)
+        {
+            if (ntp_time_udp.parsePacket()) {
+                ntp_time_udp.read(packetBuffer, 48);
+                unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
+                unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
+                unsigned long secSince1900 = highWord << 16 | lowWord;
+                ntp_time_udp.flush();
+                return secSince1900 - 2208988800UL;
+            }
+        }
+    }
+    return 0;
+}
+
+void intorobot_sync_time(void)
+{
+    Time.setTime(get_ntp_time());
+    //intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+}
 

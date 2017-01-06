@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @file    network.cpp
- * @authors Matthew McGowan
- * @date    13 January 2015
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -21,17 +17,16 @@
  ******************************************************************************
  */
 
-
 #include "testapi.h"
 
 test(api_ip_address) {
     API_COMPILE(IPAddress(HAL_IPAddress()));
 }
 
-
 test(api_tcpserver) {
     TCPServer server(80);
     int available = 0;
+
     API_COMPILE(server.begin());
     API_COMPILE(available = server.available());
     API_COMPILE(server.stop());
@@ -40,8 +35,9 @@ test(api_tcpserver) {
 
 test(api_udp_multicast) {
     UDP udp;
-    udp.begin(10000);
     int result = 0;
+
+    udp.begin(10000);
     API_COMPILE(result = udp.joinMulticast(IPAddress(224, 1, 2, 3)));
     API_COMPILE(result = udp.leaveMulticast(IPAddress(224, 1, 2, 3)));
     (void)result; // avoid unused warning
@@ -50,6 +46,7 @@ test(api_udp_multicast) {
 test(api_udp_direct) {
     UDP udp;
     uint8_t buf[50];
+
     API_COMPILE(udp.setBuffer(1024, buf));
     API_COMPILE(udp.setBuffer(1024));
     API_COMPILE(udp.releaseBuffer());

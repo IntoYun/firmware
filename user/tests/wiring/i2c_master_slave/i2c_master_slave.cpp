@@ -1,11 +1,5 @@
 /**
  ******************************************************************************
- * @file    i2c_master_slave.cpp
- * @authors Satish Nair
- * @version V1.0.0
- * @date    24-Mar-2015
- * @brief   I2C Master<=>Slave back-to-back test application
- ******************************************************************************
   Copyright (c) 2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
