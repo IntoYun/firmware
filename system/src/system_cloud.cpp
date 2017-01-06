@@ -784,21 +784,6 @@ int intorobot_cloud_handle(void)
     return -1;
 }
 
-#endif
-
-String intorobot_deviceID(void)
-{
-    char device_id[32]={0};
-
-    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-    return device_id;
-}
-
-void intorobot_process(void)
-{
-    HAL_Core_System_Loop();
-}
-
 static UDP ntp_time_udp;
 /*Send the request packet to the NTP server.*/
 static void send_ntp_request_packet(IPAddress timeServerIP)
@@ -848,5 +833,20 @@ void intorobot_sync_time(void)
 {
     Time.setTime(get_ntp_time());
     //intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+}
+
+#endif
+
+String intorobot_deviceID(void)
+{
+    char device_id[32]={0};
+
+    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+    return device_id;
+}
+
+void intorobot_process(void)
+{
+    HAL_Core_System_Loop();
 }
 
