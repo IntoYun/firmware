@@ -138,7 +138,6 @@ void UDP::stop()
         socket_close(_sock);
     }
     _sock = socket_handle_invalid();
-
     flush();
 }
 

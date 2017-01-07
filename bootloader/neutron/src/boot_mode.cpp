@@ -105,10 +105,14 @@ void USBD_CDC_Process(void)
             break;
         }
     }
+
     if(len)
     {
-        USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
-        while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
+        if (USBD_STATE_CONFIGURED == USBD_Device.dev_state)
+        {
+            USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
+            while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
+        }
     }
 
     len=0;

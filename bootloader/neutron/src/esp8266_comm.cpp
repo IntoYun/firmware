@@ -233,7 +233,7 @@ unsigned int readByteToBuffer()
         {
             sdkGetQueueData(&USART_Esp8266_Queue, &c);
             esp8266RxBuffer[bufferHead++] = c;
-            //BOOT_DEBUG("%c", c);
+            BOOT_DEBUG("%c", c);
             return 1;
         }
     }

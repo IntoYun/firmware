@@ -79,7 +79,8 @@ void user_init(void)
 
     at_customLinkMax = 5;
     at_init();
-    uart_init(460800, 115200);
+    //uart_init(460800, 115200);
+    uart_init(115200, 115200);
     os_sprintf(buf,"compile time:%s %s",__DATE__,__TIME__);
     at_set_custom_info(buf);
     at_port_print("\r\nready\r\n");

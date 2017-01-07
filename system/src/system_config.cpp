@@ -1011,13 +1011,6 @@ void set_system_config_type(system_config_type_t config_type)
 
     g_intorobot_system_config = 1;
     system_config_initial_flag = 0;
-#ifdef configSETUP_UDP_ENABLE
-    DeviceSetupImlink.close();
-#endif
-#ifdef configSETUP_TCP_ENABLE
-    DeviceSetupAp.close();
-#endif
-    DeviceSetupSerial.close();
     current_system_config_type = config_type;
     switch(config_type)
     {
@@ -1039,7 +1032,6 @@ void set_system_config_type(system_config_type_t config_type)
         default:   //退出配置模式
             g_intorobot_system_config = 0;
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_NONE);
-            NEWORK_FN(Network_Setup(), (void)0);
             break;
     }
     HAL_PARAMS_Save_Params();
@@ -1084,14 +1076,34 @@ void system_config_initial(void)
     }
 }
 
+void system_config_finish(void)
+{
+#ifdef configSETUP_UDP_ENABLE
+    DeviceSetupImlink.close();
+#endif
+#ifdef configSETUP_TCP_ENABLE
+    DeviceSetupAp.close();
+#endif
+    DeviceSetupSerial.close();
+    NEWORK_FN(Network_Setup(), (void)0);
+}
+
 int system_config_process(void)
 {
     int result = 0;
+    system_config_type_t config_type = get_system_config_type();
+    static system_config_type_t system_config_type = SYSTEM_CONFIG_TYPE_NONE;
 
-    if(SYSTEM_CONFIG_TYPE_NONE == get_system_config_type())
+    if(SYSTEM_CONFIG_TYPE_NONE == config_type)
     {
+        if(system_config_type != config_type)
+        {
+            system_config_finish();
+        }
+        system_config_type = config_type;
         return 0;
     }
+    system_config_type = config_type;
 
     if(0 == system_config_initial_flag)
     {
@@ -1139,6 +1151,7 @@ int system_config_process(void)
     }
     if(!result)
     {
+        system_config_finish();
         set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
     }
     return result;

@@ -128,7 +128,6 @@ int wlan_set_credentials(WLanCredentials* c)
 
 void wlan_Imlink_start()
 {
-    HAL_Delay_Milliseconds(2000);  //调用连接后需要延时一段时间，否则直接进入imlink模式，配置不了，不确定是否还会影响其他功能。chenkaiyao 2016-12-16
     esp8266_beginSmartConfig();
 }
 

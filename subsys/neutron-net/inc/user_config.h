@@ -7,7 +7,7 @@
 
 /*版本号说明  前三位 1.0.0 esp8266版本号 第4位 为stm32 bootloader版本号，该位不要轻易变动*/
 //#define  WIFIVERSION               "1.0.2.1"
-#define  WIFIVERSION               "2.0.0.1"  //sdk 更新至2.0.0
+#define  WIFIVERSION               "2.0.0.1"       //sdk 更新至2.0.0
 
 //#define DEBUG_BUILD
 

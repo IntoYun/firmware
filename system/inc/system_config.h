@@ -215,7 +215,6 @@ void set_system_config_mode(system_config_mode_t mode);
 system_config_mode_t get_system_config_mode();
 void set_system_config_type(system_config_type_t config_type);
 system_config_type_t get_system_config_type();
-void system_config_initial(void);
 int  system_config_process(void);
 void system_config_setup(void);
 void manage_system_config();

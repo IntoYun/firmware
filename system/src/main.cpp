@@ -393,7 +393,11 @@ void app_setup_and_loop_initial(void)
 #ifdef configSETUP_ENABLE
     system_config_setup();
 #endif
-    NEWORK_FN(Network_Setup(), (void)0);
+    //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
+    if( SYSTEM_CONFIG_TYPE_NONE == get_system_config_type() )
+    {
+        NEWORK_FN(Network_Setup(), (void)0);
+    }
 #if PLATFORM_THREADING
     create_system_task();
 #else

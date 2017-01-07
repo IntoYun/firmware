@@ -347,7 +347,29 @@ int MDMParser::_cbInt(int type, const char* buf, int len, int* val)
 // ----------------------------------------------------------------
 void MDMParser::reset(void)
 {
+    GPIO_InitTypeDef   GPIO_InitStruct;
+
     MDM_INFO("[ Modem reset ]");
+    //esp8266 gpio1
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    //esp8266 reset
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+    HAL_Delay(200);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+/*
     HAL_Pin_Mode(ESP_BOOT_UC, OUTPUT);
     HAL_Pin_Mode(ESP_RESET_UC, OUTPUT);
     HAL_GPIO_Write(ESP_BOOT_UC, 1);
@@ -355,6 +377,7 @@ void MDMParser::reset(void)
     HAL_GPIO_Write(ESP_RESET_UC, 0);
     HAL_Delay_Milliseconds(200);
     HAL_GPIO_Write(ESP_RESET_UC, 1);
+*/
 }
 
 bool MDMParser::init(void)

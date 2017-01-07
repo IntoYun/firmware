@@ -68,7 +68,6 @@ void Esp8266SerialPipe::begin(unsigned int baud)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-
     UartHandle_ESP8266.Instance          = USART1;
     UartHandle_ESP8266.Init.BaudRate     = baud;
     UartHandle_ESP8266.Init.WordLength   = UART_WORDLENGTH_8B;
@@ -77,6 +76,7 @@ void Esp8266SerialPipe::begin(unsigned int baud)
     UartHandle_ESP8266.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     UartHandle_ESP8266.Init.Mode         = UART_MODE_TX_RX;
     UartHandle_ESP8266.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_DeInit(&UartHandle_ESP8266);
     HAL_UART_Init(&UartHandle_ESP8266);
 
     //Configure the NVIC for UART
@@ -94,7 +94,7 @@ int Esp8266SerialPipe::writeable(void)
 int Esp8266SerialPipe::putc(int c)
 {
     uint8_t data = c;
-    HAL_UART_Transmit(&UartHandle_ESP8266, &data, 1, 5);//5ms  带操作系统待验证
+    HAL_UART_Transmit(&UartHandle_ESP8266, &data, 1, 1000);//1s  带操作系统待验证
     return c;
 }
 
@@ -135,6 +135,7 @@ void Esp8266SerialPipe::rxIrqBuf(void)
         _pipeRx.putc(c);
     else
         /* overflow */;
+    DEBUG_D("%c ", c);
 }
 
 extern "C"
