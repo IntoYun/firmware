@@ -184,7 +184,7 @@ void sendCommand(const char * cmd, Esp8266_Cmd_TypeDef CmdType, const char * par
     {
         sprintf(temp, "AT%s=%s\r\n", cmd, params);
     }
-    BOOT_DEBUG("%s", temp);
+    //BOOT_DEBUG("%s", temp);
     HAL_UART_Transmit(&UartHandleEsp8266, (uint8_t *)temp, strlen(temp), 1000);
 }
 
@@ -233,7 +233,7 @@ unsigned int readByteToBuffer()
         {
             sdkGetQueueData(&USART_Esp8266_Queue, &c);
             esp8266RxBuffer[bufferHead++] = c;
-            BOOT_DEBUG("%c", c);
+            //BOOT_DEBUG("%c", c);
             return 1;
         }
     }

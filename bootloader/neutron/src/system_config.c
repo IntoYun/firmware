@@ -99,8 +99,8 @@ void HAL_System_Config(void)
     usart_debug_initial(115200);
     HAL_RTC_Initial();
     HAL_UI_Initial();
-    ESP8266_GPIO_Initial();
     usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
+    ESP8266_GPIO_Initial();
     Esp8266_Reset();
     HAL_EEPROM_Init();   //初始化eeprom区
 }
@@ -108,7 +108,7 @@ void HAL_System_Config(void)
 void ESP8266_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
-    //esp8266 gpio1
+    //esp8266 gpio0
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;

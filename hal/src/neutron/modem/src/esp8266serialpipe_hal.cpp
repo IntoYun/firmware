@@ -36,6 +36,7 @@ Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
     _pipeRx( rxSize ),
     _pipeTx( txSize )
 {
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
 }
 
 Esp8266SerialPipe::~Esp8266SerialPipe(void)
@@ -135,7 +136,6 @@ void Esp8266SerialPipe::rxIrqBuf(void)
         _pipeRx.putc(c);
     else
         /* overflow */;
-    DEBUG_D("%c ", c);
 }
 
 extern "C"

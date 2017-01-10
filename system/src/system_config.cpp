@@ -119,6 +119,8 @@ int DeviceConfig::process(void)
     while(available())
     {
         String tmp=readString();
+
+        DEBUG_D("res: %s\r\n", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}
@@ -262,6 +264,7 @@ void DeviceConfig::dealHello(void)
         aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     }
     char* string = aJson.print(root);
+    DEBUG_D("hello: %s\r\n", string);
     write((unsigned char *)string, strlen(string));
     free(string);
     aJson.deleteItem(root);
@@ -990,7 +993,7 @@ UdpDeviceConfig DeviceSetupImlink;
 static system_config_mode_t current_system_config_mode = SYSTEM_CONFIG_MODE_AUTOMATIC;  //配置模式处理方式
 static system_config_type_t current_system_config_type = SYSTEM_CONFIG_TYPE_NONE;       //配置类型
 static uint8_t system_config_initial_flag = 0;
-volatile uint8_t g_intorobot_system_config = 0;    //配置状态
+volatile uint8_t g_intorobot_system_config = 0;    //默认不是配置状态
 
 void set_system_config_mode(system_config_mode_t mode)
 {

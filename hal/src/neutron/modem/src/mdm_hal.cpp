@@ -347,9 +347,10 @@ int MDMParser::_cbInt(int type, const char* buf, int len, int* val)
 // ----------------------------------------------------------------
 void MDMParser::reset(void)
 {
+    MDM_INFO("[ Modem reset ]");
+
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    MDM_INFO("[ Modem reset ]");
     //esp8266 gpio1
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_7;
@@ -357,6 +358,7 @@ void MDMParser::reset(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
     //esp8266 reset
     __HAL_RCC_GPIOC_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -369,15 +371,6 @@ void MDMParser::reset(void)
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     HAL_Delay(200);
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-/*
-    HAL_Pin_Mode(ESP_BOOT_UC, OUTPUT);
-    HAL_Pin_Mode(ESP_RESET_UC, OUTPUT);
-    HAL_GPIO_Write(ESP_BOOT_UC, 1);
-
-    HAL_GPIO_Write(ESP_RESET_UC, 0);
-    HAL_Delay_Milliseconds(200);
-    HAL_GPIO_Write(ESP_RESET_UC, 1);
-*/
 }
 
 bool MDMParser::init(void)
@@ -387,7 +380,7 @@ bool MDMParser::init(void)
     if (!_init) {
         MDM_INFO("[ Esp8266 init ]");
         esp8266MDM.begin(460800);
-        reset();
+        //reset();   //由于bootloader已经初始化过esp8266复位管教，可以不初始化，这样可以减少esp8266启动时间.
         /* Initialize only once */
         _init = true;
     }
@@ -401,7 +394,6 @@ bool MDMParser::init(void)
             continue_cancel = true;
             resume(); // make sure we can talk to the modem
         }
-        HAL_Delay_Milliseconds(1000);
         // echo off
         sendFormated("ATE0\r\n");
         int r = waitFinalResp(NULL,NULL,1000);
@@ -444,7 +436,6 @@ int MDMParser::_cbGetNetVersion(int type, const char* buf, int len, char* str)
     }
     return WAIT;
 }
-
 
 bool MDMParser::getNetVersion(char *version)
 {
@@ -1374,7 +1365,8 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
         unkn ++;
         len--;
     }
-    return WAIT;
+    return TYPE_UNKNOWN | pipe->get(buf, unkn); //应该返回TYPE_UNKNOWN 并且应该从缓存里面清掉。否则会一直接受到相同的数据 并且应该从缓存里面清掉。否则会一直接受到相同的数据 并且应该从缓存里面清掉。否则会一直接受到相同的数据 并且应该从缓存里面清掉。否则会一直处理相同的数据  chenkaiyao  2016-01-09
+    //return WAIT;
 }
 
 // ----------------------------------------------------------------

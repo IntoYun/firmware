@@ -186,7 +186,6 @@ void handle_cloud_connection(void)
         {
             int err = intorobot_cloud_handle();
             if (err) {
-                //DEBUG_D("Cloud disconnected\r\n");
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
                 system_rgb_blink(RGB_COLOR_BLUE, 1000);
