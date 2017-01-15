@@ -23,22 +23,18 @@
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
 
 #define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
-#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
 #define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
 
 #define INTOROBOT_SERVER_PORT          1883
 #define INTOROBOT_SERVER_TLS_PORT      8883
-#define INTOROBOT_HTTP_PORT            1883
 
-#define NTP_TIMESERVER                 "nl.pool.ntp.org" // Country and region specific
+//#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
+#define INTOROBOT_HTTP_DOMAIN          "112.124.117.64"
+#define INTOROBOT_HTTP_PORT            8088
+
+#define NTP_TIMESERVER                 "202.120.2.101"  //上海交通大学网络中心NTP服务器地址
 
 //=============================v1 版本topic===================================================
-//maqtt will
-#define INTOROBOT_MQTT_WILL_TOPIC      "platform/default/info/online"
-#define INTOROBOT_MQTT_WILL_QOS        0
-#define INTOROBOT_MQTT_WILL_RETAIN     true
-#define INTOROBOT_MQTT_WILL_MESSAGE    "{\"key\": \"offline\"}"
-
 //device version
 #define INTOROBOT_MQTT_VERSION_TOPIC   "firmware/default/info/version"
 #define INTOROBOT_MQTT_VERSION_QOS     0
@@ -104,6 +100,12 @@
 #define INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_QOS     0
 
 //=============================v2 版本topic===================================================
+//maqtt will
+#define INTOROBOT_MQTT_WILL_TOPIC      "info"
+#define INTOROBOT_MQTT_WILL_QOS        0
+#define INTOROBOT_MQTT_WILL_RETAIN     true
+#define INTOROBOT_MQTT_WILL_MESSAGE    "{\"online\": \"false\"}"
+
 /*publish  topic*/
 #define INTOROBOT_MQTT_RX_TOPIC        "rx"
 #define INTOROBOT_MQTT_REPLY_TOPIC     "reply"

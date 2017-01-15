@@ -31,34 +31,34 @@
 
 
 class UDP : public Stream, public Printable {
-private:
+    private:
         /**
          * The underlying socket handle from the HAL.
          */
-	sock_handle_t _sock;
+        sock_handle_t _sock;
 
         /**
          * The local port this UDP socket is bound to.
          */
-	uint16_t _port;
+        uint16_t _port;
 
         /**
          * The IP address of the peer that sent the received packet.
          * Available after parsePacket().
          */
-	IPAddress _remoteIP;
+        IPAddress _remoteIP;
 
         /**
          * The port of the peer that sent the received packet.
          * Available after parsePacket().
          */
-	uint16_t _remotePort;
+        uint16_t _remotePort;
 
         /**
          * The current read/write offset in the buffer. Set to 0 after
          * parsePacket(), incremented during write()
          */
-	uint16_t _offset;
+        uint16_t _offset;
 
         /**
          * The number of bytes in the buffer. Available after parsePacket()
@@ -88,8 +88,8 @@ private:
 
 
 
-public:
-	UDP();
+    public:
+        UDP();
         virtual ~UDP() { stop(); releaseBuffer(); }
         /**
          * @param buffer_size The size of the read/write buffer. Can be 0 if
@@ -117,13 +117,11 @@ public:
          * @return non-zero on success
          */
         virtual uint8_t begin(uint16_t port, network_interface_t nif=0);
-        virtual uint8_t begin(const char *host, uint16_t port, uint16_t localport, network_interface_t nif=0);
-        virtual uint8_t begin(IPAddress ip, uint16_t port, uint16_t localport, network_interface_t nif=0);
 
         /**
          * Disconnects this UDP socket.
          */
-	    virtual void stop();
+        virtual void stop();
 
         /**
          * Sends an packet directly. This does not require the UDP instance to have an allocated buffer.
@@ -157,28 +155,28 @@ public:
          * @param port      The destination port of the peer
          * @return non-zero on success.
          */
-	virtual int beginPacket(IPAddress ip, uint16_t port);
-	virtual int beginPacket(const char *host, uint16_t port);
+        virtual int beginPacket(IPAddress ip, uint16_t port);
+        virtual int beginPacket(const char *host, uint16_t port);
 
         /**
          * Writes to the currently open packet after a call to {@link #beginPacket}.
          * @return 1 if the data was written, 0 otherwise.
          * Note that the data is buffered and not sent over the network.
          */
-	virtual size_t write(uint8_t);
+        virtual size_t write(uint8_t);
 
         /**
          * Writes to the currently open packet after a call to {@link #beginPacket}.
          * @return a positive number if the data was written, 0 otherwise.
          * Note that the data is buffered and not sent over the network.
          */
-	virtual size_t write(const uint8_t *buffer, size_t size);
+        virtual size_t write(const uint8_t *buffer, size_t size);
 
         /**
          * Sends the current buffered packet over the network and clears the buffer.
          * @return
          */
-	virtual int endPacket();
+        virtual int endPacket();
 
 
         virtual int parsePacket();
@@ -187,26 +185,26 @@ public:
          * {@ #parsePacket}.
          * @return
          */
-	virtual int available();
+        virtual int available();
 
         /**
          * Read a single byte from the read buffer. Available after parsePacket().
          * @return
          */
-	virtual int read();
-	virtual int read(unsigned char* buffer, size_t len);
+        virtual int read();
+        virtual int read(unsigned char* buffer, size_t len);
 
-	virtual int read(char* buffer, size_t len) { return read((unsigned char*)buffer, len); };
-	virtual int peek();
+        virtual int read(char* buffer, size_t len) { return read((unsigned char*)buffer, len); };
+        virtual int peek();
 
         /**
          * Discards the currently read packet.
          */
-	virtual void flush();
+        virtual void flush();
 
 
-	virtual IPAddress remoteIP() { return _remoteIP; };
-	virtual uint16_t remotePort() { return _remotePort; };
+        virtual IPAddress remoteIP() { return _remoteIP; };
+        virtual uint16_t remotePort() { return _remotePort; };
 
         /**
          * Prints the current read parsed packet to the given output.
@@ -215,24 +213,24 @@ public:
          */
         virtual size_t printTo(Print& p) const;
 
-	/*
-	 * Join a multicast address for all UDP sockets which are on the same interface as this one.
-	 * This will allow reception of multicast packets sent to the given address for UDP sockets
-	 * which have bound the port to which the multicast packet was sent.
-	 * NOTE: Can be called only after begin() was called.
-	 * @param addr IP multicast address to join
-	 * @return Return the result of the join operation
-	 */
-	int joinMulticast(const IPAddress& ip);
+        /*
+         * Join a multicast address for all UDP sockets which are on the same interface as this one.
+         * This will allow reception of multicast packets sent to the given address for UDP sockets
+         * which have bound the port to which the multicast packet was sent.
+         * NOTE: Can be called only after begin() was called.
+         * @param addr IP multicast address to join
+         * @return Return the result of the join operation
+         */
+        int joinMulticast(const IPAddress& ip);
 
-	/*
-	 * Leave a multicast address previously joined with socket_join_multicast.
-	 * @param addr IP multicast address to leave
-	 * @return Return the result of the leave operation
-	 */
-	int leaveMulticast(const IPAddress& ip);
+        /*
+         * Leave a multicast address previously joined with socket_join_multicast.
+         * @param addr IP multicast address to leave
+         * @return Return the result of the leave operation
+         */
+        int leaveMulticast(const IPAddress& ip);
 
-	using Print::write;
+        using Print::write;
 };
 
 #endif

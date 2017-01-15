@@ -17,12 +17,24 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+#ifdef configSETUP_ENABLE
+
 #include "ajson.h"
 #include "system_test.h"
 #include "system_config.h"
 #include "platforms.h"
 
-#ifdef configSETUP_ENABLE
+/*debug switch*/
+#define SYSTEM_TEST_DEBUG
+
+#ifdef SYSTEM_TEST_DEBUG
+#define STEST_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define STEST_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define STEST_DEBUG(...)
+#define STEST_DEBUG_D(...)
+#endif
 
 #ifndef configNO_NETWORK
 using namespace intorobot;

@@ -18,6 +18,7 @@ void Network_Setup();
 
 
 extern volatile uint8_t g_intorobot_network_connected;
+extern volatile uint8_t g_intorobot_cloud_pregrocessed;
 extern volatile uint8_t g_intorobot_cloud_connected;
 extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
 extern volatile uint8_t INTOROBOT_WLAN_STARTED;

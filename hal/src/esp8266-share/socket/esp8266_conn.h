@@ -36,9 +36,6 @@
 typedef struct {
     int handle;
     volatile IpProtocol ipproto;
-    volatile int local_port;
-    volatile int remote_port;
-    volatile uint8_t remote_ip[4];
     volatile bool connected;
     volatile int pending;
     volatile bool open;
@@ -62,7 +59,7 @@ public:
         \param port in case of UDP, this optional port where it is bind
         \return the socket handle if successful or SOCKET_ERROR on failure
     */
-    int socketSocket(IpProtocol ipproto, int port = -1);
+    int socketCreate(IpProtocol ipproto, int port = -1);
 
     /** make a socket connection
         \param socket the socket handle
@@ -108,7 +105,7 @@ public:
     */
     bool socketClose(int socket);
 
-    /** Free the socket (that was allocated before by #socketSocket)
+    /** Free the socket (that was allocated before by #socketCreate)
         \param socket the socket handle
         \return true if successfully, false otherwise
     */

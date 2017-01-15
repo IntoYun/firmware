@@ -53,7 +53,7 @@ OpenwrtConnClass::OpenwrtConnClass(BridgeClass &_b) :
         _sockets[socket].handle = MDM_SOCKET_ERROR;
 }
 
-int OpenwrtConnClass::socketSocket(IpProtocol ipproto, int port)
+int OpenwrtConnClass::socketCreate(IpProtocol ipproto, int port)
 {
     int socket;
 
@@ -71,7 +71,7 @@ int OpenwrtConnClass::socketSocket(IpProtocol ipproto, int port)
         _sockets[socket].open       = true;
         _sockets[socket].pipe = new Pipe<char>(MAX_SIZE);
     }
-    DEBUG_D("socketSocket(%s)\r\n", (ipproto?"UDP":"TCP"));
+    DEBUG_D("socketCreate(%s)\r\n", (ipproto?"UDP":"TCP"));
     return socket;
 }
 
@@ -169,7 +169,7 @@ bool OpenwrtConnClass::socketClose(int socket)
         }
         // Assume RESP_OK in most situations, and assume closed
         // already if we couldn't close it, even though this can
-        // be false. Recovery added to socketSocket();
+        // be false. Recovery added to socketCreate();
         _sockets[socket].connected = false;
         _sockets[socket].open = false;
         ok = true;

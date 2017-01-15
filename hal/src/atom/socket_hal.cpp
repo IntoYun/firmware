@@ -33,7 +33,7 @@ const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
 
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
-    sock_handle_t handle = openwrt_conn.socketSocket(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
+    sock_handle_t handle = openwrt_conn.socketCreate(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
     return handle;
 }
 

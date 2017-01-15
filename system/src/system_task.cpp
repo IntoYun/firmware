@@ -18,6 +18,13 @@
  */
 
 #include "intorobot_config.h"
+#include "string.h"
+#include "watchdog_hal.h"
+#include "wlan_hal.h"
+#include "delay_hal.h"
+#include "timer_hal.h"
+#include "core_hal.h"
+#include "params_hal.h"
 //#include "wiring_system.h"
 #include "system_task.h"
 #include "system_cloud.h"
@@ -28,20 +35,23 @@
 #include "system_update.h"
 #include "system_rgbled.h"
 #include "intorobot_macros.h"
-#include "string.h"
 #include "system_tick_hal.h"
-#include "watchdog_hal.h"
-#include "wlan_hal.h"
-#include "delay_hal.h"
-#include "timer_hal.h"
-#include "core_hal.h"
-#include "params_hal.h"
 #include "service_debug.h"
-
 #include "wiring_network.h"
 #include "wiring_constants.h"
 #include "wiring_cloud.h"
 #include "system_threading.h"
+
+/*debug switch*/
+#define SYSTEM_TASK_DEBUG
+
+#ifdef SYSTEM_MQTTCLIENT_DEBUG
+#define STASK_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define STASK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define STASK_DEBUG(...)
+#define STASK_DEBUG_D(...)
+#endif
 
 using intorobot::Network;
 
@@ -152,6 +162,42 @@ void manage_network_connection()
 #endif
 
 #ifndef configNO_CLOUD
+void preprocess_cloud_connection(void)
+{
+    if (network.connected())
+    {
+        if (!g_intorobot_cloud_pregrocessed)
+        {
+            // 同步时间
+            intorobot_sync_time();
+
+            AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+            //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
+            switch(at_mode)
+            {
+                case AT_MODE_FLAG_ABP:            //已经灌好密钥
+                    break;
+                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
+                    break;
+                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
+                    // 激活设备成功
+                    intorobot_device_activate();
+                    break;
+                default:                          //没有密钥信息
+                    // 注册设备
+                    if(intorobot_device_register())
+                    {
+                        // 激活设备
+                        intorobot_device_activate();
+                    }
+                    break;
+            }
+            cloud_connection_attempt_init();
+            g_intorobot_cloud_pregrocessed = 1;
+        }
+    }
+}
+
 void establish_cloud_connection(void)
 {
     if (network.connected())
@@ -202,6 +248,7 @@ void manage_cloud_connection(void)
     }
     else // cloud connection is wanted
     {
+        preprocess_cloud_connection();
         establish_cloud_connection();
         handle_cloud_connection();
     }

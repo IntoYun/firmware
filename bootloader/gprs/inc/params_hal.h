@@ -50,7 +50,7 @@ typedef enum
 {
     AT_MODE_FLAG_NONE            = 0, //没有密钥信息
     AT_MODE_FLAG_ABP             = 1, //Activation By Personalization  //已经灌好密钥
-    AT_MODE_FLAG_OTAA_INACTIVE   = 2, //Over-The-Air Activation //灌装激活码  未激活
+    AT_MODE_FLAG_OTAA_INACTIVE   = 2, //Over-The-Air Activation        //灌装激活码  未激活
     AT_MODE_FLAG_OTAA_ACTIVE     = 3  //灌装激活码 已激活
 } AT_MODE_FLAG_TypeDef;
 

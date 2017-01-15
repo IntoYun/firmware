@@ -41,89 +41,89 @@ class CloudClass: public Print{
 
     public:
 
-        uint8_t publish(const char *topic, bool value)
+        bool publish(const char *topic, bool value)
         {
             return publish(topic, String(value).c_str());
         }
 
 #ifdef INTOROBOT_ARCH_ARM
         // stm32 arm 采取的是thumb指令集  int 实际是16位
-        uint8_t publish(const char *topic, int value)
+        bool publish(const char *topic, int value)
         {
             return publish(topic, String(value).c_str());
         }
 #endif
 
-        uint8_t publish(const char *topic, int32_t value)
+        bool publish(const char *topic, int32_t value)
         {
             return publish(topic, String(value).c_str());
         }
 
-        uint8_t publish(const char *topic, uint32_t value)
+        bool publish(const char *topic, uint32_t value)
         {
             return publish(topic, String(value).c_str());
         }
 
-        uint8_t publish(const char *topic, float value)
-        {
-            //char buf[32];
-            //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str());
-        }
-
-        uint8_t publish(const char *topic, double value)
+        bool publish(const char *topic, float value)
         {
             //char buf[32];
             //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
             return publish(topic, String(value).c_str());
         }
 
-        uint8_t publish(const char *topic, String value)
+        bool publish(const char *topic, double value)
+        {
+            //char buf[32];
+            //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
+            return publish(topic, String(value).c_str());
+        }
+
+        bool publish(const char *topic, String value)
         {
             return publish(topic, value.c_str());
         }
 
-        uint8_t publish(const char *topic, char *value)
+        bool publish(const char *topic, char *value)
         {
             return publish(topic, (uint8_t *)value, strlen(value), 0, true);
         }
 
-        uint8_t publish(const char *topic, uint8_t *payload, unsigned int plength)
+        bool publish(const char *topic, uint8_t *payload, unsigned int plength)
         {
             return publish(topic, payload, plength, 0, true);
         }
 
-        uint8_t publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
+        bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
         {
             return publish(topic, payload, plength, 0, retained);
         }
 
-        uint8_t publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
+        bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
         {
             return intorobot_publish(API_VERSION_V1, topic, payload, plength, qos, retained);
         }
 
-        uint8_t subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
+        bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
         {
             return subscribe(topic, deviceID, callback, 0);
         }
 
-        uint8_t subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+        bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
         {
             return intorobot_subscribe(API_VERSION_V1, topic, deviceID, callback, qos);
         }
 
-        uint8_t subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
+        bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
         {
             return subscribe(topic, deviceID, pWidgetBase, 0);
         }
 
-        uint8_t subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
+        bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
         {
             return intorobot_widget_subscribe(API_VERSION_V1, topic, deviceID, pWidgetBase, qos);
         }
 
-        uint8_t unsubscribe(const char *topic, const char *deviceID)
+        bool unsubscribe(const char *topic, const char *deviceID)
         {
             return intorobot_unsubscribe(API_VERSION_V1, topic, deviceID);
         }
@@ -237,46 +237,47 @@ class CloudClass: public Print{
         }
 
 #ifdef INTOROBOT_ARCH_ARM
-        bool readDataPoint(const uint16_t dpID, int &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, int &value)
         {
             return intorobotReadDataPointInt(dpID, value);
         }
 #endif
 
-        bool readDataPoint(const uint16_t dpID, int32_t &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, int32_t &value)
         {
             return intorobotReadDataPointInt32(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, uint32_t &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, uint32_t &value)
         {
             return intorobotReadDataPointUint32(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, float &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, float &value)
         {
             return intorobotReadDataPointFloat(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, double &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, double &value)
         {
             return intorobotReadDataPointDouble(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, String &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, String &value)
         {
             return intorobotReadDataPointString(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, char *value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, char *value)
         {
             return intorobotReadDataPointStringChar(dpID, value);
         }
 
-        bool readDataPoint(const uint16_t dpID, uint8_t *value, uint16_t &len)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, uint8_t *value, uint16_t &len)
         {
             return intorobotReadDataPointBinary(dpID, value, len);
         }
+
         // 写数据点
         void writeDataPoint(const uint16_t dpID, bool value)
         {
@@ -314,7 +315,7 @@ class CloudClass: public Print{
             writeDataPoint(dpID, value.c_str());
         }
 
-        void writeDataPoint(const uint16_t dpID, char *value)
+        void writeDataPoint(const uint16_t dpID, const char *value)
         {
             intorobotWriteDataPointString(dpID, value);
         }
@@ -324,9 +325,9 @@ class CloudClass: public Print{
             intorobotWriteDataPointBinary(dpID, value, len);
         }
 
-        void writeDataPoints(void)
+        void writeDataPointAll(void)
         {
-            intorobotWriteDataPoints();
+            intorobotWriteDataPointAll();
         }
 
         void syncTime(void)

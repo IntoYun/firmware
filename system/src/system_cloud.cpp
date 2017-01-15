@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "hw_config.h"
+#include "core_hal.h"
+#include "params_hal.h"
+#include "ota_flash_hal.h"
 #include "wiring_string.h"
 #include "wiring_tcpclient.h"
 #include "wiring_udp.h"
@@ -35,15 +39,26 @@
 #include "system_update.h"
 #include "system_rgbled.h"
 #include "wiring_time.h"
-#include "params_hal.h"
-#include "ota_flash_hal.h"
-#include "core_hal.h"
+#include "wiring_httpclient.h"
+#include "system_product.h"
 #include "ajson.h"
+
+/*debug switch*/
+#define SYSTEM_CLOUD_DEBUG
+
+#ifdef SYSTEM_CLOUD_DEBUG
+#define SCLOUD_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SCLOUD_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define SCLOUD_DEBUG(...)
+#define SCLOUD_DEBUG_D(...)
+#endif
 
 using namespace intorobot;
 
 #ifndef configNO_CLOUD
 volatile uint8_t g_intorobot_network_connected = 0;    //网络连接状态 1连接 0断开
+volatile uint8_t g_intorobot_cloud_pregrocessed = 0;   //平台链接预处理状态 1已经处理
 volatile uint8_t g_intorobot_cloud_connected = 0;      //平台连接状态 1连接上了
 
 struct CallBackList g_callback_list;  //回调结构体
@@ -64,7 +79,8 @@ void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
-    //DEBUG_D("default:mqtt_client_callback\r\n");
+    SCLOUD_DEBUG("mqtt callback!");
+
     uint8_t *pdata = NULL;
     pCallBack pcallback=get_subscribe_callback(topic);
     if(pcallback!=NULL)
@@ -86,22 +102,27 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
         free(pdata);
     }
 }
-
+//时间不通过mqtt获取 直接获取ntp时间   2016-01-13  chenkaiyao
+/*
 void sync_time_callback(uint8_t *payload, uint32_t len)
 {
+    SCLOUD_DEBUG("sync time!");
+
     uint32_t n;
     String s_time="";
 
-    //DEBUG_D("default:sync_time_callback\r\n");
     for(n=0; n<len; n++)
     {s_time+=(char)payload[n];}
     Time.setTime(atol(s_time.c_str()));
     //unsubscribe the system time topic
     intorobot_unsubscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service");
 }
+*/
 
 void ota_update_callback(uint8_t *payload, uint32_t len)
 {
+    SCLOUD_DEBUG("online update!");
+
     uint32_t n;
     char flag=0;
     String s_payload="", domain="", param="";
@@ -110,7 +131,6 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     for(n=0; n<len; n++)
     {s_payload+=(char)payload[n];}
 
-    //DEBUG_D("default:ota_update_callback\r\n");
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
     intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
@@ -204,6 +224,8 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
 
 void subsys_update_callback(uint8_t *payload, uint32_t len)
 {
+    SCLOUD_DEBUG("subsys update!");
+
     uint32_t n;
     String s_payload="", domain="", param="";
     aJsonClass aJson;
@@ -213,7 +235,6 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
     for(n=0; n<len; n++)
     {s_payload+=(char)payload[n];}
 
-    //DEBUG_D("default:subsys_update_callback\r\n");
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
     memset(temp,0,sizeof(temp));
@@ -320,10 +341,11 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
 
 void accesstoken_update_callback(uint8_t *payload, uint32_t len)
 {
+    SCLOUD_DEBUG("access_token update!");
+
     uint32_t n;
     String s_access_token;
 
-    //DEBUG_D("default:accesstoken_update_callback");
     for(n=0; n<len; n++)
     {s_access_token+=(char)payload[n];}
     //send response topic
@@ -331,9 +353,9 @@ void accesstoken_update_callback(uint8_t *payload, uint32_t len)
     //save access token
     char access_token[48]={0};
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
-    DEBUG("before access_token = %s\r\n",access_token);
+    SCLOUD_DEBUG("before access_token = %s",access_token);
     HAL_PARAMS_Set_System_access_token(s_access_token.c_str());
-    DEBUG("after access_token = %s\r\n",s_access_token.c_str());
+    SCLOUD_DEBUG("after access_token = %s",s_access_token.c_str());
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
     while(1); //不会运行到地方
@@ -341,7 +363,7 @@ void accesstoken_update_callback(uint8_t *payload, uint32_t len)
 
 void system_reboot_callback(uint8_t *payload, uint32_t len)
 {
-    //DEBUG_D("default:system_reboot_callback\r\n");
+    SCLOUD_DEBUG("system reboot!");
     //system reset ready
     intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC), 0, false);
     HAL_Core_System_Reset();
@@ -349,7 +371,7 @@ void system_reboot_callback(uint8_t *payload, uint32_t len)
 
 void system_debug_callback(uint8_t *payload, uint32_t len)
 {
-    //DEBUG_D("default:system_debug_callback\r\n");
+    SCLOUD_DEBUG("system debug recieve!");
     mqtt_receive_debug_info(payload, len);
 }
 
@@ -393,7 +415,7 @@ void fill_mqtt_topic(String &fulltopic, api_version_t version, const char *topic
     fulltopic+=topic;
 }
 
-bool intorobot_cloud_init(void)
+void intorobot_cloud_init(void)
 {
     memset(&g_debug_tx_buffer,0,sizeof(g_debug_tx_buffer));
     memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
@@ -402,7 +424,8 @@ bool intorobot_cloud_init(void)
     // v1版本subscibe
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_UPDATE_TOPIC, NULL, ota_update_callback, 0);                 //固件升级
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_JSON_UPDATE_TOPIC, NULL, subsys_update_callback, 0);         //子系统升级
-    intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+    //时间不通过mqtt获取 直接获取ntp时间   2016-01-13  chenkaiyao
+    //intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_CHANGE_TOKEN_TOPIC, NULL, accesstoken_update_callback, 0);   //更新access token
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_REBOOT_TOPIC, NULL, system_reboot_callback, 0);              //stm32重启
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
@@ -411,26 +434,42 @@ bool intorobot_cloud_init(void)
     intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
     intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
     intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);   //从平台获取调试信息
+
+    // 添加默认数据点
+    IntoRobot.addDataPointBool(0xFF80, UP_DOWN, false);   //reboot
+    IntoRobot.addDataPointBool(0xFF81, UP_DOWN, false);   //write all datapoint
 }
 
-uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
+bool intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    return g_mqtt_client.publish(fulltopic.c_str(), payload, plength, retained);
+    if(g_mqtt_client.publish(fulltopic.c_str(), payload, plength, retained))
+    {
+        SCLOUD_DEBUG("OK! published topic: %s, payload: %s ", fulltopic.c_str(), payload);
+        return true;
+    }
+    SCLOUD_DEBUG("Error! publish topic: %s, payload: %s ", fulltopic.c_str(), payload);
+    return false;
 }
 
-uint8_t intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+bool intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
 {
     String fulltopic;
 
     add_subscribe_callback(version, (char *)topic, (char *)device_id, callback, qos);
     fill_mqtt_topic(fulltopic, version, topic, device_id);
-    return g_mqtt_client.subscribe(fulltopic.c_str(), qos);
+    if(g_mqtt_client.subscribe(fulltopic.c_str(), qos))
+    {
+        SCLOUD_DEBUG("OK! subscribe topic: %s", fulltopic.c_str());
+        return true;
+    }
+    SCLOUD_DEBUG("Error! subscribe topic: %s", fulltopic.c_str());
+    return false;
 }
 
-uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
+bool intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos)
 {
     String fulltopic;
 
@@ -439,7 +478,7 @@ uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, con
     return g_mqtt_client.subscribe(fulltopic.c_str(), qos);
 }
 
-uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id)
+bool intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id)
 {
     String fulltopic;
 
@@ -735,10 +774,12 @@ void intorobot_cloud_disconnect(void)
 
 int intorobot_cloud_connect(void)
 {
+    SCLOUD_DEBUG("---------mqtt connect start--------");
     intorobot_cloud_disconnect();
     //set intorobot server
     char sv_domain[32]={0};
     int sv_port;
+
     if(SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
         HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
         sv_port=HAL_PARAMS_Get_System_sv_port();
@@ -747,36 +788,90 @@ int intorobot_cloud_connect(void)
         strcpy(sv_domain, INTOROBOT_SERVER_DOMAIN);
         sv_port=INTOROBOT_SERVER_PORT;
     }
+    strcpy(sv_domain, "112.124.117.64");
+    sv_port=1885;
+
     g_mqtt_client.setServer(sv_domain, sv_port);
 
-    char device_id[38]={0},access_token[48]={0};
+    AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+    char device_id[38]={0}, activation_code[38]={0}, access_token[38]={0};
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
-    //mqtt连接平台
-    DEBUG_D("sv_domain:%s\r\n", sv_domain);
-    DEBUG_D("sv_port:%d\r\n", sv_port);
-    DEBUG_D("device_id=%s\r\n", device_id);
-    DEBUG_D("access_token=%s\r\n", access_token);
-    if(g_mqtt_client.connect("", access_token, device_id))
+    HAL_PARAMS_Get_System_activation_code(activation_code, sizeof(activation_code));
+
+    SCLOUD_DEBUG("domain          : %s", sv_domain);
+    SCLOUD_DEBUG("port            : %d", sv_port);
+    SCLOUD_DEBUG("at_mode         : %d", at_mode);
+    SCLOUD_DEBUG("device_id       : %s", device_id);
+    SCLOUD_DEBUG("activation_code : %s", activation_code);
+    SCLOUD_DEBUG("access_token    : %s", access_token);
+
+    String fulltopic;
+    fill_mqtt_topic(fulltopic, API_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
+    if(g_mqtt_client.connect("", access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE))
     {
-        char fw_version[28]={0}, subsys_version[28]={0}, temp[64]={0};
+        SCLOUD_DEBUG("---------connect success--------");
+        char fw_version[28]={0}, subsys_version[28]={0}, board[8];
+        product_details_t product_details;
 
         HAL_PARAMS_Get_System_fwlib_ver(fw_version, sizeof(fw_version));
         HAL_PARAMS_Get_System_subsys_ver(subsys_version, sizeof(subsys_version));
-        memset(temp, 0, sizeof(temp));
-        sprintf(temp,"{\"fw_ver\":\"%s\",\"sys_ver\":\"%s\"}", fw_version, subsys_version);
-        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)temp, strlen(temp), 0, true);
+        HAL_Board_Type(board, sizeof(board), 0);
+        system_product_instance().get_product_details(product_details);
+
+        aJsonClass aJson;
+        //intorobot 平台上送数据
+        aJsonObject* root = aJson.createObject();
+        if (root == NULL)
+        {return -1;}
+        aJson.addStringToObject(root, "fw_ver", fw_version);
+        aJson.addStringToObject(root, "sys_ver", subsys_version);
+        char* string = aJson.print(root);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)string, strlen(string), 0, true);
+        free(string);
+        aJson.deleteItem(root);
+
+        //intoYun   平台上送数据
+        root = aJson.createObject();
+        if (root == NULL)
+        {return -1;}
+        aJson.addStringToObject(root, "productId", product_details.product_id);
+        if(PRODUCT_MODE_MASTER == product_details.product_mode)
+        {aJson.addStringToObject(root, "productMode", "master");}
+        else
+        {aJson.addStringToObject(root, "productMode", "slave");}
+        aJson.addStringToObject(root, "board", board);
+        aJson.addStringToObject(root, "productVer", String(product_details.product_firmware_version).c_str());
+        aJson.addStringToObject(root, "libVer", fw_version);
+        aJson.addStringToObject(root, "subsysVer", subsys_version);
+        aJson.addBooleanToObject(root, "online", true);
+        string = aJson.print(root);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);
+        free(string);
+        aJson.deleteItem(root);
         //重新订阅
+        SCLOUD_DEBUG("---------mqtt resubscribe--------");
         resubscribe();
         return 0;
     }
+    SCLOUD_DEBUG("---------connect failed--------");
     return -1;
 }
 
 int intorobot_cloud_handle(void)
 {
+    bool reboot_flag = false, all_datapoint_flag = false;
     if(true == g_mqtt_client.loop())
     {
+        //reboot
+        if(RESULT_DATAPOINT_NEW == intorobotReadDataPointBool(0xFF80, reboot_flag))
+        {
+        }
+        //write all datepoint
+        if(RESULT_DATAPOINT_NEW == intorobotReadDataPointBool(0xFF81, all_datapoint_flag))
+        {
+            intorobotWriteDataPointAll();
+        }
         //发送IntoRobot.printf打印到平台
         mqtt_send_debug_info();
         return 0;
@@ -800,7 +895,7 @@ static void send_ntp_request_packet(IPAddress timeServerIP)
     packetBuffer[13]  = 0x4E;
     packetBuffer[14]  = 49;
     packetBuffer[15]  = 52;
-    ntp_time_udp.beginPacket(timeServerIP, (int) 123); // NTP Server and Port
+    ntp_time_udp.beginPacket(timeServerIP, (int)123); // NTP Server and Port
     ntp_time_udp.write((char *)packetBuffer, 48);
     ntp_time_udp.endPacket();
 }
@@ -810,29 +905,195 @@ static time_t get_ntp_time(void)
     uint8_t packetBuffer[48];
     IPAddress ntpServer = WiFi.resolve(NTP_TIMESERVER);
 
+    ntp_time_udp.begin(8888);
     for (int i = 0 ; i < 4 ; i++)
     {
         send_ntp_request_packet(ntpServer);
         uint32_t beginWait = millis();
-        while (millis() - beginWait < 6000)
+        while (millis() - beginWait < 2000)
         {
             if (ntp_time_udp.parsePacket()) {
                 ntp_time_udp.read(packetBuffer, 48);
                 unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
                 unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
                 unsigned long secSince1900 = highWord << 16 | lowWord;
-                ntp_time_udp.flush();
+                ntp_time_udp.stop();
                 return secSince1900 - 2208988800UL;
             }
         }
     }
+    ntp_time_udp.stop();
     return 0;
 }
 
-void intorobot_sync_time(void)
+bool intorobot_sync_time(void)
 {
-    Time.setTime(get_ntp_time());
-    //intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_SYNC_TIME_TOPIC, "service", sync_time_callback, 0);          //同步时间
+    SCLOUD_DEBUG("---------device syncTime begin---------");
+    time_t utc_time = get_ntp_time();
+    if(utc_time)
+    {
+        SCLOUD_DEBUG("device syncTime success! utc_time = %d",utc_time);
+        Time.setTime(utc_time);
+        return true;
+    }
+    SCLOUD_DEBUG("device syncTime failed!");
+    return false;
+}
+
+bool intorobot_device_register(void)
+{
+    SCLOUD_DEBUG("---------device register begin---------");
+    http_header_t headers[] = {
+        { "Cache-Control" , "no-cache"},
+        { NULL, NULL }
+    };
+    HttpClient http;
+    http_request_t request;
+    http_response_t response;
+
+    request.hostname = INTOROBOT_HTTP_DOMAIN;
+    request.port = INTOROBOT_HTTP_PORT;
+    request.path = "/v1/device?act=register";
+    request.timeout = 5000; //5000ms超时
+
+    aJsonClass aJson;
+    aJsonObject* root = aJson.createObject();
+    if (root == NULL)
+    {return false;}
+
+    //获取product id
+    product_details_t product_details;
+    system_product_instance().get_product_details(product_details);
+    aJson.addStringToObject(root, "productId", product_details.product_id);
+
+    //获取utc 时间戳
+    time_t utc_time = Time.now();
+    aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
+
+    //计算签名 signature = md5(timestamp + productSecret)
+    String tmp = "";
+    struct MD5Context ctx;
+    uint8_t md5_calc[16], output[33];
+
+    tmp += utc_time;
+    tmp += product_details.product_secret;
+    MD5Init(&ctx);
+    MD5Update(&ctx, tmp.c_str(), tmp.length());
+    MD5Final(md5_calc, &ctx);
+    memset(output, 0, sizeof(output));
+    for(int i = 0; i < 16; i++)
+    {
+        sprintf(output + (i * 2), "%02x", md5_calc[i]);
+    }
+
+    aJson.addStringToObject(root, "signature", output);
+    char* string = aJson.print(root);
+    request.body = string;
+    free(string);
+    aJson.deleteItem(root);
+
+    // Get request
+    http.post(request, response, headers);
+    if( 200 == response.status )
+    {
+        root = aJson.parse(response.body.c_str());
+        if (root == NULL)
+        {return false;}
+
+        //device_id  and activation_code
+        aJsonObject *deviceIdObject = aJson.getObjectItem(root, "deviceId");
+        aJsonObject *activationCodeObject = aJson.getObjectItem(root, "activationCode");
+        if ( deviceIdObject != NULL && activationCodeObject != NULL) {
+            HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+            HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
+            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_INACTIVE);
+            HAL_PARAMS_Save_Params();
+            SCLOUD_DEBUG("device_id       : %s", deviceIdObject->valuestring);
+            SCLOUD_DEBUG("activation_code : %s", activationCodeObject->valuestring);
+            SCLOUD_DEBUG("device register success!");
+            return true;
+        }
+        aJson.deleteItem(root);
+    }
+    SCLOUD_DEBUG("device register failed!");
+    return false;
+}
+
+bool intorobot_device_activate(void)
+{
+    SCLOUD_DEBUG("---------device activate begin---------");
+    http_header_t headers[] = {
+        { "Cache-Control" , "no-cache"},
+        { NULL, NULL }
+    };
+    HttpClient http;
+    http_request_t request;
+    http_response_t response;
+
+    request.hostname = INTOROBOT_HTTP_DOMAIN;
+    request.port = INTOROBOT_HTTP_PORT;
+    request.path = "/v1/device?act=activate";
+    request.timeout = 5000; //5000ms超时
+
+    aJsonClass aJson;
+    aJsonObject* root = aJson.createObject();
+    if (root == NULL)
+    {return false;}
+
+    //获取product id
+    char device_id[38]={0}, activation_code[38]={0};
+    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+    HAL_PARAMS_Get_System_activation_code(activation_code, sizeof(activation_code));
+    aJson.addStringToObject(root, "deviceId", device_id);
+
+    //获取utc 时间戳
+    time_t utc_time = Time.now();
+    aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
+
+    //计算签名 signature = md5(timestamp + productSecret)
+    String tmp = "";
+    struct MD5Context ctx;
+    uint8_t md5_calc[16], output[33];
+
+    tmp += utc_time;
+    tmp += activation_code;
+    MD5Init(&ctx);
+    MD5Update(&ctx, tmp.c_str(), tmp.length());
+    MD5Final(md5_calc, &ctx);
+    memset(output, 0, sizeof(output));
+    for(int i = 0; i < 16; i++)
+    {
+        sprintf(output + (i * 2), "%02x", md5_calc[i]);
+    }
+
+    aJson.addStringToObject(root, "signature", output);
+    char* string = aJson.print(root);
+    request.body = string;
+    free(string);
+    aJson.deleteItem(root);
+
+    // Get request
+    http.post(request, response, headers);
+    if( 200 == response.status )
+    {
+        root = aJson.parse(response.body.c_str());
+        if (root == NULL)
+        {return false;}
+
+        //device_id  and activation_code
+        aJsonObject *accessTokenObject = aJson.getObjectItem(root, "token");
+        if ( accessTokenObject != NULL ) {
+            HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
+            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
+            HAL_PARAMS_Save_Params();
+            SCLOUD_DEBUG("access_token  : %s", accessTokenObject->valuestring);
+            SCLOUD_DEBUG("device activate success!");
+            return true;
+        }
+        aJson.deleteItem(root);
+    }
+    SCLOUD_DEBUG("device activate failed!");
+    return false;
 }
 
 #endif

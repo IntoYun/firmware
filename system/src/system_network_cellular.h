@@ -31,8 +31,8 @@
 
 class CellularNetworkInterface : public ManagedIPNetworkInterface<CellularConfig, CellularNetworkInterface>
 {
-	volatile bool connect_cancelled = false;
-	volatile bool connecting = false;
+    volatile bool connect_cancelled = false;
+    volatile bool connecting = false;
 
 protected:
 
@@ -75,21 +75,21 @@ protected:
     }
 
     void connect_finalize() override {
-		ATOMIC_BLOCK() { connecting = true; }
+        ATOMIC_BLOCK() { connecting = true; }
 
-		connect_finalize_impl();
+        connect_finalize_impl();
 
-		bool require_resume = false;
+        bool require_resume = false;
 
         ATOMIC_BLOCK() {
-        		// ensure after connection exits the cancel flag is cleared if it was set during connection
-        		if (connect_cancelled) {
-        			require_resume = true;
-        		}
-        		connecting = false;
+            // ensure after connection exits the cancel flag is cleared if it was set during connection
+            if (connect_cancelled) {
+                require_resume = true;
+            }
+            connecting = false;
         }
         if (require_resume)
-        		cellular_cancel(false, HAL_IsISR(), NULL);
+            cellular_cancel(false, HAL_IsISR(), NULL);
     }
 
 

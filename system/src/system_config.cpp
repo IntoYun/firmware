@@ -36,6 +36,17 @@
 #include "system_task.h"
 #include "system_test.h"
 
+/*debug switch*/
+#define SYSTEM_CONFIG_DEBUG
+
+#ifdef SYSTEM_CLOUD_DEBUG
+#define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SCONFIG_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define SCONFIG_DEBUG(...)
+#define SCONFIG_DEBUG_D(...)
+#endif
+
 #ifndef configNO_NETWORK
 using namespace intorobot;
 #endif
@@ -48,7 +59,7 @@ static volatile uint32_t config_timeout_duration;
 inline void ARM_CONFIG_TIMEOUT(uint32_t dur) {
     config_timeout_start = HAL_Timer_Get_Milli_Seconds();
     config_timeout_duration = dur;
-    DEBUG("CONFIG WD Set %d",(dur));
+    SCONFIG_DEBUG("CONFIG WD Set %d",(dur));
 }
 inline bool IS_CONFIG_TIMEOUT() {
     return config_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-config_timeout_start)>config_timeout_duration);
@@ -56,7 +67,7 @@ inline bool IS_CONFIG_TIMEOUT() {
 
 inline void CLR_CONFIG_TIMEOUT() {
     config_timeout_duration = 0;
-    DEBUG("CONFIG WD Cleared, was %d", config_timeout_duration);
+    SCONFIG_DEBUG("CONFIG WD Cleared, was %d", config_timeout_duration);
 }
 
 DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
@@ -120,7 +131,7 @@ int DeviceConfig::process(void)
     {
         String tmp=readString();
 
-        DEBUG_D("res: %s\r\n", (char *)tmp.c_str());
+        //SCONFIG_DEBUG("res: %s", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}
@@ -264,7 +275,6 @@ void DeviceConfig::dealHello(void)
         aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     }
     char* string = aJson.print(root);
-    DEBUG_D("hello: %s\r\n", string);
     write((unsigned char *)string, strlen(string));
     free(string);
     aJson.deleteItem(root);
@@ -941,6 +951,9 @@ int UdpDeviceConfig::available(void)
             if( network_status(0, 0, NULL) ) {
                 system_rgb_blink(RGB_COLOR_RED, 200);
                 Udp.begin(5556);
+                //Udp.beginPacket 放在此处是因为设备接收到udp数据后，可以自动获取remoteip和remoteport。
+                //发送数据的时候不需要也不能指定remoteip和remoteport.
+                Udp.beginPacket(IPADDR_BROADCAST,5557);
                 step = 2;
             }
             break;
@@ -965,7 +978,8 @@ String UdpDeviceConfig::readString(void)
 
 size_t UdpDeviceConfig::write(const uint8_t *buf, size_t size)
 {
-    Udp.beginPacket(IPADDR_BROADCAST,5557);
+    //需要清除缓存，因为接受和发送放在同一个缓存中。
+    Udp.flush();
     Udp.write(buf,size);
     return Udp.endPacket();
 }

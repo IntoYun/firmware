@@ -42,6 +42,7 @@ extern "C" {
 #include "usbd_dfu_desc.h"
 #include "usbd_dfu_if.h"
 #include "hw_ticks.h"
+#include "md5_hash.h"
 #include "flash_mal.h"
 #include "system_tick_hal.h"
 #if defined(HAS_SERIAL_FLASH)

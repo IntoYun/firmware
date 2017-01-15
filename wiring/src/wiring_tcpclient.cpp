@@ -28,6 +28,15 @@
 #include "inet_hal.h"
 #include "intorobot_macros.h"
 
+//#define WIRING_TCPCLIENT_DEBUG
+
+#ifdef WIRING_TCPCLIENT_DEBUG
+#define WTCPCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WTCPCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define WTCPCLIENT_DEBUG(...)
+#define WTCPCLIENT_DEBUG_D(...)
+#endif
 
 using namespace intorobot;
 
@@ -60,7 +69,7 @@ int TCPClient::connect(const char* host, uint16_t port, network_interface_t nif)
             return connect(ip_addr, port, nif);
         }
         else{
-            // DEBUG("unable to get IP for hostname");
+            WTCPCLIENT_DEBUG("tcp connect: unable to get IP for hostname");
         }
     }
     return rv;
@@ -74,30 +83,29 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
     {
         sockaddr_t tSocketAddr;
         _sock = socket_create(AF_INET, SOCK_STREAM, IPPROTO_TCP, port, nif);
-        // DEBUG("socket=%d",_sock);
 
         if (socket_handle_valid(_sock))
         {
             flush_buffer();
-
             tSocketAddr.sa_family = AF_INET;
-
             tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
             tSocketAddr.sa_data[1] = (port & 0x00FF);
-
             tSocketAddr.sa_data[2] = ip[0];        // Todo IPv6
             tSocketAddr.sa_data[3] = ip[1];
             tSocketAddr.sa_data[4] = ip[2];
             tSocketAddr.sa_data[5] = ip[3];
 
             uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
-            // DEBUG("_sock %d connect",_sock);
             connected = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
-            // DEBUG("_sock %d connected=%d",_sock, connected);
             HAL_NET_SetNetWatchDog(ot);
             _remoteIP = ip;
-            if(!connected)
+            if(connected)
             {
+                WTCPCLIENT_DEBUG("tcp connect success! create socket %d", _sock);
+            }
+            else
+            {
+                WTCPCLIENT_DEBUG("tcp connect failed!");
                 stop();
             }
         }
@@ -138,7 +146,7 @@ int TCPClient::available()
             int ret = socket_receive(_sock, _buffer + _total , arraySize(_buffer)-_total, 0);
             if (ret > 0)
             {
-                // DEBUG("recv(=%d)",ret);
+                WTCPCLIENT_DEBUG("tcp receive data %d", ret);
                 if (_total == 0) _offset = 0;
                 _total += ret;
             }
@@ -185,8 +193,7 @@ void TCPClient::flush()
 
 void TCPClient::stop()
 {
-    // DEBUG("_sock %d closesocket", _sock);
-
+    WTCPCLIENT_DEBUG("tcp stop! close socket %d", _sock);
     if (isOpen(_sock))
         socket_close(_sock);
     _sock = socket_handle_invalid();

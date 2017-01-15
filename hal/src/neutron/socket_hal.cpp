@@ -24,10 +24,23 @@
 const sock_handle_t SOCKET_MAX = (sock_handle_t)7; // 7 total sockets, handle 0-6
 const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
 
-
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
-    sock_handle_t handle = esp8266MDM.socketSocket(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
+    sock_handle_t handle = esp8266MDM.socketCreate(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
+    if (socket_handle_valid(handle) && (protocol==IPPROTO_UDP))
+    {
+        sockaddr_t tSocketAddr;
+
+        memset(&tSocketAddr, 0, sizeof(sockaddr_t));
+        tSocketAddr.sa_family = AF_INET;
+        tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
+        tSocketAddr.sa_data[1] = (port & 0x00FF);
+        tSocketAddr.sa_data[2] = 255;  // Todo IPv6
+        tSocketAddr.sa_data[3] = 255;
+        tSocketAddr.sa_data[4] = 255;
+        tSocketAddr.sa_data[5] = 255;
+        socket_connect(handle, &tSocketAddr, sizeof(tSocketAddr));
+    }
     return handle;
 }
 
@@ -117,13 +130,10 @@ sock_result_t socket_send(sock_handle_t sd, const void* buffer, socklen_t len)
 
 sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len, uint32_t flags, sockaddr_t* addr, socklen_t addr_size)
 {
-    return esp8266MDM.socketSend(sd, (const char*)buffer, len);
-    /*
     const uint8_t* addr_data = addr->sa_data;
     uint16_t port = addr_data[0]<<8 | addr_data[1];
     MDM_IP ip = IPADR(addr_data[2], addr_data[3], addr_data[4], addr_data[5]);
     return esp8266MDM.socketSendTo(sd, ip, port, (const char*)buffer, len);
-    */
 }
 
 inline bool is_valid(sock_handle_t handle) {

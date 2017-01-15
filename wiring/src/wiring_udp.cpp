@@ -28,6 +28,17 @@
 #include "wlan_hal.h"
 #include "wiring_constants.h"
 
+/*debug switch*/
+//#define WIRING_UDP_DEBUG
+
+#ifdef WIRING_UDP_DEBUG
+#define WUDP_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WUDP_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define WUDP_DEBUG(...)
+#define WUDP_DEBUG_D(...)
+#endif
+
 using namespace intorobot;
 
 static bool inline isOpen(sock_handle_t sd)
@@ -68,58 +79,22 @@ void UDP::releaseBuffer()
 
 uint8_t UDP::begin(uint16_t port, network_interface_t nif)
 {
-    return begin(IPADDR_BROADCAST, 5557, port, nif);
-}
-
-uint8_t UDP::begin(const char *host, uint16_t port, uint16_t localport, network_interface_t nif)
-{
-    if(Network.from(_nif).ready())
-    {
-        HAL_IPAddress ip_addr;
-
-        if(inet_gethostbyname((char*)host, strlen(host), &ip_addr, _nif, NULL) == 0)
-        {
-            IPAddress remote_addr(ip_addr);
-            return begin(remote_addr, port, localport, nif);
-        }
-    }
-    return 0;
-}
-
-uint8_t UDP::begin(IPAddress ip, uint16_t port, uint16_t localport, network_interface_t nif)
-{
     bool bound = 0;
     if(Network.from(nif).ready())
     {
-        sockaddr_t tSocketAddr;
-        _sock = socket_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, localport, nif);
-        DEBUG("socket=%d",_sock);
+        _sock = socket_create(AF_INET, SOCK_DGRAM, IPPROTO_UDP, port, nif);
         if (socket_handle_valid(_sock))
         {
-            flush();
-
-            tSocketAddr.sa_family = AF_INET;
-
-            tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
-            tSocketAddr.sa_data[1] = (port & 0x00FF);
-
-            tSocketAddr.sa_data[2] = ip[0];        // Todo IPv6
-            tSocketAddr.sa_data[3] = ip[1];
-            tSocketAddr.sa_data[4] = ip[2];
-            tSocketAddr.sa_data[5] = ip[3];
-
-            uint32_t ot = HAL_NET_SetNetWatchDog(S2M(MAX_SEC_WAIT_CONNECT));
-            // DEBUG("_sock %d connect",_sock);
-            bound = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
-            // DEBUG("_sock %d connected=%d",_sock, bound);
-            HAL_NET_SetNetWatchDog(ot);
-            _remoteIP = ip;
-            _remotePort = port;
+            WUDP_DEBUG("udp begin success! create socket %d",_sock);
+            flush(); // clear buffer
             _port = port;
-            if(!bound)
-            {
-                stop();
-            }
+            _nif = nif;
+            bound = true;
+        }
+        else {
+            WUDP_DEBUG("udp begin failed!");
+            stop();
+            bound = false;
         }
     }
     return bound;
@@ -132,7 +107,7 @@ int UDP::available()
 
 void UDP::stop()
 {
-    DEBUG("_sock %d closesocket", _sock);
+    WUDP_DEBUG("udp stop: close socket %d", _sock);
     if (isOpen(_sock))
     {
         socket_close(_sock);
@@ -190,7 +165,7 @@ int UDP::sendPacket(const uint8_t* buffer, size_t buffer_size, IPAddress remoteI
     remoteSockAddr.sa_data[5] = remoteIP[3];
 
     int rv = socket_sendto(_sock, buffer, buffer_size, 0, &remoteSockAddr, sizeof(remoteSockAddr));
-    DEBUG("sendto(buffer=%lx, size=%d)=%d",buffer, buffer_size , rv);
+    WUDP_DEBUG("udp sendPacket(buffer=%lx, size=%d)=%d",buffer, buffer_size, rv);
     return rv;
 }
 
@@ -234,7 +209,7 @@ int UDP::receivePacket(uint8_t* buffer, size_t size)
         socklen_t remoteSockAddrLen = sizeof(remoteSockAddr);
 
         ret = socket_receivefrom(_sock, buffer, size, 0, &remoteSockAddr, &remoteSockAddrLen);
-        if (ret >= 0)
+        if (ret > 0)
         {
             _remotePort = remoteSockAddr.sa_data[0] << 8 | remoteSockAddr.sa_data[1];
             _remoteIP = &remoteSockAddr.sa_data[2];

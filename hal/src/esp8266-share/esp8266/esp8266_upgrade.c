@@ -1,10 +1,9 @@
 #include "hw_config.h"
-#include "md5.h"
 #include "spi_flash.h"
 #include "esp8266_upgrade.h"
 #include "params_hal.h"
 
-LOCAL md5_context_t _ctx;
+LOCAL struct MD5Context _ctx;
 LOCAL struct espconn *upgrade_conn;
 LOCAL uint8 *pbuf;
 LOCAL os_timer_t upgrade_rev_timer;
@@ -342,9 +341,9 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
         MD5Final(md5_calc, &_ctx);
         memset(output, 0, sizeof(output));
         for(i = 0; i < 16; i++)
-            {
-                sprintf(output + (i * 2), "%02x", md5_calc[i]);
-            }
+        {
+            sprintf(output + (i * 2), "%02x", md5_calc[i]);
+        }
         DEBUG("md5 = %s\n",output);
         DEBUG("server->md5 = %s\n",server->md5);
         if(!strcmp(server->md5,output)){

@@ -93,11 +93,11 @@ struct CloudDebugBuffer
 extern "C" {
 #endif
 
-bool intorobot_cloud_init(void);
-uint8_t intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
-uint8_t intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
-uint8_t intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
-uint8_t intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id);
+void intorobot_cloud_init(void);
+bool intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
+bool intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
+bool intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
+bool intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id);
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
@@ -120,6 +120,9 @@ bool intorobot_cloud_flag_auto_connect();
 
 String intorobot_deviceID(void);
 void intorobot_process(void);
-void intorobot_sync_time(void);
+bool intorobot_sync_time(void);
+bool intorobot_device_register(void);
+bool intorobot_device_activate(void);
+
 
 #endif	/* SYSTEM_CLOUD_H_ */

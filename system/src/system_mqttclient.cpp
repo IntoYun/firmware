@@ -28,6 +28,16 @@ extern "C" void yield(void);
 #include "wiring.h"
 #include "stdint.h"
 
+/*debug switch*/
+#define SYSTEM_MQTTCLIENT_DEBUG
+
+#ifdef SYSTEM_MQTTCLIENT_DEBUG
+#define SMQTTCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SMQTTCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define SMQTTCLIENT_DEBUG(...)
+#define SMQTTCLIENT_DEBUG_D(...)
+#endif
 
 MqttClientClass::MqttClientClass() {
     this->_state = MQTT_DISCONNECTED;
@@ -328,12 +338,10 @@ boolean MqttClientClass::loop() {
                 uint8_t type = buffer[0]&0xF0;
                 if (type == MQTTPUBLISH) {
                     if (callback) {
-                        uint16_t tl = (buffer[llen+1]<<8)+buffer[llen+2];
-                        char topic[tl+1];
-                        for (uint16_t i=0;i<tl;i++) {
-                            topic[i] = buffer[llen+3+i];
-                        }
-                        topic[tl] = 0;
+                        uint16_t tl = (buffer[llen+1]<<8)+buffer[llen+2]; /* topic length in bytes */
+                        memcpy(buffer+llen+2,buffer+llen+3,tl); /* move topic inside buffer 1 byte to front */
+                        buffer[llen+2+tl] = 0; /* end the topic as a 'C' string with \x00 */
+                        char *topic = (char*) buffer+llen+2;
                         // msgId only present for QOS>0
                         if ((buffer[0]&0x06) == MQTTQOS1) {
                             msgId = (buffer[llen+3+tl]<<8)+buffer[llen+3+tl+1];

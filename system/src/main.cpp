@@ -384,20 +384,22 @@ void app_setup_and_loop_initial(void)
 #if 1
     product_details_t product_details;
     system_product_instance().get_product_details(product_details);
-    DEBUG_D("product_firmware_version=%d\r\n", product_details .product_firmware_version);
-    DEBUG_D("product_mode=%d\r\n", product_details.product_mode);
-    DEBUG_D("product_id=%s\r\n", product_details.product_id);
-    DEBUG_D("product_secret=%s\r\n", product_details.product_secret);
+    DEBUG("product_firmware_version=%d", product_details .product_firmware_version);
+    DEBUG("product_mode=%d", product_details.product_mode);
+    DEBUG("product_id=%s", product_details.product_id);
+    DEBUG("product_secret=%s", product_details.product_secret);
 #endif
 
 #ifdef configSETUP_ENABLE
     system_config_setup();
-#endif
     //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
     if( SYSTEM_CONFIG_TYPE_NONE == get_system_config_type() )
     {
         NEWORK_FN(Network_Setup(), (void)0);
     }
+#else
+    NEWORK_FN(Network_Setup(), (void)0);
+#endif
 #if PLATFORM_THREADING
     create_system_task();
 #else

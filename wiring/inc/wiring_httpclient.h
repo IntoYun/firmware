@@ -15,7 +15,7 @@ static const char* HTTP_METHOD_GET    = "GET";
 static const char* HTTP_METHOD_POST   = "POST";
 static const char* HTTP_METHOD_PUT    = "PUT";
 static const char* HTTP_METHOD_DELETE = "DELETE";
-static const char* HTTP_METHOD_PATCH = "PATCH";
+static const char* HTTP_METHOD_PATCH  = "PATCH";
 
 /**
  * This struct is used to pass additional HTTP headers such as API-keys.

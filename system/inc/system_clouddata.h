@@ -30,8 +30,8 @@
 #ifndef configNO_CLOUD
 
 // Permission
-#define JSON_DATA_FORMAT    0x30
-#define BINARY_DATA_FORMAT  0x31
+#define JSON_DATA_FORMAT    0
+#define BINARY_DATA_FORMAT  1
 
 // Permission
 #define UP_ONLY    "up_only"
@@ -52,6 +52,12 @@ typedef enum{
     DATA_TYPE_STRING,     //字符串型
     DATA_TYPE_BINARY      //透传型
 }data_type_t;
+
+typedef enum{
+    RESULT_DATAPOINT_OLD  = 0,   // 旧数据
+    RESULT_DATAPOINT_NEW  = 1,   // 新收取数据
+    RESULT_DATAPOINT_NONE = 2,   // 没有该数据点
+}read_datapoint_result_t;
 
 //int型属性
 struct int_property_t{
@@ -81,7 +87,7 @@ struct property_conf {
     const char *policy;
     long lapse;
     long runtime;
-    bool readFlag;
+    read_datapoint_result_t readFlag;
     union
     {
         int_property_t intProperty;
@@ -102,19 +108,19 @@ void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int 
 void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse);
 void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse);
 
+read_datapoint_result_t intorobotReadDataPointBool(const uint16_t dpID, bool &value);
+read_datapoint_result_t intorobotReadDataPointInt(const uint16_t dpID, int &value);
+read_datapoint_result_t intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value);
+read_datapoint_result_t intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value);
+read_datapoint_result_t intorobotReadDataPointDouble(const uint16_t dpID, double &value);
+read_datapoint_result_t intorobotReadDataPointFloat(const uint16_t dpID, float &value);
+read_datapoint_result_t intorobotReadDataPointString(const uint16_t dpID, String &value);
+read_datapoint_result_t intorobotReadDataPointStringChar(const uint16_t dpID, char *value);
+read_datapoint_result_t intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
+
 void intorobotWriteDataPointString(const uint16_t dpID, char* value);
 void intorobotWriteDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t len);
-void intorobotWriteDataPoints(void);
-
-bool intorobotReadDataPointBool(const uint16_t dpID, bool &value);
-bool intorobotReadDataPointInt(const uint16_t dpID, int &value);
-bool intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value);
-bool intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value);
-bool intorobotReadDataPointDouble(const uint16_t dpID, double &value);
-bool intorobotReadDataPointFloat(const uint16_t dpID, float &value);
-bool intorobotReadDataPointString(const uint16_t dpID, String &value);
-bool intorobotReadDataPointStringChar(const uint16_t dpID, char *value);
-bool intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
+void intorobotWriteDataPointAll(void);
 
 #ifdef __cplusplus
 }

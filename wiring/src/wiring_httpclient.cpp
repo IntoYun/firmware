@@ -5,6 +5,18 @@
 #include <stdlib.h>
 #include "wiring_ticks.h"
 #include "wiring_httpclient.h"
+#include "service_debug.h"
+
+/*debug switch*/
+//#define WIRING_HTTPCLIENT_DEBUG
+
+#ifdef WIRING_HTTPCLIENT_DEBUG
+#define WHTTPCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WHTTPCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define WHTTPCLIENT_DEBUG(...)
+#define WHTTPCLIENT_DEBUG_D(...)
+#endif
 
 static const uint16_t DEFAULT_TIMEOUT = 5000; // Allow maximum 5s between data packets.
 
@@ -21,37 +33,37 @@ HttpClient::HttpClient()
  */
 void HttpClient::sendHeader(const char* aHeaderName, const char* aHeaderValue)
 {
-    client.print(aHeaderName);
-    client.print(": ");
-    client.println(aHeaderValue);
+    String stringHeader = "";
 
-#ifdef LOGGING
-    Serial.print(aHeaderName);
-    Serial.print(": ");
-    Serial.println(aHeaderValue);
-#endif
+    stringHeader += aHeaderName;
+    stringHeader += ": ";
+    stringHeader += aHeaderValue;
+    stringHeader += "\r\n";
+    client.write(stringHeader.c_str(), stringHeader.length());
+
+    WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %s", aHeaderName, aHeaderValue);
 }
 
 void HttpClient::sendHeader(const char* aHeaderName, const int aHeaderValue)
 {
-    client.print(aHeaderName);
-    client.print(": ");
-    client.println(aHeaderValue);
+    String stringHeader = "";
 
-#ifdef LOGGING
-    Serial.print(aHeaderName);
-    Serial.print(": ");
-    Serial.println(aHeaderValue);
-#endif
+    stringHeader += aHeaderName;
+    stringHeader += ": ";
+    stringHeader += aHeaderValue;
+    stringHeader += "\r\n";
+    client.write(stringHeader.c_str(), stringHeader.length());
+
+    WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %d", aHeaderName, aHeaderValue);
 }
 
 void HttpClient::sendHeader(const char* aHeaderName)
 {
-    client.println(aHeaderName);
+    String stringHeader = aHeaderName;
+    stringHeader += "\r\n";
+    client.write(stringHeader.c_str(), stringHeader.length());
 
-#ifdef LOGGING
-    Serial.println(aHeaderName);
-#endif
+    WHTTPCLIENT_DEBUG("httpClient: sendHeader %s", aHeaderName);
 }
 
 /**
@@ -70,27 +82,14 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     bool connected = false;
     if(aRequest.hostname!=NULL) {
         connected = client.connect(aRequest.hostname.c_str(), (aRequest.port) ? aRequest.port : 80 );
-    }   else {
-        connected = client.connect(aRequest.ip, aRequest.port);
-    }
-
-#ifdef LOGGING
-    if (connected) {
-        if(aRequest.hostname!=NULL) {
-            Serial.print("HttpClient>\tConnecting to: ");
-            Serial.print(aRequest.hostname);
-        } else {
-            Serial.print("HttpClient>\tConnecting to IP: ");
-            Serial.print(aRequest.ip);
-        }
-        Serial.print(":");
-        Serial.println(aRequest.port);
+        WHTTPCLIENT_DEBUG("httpClient: tcp Connecting to: %s : %d", aRequest.hostname.c_str(), aRequest.port);
     } else {
-        Serial.println("HttpClient>\tConnection failed.");
+        connected = client.connect(aRequest.ip, aRequest.port);
+        WHTTPCLIENT_DEBUG("httpClient: tcp Connecting to IP: %s : %d", aRequest.hostname.c_str(), aRequest.port);
     }
-#endif
 
     if (!connected) {
+        WHTTPCLIENT_DEBUG("httpClient: tcp Connection failed.");
         client.stop();
         // If TCP Client can't connect to host, exit here.
         return;
@@ -101,18 +100,16 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     //
 
     // Send initial headers (only HTTP 1.0 is supported for now).
-    client.print(aHttpMethod);
-    client.print(" ");
-    client.print(aRequest.path);
-    client.print(" HTTP/1.0\r\n");
+    String stringHeader= "";
 
-#ifdef LOGGING
-    Serial.println("HttpClient>\tStart of HTTP Request.");
-    Serial.print(aHttpMethod);
-    Serial.print(" ");
-    Serial.print(aRequest.path);
-    Serial.print(" HTTP/1.0\r\n");
-#endif
+    stringHeader += aHttpMethod;
+    stringHeader += " ";
+    stringHeader += aRequest.path;
+    stringHeader += " HTTP/1.0\r\n";
+    client.write(stringHeader.c_str(), stringHeader.length());
+
+    WHTTPCLIENT_DEBUG("httpClient: Start of HTTP Request.");
+    WHTTPCLIENT_DEBUG("%s %s %s", aHttpMethod, aRequest.path.c_str(), "HTTP/1.0");
 
     // Send General and Request Headers.
     sendHeader("Connection", "close"); // Not supporting keep-alive for now.
@@ -151,16 +148,12 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     //
 
     if (aRequest.body != NULL) {
-        client.println(aRequest.body);
-
-#ifdef LOGGING
-        Serial.println(aRequest.body);
-#endif
+        WHTTPCLIENT_DEBUG("httpClient: body: %s", aRequest.body.c_str());
+        aRequest.body += "\r\n";
+        client.write(aRequest.body.c_str(), aRequest.body.length());
     }
 
-#ifdef LOGGING
-    Serial.println("HttpClient>\tEnd of HTTP Request.");
-#endif
+    WHTTPCLIENT_DEBUG("httpClient: End of HTTP Request.", aRequest.body.c_str());
 
     // clear response buffer
     memset(&buffer[0], 0, sizeof(buffer));
@@ -185,29 +178,19 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     bool inHeaders = true;
 
     do {
-#ifdef LOGGING
         int bytes = client.available();
         if(bytes) {
-            Serial.print("\r\nHttpClient>\tReceiving TCP transaction of ");
-            Serial.print(bytes);
-            Serial.println(" bytes.");
+            WHTTPCLIENT_DEBUG("httpClient: Receiving TCP transaction of %d bytes.", bytes);
         }
-#endif
 
         while (client.available()) {
             char c = client.read();
-#ifdef LOGGING
-            Serial.print(c);
-#endif
+            WHTTPCLIENT_DEBUG_D("%c", c);
             lastRead = millis();
 
             if (c == -1) {
                 error = true;
-
-#ifdef LOGGING
-                Serial.println("HttpClient>\tError: No data available.");
-#endif
-
+                WHTTPCLIENT_DEBUG("httpClient: Error: No data available.");
                 break;
             }
 
@@ -215,15 +198,10 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
                 if ((c == '\n') && (lastChar == '\n')) {
                     // End of headers.  Grab the status code and reset the buffer.
                     aResponse.status = atoi(&buffer[9]);
-
                     memset(&buffer[0], 0, sizeof(buffer));
                     bufferPosition = 0;
                     inHeaders = false;
-#ifdef LOGGING
-                    Serial.print("\r\nHttpClient>\tEnd of HTTP Headers (");
-                    Serial.print(aResponse.status);
-                    Serial.println(")");
-#endif
+                    WHTTPCLIENT_DEBUG("httpClient: End of HTTP Headers ( %d )", aResponse.status);
                     continue;
                 } else if (c != '\r') {
                     lastChar = c;
@@ -237,21 +215,16 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
                 buffer[bufferPosition] = '\0'; // Null-terminate buffer
                 client.stop();
                 error = true;
-
-#ifdef LOGGING
-                Serial.println("\r\nHttpClient>\tError: Response body larger than buffer.");
-#endif
+                WHTTPCLIENT_DEBUG("httpClient: Error: Response body larger than buffer.");
                 break;
             }
             bufferPosition++;
         }
         // We don't need to null terminate the buffer since it was zeroed to start with, or null terminated when it reached capacity.
 
-#ifdef LOGGING
         if (bytes) {
-            Serial.print("\r\nHttpClient>\tEnd of TCP transaction.");
+            WHTTPCLIENT_DEBUG("httpClient: End of TCP transaction.");
         }
-#endif
 
         // Check that there hasn't been more than 5s since last read.
         timeout = millis() - lastRead > actualTimeout;
@@ -263,26 +236,17 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         }
     } while (client.connected() && !timeout && !error);
 
-#ifdef LOGGING
     if (timeout) {
-        Serial.println("\r\nHttpClient>\tError: Timeout while reading response.");
+        WHTTPCLIENT_DEBUG("httpClient: Error: Timeout while reading response.");
     }
-    Serial.print("\r\nHttpClient>\tEnd of HTTP Response (");
-    Serial.print(millis() - firstRead);
-    Serial.println("ms).");
-#endif
+    WHTTPCLIENT_DEBUG("httpClient: End of HTTP Response ( %d )ms", millis() - firstRead);
+
     client.stop();
 
-#ifdef LOGGING
-    Serial.print("HttpClient>\tStatus Code: ");
-    Serial.println(aResponse.status);
-#endif
+    WHTTPCLIENT_DEBUG("httpClient: Status Code: %d", aResponse.status);
 
     if (inHeaders) {
-#ifdef LOGGING
-        Serial.println("HttpClient>\tError: Can't find HTTP response body.");
-#endif
-
+        WHTTPCLIENT_DEBUG("httpClient: Error: Can't find HTTP response body.");
         return;
     }
     // Return the entire message body from bodyPos+4 till end.

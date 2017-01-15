@@ -32,10 +32,9 @@
 #include "enums_hal.h"
 
 /* Include for debug capabilty */
-#define MDM_DEBUG
+#define MODEM_DEBUG
 
 #define MDM_ESP8266_RESET_DELAY  4000
-
 
 #undef putc
 #undef getc
@@ -78,6 +77,9 @@ public:
 
     /* Used to enable dhcp */
     bool setWifiDHCP(wifi_mode_t mode, char enable);
+
+    /* Used to enable auto connection */
+    bool setAutoConn(char enable);
 
     /* start smart config */
     bool startSmartconfig(smart_config_t type);
@@ -132,7 +134,7 @@ public:
         \param port in case of UDP, this optional port where it is bind
         \return the socket handle if successful or SOCKET_ERROR on failure
     */
-    int socketSocket(IpProtocol ipproto, int port = -1);
+    int socketCreate(IpProtocol ipproto, int port = -1);
 
     /** make a socket connection
         \param socket the socket handle
@@ -180,7 +182,7 @@ public:
     */
     bool socketClose(int socket);
 
-    /** Free the socket (that was allocated before by #socketSocket)
+    /** Free the socket (that was allocated before by #socketCreate)
         \param socket the socket handle
         \return true if successfully, false otherwise
     */
@@ -374,6 +376,8 @@ protected:
         int handle;
         volatile IpProtocol ipproto;
         volatile int localip;
+        volatile MDM_IP remoteip;
+        volatile int remoteport;
         volatile bool connected;
         volatile int pending;
         volatile bool open;
@@ -396,7 +400,7 @@ protected:
     int _aplistindex;
 
     volatile bool _cancel_all_operations;
-#ifdef MDM_DEBUG
+#ifdef MODEM_DEBUG
     int _debugLevel;
     system_tick_t _debugTime;
     void _debugPrint(int level, const char* color, const char* format, ...);

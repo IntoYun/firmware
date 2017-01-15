@@ -81,7 +81,7 @@ void Esp8266SerialPipe::begin(unsigned int baud)
     HAL_UART_Init(&UartHandle_ESP8266);
 
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(USART1_IRQn, 0x05, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 0x00, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
     __HAL_UART_ENABLE_IT(&UartHandle_ESP8266, UART_IT_RXNE);
 }

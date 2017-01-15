@@ -28,12 +28,24 @@
 #include "system_cloud.h"
 #include "ajson.h"
 
+/*debug switch*/
+#define SYSTEM_CLOUDDATA_DEBUG
+
+#ifdef SYSTEM_CLOUDDATA_DEBUG
+#define SCLOUDDATA_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SCLOUDDATA_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define SCLOUDDATA_DEBUG(...)
+#define SCLOUDDATA_DEBUG_D(...)
+#endif
+
+
 property_conf* properties[PROPERTIES_MAX];
 int properties_count = 0;
 
 int intorobotDiscoverProperty(const uint16_t dpID)
 {
-    for (int i = 0; i <= properties_count; i++)
+    for (int i = 0; i < properties_count; i++)
     {
         if (properties[i]->dpID == dpID)
         {
@@ -41,6 +53,248 @@ int intorobotDiscoverProperty(const uint16_t dpID)
         }
     }
     return -1;
+}
+
+void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
+{
+    if (-1 == intorobotDiscoverProperty(dpID))
+    {
+        // Create property structure
+        property_conf* prop = new property_conf {dpID, DATA_TYPE_BOOL, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+        prop->value = String(value);
+        properties[properties_count] = prop; // Save pointer to scructure
+        properties_count++; // count the number of properties
+    }
+}
+
+void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse)
+{
+    if (-1 == intorobotDiscoverProperty(dpID))
+    {
+        property_conf* prop;
+        // Create property structure
+        if(resolution == int(resolution))
+        {
+            prop = new property_conf {dpID, DATA_TYPE_INT, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+            prop->intProperty.minValue = (int)minValue;
+            prop->intProperty.maxValue = (int)maxValue;
+            prop->intProperty.resolution = (int)resolution;
+            prop->value = String((int)value);
+        }
+        else
+        {
+            prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+            prop->floatProperty.minValue = minValue;
+            prop->floatProperty.maxValue = maxValue;
+            prop->floatProperty.resolution = resolution;
+            prop->value = String(value);
+        }
+        properties[properties_count] = prop; // Save pointer to scructure
+        properties_count++; // count the number of properties
+    }
+}
+
+void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
+{
+    if (-1 == intorobotDiscoverProperty(dpID))
+    {
+        // Create property structure
+        property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+        prop->value = String(value);
+        properties[properties_count] = prop; // Save pointer to scructure
+        properties_count++; // count the number of properties
+    }
+}
+
+void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
+{
+    if (-1 == intorobotDiscoverProperty(dpID))
+    {
+        // Create property structure
+        property_conf* prop = new property_conf {dpID, DATA_TYPE_STRING, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+        prop->value = value;
+        properties[properties_count] = prop; // Save pointer to scructure
+        properties_count++; // count the number of properties
+    }
+}
+
+void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
+{
+    if (-1 != intorobotDiscoverProperty(dpID))
+    {
+        // Create property structure
+        property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+        prop->binaryValue = value;
+        prop->binaryLen = len;
+        properties[properties_count] = prop; // Save pointer to scructure
+        properties_count++; // count the number of properties
+    }
+}
+
+read_datapoint_result_t intorobotReadDataPointBool(const uint16_t dpID, bool &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = (bool)(properties[index]->value.toInt());
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointInt(const uint16_t dpID, int &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = (int)(properties[index]->value.toInt());
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = (int32_t)(properties[index]->value.toInt());
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = (uint32_t)(properties[index]->value.toInt());
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointFloat(const uint16_t dpID, float &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = properties[index]->value.toFloat();
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointDouble(const uint16_t dpID, double &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = properties[index]->value.toFloat();
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointString(const uint16_t dpID, String &value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = properties[index]->value;
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointStringChar(const uint16_t dpID, char *value)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = (char *)(properties[index]->value.c_str());
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+read_datapoint_result_t intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len)
+{
+    int index = intorobotDiscoverProperty(dpID);
+    if (index == -1) {
+        return RESULT_DATAPOINT_NONE;
+    }
+
+    value = properties[index]->binaryValue;
+    len = properties[index]->binaryLen;
+    read_datapoint_result_t readResult = properties[index]->readFlag;
+    properties[index]->readFlag = RESULT_DATAPOINT_OLD;
+    return readResult;
+}
+
+void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
+{
+    aJsonClass aJson;
+
+    if(payload[0] != JSON_DATA_FORMAT)
+    {
+        return;
+    }
+
+    aJsonObject *root = aJson.parse((char *)(payload+1));
+    if (root == NULL)
+    {
+        return;
+    }
+
+    for (int i = 0; i <= properties_count; i++)
+    {
+        if (0 != strcmp(properties[i]->permission, UP_ONLY))
+        {
+            aJsonObject* propertyObject = aJson.getObjectItem(root, String(properties[i]->dpID).c_str());
+            if (propertyObject != NULL)
+            {
+                properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+                switch(properties[i]->dataType)
+                {
+                    case DATA_TYPE_BOOL:       //bool型
+                        properties[i]->value = String(propertyObject->valuebool);
+                        break;
+                    case DATA_TYPE_INT:        //数值型 int型
+                        properties[i]->value = String(propertyObject->valueint);
+                        break;
+                    case DATA_TYPE_FLOAT:      //数值型 float型
+                        properties[i]->value = String(propertyObject->valuefloat);
+                        break;
+                    case DATA_TYPE_ENUM:       //枚举型
+                        properties[i]->value = String(propertyObject->valueint);
+                        break;
+                    case DATA_TYPE_STRING:     //字符串型
+                        properties[i]->value = String(propertyObject->valuestring);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 }
 
 // Build the topic for a property
@@ -117,91 +371,6 @@ String intorobotBuildAllPropertyJson(void)
     return PropertyJson;
 }
 
-void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
-{
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
-        return;
-    }
-    // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_BOOL, permission, policy, (long)lapse*1000, 0, false};
-    prop->value = String(value);
-    properties[properties_count] = prop; // Save pointer to scructure
-    properties_count++; // count the number of properties
-}
-
-void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse)
-{
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
-        return;
-    }
-
-    property_conf* prop;
-    // Create property structure
-    if(resolution == int(resolution))
-    {
-        prop = new property_conf {dpID, DATA_TYPE_INT, permission, policy, (long)lapse*1000, 0, false};
-        prop->intProperty.minValue = (int)minValue;
-        prop->intProperty.maxValue = (int)maxValue;
-        prop->intProperty.resolution = (int)resolution;
-        prop->value = String((int)value);
-    }
-    else
-    {
-        prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, policy, (long)lapse*1000, 0, false};
-        prop->floatProperty.minValue = minValue;
-        prop->floatProperty.maxValue = maxValue;
-        prop->floatProperty.resolution = resolution;
-        prop->value = String(value);
-    }
-    properties[properties_count] = prop; // Save pointer to scructure
-    properties_count++; // count the number of properties
-}
-
-void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
-{
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
-        return;
-    }
-
-    // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, false};
-    prop->value = String(value);
-    properties[properties_count] = prop; // Save pointer to scructure
-    properties_count++; // count the number of properties
-}
-
-void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
-{
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
-        return;
-    }
-
-    // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_STRING, permission, policy, (long)lapse*1000, 0, false};
-    prop->value = value;
-    properties[properties_count] = prop; // Save pointer to scructure
-    properties_count++; // count the number of properties
-}
-
-void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
-{
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
-        return;
-    }
-
-    // Create property structure
-    property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapse*1000, 0, 0};
-    prop->binaryValue = value;
-    prop->binaryLen = len;
-    properties[properties_count] = prop; // Save pointer to scructure
-    properties_count++; // count the number of properties
-}
-
 void intorobotWriteDataPointString(const uint16_t dpID, char* value)
 {
     int i = intorobotDiscoverProperty(dpID);
@@ -213,17 +382,22 @@ void intorobotWriteDataPointString(const uint16_t dpID, char* value)
 
     //只允许下发
     if (strcmp(properties[i]->permission, DOWN_ONLY) == 0) {
+        SCLOUDDATA_DEBUG("only permit cloud -> terminal %d", properties[i]->dpID);
         return;
     }
 
+    //数值未发生变化
     if (properties[i]->value.equals(value) && strcmp(properties[i]->policy, ON_CHANGE) == 0) {
+        SCLOUDDATA_DEBUG("No Changes for %d:%d", properties[i]->dpID, value);
         return;
     }
 
+    //发送时间间隔到
     if ((long)(millis() - properties[i]->runtime) >= properties[i]->lapse) {
         properties[i]->value = value;
         String payload = intorobotBuildSinglePropertyJson(i);
         intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), strlen(payload.c_str()), 0, false);
+        SCLOUDDATA_DEBUG("OK, Published");
         properties[i]->runtime = millis();
     }
 }
@@ -233,179 +407,10 @@ void intorobotWriteDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t
 
 }
 
-void intorobotWriteDataPoints(void)
+void intorobotWriteDataPointAll(void)
 {
     String payload = intorobotBuildAllPropertyJson();
     intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), strlen(payload.c_str()), 0, false);
-}
-
-bool intorobotReadDataPointBool(const uint16_t dpID, bool &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (bool)(properties[index]->value.toInt());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointInt(const uint16_t dpID, int &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (int)(properties[index]->value.toInt());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (int32_t)(properties[index]->value.toInt());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointUint32(const uint16_t dpID, uint32_t &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (uint32_t)(properties[index]->value.toInt());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointFloat(const uint16_t dpID, float &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = properties[index]->value.toFloat();
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointDouble(const uint16_t dpID, double &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = properties[index]->value.toFloat();
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointString(const uint16_t dpID, String &value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = properties[index]->value;
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointStringChar(const uint16_t dpID, char *value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (char *)(properties[index]->value.c_str());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointString(const uint16_t dpID, char *value)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = (char *)(properties[index]->value.c_str());
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-bool intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len)
-{
-    int index = intorobotDiscoverProperty(dpID);
-    bool flag = properties[index]->readFlag;
-
-    if (index != -1) {
-        value = properties[index]->binaryValue;
-        len = properties[index]->binaryLen;
-        properties[index]->readFlag = false;
-    }
-    return flag;
-}
-
-void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
-{
-    aJsonClass aJson;
-
-    if(payload[0] != JSON_DATA_FORMAT)
-    {
-        return;
-    }
-
-    aJsonObject *root = aJson.parse((char *)(payload+1));
-    if (root == NULL)
-    {
-        return;
-    }
-
-    for (int i = 0; i <= properties_count; i++)
-    {
-        if (0 != strcmp(properties[i]->permission, UP_ONLY))
-        {
-            aJsonObject* propertyObject = aJson.getObjectItem(root, String(properties[i]->dpID).c_str());
-            if (propertyObject != NULL)
-            {
-                properties[i]->readFlag = true;
-                switch(properties[i]->dataType)
-                {
-                    case DATA_TYPE_BOOL:       //bool型
-                        properties[i]->value = String(propertyObject->valuebool);
-                        break;
-                    case DATA_TYPE_INT:        //数值型 int型
-                        properties[i]->value = String(propertyObject->valueint);
-                        break;
-                    case DATA_TYPE_FLOAT:      //数值型 float型
-                        properties[i]->value = String(propertyObject->valuefloat);
-                        break;
-                    case DATA_TYPE_ENUM:       //枚举型
-                        properties[i]->value = String(propertyObject->valueint);
-                        break;
-                    case DATA_TYPE_STRING:     //字符串型
-                        properties[i]->value = String(propertyObject->valuestring);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    }
 }
 
 #endif

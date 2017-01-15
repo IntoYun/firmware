@@ -81,9 +81,12 @@ int wlan_set_credentials(WLanCredentials* c)
     return -1;
 }
 
+#include "delay_hal.h"
 void wlan_Imlink_start()
 {
-    esp8266MDM.stopSmartconfig();
+    //esp8266MDM.reset();
+    //HAL_Delay_Milliseconds(200);
+    //esp8266MDM.init();
     esp8266MDM.startSmartconfig(SMARTCONFIGTYPE_ESPTOUCH);
 }
 
@@ -99,7 +102,8 @@ void wlan_Imlink_stop()
 
 void wlan_setup()
 {
-
+    //esp8266MDM.reset();
+    //esp8266MDM.init();
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)
@@ -123,7 +127,6 @@ void wlan_fetch_ipconfig(WLanConfig* config)
 void wlan_set_error_count(uint32_t errorCount)
 {
 }
-
 
 /**
  * Sets the IP source - static or dynamic.
