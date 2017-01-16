@@ -117,5 +117,12 @@
 #define INTOROBOT_MQTT_ACTION_TOPIC    "action"
 #define INTOROBOT_MQTT_DEBUGTX_TOPIC   "debugtx"
 
+#define INTOROBOT_MQTT_REPLY_READY_PROGRESS    "10"  //subsys ready and progress
+#define INTOROBOT_MQTT_REPLY_DOWN_FAIL         "11"  //subsys down failed
+#define INTOROBOT_MQTT_REPLY_DOWN_SUCC         "12"  //subsys down success
+#define INTOROBOT_MQTT_REPLY_UPDATE_FAIL       "13"  //subsys update failed
+#define INTOROBOT_MQTT_REPLY_UPDATE_SUCC       "14"  //subsys update success
+#define INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT    "15"  //subsys down success and exit
+#define INTOROBOT_MQTT_REPLY_TYPEEEOR          "16"  //subsys update board type error
 
 #endif	/*SYSTEM_CLOUD_DEF_H_ */

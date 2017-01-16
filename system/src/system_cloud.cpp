@@ -102,6 +102,8 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
         free(pdata);
     }
 }
+
+// v1版本控制回调函数
 //时间不通过mqtt获取 直接获取ntp时间   2016-01-13  chenkaiyao
 /*
 void sync_time_callback(uint8_t *payload, uint32_t len)
@@ -376,19 +378,285 @@ void system_debug_callback(uint8_t *payload, uint32_t len)
 }
 
 // v2版本控制回调函数
-void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
+// 子系统升级
+void intorobot_subsys_upgrade(const char *version)
 {
+    bool flag = false;
+    char temp[64];
+    String domain="", param="";
+    uint8_t progress = 0;
 
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+    memset(temp,0,sizeof(temp));
+    sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
+    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+
+    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        domain+=down_domain;
+    }
+    else {
+        domain+=INTOROBOT_UPDATE_DOMAIN;
+    }
+    char name[24]={0};
+    HAL_Platform_Name(name, sizeof(name));
+    param+="/downloads/";
+    param+=name;
+    param+="/";
+    param+=version;
+
+    down_status_t status;
+    down_status_t result = HAL_OTA_Download_Subsys(domain.c_str(), param.c_str());
+    switch(result) {
+        case DOWNSTATUS_SUCCESS:
+            break;
+        case DOWNSTATUS_DOWNING:
+            do {
+                status = HAL_OTA_Get_Subsys_Download_Status();
+                if(DOWNSTATUS_SUCCESS == status) {
+                    break;
+                }
+                else if(DOWNSTATUS_DOWNING == status) {
+                    progress = HAL_OTA_Get_Download_Progress();
+                    memset(temp,0,sizeof(temp));
+                    sprintf(temp,"{\"status\":\"%s\",\"progress\": %d}", INTOROBOT_MQTT_REPLY_READY_PROGRESS, progress);
+                    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+                    delay(1000);
+                    flag = true;
+                }
+                else if(DOWNSTATUS_FAIL == status) {
+                    break;
+                }
+            }while(1);
+            break;
+        default:
+            break;
+    }
+    if(flag) {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT, progress);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+        HAL_OTA_Upadate_Subsys();
+        HAL_Core_System_Reset();
+        while(1); //不会运行到地方
+    }
+    else
+    {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_FAIL);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+    }
+    led_state.restore();
+}
+
+//在线编程升级
+void intorobot_bin_upgrade(const char *token, const char *md5)
+{
+    bool flag = false;
+    char temp[64];
+    String domain="", param="";
+    uint8_t progress = 0;
+
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+    memset(temp,0,sizeof(temp));
+    sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
+    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+
+    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        domain+=down_domain;
+    }
+    else {
+        domain+=INTOROBOT_UPDATE_DOMAIN;
+    }
+
+    param+=INTOROBOT_OTA_UPDATE_URL;
+    param+="?dwn_token=";
+    param+=token;
+
+    down_status_t status;
+    down_status_t result = HAL_OTA_Download_App(domain.c_str(), param.c_str(), md5);
+    switch(result)
+    {
+        case DOWNSTATUS_SUCCESS:
+            break;
+        case DOWNSTATUS_DOWNING:
+            do {
+                status = HAL_OTA_Get_App_Download_Status();
+                if(DOWNSTATUS_SUCCESS == status) {
+                    break;
+                }
+                else if(DOWNSTATUS_DOWNING == status) {
+                    progress = HAL_OTA_Get_Download_Progress();
+                    memset(temp,0,sizeof(temp));
+                    sprintf(temp,"{\"status\":\"%s\",\"progress\": %d}", INTOROBOT_MQTT_REPLY_READY_PROGRESS, progress);
+                    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+                    delay(1000);
+                    flag = true;
+                }
+                else if(DOWNSTATUS_FAIL == status) {
+                    break;
+                }
+            }while(1);
+            break;
+        default:
+            break;
+    }
+    if(flag) {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT, progress);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+        HAL_OTA_Upadate_Subsys();
+        HAL_Core_System_Reset();
+        while(1); //不会运行到地方
+    }
+    else
+    {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_FAIL);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+    }
+    led_state.restore();
+}
+
+//固件升级
+void intorobot_firmware_upgrade(const char *version)
+{
+    bool flag = false;
+    char temp[64];
+    String domain="", param="";
+    uint8_t progress = 0;
+
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+    memset(temp,0,sizeof(temp));
+    sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
+    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+
+    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        domain+=down_domain;
+    }
+    else {
+        domain+=INTOROBOT_UPDATE_DOMAIN;
+    }
+    char name[24]={0};
+    HAL_Platform_Name(name, sizeof(name));
+    param+="/downloads/";
+    param+=name;
+    param+="/";
+    param+=version;
+
+    down_status_t status;
+    down_status_t result = HAL_OTA_Download_Subsys(domain.c_str(), param.c_str());
+    switch(result) {
+        case DOWNSTATUS_SUCCESS:
+            break;
+        case DOWNSTATUS_DOWNING:
+            do {
+                status = HAL_OTA_Get_Subsys_Download_Status();
+                if(DOWNSTATUS_SUCCESS == status) {
+                    break;
+                }
+                else if(DOWNSTATUS_DOWNING == status) {
+                    progress = HAL_OTA_Get_Download_Progress();
+                    memset(temp,0,sizeof(temp));
+                    sprintf(temp,"{\"status\":\"%s\",\"progress\": %d}", INTOROBOT_MQTT_REPLY_READY_PROGRESS, progress);
+                    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+                    delay(1000);
+                    flag = true;
+                }
+                else if(DOWNSTATUS_FAIL == status) {
+                    break;
+                }
+            }while(1);
+            break;
+        default:
+            break;
+    }
+    if(flag) {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT, progress);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+        HAL_OTA_Upadate_Subsys();
+        HAL_Core_System_Reset();
+        while(1); //不会运行到地方
+    }
+    else
+    {
+        memset(temp,0,sizeof(temp));
+        sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_DOWN_FAIL);
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
+    }
+    led_state.restore();
+}
+
+void cloud_datapoint_receive_callback(uint8_t *payload, uint32_t len)
+{
+    SCLOUD_DEBUG("Ok! receive datapoint form cloud!");
+    intorobotReceiveDataProcessJson(payload, len);
 }
 
 void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
+    /*
+    SCLOUD_DEBUG("Ok! receive action form cloud!");
 
+    uint32_t n;
+    String s_cmd="", board="", version="", id="";
+    aJsonClass aJson;
+    aJsonObject *root=NULL, *cmdObject=NULL, *boardObject=NULL, *productObject=NULL;
+    char temp[64],flag=0,result=1;
+    bool board_type_error = false;
+
+    for(n=0; n<len; n++)
+    {s_payload+=(char)payload[n];}
+
+    root = aJson.parse((char *)s_payload.c_str());
+    if(root == NULL)
+    {flag=1;}
+
+    cmdObject = aJson.getObjectItem(root, "cmd");
+    if(sys_Ver_Object == NULL)
+    {flag=1;}
+
+    if(strcmp("upgradeSubsys", cmdObject->valuestring))    //升级子系统
+    {
+        aJsonObject* type_Object = aJson.getObjectItem(root, "board");
+        if(type_Object == NULL)
+        {flag=1;}
+        else
+        {
+            char board[8]={0}, board1[8]={0};
+            HAL_Board_Type(board, sizeof(board), 0);
+            if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
+            {flag=2;}
+        }
+        bool intorobot_subsys_upgrade(const char *hostname, const char *param)
+    }
+    else if(strcmp("upgradeBin", cmdObject->valuestring))  //在线编程升级
+    {
+
+    }
+    else if(strcmp("upgradeApp", cmdObject->valuestring))  //应用固件升级
+    {
+
+    }
+    else
+    {
+
+    }
+    */
 }
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
 {
-
+    system_debug_callback(payload, len);
 }
 
 void fill_mqtt_topic(String &fulltopic, api_version_t version, const char *topic, const char *device_id)
@@ -431,9 +699,9 @@ void intorobot_cloud_init(void)
     intorobot_subscribe(API_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
 
     // v2版本subscibe
-    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
-    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
-    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);   //从平台获取调试信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_datapoint_receive_callback, 0); //从平台获取数据通讯信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);        //从平台获取系统控制信息
+    intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);        //从平台获取调试信息
 
     // 添加默认数据点
     IntoRobot.addDataPointBool(0xFF80, UP_DOWN, false);   //reboot
@@ -1093,6 +1361,43 @@ bool intorobot_device_activate(void)
         aJson.deleteItem(root);
     }
     SCLOUD_DEBUG("device activate failed!");
+    return false;
+}
+
+bool intorobot_get_version(String &body)
+{
+    SCLOUD_DEBUG("---------get version begin---------");
+    http_header_t headers[] = {
+        { "Cache-Control" , "no-cache"},
+        { NULL, NULL }
+    };
+    HttpClient http;
+    http_request_t request;
+    http_response_t response;
+
+    //获取product id
+    product_details_t product_details;
+    system_product_instance().get_product_details(product_details);
+    //获取板子类型
+    char board[8]={0};
+    HAL_Board_Type(board, sizeof(board), 0);
+    //http 请求头
+    request.hostname = INTOROBOT_HTTP_DOMAIN;
+    request.port = INTOROBOT_HTTP_PORT;
+    request.path = "/v1/firmware?act=check&productId=";
+    request.path = product_details.product_id;
+    request.path = "&board=";
+    request.path = board;
+    request.timeout = 5000; //5000ms超时
+
+    // Get request
+    http.get(request, response, headers);
+    if( 200 == response.status )
+    {
+        body = response.body;
+        return true;
+    }
+    SCLOUD_DEBUG("get version failed!");
     return false;
 }
 

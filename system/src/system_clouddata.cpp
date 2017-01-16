@@ -393,12 +393,18 @@ void intorobotWriteDataPointString(const uint16_t dpID, char* value)
     }
 
     //发送时间间隔到
-    if ((long)(millis() - properties[i]->runtime) >= properties[i]->lapse) {
+    system_tick_t current_millis = millis();
+    system_tick_t elapsed_millis = current_millis - properties[i]->runtime;
+    if (elapsed_millis < 0)
+    {
+        elapsed_millis =  0xFFFFFFFF - properties[i]->runtime + current_millis;
+    }
+    if (elapsed_millis >= properties[i]->lapse)
+    {
         properties[i]->value = value;
         String payload = intorobotBuildSinglePropertyJson(i);
         intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), strlen(payload.c_str()), 0, false);
-        SCLOUDDATA_DEBUG("OK, Published");
-        properties[i]->runtime = millis();
+        properties[i]->runtime = current_millis;
     }
 }
 

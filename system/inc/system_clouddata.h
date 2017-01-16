@@ -108,6 +108,7 @@ void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int 
 void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse);
 void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse);
 
+void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len);
 read_datapoint_result_t intorobotReadDataPointBool(const uint16_t dpID, bool &value);
 read_datapoint_result_t intorobotReadDataPointInt(const uint16_t dpID, int &value);
 read_datapoint_result_t intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value);

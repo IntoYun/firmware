@@ -81,7 +81,7 @@ void log_print_simple_(int level, int line, const char *file, const char *msg, .
     va_list args;
     va_start(args, msg);
     file = file ? strrchr(file,'/') + 1 : "";
-    int trunc = snprintf(_buffer, arraySize(_buffer), "[%010u]:[%25s](%04d):  ", (unsigned)HAL_Timer_Get_Milli_Seconds(), file, line);
+    int trunc = snprintf(_buffer, arraySize(_buffer), "[%010u]:[%25s](%04d):->  ", (unsigned)HAL_Timer_Get_Milli_Seconds(), file, line);
     debug_output_(_buffer);
     if (trunc > arraySize(_buffer))
     {

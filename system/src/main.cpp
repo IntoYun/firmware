@@ -373,7 +373,7 @@ void app_setup_and_loop_initial(void)
 
     set_system_mode(DEFAULT);
 
-    DEBUG_D("welcome from IntoRobot!\r\n");
+    DEBUG("---------------welcome from IntoRobot!-----------------");
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
 #ifdef configHAL_USB_CDC_ENABLE

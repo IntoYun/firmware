@@ -144,7 +144,7 @@ class CloudClass: public Print{
         {
             addDataPointBool(dpID, permission, value, policy, 0);
         }
-
+        // lapse 单位为秒
         void addDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
         {
             intorobotAddDataPointBool(dpID, permission, value, policy, lapse);

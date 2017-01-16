@@ -123,6 +123,7 @@ void intorobot_process(void);
 bool intorobot_sync_time(void);
 bool intorobot_device_register(void);
 bool intorobot_device_activate(void);
+bool intorobot_get_version(String &body);
 
 
 #endif	/* SYSTEM_CLOUD_H_ */

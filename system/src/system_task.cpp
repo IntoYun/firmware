@@ -41,6 +41,7 @@
 #include "wiring_constants.h"
 #include "wiring_cloud.h"
 #include "system_threading.h"
+#include "system_product.h"
 
 /*debug switch*/
 #define SYSTEM_TASK_DEBUG
@@ -104,13 +105,7 @@ inline uint8_t in_cloud_backoff_period()
     return (HAL_Timer_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
 }
 
-/**
- * Use usb serial ymodem flasher to update firmware.
- */
-void manage_serial_flasher()
-{
 
-}
 
 #ifndef configNO_NETWORK
 
@@ -162,6 +157,65 @@ void manage_network_connection()
 #endif
 
 #ifndef configNO_CLOUD
+/**
+ * terminal auto update
+ */
+void manage_app_auto_update(void)
+{
+#if 0
+    if (network.connected())
+    {
+        if (g_intorobot_cloud_connected)
+        {
+            //发送时间间隔到
+            static system_tick_t start_millis = millis();
+            system_tick_t current_millis = millis();
+            system_tick_t elapsed_millis = current_millis - start_millis;
+            if (elapsed_millis < 0)
+            {
+                elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
+            }
+            if (elapsed_millis < 300*1000)  //5分钟查询一次
+            {
+                return;
+            }
+            start_millis = millis();
+
+            String body;
+            if(intorobot_get_version(body))
+            {
+                aJsonClass aJson;
+                aJsonObject *root = aJson.parse(body.c_str());
+                if (root == NULL)
+                {return false;}
+
+                //获取product id
+                product_details_t product_details;
+                system_product_instance().get_product_details(product_details);
+                String version = product_details.product_firmware_version;
+
+                //固件升级
+                aJsonObject *firmwareVerObject = aJson.getObjectItem(root, "firmwareVer");
+                if ( firmwareVerObject != NULL ) {
+                    //固件判断升级
+                    if((strcmp(firmwareVerObject->valuestring,""))&&(strcmp(firmwareVerObject->valuestring,version.c_str())))
+                    {
+                        //固件升级
+                    }
+                    return true;
+                }
+                //子系统升级
+                aJsonObject *subsysVerObject = aJson.getObjectItem(root, "subsysVer");
+                if ( subsysVerObject != NULL ) {
+                    //子系统版本判断升级
+                }
+                aJson.deleteItem(root);
+            }
+        }
+    }
+#endif
+}
+
 void preprocess_cloud_connection(void)
 {
     if (network.connected())
@@ -176,7 +230,6 @@ void preprocess_cloud_connection(void)
             switch(at_mode)
             {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                    break;
                 case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
                     break;
                 case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
@@ -264,10 +317,10 @@ void system_process_loop(void)
         if(!g_intorobot_system_config)
         {
 #endif
-            manage_serial_flasher();
             NEWORK_FN(manage_network_connection(), (void)0);
             NEWORK_FN(manage_ip_config(), (void)0);
             CLOUD_FN(manage_cloud_connection(), (void)0);
+            CLOUD_FN(manage_app_auto_update(), (void)0);
 #ifdef configSETUP_ENABLE
         }
 #endif
