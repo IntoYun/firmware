@@ -89,7 +89,7 @@ DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
     else if(!strcmp(s,"sendWifiInfo")) {
         return DEVICE_CONFIG_SEND_WIFI_INFO;
     }
-    else if(!strcmp(s,"setNetowrkCredentials")) {
+    else if(!strcmp(s,"setNetworkCredentials")) {
         return DEVICE_CONFIG_SET_NETWORK_CREDENTIALS;
     }
     else if(!strcmp(s,"sendDeviceInfo")) {
@@ -391,45 +391,48 @@ void DeviceConfig::dealGetInfo(void)
 
     aJson.addNumberToObject(value_object, "zone", HAL_PARAMS_Get_System_zone());
 #ifdef configWIRING_WIFI_ENABLE
-    aJson.addNumberToObject(value_object, "sv_select", HAL_PARAMS_Get_System_sv_select());
     char domain[50] = {0};
     HAL_PARAMS_Get_System_sv_domain(domain, sizeof(domain));
-    if (strlen(domain))
-    {
+    if (strlen(domain)) {
         aJson.addStringToObject(value_object, "sv_domain", domain);
+    }
+    else {
+        aJson.addStringToObject(value_object, "sv_domain", INTOROBOT_SERVER_DOMAIN);
+    }
+
+    if (HAL_PARAMS_Get_System_sv_port() > 0) {
         aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_System_sv_port());
     }
-    else
-    {
-        aJson.addStringToObject(value_object, "sv_domain", INTOROBOT_SERVER_DOMAIN);
+    else {
         aJson.addNumberToObject(value_object, "sv_port", INTOROBOT_SERVER_PORT);
     }
 
     memset(domain, 0, sizeof(domain));
     HAL_PARAMS_Get_System_http_domain(domain, sizeof(domain));
-    if (strlen(domain))
-    {
+    if (strlen(domain)) {
         aJson.addStringToObject(value_object, "http_domain", domain);
+    }
+    else {
+        aJson.addStringToObject(value_object, "http_domain", INTOROBOT_HTTP_DOMAIN);
+    }
+
+    if (HAL_PARAMS_Get_System_http_port() > 0) {
         aJson.addNumberToObject(value_object, "http_port", HAL_PARAMS_Get_System_http_port());
     }
-    else
-    {
-        aJson.addStringToObject(value_object, "http_domain", INTOROBOT_HTTP_DOMAIN);
+    else {
         aJson.addNumberToObject(value_object, "http_port", INTOROBOT_HTTP_PORT);
     }
 
     memset(domain, 0, sizeof(domain));
     HAL_PARAMS_Get_System_dw_domain(domain, sizeof(domain));
-    if (strlen(domain))
-    {
+    if (strlen(domain)) {
         aJson.addStringToObject(value_object, "dw_domain", domain);
     }
-    else
-    {
+    else {
         aJson.addStringToObject(value_object, "dw_domain", INTOROBOT_UPDATE_DOMAIN);
     }
 
-    uint8_t stamac[6] = {0}, apmac[6] = {0}, bssid[20] = {0};;
+    uint8_t stamac[6] = {0}, apmac[6] = {0};
     char macStr[20] = {0};
 
     wlan_get_macaddr(stamac, apmac);
@@ -439,9 +442,6 @@ void DeviceConfig::dealGetInfo(void)
     memset(macStr, 0, sizeof(macStr));
     sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
     aJson.addStringToObject(value_object, "apmac", macStr);
-    aJson.addStringToObject(value_object, "ssid", WiFi.SSID());
-    aJson.addStringToObject(value_object, "bssid", (char *)WiFi.BSSID(bssid));
-    aJson.addNumberToObject(value_object, "rssi", WiFi.RSSI());
 
     aJson.addItemToObject(root, "value", value_object);
 #endif
@@ -459,24 +459,20 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
     wlan_Imlink_stop();
-    aJsonObject* ssid_Object = aJson.getObjectItem(value_Object, "ssid");
-    aJsonObject* passwd_Object = aJson.getObjectItem(value_Object, "passwd");
-
-    if ((ssid_Object != NULL) && (passwd_Object != NULL))
+    aJsonObject* ssidObject = aJson.getObjectItem(value_Object, "ssid");
+    aJsonObject* passwdObject = aJson.getObjectItem(value_Object, "passwd");
+    if ((ssidObject != NULL) && (passwdObject != NULL))
     {
-        char *pSsid,*pPasswd;
-        pSsid = ssid_Object->valuestring;
-        pPasswd = passwd_Object->valuestring;
-
-        if(0==strcmp(pPasswd,""))  //密码为空
+        if(0==strcmp(ssidObject->valuestring,""))  //密码为空
         {
-            WiFi.setCredentials(pSsid);
+            WiFi.setCredentials(ssidObject->valuestring);
         }
         else
         {
-            int setWifiFlag = 1; // 0: success; 1 fail
-            WiFi.setCredentials(pSsid, pPasswd);
+            WiFi.setCredentials(ssidObject->valuestring, passwdObject->valuestring);
         }
+        network_setup(0, 0, NULL);
+        network_connect(0, 0, 0, NULL);
         sendComfirm(200);
         return;
     }
@@ -506,36 +502,39 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* value_Object)
 void DeviceConfig::dealSendDeviceInfo(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
-    float valuefloat;
-    aJsonObject* Object, *Object1, *Object2;
     //zone
-    Object = aJson.getObjectItem(value_Object, "zone");
-    if (Object != (aJsonObject* )NULL) {
-        valuefloat = (Object->type==aJson_Int?(float)(Object->valueint):Object->valuefloat);
+    aJsonObject* zoneObject = aJson.getObjectItem(value_Object, "zone");
+    if (zoneObject != NULL) {
+        float valuefloat = (zoneObject->type==aJson_Int?(float)(zoneObject->valueint):zoneObject->valuefloat);
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
         HAL_PARAMS_Set_System_zone(valuefloat);
     }
     //device_id  and access_token
-    Object = aJson.getObjectItem(value_Object, "device_id");
-    Object1 = aJson.getObjectItem(value_Object, "access_token");
-    if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
-        HAL_PARAMS_Set_System_device_id(Object->valuestring);
-        HAL_PARAMS_Set_System_access_token(Object1->valuestring);
+    aJsonObject* devieIdObject = aJson.getObjectItem(value_Object, "device_id");
+    aJsonObject* accessTokenObject = aJson.getObjectItem(value_Object, "access_token");
+    if (devieIdObject != NULL && accessTokenObject != NULL) {
+        HAL_PARAMS_Set_System_device_id(devieIdObject->valuestring);
+        HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
         HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
     }
-
-    //domain and port
-    Object = aJson.getObjectItem(value_Object, "sv_domain");
-    Object1 = aJson.getObjectItem(value_Object, "sv_port");
-    Object2 = aJson.getObjectItem(value_Object, "dw_domain");
-    if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL && Object2 != (aJsonObject* )NULL) {
-        HAL_PARAMS_Set_System_sv_domain(Object->valuestring);
-        HAL_PARAMS_Set_System_sv_port(Object1->valueint);
-        HAL_PARAMS_Set_System_dw_domain(Object2->valuestring);
-        HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_CUSTOM);
+    //mqtt server domain
+    aJsonObject* svDomainObject = aJson.getObjectItem(value_Object, "sv_domain");
+    if (svDomainObject != NULL) {
+        HAL_PARAMS_Set_System_sv_domain(svDomainObject->valuestring);
+    }
+    //mqtt server port
+    aJsonObject* svPortObject = aJson.getObjectItem(value_Object, "sv_port");
+    if (svPortObject != NULL) {
+        HAL_PARAMS_Set_System_sv_port(svPortObject->valueint);
+    }
+    //down server domain
+    aJsonObject* dwDomainObject = aJson.getObjectItem(value_Object, "dw_domain");
+    if (dwDomainObject != NULL) {
+        HAL_PARAMS_Set_System_dw_domain(dwDomainObject->valuestring);
     }
     HAL_PARAMS_Save_Params();
+    sendComfirm(200);
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
     sendComfirm(200);
@@ -545,30 +544,36 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* value_Object)
 void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE || configWIRING_CELLULAR_ENABLE
-    int valueint;
-    char len, *valuestring, at_mode;
-    aJsonObject* Object, *Object1, *Object2;
+    bool flag = false;
 
-    //device_id  and activation_code
-    Object = aJson.getObjectItem(value_Object, "device_id");
-    Object1 = aJson.getObjectItem(value_Object, "activation_code");
-    if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
-        HAL_PARAMS_Set_System_device_id(Object->valuestring);
-        HAL_PARAMS_Set_System_activation_code(Object1->valuestring);
-        HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_INACTIVE);
-        HAL_PARAMS_Save_Params();
-    }
-    else
-    {
-        //device_id  and access_token
-        Object = aJson.getObjectItem(value_Object, "device_id");
-        Object1 = aJson.getObjectItem(value_Object, "access_token");
-        if (Object != (aJsonObject* )NULL && Object1 != (aJsonObject* )NULL) {
-            HAL_PARAMS_Set_System_device_id(Object->valuestring);
-            HAL_PARAMS_Set_System_access_token(Object1->valuestring);
-            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
+    //at_mode
+    aJsonObject *atModeObject = aJson.getObjectItem(value_Object, "at_mode");
+    if (atModeObject != NULL) {
+        aJsonObject *deviceIdObject = aJson.getObjectItem(value_Object, "device_id");
+        aJsonObject *activationCodeObject = aJson.getObjectItem(value_Object, "activation_code");
+        aJsonObject *accessTokenObject = aJson.getObjectItem(value_Object, "access_token");
+        if (deviceIdObject != NULL && activationCodeObject != NULL) {
+            //device_id  and activation_code
+            HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+            HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
+            HAL_PARAMS_Set_System_at_mode(atModeObject->valueint);
             HAL_PARAMS_Save_Params();
+            flag = true;
         }
+        if (deviceIdObject != NULL && accessTokenObject != NULL) {
+            //device_id  and access_token
+            HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+            HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
+            HAL_PARAMS_Set_System_at_mode(atModeObject->valueint);
+            HAL_PARAMS_Save_Params();
+            flag = true;
+        }
+    }
+    if(true == flag) {
+        sendComfirm(200);
+    }
+    else {
+        sendComfirm(201);
     }
 #endif
 #ifdef configWIRING_LORA_ENABLE
@@ -578,77 +583,65 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
 
 void DeviceConfig::dealSetInfo(aJsonObject* value_object)
 {
-    aJsonObject* object = (aJsonObject* )NULL;
-    aJsonObject* object1 = (aJsonObject* )NULL;
-    aJsonObject* object2 = (aJsonObject* )NULL;
+    bool flag = true;
 
-    char *valuestring = NULL;
-    uint32_t len = 0;
-    float valuefloat = 0.0;
-    int valueint = 0;
-
-#ifdef configWIRING_WIFI_ENABLE
     //zone
-    object = aJson.getObjectItem(value_object, "zone");
-    if (object != (aJsonObject* )NULL)
-    {
-        valuefloat = (object->type==aJson_Int?(float)(object->valueint):object->valuefloat);
+    aJsonObject* zoneObject = aJson.getObjectItem(value_object, "zone");
+    if (zoneObject != NULL) {
+        float valuefloat = (zoneObject->type==aJson_Int?(float)(zoneObject->valueint):zoneObject->valuefloat);
         if(valuefloat < -12 || valuefloat > 13)
         {valuefloat = 8.0;}
         HAL_PARAMS_Set_System_zone(valuefloat);
     }
-
-    //mqtt domain and port
-    object = aJson.getObjectItem(value_object, "sv_domain");
-    object1 = aJson.getObjectItem(value_object, "sv_port");
-    if (object != (aJsonObject* )NULL && object1 != (aJsonObject* )NULL)
-    {
-        HAL_PARAMS_Set_System_sv_domain(object->valuestring);
-        HAL_PARAMS_Set_System_sv_port(object1->valueint);
-        HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_CUSTOM);
+#ifdef configWIRING_WIFI_ENABLE
+    //mqtt server domain
+    aJsonObject* svDomainObject = aJson.getObjectItem(value_object, "sv_domain");
+    if (svDomainObject != NULL) {
+        HAL_PARAMS_Set_System_sv_domain(svDomainObject->valuestring);
     }
-
-    //http domain and port
-    object = aJson.getObjectItem(value_object, "http_domain");
-    object1 = aJson.getObjectItem(value_object, "http_port");
-    if (object != (aJsonObject* )NULL && object1 != (aJsonObject* )NULL)
-    {
-        HAL_PARAMS_Set_System_http_domain(object->valuestring);
-        HAL_PARAMS_Set_System_http_port(object1->valueint);
-        HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_CUSTOM);
+    //mqtt server port
+    aJsonObject* svPortObject = aJson.getObjectItem(value_object, "sv_port");
+    if (svPortObject != NULL) {
+        HAL_PARAMS_Set_System_sv_port(svPortObject->valueint);
     }
-
-    //dw_domain
-    object = aJson.getObjectItem(value_object, "dw_domain");
-    if (object != (aJsonObject* )NULL)
-    {
-        HAL_PARAMS_Set_System_dw_domain(object->valuestring);
-        HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_CUSTOM);
+    //down server domain
+    aJsonObject* dwDomainObject = aJson.getObjectItem(value_object, "dw_domain");
+    if (dwDomainObject != NULL) {
+        HAL_PARAMS_Set_System_dw_domain(dwDomainObject->valuestring);
+    }
+    //http server domain
+    aJsonObject* httpDomainObject = aJson.getObjectItem(value_object, "http_domain");
+    if (httpDomainObject != NULL) {
+        HAL_PARAMS_Set_System_http_domain(httpDomainObject->valuestring);
+    }
+    //http server port
+    aJsonObject* httpPortObject = aJson.getObjectItem(value_object, "http_port");
+    if (httpPortObject != NULL) {
+        HAL_PARAMS_Set_System_http_port(httpPortObject->valueint);
     }
 
     uint8_t stamac[6] = {0}, apmac[6] = {0};
-    object = aJson.getObjectItem(value_object, "stamac");
-    object1 = aJson.getObjectItem(value_object, "apmac");
-    if ((object != NULL)&&(object1 != NULL))
-    {
-        mac_str_to_bin(object->valuestring, stamac);
-        mac_str_to_bin(object1->valuestring, apmac);
+    aJsonObject* stamacObject = aJson.getObjectItem(value_object, "stamac");
+    aJsonObject* apmacObject = aJson.getObjectItem(value_object, "apmac");
+    if ((stamacObject != NULL)&&(apmacObject != NULL)) {
+        mac_str_to_bin(stamacObject->valuestring, stamac);
+        mac_str_to_bin(apmacObject->valuestring, apmac);
         int ret = wlan_set_macaddr(stamac, apmac);
-        if(!ret)
-        {
-            sendComfirm(200);
-        }
-        else
-        {
-            sendComfirm(201);
+        if(wlan_set_macaddr(stamac, apmac)) {
+            flag = false;
         }
     }
-    sendComfirm(200);
-    HAL_PARAMS_Save_Params();
+    if(true == flag) {
+        sendComfirm(200);
+    }
+    else {
+        sendComfirm(201);
+    }
 #endif
 #ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
     sendComfirm(200);
 #endif
+    HAL_PARAMS_Save_Params();
 }
 
 void DeviceConfig::dealRestartNetwork(void)
@@ -667,11 +660,13 @@ void DeviceConfig::dealRestartNetwork(void)
 void DeviceConfig::dealReset(void)
 {
     HAL_Core_Enter_Factory_Reset_Mode();
+    sendComfirm(200);
 }
 
 void DeviceConfig::dealReboot(void)
 {
     HAL_Core_System_Reset();
+    sendComfirm(200);
 }
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
@@ -679,62 +674,49 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
     uint16_t pinNum;
     uint8_t pinLevel;
 
-    if(value_object == NULL)
-    {
+    if(value_object == NULL) {
         return;
     }
 
     aJsonObject* itemObject = aJson.getObjectItem(value_object, "item");
-    if(itemObject == NULL)
-    {
+    if(itemObject == NULL) {
         return ;
     }
 
-    if(strcmp(itemObject->valuestring,"digitalWrite") == 0)
-    {
+    if(strcmp(itemObject->valuestring,"digitalWrite") == 0) {
         aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
-        if(pinObject == NULL)
-        {
+        if(pinObject == NULL) {
             return;
         }
         pinNum = pinObject->valueint;
-
         aJsonObject* valObject = aJson.getObjectItem(value_object,"val");
-        if(valObject == NULL)
-        {
+        if(valObject == NULL) {
             return;
         }
 
-        if(strcmp(valObject->valuestring,"HIGH") == 0)
-        {
+        if(strcmp(valObject->valuestring,"HIGH") == 0) {
             pinLevel = HIGH;
         }
-        else
-        {
+        else {
             pinLevel = LOW;
         }
         testDigitalWrite(pinNum,pinLevel,this);
     }
-    else if(strcmp(itemObject->valuestring,"analogRead") == 0)
-    {
+    else if(strcmp(itemObject->valuestring,"analogRead") == 0) {
         aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
-        if(pinObject == NULL)
-        {
+        if(pinObject == NULL) {
             return;
         }
         pinNum = pinObject->valueint;
         testAnalogRead(pinNum,this);
     }
-    else if(strcmp(itemObject->valuestring,"selfTest") == 0)
-    {
+    else if(strcmp(itemObject->valuestring,"selfTest") == 0) {
         testSelfTest(this);
     }
-    else if(strcmp(itemObject->valuestring,"rfCheck") == 0)
-    {
+    else if(strcmp(itemObject->valuestring,"rfCheck") == 0) {
         testRfCheck(this);
     }
-    else if(strcmp(itemObject->valuestring,"sensorData") == 0)
-    {
+    else if(strcmp(itemObject->valuestring,"sensorData") == 0) {
         testSensorData(this);
     }
 }
@@ -763,8 +745,7 @@ String UsbDeviceConfig::readString(void)
 
 size_t UsbDeviceConfig::write(const uint8_t *buffer, size_t size)
 {
-    for(size_t i = 0;i<size;i++)
-    {
+    for(size_t i = 0;i<size;i++) {
         serialusb.write(buffer[i]);
     }
     return size;
@@ -813,8 +794,7 @@ String UsartDeviceConfig::readString(void)
 
 size_t UsartDeviceConfig::write(const uint8_t *buffer, size_t size)
 {
-    for(size_t i = 0;i<size;i++)
-    {
+    for(size_t i = 0;i<size;i++) {
         serial.write(buffer[i]);
     }
     return size;

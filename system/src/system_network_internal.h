@@ -236,8 +236,7 @@ class ManagedIPNetworkInterface : public ManagedNetworkInterface
 {
     Config ip_config;
 
-    public:
-
+public:
     void get_ipconfig(IPConfig* config) override
     {
         update_config(true);

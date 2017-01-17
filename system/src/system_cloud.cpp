@@ -163,9 +163,9 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
 
     if(0==flag)
     {
-        if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-            char down_domain[36]={0};
-            HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        if (strlen(down_domain)) {
             domain+=down_domain;
         }
         else {
@@ -272,9 +272,9 @@ void subsys_update_callback(uint8_t *payload, uint32_t len)
 
     if(0==flag)
     {
-        if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-            char down_domain[36]={0};
-            HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        if (strlen(down_domain)) {
             domain+=down_domain;
         }
         else {
@@ -392,9 +392,9 @@ void intorobot_subsys_upgrade(const char *version)
     sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
     intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
 
-    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-        char down_domain[36]={0};
-        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    char down_domain[36]={0};
+    HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    if (strlen(down_domain)) {
         domain+=down_domain;
     }
     else {
@@ -465,9 +465,9 @@ void intorobot_bin_upgrade(const char *token, const char *md5)
     sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
     intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
 
-    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-        char down_domain[36]={0};
-        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    char down_domain[36]={0};
+    HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    if (strlen(down_domain)) {
         domain+=down_domain;
     }
     else {
@@ -537,9 +537,9 @@ void intorobot_firmware_upgrade(const char *version)
     sprintf(temp,"{\"status\":\"%s\"}", INTOROBOT_MQTT_REPLY_READY_PROGRESS);
     intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)temp, strlen(temp), 0, false);
 
-    if (SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-        char down_domain[36]={0};
-        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    char down_domain[36]={0};
+    HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+    if (strlen(down_domain)) {
         domain+=down_domain;
     }
     else {
@@ -1044,39 +1044,43 @@ int intorobot_cloud_connect(void)
 {
     SCLOUD_DEBUG("---------mqtt connect start--------");
     intorobot_cloud_disconnect();
-    //set intorobot server
+    //mqtt server domain
     char sv_domain[32]={0};
-    int sv_port;
-
-    if(SV_SELECT_FLAG_CUSTOM == HAL_PARAMS_Get_System_sv_select()) {
-        HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
-        sv_port=HAL_PARAMS_Get_System_sv_port();
-    }
-    else {
+    HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
+    if(0 == strlen(sv_domain)) {
         strcpy(sv_domain, INTOROBOT_SERVER_DOMAIN);
+    }
+    //mqtt server port
+    int sv_port=HAL_PARAMS_Get_System_sv_port();
+    if(sv_port <= 0) {
         sv_port=INTOROBOT_SERVER_PORT;
     }
-    strcpy(sv_domain, "112.124.117.64");
-    sv_port=1885;
+    //strcpy(sv_domain, "112.124.117.64");
+    //sv_port=1885;
 
     g_mqtt_client.setServer(sv_domain, sv_port);
 
-    AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-    char device_id[38]={0}, activation_code[38]={0}, access_token[38]={0};
+    char device_id[38]={0}, activation_code[38]={0}, access_token[38]={0}, dw_domain[38]={0};
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
     HAL_PARAMS_Get_System_activation_code(activation_code, sizeof(activation_code));
+    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
 
-    SCLOUD_DEBUG("domain          : %s", sv_domain);
-    SCLOUD_DEBUG("port            : %d", sv_port);
-    SCLOUD_DEBUG("at_mode         : %d", at_mode);
+    SCLOUD_DEBUG("---------terminal params--------");
+    SCLOUD_DEBUG("mqtt domain     : %s", sv_domain);
+    SCLOUD_DEBUG("mqtt port       : %d", sv_port);
+    SCLOUD_DEBUG("down domain     : %s", dw_domain);
+    SCLOUD_DEBUG("at_mode         : %d", HAL_PARAMS_Get_System_at_mode());
+    SCLOUD_DEBUG("zone            : %f", HAL_PARAMS_Get_System_zone());
     SCLOUD_DEBUG("device_id       : %s", device_id);
     SCLOUD_DEBUG("activation_code : %s", activation_code);
     SCLOUD_DEBUG("access_token    : %s", access_token);
+    SCLOUD_DEBUG("--------------------------------");
 
     String fulltopic;
     fill_mqtt_topic(fulltopic, API_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
-    if(g_mqtt_client.connect("", access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE))
+    //client id change to device id. chenkaiyao 2016-01-17
+    if(g_mqtt_client.connect(device_id, access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE))
     {
         SCLOUD_DEBUG("---------connect success--------");
         char fw_version[28]={0}, subsys_version[28]={0}, board[8];
