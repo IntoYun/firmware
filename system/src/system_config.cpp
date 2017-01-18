@@ -25,6 +25,7 @@
 #include "system_config.h"
 #include "system_rgbled.h"
 #include "system_cloud_def.h"
+#include "system_cloud.h"
 #include "system_network.h"
 #include "params_hal.h"
 #include "core_hal.h"
@@ -1186,6 +1187,7 @@ void manage_system_config(void)
     {
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type())
         {
+            CLOUD_FN(intorobot_cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);
             while(1)
             {

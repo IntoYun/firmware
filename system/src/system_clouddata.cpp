@@ -43,6 +43,18 @@
 property_conf* properties[PROPERTIES_MAX];
 int properties_count = 0;
 
+static int calcDecimalPlaces(double value)
+{
+    value -= (int)value;
+    for(int i = 0; i < 10; i++)
+    {
+        value *= 10;
+        if((value - (int)(value + 0.00000001) < 0.00000001)&&(value - (int)(value + 0.00000001) > -0.00000001))
+        {return i+1;}
+    }
+    return 10;
+}
+
 int intorobotDiscoverProperty(const uint16_t dpID)
 {
     for (int i = 0; i < properties_count; i++)
@@ -79,15 +91,27 @@ void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, co
             prop->intProperty.minValue = (int)minValue;
             prop->intProperty.maxValue = (int)maxValue;
             prop->intProperty.resolution = (int)resolution;
+            if(value < minValue) {
+                value = minValue;
+            }
+            else if(value > maxValue) {
+                value = maxValue;
+            }
             prop->value = String((int)value);
         }
         else
         {
             prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
-            prop->floatProperty.minValue = minValue;
-            prop->floatProperty.maxValue = maxValue;
+            prop->floatProperty.minValue = String(minValue, calcDecimalPlaces(resolution)).toDouble();
+            prop->floatProperty.maxValue = String(maxValue, calcDecimalPlaces(resolution)).toDouble();
             prop->floatProperty.resolution = resolution;
-            prop->value = String(value);
+            if(value < minValue) {
+                value = minValue;
+            }
+            else if(value > maxValue) {
+                value = maxValue;
+            }
+            prop->value = String(value, calcDecimalPlaces(resolution));
         }
         properties[properties_count] = prop; // Save pointer to scructure
         properties_count++; // count the number of properties
@@ -100,6 +124,9 @@ void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int 
     {
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
+        if(value < 0) {
+            value = 0;
+        }
         prop->value = String(value);
         properties[properties_count] = prop; // Save pointer to scructure
         properties_count++; // count the number of properties
@@ -203,7 +230,7 @@ read_datapoint_result_t intorobotReadDataPointDouble(const uint16_t dpID, double
         return RESULT_DATAPOINT_NONE;
     }
 
-    value = properties[index]->value.toFloat();
+    value = properties[index]->value.toDouble();
     read_datapoint_result_t readResult = properties[index]->readFlag;
     properties[index]->readFlag = RESULT_DATAPOINT_OLD;
     return readResult;
@@ -253,41 +280,81 @@ void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
 {
     aJsonClass aJson;
 
-    if(payload[0] != JSON_DATA_FORMAT)
-    {
+    SCLOUDDATA_DEBUG("OK! Rev datapoint data: %s", payload);
+    if(payload[0] != JSON_DATA_FORMAT) {
+        SCLOUDDATA_DEBUG("Error! Not Json data format");
         return;
     }
 
     aJsonObject *root = aJson.parse((char *)(payload+1));
-    if (root == NULL)
-    {
+    if (root == NULL) {
         return;
     }
 
-    for (int i = 0; i <= properties_count; i++)
-    {
-        if (0 != strcmp(properties[i]->permission, UP_ONLY))
-        {
+    int valueInt = 0;
+    double valueDouble = 0;
+    for (int i = 0; i < properties_count; i++) {
+        if (0 != strcmp(properties[i]->permission, UP_ONLY)) {
             aJsonObject* propertyObject = aJson.getObjectItem(root, String(properties[i]->dpID).c_str());
-            if (propertyObject != NULL)
-            {
-                properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+            if (propertyObject != NULL) {
                 switch(properties[i]->dataType)
                 {
                     case DATA_TYPE_BOOL:       //bool型
-                        properties[i]->value = String(propertyObject->valuebool);
+                        if(aJson_Boolean == propertyObject->type) {
+                            properties[i]->value = String((int)propertyObject->valuebool);
+                            properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+                        }
                         break;
                     case DATA_TYPE_INT:        //数值型 int型
-                        properties[i]->value = String(propertyObject->valueint);
+                        if((aJson_Int != propertyObject->type)&&(aJson_Float != propertyObject->type)) {
+                            break;
+                        }
+                        if(aJson_Float == propertyObject->type) {
+                            valueInt = (int)propertyObject->valuefloat;
+                        }
+                        else {
+                            valueInt = propertyObject->valueint;
+                        }
+                        if(valueInt < properties[i]->intProperty.minValue) {
+                            valueInt = properties[i]->intProperty.minValue;
+                        }
+                        else if(valueInt > properties[i]->intProperty.maxValue) {
+                            valueInt = properties[i]->intProperty.maxValue;
+                        }
+                        properties[i]->value = String(valueInt);
+                        properties[i]->readFlag = RESULT_DATAPOINT_NEW;
                         break;
                     case DATA_TYPE_FLOAT:      //数值型 float型
-                        properties[i]->value = String(propertyObject->valuefloat);
+                        if((aJson_Int != propertyObject->type)&&(aJson_Float != propertyObject->type))
+                        {break;}
+                        if(aJson_Int == propertyObject->type) {
+                            valueDouble = (double)propertyObject->valueint;
+                        }
+                        else {
+                            valueDouble = propertyObject->valuefloat;
+                        }
+                        if(valueDouble < properties[i]->floatProperty.minValue) {
+                            valueDouble = properties[i]->floatProperty.minValue;
+                        }
+                        else if(valueDouble > properties[i]->floatProperty.maxValue) {
+                            valueDouble = properties[i]->floatProperty.maxValue;
+                        }
+                        properties[i]->value = String(valueDouble, calcDecimalPlaces(properties[i]->floatProperty.resolution));
+                        properties[i]->readFlag = RESULT_DATAPOINT_NEW;
                         break;
                     case DATA_TYPE_ENUM:       //枚举型
-                        properties[i]->value = String(propertyObject->valueint);
+                        if(aJson_Int == propertyObject->type)
+                        {
+                            properties[i]->value = String(propertyObject->valueint);
+                            properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+                        }
                         break;
                     case DATA_TYPE_STRING:     //字符串型
-                        properties[i]->value = String(propertyObject->valuestring);
+                        if(aJson_String == propertyObject->type)
+                        {
+                            properties[i]->value = String(propertyObject->valuestring);
+                            properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+                        }
                         break;
                     default:
                         break;
@@ -295,13 +362,14 @@ void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
             }
         }
     }
+    aJson.deleteItem(root);
 }
 
 // Build the topic for a property
 String intorobotBuildSinglePropertyJson(int property_index)
 {
     aJsonClass aJson;
-    String PropertyJson(JSON_DATA_FORMAT);
+    String PropertyJson((char)JSON_DATA_FORMAT);
 
     aJsonObject* root = aJson.createObject();
     switch(properties[property_index]->dataType)
@@ -314,7 +382,7 @@ String intorobotBuildSinglePropertyJson(int property_index)
             aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), (int)(properties[property_index]->value.toInt()));
             break;
         case DATA_TYPE_FLOAT:      //数值型 float型
-            aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), properties[property_index]->value.toFloat());
+            aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), properties[property_index]->value.toDouble());
             break;
         case DATA_TYPE_ENUM:       //枚举型
             aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), (int)(properties[property_index]->value.toInt()));
@@ -339,8 +407,18 @@ String intorobotBuildAllPropertyJson(void)
     aJsonClass aJson;
 
     aJsonObject* root = aJson.createObject();
-    for (int i = 0; i <= properties_count; i++)
+    for (int i = 0; i < properties_count; i++)
     {
+        //只允许下发  不上传
+        if (0 == strcmp(properties[i]->permission, DOWN_ONLY)) {
+            continue;
+        }
+
+        //系统默认dpID  不上传
+        if (properties[i]->dpID > 0xFF00) {
+            continue;
+        }
+
         switch(properties[i]->dataType)
         {
             case DATA_TYPE_BOOL:       //bool型
@@ -350,7 +428,7 @@ String intorobotBuildAllPropertyJson(void)
                 aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), (int)(properties[i]->value.toInt()));
                 break;
             case DATA_TYPE_FLOAT:      //数值型 float型
-                aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), properties[i]->value.toFloat());
+                aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), properties[i]->value.toDouble());
                 break;
             case DATA_TYPE_ENUM:       //枚举型
                 aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), (int)(properties[i]->value.toInt()));
@@ -381,7 +459,7 @@ void intorobotWriteDataPointString(const uint16_t dpID, char* value)
     }
 
     //只允许下发
-    if (strcmp(properties[i]->permission, DOWN_ONLY) == 0) {
+    if ( 0 == strcmp(properties[i]->permission, DOWN_ONLY) ) {
         SCLOUDDATA_DEBUG("only permit cloud -> terminal %d", properties[i]->dpID);
         return;
     }
@@ -395,13 +473,37 @@ void intorobotWriteDataPointString(const uint16_t dpID, char* value)
     //发送时间间隔到
     system_tick_t current_millis = millis();
     system_tick_t elapsed_millis = current_millis - properties[i]->runtime;
-    if (elapsed_millis < 0)
-    {
+    if (elapsed_millis < 0) {
         elapsed_millis =  0xFFFFFFFF - properties[i]->runtime + current_millis;
     }
-    if (elapsed_millis >= properties[i]->lapse)
-    {
-        properties[i]->value = value;
+
+    if (elapsed_millis >= properties[i]->lapse) {
+        if(DATA_TYPE_INT == properties[i]->dataType) {
+            if(String(value).toInt() < properties[i]->intProperty.minValue) {
+                properties[i]->value = String(properties[i]->intProperty.minValue);
+            }
+            else if(String(value).toInt() > properties[i]->intProperty.maxValue) {
+                properties[i]->value = String(properties[i]->intProperty.maxValue);
+            }
+            else {
+                properties[i]->value = String(String(value).toInt());
+            }
+        }
+        else if(DATA_TYPE_FLOAT == properties[i]->dataType) {
+            //根据分辨率  截取小数点位数。
+            if(String(value).toDouble() < properties[i]->floatProperty.minValue) {
+                properties[i]->value = String(properties[i]->floatProperty.minValue, calcDecimalPlaces(properties[i]->floatProperty.resolution));
+            }
+            else if(String(value).toDouble() > properties[i]->floatProperty.maxValue) {
+                properties[i]->value = String(properties[i]->floatProperty.maxValue, calcDecimalPlaces(properties[i]->floatProperty.resolution));
+            }
+            else {
+                properties[i]->value = String(String(value).toDouble(), calcDecimalPlaces(properties[i]->floatProperty.resolution));
+            }
+        }
+        else {
+            properties[i]->value = value;
+        }
         String payload = intorobotBuildSinglePropertyJson(i);
         intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), strlen(payload.c_str()), 0, false);
         properties[i]->runtime = current_millis;

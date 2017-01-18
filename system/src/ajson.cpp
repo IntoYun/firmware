@@ -38,6 +38,7 @@
 #include <ctype.h>
 #include "stringbuffer.h"
 #include "ajson.h"
+#include "service_debug.h"
 
 /******************************************************************************
  * Definitions
@@ -285,6 +286,18 @@ int aJsonStream::printInt(aJsonObject *item)
     return 0;
 }
 
+static int calcDecimalPlaces(double value)
+{
+    value -= (int)value;
+    for(int i = 0; i < 10; i++)
+    {
+        value *= 10;
+        if((value - (int)(value + 0.00000001) < 0.00000001)&&(value - (int)(value + 0.00000001) > -0.00000001))
+        {return i+1;}
+    }
+    return 10;
+}
+
 int aJsonStream::printFloat(aJsonObject *item)
 {
     if (item != NULL)
@@ -303,8 +316,13 @@ int aJsonStream::printFloat(aJsonObject *item)
         double fractional_part = d - ((double)integer_number);
         //we do a do-while since we want to print at least one zero
         //we just support a certain number of digits after the '.'
-        int n = FLOAT_PRECISION;
-        fractional_part += 0.5/pow(10.0, FLOAT_PRECISION);
+        //当小数点位数小于FLOAT_PRECISION时，显示实际位数   2016-01-17 chenkaiyao
+        int n = calcDecimalPlaces(fractional_part);
+        if( n > FLOAT_PRECISION )
+        {
+            n = FLOAT_PRECISION;
+            fractional_part += 0.5/pow(10.0, FLOAT_PRECISION);
+        }
         do
         {
             //make the first digit non fractional(shift it before the '.'

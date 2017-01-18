@@ -1057,7 +1057,6 @@ int intorobot_cloud_connect(void)
     }
     //strcpy(sv_domain, "112.124.117.64");
     //sv_port=1885;
-
     g_mqtt_client.setServer(sv_domain, sv_port);
 
     char device_id[38]={0}, activation_code[38]={0}, access_token[38]={0}, dw_domain[38]={0};
@@ -1138,6 +1137,9 @@ int intorobot_cloud_handle(void)
         //reboot
         if(RESULT_DATAPOINT_NEW == intorobotReadDataPointBool(0xFF80, reboot_flag))
         {
+            intorobot_cloud_disconnect();
+            delay(500);
+            HAL_Core_System_Reset();
         }
         //write all datepoint
         if(RESULT_DATAPOINT_NEW == intorobotReadDataPointBool(0xFF81, all_datapoint_flag))

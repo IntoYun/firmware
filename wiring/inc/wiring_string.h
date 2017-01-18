@@ -186,6 +186,7 @@ class String
     // parsing/conversion
     long toInt(void) const;
     float toFloat(void) const;
+    double toDouble(void) const;  //添加double型  因为atof从double转换成float会带来误差  2016-01-18  chenkaiyao
 
     static String format(const char* format, ...);
 

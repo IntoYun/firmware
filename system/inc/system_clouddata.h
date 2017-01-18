@@ -30,8 +30,8 @@
 #ifndef configNO_CLOUD
 
 // Permission
-#define JSON_DATA_FORMAT    0
-#define BINARY_DATA_FORMAT  1
+#define JSON_DATA_FORMAT    0x30
+#define BINARY_DATA_FORMAT  0x31
 
 // Permission
 #define UP_ONLY    "up_only"
