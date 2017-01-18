@@ -405,6 +405,7 @@ String intorobotBuildSinglePropertyJson(int property_index)
 String intorobotBuildAllPropertyJson(void)
 {
     aJsonClass aJson;
+    String PropertyJson((char)JSON_DATA_FORMAT);
 
     aJsonObject* root = aJson.createObject();
     for (int i = 0; i < properties_count; i++)
@@ -442,7 +443,7 @@ String intorobotBuildAllPropertyJson(void)
     }
 
     char* strPtr = aJson.print(root);
-    String PropertyJson = strPtr;
+    PropertyJson += strPtr;
     free(strPtr);
     aJson.deleteItem(root);
 
