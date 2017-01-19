@@ -27,7 +27,6 @@
 static TaskHandle_t  system_thread_handle;
 #define SYSTEM_TREAD_STACK_SIZE         6144
 
-
 static void system_task_start(void const *argument)
 {
     system_process_loop();
@@ -36,7 +35,7 @@ static void system_task_start(void const *argument)
 void create_system_task(void)
 {
     /*system_tread*/
-    xTaskCreate( system_task_start, "system_thread", SYSTEM_TREAD_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &system_thread_handle);
+    os_thread_create(&system_thread_handle, "system_thread", OS_THREAD_PRIORITY_DEFAULT, system_task_start, NULL, SYSTEM_TREAD_STACK_SIZE);
 }
 
 void close_system_task(void)

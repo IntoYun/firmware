@@ -65,6 +65,7 @@
 
 #include <sys/config.h>
 #include <reent.h>
+#include "service_debug.h"
 
 extern void __malloc_lock(void* p);
 extern void __malloc_unlock(void* p);
@@ -101,6 +102,8 @@ extern void __malloc_unlock(void* p);
 #define RONECALL
 #define MALLOC_LOCK
 #define MALLOC_UNLOCK
+
+
 #define RERRNO errno
 
 #define nano_malloc		malloc
@@ -269,7 +272,6 @@ void * nano_malloc(RARG malloc_size_t s)
         RERRNO = ENOMEM;
         return NULL;
     }
-
     MALLOC_LOCK;
 
     p = free_list;

@@ -40,6 +40,7 @@
 #include "eeprom_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "malloc.h"
 
 
 /* Private typedef ----------------------------------------------------------*/
@@ -64,26 +65,28 @@ extern volatile uint32_t TimingDelay;
 /**
  * The mutex to ensure only one thread manipulates the heap at a given time.
  */
-
-//static osSemaphoreId malloc_protect_sem;     //申请释放内存保护信号量
-static os_mutex_recursive_t malloc_mutex = 0;
-
-//static void init_malloc_semaphore(void)
-static void init_malloc_mutex(void)
+extern "C"
 {
-    os_mutex_recursive_create(&malloc_mutex);
-}
+    //static osSemaphoreId malloc_protect_sem;     //申请释放内存保护信号量
+    static os_mutex_recursive_t malloc_mutex = 0;
 
-void __malloc_lock(void* ptr)
-{
-    if (malloc_mutex)
-        os_mutex_recursive_lock(malloc_mutex);
-}
+    //static void init_malloc_semaphore(void)
+    static void init_malloc_mutex(void)
+    {
+        os_mutex_recursive_create(&malloc_mutex);
+    }
 
-void __malloc_unlock(void* ptr)
-{
-    if (malloc_mutex)
-        os_mutex_recursive_unlock(malloc_mutex);
+    void __malloc_lock(void* ptr)
+    {
+        if (malloc_mutex)
+            os_mutex_recursive_lock(malloc_mutex);
+    }
+
+    void __malloc_unlock(void* ptr)
+    {
+        if (malloc_mutex)
+            os_mutex_recursive_unlock(malloc_mutex);
+    }
 }
 
 static void application_task_start(void const *argument)
@@ -293,6 +296,17 @@ void HAL_Core_System_Loop(void)
 void HAL_Core_System_Yield(void)
 {
 
+}
+
+uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
+{
+    extern unsigned char _eheap[];
+    extern unsigned char *sbrk_heap_top;
+
+    struct mallinfo heapinfo = mallinfo();
+    info->freeheap = _eheap-sbrk_heap_top + heapinfo.fordblks;
+
+    return 0;
 }
 
 /**

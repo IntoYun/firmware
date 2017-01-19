@@ -223,7 +223,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 // +IPD, <socket>,<length>,<remote IP>,<remote port>
                 if ((sscanf(cmd, "IPD,%d,%d," IPSTR ",%d", &sk, &sz, &a, &b, &c, &d, &p) == 7)) {
                     socket = _findSocket(sk);
-                    //MDM_DEBUG_D("Socket %d: handle %d has %d bytes pending!\r\n", socket, sk, sz);
+                    MDM_DEBUG_D("Socket %d: handle %d has %d bytes pending!\r\n", socket, sk, sz);
                     if (socket != MDM_SOCKET_ERROR) {
                         s = strchr(buf, ':');
                         for(n=0; n < sz; n++) {
@@ -479,37 +479,17 @@ bool MDMParser::setAutoConn(char enable)
 
 bool MDMParser::startSmartconfig(smart_config_t type)
 {
+    bool ok = false;
     LOCK();
     if (_init) {
-        // enable mulit connect
-        // sendFormated("AT+CIPMUX=1\r\n");
-        // waitFinalResp();
-        //if (RESP_OK != waitFinalResp())
-        //goto failure;
-        /*
-        sendFormated("AT+CWQAP\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-
-        sendFormated("AT+CIPMUX=1\r\n");
-        waitFinalResp();
-
-        sendFormated("AT+CWMODE_DEF=1\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-*/
         sendFormated("AT+CWSTARTSMART=%d\r\n",type);
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-
-        _smartconfig_status = DEALSTATUS_DOING;
-        UNLOCK();
-        return true;
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
     }
-failure:
-    _smartconfig_status = DEALSTATUS_IDLE;
+    _smartconfig_status = DEALSTATUS_DOING;
     UNLOCK();
-    return false;
+    return ok;
 }
 
 bool MDMParser::stopSmartconfig(void)

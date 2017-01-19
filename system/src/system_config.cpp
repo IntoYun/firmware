@@ -132,7 +132,7 @@ int DeviceConfig::process(void)
     {
         String tmp=readString();
 
-        //SCONFIG_DEBUG("res: %s", (char *)tmp.c_str());
+        SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}

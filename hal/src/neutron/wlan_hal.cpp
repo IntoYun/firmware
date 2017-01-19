@@ -85,7 +85,6 @@ int wlan_set_credentials(WLanCredentials* c)
 void wlan_Imlink_start()
 {
     //esp8266MDM.reset();
-    //HAL_Delay_Milliseconds(200);
     //esp8266MDM.init();
     esp8266MDM.startSmartconfig(SMARTCONFIGTYPE_ESPTOUCH);
 }

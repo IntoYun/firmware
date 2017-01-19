@@ -46,7 +46,7 @@ void USB_USART_Initial(uint32_t baudRate)
     //usb_mutex = osMutexCreate(osMutex(USB_MUT));
     if (LineCoding.bitrate != baudRate)
     {
-        if (!baudRate && LineCoding.bitrate > 0)
+        if (!baudRate && LineCoding.bitrate)
         {
             USBD_Stop(&USBD_Device);
             USBD_DeInit(&USBD_Device);

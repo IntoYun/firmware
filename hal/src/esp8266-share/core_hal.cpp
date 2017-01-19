@@ -368,3 +368,9 @@ void HAL_Core_System_Yield(void)
     optimistic_yield(100);
 }
 
+uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
+{
+    return 0;
+}
+
+

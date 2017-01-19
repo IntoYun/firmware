@@ -6,3 +6,7 @@
 
 HAL_PLATFORM_SRC_PATH = $(HAL_MODULE_PATH)/src/$(PLATFORM_NAME)
 include $(call rwildcard,$(HAL_PLATFORM_SRC_PATH)/,sources.mk)
+
+#BUILTINS_EXCLUDE = malloc free realloc
+#CFLAGS += $(addprefix -fno-builtin-,$(BUILTINS_EXCLUDE))
+

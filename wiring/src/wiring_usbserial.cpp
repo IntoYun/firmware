@@ -27,7 +27,7 @@
 //
 USBSerial::USBSerial()
 {
-  _blocking = true;
+    _blocking = true;
 }
 
 //
@@ -47,41 +47,41 @@ void USBSerial::end()
 // Read data from buffer
 int USBSerial::read()
 {
-	return USB_USART_Receive_Data(false);
+    return USB_USART_Receive_Data(false);
 }
 
 int USBSerial::availableForWrite()
 {
-  return USB_USART_Available_Data_For_Write();
+    return USB_USART_Available_Data_For_Write();
 }
 
 int USBSerial::available()
 {
-	return USB_USART_Available_Data();
+    return USB_USART_Available_Data();
 }
 
 size_t USBSerial::write(uint8_t byte)
 {
-  if (USB_USART_Available_Data_For_Write() > 0 || _blocking) {
-    USB_USART_Send_Data(byte);
-    return 1;
-  }
-  return 0;
+    if (USB_USART_Available_Data_For_Write() > 0 || _blocking) {
+        USB_USART_Send_Data(byte);
+        return 1;
+    }
+    return 0;
 }
 
 void USBSerial::flush()
 {
-  USB_USART_Flush_Data();
+    USB_USART_Flush_Data();
 }
 
 void USBSerial::blockOnOverrun(bool block)
 {
-  _blocking = block;
+    _blocking = block;
 }
 
 int USBSerial::peek()
 {
-	return USB_USART_Receive_Data(true);
+    return USB_USART_Receive_Data(true);
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////

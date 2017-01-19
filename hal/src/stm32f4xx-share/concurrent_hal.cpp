@@ -313,10 +313,10 @@ static_assert(portMAX_DELAY==CONCURRENT_WAIT_FOREVER, "expected portMAX_DELAY==C
 
 int os_queue_put(os_queue_t queue, const void* item, system_tick_t delay, void*)
 {
-	if (HAL_IsISR())
-		return xQueueSendFromISR(queue, item, nullptr)!=pdTRUE;
-	else
-		return xQueueSend(queue, item, delay)!=pdTRUE;
+    if (HAL_IsISR())
+        return xQueueSendFromISR(queue, item, nullptr)!=pdTRUE;
+    else
+        return xQueueSend(queue, item, delay)!=pdTRUE;
 }
 
 int os_queue_take(os_queue_t queue, void* item, system_tick_t delay, void*)
@@ -344,19 +344,31 @@ int os_mutex_destroy(os_mutex_t mutex)
 
 int os_mutex_lock(os_mutex_t mutex)
 {
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    // 中断函数不能调用，添加中断判断。  chenkaiyao  2017-01-20
+    if(!HAL_IsISR())
+    {
+        xSemaphoreTake(mutex, portMAX_DELAY);
+    }
     return 0;
 }
 
 int os_mutex_trylock(os_mutex_t mutex)
 {
-    return xSemaphoreTake(mutex, 0)==pdFALSE;
+    if(!HAL_IsISR())
+    {
+        return xSemaphoreTake(mutex, 0)!=pdTRUE;
+    }
+    return 0;
 }
 
 
 int os_mutex_unlock(os_mutex_t mutex)
 {
-    xSemaphoreGive(mutex);
+    // 中断函数不能调用，添加中断判断。  chenkaiyao  2017-01-20
+    if(!HAL_IsISR())
+    {
+        return xSemaphoreGive(mutex)!=pdTRUE;
+    }
     return 0;
 }
 
@@ -373,18 +385,31 @@ int os_mutex_recursive_destroy(os_mutex_recursive_t mutex)
 
 int os_mutex_recursive_lock(os_mutex_recursive_t mutex)
 {
-    xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
+    // 中断函数不能调用，添加中断判断。  chenkaiyao  2017-01-20
+    if(!HAL_IsISR())
+    {
+        xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
+    }
     return 0;
 }
 
 int os_mutex_recursive_trylock(os_mutex_recursive_t mutex)
 {
-    return (xSemaphoreTakeRecursive(mutex, 0)!=pdTRUE);
+    // 中断函数不能调用，添加中断判断。  chenkaiyao  2017-01-20
+    if(!HAL_IsISR())
+    {
+        return xSemaphoreTakeRecursive(mutex, 0)!=pdTRUE;
+    }
+    return 0;
 }
 
 int os_mutex_recursive_unlock(os_mutex_recursive_t mutex)
 {
-    return xSemaphoreGiveRecursive(mutex)!=pdTRUE;
+    if(!HAL_IsISR())
+    {
+        return xSemaphoreGiveRecursive(mutex)!=pdTRUE;
+    }
+    return 0;
 }
 
 void os_thread_scheduling(bool enabled, void* reserved)

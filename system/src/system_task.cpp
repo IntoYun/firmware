@@ -25,7 +25,7 @@
 #include "timer_hal.h"
 #include "core_hal.h"
 #include "params_hal.h"
-//#include "wiring_system.h"
+#include "wiring_system.h"
 #include "system_task.h"
 #include "system_cloud.h"
 #include "system_config.h"
@@ -46,7 +46,7 @@
 /*debug switch*/
 #define SYSTEM_TASK_DEBUG
 
-#ifdef SYSTEM_MQTTCLIENT_DEBUG
+#ifdef SYSTEM_TASK_DEBUG
 #define STASK_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define STASK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
 #else
@@ -104,8 +104,6 @@ inline uint8_t in_cloud_backoff_period()
 {
     return (HAL_Timer_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
 }
-
-
 
 #ifndef configNO_NETWORK
 
@@ -313,6 +311,7 @@ void system_process_loop(void)
 #if PLATFORM_THREADING
     while (1) {
 #endif
+
 #ifdef configSETUP_ENABLE
         if(!g_intorobot_system_config)
         {
@@ -321,9 +320,11 @@ void system_process_loop(void)
             NEWORK_FN(manage_ip_config(), (void)0);
             CLOUD_FN(manage_cloud_connection(), (void)0);
             CLOUD_FN(manage_app_auto_update(), (void)0);
+            //STASK_DEBUG("freeMemory = %d", System.freeMemory());
 #ifdef configSETUP_ENABLE
         }
 #endif
+
 #if PLATFORM_THREADING
     }
 #endif

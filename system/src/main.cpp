@@ -400,6 +400,7 @@ void app_setup_and_loop_initial(void)
 #else
     NEWORK_FN(Network_Setup(), (void)0);
 #endif
+
 #if PLATFORM_THREADING
     create_system_task();
 #else

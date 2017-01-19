@@ -58,7 +58,7 @@ CSRC += $(LIBCSRC)
 INCLUDE_DIRS += $(addsuffix /src,$(MODULE_LIBS))
 INCLUDE_DIRS += $(addsuffix /src,$(shell find $(MODULE_PATH)/libraries -maxdepth 1 -type d))
 
-BUILTINS_EXCLUDE = malloc free realloc
-CFLAGS += $(addprefix -fno-builtin-,$(BUILTINS_EXCLUDE))
+#BUILTINS_EXCLUDE = malloc free realloc
+#CFLAGS += $(addprefix -fno-builtin-,$(BUILTINS_EXCLUDE))
 
 CFLAGS += $(EXTRA_CFLAGS)
