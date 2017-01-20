@@ -320,7 +320,6 @@ void system_process_loop(void)
             NEWORK_FN(manage_ip_config(), (void)0);
             CLOUD_FN(manage_cloud_connection(), (void)0);
             CLOUD_FN(manage_app_auto_update(), (void)0);
-            //STASK_DEBUG("freeMemory = %d", System.freeMemory());
 #ifdef configSETUP_ENABLE
         }
 #endif

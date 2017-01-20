@@ -294,7 +294,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 return RESP_ABORTED; // This means the current command was ABORTED, so retry your command if critical.
         }
         // relax a bit
-        HAL_Delay_Milliseconds(10);
+        HAL_Delay_Milliseconds(20);
     }
     while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
@@ -398,6 +398,11 @@ bool MDMParser::init(void)
 
     // enable AT+IPD dispay ip and port
     sendFormated("AT+CIPDINFO=1\r\n");
+    if (RESP_OK != waitFinalResp())
+        goto failure;
+
+    // set station mode
+    sendFormated("AT+CWMODE_DEF=1\r\n");
     if (RESP_OK != waitFinalResp())
         goto failure;
 
