@@ -31,7 +31,7 @@
 #include "wiring_print.h"
 #include "socket_hal.h"
 
-#define TCPCLIENT_BUF_MAX_SIZE	128
+#define TCPCLIENT_BUF_MAX_SIZE  128
 
 class TCPClient : public Client {
 

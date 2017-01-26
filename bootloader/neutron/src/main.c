@@ -61,7 +61,6 @@ int main(void)
 {
     HAL_System_Config();
     BOOT_DEBUG("boot start...\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_BLACK);
 
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();

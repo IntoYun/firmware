@@ -63,12 +63,12 @@ else
 	$(ST-FLASH) --reset write $< $(PLATFORM_APP_ADDR)
 endif
 
-ifneq ("$(OPENOCD_HOME)","")
-
 program-openocd: $(TARGET_BASE).bin
 	@echo Flashing $< using openocd to address $(PLATFORM_APP_ADDR)
-	$(OPENOCD_HOME)/openocd -f $(OPENOCD_HOME)/tcl/interface/ftdi/particle-ftdi.cfg -f $(OPENOCD_HOME)/tcl/target/stm32f2x.cfg  -c "init; reset halt" -c "flash protect 0 0 11 off" -c "program $< $(PLATFORM_APP_ADDR) reset exit"
-
+ifeq ("$(MODULE)","bootloader")
+	$(OPENOCD) -f interface/stlink-v2.cfg -f target/stm32f4x.cfg  -c "init; reset halt"  -c "program $< $(PLATFORM_BOOT_ADDR) reset exit"
+else
+	$(OPENOCD) -f interface/stlink-v2.cfg -f target/stm32f4x.cfg  -c "init; reset halt"  -c "program $< $(PLATFORM_APP_ADDR) reset exit"
 endif
 
 # Program the core using dfu-util. The core should have been placed
@@ -193,7 +193,7 @@ clean: clean_deps
 	$(VERBOSE)$(RMDIR) $(BUILD_PATH)
 	$(call,echo,)
 
-.PHONY: all postbuild none elf bin hex size program-dfu program-cloud st-flash program-serial
+.PHONY: all postbuild none elf bin hex size program-dfu program-openocd st-flash program-serial
 .SECONDARY:
 
 include $(COMMON_BUILD)/recurse.mk

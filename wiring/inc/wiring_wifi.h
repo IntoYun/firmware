@@ -82,16 +82,16 @@ public:
     }
 
     IPAddress dnsServerIP() {
-    	return IPAddress(wifi_config()->nw.aucDNSServer);
+        return IPAddress(wifi_config()->nw.aucDNSServer);
     }
 
     IPAddress dhcpServerIP() {
-    	return IPAddress(wifi_config()->nw.aucDHCPServer);
+        return IPAddress(wifi_config()->nw.aucDHCPServer);
     }
 
     uint8_t* BSSID(uint8_t* bssid) {
-    		memcpy(bssid, wifi_config()->BSSID, 6);
-    		return bssid;
+        memcpy(bssid, wifi_config()->BSSID, 6);
+        return bssid;
     }
 
     const char *SSID() {
@@ -131,14 +131,6 @@ public:
         network_off(*this, 0, 0, NULL);
     }
 
-    void listen(bool begin=true) {
-        network_listen(*this, begin ? 0 : 1, NULL);
-    }
-
-    bool listening(void) {
-        return network_listening(*this, 0, NULL);
-    }
-
     void setCredentials(const char *ssid) {
         setCredentials(ssid, NULL, UNSEC);
     }
@@ -172,10 +164,6 @@ public:
 
     bool clearCredentials(void) {
         return network_clear_credentials(*this, 0, NULL, NULL);
-    }
-
-    int selectAntenna(WLanSelectAntenna_TypeDef antenna) {
-        return wlan_select_antenna(antenna);
     }
 
     IPAddress resolve(const char* name)
@@ -217,7 +205,7 @@ public:
 
 extern WiFiClass WiFi;
 
-}   // namespace intorobot
+} // namespace intorobot
 
 #endif // Wiring_WiFi
 

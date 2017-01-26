@@ -1,4 +1,5 @@
 #include "hw_config.h"
+#include "ui_hal.h"
 #include "boot_debug.h"
 
 #define ESP8266_USART_QUEUE_SIZE              (1024*20)
@@ -42,7 +43,7 @@ void usart_debug_initial(uint32_t baud)
     HAL_UART_DeInit(&UartHandleDebug);
     HAL_UART_Init(&UartHandleDebug);
 
-    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
+    //set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
 }
 
 void usart_esp8266_initial(uint32_t baud)
@@ -76,7 +77,7 @@ void usart_esp8266_initial(uint32_t baud)
 
     sdkInitialQueue(&USART_Esp8266_Queue, ESP8266_USART_QUEUE_SIZE); //初始化esp8266接受缓冲队列
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
     __HAL_UART_ENABLE_IT(&UartHandleEsp8266, UART_IT_RXNE);
 }
@@ -97,8 +98,9 @@ void HAL_System_Config(void)
 {
     Set_System();
     usart_debug_initial(115200);
-    HAL_RTC_Initial();
     HAL_UI_Initial();
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    HAL_RTC_Initial();
     usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
     ESP8266_GPIO_Initial();
     Esp8266_Reset();

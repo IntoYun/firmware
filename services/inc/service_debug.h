@@ -80,6 +80,8 @@ typedef enum LoggerOutputLevel {
 #ifdef __cplusplus
 extern "C" {
 #endif
+void init_debug_mutex(void);
+
 void log_print_(int level, int line, const char *func, const char *file, const char *msg, ...);
 
 void log_print_simple_(int level, int line, const char *file, const char *msg, ...);

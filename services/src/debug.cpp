@@ -25,9 +25,42 @@
 #include "intorobot_macros.h"
 #include "service_debug.h"
 #include "timer_hal.h"
+#if PLATFORM_THREADING
+#include "concurrent_hal.h"
+#endif
 
 LoggerOutputLevel log_level_at_run_time = LOG_LEVEL_AT_RUN_TIME;
 debug_output_fn debug_output_;
+
+#if PLATFORM_THREADING
+
+#define LOCK()      __debug_lock()
+#define UNLOCK()    __debug_unlock()
+
+static os_mutex_recursive_t debug_mutex = 0;
+
+void init_debug_mutex(void)
+{
+    os_mutex_recursive_create(&debug_mutex);
+}
+
+static void __debug_lock(void)
+{
+    if (debug_mutex)
+        os_mutex_recursive_lock(debug_mutex);
+}
+
+static void __debug_unlock(void)
+{
+    if (debug_mutex)
+        os_mutex_recursive_unlock(debug_mutex);
+}
+#else
+
+#define LOCK()
+#define UNLOCK()
+
+#endif
 
 void set_logger_output(debug_output_fn output, LoggerOutputLevel level)
 {
@@ -40,6 +73,8 @@ void set_logger_output(debug_output_fn output, LoggerOutputLevel level)
 
 void log_print_(int level, int line, const char *func, const char *file, const char *msg, ...)
 {
+    LOCK();
+
     if (level<log_level_at_run_time || !debug_output_)
         return;
 
@@ -70,10 +105,14 @@ void log_print_(int level, int line, const char *func, const char *file, const c
     }
     debug_output_("\r\n");
     va_end(args);
+
+    UNLOCK();
 }
 
 void log_print_simple_(int level, int line, const char *file, const char *msg, ...)
 {
+    LOCK();
+
     if (level<log_level_at_run_time || !debug_output_)
         return;
 
@@ -95,10 +134,14 @@ void log_print_simple_(int level, int line, const char *file, const char *msg, .
     }
     debug_output_("\r\n");
     va_end(args);
+
+    UNLOCK();
 }
 
 void log_print_direct_(int level, void* reserved, const char *msg, ...)
 {
+    LOCK();
+
     if (level<log_level_at_run_time || !debug_output_)
         return;
 
@@ -112,14 +155,20 @@ void log_print_direct_(int level, void* reserved, const char *msg, ...)
         debug_output_("...");
     }
     va_end(args);
+
+    UNLOCK();
+
 }
 
 void log_direct_(const char* s) {
+    LOCK();
 
     if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
         return;
 
     debug_output_(s);
+
+    UNLOCK();
 }
 
 int log_level_active(LoggerOutputLevel level, void* reserved)

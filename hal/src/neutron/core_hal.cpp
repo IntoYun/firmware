@@ -98,6 +98,9 @@ static void application_task_start(void const *argument)
  */
 int main(void)
 {
+#if defined(DEBUG_BUILD)
+    init_debug_mutex();
+#endif
     init_malloc_mutex();
     xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
     vTaskStartScheduler();

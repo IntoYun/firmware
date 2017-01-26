@@ -41,7 +41,7 @@ void usart_debug_initial(uint32_t baud)
     HAL_UART_DeInit(&UartHandleDebug);
     HAL_UART_Init(&UartHandleDebug);
 
-    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
+    //set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
 }
 
 void usart_cellular_initial(uint32_t baud)
@@ -75,7 +75,7 @@ void usart_cellular_initial(uint32_t baud)
 
     sdkInitialQueue(&USART_Cellular_Queue, CELLULAR_USART_QUEUE_SIZE); //初始化cellular接受缓冲队列
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
     __HAL_UART_ENABLE_IT(&UartHandleCellular, UART_IT_RXNE);
 }

@@ -162,7 +162,7 @@ int MDMParser::send(const char* buf, int len)
 {
 #ifdef MODEM_DEBUG
     if (_debugLevel >= 3) {
-        MDM_DEBUG_D("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001);
+        MDM_DEBUG_D("[%010u]:AT send    ", HAL_Timer_Get_Milli_Seconds()-_debugTime);
         dumpAtCmd(buf,len);
     }
 #endif
@@ -202,7 +202,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 (type == TYPE_PLUS)   ? " + ":
                 (type == TYPE_PROMPT) ? " > ":
                 "..." ;
-            MDM_DEBUG_D("%10.3f AT read %s", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001, s);
+            MDM_DEBUG_D("[%010u]:AT read %s", HAL_Timer_Get_Milli_Seconds()-_debugTime, s);
             dumpAtCmd(buf, len);
             (void)s;
         }
@@ -294,7 +294,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 return RESP_ABORTED; // This means the current command was ABORTED, so retry your command if critical.
         }
         // relax a bit
-        HAL_Delay_Milliseconds(20);
+        HAL_Delay_Milliseconds(10);
     }
     while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
@@ -620,7 +620,7 @@ failure:
 int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
 {
 #if 0
-    if (aps && (type == TYPE_UNKNOWN)) {
+    if (aps && (type == TYPE_OK)) {
         if (sscanf(buf, "\r\nSTATUS:%d\r\n", result) == 1)
             /*nothing*/;
     }
@@ -657,8 +657,8 @@ failure:
 int MDMParser::_cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result)
 {
     int rst;
-    if (result && (type == TYPE_UNKNOWN)) {
-        if (sscanf(buf, "STATUS:%d\r\n", &rst) == 1) {
+    if (result && (type == TYPE_OK)) {
+        if (sscanf(buf, "STATUS:%d", &rst) == 1) {
             *result = (ip_status_t)rst;
         }
     }
@@ -769,7 +769,7 @@ MDM_IP MDMParser::getHostByName(const char* host)
     else {
         LOCK();
         sendFormated("AT+CIPDOMAIN=\"%s\"\r\n", host);
-        if (RESP_OK != waitFinalResp(_cbGetHostByName, &ip, 30*1000))
+        if (RESP_OK != waitFinalResp(_cbGetHostByName, &ip, 5000))
             ip = NOIP;
         UNLOCK();
     }
@@ -1374,6 +1374,7 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             { "+",                                   "\r\n",             TYPE_PLUS          },
             { "> ",                                  NULL,               TYPE_PROMPT        }, // Sockets
             { "\r\nSEND OK\r\n",                     NULL,               TYPE_OK            }, // Sockets
+            { "STATUS:",                             "\r\nOK\r\n",       TYPE_OK            }, // Sockets
         };
         for (int i = 0; i < (int)(sizeof(lutF)/sizeof(*lutF)); i ++) {
             pipe->set(unkn);

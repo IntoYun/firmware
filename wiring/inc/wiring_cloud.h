@@ -231,7 +231,7 @@ class CloudClass: public Print{
         }
 
         // 读取数据点
-        bool readDataPoint(const uint16_t dpID, bool &value)
+        read_datapoint_result_t readDataPoint(const uint16_t dpID, bool &value)
         {
             return intorobotReadDataPointBool(dpID, value);
         }

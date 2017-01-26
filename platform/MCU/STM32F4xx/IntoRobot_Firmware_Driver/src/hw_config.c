@@ -140,6 +140,8 @@ void Set_System(void)
      - Global MSP (MCU Support Package) initialization
     */
     HAL_Init();
+
+    HAL_NVIC_SetPriority(SysTick_IRQn, 13 ,0);
     /* Configure the system clock to 96 MHz */
     SystemClock_Config();
 
