@@ -28,6 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "usbd_core.h"
+#include "platform_config.h"
 #include "service_debug.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -72,7 +73,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
         /* Peripheral interrupt init*/
-        HAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(OTG_FS_IRQn, OTG_FS_IRQ_PRIORITY, 0);
         HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
     }
 }

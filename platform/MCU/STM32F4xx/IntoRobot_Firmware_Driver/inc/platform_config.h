@@ -118,9 +118,9 @@
 #endif
 
 //NVIC Priorities based on NVIC_PriorityGroup_4
-#define SDIO_IRQ_PRIORITY                   0       //??? BCM43362 SDIO Interrupt
+#define USART1_IRQ_PRIORITY                 0       //modem(esp8266) USART1 Interrupt
 #ifdef USE_USB_OTG_FS
-#define OTG_FS_IRQ_PRIORITY                 2       //USB OTG FS Interrupt
+#define OTG_FS_IRQ_PRIORITY                 0       //USB OTG FS Interrupt
 #define OTG_FS_WKUP_IRQ_PRIORITY            2       //USB OTG FS Wakeup Interrupt
 #elif defined USE_USB_OTG_HS
 #define OTG_HS_EP1_IN_IRQ_PRIORITY          2       //USB OTG HS EP1 IN Interrupt
@@ -130,10 +130,8 @@
 #endif
 #define RTC_Alarm_IRQ_PRIORITY              3       //RTC Alarm Interrupt
 #define RTC_WKUP_IRQ_PRIORITY               4       //RTC Seconds Interrupt
-#define USART1_IRQ_PRIORITY                 5       //USART1 Interrupt
-#define USART2_IRQ_PRIORITY                 5       //USART2 Interrupt
 #define TIM2_IRQ_PRIORITY                   6       //TIM2 CC Interrupt(Button Use)
-//BUTTON1_EXTI_IRQ_PRIORITY                 7       //Mode Button Interrupt
+#define USART2_IRQ_PRIORITY                 7       //USART2 Interrupt
 #define EXTI15_10_IRQ_PRIORITY              8       //User Interrupt
 #define EXTI9_5_IRQ_PRIORITY                9       //User Interrupt
 #define EXTI0_IRQ_PRIORITY                  10      //User Interrupt

@@ -168,7 +168,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     HAL_UART_Init(usartMap[serial]->uart_handle);
 
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(usartMap[serial]->usart_int_n, 0x07, 0);
+    HAL_NVIC_SetPriority(usartMap[serial]->usart_int_n, USART2_IRQ_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(usartMap[serial]->usart_int_n);
     __HAL_UART_ENABLE_IT(usartMap[serial]->uart_handle, UART_IT_RXNE);
 
