@@ -47,10 +47,10 @@ static os_mutex_recursive_t usb_serial_mutex;
 
 os_mutex_recursive_t mutex_usb_serial()
 {
-	if (nullptr==usb_serial_mutex) {
-		os_mutex_recursive_create(&usb_serial_mutex);
-	}
-	return usb_serial_mutex;
+    if (nullptr==usb_serial_mutex) {
+        os_mutex_recursive_create(&usb_serial_mutex);
+    }
+    return usb_serial_mutex;
 }
 
 void* system_internal(int item, void* reserved)

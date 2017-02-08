@@ -1,38 +1,36 @@
 /**
  ******************************************************************************
- * @file     : neutron_sensors.cpp
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ */
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  *******************************************************************************/
 #include "wiring_ex_sensor.h"
+#include "wiring_i2c.h"
+#include "service_debug.h"
+
+#define I2C_BUFFER_LEN                          256
+#define C_BMI160_THIRTY_U8X                     (30)
+#define BMI160_I2C_FREQUENCY                    (100*1000)
+#define BMI160_MAG_INTERFACE_OFF_PRIMARY_ON     (0x00)
+#define BMI160_MAG_INTERFACE_ON_PRIMARY_ON      (0x02)
 
 extern struct bmi160_t s_bmi160;
-#define I2C_BUFFER_LEN 256
-#define C_BMI160_THIRTY_U8X		(30)
-#define BMI160_I2C_FREQUENCY (100*1000)
-#define	BMI160_MAG_INTERFACE_OFF_PRIMARY_ON		(0x00)
-#define	BMI160_MAG_INTERFACE_ON_PRIMARY_ON		(0x02)
-
 TwoWire Wire1(HAL_I2C_INTERFACE2);
 
-signed char BMI160_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt)
+int8_t BMI160_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     Wire1.beginTransmission(device_addr);
     Wire1.write(reg_addr);
@@ -50,8 +48,7 @@ signed char BMI160_I2C_bus_read(unsigned char device_addr, unsigned char reg_add
     return 0;
 }
 
-
-signed char BMI160_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt)
+int8_t BMI160_I2C_bus_write(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     int iError = 0;
     Wire1.beginTransmission(device_addr);
@@ -64,10 +61,10 @@ signed char BMI160_I2C_bus_write(unsigned char device_addr, unsigned char reg_ad
     return iError;
 }
 
-void BMI160_delay_msec(BMI160_MDELAY_DATA_TYPE msec) //delay in milliseconds
+//delay in milliseconds
+void BMI160_delay_msec(BMI160_MDELAY_DATA_TYPE msec)
 {
     delay(msec);
-
 }
 
 // BMI160 accelerometer and gyroscope
@@ -86,11 +83,11 @@ void BMI160Sensor::setRange(uint8_t accel_range, uint8_t gyro_range)
     bmi160_set_range(accel_range, gyro_range);
 }
 
-
 void BMI160Sensor::begin(void)
 {
     if(isEnabledFlag)
         return;
+
     Wire1.begin();
     s_bmi160.bus_read = BMI160_I2C_bus_read;
     s_bmi160.bus_write = BMI160_I2C_bus_write;
@@ -145,14 +142,12 @@ void BMI160Sensor::getAccelGyroMagData(int16_t accel[3], int16_t gyro[3], int16_
     getMagData(mag);
 }
 
+#define I2C_ADDR_BMP280             0x76
+#define I2C_CHANNEL_BMP280          1
+#define I2C_FREC_BMP280             100*1000
+#define I2C_BUFFER_LEN              256
 
-#define I2C_ADDR_BMP280	0x76
-#define I2C_CHANNEL_BMP280	1
-#define I2C_FREC_BMP280	100*1000
-#define I2C_BUFFER_LEN 256
-
-
-char BMP280_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt)
+int8_t BMP280_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     Wire1.beginTransmission(device_addr);
     Wire1.write(reg_addr);
@@ -170,8 +165,7 @@ char BMP280_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsig
     return 0;
 }
 
-
-char BMP280_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt)
+int8_t BMP280_I2C_bus_write(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     int iError = 0;
     Wire1.beginTransmission(device_addr);
@@ -184,9 +178,8 @@ char BMP280_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsi
     return iError;
 }
 
-
-
-void BMP280_delay_msec(BMP280_U16_t msec) //delay in milliseconds
+//delay in milliseconds
+void BMP280_delay_msec(BMP280_U16_t msec)
 {
     delay(msec);
 }
@@ -201,10 +194,12 @@ bool BMP280Sensor::isEnabled(void)
 {
     return isEnabledFlag;
 }
+
 void BMP280Sensor::begin(void)
 {
     if (isEnabledFlag)
         return;
+
     Wire1.begin();
     bmp280.bus_read = BMP280_I2C_bus_read;
     bmp280.bus_write = BMP280_I2C_bus_write;
@@ -227,7 +222,6 @@ void BMP280Sensor::getTemperaturePressureData(double& temperature, double& press
 
     temperature  = compensated_temperature_d;
     pressure = compensated_pressure_d;
-
 }
 
 void BMP280Sensor::getAltitudeData(double& alt)
@@ -251,6 +245,7 @@ void LightSensor::begin(void)
 {
     if (isEnabledFlag)
         return;
+
     pinMode(LIGHT_SENSOR_UC, AN_INPUT);
     isEnabledFlag = true;
 }
@@ -317,7 +312,6 @@ void MICSensor::getMICDataToUSBSerial(USBSerial& serialusb)
     }
 }
 
-
 BMI160Sensor BMI160;
 BMP280Sensor BMP280;
 LightSensor  lightSensor;
@@ -337,17 +331,18 @@ void NeutronSensors::setBMI160Range(uint8_t accel_range, uint8_t gyro_range)
 {
     BMI160.setRange(accel_range, gyro_range);
 }
+
 void NeutronSensors::begin(void)
 {
     if (isEnabledFlag)
         return;
+
     BMI160.begin();
     BMP280.begin();
     lightSensor.begin();
-    micSensor.begin();
+    //micSensor.begin();
     isEnabledFlag = true;
 }
-
 
 // BMI160 and BMM150 sensor
 void NeutronSensors::getAccelData(int16_t accel[3])
@@ -363,7 +358,6 @@ void NeutronSensors::getGyroData(int16_t gyro[3])
 void NeutronSensors::getMagData(int16_t mag[3])
 {
     BMI160.getMagData(mag);
-
 }
 
 void NeutronSensors::getAccelGyroData(int16_t accel[3], int16_t gyro[3])
@@ -405,7 +399,6 @@ void NeutronSensors::getMICDataToUSBSerial(USBSerial& serialusb)
 {
     micSensor.getMICDataToUSBSerial(serialusb);
 }
-
 
 // All Sernsors
 void NeutronSensors::getAllDataExceptMic(int16_t accel[3], int16_t gyro[3], int16_t mag[3], double& temperature, double& pressure, double& alt, uint16_t& lightData)

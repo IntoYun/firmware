@@ -39,7 +39,6 @@ struct SerialUSBDebugOutput
     {
         SerialUSB.print(msg);
     }
-
 };
 #endif
 
@@ -56,7 +55,6 @@ struct SerialDebugOutput
     {
         Serial.print(msg);
     }
-
 };
 
 #ifdef configWIRING_USARTSERIAL1_ENABLE
@@ -72,7 +70,6 @@ struct Serial1DebugOutput
     {
         Serial1.print(msg);
     }
-
 };
 #endif
 #endif

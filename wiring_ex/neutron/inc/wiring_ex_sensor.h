@@ -1,27 +1,22 @@
 /**
  ******************************************************************************
- * @file     : neutron_sensors.h
- * @author   : robin
- * @version  : V1.0.0
- * @date     : 6-December-2014
- * @brief    :
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
+
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
  */
+
 #ifndef WIRING_EX_SENSOR_H_
 #define WIRING_EX_SENSOR_H_
 
@@ -35,21 +30,20 @@ extern "C"
 #include "BMP280.h"
 #include "lib_mic_hal.h"
 
-#include "wiring_i2c.h"
 #include "wiring.h"
 #include "wiring_usartserial.h"
 #include "wiring_usbserial.h"
 
 extern struct bmi160_t s_bmi160;
-#define I2C_BUFFER_LEN 256
-#define C_BMI160_THIRTY_U8X		(30)
-#define BMI160_I2C_FREQUENCY (100*1000)
-#define	BMI160_MAG_INTERFACE_OFF_PRIMARY_ON		(0x00)
-#define	BMI160_MAG_INTERFACE_ON_PRIMARY_ON		(0x02)
-signed char BMI160_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
-signed char BMI160_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
-void BMI160_delay_msec(BMI160_MDELAY_DATA_TYPE msec); //delay in milliseconds
+#define I2C_BUFFER_LEN                          256
+#define C_BMI160_THIRTY_U8X                     (30)
+#define BMI160_I2C_FREQUENCY                    (100*1000)
+#define BMI160_MAG_INTERFACE_OFF_PRIMARY_ON     (0x00)
+#define BMI160_MAG_INTERFACE_ON_PRIMARY_ON      (0x02)
 
+//signed char BMI160_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
+//signed char BMI160_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
+//void BMI160_delay_msec(BMI160_MDELAY_DATA_TYPE msec); //delay in milliseconds
 
 // BMI160 accelerometer and gyroscope
 class BMI160Sensor
@@ -64,16 +58,14 @@ class BMI160Sensor
         void begin(void);
         void getAccelData(int16_t accel[3]);
         void getGyroData(int16_t gyro[3]);
-        void getMagData(int16_t mag[3]);// BMM150 magnetormeter
+        void getMagData(int16_t mag[3]);        // BMM150 magnetormeter
         void getAccelGyroData(int16_t accel[3], int16_t gyro[3]);
         void getAccelGyroMagData(int16_t accel[3], int16_t gyro[3], int16_t mag[3]);
 };
 
-
-
-char BMP280_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
-char BMP280_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
-void BMP280_delay_msec(BMP280_U16_t msec); //delay in milliseconds
+//char BMP280_I2C_bus_read(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
+//char BMP280_I2C_bus_write(unsigned char device_addr, unsigned char reg_addr,unsigned char *reg_data, unsigned char cnt);
+//void BMP280_delay_msec(BMP280_U16_t msec); //delay in milliseconds
 
 // BMP280 barometer
 class BMP280Sensor
@@ -119,12 +111,10 @@ class MICSensor
         void getMICDataToSerial(USARTSerial& serial);
 };
 
-
 class NeutronSensors
 {
     private:
         bool isEnabledFlag;
-
 
     public:
         NeutronSensors();
@@ -132,7 +122,6 @@ class NeutronSensors
         void begin(void);
 
         // BMI160 and BMM150 sensor
-
         void setBMI160Range(uint8_t accel_range, uint8_t gyro_range);
         void getAccelData(int16_t accel[3]);
         void getGyroData(int16_t gyro[3]);
