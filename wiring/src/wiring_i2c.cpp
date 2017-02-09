@@ -51,13 +51,11 @@ void TwoWire::stretchClock(bool stretch)
 
 void TwoWire::begin(void)
 {
-    SINGLE_THREADED_SECTION();
     HAL_I2C_Begin(_i2c, I2C_MODE_MASTER, 0x00, NULL);
 }
 
 void TwoWire::begin(uint8_t address)
 {
-    SINGLE_THREADED_SECTION();
     HAL_I2C_Begin(_i2c, I2C_MODE_SLAVE, address, NULL);
 }
 
@@ -68,13 +66,11 @@ void TwoWire::begin(int address)
 
 void TwoWire::end()
 {
-    SINGLE_THREADED_SECTION();
     HAL_I2C_End(_i2c, NULL);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop)
 {
-    SINGLE_THREADED_SECTION();
     uint8_t result = HAL_I2C_Request_Data(_i2c, address, quantity, sendStop, NULL);
     return result;
 }
@@ -96,7 +92,6 @@ uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop)
 
 void TwoWire::beginTransmission(uint8_t address)
 {
-    SINGLE_THREADED_SECTION();
     HAL_I2C_Begin_Transmission(_i2c, address, NULL);
 }
 
@@ -120,7 +115,6 @@ void TwoWire::beginTransmission(int address)
 //
 uint8_t TwoWire::endTransmission(uint8_t sendStop)
 {
-    SINGLE_THREADED_SECTION();
     return HAL_I2C_End_Transmission(_i2c, sendStop, NULL);
 }
 
@@ -205,7 +199,6 @@ bool TwoWire::isEnabled()
 #include "wiring_ticks.h"
 void TwoWire::reset()
 {
-    SINGLE_THREADED_SECTION();
     pin_t _SCA;
     pin_t _SCL;
 

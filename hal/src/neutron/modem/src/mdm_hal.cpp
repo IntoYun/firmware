@@ -60,7 +60,7 @@ extern "C"
 /* Private macro ------------------------------------------------------------*/
 
 #define PROFILE         "0"   //!< this is the psd profile used
-#define MAX_SIZE        1024  //!< max expected messages (used with RX)
+#define MAX_SIZE        2048  //!< max expected messages (used with RX)
 #define USO_MAX_WRITE   1024  //!< maximum number of bytes to write to socket (used with TX)
 // num sockets
 #define NUMSOCKETS      ((int)(sizeof(_sockets)/sizeof(*_sockets)))
@@ -120,6 +120,8 @@ static void dumpAtCmd(const char* buf, int len)
 /* Private variables --------------------------------------------------------*/
 
 MDMParser* MDMParser::inst;
+int MDMParser::_aplisttotalcount;
+int MDMParser::_aplistindex;
 
 /* Extern variables ---------------------------------------------------------*/
 
@@ -135,7 +137,7 @@ MDMParser::MDMParser(void)
 
     _init      = false;
 
-    _aplisttotalcount  = 0;
+    _aplisttotalcount = 0;
     _aplistindex = 0;
 
     _cancel_all_operations = false;
@@ -262,10 +264,10 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                     else
                         _downnetfile_status = DEALSTATUS_FAIL;
                 }
-            } // end == TYPE_PLUS
+            }
             else if (type == TYPE_SMARTCONFIG) {
                 _smartconfig_status = DEALSTATUS_SUCCESS;
-            } // end == TYPE_SMARTCONFIG
+            }
             else if (type == TYPE_CONNECTCLOSTED) {
                 if ((sscanf(buf, "%d", &sk) == 1)) {
                     socket = _findSocket(sk);
@@ -273,8 +275,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                         _sockets[socket].connected = 0;
                     }
                 }
-            }// end == TYPE_CONNECTCLOSTED
-
+            }
             /*******************************************/
             if (cb) {
                 int len = LENGTH(ret);
@@ -294,9 +295,8 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 return RESP_ABORTED; // This means the current command was ABORTED, so retry your command if critical.
         }
         // relax a bit
-        HAL_Delay_Milliseconds(10);
-    }
-    while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
+        //HAL_Delay_Milliseconds(10);
+    }while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
     return WAIT;
 }
@@ -533,7 +533,7 @@ int MDMParser::_cbGetAddress(int type, const char* buf, int len, wifi_addr_t* ad
     return WAIT;
 }
 
-int MDMParser::getAddress(wifi_addr_t *addr)
+bool MDMParser::getAddress(wifi_addr_t *addr)
 {
     bool ok = false;
     LOCK();
@@ -619,15 +619,60 @@ failure:
 
 int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
 {
-#if 0
-    if (aps && (type == TYPE_OK)) {
-        if (sscanf(buf, "\r\nSTATUS:%d\r\n", result) == 1)
-            /*nothing*/;
+    char bssid_str[32] = "";
+    uint8_t bssid[6];
+    uint8_t security;
+    uint8_t channel;
+    int rssi;        // when scanning
+
+    if ((type == TYPE_PLUS) && aps) {
+        if(_aplistindex < _aplisttotalcount)
+        {
+            strtok(buf, "(),\""); // Ignore +CWLAP:
+            aps[_aplistindex].security = atoi(strtok(NULL, "(),\""));
+            strncpy(aps[_aplistindex].ssid, strtok(NULL, "(),\""), 31);
+            aps[_aplistindex].ssid_len = strlen(aps[_aplistindex].ssid);
+            aps[_aplistindex].rssi = atoi(strtok(NULL, "(),\""));
+            strncpy(bssid_str, strtok(NULL, "(),\""), 31);
+            aps[_aplistindex].channel = atoi(strtok(NULL, "(),\""));
+            sscanf(bssid_str, "" MACSTR "", &bssid[0],&bssid[1],&bssid[2],&bssid[3],&bssid[4],&bssid[5]);
+            memcpy(aps[_aplistindex].bssid, bssid, 6);
+            _aplistindex++;
+        }
+        //以下这种方法不知道为什么获取ssid和rssi错误，后续需要查找原因。
+        /*
+           char ssid[32] = "";
+           char bssid_str[32] = "";
+           uint8_t bssid[6];
+           uint8_t security;
+           uint8_t channel;
+           int rssi;        // when scanning
+
+           if (sscanf(buf, "+CWLAP:(%d,\"%32[^\"]\",%d,\"" MACSTR "\",%d)", &security, ssid, &rssi, &bssid[0],\
+           &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &channel) == 10)
+           {
+           if(_aplistindex < _aplisttotalcount)
+           {
+           strcpy(aps[_aplistindex].ssid, ssid);
+           aps[_aplistindex].ssid_len = strlen(ssid);
+           memcpy(aps[_aplistindex].bssid, bssid, 6);
+           aps[_aplistindex].security = security;
+           aps[_aplistindex].channel = channel;
+           aps[_aplistindex].rssi = rssi;
+           DEBUG_D("aps[%d].ssid = %s \r\n", _aplistindex, ssid);
+           DEBUG_D("aps[%d].ssidLength = %d \r\n", _aplistindex, aps[_aplistindex].ssid_len);
+           DEBUG_D("aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x\r\n", _aplistindex, aps[_aplistindex].bssid[0],\
+           aps[_aplistindex].bssid[1],aps[_aplistindex].bssid[2],aps[_aplistindex].bssid[3],aps[_aplistindex].bssid[4],aps[_aplistindex].bssid[5]);
+           DEBUG_D("aps[%d].security = %d \r\n", _aplistindex, aps[_aplistindex].security);
+           DEBUG_D("aps[%d].channel = %d \r\n", _aplistindex, aps[_aplistindex].channel);
+           DEBUG_D("aps[%d].rssi = %d \r\n", _aplistindex, aps[_aplistindex].rssi);
+           _aplistindex++;
+           }
+           }
+           */
     }
-#endif
     return WAIT;
 }
-
 
 int MDMParser::apScan(wifi_ap_t* aps, size_t aps_count)
 {
@@ -643,9 +688,10 @@ int MDMParser::apScan(wifi_ap_t* aps, size_t aps_count)
             goto failure;
 
         sendFormated("AT+CWLAP\r\n");
-        if (RESP_OK == waitFinalResp(_cbApScan, aps)){
+        if (RESP_OK == waitFinalResp(_cbApScan, aps, 10000)){
             result = _aplistindex;
         }
+        DEBUG_D("result = %d \r\n", result);
     }
     UNLOCK();
     return result;
@@ -692,7 +738,7 @@ int MDMParser::_cbGetWifiInfo(int type, const char* buf, int len, wifi_info_t *w
     return WAIT;
 }
 
-int MDMParser::getWifiInfo(wifi_info_t *wifiInfo)
+bool MDMParser::getWifiInfo(wifi_info_t *wifiInfo)
 {
     bool ok = false;
     LOCK();

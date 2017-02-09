@@ -62,6 +62,7 @@ typedef enum {
 
 typedef struct {
    char ssid[33];
+   uint8_t ssid_len;
    uint8_t bssid[6];
    uint8_t security;
    uint8_t channel;

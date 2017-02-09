@@ -20,8 +20,7 @@
 #ifndef WIRING_THREAD_H_
 #define WIRING_THREAD_H_
 
-#if 0
-//#if PLATFORM_THREADING
+#if PLATFORM_THREADING
 
 #include "concurrent_hal.h"
 #include <stddef.h>
@@ -105,75 +104,75 @@ private:
 
 class Mutex
 {
-	os_mutex_t handle_;
-public:
-	/**
-	 * Creates a shared mutex from an existing handle.
-	 * This is mainly used to share mutexes between dynamically linked modules.
-	 */
-	Mutex(os_mutex_t handle) : handle_(handle) {}
+    os_mutex_t handle_;
+    public:
+    /**
+     * Creates a shared mutex from an existing handle.
+     * This is mainly used to share mutexes between dynamically linked modules.
+     */
+    Mutex(os_mutex_t handle) : handle_(handle) {}
 
-	/**
-	 * Creates a new mutex.
-	 */
-	Mutex() : handle_(nullptr)
-	{
-		os_mutex_create(&handle_);
-	}
+    /**
+     * Creates a new mutex.
+     */
+    Mutex() : handle_(nullptr)
+    {
+        os_mutex_create(&handle_);
+    }
 
-	void dispose()
-	{
-		if (handle_) {
-			os_mutex_destroy(handle_);
-			handle_ = nullptr;
-		}
-	}
+    void dispose()
+    {
+        if (handle_) {
+            os_mutex_destroy(handle_);
+            handle_ = nullptr;
+        }
+    }
 
-	void lock() { os_mutex_lock(handle_); }
-	bool trylock() { return os_mutex_trylock(handle_)==0; }
-	void unlock() { os_mutex_unlock(handle_); }
+    void lock() { os_mutex_lock(handle_); }
+    bool trylock() { return os_mutex_trylock(handle_)==0; }
+    void unlock() { os_mutex_unlock(handle_); }
 
 };
 
 
 class RecursiveMutex
 {
-	os_mutex_recursive_t handle_;
-public:
-	/**
-	 * Creates a shared mutex.
-	 */
-	RecursiveMutex(os_mutex_recursive_t handle) : handle_(handle) {}
+    os_mutex_recursive_t handle_;
+    public:
+    /**
+     * Creates a shared mutex.
+     */
+    RecursiveMutex(os_mutex_recursive_t handle) : handle_(handle) {}
 
-	RecursiveMutex() : handle_(nullptr)
-	{
-		os_mutex_recursive_create(&handle_);
-	}
+    RecursiveMutex() : handle_(nullptr)
+    {
+        os_mutex_recursive_create(&handle_);
+    }
 
-	void dispose()
-	{
-		if (handle_) {
-			os_mutex_recursive_destroy(handle_);
-			handle_ = nullptr;
-		}
-	}
+    void dispose()
+    {
+        if (handle_) {
+            os_mutex_recursive_destroy(handle_);
+            handle_ = nullptr;
+        }
+    }
 
-	void lock() { os_mutex_recursive_lock(handle_); }
-	bool trylock() { return os_mutex_recursive_trylock(handle_)==0; }
-	void unlock() { os_mutex_recursive_unlock(handle_); }
+    void lock() { os_mutex_recursive_lock(handle_); }
+    bool trylock() { return os_mutex_recursive_trylock(handle_)==0; }
+    void unlock() { os_mutex_recursive_unlock(handle_); }
 
 };
 
 
 class SingleThreadedSection {
-public:
-	SingleThreadedSection() {
-        os_thread_scheduling(false, NULL);
-    }
+    public:
+        SingleThreadedSection() {
+            os_thread_scheduling(false, NULL);
+        }
 
-    ~SingleThreadedSection() {
-        os_thread_scheduling(true, NULL);
-    }
+        ~SingleThreadedSection() {
+            os_thread_scheduling(true, NULL);
+        }
 };
 
 #define SINGLE_THREADED_SECTION()  SingleThreadedSection __cs;

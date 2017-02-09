@@ -17,6 +17,7 @@
   ******************************************************************************
 */
 
+#include<stdlib.h>
 #include "wlan_hal.h"
 #include "parser.h"
 
@@ -149,9 +150,75 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 
 }
 
+WLanSecurityType toSecurityType(uint8_t security)
+{
+    switch(security)
+    {
+        case 0: //AUTH_OPEN
+            return WLAN_SEC_UNSEC;
+            break;
+        case 1: //AUTH_WEP
+            return WLAN_SEC_WEP;
+            break;
+        case 2: //AUTH_WPA_PSK
+            return WLAN_SEC_WPA;
+            break;
+        case 3: //AUTH_WPA2_PSK
+        case 4: //AUTH_WPA_WPA2_PSK
+            return WLAN_SEC_WPA2;
+            break;
+        default:
+            return WLAN_SEC_NOT_SET;
+            break;
+    }
+}
+
+WLanSecurityCipher toCipherType(uint8_t security)
+{
+    switch(security)
+    {
+        case 1: //AUTH_WEP
+            return WLAN_CIPHER_AES;
+            break;
+        case 2: //AUTH_WPA_PSK
+            return WLAN_CIPHER_TKIP;
+            break;
+        default:
+            break;
+    }
+    return WLAN_CIPHER_NOT_SET;
+}
+
+#define WLAN_SCAN_AP_NUM 25
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
-    return -1;
+    //申请内存
+    wifi_ap_t *aps = (wifi_ap_t *)malloc(sizeof(wifi_ap_t)*WLAN_SCAN_AP_NUM);
+    if(aps == NULL)
+    {
+        return -1;
+    }
+
+    int result = esp8266MDM.apScan(aps, WLAN_SCAN_AP_NUM);
+    //填充ap 列表
+    if(result)
+    {
+        WiFiAccessPoint data;
+        for(int n = 0; n < result; n++)
+        {
+            memset(&data, 0, sizeof(WiFiAccessPoint));
+            memcpy(data.ssid, aps[n].ssid, aps[n].ssid_len);
+            data.ssidLength = aps[n].ssid_len;
+            memcpy(data.bssid, aps[n].bssid, 6);
+            data.security = toSecurityType(aps[n].security);
+            data.cipher = toCipherType(aps[n].security);
+            data.channel = aps[n].channel;
+            data.rssi = aps[n].rssi;
+            callback(&data, cookie);
+        }
+    }
+    free(aps);
+    return result;
 }
 
 /**

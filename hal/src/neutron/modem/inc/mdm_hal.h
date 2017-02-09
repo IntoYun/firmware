@@ -91,7 +91,7 @@ public:
     deal_status_t getSmartconfigStatus(void);
 
     /* get local IP and mac address*/
-    int getAddress(wifi_addr_t *addr);
+    bool getAddress(wifi_addr_t *addr);
 
     /* set the sta mac an ap mac */
     bool setMacAddress(const char *staMac, const char *apMac);
@@ -106,7 +106,7 @@ public:
     ip_status_t getIpStatus(void);
 
     /* get wifi info */
-    int getWifiInfo(wifi_info_t *wifiInfo);
+    bool getWifiInfo(wifi_info_t *wifiInfo);
 
     /* join ap */
     wifi_join_ap_t wifiJoinAp(const char *ssid, const char *password);
@@ -396,8 +396,8 @@ protected:
     deal_status_t _downotafile_status;
     deal_status_t _downnetfile_status;
 
-    int _aplisttotalcount;
-    int _aplistindex;
+    static int _aplisttotalcount;
+    static int _aplistindex;
 
     volatile bool _cancel_all_operations;
 #ifdef MODEM_DEBUG
@@ -419,7 +419,7 @@ public:
         \param rxSize the size of the serial rx buffer
         \param txSize the size of the serial tx buffer
     */
-    MDMEsp8266Serial( int rxSize = 1024, int txSize = 10 );
+    MDMEsp8266Serial( int rxSize = 2048, int txSize = 10 );
     //! Destructor
     virtual ~MDMEsp8266Serial(void);
 

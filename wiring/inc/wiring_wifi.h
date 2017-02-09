@@ -24,11 +24,12 @@
 
 #ifdef configWIRING_WIFI_ENABLE
 
+#include <string.h>
 #include "wiring_network.h"
 #include "wlan_hal.h"
 #include "system_network.h"
 #include "inet_hal.h"
-#include <string.h>
+#include "wiring_thread.h"
 
 class IPAddress;
 

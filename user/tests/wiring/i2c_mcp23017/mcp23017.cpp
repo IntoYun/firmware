@@ -19,7 +19,6 @@ test(I2C_MCP23017_doRequestControlNoStopReadNoStop) {
     Wire.setSpeed(400000);
     Wire.begin();
 
-    SINGLE_THREADED_SECTION();
     // Perform 4 consecutive 1-byte reads without STOPs
     totalCount += doRequest(MCP23017_ADDRESS, 0x00, 1, false, false);
     totalCount += doRequest(MCP23017_ADDRESS, 0x01, 1, false, false);
@@ -45,7 +44,6 @@ test(I2C_MCP23017_doRequestControlStopReadStop) {
     Wire.setSpeed(400000);
     Wire.begin();
 
-    SINGLE_THREADED_SECTION();
     // Perform 4 consecutive 1-byte reads with STOP after control sequence
     // and STOP after read
     totalCount += doRequest(MCP23017_ADDRESS, 0x00, 1, true, true);
@@ -75,7 +73,6 @@ test(I2C_MCP23017_doRequestControlNoStopReadStop) {
     Wire.setSpeed(400000);
     Wire.begin();
 
-    SINGLE_THREADED_SECTION();
     // Perform 4 consecutive 1-byte reads with repeated START after control sequence
     // and STOP after read
     totalCount += doRequest(MCP23017_ADDRESS, 0x00, 1, false, true);
@@ -106,7 +103,6 @@ test(I2C_MCP23017_doRequestControlStopReadNoStop) {
     Wire.setSpeed(400000);
     Wire.begin();
 
-    SINGLE_THREADED_SECTION();
     // Perform 4 consecutive 1-byte reads with repeated START after control sequence
     // and STOP after read
     totalCount += doRequest(MCP23017_ADDRESS, 0x00, 1, true, false);
