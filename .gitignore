@@ -7,7 +7,7 @@
 Debug/*
 
 # Release 文件夹
-Release/*
+#Release/*
 
 # 编译过程文件
 *.map
@@ -41,6 +41,10 @@ tools/stlink
 #用户例子
 user/src/*
 user/src/application.ino
+
+#发布
+release/release-package
+release/release-online-program
 
 # tags
 tags
