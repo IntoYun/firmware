@@ -31,7 +31,8 @@ SDK_QUEUE Usart_Rx_Queue_A0A1;
 typedef enum USART_Num_Def {
     USART_A0_A1 = 0,
     USART_D0_D1
-};
+}USART_Num_Def;
+
 
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
 
@@ -70,7 +71,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },                                // USART 2
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },        // USART 2
     { USART3, GPIO_AF7_USART3, USART3_IRQn, TX, RX }         // USART 1
 };
 

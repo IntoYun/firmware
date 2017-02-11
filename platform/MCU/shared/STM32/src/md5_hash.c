@@ -5,7 +5,7 @@
  * This software may be distributed under the terms of the BSD license.
  * See README for more details.
  */
-
+#include <string.h>
 #include "md5_hash.h"
 
 

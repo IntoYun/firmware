@@ -24,10 +24,10 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "i2c_hal.h"
 #include "gpio_hal.h"
-#include "stm32f1xx.h"
-#include "service_debug.h"
+#include "timer_hal.h"
 
 /* Private define ------------------------------------------------------------*/
 // XXX: Change

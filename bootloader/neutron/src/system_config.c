@@ -1,5 +1,7 @@
 #include "hw_config.h"
+#include "rtc_hal.h"
 #include "ui_hal.h"
+#include "eeprom_hal.h"
 #include "boot_debug.h"
 
 #define ESP8266_USART_QUEUE_SIZE              (1024*20)
@@ -94,19 +96,6 @@ void HAL_USART1_Esp8266_Handler(UART_HandleTypeDef *huart)
     }
 }
 
-void HAL_System_Config(void)
-{
-    Set_System();
-    usart_debug_initial(115200);
-    HAL_UI_Initial();
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
-    HAL_RTC_Initial();
-    usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
-    ESP8266_GPIO_Initial();
-    Esp8266_Reset();
-    HAL_EEPROM_Init();   //初始化eeprom区
-}
-
 void ESP8266_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
@@ -132,6 +121,19 @@ void Esp8266_Reset(void)
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
     HAL_Delay(200);
     HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+}
+
+void HAL_System_Config(void)
+{
+    Set_System();
+    usart_debug_initial(115200);
+    HAL_UI_Initial();
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    HAL_RTC_Initial();
+    usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
+    ESP8266_GPIO_Initial();
+    Esp8266_Reset();
+    HAL_EEPROM_Init();   //初始化eeprom区
 }
 
 void Esp8266_Enter_UpdateMode(void)

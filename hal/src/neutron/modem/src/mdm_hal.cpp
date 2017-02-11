@@ -628,7 +628,7 @@ int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
     if ((type == TYPE_PLUS) && aps) {
         if(_aplistindex < _aplisttotalcount)
         {
-            strtok(buf, "(),\""); // Ignore +CWLAP:
+            strtok((char *)buf, "(),\""); // Ignore +CWLAP:
             aps[_aplistindex].security = atoi(strtok(NULL, "(),\""));
             strncpy(aps[_aplistindex].ssid, strtok(NULL, "(),\""), 31);
             aps[_aplistindex].ssid_len = strlen(aps[_aplistindex].ssid);

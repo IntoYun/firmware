@@ -87,7 +87,7 @@ extern "C"
     }
 }
 
-static void application_task_start(void const *argument)
+static void application_task_start(void *argument)
 {
     HAL_Core_Setup();
     app_setup_and_loop();

@@ -26,6 +26,7 @@
 #include "delay_hal.h"
 #include "hw_config.h"
 #include "watchdog_hal.h"
+#include "timer_hal.h"
 
 /**
  * Updated by HAL_1Ms_Tick()

@@ -21,7 +21,7 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!atom!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=smartLight-default
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!fig!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=blink
+make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=blink
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!lora!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=blink
@@ -34,7 +34,7 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w67!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=smartLight-w67
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!w323!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-#make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=blink
+make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=blank
 
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!l6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=blink

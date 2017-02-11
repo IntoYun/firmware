@@ -18,9 +18,8 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "i2s_hal.h"
-#include "stm32f4xx.h"
-#include "service_debug.h"
 
 #define TOTAL_I2S 2
 // I2Snum_SD_CK
@@ -43,8 +42,8 @@ typedef struct STM32_I2S_Info {
     GPIO_TypeDef* I2S_SK_Port;
     GPIO_TypeDef* I2S_SD_Port;
 
-    uint8_t I2S_SK_Pin;
-    uint8_t I2S_SD_Pin;
+    uint16_t I2S_SK_Pin;
+    uint16_t I2S_SD_Pin;
     uint8_t I2S_AF_Mapping;
     //DMA_HandleTypeDef hdma_tx;
     DMA_HandleTypeDef hdma_rx;

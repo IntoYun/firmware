@@ -39,6 +39,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
+#include "ui_hal.h"
 #include "stm32l1xx_it.h"
 
 

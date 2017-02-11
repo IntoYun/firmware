@@ -3,10 +3,6 @@ PROJECT_ROOT = .
 COMMON_BUILD=build
 BUILD_PATH_BASE=$(COMMON_BUILD)/target
 
-ifdef INTOROBOT_PRODUCT_ID
-PRODUCT_ID=$(INTOROBOT_PRODUCT_ID)
-endif
-
 include $(COMMON_BUILD)/platform-id.mk
 
 ifeq ($(PLATFORM_BOOTLOADER),1)
@@ -14,11 +10,7 @@ MAKE_DEPENDENCIES += bootloader
 endif
 MAKE_DEPENDENCIES += main
 
-ifdef PRODUCT_ID
-msg_ext =, product ID: $(PRODUCT_ID)
-endif
-
-msg = Building firmware for $(PRODUCT_DESC), platform ID: $(PLATFORM_ID)$(msg_ext)
+msg = Building firmware for $(PRODUCT_DESC), platform ID: $(PLATFORM_ID)
 
 $(info $(msg))
 

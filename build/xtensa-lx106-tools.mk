@@ -18,7 +18,7 @@ else
 CFLAGS += -O0
 endif
 
-CFLAGS += -g -w -mlongcalls -mtext-section-literals -falign-functions=4 -MMD -ffunction-sections -fdata-sections
+CFLAGS += -g -w -mlongcalls -mtext-section-literals -Wfatal-errors -falign-functions=4 -MMD -ffunction-sections -fdata-sections
 
 CONLYFLAGS += -Wpointer-arith -Wno-implicit-function-declaration -Wl,-EL -fno-inline-functions -nostdlib -std=gnu99
 
@@ -33,8 +33,8 @@ FLASH_MODE ?= qio
 FLASH_SPEED ?= 40
 
 # Upload parameters
-UPLOAD_SPEED ?= 230400
-#UPLOAD_SPEED ?= 921600
+#UPLOAD_SPEED ?= 230400
+UPLOAD_SPEED ?= 921600
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -43,8 +43,8 @@ SUDO ?= sudo
 endif
 
 ifeq ($(UNAME_S),Darwin)
-UPLOAD_PORT ?= /dev/cu.usbmodem1411
-#UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
+#UPLOAD_PORT ?= /dev/cu.usbmodem1411
+UPLOAD_PORT ?= /dev/cu.SLAB_USBtoUART
 endif
 
 UPLOAD_VERB ?= -v

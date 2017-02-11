@@ -79,7 +79,7 @@ void log_print_(int level, int line, const char *func, const char *file, const c
         return;
 
     char _buffer[MAX_DEBUG_MESSAGE_LENGTH];
-    static char * levels[] = {
+    static const char * levels[] = {
         "",
         "LOG  ",
         "DEBUG",

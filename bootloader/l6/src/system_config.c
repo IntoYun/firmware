@@ -1,4 +1,5 @@
 #include "hw_config.h"
+#include "rtc_hal.h"
 
 UART_HandleTypeDef UartHandleDebug;
 

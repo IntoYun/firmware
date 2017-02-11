@@ -1,4 +1,7 @@
 #include "hw_config.h"
+#include "rtc_hal.h"
+#include "ui_hal.h"
+#include "eeprom_hal.h"
 #include "boot_debug.h"
 
 #define CELLULAR_USART_QUEUE_SIZE              1024
@@ -92,18 +95,6 @@ void HAL_USART1_Cellular_Handler(UART_HandleTypeDef *huart)
     }
 }
 
-void HAL_System_Config(void)
-{
-    Set_System();
-    usart_debug_initial(115200);
-    HAL_RTC_Initial();
-    HAL_UI_Initial();
-    usart_cellular_initial(115200);  //通讯采取115200波特率
-    Cellular_GPIO_Initial();
-    //Cellular_Reset();
-    HAL_EEPROM_Init();   //初始化eeprom区
-}
-
 void Cellular_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
@@ -142,6 +133,18 @@ void Cellular_Reset(void)
     HAL_Delay(200);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);  //reset
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET); //PWR_KEY
+}
+
+void HAL_System_Config(void)
+{
+    Set_System();
+    usart_debug_initial(115200);
+    HAL_RTC_Initial();
+    HAL_UI_Initial();
+    usart_cellular_initial(115200);  //通讯采取115200波特率
+    Cellular_GPIO_Initial();
+    //Cellular_Reset();
+    HAL_EEPROM_Init();   //初始化eeprom区
 }
 
 system_tick_t millis(void)

@@ -18,8 +18,8 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "i2s_hal.h"
-#include "service_debug.h"
 
 /*
  * @brief Initial the I2S, include setup which I2S used, and some flags.

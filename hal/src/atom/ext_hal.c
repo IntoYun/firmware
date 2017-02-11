@@ -16,6 +16,7 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
+#include "hw_config.h"
 #include "ext_hal.h"
 
 void disable_irq(void)
@@ -25,5 +26,4 @@ void disable_irq(void)
 void enable_irq(void)
 {
     __enable_irq();
-    
 }

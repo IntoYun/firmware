@@ -74,7 +74,7 @@ class CloudClass: public Print{
         bool publish(const char *topic, double value)
         {
             //char buf[32];
-            //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
+            //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
             return publish(topic, String(value).c_str());
         }
 
@@ -83,7 +83,7 @@ class CloudClass: public Print{
             return publish(topic, value.c_str());
         }
 
-        bool publish(const char *topic, char *value)
+        bool publish(const char *topic, const char *value)
         {
             return publish(topic, (uint8_t *)value, strlen(value), 0, true);
         }
@@ -135,19 +135,19 @@ class CloudClass: public Print{
             addDataPointBool(dpID, permission, false, "", 0);
         }
 
-        void addDataPointBool(const uint16_t dpID, const char *permission, bool value)
+        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value)
         {
             addDataPointBool(dpID, permission, value, "", 0);
         }
 
-        void addDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy)
+        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy)
         {
             addDataPointBool(dpID, permission, value, policy, 0);
         }
         // lapse 单位为秒
-        void addDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
+        void addDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse)
         {
-            intorobotAddDataPointBool(dpID, permission, value, policy, lapse);
+            intorobotAddDataPointBool(dpID, permission, (bool)value, policy, lapse);
         }
 
         void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution)
@@ -155,17 +155,17 @@ class CloudClass: public Print{
             addDataPointNumber(dpID, permission, minValue, maxValue, resolution, minValue, "", 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value)
         {
             addDataPointNumber(dpID, permission, minValue, maxValue, resolution, value, "", 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy)
         {
             addDataPointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, 0);
         }
 
-        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse)
+        void addDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy, const int lapse)
         {
             intorobotAddDataPointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, lapse);
         }
@@ -175,17 +175,17 @@ class CloudClass: public Print{
             addDataPointEnum(dpID, permission, 0, "", 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, int value)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value)
         {
             addDataPointEnum(dpID, permission, value, "", 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy)
         {
             addDataPointEnum(dpID, permission, value, policy, 0);
         }
 
-        void addDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
+        void addDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse)
         {
             intorobotAddDataPointEnum(dpID, permission, value, policy, lapse);
         }
@@ -195,17 +195,17 @@ class CloudClass: public Print{
             addDataPointString(dpID, permission, "", "", 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, char *value)
+        void addDataPointString(const uint16_t dpID, const char *permission, const char *value)
         {
             addDataPointString(dpID, permission, value, "", 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy)
+        void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy)
         {
             addDataPointString(dpID, permission, value, policy, 0);
         }
 
-        void addDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
+        void addDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse)
         {
             intorobotAddDataPointString(dpID, permission, value, policy, lapse);
         }
@@ -215,17 +215,17 @@ class CloudClass: public Print{
             addDataPointBinary(dpID, permission, NULL, 0, "", 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, const uint16_t len)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len)
         {
             addDataPointBinary(dpID, permission, value, len, "", 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy)
         {
             addDataPointBinary(dpID, permission, value, len, policy, 0);
         }
 
-        void addDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
+        void addDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse)
         {
             intorobotAddDataPointBinary(dpID, permission, value, len, policy, lapse);
         }
@@ -332,7 +332,7 @@ class CloudClass: public Print{
 
         void syncTime(void)
         {
-            return intorobot_sync_time();
+            intorobot_sync_time();
         }
 
         bool connected(void) { return intorobot_cloud_flag_connected(); }

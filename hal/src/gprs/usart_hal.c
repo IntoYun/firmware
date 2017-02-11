@@ -32,7 +32,7 @@ SDK_QUEUE Usart_Rx_Queue_D6D7;
 typedef enum USART_Num_Def {
     USART_A2_A3 = 0,
     USART_D6_D7
-};
+}USART_Num_Def;
 
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
 

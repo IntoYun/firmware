@@ -34,7 +34,7 @@
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
 volatile uint32_t TimingLED;
-volatile rgb_info_t rgb_info;
+rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
     uint8_t red,green,blue;

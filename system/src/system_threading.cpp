@@ -27,7 +27,7 @@
 static TaskHandle_t  system_thread_handle;
 #define SYSTEM_TREAD_STACK_SIZE         6144
 
-static void system_task_start(void const *argument)
+static void system_task_start(void *argument)
 {
     system_process_loop();
 }

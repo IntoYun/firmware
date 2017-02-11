@@ -18,10 +18,10 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "usb_hal.h"
-#include <stdint.h>
-#include "service_debug.h"
 #include "hw_config.h"
+#include "usb_hal.h"
+#include "sdkqueue.h"
+#include "delay_hal.h"
 
 /* Private typedef -----------------------------------------------------------*/
 #ifdef configHAL_USB_CDC_ENABLE
@@ -63,7 +63,7 @@ void USB_USART_Initial(uint32_t baudRate)
             USBD_Start(&USBD_Device);
 
             USB_Cable_Config(DISABLE);
-            delay(100);
+            HAL_Delay_Milliseconds(100);
             USB_Cable_Config(ENABLE);
         }
         //LineCoding.bitrate will be overwritten by USB Host

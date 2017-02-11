@@ -21,7 +21,6 @@
 #include "hw_config.h"
 #include "watchdog_hal.h"
 #include "concurrent_hal.h"
-//#include "timer_hal.h"
 
 
 /**

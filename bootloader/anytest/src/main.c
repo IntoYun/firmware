@@ -27,6 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
+#include "system_config.h"
 #include "boot_mode.h"
 #include "boot_debug.h"
 

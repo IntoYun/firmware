@@ -26,10 +26,13 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #include "radio.h"
 #include "sx1278.h"
 #include "timer.h"
+#include "utilities.h"
 
 #include "LoRaMacCrypto.h"
 #include "LoRaMac.h"
 #include "LoRaMacTest.h"
+
+#include "service_debug.h"
 
 /*!
  * Maximum PHY layer payload size
@@ -898,8 +901,7 @@ static void OnRadioTxDone( void )
         }
         if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
         {
-            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + ACK_TIMEOUT +
-                                             randr( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND ) );
+            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + ACK_TIMEOUT + randr( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND ) );
             TimerStart( &AckTimeoutTimer );
         }
     }

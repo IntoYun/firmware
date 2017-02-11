@@ -6,27 +6,28 @@
  * @date    27-Sept-2014
  * @brief
  ******************************************************************************
-  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
+ Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "servo_hal.h"
+#include "gpio_hal.h"
 #include "pinmap_impl.h"
-#include "service_debug.h"
 
 /* Private macro -------------------------------------------------------------*/
 
@@ -43,11 +44,10 @@
 
 void HAL_Servo_Attach(uint16_t pin)
 {
-    DEBUG("Enter HAL_Servo_Attach...");
     //Map the pin to the appropriate port and pin on the STM32
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-   if(PIN_MAP[pin].timer_peripheral != NULL)
+    if(PIN_MAP[pin].timer_peripheral != NULL)
     {
         /* Common configruation for all channels */
         GPIO_InitTypeDef GPIO_InitStruct;
@@ -107,7 +107,6 @@ void HAL_Servo_Attach(uint16_t pin)
         }
         else if(PIN_MAP[pin].timer_peripheral == TIM4)
         {
-
             __HAL_RCC_TIM4_CLK_ENABLE();
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
@@ -150,10 +149,7 @@ void HAL_Servo_Attach(uint16_t pin)
         TimHandle.Init.ClockDivision     = 0;
         TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
         //TimHandle.Init.RepetitionCounter = 0;
-        if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK)
-        {
-            // Error
-        }
+        HAL_TIM_PWM_Init(&TimHandle);
 
         sConfig.OCMode       = TIM_OCMODE_PWM1;
         sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
@@ -162,30 +158,16 @@ void HAL_Servo_Attach(uint16_t pin)
 
         /* Set the pulse value for channel 1 */
         sConfig.Pulse = 0x00; // no pwm at start point
-        if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
-        {
-            /* Configuration Error */
-            DEBUG("Servo PWM Configuaration Error!");
-        }
+        HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch);
 
         /* Start channel */
-        if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
-        {
-            /* PWM Generation Error */
-            DEBUG("Servo PWM Generation Error!");
-        }
+        HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch);
     }
-    else
-    {
-        // debug error
-        DEBUG("Servo PWM First Error!");
-    }
-
 }
 
 void HAL_Servo_Detach(uint16_t pin)
 {
-   STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     // TIM disable counter
     TIM_HandleTypeDef TimHandle;
     TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
@@ -195,8 +177,6 @@ void HAL_Servo_Detach(uint16_t pin)
 
 void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
-    DEBUG("Enter HAL_Servo_Write_Pulse_Width ...");
-
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     //SERVO_TIM_CCR = pulseWidth * (SERVO_TIM_ARR + 1) * configSERVO_TIM_PWM_FREQ / 1000000;
@@ -215,17 +195,9 @@ void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
     TIM_HandleTypeDef TimHandle;
     TimHandle.Instance = PIN_MAP[pin].timer_peripheral;
 
-    if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
-    {
-        /* Configuration Error */
-        DEBUG("Servo write pulse Configuration Error!");
-    }
+    HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch);
     /* Start channel */
-    if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
-    {
-        /* PWM Generation Error */
-        DEBUG("Servo PWM Generation Error!");
-    }
+    HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch);
 }
 
 uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)

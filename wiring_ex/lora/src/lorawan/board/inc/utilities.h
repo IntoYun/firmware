@@ -18,6 +18,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef MIN
+#undef MAX
 /*!
  * \brief Returns the minimum value betwen a and b
  *

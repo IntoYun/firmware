@@ -10,7 +10,7 @@ include $(COMMON_BUILD)/common-tools.mk
 
 CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32
 
-CFLAGS += -g3 -Os -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -ffunction-sections -fdata-sections -mlongcalls -nostdlib -MMD -fstrict-volatile-bitfields
+CFLAGS += -g3 -Os -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wfatal-errors -ffunction-sections -fdata-sections -mlongcalls -nostdlib -MMD -fstrict-volatile-bitfields
 
 CONLYFLAGS += -std=gnu99
 

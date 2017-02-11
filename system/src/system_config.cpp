@@ -305,7 +305,7 @@ void DeviceConfig::dealCheckWifi(void)
     free(string);
     aJson.deleteItem(root);
 #endif
-#ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
+#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
@@ -366,7 +366,7 @@ void DeviceConfig::dealGetWifiList(void)
         aJson.deleteItem(root);
     }
 #endif
-#ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
+#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
@@ -537,14 +537,14 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* value_Object)
     HAL_PARAMS_Save_Params();
     sendComfirm(200);
 #endif
-#ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
+#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
 
 void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
 {
-#ifdef configWIRING_WIFI_ENABLE || configWIRING_CELLULAR_ENABLE
+#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
     bool flag = false;
 
     //at_mode
@@ -557,7 +557,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
             //device_id  and activation_code
             HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
             HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode(atModeObject->valueint);
+            HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
             HAL_PARAMS_Save_Params();
             flag = true;
         }
@@ -565,7 +565,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
             //device_id  and access_token
             HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
             HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode(atModeObject->valueint);
+            HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
             HAL_PARAMS_Save_Params();
             flag = true;
         }
@@ -639,7 +639,7 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
         sendComfirm(201);
     }
 #endif
-#ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
+#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
     HAL_PARAMS_Save_Params();
@@ -653,7 +653,7 @@ void DeviceConfig::dealRestartNetwork(void)
     WiFi.on();
     sendComfirm(200);
 #endif
-#ifdef configWIRING_CELLULAR_ENABLE || configWIRING_LORA_ENABLE
+#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }

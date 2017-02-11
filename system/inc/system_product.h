@@ -24,16 +24,19 @@
 #include <string.h>
 #include "intorobot_macros.h"
 
-#ifndef PRODUCT_ID
-#define PRODUCT_ID 888000
+#ifndef DEFAULT_PRODUCT_ID
+// TODO 添加例子灯 DEFAULT_PRODUCT_ID
+#define DEFAULT_PRODUCT_ID 888000
 #endif
 
-#ifndef PRODUCT_SECRET
-#define PRODUCT_SECRET 888000
+#ifndef DEFAULT_PRODUCT_SECRET
+// TODO 添加例子灯 DEFAULT_PRODUCT_SECRET
+#define DEFAULT_PRODUCT_SECRET 888000
 #endif
 
-#ifndef PRODUCT_FIRMWARE_VERSION
-#define PRODUCT_FIRMWARE_VERSION (0xffff)
+#ifndef DEFAULT_PRODUCT_FIRMWARE_VERSION
+// TODO 添加例子灯 DEFAULT_PRODUCT_FIRMWARE_VERSION
+#define DEFAULT_PRODUCT_FIRMWARE_VERSION (0xffff)
 #endif
 
 typedef enum
@@ -54,10 +57,10 @@ class IntoRobotProduct
 public:
     IntoRobotProduct()
     {
-        product_firmware_version = PRODUCT_FIRMWARE_VERSION;     //产品程序版本号
+        product_firmware_version = DEFAULT_PRODUCT_FIRMWARE_VERSION;     //产品程序版本号
         product_mode = PRODUCT_MODE_MASTER;                      //产品模式  主模式和从模式
-        strcpy(product_id, stringify(PRODUCT_ID));               //产品ID
-        strcpy(product_secret, stringify(PRODUCT_SECRET));       //产品密钥
+        strcpy(product_id, stringify(DEFAULT_PRODUCT_ID));               //产品ID
+        strcpy(product_secret, stringify(DEFAULT_PRODUCT_SECRET));       //产品密钥
     }
     ~IntoRobotProduct(){}
 

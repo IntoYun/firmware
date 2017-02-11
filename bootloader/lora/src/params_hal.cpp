@@ -9,11 +9,9 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "intorobot_macros.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
-
-
+#include "intorobot_macros.h"
 
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数

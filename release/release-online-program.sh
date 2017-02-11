@@ -33,6 +33,7 @@ RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
 PROJECT_DIR=$RELEASE_DIR/..
 BUILD_DIR=$PROJECT_DIR/build
 RELEASE_ONLINE_PROGRAM_DIR=$RELEASE_DIR/release-online-program/base_intorobot_$SYSTEM_VERSION_STRING
+RELEASE_COMMON_ONLINE_PROGRAM_DIR=$RELEASE_DIR/online-program-common
 
 rm -rf $RELEASE_ONLINE_PROGRAM_DIR
 
@@ -87,7 +88,6 @@ release_online_program_package() {
     cecho "---------------------------------------------------------------------------" $yellow
 
     RELEASE_BOARD_DIR=$RELEASE_ONLINE_PROGRAM_DIR/$1
-    RELEASE_COMMON_ONLINE_PROGRAM_DIR=$RELEASE_DIR/online-program-common
     INC_HAL=$RELEASE_BOARD_DIR/inc/hal
     INC_PLATFORM=$RELEASE_BOARD_DIR/inc/platform
     INC_SERVICES=$RELEASE_BOARD_DIR/inc/services
@@ -155,6 +155,7 @@ release_online_program_package() {
         cp -rf $BUILD_DIR/target/main/platform-$PLATFORM_ID/startup/arm/neutron/* $STARTUP
         # cp linker
         cp -rf $BUILD_DIR/linker/arm/neutron/* $LINKER
+        cp -rf $PROJECT_DIR/newlib_nano/src/custom-nano.specs $LINKER
         # cp platform inc
         cp -rf $PROJECT_DIR/platform/MCU/shared/STM32/inc/* $INC_PLATFORM
         cp -rf $PROJECT_DIR/platform/MCU/STM32F4xx/CMSIS/Include/*  $INC_PLATFORM
@@ -165,12 +166,15 @@ release_online_program_package() {
         cp -rf $PROJECT_DIR/platform/MCU/STM32F4xx/STM32_USB_Device_Library/Class/DFU/Inc/* $INC_PLATFORM
         cp -rf $PROJECT_DIR/platform/MCU/STM32F4xx/STM32_USB_Device_Library/Core/Inc/* $INC_PLATFORM
 
+        cp -rf $PROJECT_DIR/wiring_ex/neutron/src/sensors/inc/* $INC_WIRING_EX
+
         # freeRTOS header files. Todo remove
-        cp -rf $PROJECT_DIR/hal/src/stm32f4xx-share/rtos/FreeRTOSv9.0.0/FreeRTOS/Source/include/* $INC_HAL
-        cp -rf $PROJECT_DIR/hal/src/stm32f4xx-share/rtos/FreeRTOSv9.0.0/FreeRTOS/Source/portable/GCC/ARM_CM4F/*.h $INC_HAL
+        #cp -rf $PROJECT_DIR/hal/src/stm32f4xx-share/rtos/FreeRTOSv9.0.0/FreeRTOS/Source/include/* $INC_HAL
+        #cp -rf $PROJECT_DIR/hal/src/stm32f4xx-share/rtos/FreeRTOSv9.0.0/FreeRTOS/Source/portable/GCC/ARM_CM4F/*.h $INC_HAL
 
         # cp lib
         cp -rf $BUILD_DIR/target/newlib_nano/platform-$PLATFORM_ID/libnewlib_nano.a $LIB
+        cp -rf $PROJECT_DIR/wiring_ex/neutron/src/lib/libPDMFilter_CM4_GCC.a $LIB/
 
     elif [ "$1"x = "nut"x ]; then
         # cp linker
@@ -190,8 +194,6 @@ release_online_program_package() {
         cp $PROJECT_DIR/platform/MCU/ESP8266-Arduino/sdk/lib/*.a $LIB/esp8266
 
     fi
-
-    cp -rf $RELEASE_COMMON_ONLINE_PROGRAM_DIR/* $RELEASE_ONLINE_PROGRAM_DIR
 }
 
 if [ $# != 1 ];then
@@ -212,13 +214,14 @@ case $1 in
         cecho "---------------------------------------------------------------------------" $yellow
         release_online_program_package neutron
         release_online_program_package nut
-        release_online_program_package atom
+        #release_online_program_package atom
         #release_online_program_package fig
         #release_online_program_package lora
 
         #release_online_program_package w67
         #release_online_program_package w323
         #release_online_program_package l6
+        cp -rf $RELEASE_COMMON_ONLINE_PROGRAM_DIR/base_intorobot/* $RELEASE_ONLINE_PROGRAM_DIR
         ;;
 
     clean )
@@ -235,6 +238,7 @@ case $1 in
 
     * )
         release_online_program_package $1
+        cp -rf $RELEASE_COMMON_ONLINE_PROGRAM_DIR/base_intorobot/* $RELEASE_ONLINE_PROGRAM_DIR
         ;;
 esac
 

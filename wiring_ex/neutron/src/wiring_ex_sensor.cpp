@@ -19,7 +19,6 @@
 
 #include "wiring_ex_sensor.h"
 #include "wiring_i2c.h"
-#include "service_debug.h"
 
 #define I2C_BUFFER_LEN                          256
 #define C_BMI160_THIRTY_U8X                     (30)
@@ -147,7 +146,7 @@ void BMI160Sensor::getAccelGyroMagData(int16_t accel[3], int16_t gyro[3], int16_
 #define I2C_FREC_BMP280             100*1000
 #define I2C_BUFFER_LEN              256
 
-int8_t BMP280_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
+char BMP280_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     Wire1.beginTransmission(device_addr);
     Wire1.write(reg_addr);
@@ -165,7 +164,7 @@ int8_t BMP280_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_d
     return 0;
 }
 
-int8_t BMP280_I2C_bus_write(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
+char BMP280_I2C_bus_write(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
     int iError = 0;
     Wire1.beginTransmission(device_addr);

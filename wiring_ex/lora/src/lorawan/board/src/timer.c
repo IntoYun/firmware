@@ -17,6 +17,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <stdio.h>
 #include <stdint.h>
 
+#include "sx1278-board.h"
 #include "timer.h"
 #include "rtc_hal_lora.h"
 #include "stm32l1xx.h"

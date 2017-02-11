@@ -67,7 +67,7 @@ int intorobotDiscoverProperty(const uint16_t dpID)
     return -1;
 }
 
-void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool value, const char *policy, int lapse)
+void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse)
 {
     if (-1 == intorobotDiscoverProperty(dpID))
     {
@@ -79,11 +79,12 @@ void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, bool
     }
 }
 
-void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, double value, const char *policy, int lapse)
+void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy, const int lapse)
 {
     if (-1 == intorobotDiscoverProperty(dpID))
     {
         property_conf* prop;
+        double defaultValue = value;
         // Create property structure
         if(resolution == int(resolution))
         {
@@ -91,13 +92,13 @@ void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, co
             prop->intProperty.minValue = (int)minValue;
             prop->intProperty.maxValue = (int)maxValue;
             prop->intProperty.resolution = (int)resolution;
-            if(value < minValue) {
-                value = minValue;
+            if(defaultValue < minValue) {
+                defaultValue = minValue;
             }
-            else if(value > maxValue) {
-                value = maxValue;
+            else if(defaultValue > maxValue) {
+                defaultValue = maxValue;
             }
-            prop->value = String((int)value);
+            prop->value = String((int)defaultValue);
         }
         else
         {
@@ -105,35 +106,36 @@ void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, co
             prop->floatProperty.minValue = String(minValue, calcDecimalPlaces(resolution)).toDouble();
             prop->floatProperty.maxValue = String(maxValue, calcDecimalPlaces(resolution)).toDouble();
             prop->floatProperty.resolution = resolution;
-            if(value < minValue) {
-                value = minValue;
+            if(defaultValue < minValue) {
+                defaultValue = minValue;
             }
-            else if(value > maxValue) {
-                value = maxValue;
+            else if(defaultValue > maxValue) {
+                defaultValue = maxValue;
             }
-            prop->value = String(value, calcDecimalPlaces(resolution));
+            prop->value = String(defaultValue, calcDecimalPlaces(resolution));
         }
         properties[properties_count] = prop; // Save pointer to scructure
         properties_count++; // count the number of properties
     }
 }
 
-void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, int value, const char *policy, int lapse)
+void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse)
 {
     if (-1 == intorobotDiscoverProperty(dpID))
     {
+        double defaultValue = value;
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
-        if(value < 0) {
-            value = 0;
+        if(defaultValue < 0) {
+            defaultValue = 0;
         }
-        prop->value = String(value);
+        prop->value = String(defaultValue);
         properties[properties_count] = prop; // Save pointer to scructure
         properties_count++; // count the number of properties
     }
 }
 
-void intorobotAddDataPointString(const uint16_t dpID, const char *permission, char *value, const char *policy, int lapse)
+void intorobotAddDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse)
 {
     if (-1 == intorobotDiscoverProperty(dpID))
     {
@@ -145,14 +147,14 @@ void intorobotAddDataPointString(const uint16_t dpID, const char *permission, ch
     }
 }
 
-void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, uint8_t *value, uint16_t len, const char *policy, int lapse)
+void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse)
 {
     if (-1 != intorobotDiscoverProperty(dpID))
     {
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
-        prop->binaryValue = value;
-        prop->binaryLen = len;
+        prop->binaryValue = (uint8_t *)value;
+        prop->binaryLen = (uint16_t)len;
         properties[properties_count] = prop; // Save pointer to scructure
         properties_count++; // count the number of properties
     }
@@ -450,7 +452,7 @@ String intorobotBuildAllPropertyJson(void)
     return PropertyJson;
 }
 
-void intorobotWriteDataPointString(const uint16_t dpID, char* value)
+void intorobotWriteDataPointString(const uint16_t dpID, const char* value)
 {
     int i = intorobotDiscoverProperty(dpID);
 
@@ -511,7 +513,7 @@ void intorobotWriteDataPointString(const uint16_t dpID, char* value)
     }
 }
 
-void intorobotWriteDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t len)
+void intorobotWriteDataPointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len)
 {
 
 }

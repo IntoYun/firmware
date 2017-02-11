@@ -66,6 +66,7 @@ typedef enum USART_Num_Def {
     USART_1 = 1
 } USART_Num_Def;
 
+
 /* Private macro -------------------------------------------------------------*/
 // IS_USART_CONFIG_VALID(config) - returns true for 8 data bit, any flow control, any parity, any stop byte configurations
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)

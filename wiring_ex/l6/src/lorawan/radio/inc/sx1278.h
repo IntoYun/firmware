@@ -15,6 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1278_H__
 #define __SX1278_H__
 
+#include "radio.h"
 #include "sx1278Regs-Fsk.h"
 #include "sx1278Regs-LoRa.h"
 

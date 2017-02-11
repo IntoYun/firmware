@@ -137,9 +137,6 @@ uint16_t HAL_Bootloader_Get_Flag(BootloaderFlag flag);
 
 //Following is currently defined in bootloader/src/core-vx/dfu_hal.c
 //Move the definitions to core_hal.c and add hal as a dependency for bootloader
-int32_t HAL_Core_Backup_Register(uint32_t BKP_DR);
-void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data);
-uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR);
 void HAL_Core_Set_System_Loop_Handler(void (*handler)(void));
 void HAL_SysTick_Handler(void);
 

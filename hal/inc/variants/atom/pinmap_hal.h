@@ -152,7 +152,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D7
 
-#define TOTAL_USARTS    2
+#define TOTAL_USARTS    3
 #define TOTAL_SPIS      2
 #define TOTAL_I2CS      2
 #define TOTAL_CANS      1

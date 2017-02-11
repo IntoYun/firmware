@@ -25,6 +25,8 @@
 #endif
 
 #define INVALID_CASE(c) PANIC(InvalidCase,"Invalid Case %d",(c))
+
+#if 0
 #ifdef UNUSED
 #elif defined(__GNUC__)
 # define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -32,6 +34,7 @@
 # define UNUSED(x) /*@unused@*/ x
 #else
 # define UNUSED(x) x
+#endif
 #endif
 
 #define _CAT(a, b) a ## b

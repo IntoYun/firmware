@@ -1170,7 +1170,7 @@ static void send_ntp_request_packet(IPAddress timeServerIP)
     packetBuffer[14]  = 49;
     packetBuffer[15]  = 52;
     ntp_time_udp.beginPacket(timeServerIP, (int)123); // NTP Server and Port
-    ntp_time_udp.write((char *)packetBuffer, 48);
+    ntp_time_udp.write(packetBuffer, 48);
     ntp_time_udp.endPacket();
 }
 
@@ -1247,12 +1247,13 @@ bool intorobot_device_register(void)
     //计算签名 signature = md5(timestamp + productSecret)
     String tmp = "";
     struct MD5Context ctx;
-    uint8_t md5_calc[16], output[33];
+    uint8_t md5_calc[16];
+    char output[33];
 
     tmp += utc_time;
     tmp += product_details.product_secret;
     MD5Init(&ctx);
-    MD5Update(&ctx, tmp.c_str(), tmp.length());
+    MD5Update(&ctx, (uint8_t *)tmp.c_str(), tmp.length());
     MD5Final(md5_calc, &ctx);
     memset(output, 0, sizeof(output));
     for(int i = 0; i < 16; i++)
@@ -1270,7 +1271,7 @@ bool intorobot_device_register(void)
     http.post(request, response, headers);
     if( 200 == response.status )
     {
-        root = aJson.parse(response.body.c_str());
+        root = aJson.parse((char *)response.body.c_str());
         if (root == NULL)
         {return false;}
 
@@ -1327,12 +1328,13 @@ bool intorobot_device_activate(void)
     //计算签名 signature = md5(timestamp + productSecret)
     String tmp = "";
     struct MD5Context ctx;
-    uint8_t md5_calc[16], output[33];
+    uint8_t md5_calc[16];
+    char output[33];
 
     tmp += utc_time;
     tmp += activation_code;
     MD5Init(&ctx);
-    MD5Update(&ctx, tmp.c_str(), tmp.length());
+    MD5Update(&ctx, (uint8_t *)tmp.c_str(), tmp.length());
     MD5Final(md5_calc, &ctx);
     memset(output, 0, sizeof(output));
     for(int i = 0; i < 16; i++)
@@ -1350,7 +1352,7 @@ bool intorobot_device_activate(void)
     http.post(request, response, headers);
     if( 200 == response.status )
     {
-        root = aJson.parse(response.body.c_str());
+        root = aJson.parse((char *)response.body.c_str());
         if (root == NULL)
         {return false;}
 

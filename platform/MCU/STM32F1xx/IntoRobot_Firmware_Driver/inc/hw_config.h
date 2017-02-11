@@ -36,6 +36,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <math.h>
 #include "platform_config.h"
 #include "sdkqueue.h"
 #include "usbd_cdc_desc.h"

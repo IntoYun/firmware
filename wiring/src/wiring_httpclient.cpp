@@ -39,7 +39,7 @@ void HttpClient::sendHeader(const char* aHeaderName, const char* aHeaderValue)
     stringHeader += ": ";
     stringHeader += aHeaderValue;
     stringHeader += "\r\n";
-    client.write(stringHeader.c_str(), stringHeader.length());
+    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %s", aHeaderName, aHeaderValue);
 }
@@ -52,7 +52,7 @@ void HttpClient::sendHeader(const char* aHeaderName, const int aHeaderValue)
     stringHeader += ": ";
     stringHeader += aHeaderValue;
     stringHeader += "\r\n";
-    client.write(stringHeader.c_str(), stringHeader.length());
+    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %d", aHeaderName, aHeaderValue);
 }
@@ -61,7 +61,7 @@ void HttpClient::sendHeader(const char* aHeaderName)
 {
     String stringHeader = aHeaderName;
     stringHeader += "\r\n";
-    client.write(stringHeader.c_str(), stringHeader.length());
+    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s", aHeaderName);
 }
@@ -106,7 +106,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     stringHeader += " ";
     stringHeader += aRequest.path;
     stringHeader += " HTTP/1.0\r\n";
-    client.write(stringHeader.c_str(), stringHeader.length());
+    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: Start of HTTP Request.");
     WHTTPCLIENT_DEBUG("%s %s %s", aHttpMethod, aRequest.path.c_str(), "HTTP/1.0");
@@ -150,7 +150,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     if (aRequest.body != NULL) {
         WHTTPCLIENT_DEBUG("httpClient: body: %s", aRequest.body.c_str());
         aRequest.body += "\r\n";
-        client.write(aRequest.body.c_str(), aRequest.body.length());
+        client.write((uint8_t *)aRequest.body.c_str(), aRequest.body.length());
     }
 
     WHTTPCLIENT_DEBUG("httpClient: End of HTTP Request.", aRequest.body.c_str());

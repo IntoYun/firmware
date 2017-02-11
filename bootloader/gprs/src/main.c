@@ -27,6 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
+#include "system_config.h"
 #include "boot_mode.h"
 #include "params_hal.h"
 #include "ui_hal.h"

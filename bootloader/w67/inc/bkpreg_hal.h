@@ -50,6 +50,10 @@ typedef enum
 extern "C" {
 #endif
 
+int32_t HAL_Core_Backup_Register(uint32_t BKP_DR);
+void HAL_Core_Write_Backup_Register(uint32_t BKP_DR, uint32_t Data);
+uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR);
+
 int HAL_System_Backup_Save(size_t offset, const void* buffer, size_t length, void* reserved);
 int HAL_System_Backup_Restore(size_t offset, void* buffer, size_t max_length, size_t* length, void* reserved);
 

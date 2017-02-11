@@ -23,7 +23,7 @@
 #define USER_LED_GPIO_PIN       GPIO_PIN_9
 #define USER_LED_GPIO_PORT      GPIOB
 
-volatile rgb_info_t rgb_info;
+rgb_info_t rgb_info;
 
 void HAL_UI_Initial(void)
 {

@@ -159,12 +159,12 @@ bool OpenwrtConnClass::socketClose(int socket)
     {
         if(_sockets[socket].ipproto) //udp
         {
-            uint8_t cmd[] = {'j', _sockets[socket].handle};
+            uint8_t cmd[] = {'j', (uint8_t)_sockets[socket].handle};
             bridge.transfer(cmd, 2);
         }
         else
         {
-            uint8_t cmd[] = {'q', _sockets[socket].handle};
+            uint8_t cmd[] = {'q', (uint8_t)_sockets[socket].handle};
             bridge.transfer(cmd, 2);
         }
         // Assume RESP_OK in most situations, and assume closed
@@ -216,7 +216,7 @@ int OpenwrtConnClass::socketSend(int socket, const char * buf, int len)
         bool ok = false;
         {
             if (ISSOCKET(socket)) {
-                uint8_t cmd[] = {'l', _sockets[socket].handle};
+                uint8_t cmd[] = {'l', (uint8_t)_sockets[socket].handle};
                 bridge.transfer(cmd, 2, (uint8_t *)buf, blk, NULL, 0);
                 ok = true;
             }
@@ -238,7 +238,7 @@ int OpenwrtConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char *
 
 int OpenwrtConnClass::socketReadable(int socket)
 {
-    uint8_t buffer[256];
+    uint8_t buffer[255];
     int pending = MDM_SOCKET_ERROR;
 
     if (ISSOCKET(socket) && _sockets[socket].connected) {
@@ -246,7 +246,7 @@ int OpenwrtConnClass::socketReadable(int socket)
         // allow to receive unsolicited commands
         if( 0 == _sockets[socket].pending )
         {
-            uint8_t cmd[] = {'K', _sockets[socket].handle, sizeof(buffer)};
+            uint8_t cmd[] = {'K', (uint8_t)_sockets[socket].handle, sizeof(buffer)};
             int len = bridge.transfer(cmd, 3, buffer, sizeof(buffer));
             int n=0;
             for(n=0; n < len ; n++) {

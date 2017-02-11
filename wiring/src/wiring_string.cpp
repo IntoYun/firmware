@@ -115,6 +115,7 @@ String::String(double value, int decimalPlaces)
     char buf[33];
     *this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
 }
+
 String::~String()
 {
     free(buffer);

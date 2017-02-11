@@ -20,6 +20,7 @@
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __EXT_HAL_H
 #define __EXT_HAL_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif

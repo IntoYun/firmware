@@ -18,10 +18,9 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "service_debug.h"
 #include "hw_config.h"
 #include "usb_hal.h"
-#include <stdint.h>
+#include "sdkqueue.h"
 
 /* Private typedef -----------------------------------------------------------*/
 #ifdef configHAL_USB_CDC_ENABLE
