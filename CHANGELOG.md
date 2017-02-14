@@ -10,13 +10,16 @@
 
 ### ENHANCEMENTS(优化)
 
+- [neutorn]bootloader进入应用不初始化esp8266芯片，加快开机速度
 - [all]去除固件所有警告信息
 - [neutorn/nut]获取网络时间不从mqtt获取，直接通过网络ntp服务器获取
 
 ### BUG FIXES(漏洞修复)
 
+- [nut]解决nut bootloader有时上电三色灯高亮的问题
 - [neutorn]修正neutron运行一段时间后死机问题
 - [neutorn]修正neutron运行一段时间后esp8266挂掉问题。neutron-net 更新至v2.0 sdk库
+- [neutorn]neutron多任务处理，分为系统任务和应用任务，把应用任务对mqtt的处理和与modem通讯统一放入到system任务处理。以避免任务之间冲突
 
 ### INTERNAL(内部)
 
