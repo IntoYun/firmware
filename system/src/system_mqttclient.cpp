@@ -403,8 +403,13 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
         if (retained) {
             header |= 1;
         }
-        return write(header,buffer,length-5);
+        if(write(header,buffer,length-5))
+        {
+            SMQTTCLIENT_DEBUG("OK! published topic: %s, payload: %s ", topic, payload);
+            return true;
+        }
     }
+    SMQTTCLIENT_DEBUG("Error! publish topic: %s, payload: %s ", topic, payload);
     return false;
 }
 
@@ -518,8 +523,13 @@ boolean MqttClientClass::subscribe(const char* topic, uint8_t qos) {
         buffer[length++] = (nextMsgId & 0xFF);
         length = writeString((char*)topic, buffer,length);
         buffer[length++] = qos;
-        return write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5);
+        if(write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5))
+        {
+            SMQTTCLIENT_DEBUG("OK! subscribe topic: %s", topic);
+            return true;
+        }
     }
+    SMQTTCLIENT_DEBUG("Error! subscribe topic: %s", topic);
     return false;
 }
 
@@ -537,8 +547,13 @@ boolean MqttClientClass::unsubscribe(const char* topic) {
         buffer[length++] = (nextMsgId >> 8);
         buffer[length++] = (nextMsgId & 0xFF);
         length = writeString(topic, buffer,length);
-        return write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5);
+        if(write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5))
+        {
+            SMQTTCLIENT_DEBUG("OK! unsubscribe topic: %s", topic);
+            return true;
+        }
     }
+    SMQTTCLIENT_DEBUG("Error! unsubscribe topic: %s", topic);
     return false;
 }
 
