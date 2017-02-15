@@ -109,6 +109,7 @@ release_package() {
 
     echo "$RELEASE_PACKAGE_DIR"
     cp -rf $RELEASE_COMMON_PACKAGE_DIR/* $RELEASE_PACKAGE_DIR
+    tar -czf $RELEASE_PACKAGE_DIR.tar.gz $RELEASE_PACKAGE_DIR
 }
 
 if [ $# != 1 ];then
@@ -129,7 +130,7 @@ case $1 in
         cecho "---------------------------------------------------------------------------" $yellow
         release_package neutron
         release_package nut
-        release_package atom
+        #release_package atom
         #release_package fig
         #release_package lora
 

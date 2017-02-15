@@ -44,7 +44,7 @@ if [ $# != 1 ];then
 fi
 
 cd $RELEASE_ONLINE_PROGRAM_DIR
-tar -cvzf $BASE_NAME.tar.gz $BASE_NAME
+tar -czf $BASE_NAME.tar.gz $BASE_NAME
 
 case $1 in
     test )
