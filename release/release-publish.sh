@@ -44,6 +44,7 @@ if [ $# != 1 ];then
 fi
 
 cd $RELEASE_ONLINE_PROGRAM_DIR
+cecho "tar $BASE_NAME.tar.gz" $yellow
 tar -czf $BASE_NAME.tar.gz $BASE_NAME
 
 case $1 in
