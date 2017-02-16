@@ -1,4 +1,4 @@
-## v1.4.4
+## v1.4.3-rc.2
 
 ### FEATURES(功能)
 
@@ -7,6 +7,7 @@
 
 
 ### BUG FIXES(漏洞修复)
+- [[PR #17]](https://github.com/HITSZ-NRSL/firmware/pull/17) [neutron/pwm] 解决 neutorn的pwm 分辨率不可调问题 
 
 
 ### INTERNAL(内部)
