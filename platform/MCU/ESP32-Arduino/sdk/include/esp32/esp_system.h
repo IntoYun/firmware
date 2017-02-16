@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "esp_err.h"
-#include "esp_deepsleep.h"
+#include "esp_deep_sleep.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -124,7 +124,12 @@ esp_err_t system_efuse_read_mac(uint8_t mac[6]) __attribute__ ((deprecated));
  */
 const char* system_get_sdk_version(void)  __attribute__ ((deprecated));
 
-
+/**
+ * Get IDF version
+ *
+ * @return constant string from IDF_VER
+ */
+const char* esp_get_idf_version(void);
 
 #ifdef __cplusplus
 }

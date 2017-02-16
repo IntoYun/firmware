@@ -22,7 +22,7 @@ INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/wpa_supplicant
 
 LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32_out.ld -T esp32.common.ld -T esp32.rom.ld -T esp32.peripherals.ld -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
 
-LIBS += gcc m app_update bt btdm_app coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps
+LIBS += gcc m app_update bt btdm_app c_nano coap coexist core cxx driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls mdns micro-ecc net80211 nghttp nvs_flash openssl phy pp rtc sdmmc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps
 #LIBS += gcc m app_update bt btdm_app coexist core driver esp32 ethernet expat freertos g halhal json log lwip m mbedtls net80211 newlib nghttp nvs_flash openssl phy pp rtc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
 
 TARGET_INTOROBOT_PATH = $(PLATFORM_MCU_PATH)/IntoRobot_Firmware_Driver
