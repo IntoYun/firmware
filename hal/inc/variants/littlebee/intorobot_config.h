@@ -25,8 +25,8 @@
 //#define configHAL_USB_HID_ENABLE
 
 /* config wiring communication type. */
-#define configWIRING_WIFI_ENABLE
-//#define configWIRING_CELLULAR_ENABLE
+//#define configWIRING_WIFI_ENABLE
+#define configWIRING_CELLULAR_ENABLE
 //#define configWIRING_LORA_ENABLE
 //#define configWIRING_IPV6_ENABLE
 

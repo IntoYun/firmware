@@ -9,48 +9,67 @@ fi
 
 export INTOROBOT_DEVELOP=1
 
-echo "github push check begin!!!"
-echo "------------------------创客核心板-------------------------"
-echo "---->neutron"
+# Color-echo.
+# arg $1 = message
+# arg $2 = Color
+cecho() {
+  echo -e "${2}${1}"
+  tput sgr0
+  # Reset # Reset to normal.
+  return
+}
+# Set the colours you can use
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+blue='\033[0;34m'
+
+
+cecho "github push check begin!!!" $yellow
+cecho "------------------------创客核心板-------------------------" $yellow
+cecho "---->neutron" $yellow
 make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=smartLight-default
 
-echo "---->nut"
+cecho "---->nut" $yellow
 make $VERBOSE PLATFORM=nut clean all COMPILE_LTO=n APP=smartLight-default
 
-echo "---->atom"
+cecho "---->atom" $yellow
 make $VERBOSE PLATFORM=atom clean all COMPILE_LTO=n APP=smartLight-default
 
-echo "---->fig"
+cecho "---->fig" $yellow
 make $VERBOSE PLATFORM=fig clean all COMPILE_LTO=n APP=blink
 
-echo "---->lora"
+cecho "---->lora" $yellow
 make $VERBOSE PLATFORM=lora clean all COMPILE_LTO=n APP=blink
 
-echo "---->littlebee"
+cecho "---->littlebee" $yellow
 make $VERBOSE PLATFORM=littlebee clean all COMPILE_LTO=n APP=smartLight-default
 
-echo "------------------------商业模块-------------------------"
-echo "---->w67"
+cecho "------------------------商业模块-------------------------" $yellow
+cecho "---->w67" $yellow
 make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=smartLight-w67
 
-echo "---->w323"
+cecho "---->w323" $yellow
 make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=blank
 
-echo "---->l6"
+cecho "---->l6" $yellow
 make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=blink
-echo "------------------------------------------------------------"
+cecho "------------------------------------------------------------" $yellow
 
-echo "------------------------其他-------------------------"
-echo "---->gcc"
+cecho "------------------------其他-------------------------" $yellow
+cecho "---->gcc" $yellow
 #make $VERBOSE PLATFORM=gcc clean all COMPILE_LTO=n
 
-echo "---->neutron-net"
+cecho "---->neutron-net" $yellow
 make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
 
-echo "---->anytest"
+cecho "---->anytest" $yellow
 make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=default-anytest
 
-echo "------------------------------------------------------------"
-echo "github push check success!!!"
+cecho "---->loragateway" $yellow
+make $VERBOSE PLATFORM=loragateway clean all COMPILE_LTO=n APP=blank
+
+cecho "------------------------------------------------------------" $yellow
+cecho "github push check success!!!" $yellow
 
 exit 0

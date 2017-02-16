@@ -78,6 +78,11 @@ endif
 ifeq ("$(PLATFORM)","anytest")
 PLATFORM_ID = 888203
 endif
+
+ifeq ("$(PLATFORM)","loragateway")
+PLATFORM_ID = 888204
+endif
+
 #add  此处添加其他
 
 ################示例####################
@@ -164,7 +169,7 @@ PLATFORM_DEVICE=STM32F411xE
 PLATFORM_NAME=littlebee
 PLATFORM_MCU=STM32F4xx
 MCU_CORE=cortex-m4
-PRODUCT_DESC=IntoRobot be, 512k flash, 128k sram
+PRODUCT_DESC=IntoRobot littlebee, 512k flash, 128k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08020000
 PLATFORM_THREADING=1
@@ -252,6 +257,18 @@ MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot anytest, 128k flash, 20k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08007000
+endif
+
+ifeq ("$(PLATFORM_ID)","888204") #loragateway
+PLATFORM=loragateway
+PLATFORM_DEVICE=STM32F411xE
+PLATFORM_NAME=loragateway
+PLATFORM_MCU=STM32F4xx
+MCU_CORE=cortex-m4
+PRODUCT_DESC=IntoRobot loragateway, 512k flash, 128k sram
+PLATFORM_BOOT_ADDR=0x08000000
+PLATFORM_APP_ADDR=0x08020000
+PLATFORM_THREADING=1
 endif
 # 此处新增其他
 
