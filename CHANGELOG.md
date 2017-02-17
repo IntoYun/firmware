@@ -4,6 +4,7 @@
 
 
 ### ENHANCEMENTS(优化)
+- [[PR #19]](https://github.com/HITSZ-NRSL/firmware/pull/19) [neutron/nut] WiFi 增加status() 函数以兼容之前的固件
 
 
 ### BUG FIXES(漏洞修复)
