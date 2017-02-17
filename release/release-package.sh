@@ -29,6 +29,8 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 blue='\033[0;34m'
 
+export INTOROBOT_DEVELOP=1
+
 RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
 PROJECT_DIR=$RELEASE_DIR/..
 BUILD_DIR=$PROJECT_DIR/build
