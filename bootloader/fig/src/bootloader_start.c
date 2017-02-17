@@ -50,6 +50,11 @@
 extern int _bss_start;
 extern int _bss_end;
 
+<<<<<<< a0a87e786ceb3d14a21f23b473d62d92f74ea692
+=======
+#define IDF_VER ""
+
+>>>>>>> 1. 解决冲突
 static const char* TAG = "boot";
 /*
 We arrive here after the bootloader finished loading the program from flash. The hardware is mostly uninitialized,
@@ -242,7 +247,11 @@ void bootloader_main()
     rtc_set_cpu_freq(CPU_80M);
 
     uart_console_configure();
+<<<<<<< a0a87e786ceb3d14a21f23b473d62d92f74ea692
     /* ESP_LOGI(TAG, "ESP-IDF %s 2nd stage bootloader", IDF_VER); */
+=======
+    ESP_LOGI(TAG, "ESP-IDF %s 2nd stage bootloader", IDF_VER);
+>>>>>>> 1. 解决冲突
 #if defined(CONFIG_SECURE_BOOT_ENABLED) || defined(CONFIG_FLASH_ENCRYPTION_ENABLED)
     esp_err_t err;
 #endif
@@ -323,12 +332,24 @@ void bootloader_main()
         } else  {
             if(ota_select_valid(&sa) && ota_select_valid(&sb)) {
                 load_part_pos = bs.ota[(((sa.ota_seq > sb.ota_seq)?sa.ota_seq:sb.ota_seq) - 1)%bs.app_count];
+<<<<<<< a0a87e786ceb3d14a21f23b473d62d92f74ea692
             }else if(ota_select_valid(&sa)) {
                 load_part_pos = bs.ota[(sa.ota_seq - 1) % bs.app_count];
             }else if(ota_select_valid(&sb)) {
                 load_part_pos = bs.ota[(sb.ota_seq - 1) % bs.app_count];
             }else {
                 ESP_LOGE(TAG, "ota data partition info error");
+=======
+            } else if(ota_select_valid(&sa)) {
+                load_part_pos = bs.ota[(sa.ota_seq - 1) % bs.app_count];
+            } else if(ota_select_valid(&sb)) {
+                load_part_pos = bs.ota[(sb.ota_seq - 1) % bs.app_count];
+            } else if (bs.factory.offset != 0) {
+                ESP_LOGE(TAG, "ota data partition invalid, falling back to factory");
+                load_part_pos = bs.factory;
+            } else {
+                ESP_LOGE(TAG, "ota data partition invalid and no factory, can't boot");
+>>>>>>> 1. 解决冲突
                 return;
             }
         }
