@@ -32,5 +32,12 @@ INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/lwip
 TARGET_INTOROBOT_PATH = $(PLATFORM_MCU_PATH)/IntoRobot_Firmware_Driver
 INCLUDE_DIRS += $(TARGET_INTOROBOT_PATH)/inc
 
+ifneq ("$(MODULE)","bootloader")
 LIB_DIRS += $(TARGET_ESP32_SDK)/lib
 LIBS +=
+else
+LIB_DIRS +=
+LIBS +=
+endif
+
+
