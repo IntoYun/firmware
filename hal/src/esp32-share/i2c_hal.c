@@ -129,7 +129,7 @@ void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
     }
 
     I2C_MUTEX_LOCK();
-    i2cMap[i2c]->i2c->dev->scl_low_period.scl_low_period = period;
+    i2cMap[i2c]->i2c->dev->scl_low_period.period = period;
     i2cMap[i2c]->i2c->dev->scl_high_period.period = period;
 
     i2cMap[i2c]->i2c->dev->scl_start_hold.time = 50;
