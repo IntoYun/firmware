@@ -202,6 +202,12 @@ public:
     }
 
     int getCredentials(WiFiAccessPoint* results, size_t result_count);
+
+    //兼容之前的固件库
+    bool status(void) {
+        return network_ready(*this, 0, NULL);
+    }
+
 };
 
 extern WiFiClass WiFi;

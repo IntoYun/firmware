@@ -1,3 +1,20 @@
+## v1.4.3-rc.2
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #19]](https://github.com/HITSZ-NRSL/firmware/pull/19) [neutron/nut] WiFi 增加status() 函数以兼容之前的固件
+
+
+### BUG FIXES(漏洞修复)
+- [[PR #19]](https://github.com/HITSZ-NRSL/firmware/pull/19) [neutron/pwm] 解决 neutorn的pwm 分辨率不可调问题 
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.4.3-rc.1
 
 ### FEATURES(功能)
