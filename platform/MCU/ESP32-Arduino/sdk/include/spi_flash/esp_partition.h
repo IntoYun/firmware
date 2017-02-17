@@ -69,6 +69,7 @@ typedef enum {
     ESP_PARTITION_SUBTYPE_DATA_OTA = 0x00,                                    //!< OTA selection partition
     ESP_PARTITION_SUBTYPE_DATA_PHY = 0x01,                                    //!< PHY init data partition
     ESP_PARTITION_SUBTYPE_DATA_NVS = 0x02,                                    //!< NVS partition
+    ESP_PARTITION_SUBTYPE_DATA_COREDUMP = 0x03,                               //!< COREDUMP partition
 
     ESP_PARTITION_SUBTYPE_DATA_ESPHTTPD = 0x80,                               //!< ESPHTTPD partition
     ESP_PARTITION_SUBTYPE_DATA_FAT = 0x81,                                    //!< FAT partition
@@ -89,6 +90,10 @@ typedef struct esp_partition_iterator_opaque_* esp_partition_iterator_t;
 
 /**
  * @brief partition information structure
+ *
+ * This is not the format in flash, that format is esp_partition_info_t.
+ *
+ * However, this is the format used by this API.
  */
 typedef struct {
     esp_partition_type_t type;          /*!< partition type (app/data) */
@@ -185,6 +190,13 @@ esp_err_t esp_partition_read(const esp_partition_t* partition,
  *
  * Before writing data to flash, corresponding region of flash needs to be erased.
  * This can be done using esp_partition_erase_range function.
+ *
+ * Partitions marked with an encryption flag will automatically be
+ * written via the spi_flash_write_encrypted() function. If writing to
+ * an encrypted partition, all write offsets and lengths must be
+ * multiples of 16 bytes. See the spi_flash_write_encrypted() function
+ * for more details. Unencrypted partitions do not have this
+ * restriction.
  *
  * @param partition Pointer to partition structure obtained using
  *                  esp_partition_find_first or esp_partition_get.
