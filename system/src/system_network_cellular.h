@@ -35,20 +35,7 @@ class CellularNetworkInterface : public ManagedIPNetworkInterface<CellularConfig
     volatile bool connecting = false;
 
 protected:
-
-    virtual void on_finalize_listening(bool complete) override { /* n/a */ }
-
-    virtual void on_start_listening() override {
-        cellular_cancel(false, true, NULL);  // resume
-    }
-
-    virtual bool on_stop_listening() override {
-        /* in case we interrupted during connecting(), force system to stop WLAN_CONNECTING */
-        if (ManagedNetworkInterface::connecting()) ManagedNetworkInterface::disconnect();
-        CLR_WLAN_WD(); // keep system from power cycling modem in manage_network_connection()
-        return false;
-    }
-
+#if 0
     virtual void on_setup_cleanup() override { /* n/a */ }
 
     virtual void connect_init() override { /* n/a */ }
@@ -56,19 +43,19 @@ protected:
     void connect_finalize_impl() {
         cellular_result_t result = -1;
         result = cellular_init(NULL);
-        if (result) return;
+        if (result) { return; }
 
         result = cellular_register(NULL);
-        if (result) return;
+        if (result) { return; }
 
         CellularCredentials* savedCreds;
         savedCreds = cellular_credentials_get(NULL);
         result = cellular_pdp_activate(savedCreds, NULL);
-        if (result) return;
+        if (result) { return; }
 
         //DEBUG_D("savedCreds = %s %s %s\r\n", savedCreds->apn, savedCreds->username, savedCreds->password);
         result = cellular_gprs_attach(savedCreds, NULL);
-        if (result) return;
+        if (result) { return; }
 
         HAL_NET_notify_connected();
         HAL_NET_notify_dhcp(true);
@@ -88,11 +75,13 @@ protected:
             }
             connecting = false;
         }
-        if (require_resume)
+        if (require_resume) {
             cellular_cancel(false, HAL_IsISR(), NULL);
+        }
     }
-
-
+#endif
+    void connect_now() override {  }
+    int status_now() override { return -1; }
 
     void on_now() override {
         cellular_on(NULL);
@@ -111,20 +100,18 @@ protected:
 
 public:
 
+    CellularNetworkInterface() {
+        HAL_NET_Callbacks cb;
+        cb.size = sizeof(HAL_NET_Callbacks);
+        cb.notify_connected = HAL_NET_notify_connected;
+        cb.notify_disconnected = HAL_NET_notify_disconnected;
+        cb.notify_dhcp = HAL_NET_notify_dhcp;
+        cb.notify_can_shutdown = HAL_NET_notify_can_shutdown;
+        HAL_NET_SetCallbacks(&cb, nullptr);
+    }
+
     void fetch_ipconfig(CellularConfig* target)  {
         cellular_fetch_ipconfig(target, NULL);
-    }
-
-    void start_listening() override
-    {
-        CellularSetupConsoleConfig config;
-        CellularSetupConsole console(config);
-        ManagedNetworkInterface::start_listening(console);
-    }
-
-    bool listening() override
-    {
-        return ManagedNetworkInterface::listening();
     }
 
     void setup() override { /* n/a */ }
@@ -133,10 +120,18 @@ public:
     bool clear_credentials() override { /* n/a */ return true; }
     bool has_credentials() override
     {
-        return cellular_sim_ready(NULL);
+        bool rv = cellular_sim_ready(NULL);
+        //LOG(INFO,"%s", (rv)?"Sim Ready":"Sim not inserted? Detecting...");
+        if (!rv) {
+            cellular_on(NULL);
+            rv = cellular_sim_ready(NULL);
+            //LOG(INFO,"%s", (rv)?"Sim Ready":"Sim not inserted.");
+        }
+        return rv;
     }
     int set_credentials(NetworkCredentials* creds) override { /* n/a */ return -1; }
 
+#if 0
     void connect_cancel(bool cancel) override {
         // only cancel if presently connecting
         bool require_cancel = false;
@@ -149,9 +144,11 @@ public:
                 }
             }
         }
-        if (require_cancel)
+        if (require_cancel) {
             cellular_cancel(cancel, HAL_IsISR(), NULL);
+        }
     }
+#endif
 
     void set_error_count(unsigned count) override { /* n/a */ }
 };

@@ -24,7 +24,7 @@
 
 #ifndef configNO_NETWORK
 
-#include "wiring.h"
+#include "wiring_ipaddress.h"
 #include "wiring_printable.h"
 #include "wiring_stream.h"
 #include "socket_hal.h"

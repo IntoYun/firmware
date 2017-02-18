@@ -109,7 +109,6 @@ release_package() {
         cp $BUILD_MAIN_BIN_DIR/neutron-net.bin $RELEASE_PACKAGE_DIR
     fi
 
-    echo "$RELEASE_PACKAGE_DIR"
     cp -rf $RELEASE_COMMON_PACKAGE_DIR/* $RELEASE_PACKAGE_DIR
     tar -czf $RELEASE_PACKAGE_DIR.tar.gz $RELEASE_PACKAGE_DIR
 }

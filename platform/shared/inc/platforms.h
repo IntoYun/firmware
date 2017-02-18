@@ -38,9 +38,11 @@
 #define PLATFORM_W323                888102
 #define PLATFORM_L6                  888103
 
+//其他产品
 #define PLATFORM_GCC                 888201
 #define PLATFORM_NEUTRON_NET         888202
 #define PLATFORM_ANYTEST             888203
+#define PLATFORM_LORAGATEWAY         888204
 
 
 #endif	/* PLATFORMS_H */

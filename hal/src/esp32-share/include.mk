@@ -11,26 +11,18 @@ INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/esp32/libb64
 
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
-#ifneq (,$(findstring wiring,$(MAKE_DEPENDENCIES)))
 
-# LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC).ld
+LDFLAGS += -Tesp32_out.ld -Tesp32.common.ld -Tesp32.rom.ld -Tesp32.peripherals.ld
+LDFLAGS += -L$(COMMON_BUILD)/linker/esp32/$(PLATFORM_NAME)
 
-USE_PRINTF_FLOAT ?= y
+USE_PRINTF_FLOAT = n
 ifeq ("$(USE_PRINTF_FLOAT)","y")
 LDFLAGS += -u _printf_float
 endif
+
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
-# assembler startup script
-# ASRC_STARTUP += $(COMMON_BUILD)/startup/arm/startup_$(PLATFORM_DEVICE_LC).S
-# ASFLAGS += -I$(COMMON_BUILD)/startup/arm
-# ASFLAGS +=  -Wa,--defsym -Wa,INTOROBOT_INIT_STARTUP=1
-#
+LDFLAGS +=  -nostdlib -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
+LIBS += gcc stdc++ app_update bootloader_support bt btdm_app c c_nano coap coexist core cxx driver esp32 ethernet expat fatfs freertos halhal json log lwip m mbedtls mdns micro-ecc net80211 newlib nghttp nvs_flash openssl phy pp rtc sdmmc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
 
-
-# LDFLAGS += -L$(TARGET_ESP32_SDK)/lib -L$(TARGET_ESP32_SDK)/ld -nostdlib -T esp32_out.ld -T esp32.common.ld -T esp32.rom.ld -T esp32.peripherals.ld -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
-
-# LIBS += gcc c m halhal core net80211 phy rtc pp wpa smartconfig btdm_app bt driver esp32 crypto expat freertos json log lwip mbedtls nghttp nvs_flash spi_flash tcpip_adapter newlib vfs
-
-#endif
 endif

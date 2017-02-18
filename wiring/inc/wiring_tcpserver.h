@@ -24,8 +24,9 @@
 
 #ifndef configNO_NETWORK
 
-#include "wiring.h"
 #include "system_network.h"
+#include "wiring_ipaddress.h"
+#include "wiring_print.h"
 
 class TCPClient;
 
