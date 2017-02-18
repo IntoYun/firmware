@@ -38,6 +38,7 @@
 #include <ctype.h>
 #include "stringbuffer.h"
 #include "ajson.h"
+#include "wiring.h"
 #include "service_debug.h"
 
 /******************************************************************************

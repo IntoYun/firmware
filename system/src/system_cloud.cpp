@@ -30,8 +30,10 @@
 #include "wiring_tcpclient.h"
 #include "wiring_udp.h"
 #include "wiring_wifi.h"
+#include "wiring_cellular.h"
 #include "system_mqttclient.h"
 #include "system_cloud_def.h"
+#include "system_clouddata.h"
 #include "system_cloud.h"
 #include "system_mode.h"
 #include "system_task.h"
@@ -39,6 +41,8 @@
 #include "system_update.h"
 #include "system_rgbled.h"
 #include "wiring_time.h"
+#include "wiring_ticks.h"
+#include "wiring_random.h"
 #include "wiring_httpclient.h"
 #include "system_product.h"
 #include "ajson.h"
@@ -704,8 +708,8 @@ void intorobot_cloud_init(void)
     intorobot_subscribe(API_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);        //从平台获取调试信息
 
     // 添加默认数据点
-    IntoRobot.addDataPointBool(0xFF80, UP_DOWN, false);   //reboot
-    IntoRobot.addDataPointBool(0xFF81, UP_DOWN, false);   //write all datapoint
+    intorobotAddDataPointBool(0xFF80, UP_DOWN, false, "", 0);//reboot
+    intorobotAddDataPointBool(0xFF81, UP_DOWN, false, "", 0);//write all datapoint
 }
 
 bool intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
@@ -1166,7 +1170,11 @@ static void send_ntp_request_packet(IPAddress timeServerIP)
 static time_t get_ntp_time(void)
 {
     uint8_t packetBuffer[48];
+#ifdef configWIRING_WIFI_ENABLE
     IPAddress ntpServer = WiFi.resolve(NTP_TIMESERVER);
+#else
+    IPAddress ntpServer = Cellular.resolve(NTP_TIMESERVER);
+#endif
 
     ntp_time_udp.begin(8888);
     for (int i = 0 ; i < 4 ; i++)

@@ -23,10 +23,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "ajson.h"
+#include "wiring.h"
 #include "wiring_string.h"
 #include "system_cloud_def.h"
 #include "system_cloud.h"
-#include "ajson.h"
+#include "system_clouddata.h"
 
 /*debug switch*/
 #define SYSTEM_CLOUDDATA_DEBUG

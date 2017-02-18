@@ -27,6 +27,7 @@
 #include "wiring_network.h"
 #include "system_network.h"
 #include "cellular_hal.h"
+#include "inet_hal.h"
 #include "wiring_cellular_printable.h"
 
 namespace intorobot {
@@ -65,14 +66,6 @@ public:
     }
     void setCredentials(const char* apn, const char* username, const char* password) {
         // todo
-    }
-
-    void listen(bool begin=true) {
-        network_listen(*this, begin ? 0 : 1, NULL);
-    }
-
-    bool listening(void) {
-        return network_listening(*this, 0, NULL);
     }
 
     bool ready()
@@ -115,6 +108,13 @@ public:
             T* param, system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
         return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
+    }
+
+    IPAddress resolve(const char* name)
+    {
+        HAL_IPAddress ip;
+        return (inet_gethostbyname(name, strlen(name), &ip, *this, NULL)<0) ?
+                IPAddress(uint32_t(0)) : IPAddress(ip);
     }
 };
 

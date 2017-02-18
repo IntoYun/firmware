@@ -57,7 +57,11 @@ lst: $(TARGET_BASE).lst
 esptool-py: $(TARGET_BASE).bin # for esp32
 	$(call,echo,)
 	$(call,echo,'Flashing $< using esptool-py to address')
-	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) 0x1000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/bootloader.bin 0x8000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin $(PLATFORM_APP_ADDR) $<
+ifeq ("$(MODULE)","bootloader")
+	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) --flash_size $(FLASH_SIZE)  $(PLATFORM_BOOT_ADDR) $< 0x8000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin
+else
+	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) --flash_size $(FLASH_SIZE)  $(PLATFORM_APP_ADDR) $<
+endif
 
 # Display size
 size: $(TARGET_BASE).elf
@@ -75,7 +79,7 @@ size: $(TARGET_BASE).elf
 # Create a bin file from ELF file
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
-	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) -o $@ $<
+	$(ESP_TOOL_PY) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) --flash_size $(FLASH_SIZE) -o $@ $<
 	$(call echo,)
 
 $(TARGET_BASE).elf : $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)

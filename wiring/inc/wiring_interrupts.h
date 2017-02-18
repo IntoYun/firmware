@@ -20,7 +20,6 @@
 #ifndef WIRING_INTERRUPTS_H_
 #define WIRING_INTERRUPTS_H_
 
-#include "wiring.h"
 #include "interrupts_hal.h"
 #include <functional>
 

@@ -27,7 +27,6 @@
 #include "wiring_print.h"
 #include "wiring_stream.h"
 #include "wiring_client.h"
-#include "wiring.h"
 
 /******************************************************************************
  * Definitions
