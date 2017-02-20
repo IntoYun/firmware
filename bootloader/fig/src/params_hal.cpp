@@ -571,8 +571,8 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * 读取参数配置标志
  * */
 CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
-   // return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
-   return CONFIG_FLAG_NONE;
+   return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
+   // return CONFIG_FLAG_NONE;
 }
 
 /*

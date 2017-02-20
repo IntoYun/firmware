@@ -47,6 +47,8 @@
 #include "bootloader_config.h"
 #include "rtc.h"
 
+#include "ui_hal.h"
+
 extern int _bss_start;
 extern int _bss_end;
 
@@ -564,6 +566,21 @@ static void set_cache_and_start_app(
     Cache_Read_Enable( 0 );
 
     // Application will need to do Cache_Flush(1) and Cache_Read_Enable(1)
+    HAL_UI_Initial();
+    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
+    /* delay(1000); */
+    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
+    /* delay(1000); */
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
+    /* delay(1000); */
+    HAL_UI_RGB_Color(RGB_COLOR_WHITE);  // color the same with atom
+    /* delay(2000); */
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);  // color the same with atom
+    /* delay(2000); */
+    /* HAL_UI_RGB_Color(RGB_COLOR_YELLOW);  // color the same with atom */
+    /* delay(2000); */
+    /* HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);  // color the same with atom */
+
 
     ESP_LOGD(TAG, "start: 0x%08x", entry_addr);
     typedef void (*entry_t)(void);

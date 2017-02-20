@@ -15,7 +15,7 @@ LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 LDFLAGS +=  -nostdlib -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
 
 LIB_DIRS += $(BOOTLOADER_TYPE_PATH)/lib
-LIBS += gcc stdc++ bootloader_support log micro-ecc rtc spi_flash
+LIBS += gcc stdc++ bootloader_support log micro-ecc rtc spi_flash driver
 
 ASRC +=
 
