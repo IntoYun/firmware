@@ -566,16 +566,18 @@ static void set_cache_and_start_app(
     Cache_Read_Enable( 0 );
 
     // Application will need to do Cache_Flush(1) and Cache_Read_Enable(1)
+
     HAL_UI_Initial();
-    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
-    /* delay(1000); */
-    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
-    /* delay(1000); */
-    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
-    /* delay(1000); */
-    HAL_UI_RGB_Color(RGB_COLOR_WHITE);  // color the same with atom
-    /* delay(2000); */
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);  // color the same with atom
+    /* HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom */
+    /* while(1); */
+    /* /\* delay(1000); *\/ */
+    /* HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom */
+    /* /\* delay(1000); *\/ */
+    /* HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom */
+    /* /\* delay(1000); *\/ */
+    /* HAL_UI_RGB_Color(RGB_COLOR_WHITE);  // color the same with atom */
+    /* /\* delay(2000); *\/ */
+    /* HAL_UI_RGB_Color(RGB_COLOR_CYAN);  // color the same with atom */
     /* delay(2000); */
     /* HAL_UI_RGB_Color(RGB_COLOR_YELLOW);  // color the same with atom */
     /* delay(2000); */
@@ -748,7 +750,7 @@ static void uart_console_configure(void)
 }
 
 /* empty rtc_printf implementation, to work with librtc
-   linking. Can be removed once -lrtc is removed from bootloader's
+
    main component.mk.
 */
 int rtc_printf(void)
