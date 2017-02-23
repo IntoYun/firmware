@@ -16,64 +16,14 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#include "hw_config.h"
 #include "ui_hal.h"
-#include "service_debug.h"
-#if 1
-#if 0
-#include "soc/soc.h"
-#include "soc/io_mux_reg.h"
 #include "soc/gpio_struct.h"
-#include "soc/gpio_reg.h"
+#include "soc/gpio_sig_map.h"
+#include "soc/io_mux_reg.h"
 #include "soc/rtc_io_reg.h"
 
-/* #include "soc/soc.h" */
-#include "soc/cpu.h"
-#include "soc/dport_reg.h"
-/* #include "soc/io_mux_reg.h" */
-#include "soc/efuse_reg.h"
-#include "soc/rtc_cntl_reg.h"
-#include "soc/timer_group_reg.h"
-/* #include "soc/gpio_reg.h" */
-#include "soc/gpio_sig_map.h"
-#endif
-#if 1
-/* #include "esp32-hal-gpio.h" */
-/* #include "esp_attr.h" */
-/* #include "esp_log.h" */
 
-/* #include "rom/cache.h" */
-/* #include "rom/ets_sys.h" */
-/* #include "rom/spi_flash.h" */
-/* #include "rom/crc.h" */
-/* #include "rom/rtc.h" */
-/* #include "rom/uart.h" */
-#include "rom/gpio.h"
-/* #include "rom/secure_boot.h" */
-
-#include "soc/soc.h"
-#include "soc/gpio_struct.h"
-#include "soc/cpu.h"
-/* #include "soc/dport_reg.h" */
-#include "soc/io_mux_reg.h"
-/* #include "soc/efuse_reg.h" */
-/* #include "soc/rtc_cntl_reg.h" */
-#include "soc/timer_group_reg.h"
-#include "soc/gpio_reg.h"
-#include "soc/gpio_sig_map.h"
-/* #include "driver/gpio.h" */
-/* #include "driver/rtc_io.h" */
-
-#include "sdkconfig.h"
-/* #include "esp_image_format.h" */
-/* #include "esp_secure_boot.h" */
-/* #include "esp_flash_encrypt.h" */
-/* #include "esp_flash_partitions.h" */
-/* #include "bootloader_flash.h" */
-/* #include "bootloader_random.h" */
-/* #include "bootloader_config.h" */
-/* #include "rtc.h" */
-#endif
+#define USER_GPIO_PIN          4
 
 #define RGB_R_GPIO_PIN         27
 #define RGB_G_GPIO_PIN         21
@@ -81,13 +31,10 @@
 
 #define MODE_BOTTON_GPIO_PIN   0
 
-#define RGB_GPIO_OUTPUT_PIN_SEL    ((1<<RGB_R_GPIO_PIN) | (1<<RGB_G_GPIO_PIN)|(1<<RGB_B_GPIO_PIN))
-#define BUTTON_GPIO_INPUT_PIN_SEL  GPIO_SEL_0
-
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
 volatile uint32_t TimingLED;
-volatile rgb_info_t rgb_info;
+rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
     uint8_t red,green,blue;
@@ -96,28 +43,19 @@ void Set_RGB_Color(uint32_t color) {
     green = color>>8 & 0xFF;
     blue = color & 0xFF;
     if(red)
-        /* gpio_set_level(RGB_R_GPIO_PIN, 0); // low level effort */
-        /* GPIO.out_w1tc = (1 << RGB_R_GPIO_PIN); */
-        GPIO_OUTPUT_SET(RGB_R_GPIO_PIN,0);
+        GPIO.out_w1tc = (1 << RGB_R_GPIO_PIN);
     else
-        /* GPIO.out_w1ts = (1 << RGB_R_GPIO_PIN);   /\* gpio_set_level(RGB_R_GPIO_PIN, 1); *\/ */
-        GPIO_OUTPUT_SET(RGB_R_GPIO_PIN,1);
+        GPIO.out_w1ts = (1 << RGB_R_GPIO_PIN);
 
     if(green)
-        /* GPIO.out_w1tc = (1 << RGB_G_GPIO_PIN); */
-        GPIO_OUTPUT_SET(RGB_G_GPIO_PIN,0);
-    /* gpio_set_level(RGB_G_GPIO_PIN, 0); // low level effort */
+        GPIO.out_w1tc = (1 << RGB_G_GPIO_PIN);
     else
-        /* GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN);  //gpio_set_level(RGB_G_GPIO_PIN, 1); */
-        GPIO_OUTPUT_SET(RGB_G_GPIO_PIN,1);
+        GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN);
 
     if(blue)
-        /* GPIO.out_w1tc = (1 << RGB_B_GPIO_PIN); */
-        GPIO_OUTPUT_SET(RGB_B_GPIO_PIN,0);
-    /* gpio_set_level(RGB_B_GPIO_PIN, 0); // low level effort */
+        GPIO.out_w1tc = (1 << RGB_B_GPIO_PIN);
     else
-        /* GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN);  // gpio_set_level(RGB_B_GPIO_PIN, 1); */
-        GPIO_OUTPUT_SET(RGB_B_GPIO_PIN,1);
+        GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN);
 }
 
 void RGB_Color_Toggle(void) {
@@ -133,71 +71,48 @@ void RGB_Color_Toggle(void) {
 
 void HAL_UI_Initial(void)
 {
-    //gpio_matrix_out(RGB_R_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
+    // user pin
+    gpio_matrix_out(USER_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
+    GPIO.enable_w1ts = (0x1 << USER_GPIO_PIN); //output enable
+    GPIO.pin[USER_GPIO_PIN].int_ena = 0;       //disable GPIO intr
+    CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD0_REG, RTC_IO_TOUCH_PAD0_RDE_M); //disable pull down
+    CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD0_REG, RTC_IO_TOUCH_PAD0_RUE_M); //disable pull up
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, PIN_FUNC_GPIO); //set register
+    GPIO.out_w1ts = (1 << USER_GPIO_PIN); //默认高电平 灯灭
+
+    // rgb pin
+    gpio_matrix_out(RGB_R_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_R_GPIO_PIN); //output enable
     GPIO.pin[RGB_R_GPIO_PIN].int_ena = 0;       //disable GPIO intr
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO27_U, PIN_FUNC_GPIO);
-    /* REG_CLR_BIT(PERIPHS_IO_MUX_GPIO27_U, FUN_PD); */
-    /* REG_CLR_BIT(PERIPHS_IO_MUX_GPIO27_U, FUN_PU); */
-    /* GPIO.pin[RGB_R_GPIO_PIN].int_ena = 1UL<<2;  //disable pro cpu intr */
+    CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD7_REG, RTC_IO_TOUCH_PAD7_RDE_M); //disable pull down
+    CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD7_REG, RTC_IO_TOUCH_PAD7_RUE_M); //disable pull up
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO27_U, PIN_FUNC_GPIO); //set register
 
-    /* gpio_matrix_out(RGB_G_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0); */
+    gpio_matrix_out(RGB_G_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_G_GPIO_PIN); //output enable
     GPIO.pin[RGB_G_GPIO_PIN].int_ena = 0;       //disable GPIO intr
+    REG_CLR_BIT(PERIPHS_IO_MUX_GPIO21_U, FUN_PD); //disable pull down
+    REG_CLR_BIT(PERIPHS_IO_MUX_GPIO21_U, FUN_PU); //disable pull up
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO21_U, PIN_FUNC_GPIO);//set register
 
-    /* gpio_matrix_out(RGB_B_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0); */
+    gpio_matrix_out(RGB_B_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_B_GPIO_PIN); //output enable
     GPIO.pin[RGB_B_GPIO_PIN].int_ena = 0;       //disable GPIO intr
-    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO22_U, PIN_FUNC_GPIO);
+    REG_CLR_BIT(PERIPHS_IO_MUX_GPIO22_U, FUN_PD); //disable pull down
+    REG_CLR_BIT(PERIPHS_IO_MUX_GPIO22_U, FUN_PU); //disable pull up
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO22_U, PIN_FUNC_GPIO); //set register
 
-    PIN_PULLDWN_DIS(MODE_BOTTON_GPIO_PIN);
-    /* PIN_PULLUP_EN(MODE_BOTTON_GPIO_PIN); */
-    PIN_PULLUP_DIS(MODE_BOTTON_GPIO_PIN);
-    PIN_INPUT_ENABLE(MODE_BOTTON_GPIO_PIN);
-
-    /* GPIO.out_w1ts = (1 << RGB_R_GPIO_PIN); */
-    /* GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN); */
-    /* GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN); */
-
-    /* GPIO.out_w1tc = (1 << RGB_R_GPIO_PIN); */
-    /* GPIO.out_w1tc = (1 << RGB_G_GPIO_PIN); */
-    /* GPIO.out_w1tc = (1 << RGB_B_GPIO_PIN); */
-
-    GPIO_OUTPUT_SET(RGB_R_GPIO_PIN,1);
-
-#if 0
-    gpio_config_t io_conf;
-    //disable interrupt
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    //bit mask of the pins that you want to set,e.g.GPIO27/21/22
-    io_conf.pin_bit_mask = RGB_GPIO_OUTPUT_PIN_SEL;
-    //disable pull-down mode
-    io_conf.pull_down_en = 0;
-    //disable pull-up mode
-    io_conf.pull_up_en = 0;
-    //configure GPIO with the given settings
-    gpio_config(&io_conf);
-
-    //interrupt of rising edge
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    //bit mask of the pins, use GPIO0 here
-    io_conf.pin_bit_mask = BUTTON_GPIO_INPUT_PIN_SEL;
-    //set as input mode
-    io_conf.mode = GPIO_MODE_INPUT;
-    //enable pull-up mode
-    io_conf.pull_up_en = 1;
-    gpio_config(&io_conf);
-#endif
+    //button
+    PIN_INPUT_ENABLE(PERIPHS_IO_MUX_GPIO0_U);
+    GPIO.pin[MODE_BOTTON_GPIO_PIN].int_ena = 0;       //disable GPIO intr
+    SET_PERI_REG_MASK(RTC_IO_TOUCH_PAD1_REG, RTC_IO_TOUCH_PAD1_RUE_M); //enable pull up
+    CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD1_REG, RTC_IO_TOUCH_PAD1_RDE_M); //disable pull down
+    PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, PIN_FUNC_GPIO); //set register
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
 {
-    /* return gpio_get_level(MODE_BOTTON_GPIO_PIN); */
-    /* return (GPIO.in >> MODE_BOTTON_GPIO_PIN) & 0x1; */
-    return GPIO_INPUT_GET(MODE_BOTTON_GPIO_PIN);
+    return (GPIO.in >> MODE_BOTTON_GPIO_PIN) & 0x1;
 }
 
 uint32_t HAL_UI_Mode_Button_Pressed(void)
@@ -240,6 +155,10 @@ void HAL_UI_RGB_Breath(uint32_t color, uint16_t period)
 
 void HAL_UI_UserLED_Control(uint8_t value)
 {
+    if(value)
+        GPIO.out_w1tc = (1 << USER_GPIO_PIN);
+    else
+        GPIO.out_w1ts = (1 << USER_GPIO_PIN);
 }
 
 void HAL_UI_SysTick_Handler(void)
@@ -276,4 +195,3 @@ void HAL_UI_SysTick_Handler(void)
         }
     }
 }
-#endif

@@ -1,4 +1,3 @@
-#include "hw_config.h"
 #include "flash_map.h"
 #include "rtc.h"
 #include "sdkconfig.h"
@@ -6,7 +5,6 @@
 #include "rom/spi_flash.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/timer_group_reg.h"
-
 
 /**
  * @brief  System Clock Configuration
@@ -112,7 +110,7 @@ void Set_System(void)
     Update_flash_config();
 
     HwTimer_config();
-    //HAL_UI_Initial();
+    HAL_UI_Initial();
 }
 
 void delay(uint32_t ms)

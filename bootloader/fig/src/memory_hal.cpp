@@ -1,5 +1,4 @@
 #include "memory_hal.h"
-#include "hw_config.h"
 #include "flash.h"
 #include "binary.h"
 

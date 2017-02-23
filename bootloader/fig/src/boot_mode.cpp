@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <limits.h>
 
-#include "hw_config.h"
 #include "boot_mode.h"
 #include "memory_hal.h"
 #include "system_config.h"
