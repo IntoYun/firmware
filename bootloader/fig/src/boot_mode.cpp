@@ -7,6 +7,7 @@
 #include "system_config.h"
 #include "params_hal.h"
 #include "ui_hal.h"
+#include "flash.h"
 #include "flash_map.h"
 #include "boot_debug.h"
 
@@ -162,7 +163,6 @@ void start_app(void)
 /*从flash起始地址复制至目标地址*/
 bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t size)
 {
-#if 0
     // require regions to be aligned
     if (src_addr & 0xfff != 0 ||
         dst_addr & 0xfff != 0){
@@ -189,7 +189,7 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
         daddr += buffer_size;
         left  -= buffer_size;
     }
-#endif
+
     return true;
 }
 extern "C"
