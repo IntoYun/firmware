@@ -48,16 +48,6 @@ typedef enum
 
 typedef enum
 {
-    CONFIG_FLAG_NONE              = 0,
-    CONFIG_FLAG_IMLINK_SERIAL     = 1,
-    CONFIG_FLAG_AP_SERIAL         = 2,
-    CONFIG_FLAG_SERIAL            = 3,
-    CONFIG_FLAG_AP                = 4,
-    CONFIG_FLAG_IMLINK            = 5,
-} CONFIG_FLAG_TypeDef;
-
-typedef enum
-{
     AT_MODE_FLAG_NONE            = 0, //没有密钥信息
     AT_MODE_FLAG_ABP             = 1, //Activation By Personalization  //已经灌好密钥
     AT_MODE_FLAG_OTAA_INACTIVE   = 2, //Over-The-Air Activation //灌装激活码  未激活
@@ -117,8 +107,8 @@ int HAL_PARAMS_Set_System_fwlib_ver(const char* buffer);
 uint16_t HAL_PARAMS_Get_System_subsys_ver(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_subsys_ver(const char* buffer);
 
-CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void);
-int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag);
+uint16_t HAL_PARAMS_Get_System_config_flag(void);
+int HAL_PARAMS_Set_System_config_flag(uint16_t flag);
 uint16_t HAL_PARAMS_Get_System_activation_code(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_activation_code(const char* buffer);
 

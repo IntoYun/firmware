@@ -187,6 +187,7 @@ void HAL_Core_Config(void)
     HAL_IWDG_Initial();
     HAL_UI_Initial();
 
+    /*
     HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
     delay(1000);
     HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
@@ -200,6 +201,7 @@ void HAL_Core_Config(void)
     HAL_UI_RGB_Color(RGB_COLOR_YELLOW);  // color the same with atom
     delay(2000);
     HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);  // color the same with atom
+    */
 }
 
 void HAL_Core_Load_params(void)

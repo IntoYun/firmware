@@ -58,7 +58,7 @@ esptool-py: $(TARGET_BASE).bin # for esp32
 	$(call,echo,)
 	$(call,echo,'Flashing $< using esptool-py to address')
 ifeq ("$(MODULE)","bootloader")
-	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) --flash_size $(FLASH_SIZE)  $(PLATFORM_BOOT_ADDR) $< 0x8000 $(PROJECT_ROOT)/platform/MCU/ESP32-Arduino/sdk/bin/partitions_singleapp.bin
+	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) --flash_size $(FLASH_SIZE)  $(PLATFORM_BOOT_ADDR) $<
 else
 	$(SUDO) $(ESP_TOOL_PY) --chip esp32 --port $(UPLOAD_PORT) --baud $(UPLOAD_SPEED) write_flash -z --flash_freq $(FLASH_SPEED) --flash_mode $(FLASH_MODE) --flash_size $(FLASH_SIZE)  $(PLATFORM_APP_ADDR) $<
 endif
