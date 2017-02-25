@@ -18,6 +18,12 @@
 */
 
 #include "wlan_hal.h"
+#include "esp_wifi_types.h"
+#include "esp32_wifi_generic.h"
+// #include "esp_wifi.h"
+// #include "esp_smartconfig.h"
+// #include "esp_err.h"
+// #include "WString.h"
 
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
@@ -61,7 +67,7 @@ int wlan_status()
 
 int wlan_connected_rssi(void)
 {
-    return 0;
+    // return esp32_getRSSI();
 }
 
 int wlan_set_credentials(WLanCredentials* c)
@@ -71,19 +77,28 @@ int wlan_set_credentials(WLanCredentials* c)
 
 void wlan_Imlink_start()
 {
+    // esp32_beginSmartConfig();
 }
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    return IMLINK_DOING;
+    // if(!esp32_smartConfigDone())
+    //     return IMLINK_DOING;
+    // else
+        return IMLINK_SUCCESS;
 }
 
 void wlan_Imlink_stop()
 {
+   // esp32_stopSmartConfig();
 }
 
 void wlan_setup()
 {
+    // esp32_setMode(WIFI_MODE_STA);
+    // esp32_setDHCP(true);
+    // esp32_setAutoConnect(true);
+    // esp32_setAutoReconnect(true);
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)
@@ -144,5 +159,27 @@ int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
  */
 int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
+    #if 0
+    if(!esp_wifi_get_mac(WIFI_IF_STA, stamacaddr))
+    {
+        return -1;
+    }
+
+    if(!esp_wifi_get_mac(WIFI_IF_AP, apmacaddr))
+    {
+        return -1;
+    }
+    #endif
+    #if 0
+    if(!esp32_getMacAddress(stamacaddr))
+    {
+        return -1;
+    }
+
+    if(!esp32_getMacAddress(apmacaddr))
+    {
+        return -1;
+    }
+    #endif
     return 0;
 }
