@@ -81,6 +81,7 @@ void HAL_UI_Initial(void)
     GPIO.out_w1ts = (1 << USER_GPIO_PIN); //默认高电平 灯灭
 
     // rgb pin
+    GPIO.out_w1ts = (1 << RGB_R_GPIO_PIN); //默认高电平 灯灭
     gpio_matrix_out(RGB_R_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_R_GPIO_PIN); //output enable
     GPIO.pin[RGB_R_GPIO_PIN].int_ena = 0;       //disable GPIO intr
@@ -88,6 +89,7 @@ void HAL_UI_Initial(void)
     CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD7_REG, RTC_IO_TOUCH_PAD7_RUE_M); //disable pull up
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO27_U, PIN_FUNC_GPIO); //set register
 
+    GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN); //默认高电平 灯灭
     gpio_matrix_out(RGB_G_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_G_GPIO_PIN); //output enable
     GPIO.pin[RGB_G_GPIO_PIN].int_ena = 0;       //disable GPIO intr
@@ -95,6 +97,7 @@ void HAL_UI_Initial(void)
     REG_CLR_BIT(PERIPHS_IO_MUX_GPIO21_U, FUN_PU); //disable pull up
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO21_U, PIN_FUNC_GPIO);//set register
 
+    GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN); //默认高电平 灯灭
     gpio_matrix_out(RGB_B_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_B_GPIO_PIN); //output enable
     GPIO.pin[RGB_B_GPIO_PIN].int_ena = 0;       //disable GPIO intr

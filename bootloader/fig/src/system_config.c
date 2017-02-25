@@ -5,6 +5,13 @@
 #include "rom/spi_flash.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/timer_group_reg.h"
+#include "soc/dport_reg.h"
+#include "soc/timer_group_struct.h"
+#include "esp_intr_alloc.h"
+#include "esp_intr.h"
+#include "boot_debug.h"
+#include "ui_hal.h"
+/* #include "xtensa_intr_asm.S" */
 
 /**
  * @brief  System Clock Configuration
@@ -23,7 +30,109 @@ void SystemClock_Config(void)
  */
 void SysTick_Handler(void)
 {
+    BOOT_DEBUG("timer...\r\n");
     HAL_UI_SysTick_Handler();
+}
+
+#if 0
+static void xt_ints(void)
+{
+/* xt_ints_on: */
+
+    /* ENTRY0 */
+
+asm volatile(
+#if XCHAL_HAVE_INTERRUPTS
+#if XT_USE_SWPRI
+    movi    a3, 0
+    movi    a4, _xt_intdata
+    xsr     a3, INTENABLE        /* Disables all interrupts   */
+    rsync
+    l32i    a3, a4, 0            /* a3 = _xt_intenable        */
+    l32i    a6, a4, 4            /* a6 = _xt_vpri_mask        */
+    or      a5, a3, a2           /* a5 = _xt_intenable | mask */
+    s32i    a5, a4, 0            /* _xt_intenable |= mask     */
+    and     a5, a5, a6           /* a5 = _xt_intenable & _xt_vpri_mask */
+    wsr     a5, INTENABLE        /* Reenable interrupts       */
+    mov     a2, a3               /* Previous mask             */
+#else
+    movi    a3, 0
+    xsr     a3, INTENABLE        /* Disables all interrupts   */
+    rsync
+    or      a2, a3, a2           /* set bits in mask */
+    wsr     a2, INTENABLE        /* Re-enable ints */
+    rsync
+    mov     a2, a3               /* return prev mask */
+#endif
+#else
+    movi    a2, 0                /* Return zero */
+#endif
+         )
+    RET0
+}
+#endif
+
+#if 0
+typedef struct xt_handler_table_entry {
+    void * handler;
+    void * arg;
+} xt_handler_table_entry;
+
+extern xt_handler_table_entry _xt_interrupt_table[XCHAL_NUM_INTERRUPTS*portNUM_PROCESSORS];
+
+
+/*
+  Default handler for unhandled interrupts.
+*/
+void xt_unhandled_interrupt(void * arg)
+{
+	ets_printf("Unhandled interrupt %d on cpu %d!\n", (int)arg, xPortGetCoreID());
+}
+
+
+/*
+  This function registers a handler for the specified interrupt. The "arg"
+  parameter specifies the argument to be passed to the handler when it is
+  invoked. The function returns the address of the previous handler.
+  On error, it returns 0.
+*/
+xt_handler xt_set_interrupt_handler(int n, xt_handler f, void * arg)
+{
+    xt_handler_table_entry * entry;
+    xt_handler               old;
+
+    if( n < 0 || n >= XCHAL_NUM_INTERRUPTS )
+        return 0;       /* invalid interrupt number */
+    if( Xthal_intlevel[n] > XCHAL_EXCM_LEVEL )
+        return 0;       /* priority level too high to safely handle in C */
+
+    /* Convert exception number to _xt_exception_table name */
+    n = n * portNUM_PROCESSORS + xPortGetCoreID();
+
+    entry = _xt_interrupt_table + n;
+    old   = entry->handler;
+
+    if (f) {
+        entry->handler = f;
+        entry->arg     = arg;
+    }
+    else {
+        entry->handler = &xt_unhandled_interrupt;
+        entry->arg     = (void*)n;
+    }
+
+    return ((old == &xt_unhandled_interrupt) ? 0 : old);
+}
+
+#endif
+
+static inline uint32_t xPortGetCoreID() {
+    int id;
+    asm volatile(
+                 "rsr.prid %0\n"
+                 " extui %0,%0,13,1"
+                 :"=r"(id));
+    return id;
 }
 
 /**
@@ -33,6 +142,92 @@ void SysTick_Handler(void)
  */
 void HwTimer_config(void)
 {
+    BOOT_DEBUG("timer config \r\n");
+    //use hardware timer0 init
+    // enable periph timer0
+    /* periph_module_enable(PERIPH_TIMG0_MODULE); */
+    SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG, DPORT_TIMERGROUP_CLK_EN);
+    CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG, DPORT_TIMERGROUP_RST);
+    // init timer0
+    /* TIMER_ENTER_CRITICAL(&timer_spinlock[0]); */
+    TIMERG0.hw_timer[0].config.autoreload = 1;
+    TIMERG0.hw_timer[0].config.divider = 80;
+    TIMERG0.hw_timer[0].config.enable = 0;
+    TIMERG0.hw_timer[0].config.increase = 1;
+    TIMERG0.hw_timer[0].config.alarm_en = 0;
+    TIMERG0.hw_timer[0].config.level_int_en = 1;
+    TIMERG0.hw_timer[0].config.edge_int_en = 0;
+    /* TIMER_EXIT_CRITICAL(&timer_spinlock[0]); */
+
+    /*Stop timer counter*/
+    /* TIMER_ENTER_CRITICAL(&timer_spinlock[0]); */
+    /* TIMERG0.hw_timer[0].config.enable = 0; */
+    /* TIMER_EXIT_CRITICAL(&timer_spinlock[0]); */
+
+    /*Load counter value */
+    /* TIMER_ENTER_CRITICAL(&timer_spinlock[0]); */
+    TIMERG0.hw_timer[0].load_high = 0;//(uint32_t) (0 >> 32);
+    TIMERG0.hw_timer[0].load_low = (uint32_t) 1000;
+    TIMERG0.hw_timer[0].reload = 1;
+    /* TIMER_EXIT_CRITICAL(&timer_spinlock[0]); */
+
+    /*Enable timer interrupt*/
+    /* timer_group_intr_enable(group_num, BIT(timer_num)); */
+    /* portENTER_CRITICAL(&timer_spinlock[0]); */
+    TIMERG0.int_ena.val |= 1;
+    /* portEXIT_CRITICAL(&timer_spinlock[0]); */
+
+    /*Set ISR handler*/
+    /* timer_isr_register(timer_group, timer_idx, timer_group0_isr, (void*) timer_idx, ESP_INTR_FLAG_IRAM, NULL); */
+    #if 0
+    int intr_source = 0;
+    uint32_t status_reg = 0;
+    int mask = 0;
+    if((ESP_INTR_FLAG_IRAM & ESP_INTR_FLAG_EDGE) == 0) {
+        intr_source = ETS_TG0_T0_LEVEL_INTR_SOURCE + 0;
+    } else {
+        intr_source = ETS_TG0_T0_EDGE_INTR_SOURCE + 0;
+    }
+    status_reg = TIMG_INT_ST_TIMERS_REG(0);
+    mask = 1<<0;
+    #endif
+    #if 0
+asm volatile(
+         .data
+         .global _xt_interrupt_table
+         .align  8
+
+         _xt_interrupt_table:
+
+         .set    i, 0
+         .rept   XCHAL_NUM_INTERRUPTS*portNUM_PROCESSORS
+         .word   xt_unhandled_interrupt      /* handler address               */
+         .word   i                           /* handler arg (default: intnum) */
+         .set    i, i+1
+         .endr
+        )
+/* #endasm */
+#endif
+    /* esp_intr_alloc_intrstatus(intr_source, intr_alloc_flags, status_reg, mask, fn, arg, handle); */
+    /* esp_intr_alloc_intrstatus(intr_source, ESP_INTR_FLAG_IRAM, status_reg, mask, SysTick_Handler, (void*)0, NULL); */
+
+    /* xt_set_interrupt_handler(0, SysTick_Handler, NULL); */
+    intr_matrix_set(xPortGetCoreID(),ETS_TG0_T0_LEVEL_INTR_SOURCE,10);
+    /* intr_matrix_set(0,ETS_TG0_T0_LEVEL_INTR_SOURCE,10); */
+    //Enable int at CPU-level;
+    /* ESP_INTR_ENABLE(10); */
+    /* xt_ints_on(10); */
+
+    /* ets_isr_attach(10,SysTick_Handler,NULL); */
+    /* ets_isr_mask(1<<10); */
+/* ETS_TG0_T0_INTR_ATTACH(SysTick_Handler,NULL); */
+
+    /*Start timer counter*/
+    /* timer_start(timer_group, timer_idx); */
+    /* TIMER_ENTER_CRITICAL(&timer_spinlock[0]); */
+    TIMERG0.hw_timer[0].config.enable = 1;
+    /* TIMER_EXIT_CRITICAL(&timer_spinlock[0]); */
+
 
 }
 
