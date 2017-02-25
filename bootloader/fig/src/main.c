@@ -5,7 +5,6 @@
  * 3-clause BSD license to be found in the LICENSE file.
  */
 
-#include "hw_config.h"
 #include "boot_mode.h"
 #include "system_config.h"
 #include "params_hal.h"
@@ -67,6 +66,15 @@ void IRAM_ATTR call_start_cpu0()
 
     main();
 }
+/*
+ETSTimer timer;
+
+void fn_timer(void *timer_arg)
+{
+    HAL_UI_RGB_Color(RGB_COLOR_RED);
+   // BOOT_DEBUG("b ");
+}
+*/
 
 int main()
 {
@@ -76,7 +84,24 @@ int main()
 
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
-
+/*
+    ets_timer_init();
+    BOOT_DEBUG("1\r\n");
+    ets_timer_disarm(&timer);
+    BOOT_DEBUG("2\r\n");
+    ets_timer_setfn(&timer, fn_timer, NULL);
+    BOOT_DEBUG("3\r\n");
+    ets_timer_arm(&timer, 1000, true);
+    //ets_timer_done(&timer);
+    BOOT_DEBUG("4\r\n");
+    while(1)
+    {
+        HAL_UI_RGB_Color(RGB_COLOR_RED);
+        delay(1000);
+        HAL_UI_RGB_Color(RGB_COLOR_GREEN);
+        delay(1000);
+    }
+*/
     if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
     {
         //延时1.5s 等待用户进入配置模式
