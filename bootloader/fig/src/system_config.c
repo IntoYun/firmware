@@ -78,7 +78,10 @@ typedef struct xt_handler_table_entry {
     void * arg;
 } xt_handler_table_entry;
 
+#define XCHAL_NUM_INTERRUPTS		32	/* number of interrupts */
+#define portNUM_PROCESSORS 1
 extern xt_handler_table_entry _xt_interrupt_table[XCHAL_NUM_INTERRUPTS*portNUM_PROCESSORS];
+//extern xt_handler_table_entry _xt_interrupt_table[32];
 
 
 /*
@@ -88,7 +91,16 @@ void xt_unhandled_interrupt(void * arg)
 {
 	ets_printf("Unhandled interrupt %d on cpu %d!\n", (int)arg, xPortGetCoreID());
 }
-
+/*
+static inline uint32_t xPortGetCoreID() {
+    int id;
+    asm volatile(
+                 "rsr.prid %0\n"
+                 " extui %0,%0,13,1"
+                 :"=r"(id));
+    return id;
+}
+*/
 
 /*
   This function registers a handler for the specified interrupt. The "arg"
@@ -107,7 +119,8 @@ xt_handler xt_set_interrupt_handler(int n, xt_handler f, void * arg)
         return 0;       /* priority level too high to safely handle in C */
 
     /* Convert exception number to _xt_exception_table name */
-    n = n * portNUM_PROCESSORS + xPortGetCoreID();
+    //n = n * portNUM_PROCESSORS + xPortGetCoreID();
+    n = n * portNUM_PROCESSORS + 0;
 
     entry = _xt_interrupt_table + n;
     old   = entry->handler;
@@ -123,18 +136,8 @@ xt_handler xt_set_interrupt_handler(int n, xt_handler f, void * arg)
 
     return ((old == &xt_unhandled_interrupt) ? 0 : old);
 }
-
 #endif
-
-static inline uint32_t xPortGetCoreID() {
-    int id;
-    asm volatile(
-                 "rsr.prid %0\n"
-                 " extui %0,%0,13,1"
-                 :"=r"(id));
-    return id;
-}
-
+#if 0
 /**
  * @brief  System Clock Configuration
  * @param  96M
@@ -230,7 +233,7 @@ asm volatile(
 
 
 }
-
+#endif
 static void uart_console_configure(void)
 {
     const int uart_num = CONFIG_CONSOLE_UART_NUM;
@@ -304,7 +307,7 @@ void Set_System(void)
     REG_CLR_BIT( TIMG_WDTCONFIG0_REG(0), TIMG_WDT_FLASHBOOT_MOD_EN );
     Update_flash_config();
 
-    HwTimer_config();
+    //HwTimer_config();
     HAL_UI_Initial();
 }
 
