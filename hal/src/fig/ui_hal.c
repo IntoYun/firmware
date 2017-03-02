@@ -20,6 +20,7 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_hal.h"
 #include "service_debug.h"
 #include "gpio_hal.h"
+#include "esp_attr.h"
 
 #define RGB_R_GPIO_PIN       LED_R
 #define RGB_G_GPIO_PIN       LED_G
@@ -122,8 +123,14 @@ void HAL_UI_UserLED_Control(uint8_t value)
 {
 }
 
-void HAL_UI_SysTick_Handler(void)
+uint32_t tim;
+void IRAM_ATTR HAL_UI_SysTick_Handler(void)
 {
+    /* DEBUG("into systick timer"); */
+    if(++tim >= 100)
+            HAL_GPIO_Write(RGB_B_GPIO_PIN, 0); // low level effort
+    else
+        HAL_GPIO_Write(RGB_G_GPIO_PIN, 0); // low level effort
   //三色灯处理
   if(RGB_MODE_BLINK == rgb_info.rgb_mode)
     {

@@ -23,12 +23,24 @@
 #ifndef ESP8266_WIFI_GENERIC_H_
 #define ESP8266_WIFI_GENERIC_H_
 
+#include "WString.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdint.h>
 #include "esp_wifi_types.h"
+
+#define WIFI_SCAN_RUNNING   (-1)
+#define WIFI_SCAN_FAILED    (-2)
+
+#define WiFiMode_t   wifi_mode_t
+#define WIFI_OFF     WIFI_MODE_NULL
+#define WIFI_STA     WIFI_MODE_STA
+#define WIFI_AP      WIFI_MODE_AP
+#define WIFI_AP_STA  WIFI_MODE_APSTA
+
+#define WiFiEvent_t  system_event_id_t
 
 typedef enum {
         WL_NO_SHIELD        = 255,   // for compatibility with WiFi Shield library
@@ -41,13 +53,48 @@ typedef enum {
         WL_DISCONNECTED     = 6
 } wl_status_t;
 
+typedef enum {
+        STATION_IDLE = 0,
+        STATION_CONNECTING,
+        STATION_WRONG_PASSWORD,
+        STATION_NO_AP_FOUND,
+        STATION_CONNECT_FAIL,
+        STATION_GOT_IP
+} station_status_t;
+
+
+typedef struct bss_info {
+        // struct bss_info* next;
+    STAILQ_ENTRY(bss_info)     next;
+        uint8_t bssid[6];
+        uint8_t ssid[32];
+        uint8_t ssid_len;
+        uint8_t channel;
+        int8_t rssi;
+        wifi_auth_mode_t authmode;
+        uint8_t is_hidden;
+        int16_t freq_offset;
+        int16_t freqcal_val;
+        uint8_t *esp_mesh_ie;
+        uint8_t simple_pair;
+} bss_info_t;
+
+
+#define FLASH_MAC_HEADER      0x5aa5f88f
+
+typedef struct __attribute__((__packed__))  _mac_param_t {
+        uint32_t header;
+        uint8_t stamac_addrs[6];
+        uint8_t apmac_addrs[6];
+} mac_param_t;
+
+
 
 bool esp32_setMode(wifi_mode_t m);
 wifi_mode_t esp32_getMode();
 bool esp32_enableSTA(bool enable);
 bool esp32_enableAP(bool enable);
 uint8_t* esp32_getMacAddress(uint8_t* mac);
-// int esp32_getMacAddress(uint8_t* mac);
 bool esp32_setDHCP(char enable);
 bool esp32_setAutoConnect(bool autoConnect);
 int32_t esp32_getRSSI(void);
@@ -61,7 +108,9 @@ wl_status_t esp32_status();
 bool esp32_setAutoConnect(bool autoConnect);
 bool esp32_getAutoConnect();
 bool esp32_setAutoReconnect(bool autoReconnect);
-
+wl_status_t WiFi_getStatus();
+bool getNetworkInfo(uint8_t i, String &ssid, uint8_t &encType, int8_t &rssi, uint8_t* bssid, int32_t &channel);
+uint16_t WiFi_getScanCount();
 #ifdef __cplusplus
 }
 #endif

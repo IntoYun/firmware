@@ -4,6 +4,7 @@
 
 #if CONFIG_AUTOSTART_ARDUINO
 
+#if 0
 void loopTask(void *pvParameters)
 {
     setup();
@@ -17,5 +18,6 @@ extern "C" void app_main()
     initArduino();
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
 }
+#endif
 
 #endif

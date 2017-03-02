@@ -49,32 +49,144 @@ extern "C" {
 #include "timer_hal.h"
 #include "service_debug.h"
 #include "delay_hal.h"
+#include <vector>
+
+typedef void (*WiFiEventCb)(system_event_id_t event);
+
+typedef struct {
+    WiFiEventCb cb;
+    system_event_id_t event;
+} WiFiEventCbList_t;
+
+
+static std::vector<WiFiEventCbList_t> cbEventList;
+
+// WiFiEventCbList_t cbEventList;
+
 
 volatile uint8_t _dns_founded=0;
+volatile uint8_t wifiStatus;
+volatile uint16_t _scanCount;
+void *_scanResult = NULL;
 
-static volatile uint32_t esp32_wifi_timeout_start;
-static volatile uint32_t esp32_wifi_timeout_duration;
-
-inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
-    esp32_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
-    esp32_wifi_timeout_duration = dur;
-    //DEBUG("esp8266 WIFI WD Set %d",(dur));
-}
-inline bool IS_WIFI_TIMEOUT() {
-    return esp32_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp32_wifi_timeout_start)>esp32_wifi_timeout_duration);
-}
-
-inline void CLR_WIFI_TIMEOUT() {
-    esp32_wifi_timeout_duration = 0;
-    //DEBUG("esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
+void *_getScanInfoByIndex(int i)
+{
+    if(!_scanResult || (size_t) i > _scanCount)
+    {
+        return 0;
+    }
+    return reinterpret_cast<wifi_ap_record_t*>(_scanResult) + i;
 }
 
-#if 1
+bool getNetworkInfo(uint8_t i, String &ssid, uint8_t &encType, int8_t &rssi, uint8_t* bssid, int32_t &channel)
+{
+    wifi_ap_record_t* it = reinterpret_cast<wifi_ap_record_t*>(_getScanInfoByIndex(i));
+    if(!it)
+    {
+        return false;
+    }
+    ssid = (const char*) it->ssid;
+    encType = it->authmode;
+    rssi = it->rssi;
+    bssid = it->bssid;
+    channel = it->primary;
+    return true;
+}
+
+uint16_t WiFi_getScanCount()
+{
+    return _scanCount;
+}
+
+void WiFi_setStatus(wl_status_t status)
+{
+    wifiStatus = status;
+    //log_i("wifi status: %d", status);
+}
+
+wl_status_t WiFi_getStatus()
+{
+    return wifiStatus;
+}
+
+void WiFi_scanDone()
+{
+    // WiFiScanClass::_scanComplete = true;
+    // WiFiScanClass::_scanStarted = false;
+    esp_wifi_scan_get_ap_num(&_scanCount);
+    if(_scanCount) {
+        _scanResult = new wifi_ap_record_t[_scanCount];
+        if(_scanResult) {
+            esp_wifi_scan_get_ap_records(&_scanCount, (wifi_ap_record_t*)_scanResult);
+        } else {
+            //no memory
+            _scanCount = 0;
+        }
+    }
+}
+
+esp_err_t _eventCallback(void *arg, system_event_t *event)
+{
+    // log_d("Event: %d - %s", event->event_id, system_event_names[event->event_id]);
+
+    if(event->event_id == SYSTEM_EVENT_SCAN_DONE)
+    {
+        WiFi_scanDone();
+    }
+    else if(event->event_id == SYSTEM_EVENT_STA_DISCONNECTED)
+    {
+        uint8_t reason = event->event_info.disconnected.reason;
+        // log_w("Reason: %u - %s", reason, reason2str(reason));
+        if(reason == WIFI_REASON_NO_AP_FOUND)
+        {
+            WiFi_setStatus(WL_NO_SSID_AVAIL);
+        }
+        else if(reason == WIFI_REASON_AUTH_FAIL || reason == WIFI_REASON_ASSOC_FAIL)
+        {
+            WiFi_setStatus(WL_CONNECT_FAILED);
+        }
+        else if(reason == WIFI_REASON_BEACON_TIMEOUT || reason == WIFI_REASON_HANDSHAKE_TIMEOUT)
+        {
+            WiFi_setStatus(WL_CONNECTION_LOST);
+        }
+        else
+        {
+            WiFi_setStatus(WL_DISCONNECTED);
+        }
+    }
+    else if(event->event_id == SYSTEM_EVENT_STA_START)
+    {
+        WiFi_setStatus(WL_DISCONNECTED);
+    }
+    else if(event->event_id == SYSTEM_EVENT_STA_STOP)
+    {
+        WiFi_setStatus(WL_NO_SHIELD);
+    }
+    else if(event->event_id == SYSTEM_EVENT_STA_GOT_IP)
+    {
+        WiFi_setStatus(WL_CONNECTED);
+    }
+
+    for(uint32_t i = 0; i < cbEventList.size(); i++)
+    {
+        WiFiEventCbList_t entry = cbEventList[i];
+        if(entry.cb)
+        {
+            if(entry.event == (system_event_id_t) event->event_id || entry.event == SYSTEM_EVENT_MAX)
+            {
+                entry.cb((system_event_id_t) event->event_id);
+            }
+        }
+    }
+    return ESP_OK;
+}
+
+
 static bool wifiLowLevelInit(){
     static bool lowLevelInitDone = false;
     if(!lowLevelInitDone){
         tcpip_adapter_init();
-        // esp_event_loop_init(&WiFiGenericClass::_eventCallback, NULL);
+        esp_event_loop_init(&_eventCallback, NULL);
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         esp_err_t err = esp_wifi_init(&cfg);
         if(err){
@@ -90,7 +202,7 @@ static bool wifiLowLevelInit(){
 
 static bool wifiLowLevelDeinit(){
     //deinit not working yet!
-    //esp_wifi_deinit();
+    esp_wifi_deinit();
     return true;
 }
 
@@ -126,7 +238,6 @@ static bool espWiFiStop(){
     _esp_wifi_started = false;
     return wifiLowLevelDeinit();
 }
-#endif
 
 /**
  * set new mode
@@ -168,6 +279,10 @@ bool esp32_setMode(wifi_mode_t m)
  */
 wifi_mode_t esp32_getMode()
 {
+    if(!wifiLowLevelInit()){
+        return WIFI_MODE_MAX;
+    }
+
     uint8_t mode;
     esp_wifi_get_mode((wifi_mode_t*)&mode);
     return (wifi_mode_t)mode;
@@ -246,16 +361,6 @@ uint8_t* esp32_getMacAddress(uint8_t* mac)
     return macStr;
 #endif
 }
-
-// int esp32_getMacAddress(uint8_t* mac)
-// {
-//     if(!esp_wifi_get_mac(WIFI_IF_STA, mac))
-//     {
-//         return -1;
-//     }
-
-//     return 1;
-// }
 
 bool esp32_setDHCP(char enable)
 {
@@ -531,8 +636,9 @@ int esp32_disconnect()
 
 wl_status_t esp32_status()
 {
-    #if 0
-    station_status_t status = wifi_station_get_connect_status();
+    return WiFi_getStatus();
+    #if  0 
+    station_status_t status = WiFi_getStatus();
     switch(status) {
         case STATION_GOT_IP:
             return WL_CONNECTED;

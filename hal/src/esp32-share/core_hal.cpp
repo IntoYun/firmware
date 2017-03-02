@@ -17,6 +17,7 @@
   ******************************************************************************
 */
 #include <stdio.h>
+
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -45,38 +46,9 @@
 #include "bkpreg_hal.h"
 #include "flash_map.h"
 #include "memory_hal.h"
-
-void HAL_Core_Setup(void);
-
-#define EXAMPLE_WIFI_SSID  "MOLMC_NETGRAR"
-#define EXAMPLE_WIFI_PASS   "26554422"
-
-const static char *TAG = "WIFI demo";
-
-
-static EventGroupHandle_t wifi_event_group;
-
-static esp_err_t wifi_event_handler(void *ctx, system_event_t *event)
-{
-    switch(event->event_id) {
-    case SYSTEM_EVENT_STA_START:
-        esp_wifi_connect();
-        break;
-    case SYSTEM_EVENT_STA_GOT_IP:
-        xEventGroupSetBits(wifi_event_group, 0x1);//CONNECTED_BIT);
-        // openssl_client_init();
-        break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
-        /* This is a workaround as ESP32 WiFi libs don't currently
-           auto-reassociate. */
-        esp_wifi_connect(); 
-        xEventGroupClearBits(wifi_event_group, 0x1);//CONNECTED_BIT);
-        break;
-    default:
-        break;
-    }
-    return ESP_OK;
-}
+#include "driver/timer.h"
+#include "esp_attr.h"
+#include "freertos/portmacro.h"
 
 void initVariant() __attribute__((weak));
 void initVariant() {}
@@ -87,48 +59,11 @@ void init() {}
 void startWiFi() __attribute__((weak));
 void startWiFi() {}
 
-wifi_config_t wifi_config = {
-    {
-         EXAMPLE_WIFI_SSID,    //"MOLMC_NETGRAR",
-         EXAMPLE_WIFI_PASS,//"26554422",
-    },
-};
-
 void initWiFi() __attribute__((weak));
-void initWiFi() {
-    tcpip_adapter_init();
-    wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK( esp_event_loop_init(wifi_event_handler, NULL) );
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    // printf("wifi init:%d \n",esp_wifi_init(&cfg));
-    // while(1);
-    ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
-    ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-    strcpy(wifi_config.sta.ssid, "MOLMC_NETGRAR");//EXAMPLE_WIFI_SSID;
-    strcpy(wifi_config.sta.password, "26554422");//EXAMPLE_WIFI_SSID;
-    // wifi_config_t wifi_config = {
-    //     .sta = {
-    //         .ssid = EXAMPLE_WIFI_SSID,    //"MOLMC_NETGRAR",
-    //         .password = EXAMPLE_WIFI_PASS,//"26554422",
-    //     },
-    // };
-    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
-    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    ESP_LOGI(TAG, "start the WIFI SSID:[%s] password:[%s]\n", EXAMPLE_WIFI_SSID, EXAMPLE_WIFI_PASS);
-    ESP_ERROR_CHECK( esp_wifi_start() );
+void initWiFi(){}
 
-}
+void HAL_Core_Setup(void);
 
-extern "C" void system_loop_handler(uint32_t interval_us);
-void loopTask(void *pvParameters)
-{
-    app_setup_and_loop_initial();
-    while(1)
-    {
-        app_loop();
-        system_loop_handler(100);
-    }
-}
 /*
 void SysTick_Handler(void);
 void sysTickHandlerTask(void *pvParameters)
@@ -142,27 +77,46 @@ void sysTickHandlerTask(void *pvParameters)
 }
 */
 
-void SysTick_Handler(void);
-hw_timer_t * sysTickTimer;
-#if 0
-#define APB_CLK_FREQ                                ( 80*1000000 )       //unit: Hz
-#define TIMER_DIVIDER   16               /*!< Hardware timer clock divider */
+void IRAM_ATTR SysTick_Handler(void);
+
+hw_timer_t * sysTickTimer = NULL;
+
+#if  1
+#define APB_CLK_FREQ    ( 80*1000000 )       //unit: Hz
+#define TIMER_DIVIDER   80               /*!< Hardware timer clock divider */
 #define TIMER_SCALE    (TIMER_BASE_CLK / TIMER_DIVIDER)  /*!< used to calculate counter value */
 #endif
+
+extern "C" void system_loop_handler(uint32_t interval_us);
+
+void loopTask(void *pvParameters)
+{
+    app_setup_and_loop_initial();
+    while(1)
+        {
+            app_loop();
+            system_loop_handler(100);
+        }
+}
+
 extern "C" void app_main()
 {
     init();
     initVariant();
-    // initWiFi();
+    initWiFi();
     HAL_Core_Config();
     HAL_Core_Setup();
 
-    /*
-    timerBegin(0, 16, true);
-    timerSetAutoReload(sysTickTimer, false);
-    timerWrite(sysTickTimer, 3.4179*TIMER_SCALE);
-    timerAttachInterrupt(sysTickTimer, &SysTick_Handler, true);
-    */
+    DEBUG("address = 0x%x",&SysTick_Handler);
+    sysTickTimer = timerBegin(0, 80, true);
+    timerAttachInterrupt(sysTickTimer, SysTick_Handler, true);
+
+    timerAlarmWrite(sysTickTimer, 1000, true);
+    timerAlarmEnable(sysTickTimer);
+
+    // timerWrite(sysTickTimer, 1000);
+    // timerSetAutoReload(sysTickTimer, true);
+    // timerStart(sysTickTimer);
 
     xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
     //xTaskCreatePinnedToCore(sysTickHandlerTask, "sysTickHandlerTask", 4096, NULL, 1, NULL, 1); //后期需改造成硬件定时器
@@ -349,10 +303,17 @@ void system_loop_handler(uint32_t interval_us)
     }
 }
 
-void SysTick_Handler(void)
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+void IRAM_ATTR SysTick_Handler(void)
 {
+    portENTER_CRITICAL_ISR(&timerMux);
+    DEBUG("into systick handler");
+
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
+
+    portEXIT_CRITICAL_ISR(&timerMux);
 }
 
 void HAL_Core_System_Loop(void)
@@ -368,5 +329,3 @@ uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
     return 0;
 }
-
-

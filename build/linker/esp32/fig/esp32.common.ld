@@ -78,7 +78,7 @@ SECTIONS
     /* Code marked as runnning out of IRAM */
     _iram_text_start = ABSOLUTE(.);
     *(.iram1 .iram1.*)
-    *libfreertos.a:(.literal .text .literal.* .text.*)
+    /* *libfreertos.a:(.literal .text .literal.* .text.*) */
     *libesp32.a:panic.o(.literal .text .literal.* .text.*)
     *libesp32.a:core_dump.o(.literal .text .literal.* .text.*)
     *libphy.a:(.literal .text .literal.* .text.*)
