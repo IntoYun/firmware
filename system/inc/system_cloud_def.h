@@ -104,7 +104,7 @@
 #define INTOROBOT_MQTT_WILL_TOPIC      "info"
 #define INTOROBOT_MQTT_WILL_QOS        0
 #define INTOROBOT_MQTT_WILL_RETAIN     true
-#define INTOROBOT_MQTT_WILL_MESSAGE    "{\"online\": \"false\"}"
+#define INTOROBOT_MQTT_WILL_MESSAGE    "{\"online\": false}"
 
 /*publish  topic*/
 #define INTOROBOT_MQTT_RX_TOPIC        "rx"
