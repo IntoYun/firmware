@@ -307,8 +307,7 @@ void DeviceConfig::dealCheckWifi(void)
     write((unsigned char *)string, strlen(string));
     free(string);
     aJson.deleteItem(root);
-#endif
-#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
@@ -317,10 +316,8 @@ void DeviceConfig::dealGetNetworkStatus(void)
 {
 #ifdef configWIRING_WIFI_ENABLE
     dealCheckWifi();
-#endif
-#ifdef configWIRING_CELLULAR_ENABLE
-#endif
-#ifdef configWIRING_LORA_ENABLE
+#elif defined configWIRING_CELLULAR_ENABLE
+#elif defined configWIRING_LORA_ENABLE
 #endif
 }
 
@@ -368,8 +365,7 @@ void DeviceConfig::dealGetWifiList(void)
         free(string);
         aJson.deleteItem(root);
     }
-#endif
-#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
@@ -446,13 +442,13 @@ void DeviceConfig::dealGetInfo(void)
     memset(macStr, 0, sizeof(macStr));
     sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
     aJson.addStringToObject(value_object, "apmac", macStr);
-
+#elif defined configWIRING_CELLULAR_ENABLE
+#elif defined configWIRING_LORA_ENABLE
+    char devaddr[12];
+    HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
+    aJson.addStringToObject(value_object, "devaddr", devaddr);
+#endif
     aJson.addItemToObject(root, "value", value_object);
-#endif
-#ifdef configWIRING_CELLULAR_ENABLE
-#endif
-#ifdef configWIRING_LORA_ENABLE
-#endif
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
     free(string);
@@ -481,11 +477,9 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
         return;
     }
     sendComfirm(201);
-#endif
-#ifdef configWIRING_CELLULAR_ENABLE
+#elif defined configWIRING_CELLULAR_ENABLE
     sendComfirm(200);
-#endif
-#ifdef configWIRING_LORA_ENABLE
+#elif defined configWIRING_LORA_ENABLE
     sendComfirm(200);
 #endif
 }
@@ -494,11 +488,9 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
     dealSendWifiInfo(value_Object);
-#endif
-#ifdef configWIRING_CELLULAR_ENABLE
+#elif defined configWIRING_CELLULAR_ENABLE
     sendComfirm(200);
-#endif
-#ifdef configWIRING_LORA_ENABLE
+#elif defined configWIRING_LORA_ENABLE
     sendComfirm(200);
 #endif
 }
@@ -539,50 +531,91 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* value_Object)
     }
     HAL_PARAMS_Save_Params();
     sendComfirm(200);
-#endif
-#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
 
 void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
 {
-#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
     bool flag = false;
 
+    aJsonObject *deviceIdObject = aJson.getObjectItem(value_Object, "device_id");
     //at_mode
     aJsonObject *atModeObject = aJson.getObjectItem(value_Object, "at_mode");
     if (atModeObject != NULL) {
-        aJsonObject *deviceIdObject = aJson.getObjectItem(value_Object, "device_id");
+#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
         aJsonObject *activationCodeObject = aJson.getObjectItem(value_Object, "activation_code");
         aJsonObject *accessTokenObject = aJson.getObjectItem(value_Object, "access_token");
-        if (deviceIdObject != NULL && activationCodeObject != NULL) {
-            //device_id  and activation_code
-            HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-            HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
-            HAL_PARAMS_Save_Params();
-            flag = true;
+        if(AT_MODE_FLAG_ABP == atModeObject->valueint) {
+            if (deviceIdObject != NULL && accessTokenObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
+                flag = true;
+            }
         }
-        if (deviceIdObject != NULL && accessTokenObject != NULL) {
-            //device_id  and access_token
-            HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-            HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
-            HAL_PARAMS_Save_Params();
-            flag = true;
+        else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
+            if (deviceIdObject != NULL && activationCodeObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
+                flag = true;
+            }
         }
+        else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
+            if (deviceIdObject != NULL && activationCodeObject != NULL && accessTokenObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
+                HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
+                flag = true;
+            }
+        }
+#elif defined configWIRING_LORA_ENABLE
+        aJsonObject *appeuiObject = aJson.getObjectItem(value_Object, "appeui");
+        aJsonObject *appkeyObject = aJson.getObjectItem(value_Object, "appkey");
+        aJsonObject *devaddrObject = aJson.getObjectItem(value_Object, "devaddr");
+        aJsonObject *nwkskeyObject = aJson.getObjectItem(value_Object, "nwkskey");
+        aJsonObject *appskeyObject = aJson.getObjectItem(value_Object, "appskey");
+
+        if(AT_MODE_FLAG_ABP == atModeObject->valueint) {
+            if (deviceIdObject != NULL && devaddrObject != NULL && nwkskeyObject != NULL \
+                    && appskeyObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_devaddr(devaddrObject->valuestring);
+                HAL_PARAMS_Set_System_nwkskey(nwkskeyObject->valuestring);
+                HAL_PARAMS_Set_System_appskey(appskeyObject->valuestring);
+                flag = true;
+            }
+        }
+        else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
+            if (deviceIdObject != NULL && appeuiObject != NULL && appkeyObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_appeui(appeuiObject->valuestring);
+                HAL_PARAMS_Set_System_appkey(appkeyObject->valuestring);
+                flag = true;
+            }
+        }
+        else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
+            if (deviceIdObject != NULL && appeuiObject != NULL && appkeyObject != NULL \
+                    && devaddrObject != NULL && nwkskeyObject != NULL && appskeyObject != NULL) {
+                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
+                HAL_PARAMS_Set_System_appeui(appeuiObject->valuestring);
+                HAL_PARAMS_Set_System_appkey(appkeyObject->valuestring);
+                HAL_PARAMS_Set_System_devaddr(devaddrObject->valuestring);
+                HAL_PARAMS_Set_System_nwkskey(nwkskeyObject->valuestring);
+                HAL_PARAMS_Set_System_appskey(appskeyObject->valuestring);
+                flag = true;
+            }
+        }
+#endif
     }
     if(true == flag) {
+        HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
+        HAL_PARAMS_Save_Params();
         sendComfirm(200);
     }
     else {
         sendComfirm(201);
     }
-#endif
-#ifdef configWIRING_LORA_ENABLE
-    sendComfirm(200);
-#endif
 }
 
 void DeviceConfig::dealSetInfo(aJsonObject* value_object)
@@ -597,7 +630,8 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
         {valuefloat = 8.0;}
         HAL_PARAMS_Set_System_zone(valuefloat);
     }
-#ifdef configWIRING_WIFI_ENABLE
+
+#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
     //mqtt server domain
     aJsonObject* svDomainObject = aJson.getObjectItem(value_object, "sv_domain");
     if (svDomainObject != NULL) {
@@ -623,7 +657,7 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
     if (httpPortObject != NULL) {
         HAL_PARAMS_Set_System_http_port(httpPortObject->valueint);
     }
-
+#ifdef configWIRING_WIFI_ENABLE
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     aJsonObject* stamacObject = aJson.getObjectItem(value_object, "stamac");
     aJsonObject* apmacObject = aJson.getObjectItem(value_object, "apmac");
@@ -635,17 +669,15 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
             flag = false;
         }
     }
+#endif
+#endif
     if(true == flag) {
+        HAL_PARAMS_Save_Params();
         sendComfirm(200);
     }
     else {
         sendComfirm(201);
     }
-#endif
-#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
-    sendComfirm(200);
-#endif
-    HAL_PARAMS_Save_Params();
 }
 
 void DeviceConfig::dealRestartNetwork(void)
@@ -655,8 +687,7 @@ void DeviceConfig::dealRestartNetwork(void)
     delay(1000);
     WiFi.on();
     sendComfirm(200);
-#endif
-#if (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
