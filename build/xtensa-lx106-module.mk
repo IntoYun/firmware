@@ -57,9 +57,9 @@ lst: $(TARGET_BASE).lst
 esptool: $(TARGET_BASE).bin
 	@echo Flashing $< using esptool to address
 ifeq ("$(MODULE)","bootloader")
-	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_BOOT_ADDR) -cf $^
+	$(SUDO) $(ESP8266_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_BOOT_ADDR) -cf $^
 else
-	$(SUDO) $(ESP_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_APP_ADDR) -cf $^
+	$(SUDO) $(ESP8266_TOOL) $(UPLOAD_VERB) -cd $(UPLOAD_RESET) -cb $(UPLOAD_SPEED) -cp $(UPLOAD_PORT) -ca $(PLATFORM_APP_ADDR) -cf $^
 endif
 	$(call echo,)
 
@@ -80,9 +80,9 @@ size: $(TARGET_BASE).elf
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
 ifeq ("$(MODULE)","bootloader")
-	$(ESP_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
+	$(ESP8266_TOOL) -eo $^ -bo $@ -bm $(FLASH_MODE) -bf $(FLASH_SPEED) -bz $(FLASH_SIZE) -bs .text -bs .data -bs .rodata -bc -ec || true
 else
-	$(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+	$(ESP8266_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
 endif
 	$(call echo,)
 

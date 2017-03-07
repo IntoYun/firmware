@@ -18,18 +18,13 @@
 */
 
 #include "wlan_hal.h"
-#include "esp_wifi_types.h"
 #include "esp32_wifi_generic.h"
 #include "esp_wifi.h"
-#include "esp_smartconfig.h"
-#include "esp_err.h"
-#include "esp_intr.h"
 #include "lwip/dns.h"
-#include "rom/queue.h"
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "delay_hal.h"
-#include "esp32-hal.h"
+#include "macaddr_hal.h"
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
@@ -78,117 +73,103 @@ wlan_result_t wlan_deactivate()
 
 int wlan_connect()
 {
-    // esp32_connect();
+    int result = 0;
+    if(wlan_status()) {
+        result = esp32_connect();
+        return result;
+    }
     return 0;
 }
 
 wlan_result_t wlan_disconnect()
 {
-    // esp32_disconnect();
+    return esp32_disconnect();
 }
 
 int wlan_status()
 {
-    esp32_status();
-    return -1;
+    wl_status_t status = esp32_status();
+    switch(status) {
+        case WL_CONNECTED:
+            return 0;
+        default:
+            return 1;
+    }
+    return 0;
 }
 
 int wlan_connected_rssi(void)
 {
-    // return esp32_getRSSI();
+    return esp32_getRSSI();
 }
 
 int wlan_set_credentials(WLanCredentials* c)
 {
-    #if 1
-    // struct station_config conf;
-    // wifi_sta_config_t  conf;
     wifi_config_t conf;
     strcpy((char*)(conf.sta.ssid), c->ssid);
 
-    if(c->password)
-    {
+    if(c->password) {
         if (strlen(c->password) == 64) // it's not a passphrase, is the PSK
             memcpy((char*)(conf.sta.password), c->password, 64);
         else
             strcpy((char*)(conf.sta.password), c->password);
-    }
-    else
-    {
+    } else {
         *conf.sta.password = 0;
     }
     conf.sta.bssid_set = 0;
-    //disable uart interrupt
-    // ETS_UART_INTR_DISABLE();
-    // ESP_INTR_DISABLE(5);
-    // workaround for #1997: make sure the value of ap_number is updated and written to flash
-    // to be removed after SDK update
-    // wifi_station_ap_number_set(2);
-    // wifi_station_ap_number_set(1;
-
-    // wifi_station_set_config(&conf);
-     esp_wifi_set_config(ESP_IF_WIFI_STA,&conf);
-    // ETS_UART_INTR_ENABLE();
-     // ESP_INTR_ENABLE(5);
-    #endif
+    esp_wifi_set_config(WIFI_IF_STA, &conf);
     return 0;
 }
 
 void wlan_Imlink_start()
 {
-    // esp32_beginSmartConfig();
+    esp32_beginSmartConfig();
 }
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    // if(!esp32_smartConfigDone())
+    if(!esp32_smartConfigDone())
         return IMLINK_DOING;
-    // else
+    else
         return IMLINK_SUCCESS;
 }
 
 void wlan_Imlink_stop()
 {
-   // esp32_stopSmartConfig();
+    esp32_stopSmartConfig();
 }
 
 void wlan_setup()
 {
-    // esp32_setMode(WIFI_MODE_STA);
-    // esp32_setDHCP(true);
-    // esp32_setAutoConnect(true);
-    // esp32_setAutoReconnect(true);
+    DEBUG("wlan_setup");
+    esp32_setMode(WIFI_MODE_STA);
+    DEBUG("1");
+    esp32_setDHCP(true);
+    DEBUG("2");
+    esp32_setAutoConnect(true);
+    DEBUG("3");
+    esp32_setAutoReconnect(true);
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)
 {
-    #if  1 
     memset(config, 0, sizeof(WLanConfig));
     config->size = sizeof(WLanConfig);
 
     tcpip_adapter_ip_info_t ip;
     tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-
-    // struct ip_info ip;
-    // wifi_get_ip_info(STATION_IF, &ip);
     config->nw.aucIP.ipv4 = ip.ip.addr;
     config->nw.aucSubnetMask.ipv4 = ip.netmask.addr;
     config->nw.aucDefaultGateway.ipv4 = ip.gw.addr;
 
     ip_addr_t dns_ip = dns_getserver(0);
-    // config->nw.aucDNSServer.ipv4 = dns_ip.addr;
     config->nw.aucDNSServer.ipv4 = dns_ip.u_addr.ip4.addr;
-    // wifi_get_macaddr(STATION_IF, config->nw.uaMacAddr);
-    esp_wifi_get_mac(STATION_IF, config->nw.uaMacAddr);
+    esp_wifi_get_mac(WIFI_IF_STA, config->nw.uaMacAddr);
 
-    // struct station_config conf;
     wifi_config_t conf;
-    // wifi_station_get_config(&conf);
-    esp_wifi_set_config(ESP_IF_WIFI_STA,&conf);
+    esp_wifi_get_config(WIFI_IF_STA, &conf);
     memcpy(config->uaSSID, conf.sta.ssid, 32);
     memcpy(config->BSSID, conf.sta.bssid, 6);
-    #endif
-
 }
 
 void wlan_set_error_count(uint32_t errorCount)
@@ -218,7 +199,7 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 
 }
 
-WLanSecurityType toSecurityType(wifi_auth_mode_t authmode)
+static WLanSecurityType toSecurityType(wifi_auth_mode_t authmode)
 {
     switch(authmode)
     {
@@ -241,7 +222,7 @@ WLanSecurityType toSecurityType(wifi_auth_mode_t authmode)
     }
 }
 
-WLanSecurityCipher toCipherType(wifi_auth_mode_t authmode)
+static WLanSecurityCipher toCipherType(wifi_auth_mode_t authmode)
 {
     switch(authmode)
     {
@@ -261,7 +242,7 @@ struct WlanScanInfo
 {
     wlan_scan_result_t callback;
     void* callback_data;
-    int count;
+    uint16_t count;
     bool completed;
 };
 
@@ -271,170 +252,84 @@ struct WlanApSimple
    int rssi;
 };
 
-
 WlanScanInfo scanInfo;
-
-void scan_done_cb(void *arg, STATUS status)
+static void scan_done_cb()
 {
     WiFiAccessPoint data;
     WlanApSimple apSimple;
+    void *pScanRecords;
     int n = 0, m = 0, j = 0;
-    // bss_info *it = (bss_info*)arg;
-    wifi_ap_record_t *it;
 
-    if(status == OK)
-    {
-        //获取ap数量
-        // for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
-        // scanInfo.count = n;
-        scanInfo.count = WiFi_getScanCount();
+    //获取ap数量
+    esp_wifi_scan_get_ap_num(&(scanInfo.count));
 
-        //申请内存
-        WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
-        if(pNode == NULL)
-        {
-            scanInfo.completed = true;
-            return;
-        }
-
-        // for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
-        uint8_t sec_scan;
-        int32_t chan_scan;
-
-        for(n = 0; n < scanInfo.count; n++)
-        {
-            getNetworkInfo(n,it->ssid, sec_scan, it->rssi, it->bssid, chan_scan);
-            memcpy(pNode[n].bssid, it->bssid, 6);
-            pNode[n].rssi = it->rssi;
-        }
-
-        //根据rssi排序
-        for(n = 0; n < scanInfo.count - 1; n++)
-        {
-            j = n;
-            for(m = n+1; m < scanInfo.count; m++)
-            {
-                if(pNode[m].rssi > pNode[j].rssi)
-                {
-                    j = m;
-                }
-            }
-            if(j != n)
-            {
-                memcpy(&apSimple, &pNode[n], sizeof(struct WlanApSimple));
-                memcpy(&pNode[n], &pNode[j], sizeof(struct WlanApSimple));
-                memcpy(&pNode[j], &apSimple, sizeof(struct WlanApSimple));
-            }
-        }
-
-        //填充ap 列表
-        for(n = 0; n < scanInfo.count; n++)
-        {
-            // for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
-            {
-                if(!memcmp(pNode[n].bssid, it->bssid, 6))
-                {
-                    memset(&data, 0, sizeof(WiFiAccessPoint));
-                    // memcpy(data.ssid, it->ssid, it->ssid_len);
-                    memcpy(data.ssid, it->ssid, sizeof(it->ssid));//it->ssid_len);
-                    // data.ssidLength = it->ssid_len;
-                    memcpy(data.bssid, it->bssid, 6);
-                    data.security = toSecurityType(it->authmode);
-                    data.cipher = toCipherType(it->authmode);
-                    // data.channel = it->pi;
-                    data.rssi = it->rssi;
-                    scanInfo.callback(&data, scanInfo.callback_data);
-                    break;
-                }
-            }
-        }
+    //申请内存
+    pScanRecords = new wifi_ap_record_t[scanInfo.count];
+    if(pScanRecords) {
+        esp_wifi_scan_get_ap_records(&(scanInfo.count), (wifi_ap_record_t*)pScanRecords);
+    } else {
         scanInfo.completed = true;
-        free(pNode);
+        scanInfo.count = 0;
+        return;
     }
 
-}
-
-#if 0
-void scan_done_cb(void *arg, STATUS status)
- // void scan_done_cb(wifi_scan_config_t arg, STATUS status)
-{
-    WiFiAccessPoint data;
-    WlanApSimple apSimple;
-    int n = 0, m = 0, j = 0;
-    bss_info *it = (bss_info*)arg;
-
-    if(status == OK)
-    {
-        //获取ap数量
-        for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
-        scanInfo.count = n;
-
-        //申请内存
-        WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
-        if(pNode == NULL)
-        {
-            scanInfo.completed = true;
-            return;
-        }
-
-        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
-        {
-            memcpy(pNode[n].bssid, it->bssid, 6);
-            pNode[n].rssi = it->rssi;
-        }
-
-        //根据rssi排序
-        for(n = 0; n < scanInfo.count - 1; n++)
-        {
-            j = n;
-            for(m = n+1; m < scanInfo.count; m++)
-            {
-                if(pNode[m].rssi > pNode[j].rssi)
-                {
-                    j = m;
-                }
-            }
-            if(j != n)
-            {
-                memcpy(&apSimple, &pNode[n], sizeof(struct WlanApSimple));
-                memcpy(&pNode[n], &pNode[j], sizeof(struct WlanApSimple));
-                memcpy(&pNode[j], &apSimple, sizeof(struct WlanApSimple));
-            }
-        }
-
-        //填充ap 列表
-        for(n = 0; n < scanInfo.count; n++)
-        {
-            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
-            {
-                if(!memcmp(pNode[n].bssid, it->bssid, 6))
-                {
-                    memset(&data, 0, sizeof(WiFiAccessPoint));
-                    memcpy(data.ssid, it->ssid, it->ssid_len);
-                    data.ssidLength = it->ssid_len;
-                    memcpy(data.bssid, it->bssid, 6);
-                    data.security = toSecurityType(it->authmode);
-                    data.cipher = toCipherType(it->authmode);
-                    data.channel = it->channel;
-                    data.rssi = it->rssi;
-                    scanInfo.callback(&data, scanInfo.callback_data);
-                    break;
-                }
-            }
-        }
+    //申请内存
+    WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
+    if(pNode == NULL) {
         scanInfo.completed = true;
-        free(pNode);
+        scanInfo.count = 0;
+        delete[] pScanRecords;
+        return;
     }
-}
-#endif
 
-extern "C" {
-void optimistic_yield(uint32_t interval_us);
+    wifi_ap_record_t *it = (wifi_ap_record_t*)pScanRecords;
+    for(n = 0; n < scanInfo.count; it = (wifi_ap_record_t*)pScanRecords + n, n++) {
+        memcpy(pNode[n].bssid, it->bssid, 6);
+        pNode[n].rssi = it->rssi;
+    }
+
+    //根据rssi排序
+    for(n = 0; n < scanInfo.count - 1; n++) {
+        j = n;
+        for(m = n+1; m < scanInfo.count; m++) {
+            if(pNode[m].rssi > pNode[j].rssi) {
+                j = m;
+            }
+        }
+        if(j != n) {
+            memcpy(&apSimple, &pNode[n], sizeof(struct WlanApSimple));
+            memcpy(&pNode[n], &pNode[j], sizeof(struct WlanApSimple));
+            memcpy(&pNode[j], &apSimple, sizeof(struct WlanApSimple));
+        }
+    }
+
+    //填充ap 列表
+    for(n = 0; n < scanInfo.count; n++) {
+        it = (wifi_ap_record_t*)pScanRecords;
+        for(m = 0; m < scanInfo.count; it = (wifi_ap_record_t*)pScanRecords + m, m++) {
+            if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
+                memset(&data, 0, sizeof(WiFiAccessPoint));
+                strcpy(data.ssid, it->ssid);
+                data.ssidLength = strlen(it->ssid);
+                memcpy(data.bssid, it->bssid, 6);
+                data.security = toSecurityType(it->authmode);
+                data.cipher = toCipherType(it->authmode);
+                data.channel = it->primary;
+                data.rssi = it->rssi;
+                scanInfo.callback(&data, scanInfo.callback_data);
+                break;
+            }
+        }
+    }
+    scanInfo.completed = true;
+    delete[] pScanRecords;
+    free(pNode);
 }
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
-    esp32_setMode(WIFI_STA);
+    esp32_setMode(WIFI_MODE_STA);
+    esp32_setScanDoneCb(scan_done_cb);
     memset((void *)&scanInfo, 0, sizeof(struct WlanScanInfo));
     scanInfo.callback = callback;
     scanInfo.callback_data = cookie;
@@ -445,20 +340,15 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
     config.ssid = 0;
     config.bssid = 0;
     config.channel = 0;
-    // config.show_hidden = show_hidden;
-
-    // if(wifi_station_scan(NULL, scan_done_cb))
-    if(esp_wifi_scan_start(&config, true) == ESP_OK) 
-    {
+    config.show_hidden = false;
+    if(esp_wifi_scan_start(&config, true) == ESP_OK) {
         WLAN_TIMEOUT(6000);
         while(!scanInfo.completed)
         {
-                optimistic_yield(100);
-                if(IS_WLAN_TIMEOUT())
-                {
-                    CLR_WLAN_TIMEOUT();
-                    break;
-                }
+            if(IS_WLAN_TIMEOUT()) {
+                CLR_WLAN_TIMEOUT();
+                break;
+            }
         }
         return scanInfo.count;
     }
@@ -536,12 +426,8 @@ int wlan_set_macaddr_when_init(void)
      mac_param_t mac_addrs;
      HAL_FLASH_Interminal_Read(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, sizeof(mac_addrs));
      if (FLASH_MAC_HEADER == mac_addrs.header){
-         esp32_setMode(WIFI_AP_STA);
+         esp32_setMode(WIFI_MODE_APSTA);
          wlan_set_macaddr_from_flash(mac_addrs.stamac_addrs, mac_addrs.apmac_addrs);
-         esp32_setMode(WIFI_STA);
-         // for (int i = 0; i < 6; i++){
-         //     DEBUG("stamac: %x", mac_addrs.stamac_addrs[i]);
-         // }
-         // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
+         esp32_setMode(WIFI_MODE_STA);
      }
 }

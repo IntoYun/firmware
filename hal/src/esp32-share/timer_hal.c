@@ -38,7 +38,6 @@
  */
 system_tick_t HAL_Timer_Get_Micro_Seconds(void)
 {
-
     return GetSystem1UsTick();
 }
 

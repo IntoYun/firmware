@@ -25,11 +25,11 @@
 
 #include "delay_hal.h"
 #include "hw_config.h"
-#include "watchdog_hal.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp32-hal.h"
-#include "service_debug.h"
+#include "sdkconfig.h"
+//#include "watchdog_hal.h"
+//#include "freertos/FreeRTOS.h"
+//#include "freertos/task.h"
+
 /**
  * Updated by HAL_1Ms_Tick()
  */
@@ -64,22 +64,27 @@ void HAL_Delay_Milliseconds(uint32_t millis)
         {
             break;
         }
-        system_loop_handler(100);
+        //system_loop_handler(100);
     }
 #endif
 }
 
 /**
- * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
+ * @brief  delay time in microseconds
  * @param  uSec: specifies the delay time length, in milliseconds.
  * @retval None
  */
 void HAL_Delay_Microseconds(uint32_t micros)
 {
-    if(micros) {
-        unsigned long endat = HAL_Timer_Get_Micro_Seconds();
-        endat += micros;
-        while(HAL_Timer_Get_Micro_Seconds() < endat) {
+    uint32_t m = HAL_Timer_Get_Micro_Seconds();
+    if(micros){
+        uint32_t e = (m + micros) % ((0xFFFFFFFF / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ) + 1);
+        if(m > e){ //overflow
+            while(HAL_Timer_Get_Micro_Seconds() > e){
+                NOP();
+            }
+        }
+        while(HAL_Timer_Get_Micro_Seconds() < e){
             NOP();
         }
     }

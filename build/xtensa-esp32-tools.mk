@@ -8,7 +8,7 @@ GCC_PREFIX ?= xtensa-esp32-elf-
 
 include $(COMMON_BUILD)/common-tools.mk
 
-CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32
+CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32 -DF_CPU=240000000L
 
 ifneq ("$(MODULE)","bootloader")
 CFLAGS += -g3 -Os
@@ -22,13 +22,18 @@ CFLAGS += -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-se
 CONLYFLAGS += -std=gnu99 -Wno-old-style-declaration
 
 # C++ 编译参数  -fpermissive 把代码的语法错误作为警告,并继续编译进程
-CPPFLAGS += -fno-exceptions -fno-rtti -std=gnu++11 -fpermissive
+CPPFLAGS += -std=gnu++11 -fno-exceptions -fno-rtti -std=gnu++11 -fpermissive
 
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 
+#FLASH_SIZE ?= 4MB
+#FLASH_MODE ?= qio
+#FLASH_SPEED ?= 40m
+
 FLASH_SIZE ?= 4MB
-FLASH_MODE ?= qio
-FLASH_SPEED ?= 40m
+FLASH_MODE ?= dio
+FLASH_SPEED ?= 80m
+
 
 # UPLOAD_SPEED ?= 230400
 UPLOAD_SPEED ?= 921600

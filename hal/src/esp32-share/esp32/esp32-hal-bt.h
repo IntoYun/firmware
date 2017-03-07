@@ -12,26 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _ESP32_HAL_SD_H_
-#define _ESP32_HAL_SD_H_
+#ifndef _ESP32_ESP32_HAL_BT_H_
+#define _ESP32_ESP32_HAL_BT_H_
+
+#include "esp32-hal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include <stdbool.h>
-
-//channel 0-7 freq 1220-312500 duty 0-255
-uint32_t    sdSetup(uint8_t channel, uint32_t freq);
-void        sdWrite(uint8_t channel, uint8_t duty);
-uint8_t     sdRead(uint8_t channel);
-void        sdAttachPin(uint8_t pin, uint8_t channel);
-void        sdDetachPin(uint8_t pin);
-
+bool btStarted();
+bool btStart();
+bool btStop();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _ESP32_HAL_SD_H_ */
+#endif /* _ESP32_ESP32_HAL_BT_H_ */

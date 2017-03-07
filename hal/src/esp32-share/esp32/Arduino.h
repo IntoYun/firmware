@@ -172,6 +172,6 @@ long map(long, long, long, long, long);
 
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))
-#include "pins_arduino.h"
+//#include "pins_arduino.h"
 
 #endif /* _ESP32_CORE_ARDUINO_H_ */

@@ -21,7 +21,6 @@
 #include "soc/dport_reg.h"
 #include "esp_attr.h"
 #include "esp_intr.h"
-#include "service_debug.h"
 
 #define HWTIMER_INUM 10
 #define HWTIMER_LOCK()      portENTER_CRITICAL(timer->lock)
@@ -95,7 +94,6 @@ void IRAM_ATTR __timerISR(void * arg){
             }
         }
     }
-    DEBUG("11111");
 }
 
 uint64_t timerRead(hw_timer_t *timer){
@@ -227,7 +225,6 @@ void timerAttachInterrupt(hw_timer_t *timer, void (*fn)(void), bool edge){
     static bool initialized = false;
     ESP_INTR_DISABLE(HWTIMER_INUM);
     if(fn == NULL){
-        DEBUG("fn is null");
         timer->dev->config.level_int_en = 0;
         timer->dev->config.edge_int_en = 0;
         timer->dev->config.alarm_en = 0;

@@ -65,6 +65,7 @@ static uart_t _uart_bus_array[3] = {
     {(volatile uart_dev_t *)(DR_REG_UART2_BASE), NULL, 2, NULL}
 };
 #endif
+
 static void IRAM_ATTR _uart_isr(void *arg)
 {
     uint8_t i, c;

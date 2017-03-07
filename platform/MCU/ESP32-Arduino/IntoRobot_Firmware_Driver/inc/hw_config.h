@@ -34,8 +34,6 @@
 #include "sdkqueue.h"
 #include "hw_ticks.h"
 #include "md5_hash.h"
-// #include "esp8266_timer.h"
-// #include "esp8266_peri.h"
 #include "stdlib_noniso.h"
 #include "service_debug.h"
 
@@ -58,6 +56,7 @@ extern "C" {
 }
 #endif
 
+#define NOP() asm volatile ("nop")
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 

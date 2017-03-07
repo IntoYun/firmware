@@ -410,13 +410,16 @@ void app_setup_and_loop_initial(void)
 #endif
 
 #ifdef configSETUP_ENABLE
+    DEBUG("111");
     system_config_setup();
     //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
     if( SYSTEM_CONFIG_TYPE_NONE == get_system_config_type() )
     {
+        DEBUG("222");
         NEWORK_FN(Network_Setup(), (void)0);
     }
 #else
+    DEBUG("333");
     NEWORK_FN(Network_Setup(), (void)0);
 #endif
 

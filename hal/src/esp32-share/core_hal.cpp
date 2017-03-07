@@ -1,29 +1,25 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
 #include <stdio.h>
 
 #include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "esp_system.h"
-#include "nvs_flash.h"
-#include "freertos/event_groups.h"
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
@@ -48,78 +44,39 @@
 #include "memory_hal.h"
 #include "driver/timer.h"
 #include "esp_attr.h"
-#include "freertos/portmacro.h"
+#include "eeprom_hal.h"
 
-void initVariant() __attribute__((weak));
-void initVariant() {}
+extern "C" {
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "freertos/portmacro.h"
+#include "nvs_flash.h"
+}
+
 
 void init() __attribute__((weak));
 void init() {}
 
-void startWiFi() __attribute__((weak));
-void startWiFi() {}
+void initVariant() __attribute__((weak));
+void initVariant() {}
 
-void initWiFi() __attribute__((weak));
-void initWiFi(){}
-
+void HAL_Core_Config(void);
 void HAL_Core_Setup(void);
 
-/*
-void SysTick_Handler(void);
-void sysTickHandlerTask(void *pvParameters)
+static void application_task_start(void *pvParameters)
 {
-    while(1)
-    {
-        SysTick_Handler();
-        HAL_Delay_Microseconds(1000);
-        DEBUG_D("1");
-    }
-}
-*/
-
-void IRAM_ATTR SysTick_Handler(void);
-
-hw_timer_t * sysTickTimer = NULL;
-
-#if  1
-#define APB_CLK_FREQ    ( 80*1000000 )       //unit: Hz
-#define TIMER_DIVIDER   80               /*!< Hardware timer clock divider */
-#define TIMER_SCALE    (TIMER_BASE_CLK / TIMER_DIVIDER)  /*!< used to calculate counter value */
-#endif
-
-extern "C" void system_loop_handler(uint32_t interval_us);
-
-void loopTask(void *pvParameters)
-{
-    app_setup_and_loop_initial();
-    while(1)
-        {
-            app_loop();
-            system_loop_handler(100);
-        }
+    HAL_Core_Config();
+    HAL_Core_Setup();
+    app_setup_and_loop();
 }
 
 extern "C" void app_main()
 {
+    nvs_flash_init();
     init();
     initVariant();
-    initWiFi();
-    HAL_Core_Config();
-    HAL_Core_Setup();
-
-    DEBUG("address = 0x%x",&SysTick_Handler);
-    sysTickTimer = timerBegin(0, 80, true);
-    timerAttachInterrupt(sysTickTimer, SysTick_Handler, true);
-
-    timerAlarmWrite(sysTickTimer, 1000, true);
-    timerAlarmEnable(sysTickTimer);
-
-    // timerWrite(sysTickTimer, 1000);
-    // timerSetAutoReload(sysTickTimer, true);
-    // timerStart(sysTickTimer);
-
-    xTaskCreatePinnedToCore(loopTask, "loopTask", 4096, NULL, 1, NULL, 1);
-    //xTaskCreatePinnedToCore(sysTickHandlerTask, "sysTickHandlerTask", 4096, NULL, 1, NULL, 1); //后期需改造成硬件定时器
+    xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
 }
 
 void HAL_Core_Init(void)
@@ -127,11 +84,22 @@ void HAL_Core_Init(void)
 
 }
 
+void IRAM_ATTR SysTick_Handler(void);
+hw_timer_t * timer = NULL;
+
 void HAL_Core_Config(void)
 {
-    //Wiring pins default to inputs
-    for (pin_t pin=0; pin<=6; pin++)
-    {
+    //滴答定时器  //处理三色灯和模式处理
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &SysTick_Handler, true);
+    timerAlarmWrite(timer, 1000, true);
+    timerAlarmEnable(timer);
+
+    for (pin_t pin=FIRST_DIGITAL_PIN; pin<=FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
+        HAL_Pin_Mode(pin, INPUT);
+    }
+
+    for (pin_t pin=FIRST_ANALOG_PIN; pin<=FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
         HAL_Pin_Mode(pin, INPUT);
     }
 
@@ -140,22 +108,9 @@ void HAL_Core_Config(void)
 
     HAL_IWDG_Initial();
     HAL_UI_Initial();
+    HAL_EEPROM_Init();
 
-    /*
-    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
-    delay(1000);
-    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
-    delay(1000);
-    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
-    delay(1000);
-    HAL_UI_RGB_Color(RGB_COLOR_WHITE);  // color the same with atom
-    delay(2000);
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);  // color the same with atom
-    delay(2000);
-    HAL_UI_RGB_Color(RGB_COLOR_YELLOW);  // color the same with atom
-    delay(2000);
-    HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);  // color the same with atom
-    */
+    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
 }
 
 void HAL_Core_Load_params(void)
@@ -261,20 +216,20 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-/*    char data[32];
-    uint16_t templen;
+    /*    char data[32];
+          uint16_t templen;
 
-    if (buffer!=NULL && len>0) {
-        HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
-        if(!memcmp(data, "VERSION:", 8))
-        {
-            templen = MIN(strlen(&data[8]), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, &data[8], templen);
-            return templen;
-        }
-    }
-    */
+          if (buffer!=NULL && len>0) {
+          HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
+          if(!memcmp(data, "VERSION:", 8))
+          {
+          templen = MIN(strlen(&data[8]), len-1);
+          memset(buffer, 0, len);
+          memcpy(buffer, &data[8], templen);
+          return templen;
+          }
+          }
+          */
     return 0;
 }
 
@@ -303,17 +258,10 @@ void system_loop_handler(uint32_t interval_us)
     }
 }
 
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-
 void IRAM_ATTR SysTick_Handler(void)
 {
-    portENTER_CRITICAL_ISR(&timerMux);
-    DEBUG("into systick handler");
-
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
-
-    portEXIT_CRITICAL_ISR(&timerMux);
 }
 
 void HAL_Core_System_Loop(void)

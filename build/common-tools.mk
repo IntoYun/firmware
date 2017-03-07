@@ -19,9 +19,9 @@ DFUSUFFIX = dfu-suffix
 CURL = curl
 CRC = crc32
 XXD = xxd
-ESP_TOOL = $(PROJECT_ROOT)/tools/esptool/esptool
+ESP8266_TOOL = $(PROJECT_ROOT)/tools/esp8266/esptool
+ESP32_TOOL = $(PROJECT_ROOT)/tools/esp32/esptool
 ST-FLASH = $(PROJECT_ROOT)/tools/stlink/st-flash
-ESP_TOOL_PY = python $(PROJECT_ROOT)/tools/esptool-py/esptool.py
 OPENOCD = openocd
 
 CPPFLAGS +=
