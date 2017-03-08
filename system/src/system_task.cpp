@@ -56,6 +56,7 @@
 
 using intorobot::Network;
 
+volatile system_tick_t intorobot_loop_total_millis = 0;
 /**
  * Time in millis of the last cloud connection attempt.
  * The next attempt isn't made until the backoff period has elapsed.
@@ -308,16 +309,79 @@ void manage_cloud_connection(void)
 
 void system_process_loop(void)
 {
+    intorobot_loop_total_millis = 0;
 #ifdef configSETUP_ENABLE
-        if(!g_intorobot_system_config)
-        {
+    if(!g_intorobot_system_config)
+    {
 #endif
-            NEWORK_FN(manage_network_connection(), (void)0);
-            NEWORK_FN(manage_ip_config(), (void)0);
-            CLOUD_FN(manage_cloud_connection(), (void)0);
-            CLOUD_FN(manage_app_auto_update(), (void)0);
+        NEWORK_FN(manage_network_connection(), (void)0);
+        NEWORK_FN(manage_ip_config(), (void)0);
+        CLOUD_FN(manage_cloud_connection(), (void)0);
+        CLOUD_FN(manage_app_auto_update(), (void)0);
 #ifdef configSETUP_ENABLE
+    }
+#endif
+}
+
+/*
+ * @brief This should block for a certain number of milliseconds and also execute system_process_loop
+ */
+static void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
+{
+    if (ms==0) return;
+    system_tick_t intorobot_loop_elapsed_millis = INTOROBOT_LOOP_DELAY_MILLIS;
+    intorobot_loop_total_millis += ms;
+
+    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
+    system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
+
+    while (1) {
+        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
+        if (elapsed_millis > ms) {
+            break;
         }
-#endif
+        else if (elapsed_millis >= (ms-1)) {
+            // on the last millisecond, resolve using millis - we don't know how far in that millisecond had come
+            // have to be careful with wrap around since start_micros can be greater than end_micros.
+            for (;;) {
+                system_tick_t delay = end_micros-HAL_Timer_Get_Micro_Seconds();
+                if (delay>100000)
+                    return;
+                HAL_Delay_Microseconds(min(delay/2, 1u));
+            }
+        } else {
+            HAL_Delay_Milliseconds(1);
+        }
+
+        if (INTOROBOT_WLAN_SLEEP || force_no_background_loop) {
+            //Do not yield for Spark_Idle()
+        } else if ((elapsed_millis >= intorobot_loop_elapsed_millis) \
+                || (intorobot_loop_total_millis >= INTOROBOT_LOOP_DELAY_MILLIS)) {
+            bool threading = system_thread_get_state(nullptr);
+            intorobot_loop_elapsed_millis = elapsed_millis + INTOROBOT_LOOP_DELAY_MILLIS;
+            //intorobot_loop_total_millis is reset to 0 in system_process_loop()
+            //Run once if the above condition passes
+            intorobot_process();
+        }
+    }
+}
+
+/**
+ * On a non threaded platform, or when called from the application thread, then
+ * run the background loop so that application events are processed.
+ */
+void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
+{
+    // if not threading, or we are the application thread, then implement delay
+    // as a background message pump
+
+    if ((!PLATFORM_THREADING || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
+    {
+        system_delay_pump(ms, force_no_background_loop);
+    }
+    else
+    {
+        HAL_Delay_Milliseconds(ms);
+    }
 }
 

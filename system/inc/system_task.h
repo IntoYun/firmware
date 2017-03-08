@@ -38,6 +38,9 @@ unsigned backoff_period(unsigned connection_attempts);
  */
 void* system_internal(int item, void* reserved);
 
+void system_delay_ms(unsigned long ms, bool force_no_background_loop=false);
+
+#define INTOROBOT_LOOP_DELAY_MILLIS                 1000    //1sec
 
 #ifdef __cplusplus
 }

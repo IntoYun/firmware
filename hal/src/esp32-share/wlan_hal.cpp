@@ -117,7 +117,7 @@ int wlan_set_credentials(WLanCredentials* c)
         *conf.sta.password = 0;
     }
     conf.sta.bssid_set = 0;
-    esp_wifi_set_config(WIFI_IF_STA, &conf);
+    esp32_setConfig(&conf);
     return 0;
 }
 
@@ -141,13 +141,9 @@ void wlan_Imlink_stop()
 
 void wlan_setup()
 {
-    DEBUG("wlan_setup");
     esp32_setMode(WIFI_MODE_STA);
-    DEBUG("1");
     esp32_setDHCP(true);
-    DEBUG("2");
     esp32_setAutoConnect(true);
-    DEBUG("3");
     esp32_setAutoReconnect(true);
 }
 

@@ -27,8 +27,8 @@
 #include "hw_config.h"
 #include "sdkconfig.h"
 //#include "watchdog_hal.h"
-//#include "freertos/FreeRTOS.h"
-//#include "freertos/task.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 /**
  * Updated by HAL_1Ms_Tick()
@@ -44,29 +44,7 @@ volatile uint32_t TimingDelay;
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t millis)
 {
-#if 0
     vTaskDelay(millis / portTICK_PERIOD_MS);
-#else
-    volatile system_tick_t start_millis, current_millis, elapsed_millis;
-
-    start_millis = HAL_Timer_Get_Milli_Seconds();
-    while (1)
-    {
-        current_millis = HAL_Timer_Get_Milli_Seconds();
-        elapsed_millis = current_millis - start_millis;
-        //Check for wrapping
-        if (elapsed_millis < 0)
-        {
-            elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
-        }
-
-        if (elapsed_millis >= (long)millis)
-        {
-            break;
-        }
-        //system_loop_handler(100);
-    }
-#endif
 }
 
 /**

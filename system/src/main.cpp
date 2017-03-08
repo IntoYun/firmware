@@ -93,8 +93,7 @@ extern "C" void HAL_SysTick_Handler(void)
 #define TIMING_MODE_ALL_RESET                      30000  //完全恢复出厂判断时间 清空密钥
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-    if(BUTTON_press_time)
-    {
+    if(BUTTON_press_time) {
         if( BUTTON_press_time > TIMING_MODE_ALL_RESET ) {
             if(BUTTON_Mode!=BUTTON_MODE_RESET) {
                 BUTTON_Mode=BUTTON_MODE_RESET; //恢复出厂设置  清除密钥
@@ -131,18 +130,12 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
             }
         }
-    }
-    else
-    {
-        switch(BUTTON_Mode)
-        {
+    } else {
+        switch(BUTTON_Mode) {
             case BUTTON_MODE_CONFIG_IMLINK_SERIAL:
-                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus())
-                {
+                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus()) {
                     System.configBegin(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
-                }
-                else
-                {
+                } else {
                     System.configEnd();
                 }
                 break;
@@ -180,10 +173,16 @@ extern "C" void HAL_SysTick_Handler(void)
 #define TIMING_MODE_CONFIG_AP_SERIAL                    5000   //进入Ap配置模式判断时间
 #define TIMING_MODE_DEFAULT_RESTORE                     7000   //进入默认固件灯程序升级判断时间
 #define TIMING_MODE_FACTORY_RESET                       13000  //恢复出厂程序判断时间 不清除密钥
+#define TIMING_MODE_NC                                  20000  //无操作判断时间
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-    if(BUTTON_press_time)
-    {
+    if(BUTTON_press_time) {
+        if( BUTTON_press_time > TIMING_MODE_NC ) {
+            if(BUTTON_Mode!=BUTTON_MODE_NC) {
+                BUTTON_Mode=BUTTON_MODE_NC; //退出
+                HAL_UI_RGB_Color(RGB_COLOR_BLACK);//关灯
+            }
+        }
         if( BUTTON_press_time > TIMING_MODE_FACTORY_RESET ) {
             if(BUTTON_Mode!=BUTTON_MODE_FAC) {
                 BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
@@ -208,29 +207,20 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
             }
         }
-    }
-    else
-    {
-        switch(BUTTON_Mode)
-        {
+    } else {
+        switch(BUTTON_Mode) {
             case BUTTON_MODE_CONFIG_IMLINK_SERIAL:
-                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus())
-                {
+                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus()) {
                     System.configBegin(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
-                }
-                else
-                {
+                } else {
                     System.configEnd();
                 }
                 break;
 
             case BUTTON_MODE_CONFIG_AP_SERIAL:
-                if(SYSTEM_CONFIG_TYPE_AP_SERIAL != System.configStatus())
-                {
+                if(SYSTEM_CONFIG_TYPE_AP_SERIAL != System.configStatus()) {
                     System.configBegin(SYSTEM_CONFIG_TYPE_AP_SERIAL);
-                }
-                else
-                {
+                } else {
                     System.configEnd();
                 }
                 break;
@@ -258,8 +248,7 @@ extern "C" void HAL_SysTick_Handler(void)
 #define TIMING_MODE_FACTORY_RESET                       13000  //恢复出厂程序判断时间 不清除密钥
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-    if(BUTTON_press_time)
-    {
+    if(BUTTON_press_time) {
         if( BUTTON_press_time > TIMING_MODE_FACTORY_RESET ) {
             if(BUTTON_Mode!=BUTTON_MODE_FAC) {
                 BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
@@ -278,11 +267,8 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
             }
         }
-    }
-    else
-    {
-        switch(BUTTON_Mode)
-        {
+    } else {
+        switch(BUTTON_Mode) {
             case BUTTON_MODE_CONFIG_SERIAL:
                 if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus())
                 {
@@ -315,9 +301,11 @@ extern "C" void HAL_SysTick_Handler(void)
 #endif
 }
 
-void app_loop(void)
+void app_loop(bool threaded)
 {
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
+    if (!threaded)
+        intorobot_process();
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1))
@@ -362,7 +350,7 @@ static void load_system_fwlib_version(void)
 
 void app_thread_idle()
 {
-    app_loop();
+    app_loop(true);
 }
 
 // don't wait to get items from the queue, so the application loop is processed as often as possible
@@ -389,7 +377,6 @@ void app_setup_and_loop_initial(void)
     DECLARE_SYS_HEALTH(ENTERED_Main);
     // load params
     load_system_fwlib_version();
-
     set_system_mode(DEFAULT);
 
     DEBUG("---------------welcome from IntoRobot!-----------------");
@@ -410,16 +397,13 @@ void app_setup_and_loop_initial(void)
 #endif
 
 #ifdef configSETUP_ENABLE
-    DEBUG("111");
     system_config_setup();
     //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
     if( SYSTEM_CONFIG_TYPE_NONE == get_system_config_type() )
     {
-        DEBUG("222");
         NEWORK_FN(Network_Setup(), (void)0);
     }
 #else
-    DEBUG("333");
     NEWORK_FN(Network_Setup(), (void)0);
 #endif
 
@@ -437,8 +421,6 @@ void app_setup_and_loop_initial(void)
         SystemThread.setCurrentThread();
         ApplicationThread.setCurrentThread();
     }
-    //create_system_task();
-#else
     HAL_Core_Set_System_Loop_Handler(&system_process_loop);
 #endif
 }
@@ -456,7 +438,7 @@ void app_setup_and_loop(void)
 #if !PLATFORM_THREADING
     /* Main loop */
     while (1) {
-        app_loop();
+        app_loop(false);
     }
 #endif
 }

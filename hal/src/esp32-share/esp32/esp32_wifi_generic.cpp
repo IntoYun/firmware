@@ -105,7 +105,6 @@ static bool wifiLowLevelInit(){
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         esp_err_t err = esp_wifi_init(&cfg);
         if(err){
-            DEBUG("esp_wifi_init %d", err);
             ESP_INTR_ENABLE(HWTIMER_INUM);
             return false;
         }
@@ -128,7 +127,6 @@ static bool wifiLowLevelDeinit(){
 static bool _esp_wifi_started = false;
 
 static bool espWiFiStart() {
-    DEBUG("222");
     if(_esp_wifi_started) {
         return true;
     }
@@ -178,7 +176,6 @@ bool esp32_setMode(wifi_mode_t m)
     if(cm == m) {
         return true;
     }
-    DEBUG("1111");
     esp_err_t err;
     ESP_INTR_DISABLE(HWTIMER_INUM);
     err = esp_wifi_set_mode(m);
@@ -186,11 +183,9 @@ bool esp32_setMode(wifi_mode_t m)
     if(err) {
         return false;
     }
-    DEBUG("2222");
     if(m) {
         return espWiFiStart();
     }
-    DEBUG("3333");
     return espWiFiStop();
 }
 
@@ -289,6 +284,14 @@ int32_t esp32_getRSSI(void)
     if(!esp_wifi_sta_get_ap_info(&info)) {
         return info.rssi;
     }
+    return 0;
+}
+
+int esp32_setConfig(wifi_config_t *conf)
+{
+    ESP_INTR_DISABLE(HWTIMER_INUM);
+    esp_wifi_set_config(WIFI_IF_STA, conf);
+    ESP_INTR_ENABLE(HWTIMER_INUM);
     return 0;
 }
 

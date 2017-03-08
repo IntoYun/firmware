@@ -1009,7 +1009,6 @@ void set_system_config_type(system_config_type_t config_type)
     {
         return;
     }
-
     g_intorobot_system_config = 1;
     system_config_initial_flag = 0;
     current_system_config_type = config_type;

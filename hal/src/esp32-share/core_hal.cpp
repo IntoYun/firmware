@@ -71,29 +71,41 @@ static void application_task_start(void *pvParameters)
     app_setup_and_loop();
 }
 
+static void ui_task_start(void *pvParameters)
+{
+    while(1) {
+        HAL_Delay_Milliseconds(1);
+        SysTick_Handler();
+    }
+}
+
 extern "C" void app_main()
 {
     nvs_flash_init();
     init();
     initVariant();
     xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
+    xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, 1);
 }
 
 void HAL_Core_Init(void)
 {
 
 }
-
-void IRAM_ATTR SysTick_Handler(void);
+/*
+//void IRAM_ATTR SysTick_Handler(void);
+void SysTick_Handler(void);
 hw_timer_t * timer = NULL;
-
+*/
 void HAL_Core_Config(void)
 {
     //滴答定时器  //处理三色灯和模式处理
+    /*
     timer = timerBegin(0, 80, true);
     timerAttachInterrupt(timer, &SysTick_Handler, true);
     timerAlarmWrite(timer, 1000, true);
     timerAlarmEnable(timer);
+    */
 
     for (pin_t pin=FIRST_DIGITAL_PIN; pin<=FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
         HAL_Pin_Mode(pin, INPUT);
@@ -233,40 +245,11 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-typedef void (*app_system_loop_handler)(void);
-app_system_loop_handler APP_System_Loop_Handler = NULL;
-
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-    APP_System_Loop_Handler = handler;
-}
-
-static uint32_t g_micros_at_system_loop_start;
-static uint32_t g_at_system_loop = false;
-void system_loop_handler(uint32_t interval_us)
-{
-    if( true == g_at_system_loop )
-        return;
-
-    if ((HAL_Timer_Get_Micro_Seconds() - g_micros_at_system_loop_start) > interval_us) {
-        if (NULL != APP_System_Loop_Handler) {
-            g_at_system_loop = true;
-            APP_System_Loop_Handler();
-            g_at_system_loop = false;
-        }
-        g_micros_at_system_loop_start = HAL_Timer_Get_Micro_Seconds();
-    }
-}
-
-void IRAM_ATTR SysTick_Handler(void)
+//void IRAM_ATTR SysTick_Handler(void)
+void SysTick_Handler(void)
 {
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
-}
-
-void HAL_Core_System_Loop(void)
-{
-    system_loop_handler(100);
 }
 
 void HAL_Core_System_Yield(void)

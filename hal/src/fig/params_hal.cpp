@@ -284,15 +284,14 @@ extern "C" {
  * 读取ota文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void) {
-    // return intorobot_boot_params.ota_app_size;
-    return 0;
+    return intorobot_boot_params.ota_app_size;
 }
 
 /*
  * 保存ota文件大小
  * */
 int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
-    // intorobot_boot_params.ota_app_size = size;
+    intorobot_boot_params.ota_app_size = size;
     return 0;
 }
 
@@ -300,15 +299,14 @@ int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
  * 读取默认应用文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_def_app_size(void) {
-    // return intorobot_boot_params.def_app_size;
-    return 0;
+    return intorobot_boot_params.def_app_size;
 }
 
 /*
  * 保存默认应用文件大小
  * */
 int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
-    // intorobot_boot_params.def_app_size = size;
+    intorobot_boot_params.def_app_size = size;
     return 0;
 }
 
@@ -316,15 +314,14 @@ int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
  * 读取升级boot文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_boot_size(void) {
-    // return intorobot_boot_params.boot_size;
-    return 0;
+    return intorobot_boot_params.boot_size;
 }
 
 /*
  * 保存升级boot文件大小
  * */
 int HAL_PARAMS_Set_Boot_boot_size(uint32_t size) {
-    // intorobot_boot_params.boot_size = size;
+    intorobot_boot_params.boot_size = size;
     return 0;
 }
 
@@ -571,8 +568,7 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * 读取参数配置标志
  * */
 CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
-   // return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
-   return CONFIG_FLAG_NONE;
+   return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
 }
 
 /*

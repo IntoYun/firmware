@@ -1418,6 +1418,16 @@ String intorobot_deviceID(void)
 
 void intorobot_process(void)
 {
-    HAL_Core_System_Loop();
+    // application thread will pump application messages
+#if PLATFORM_THREADING
+    if (system_thread_get_state(NULL) && APPLICATION_THREAD_CURRENT())
+    {
+        ApplicationThread.process();
+        return;
+    }
+#endif
+
+    // run the background processing loop, and specifically also pump cloud events
+    system_process_loop();
 }
 
