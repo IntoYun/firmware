@@ -9,8 +9,10 @@
 #include "soc/timer_group_struct.h"
 #include "esp_intr_alloc.h"
 #include "esp_intr.h"
+#include "esp_flash_partitions.h"
 #include "boot_debug.h"
 #include "ui_hal.h"
+
 /* #include "xtensa_intr_asm.S" */
 
 /**
@@ -293,6 +295,87 @@ static void Update_flash_config(void)
     Cache_Read_Enable( 0 );
 }
 
+static bool load_partition_table(void)
+{
+    const esp_partition_info_t *partitions;
+    const int ESP_PARTITION_TABLE_DATA_LEN = 0xC00; /* length of actual data (signature is appended to this) */
+    char *partition_usage;
+    esp_err_t err;
+    int num_partitions;
+
+    partitions = bootloader_mmap(ESP_PARTITION_TABLE_ADDR, ESP_PARTITION_TABLE_DATA_LEN);
+    if (!partitions) {
+        return false;
+    }
+
+    BOOT_DEBUG("mapped partition table 0x%x at 0x%x\r\n", ESP_PARTITION_TABLE_ADDR, (intptr_t)partitions);
+
+    err = esp_partition_table_basic_verify(partitions, true, &num_partitions);
+    if (err != ESP_OK) {
+        BOOT_DEBUG("Failed to verify partition table\r\n");
+        return false;
+    }
+    BOOT_DEBUG("Partition Table:\r\n");
+    BOOT_DEBUG("## Label            Usage          Type ST Offset   Length\r\n");
+
+    for(int i = 0; i < num_partitions; i++) {
+        const esp_partition_info_t *partition = &partitions[i];
+        BOOT_DEBUG("load partition table entry 0x%x\r\n", (intptr_t)partition);
+        BOOT_DEBUG("type=%x subtype=%x\r\n", partition->type, partition->subtype);
+        partition_usage = "unknown";
+
+        /* valid partition table */
+        switch(partition->type) {
+        case PART_TYPE_APP: /* app partition */
+            switch(partition->subtype) {
+            case PART_SUBTYPE_FACTORY: /* factory binary */
+                partition_usage = "factory app";
+                break;
+            case PART_SUBTYPE_TEST: /* test binary */
+                partition_usage = "test app";
+                break;
+            default:
+                /* OTA binary */
+                if ((partition->subtype & ~PART_SUBTYPE_OTA_MASK) == PART_SUBTYPE_OTA_FLAG) {
+                    partition_usage = "OTA app";
+                }
+                else {
+                    partition_usage = "Unknown app";
+                }
+                break;
+            }
+            break; /* PART_TYPE_APP */
+        case PART_TYPE_DATA: /* data partition */
+            switch(partition->subtype) {
+            case PART_SUBTYPE_DATA_OTA: /* ota data */
+                partition_usage = "OTA data";
+                break;
+            case PART_SUBTYPE_DATA_RF:
+                partition_usage = "RF data";
+                break;
+            case PART_SUBTYPE_DATA_WIFI:
+                partition_usage = "WiFi data";
+                break;
+            default:
+                partition_usage = "Unknown data";
+                break;
+            }
+            break; /* PARTITION_USAGE_DATA */
+        default: /* other partition type */
+            break;
+        }
+
+        /* print partition type info */
+        BOOT_DEBUG("%2d %-16s %-16s %02x %02x %08x %08x\r\n", i, partition->label, partition_usage,
+                 partition->type, partition->subtype,
+                 partition->pos.offset, partition->pos.size);
+    }
+
+    bootloader_munmap(partitions);
+    BOOT_DEBUG("End of partition table\r\n");
+    return true;
+}
+
 /**
  * @brief  Configures Main system clocks & power.
  * @param  None
@@ -305,9 +388,11 @@ void Set_System(void)
     /* disable watch dog here */
     REG_CLR_BIT( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_FLASHBOOT_MOD_EN );
     REG_CLR_BIT( TIMG_WDTCONFIG0_REG(0), TIMG_WDT_FLASHBOOT_MOD_EN );
+    bootloader_random_enable();
     Update_flash_config();
+    load_partition_table();
+    bootloader_random_disable();
 
-    //HwTimer_config();
     HAL_UI_Initial();
 }
 

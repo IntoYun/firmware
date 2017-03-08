@@ -18,7 +18,6 @@
  */
 #include "hw_config.h"
 #include "ui_hal.h"
-#include "delay_hal.h"
 #include "soc/gpio_struct.h"
 #include "soc/gpio_sig_map.h"
 #include "soc/io_mux_reg.h"

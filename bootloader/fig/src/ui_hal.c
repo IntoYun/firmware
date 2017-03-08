@@ -16,6 +16,7 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
+#include "hw_config.h"
 #include "ui_hal.h"
 #include "soc/gpio_struct.h"
 #include "soc/gpio_sig_map.h"
@@ -38,24 +39,37 @@ rgb_info_t rgb_info;
 
 void Set_RGB_Color(uint32_t color) {
     uint8_t red,green,blue;
+    uint32_t w1tc=0, w1ts=0;
 
     red = color>>16 & 0xFF;
     green = color>>8 & 0xFF;
     blue = color & 0xFF;
-    if(red)
-        GPIO.out_w1tc = (1 << RGB_R_GPIO_PIN);
-    else
-        GPIO.out_w1ts = (1 << RGB_R_GPIO_PIN);
 
-    if(green)
-        GPIO.out_w1tc = (1 << RGB_G_GPIO_PIN);
-    else
-        GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN);
+    if(red) {
+        w1tc |= (1 << RGB_R_GPIO_PIN);
+    } else {
+        w1ts |= (1 << RGB_R_GPIO_PIN);
+    }
 
-    if(blue)
-        GPIO.out_w1tc = (1 << RGB_B_GPIO_PIN);
-    else
-        GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN);
+    if(green) {
+        w1tc |= (1 << RGB_G_GPIO_PIN);
+    } else {
+        w1ts |= (1 << RGB_G_GPIO_PIN);
+    }
+
+    if(blue) {
+        w1tc |= (1 << RGB_B_GPIO_PIN);
+    } else {
+        w1ts |= (1 << RGB_B_GPIO_PIN);
+    }
+
+    if(w1tc) {
+        GPIO.out_w1tc = w1tc;
+    }
+
+    if(w1ts) {
+        GPIO.out_w1ts = w1ts;
+    }
 }
 
 void RGB_Color_Toggle(void) {
@@ -89,6 +103,7 @@ void HAL_UI_Initial(void)
     CLEAR_PERI_REG_MASK(RTC_IO_TOUCH_PAD7_REG, RTC_IO_TOUCH_PAD7_RUE_M); //disable pull up
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO27_U, PIN_FUNC_GPIO); //set register
 
+    // green pin
     GPIO.out_w1ts = (1 << RGB_G_GPIO_PIN); //默认高电平 灯灭
     gpio_matrix_out(RGB_G_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_G_GPIO_PIN); //output enable
@@ -97,6 +112,7 @@ void HAL_UI_Initial(void)
     REG_CLR_BIT(PERIPHS_IO_MUX_GPIO21_U, FUN_PU); //disable pull up
     PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO21_U, PIN_FUNC_GPIO);//set register
 
+    // blue pin
     GPIO.out_w1ts = (1 << RGB_B_GPIO_PIN); //默认高电平 灯灭
     gpio_matrix_out(RGB_B_GPIO_PIN, SIG_GPIO_OUT_IDX, 0, 0);
     GPIO.enable_w1ts = (0x1 << RGB_B_GPIO_PIN); //output enable
@@ -167,32 +183,25 @@ void HAL_UI_UserLED_Control(uint8_t value)
 void HAL_UI_SysTick_Handler(void)
 {
     //三色灯处理
-    if(RGB_MODE_BLINK == rgb_info.rgb_mode)
-    {
-        if (TimingLED != 0x00)
-        {
+    if(RGB_MODE_BLINK == rgb_info.rgb_mode) {
+        if (TimingLED != 0x00) {
             TimingLED--;
-        }
-        else
-        {
+        } else {
             RGB_Color_Toggle();
             TimingLED = rgb_info.rgb_period;
         }
     }
     //侧边按键处理
-    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
-    {
+    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
         if(!BUTTON_last_state) {
             TimingBUTTON = 0;
             BUTTON_last_state = 1;
-        }
-        else {
+        } else {
             TimingBUTTON++;
         }
     }
     else {
-        if(BUTTON_last_state)
-        {
+        if(BUTTON_last_state) {
             TimingBUTTON = 0;
             BUTTON_last_state = 0;
         }

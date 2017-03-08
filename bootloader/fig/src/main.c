@@ -68,25 +68,6 @@ void IRAM_ATTR call_start_cpu0()
     main();
 }
 
-#if 0
-ETSTimer timer;
-
-void fn_timer(void *timer_arg)
-{
-    //HAL_UI_RGB_Color(RGB_COLOR_RED);
-    BOOT_DEBUG("b ");
-}
-#endif
-
-#if 0
-hw_timer_t * timer = NULL;
-
-
-void IRAM_ATTR onTimer(){
-    BOOT_DEBUG("b ");
-}
-#endif
-
 int main()
 {
     BOOT_DEBUG("boot start...\r\n");
@@ -95,42 +76,6 @@ int main()
 
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
-
-#if 0
-    //intr_matrix_set(0, ETS_TIMER2_INTR_SOURCE, 10);
-    intr_matrix_set(0, ETS_TG0_T0_LEVEL_INTR_SOURCE, 10);
-    ets_timer_init();
-    BOOT_DEBUG("1\r\n");
-    ets_timer_disarm(&timer);
-    BOOT_DEBUG("3\r\n");
-    ets_timer_arm(&timer, 1000, true);
-    BOOT_DEBUG("2\r\n");
-    ets_timer_setfn(&timer, fn_timer, NULL);
-    //ets_timer_done(&timer);
-    BOOT_DEBUG("4\r\n");
-    while(1)
-    {
-        HAL_UI_RGB_Color(RGB_COLOR_RED);
-        delay(1000);
-        HAL_UI_RGB_Color(RGB_COLOR_GREEN);
-        delay(1000);
-    }
-#endif
-
-#if 0
-    timer = timerBegin(0, 80, true);
-    timerAttachInterrupt(timer, &onTimer, true);
-    timerAlarmWrite(timer, 1000000, true);
-    timerAlarmEnable(timer);
-
-    while(1)
-    {
-        HAL_UI_RGB_Color(RGB_COLOR_RED);
-        delay(1000);
-        HAL_UI_RGB_Color(RGB_COLOR_GREEN);
-        delay(1000);
-    }
-#endif
 
     if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
     {
