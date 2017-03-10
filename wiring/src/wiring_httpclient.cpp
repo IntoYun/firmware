@@ -33,35 +33,28 @@ HttpClient::HttpClient()
  */
 void HttpClient::sendHeader(const char* aHeaderName, const char* aHeaderValue)
 {
-    String stringHeader = "";
-
     stringHeader += aHeaderName;
     stringHeader += ": ";
     stringHeader += aHeaderValue;
     stringHeader += "\r\n";
-    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %s", aHeaderName, aHeaderValue);
 }
 
 void HttpClient::sendHeader(const char* aHeaderName, const int aHeaderValue)
 {
-    String stringHeader = "";
-
     stringHeader += aHeaderName;
     stringHeader += ": ";
     stringHeader += aHeaderValue;
     stringHeader += "\r\n";
-    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s: %d", aHeaderName, aHeaderValue);
 }
 
 void HttpClient::sendHeader(const char* aHeaderName)
 {
-    String stringHeader = aHeaderName;
+    stringHeader += aHeaderName;
     stringHeader += "\r\n";
-    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: sendHeader %s", aHeaderName);
 }
@@ -100,13 +93,12 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     //
 
     // Send initial headers (only HTTP 1.0 is supported for now).
-    String stringHeader= "";
+    stringHeader= "";
 
     stringHeader += aHttpMethod;
     stringHeader += " ";
     stringHeader += aRequest.path;
     stringHeader += " HTTP/1.0\r\n";
-    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
 
     WHTTPCLIENT_DEBUG("httpClient: Start of HTTP Request.");
     WHTTPCLIENT_DEBUG("%s %s %s", aHttpMethod, aRequest.path.c_str(), "HTTP/1.0");
@@ -140,8 +132,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
     }
 
     // Empty line to finish headers
-    client.println();
-    client.flush();
+    stringHeader += "\r\n";
 
     //
     // Send HTTP Request Body
@@ -149,11 +140,13 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
 
     if (aRequest.body != NULL) {
         WHTTPCLIENT_DEBUG("httpClient: body: %s", aRequest.body.c_str());
-        aRequest.body += "\r\n";
-        client.write((uint8_t *)aRequest.body.c_str(), aRequest.body.length());
+        stringHeader += aRequest.body;
+        stringHeader += "\r\n";
     }
 
-    WHTTPCLIENT_DEBUG("httpClient: End of HTTP Request.", aRequest.body.c_str());
+    client.write((uint8_t *)stringHeader.c_str(), stringHeader.length());
+    client.flush();
+    WHTTPCLIENT_DEBUG("httpClient: End of HTTP Request.");
 
     // clear response buffer
     memset(&buffer[0], 0, sizeof(buffer));
@@ -223,6 +216,7 @@ void HttpClient::request(http_request_t &aRequest, http_response_t &aResponse, h
         // We don't need to null terminate the buffer since it was zeroed to start with, or null terminated when it reached capacity.
 
         if (bytes) {
+            break;
             WHTTPCLIENT_DEBUG("httpClient: End of TCP transaction.");
         }
 

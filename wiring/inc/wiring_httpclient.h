@@ -60,12 +60,6 @@ typedef struct
 class HttpClient {
     public:
         /**
-         * Public references to variables.
-         */
-        TCPClient client;
-        char buffer[1024];
-
-        /**
          * Constructor.
          */
         HttpClient(void);
@@ -127,6 +121,12 @@ class HttpClient {
         void sendHeader(const char* aHeaderName, const char* aHeaderValue);
         void sendHeader(const char* aHeaderName, const int aHeaderValue);
         void sendHeader(const char* aHeaderName);
+        /**
+         * Private references to variables.
+         */
+        TCPClient client;
+        String stringHeader;
+        char buffer[1024];
 };
 
 #endif

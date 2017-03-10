@@ -30,17 +30,19 @@ sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint
     sock_handle_t handle = socket(AF_INET, protocol==IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM, 0);
     if (socket_handle_valid(handle) && (protocol==IPPROTO_UDP)) {
         int yes = 1;
-        setsockopt(handle,SOL_SOCKET,SO_REUSEADDR, &yes, sizeof(yes));
+        setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+
+        DEBUG("port = %d", port);
 
         struct sockaddr tSocketAddr;
         memset(&tSocketAddr, 0, sizeof(tSocketAddr));
         tSocketAddr.sa_family = AF_INET;
         tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
         tSocketAddr.sa_data[1] = (port & 0x00FF);
-        tSocketAddr.sa_data[2] = 255;  // Todo IPv6
-        tSocketAddr.sa_data[3] = 255;
-        tSocketAddr.sa_data[4] = 255;
-        tSocketAddr.sa_data[5] = 255;
+        tSocketAddr.sa_data[2] = 0;  // Todo IPv6
+        tSocketAddr.sa_data[3] = 0;
+        tSocketAddr.sa_data[4] = 0;
+        tSocketAddr.sa_data[5] = 0;
         bind(handle, &tSocketAddr, sizeof(tSocketAddr));
         fcntl(handle, F_SETFL, O_NONBLOCK);
     }
@@ -54,7 +56,7 @@ int32_t socket_connect(sock_handle_t sd, const sockaddr_t *addr, long addrlen)
     memset(&tSocketAddr, 0, sizeof(struct sockaddr));
     tSocketAddr.sa_family = addr->sa_family;
     memcpy(tSocketAddr.sa_data, addr->sa_data, 14);
-    return (connect(sd, &tSocketAddr, sizeof(tSocketAddr)) == 0) ? 0 : 1;
+    return connect(sd, &tSocketAddr, sizeof(tSocketAddr));
 }
 
 sock_result_t socket_reset_blocking_call()
@@ -64,17 +66,7 @@ sock_result_t socket_reset_blocking_call()
 
 sock_result_t socket_receive(sock_handle_t sd, void* buffer, socklen_t len, system_tick_t _timeout)
 {
-    sock_result_t result = 0;
-    if (_timeout==0) {
-        int count;
-        result = ioctl(sd, FIONREAD, &count);
-        if (result==0)// no data, so return without polling for data
-            return 0;
-        if (result>0)// clear error
-            result = 0;
-    }
-    if (!result)
-        result = recv(sd, buffer, len, MSG_DONTWAIT);
+    sock_result_t result = recv(sd, buffer, len, MSG_DONTWAIT);
     return result;
 }
 
@@ -85,18 +77,14 @@ sock_result_t socket_create_nonblocking_server(sock_handle_t sock, uint16_t port
 
 sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t bufLen, uint32_t flags, sockaddr_t* addr, socklen_t* addrsize)
 {
-    int count;
-
-    sock_result_t result = ioctl(sock, FIONREAD, &count);
-    if (result<=0)// error or no data
-        return result;
-
     struct sockaddr si_other;
     socklen_t slen = sizeof(si_other);
-    result = recvfrom(sock, buffer, bufLen, MSG_DONTWAIT, &si_other, &slen);
+    sock_result_t result = recvfrom(sock, buffer, bufLen, MSG_DONTWAIT, &si_other, &slen);
     if (result > 0) {
+        DEBUG("result = %d", result);
         addr->sa_family = si_other.sa_family;
         memcpy(addr->sa_data, si_other.sa_data, 14);
+        DEBUG("%d %d   %d.%d.%d.%d", addr->sa_data[0], addr->sa_data[1], addr->sa_data[2],addr->sa_data[3],addr->sa_data[4],addr->sa_data[5]);
     }
     return result;
 }

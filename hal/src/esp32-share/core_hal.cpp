@@ -24,6 +24,7 @@
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp32-hal-timer.h"
+#include "esp32_wifi_generic.h"
 
 #include "hw_config.h"
 #include "core_hal.h"
@@ -71,6 +72,8 @@ static void application_task_start(void *pvParameters)
     app_setup_and_loop();
 }
 
+//处理三色灯和模式处理
+void SysTick_Handler(void);
 static void ui_task_start(void *pvParameters)
 {
     while(1) {
@@ -92,21 +95,9 @@ void HAL_Core_Init(void)
 {
 
 }
-/*
-//void IRAM_ATTR SysTick_Handler(void);
-void SysTick_Handler(void);
-hw_timer_t * timer = NULL;
-*/
+
 void HAL_Core_Config(void)
 {
-    //滴答定时器  //处理三色灯和模式处理
-    /*
-    timer = timerBegin(0, 80, true);
-    timerAttachInterrupt(timer, &SysTick_Handler, true);
-    timerAlarmWrite(timer, 1000, true);
-    timerAlarmEnable(timer);
-    */
-
     for (pin_t pin=FIRST_DIGITAL_PIN; pin<=FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
         HAL_Pin_Mode(pin, INPUT);
     }
@@ -123,6 +114,7 @@ void HAL_Core_Config(void)
     HAL_EEPROM_Init();
 
     HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    esp32_setMode(WIFI_MODE_STA);    // wifi初始化
 }
 
 void HAL_Core_Load_params(void)
@@ -245,7 +237,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-//void IRAM_ATTR SysTick_Handler(void)
 void SysTick_Handler(void)
 {
     HAL_SysTick_Handler();

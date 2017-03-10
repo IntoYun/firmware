@@ -34,10 +34,7 @@ extern "C" {
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp_smartconfig.h"
-#include "esp_intr.h"
 }
-
-#define HWTIMER_INUM 10
 
 static ScanDoneCb _scanDoneCb = NULL;
 static wl_status_t _wifiStatus;
@@ -91,13 +88,17 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         _setStatus(WL_NO_SHIELD);
     }
     else if(event->event_id == SYSTEM_EVENT_STA_GOT_IP) {
+        DEBUG("SYSTEM_EVENT_STA_GOT_IP");
+        tcpip_adapter_ip_info_t ip;
+        tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
+        DEBUG("%x", ip.ip.addr);
+
         _setStatus(WL_CONNECTED);
     }
     return ESP_OK;
 }
 
 static bool wifiLowLevelInit(){
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     static bool lowLevelInitDone = false;
     if(!lowLevelInitDone){
         tcpip_adapter_init();
@@ -105,22 +106,18 @@ static bool wifiLowLevelInit(){
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         esp_err_t err = esp_wifi_init(&cfg);
         if(err){
-            ESP_INTR_ENABLE(HWTIMER_INUM);
             return false;
         }
         esp_wifi_set_storage(WIFI_STORAGE_FLASH);
         esp_wifi_set_mode(WIFI_MODE_NULL);
         lowLevelInitDone = true;
     }
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return true;
 }
 
 static bool wifiLowLevelDeinit(){
     //deinit not working yet!
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     esp_wifi_deinit();
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return true;
 }
 
@@ -133,9 +130,7 @@ static bool espWiFiStart() {
     if(!wifiLowLevelInit()) {
         return false;
     }
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     esp_err_t err = esp_wifi_start();
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     if (err != ESP_OK) {
         wifiLowLevelDeinit();
         return false;
@@ -149,9 +144,7 @@ static bool espWiFiStop() {
     if(!_esp_wifi_started) {
         return true;
     }
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     err = esp_wifi_stop();
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     if(err) {
         return false;
     }
@@ -177,9 +170,7 @@ bool esp32_setMode(wifi_mode_t m)
         return true;
     }
     esp_err_t err;
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     err = esp_wifi_set_mode(m);
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     if(err) {
         return false;
     }
@@ -240,31 +231,25 @@ uint8_t* esp32_getMacAddress(uint8_t* mac)
 
 bool esp32_setDHCP(char enable)
 {
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     if(true == enable) {
         tcpip_adapter_dhcpc_start(TCPIP_ADAPTER_IF_STA);
     } else {
         tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_STA);
     }
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return true;
 }
 
 bool esp32_setAutoConnect(bool autoConnect)
 {
     bool ret;
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     ret = esp_wifi_set_auto_connect(autoConnect);
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return ret;
 }
 
 bool esp32_getAutoConnect()
 {
     bool autoConnect;
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     esp_wifi_get_auto_connect(&autoConnect);
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return autoConnect;
 }
 
@@ -289,9 +274,7 @@ int32_t esp32_getRSSI(void)
 
 int esp32_setConfig(wifi_config_t *conf)
 {
-    ESP_INTR_DISABLE(HWTIMER_INUM);
     esp_wifi_set_config(WIFI_IF_STA, conf);
-    ESP_INTR_ENABLE(HWTIMER_INUM);
     return 0;
 }
 
@@ -301,16 +284,19 @@ static bool _smartConfigDone = false;
 static void smartConfigCallback(uint32_t st, void* result)
 {
     smartconfig_status_t status = (smartconfig_status_t) st;
+    DEBUG("status = %d", status);
     if (status == SC_STATUS_LINK) {
         wifi_sta_config_t *sta_conf = reinterpret_cast<wifi_sta_config_t *>(result);
 
+        DEBUG("ssid     = %s", sta_conf->ssid);
+        DEBUG("password = %s", sta_conf->password);
+        //esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t *)sta_conf);
         esp_wifi_set_config(WIFI_IF_AP, (wifi_config_t *)sta_conf);
         esp_wifi_disconnect();
         esp_wifi_connect();
-
-        _smartConfigDone = true;
     }
     else if (status == SC_STATUS_LINK_OVER) {
+        _smartConfigDone = true;
         esp32_stopSmartConfig();
     }
 }
@@ -398,9 +384,9 @@ int esp32_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &ip
         }
     } else {
         _dns_busy = false;
-        return 0;
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 int esp32_connect()

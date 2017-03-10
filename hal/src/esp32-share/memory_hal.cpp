@@ -23,7 +23,6 @@ extern "C" {
 #include "rom/spi_flash.h"
 #include "esp_spi_flash.h"
 #include "esp_err.h"
-#include "esp_intr.h"
 }
 
 /**
@@ -45,9 +44,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ESP_INTR_DISABLE(10);
-    //esp_err_t rlt = spi_flash_erase_sector(sector);
-    esp_err_t rlt = ESP_OK;
+    esp_err_t rlt = spi_flash_erase_sector(sector);
     switch(rlt)
     {
         case ESP_OK:
@@ -60,7 +57,6 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ESP_INTR_ENABLE(10);
     return result;
 }
 
@@ -68,9 +64,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ESP_INTR_DISABLE(10);
-    //esp_err_t rlt = spi_flash_read(address, pdata, datalen);
-    esp_err_t rlt = ESP_OK;
+    esp_err_t rlt = spi_flash_read(address, pdata, datalen);
     switch(rlt)
     {
         case ESP_OK:
@@ -83,7 +77,6 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ESP_INTR_ENABLE(10);
     return result;
 }
 
@@ -91,9 +84,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ESP_INTR_DISABLE(10);
-    //esp_err_t rlt = spi_flash_write(address, pdata, datalen);
-    esp_err_t rlt = ESP_OK;
+    esp_err_t rlt = spi_flash_write(address, pdata, datalen);
     switch(rlt)
     {
         case ESP_OK:
@@ -106,7 +97,6 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ESP_INTR_ENABLE(10);
     return result;
 }
 

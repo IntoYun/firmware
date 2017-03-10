@@ -123,6 +123,7 @@ int wlan_set_credentials(WLanCredentials* c)
 
 void wlan_Imlink_start()
 {
+    DEBUG("wlan_Imlink_start");
     esp32_beginSmartConfig();
 }
 
@@ -136,6 +137,7 @@ imlink_status_t wlan_Imlink_get_status()
 
 void wlan_Imlink_stop()
 {
+    DEBUG("wlan_Imlink_stop");
     esp32_stopSmartConfig();
 }
 

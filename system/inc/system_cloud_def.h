@@ -22,11 +22,14 @@
 
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
 
-#define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
-#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
+//#define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
+//#define INTOROBOT_SERVER_PORT          1883
+#define INTOROBOT_SERVER_DOMAIN        "112.124.117.64"
+#define INTOROBOT_SERVER_PORT          1885
 
-#define INTOROBOT_SERVER_PORT          1883
 #define INTOROBOT_SERVER_TLS_PORT      8883
+
+#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
 
 //#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
 #define INTOROBOT_HTTP_DOMAIN          "112.124.117.64"

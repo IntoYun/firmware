@@ -935,9 +935,13 @@ int UdpDeviceConfig::available(void)
             if( network_status(0, 0, NULL) ) {
                 system_rgb_blink(RGB_COLOR_RED, 200);
                 Udp.begin(5556);
+                //Udp.begin(55056);
                 //Udp.beginPacket 放在此处是因为设备接收到udp数据后，可以自动获取remoteip和remoteport。
                 //发送数据的时候不需要也不能指定remoteip和remoteport.
                 Udp.beginPacket(IPADDR_BROADCAST,5557);
+                //Udp.beginPacket("192.168.1.13",55056);
+                //Udp.write("0x12, 0x32",2);
+                //Udp.endPacket();
                 step = 2;
             }
             break;

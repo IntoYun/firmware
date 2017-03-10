@@ -270,12 +270,9 @@ extern "C" void HAL_SysTick_Handler(void)
     } else {
         switch(BUTTON_Mode) {
             case BUTTON_MODE_CONFIG_SERIAL:
-                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus())
-                {
+                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus()) {
                     System.configBegin(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
-                }
-                else
-                {
+                } else {
                     System.configEnd();
                 }
                 break;

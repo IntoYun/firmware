@@ -1181,7 +1181,7 @@ static time_t get_ntp_time(void)
     {
         send_ntp_request_packet(ntpServer);
         uint32_t beginWait = millis();
-        while (millis() - beginWait < 2000)
+        while (millis() - beginWait < 6000)
         {
             if (ntp_time_udp.parsePacket()) {
                 ntp_time_udp.read(packetBuffer, 48);
@@ -1416,8 +1416,10 @@ String intorobot_deviceID(void)
     return device_id;
 }
 
+volatile uint8_t intorobot_process_flag = 0;
 void intorobot_process(void)
 {
+    intorobot_process_flag = 1;
     // application thread will pump application messages
 #if PLATFORM_THREADING
     if (system_thread_get_state(NULL) && APPLICATION_THREAD_CURRENT())
@@ -1429,5 +1431,6 @@ void intorobot_process(void)
 
     // run the background processing loop, and specifically also pump cloud events
     system_process_loop();
+    intorobot_process_flag = 0;
 }
 

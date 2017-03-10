@@ -124,7 +124,6 @@ void Network_Setup(void)
         system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
     network_connection_attempt_init();
-
     CLOUD_FN(intorobot_cloud_init(), (void)0);
 }
 
@@ -224,8 +223,8 @@ void preprocess_cloud_connection(void)
             // 同步时间
             intorobot_sync_time();
 
-            AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-            //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
+            //AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+            AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
             switch(at_mode)
             {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥
@@ -361,7 +360,9 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
             intorobot_loop_elapsed_millis = elapsed_millis + INTOROBOT_LOOP_DELAY_MILLIS;
             //intorobot_loop_total_millis is reset to 0 in system_process_loop()
             //Run once if the above condition passes
-            intorobot_process();
+            if(!intorobot_process_flag) {
+                intorobot_process();
+            }
         }
     }
 }
