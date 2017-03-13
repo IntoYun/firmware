@@ -1,3 +1,20 @@
+## v1.4.3-rc.3
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+
+
+### BUG FIXES(漏洞修复)
+- [[PR #25]](https://github.com/HITSZ-NRSL/firmware/pull/25) [nut] 部分应用程序在nut上编译出错，提示空间不足，修改该问题
+
+
+### INTERNAL(内部)
+
+
+
+
 ## v1.4.3-rc.2
 
 ### FEATURES(功能)
