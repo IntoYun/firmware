@@ -22,13 +22,25 @@
  *
  */
 
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
-#include <StreamString.h>
-#include <base64.h>
+#include "intorobot_config.h"
 
-#include "ESP8266HTTPClient.h"
+#ifndef configNO_NETWORK
+
+#include <stdlib.h>
+#include "wiring_ticks.h"
+#include "wiring_httpclient.h"
+#include "service_debug.h"
+
+/*debug switch*/
+//#define WIRING_HTTPCLIENT_DEBUG
+
+#ifdef WIRING_HTTPCLIENT_DEBUG
+#define WHTTPCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WHTTPCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define WHTTPCLIENT_DEBUG(...)
+#define WHTTPCLIENT_DEBUG_D(...)
+#endif
 
 class TransportTraits
 {
@@ -194,21 +206,6 @@ bool HTTPClient::begin(String host, uint16_t port, String uri, bool https, Strin
     } else {
         return begin(host, port, uri);
     }
-}
-
-bool HTTPClient::begin(String host, uint16_t port, String uri, String httpsFingerprint)
-{
-    clear();
-    _host = host;
-    _port = port;
-    _uri = uri;
-
-    if (httpsFingerprint.length() == 0) {
-        return false;
-    }
-    _transportTraits = TransportTraitsPtr(new TLSTraits(httpsFingerprint));
-    DEBUG_HTTPCLIENT("[HTTP-Client][begin] host: %s port: %d url: %s httpsFingerprint: %s\n", host.c_str(), port, uri.c_str(), httpsFingerprint.c_str());
-    return true;
 }
 
 /**
@@ -1117,3 +1114,5 @@ int HTTPClient::returnError(int error)
     }
     return error;
 }
+
+#endif

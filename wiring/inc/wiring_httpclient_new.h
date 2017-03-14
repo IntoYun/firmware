@@ -134,8 +134,6 @@ public:
     bool begin(String url, String httpsFingerprint);
     bool begin(String host, uint16_t port, String uri = "/");
     bool begin(String host, uint16_t port, String uri, String httpsFingerprint);
-    // deprecated, use the overload above instead
-    bool begin(String host, uint16_t port, String uri, bool https, String httpsFingerprint)  __attribute__ ((deprecated));
 
     void end(void);
 
