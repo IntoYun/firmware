@@ -20,6 +20,8 @@
 #include "ota_flash_hal.h"
 #include "core_hal.h"
 
+#define OTA_CHUNK_SIZE          512
+
 static bool bootloader_requires_update(void)
 {
     return false;
@@ -69,6 +71,60 @@ void HAL_OTA_Upadate_Subsys(void)
 }
 
 uint8_t HAL_OTA_Get_Download_Progress()
+{
+    return 0;
+}
+
+bool HAL_OTA_CheckValidAddressRange(uint32_t startAddress, uint32_t length)
+{
+    uint32_t endAddress = startAddress + length;
+
+#ifdef USE_SERIAL_FLASH
+    if (startAddress == EXTERNAL_FLASH_OTA_ADDRESS && endAddress <= 0x100000)
+    {
+        return true;
+    }
+#else
+    if (startAddress == INTERNAL_FLASH_OTA_ADDRESS && endAddress < 0x8100000)
+    {
+        return true;
+    }
+#endif
+
+    return false;
+}
+
+uint32_t HAL_OTA_FlashAddress()
+{
+#ifdef USE_SERIAL_FLASH
+    return EXTERNAL_FLASH_OTA_ADDRESS;
+#else
+    return 0;
+#endif
+}
+
+uint32_t HAL_OTA_FlashLength()
+{
+    return 0;
+}
+
+uint16_t HAL_OTA_ChunkSize()
+{
+    return OTA_CHUNK_SIZE;
+}
+
+bool HAL_FLASH_Begin(uint32_t address, uint32_t length, void* reserved)
+{
+    FLASH_Begin(address, length);
+    return true;
+}
+
+int HAL_FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    return FLASH_Update(pBuffer, address, length);
+}
+
+hal_update_complete_t HAL_FLASH_End(hal_module_t* mod)
 {
     return 0;
 }
