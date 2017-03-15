@@ -4,7 +4,7 @@
 
 #include "intorobot_config.h"
 #include "md5_builder.h"
-#include "wiring_httpclient_new.h"
+#include "wiring_httpclient.h"
 
 #ifdef __cplusplus
 extern "C" {

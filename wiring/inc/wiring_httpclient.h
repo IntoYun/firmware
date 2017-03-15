@@ -1,134 +1,216 @@
-#ifndef WIRING_HTTP_CLIENT_H_
-#define WIRING_HTTP_CLIENT_H_
+/**
+ * ESP8266HTTPClient.h
+ *
+ * Created on: 02.11.2015
+ *
+ * Copyright (c) 2015 Markus Sattler. All rights reserved.
+ * This file is part of the ESP8266HTTPClient for Arduino.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ */
+
+#ifndef WIRING_HTTPCLIENT_NEW_H_
+#define WIRING_HTTPCLIENT_NEW_H_
 
 #include "intorobot_config.h"
 
 #ifndef configNO_NETWORK
 
+#include <memory>
 #include "wiring_string.h"
 #include "wiring_tcpclient.h"
 
-/**
- * Defines for the HTTP methods.
- */
-static const char* HTTP_METHOD_GET    = "GET";
-static const char* HTTP_METHOD_POST   = "POST";
-static const char* HTTP_METHOD_PUT    = "PUT";
-static const char* HTTP_METHOD_DELETE = "DELETE";
-static const char* HTTP_METHOD_PATCH  = "PATCH";
+#define HTTPCLIENT_DEFAULT_TCP_TIMEOUT (5000)
 
-/**
- * This struct is used to pass additional HTTP headers such as API-keys.
- * Normally you pass this as an array. The last entry must have NULL as key.
- */
-typedef struct
+/// HTTP client errors
+#define HTTPC_ERROR_CONNECTION_REFUSED  (-1)
+#define HTTPC_ERROR_SEND_HEADER_FAILED  (-2)
+#define HTTPC_ERROR_SEND_PAYLOAD_FAILED (-3)
+#define HTTPC_ERROR_NOT_CONNECTED       (-4)
+#define HTTPC_ERROR_CONNECTION_LOST     (-5)
+#define HTTPC_ERROR_NO_STREAM           (-6)
+#define HTTPC_ERROR_NO_HTTP_SERVER      (-7)
+#define HTTPC_ERROR_TOO_LESS_RAM        (-8)
+#define HTTPC_ERROR_ENCODING            (-9)
+#define HTTPC_ERROR_STREAM_WRITE        (-10)
+#define HTTPC_ERROR_READ_TIMEOUT        (-11)
+
+/// size for the stream handling
+#define HTTP_TCP_BUFFER_SIZE (1460)
+
+/// HTTP codes see RFC7231
+typedef enum {
+    HTTP_CODE_CONTINUE = 100,
+    HTTP_CODE_SWITCHING_PROTOCOLS = 101,
+    HTTP_CODE_PROCESSING = 102,
+    HTTP_CODE_OK = 200,
+    HTTP_CODE_CREATED = 201,
+    HTTP_CODE_ACCEPTED = 202,
+    HTTP_CODE_NON_AUTHORITATIVE_INFORMATION = 203,
+    HTTP_CODE_NO_CONTENT = 204,
+    HTTP_CODE_RESET_CONTENT = 205,
+    HTTP_CODE_PARTIAL_CONTENT = 206,
+    HTTP_CODE_MULTI_STATUS = 207,
+    HTTP_CODE_ALREADY_REPORTED = 208,
+    HTTP_CODE_IM_USED = 226,
+    HTTP_CODE_MULTIPLE_CHOICES = 300,
+    HTTP_CODE_MOVED_PERMANENTLY = 301,
+    HTTP_CODE_FOUND = 302,
+    HTTP_CODE_SEE_OTHER = 303,
+    HTTP_CODE_NOT_MODIFIED = 304,
+    HTTP_CODE_USE_PROXY = 305,
+    HTTP_CODE_TEMPORARY_REDIRECT = 307,
+    HTTP_CODE_PERMANENT_REDIRECT = 308,
+    HTTP_CODE_BAD_REQUEST = 400,
+    HTTP_CODE_UNAUTHORIZED = 401,
+    HTTP_CODE_PAYMENT_REQUIRED = 402,
+    HTTP_CODE_FORBIDDEN = 403,
+    HTTP_CODE_NOT_FOUND = 404,
+    HTTP_CODE_METHOD_NOT_ALLOWED = 405,
+    HTTP_CODE_NOT_ACCEPTABLE = 406,
+    HTTP_CODE_PROXY_AUTHENTICATION_REQUIRED = 407,
+    HTTP_CODE_REQUEST_TIMEOUT = 408,
+    HTTP_CODE_CONFLICT = 409,
+    HTTP_CODE_GONE = 410,
+    HTTP_CODE_LENGTH_REQUIRED = 411,
+    HTTP_CODE_PRECONDITION_FAILED = 412,
+    HTTP_CODE_PAYLOAD_TOO_LARGE = 413,
+    HTTP_CODE_URI_TOO_LONG = 414,
+    HTTP_CODE_UNSUPPORTED_MEDIA_TYPE = 415,
+    HTTP_CODE_RANGE_NOT_SATISFIABLE = 416,
+    HTTP_CODE_EXPECTATION_FAILED = 417,
+    HTTP_CODE_MISDIRECTED_REQUEST = 421,
+    HTTP_CODE_UNPROCESSABLE_ENTITY = 422,
+    HTTP_CODE_LOCKED = 423,
+    HTTP_CODE_FAILED_DEPENDENCY = 424,
+    HTTP_CODE_UPGRADE_REQUIRED = 426,
+    HTTP_CODE_PRECONDITION_REQUIRED = 428,
+    HTTP_CODE_TOO_MANY_REQUESTS = 429,
+    HTTP_CODE_REQUEST_HEADER_FIELDS_TOO_LARGE = 431,
+    HTTP_CODE_INTERNAL_SERVER_ERROR = 500,
+    HTTP_CODE_NOT_IMPLEMENTED = 501,
+    HTTP_CODE_BAD_GATEWAY = 502,
+    HTTP_CODE_SERVICE_UNAVAILABLE = 503,
+    HTTP_CODE_GATEWAY_TIMEOUT = 504,
+    HTTP_CODE_HTTP_VERSION_NOT_SUPPORTED = 505,
+    HTTP_CODE_VARIANT_ALSO_NEGOTIATES = 506,
+    HTTP_CODE_INSUFFICIENT_STORAGE = 507,
+    HTTP_CODE_LOOP_DETECTED = 508,
+    HTTP_CODE_NOT_EXTENDED = 510,
+    HTTP_CODE_NETWORK_AUTHENTICATION_REQUIRED = 511
+} t_http_codes;
+
+typedef enum {
+    HTTPC_TE_IDENTITY,
+    HTTPC_TE_CHUNKED
+} transferEncoding_t;
+
+class TransportTraits;
+typedef std::unique_ptr<TransportTraits> TransportTraitsPtr;
+
+class HTTPClient
 {
-    const char* header;
-    const char* value;
-} http_header_t;
+public:
+    HTTPClient();
+    ~HTTPClient();
 
-/**
- * HTTP Request struct.
- * hostname request host
- * path	 request path
- * port     request port
- * body	 request body
- */
-typedef struct
-{
-    String hostname;
-    IPAddress ip;
-    String path;
-    // TODO: Look at setting the port by default.
-    //int port = 80;
-    int port;
-    String body;
-    uint16_t timeout;
-} http_request_t;
+    bool begin(String url);
+    bool begin(String host, uint16_t port, String uri = "/");
 
-/**
- * HTTP Response struct.
- * status  response status code.
- * body	response body
- */
-typedef struct
-{
-    int status;
-    String body;
-} http_response_t;
+    void end(void);
 
-class HttpClient {
-    public:
-        /**
-         * Constructor.
-         */
-        HttpClient(void);
+    bool connected(void);
 
-        /**
-         * HTTP request methods.
-         * Can't use 'delete' as name since it's a C++ keyword.
-         */
-        void get(http_request_t &aRequest, http_response_t &aResponse)
-        {
-            request(aRequest, aResponse, (http_header_t*)NULL, HTTP_METHOD_GET);
-        }
+    void setReuse(bool reuse); /// keep-alive
+    void setUserAgent(const String& userAgent);
+    void setAuthorization(const char * user, const char * password);
+    void setAuthorization(const char * auth);
+    void setTimeout(uint16_t timeout);
 
-        void post(http_request_t &aRequest, http_response_t &aResponse)
-        {
-            request(aRequest, aResponse, (http_header_t*)NULL, HTTP_METHOD_POST);
-        }
+    void useHTTP10(bool usehttp10 = true);
 
-        void put(http_request_t &aRequest, http_response_t &aResponse)
-        {
-            request(aRequest, aResponse, (http_header_t*)NULL, HTTP_METHOD_PUT);
-        }
+    /// request handling
+    int GET();
+    int POST(uint8_t * payload, size_t size);
+    int POST(String payload);
+    int PUT(uint8_t * payload, size_t size);
+    int PUT(String payload);
+    int sendRequest(const char * type, String payload);
+    int sendRequest(const char * type, uint8_t * payload = NULL, size_t size = 0);
+    int sendRequest(const char * type, Stream * stream, size_t size = 0);
 
-        void del(http_request_t &aRequest, http_response_t &aResponse)
-        {
-            request(aRequest, aResponse, (http_header_t*)NULL, HTTP_METHOD_DELETE);
-        }
+    void addHeader(const String& name, const String& value, bool first = false, bool replace = true);
 
-        void get(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[])
-        {
-            request(aRequest, aResponse, headers, HTTP_METHOD_GET);
-        }
+    /// Response handling
+    void collectHeaders(const char* headerKeys[], const size_t headerKeysCount);
+    String header(const char* name);   // get request header value by name
+    String header(size_t i);              // get request header value by number
+    String headerName(size_t i);          // get request header name by number
+    int headers();                     // get header count
+    bool hasHeader(const char* name);  // check if header exists
 
-        void post(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[])
-        {
-            request(aRequest, aResponse, headers, HTTP_METHOD_POST);
-        }
 
-        void put(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[])
-        {
-            request(aRequest, aResponse, headers, HTTP_METHOD_PUT);
-        }
+    int getSize(void);
 
-        void del(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[])
-        {
-            request(aRequest, aResponse, headers, HTTP_METHOD_DELETE);
-        }
+    TCPClient& getStream(void);
+    TCPClient* getStreamPtr(void);
+    int writeToStream(Stream* stream);
+    String getString(void);
 
-        void patch(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[])
-        {
-            request(aRequest, aResponse, headers, HTTP_METHOD_PATCH);
-        }
+    static String errorToString(int error);
 
-    private:
-        /**
-         * Underlying HTTP methods.
-         */
-        void request(http_request_t &aRequest, http_response_t &aResponse, http_header_t headers[], const char* aHttpMethod);
-        void sendHeader(const char* aHeaderName, const char* aHeaderValue);
-        void sendHeader(const char* aHeaderName, const int aHeaderValue);
-        void sendHeader(const char* aHeaderName);
-        /**
-         * Private references to variables.
-         */
-        TCPClient client;
-        String stringHeader;
-        char buffer[1024];
+protected:
+    struct RequestArgument {
+        String key;
+        String value;
+    };
+
+    bool beginInternal(String url, const char* expectedProtocol);
+    void clear();
+    int returnError(int error);
+    bool connect(void);
+    bool sendHeader(const char * type);
+    int handleHeaderResponse();
+    int writeToStreamDataBlock(Stream * stream, int len);
+
+    TransportTraitsPtr _transportTraits;
+    std::unique_ptr<TCPClient> _tcp;
+
+    /// request handling
+    String _host;
+    uint16_t _port = 0;
+    bool _reuse = false;
+    uint16_t _tcpTimeout = HTTPCLIENT_DEFAULT_TCP_TIMEOUT;
+    bool _useHTTP10 = false;
+
+    String _uri;
+    String _protocol;
+    String _headers;
+    String _userAgent = "HTTPClient";
+    String _base64Authorization;
+
+    /// Response handling
+    RequestArgument* _currentHeaders = nullptr;
+    size_t           _headerKeysCount = 0;
+
+    int _returnCode = 0;
+    int _size = -1;
+    bool _canReuse = false;
+    transferEncoding_t _transferEncoding = HTTPC_TE_IDENTITY;
 };
 
 #endif
-
-#endif /* WIRING_HTTP_CLIENT_H_ */
+#endif /* WIRING_HTTPCLIENT_NEW_H_ */

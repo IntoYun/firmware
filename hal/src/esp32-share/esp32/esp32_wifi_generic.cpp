@@ -88,10 +88,10 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         _setStatus(WL_NO_SHIELD);
     }
     else if(event->event_id == SYSTEM_EVENT_STA_GOT_IP) {
-        DEBUG("SYSTEM_EVENT_STA_GOT_IP");
+        //DEBUG("SYSTEM_EVENT_STA_GOT_IP");
         tcpip_adapter_ip_info_t ip;
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-        DEBUG("%x", ip.ip.addr);
+        //DEBUG("%x", ip.ip.addr);
 
         _setStatus(WL_CONNECTED);
     }

@@ -29,7 +29,7 @@
 #include "wiring_constants.h"
 
 /*debug switch*/
-#define WIRING_UDP_DEBUG
+//#define WIRING_UDP_DEBUG
 
 #ifdef WIRING_UDP_DEBUG
 #define WUDP_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)

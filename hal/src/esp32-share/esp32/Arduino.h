@@ -36,11 +36,7 @@ extern "C" {
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "esp32-hal.h"
 #include "soc/gpio_reg.h"
-
-#include "stdlib_noniso.h"
-#include "binary.h"
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
@@ -138,8 +134,6 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
 
 #ifdef __cplusplus
 }
-
-#include "Esp.h"
 
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);

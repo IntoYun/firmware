@@ -43,7 +43,7 @@
 /*debug switch*/
 #define SYSTEM_CONFIG_DEBUG
 
-#ifdef SYSTEM_CLOUD_DEBUG
+#ifdef SYSTEM_CONFIG_DEBUG
 #define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SCONFIG_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
 #else

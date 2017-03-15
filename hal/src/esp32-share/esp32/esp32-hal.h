@@ -46,19 +46,11 @@ void yield(void);
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 #define NOP() asm volatile ("nop")
 
-#include "esp32-hal-log.h"
 #include "esp32-hal-matrix.h"
 #include "esp32-hal-uart.h"
 #include "esp32-hal-gpio.h"
-#include "esp32-hal-touch.h"
 #include "esp32-hal-dac.h"
 #include "esp32-hal-adc.h"
-#include "esp32-hal-spi.h"
-#include "esp32-hal-i2c.h"
-#include "esp32-hal-ledc.h"
-#include "esp32-hal-sigmadelta.h"
-#include "esp32-hal-timer.h"
-#include "esp32-hal-bt.h"
 #include "esp_system.h"
 
 uint32_t micros();
