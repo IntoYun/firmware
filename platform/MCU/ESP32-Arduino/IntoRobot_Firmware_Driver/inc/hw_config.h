@@ -31,7 +31,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
-#include "sdkqueue.h"
 #include "hw_ticks.h"
 #include "md5_hash.h"
 #include "stdlib_noniso.h"
@@ -41,22 +40,18 @@
 extern "C" {
 #endif
 
-// #include "c_types.h"
-// #include "ets_sys.h"
-// #include "os_type.h"
-// #include "osapi.h"
-// #include "mem.h"
-// #include "user_interface.h"
-// #include "cont.h"
-// #include "espconn.h"
-// #include "lwip/err.h"
-// #include "lwip/dns.h"
+#include "rom/spi_flash.h"
+#include "esp_spi_flash.h"
+#include "esp_err.h"
 
 #ifdef __cplusplus
 }
 #endif
 
-#define NOP() asm volatile ("nop")
+// avr-libc defines _NOP() since 1.6.2
+#ifndef _NOP
+#define _NOP() do { __asm__ volatile ("nop"); } while (0)
+#endif
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
@@ -71,9 +66,9 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
     \li for automatic generation of peripheral register debug information.
 */
 #ifdef __cplusplus
-  #define   __I     volatile             /*!< Defines 'read only' permissions                 */
+    #define   __I     volatile             /*!< Defines 'read only' permissions                 */
 #else
-  #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
+    #define   __I     volatile const       /*!< Defines 'read only' permissions                 */
 #endif
 #define     __O     volatile             /*!< Defines 'write only' permissions                */
 #define     __IO    volatile             /*!< Defines 'read / write' permissions              */

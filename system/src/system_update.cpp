@@ -18,6 +18,7 @@
  */
 
 #include "intorobot_config.h"
+#include "stream_string.h"
 #include "system_update.h"
 #include "core_hal.h"
 #include "ota_flash_hal.h"
@@ -90,7 +91,7 @@ void UpdaterClass::_reset() {
 }
 
 bool UpdaterClass::begin(size_t size, int command) {
-    Stream error;
+    StreamString error;
 
     if(_size > 0){
         SUPDATE_DEBUG("[begin] already running");
@@ -99,9 +100,9 @@ bool UpdaterClass::begin(size_t size, int command) {
 
     if(size == 0) {
         _error = UPDATE_ERROR_SIZE;
-        printerror(error);
+        printError(error);
         error.trim(); // remove line ending
-        supdate_debug("error : (%s)", error.c_str());
+        SUPDATE_DEBUG("error : (%s)", error.c_str());
         return false;
     }
 
@@ -117,9 +118,9 @@ bool UpdaterClass::begin(size_t size, int command) {
 
         if(!HAL_OTA_CheckValidAddressRange(updateStartAddress, size)) {
             _error = UPDATE_ERROR_SPACE;
-            printerror(error);
+            printError(error);
             error.trim(); // remove line ending
-            supdate_debug("error : (%s)", error.c_str());
+            SUPDATE_DEBUG("error : (%s)", error.c_str());
             return false;
         }
     }
@@ -202,9 +203,9 @@ bool UpdaterClass::_writeBuffer(){
     if (result) {
         _error = UPDATE_ERROR_WRITE;
         _currentAddress = (_startAddress + _size);
-        printerror(error);
+        printError(error);
         error.trim(); // remove line ending
-        supdate_debug("error : (%s)", error.c_str());
+        SUPDATE_DEBUG("error : (%s)", error.c_str());
         return false;
     }
     _md5.add(_buffer, _bufferLen);
@@ -262,9 +263,9 @@ size_t UpdaterClass::writeStream(Stream &data) {
             if(toRead == 0) { //Timeout
                 _error = UPDATE_ERROR_STREAM;
                 _currentAddress = (_startAddress + _size);
-                printerror(error);
+                printError(error);
                 error.trim(); // remove line ending
-                supdate_debug("error : (%s)", error.c_str());
+                SUPDATE_DEBUG("error : (%s)", error.c_str());
                 _reset();
                 return written;
             }

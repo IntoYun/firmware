@@ -51,7 +51,20 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void);
 void HAL_OTA_Upadate_Subsys(void);
 uint8_t HAL_OTA_Get_Download_Progress();
 
+bool HAL_OTA_CheckValidAddressRange(uint32_t startAddress, uint32_t length);
+uint32_t HAL_OTA_FlashAddress();
+uint32_t HAL_OTA_FlashLength();
+uint16_t HAL_OTA_ChunkSize();
+bool HAL_FLASH_Begin(uint32_t address, uint32_t length, void* reserved);
+int HAL_FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved);
 
+typedef enum {
+    HAL_UPDATE_ERROR,
+    HAL_UPDATE_APPLIED_PENDING_RESTART,
+    HAL_UPDATE_APPLIED
+} hal_update_complete_t;
+
+hal_update_complete_t HAL_FLASH_End(void);
 
 #ifdef	__cplusplus
 }

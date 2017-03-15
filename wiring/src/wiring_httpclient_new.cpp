@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 #include "base64.h"
-#include "StreamString.h"
+#include "stream_string.h"
 #include "wiring_ticks.h"
 #include "wiring_httpclient_new.h"
 
