@@ -169,7 +169,7 @@ SECTIONS
     *libsmartconfig.a:(.literal .text .literal.* .text.*)
     *libstdc++.a:(.literal .text .literal.* .text.*)
     *liblwip_gcc.a:(.literal .text .literal.* .text.*)
-    *libhal.a:(.literal .text .literal.* .text.*)
+    /* *libhal.a:(.literal .text .literal.* .text.*) */
     *libplatform.a:(.literal .text .literal.* .text.*)
     *libservices.a:(.literal .text .literal.* .text.*)
     *libsystem.a:(.literal .text .literal.* .text.*)
