@@ -31,27 +31,22 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
+#include "platform_config.h"
 #include "hw_ticks.h"
-#include "md5_hash.h"
 #include "stdlib_noniso.h"
 #include "service_debug.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #include "rom/spi_flash.h"
 #include "esp_spi_flash.h"
 #include "esp_err.h"
-
 #ifdef __cplusplus
 }
 #endif
 
-// avr-libc defines _NOP() since 1.6.2
-#ifndef _NOP
-#define _NOP() do { __asm__ volatile ("nop"); } while (0)
-#endif
+#define NOP() asm volatile ("nop")
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 

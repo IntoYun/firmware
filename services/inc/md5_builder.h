@@ -21,9 +21,9 @@
 #ifndef __MD5_BUILDER__
 #define __MD5_BUILDER__
 
+#include "md5_hash.h"
 #include "wiring_string.h"
 #include "wiring_stream.h"
-#include "md5_hash.h"
 
 
 class MD5Builder {

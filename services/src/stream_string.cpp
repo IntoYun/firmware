@@ -20,7 +20,7 @@
 
 */
 
-#include "StreamString.h"
+#include "stream_string.h"
 
 size_t StreamString::write(const uint8_t *data, size_t size) {
     if(size && data) {

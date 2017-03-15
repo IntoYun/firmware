@@ -24,9 +24,9 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
 #include "hw_config.h"
 #include "flash_mal.h"
-#include <string.h>
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -218,7 +218,7 @@ void FLASH_Restore(uint32_t FLASH_Address)
 
 void FLASH_Restore_Bootloader(uint32_t FLASH_Address)
 {
-    FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_SERIAL, INTERNAL_FLASH_START, BOOTLOADER_IMAGE_SIZE, 0, 0);
+    //FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_SERIAL, INTERNAL_FLASH_START, BOOTLOADER_IMAGE_SIZE, 0, 0);
 }
 
 uint32_t FLASH_PagesMask(uint32_t imageSize, uint32_t pageSize)

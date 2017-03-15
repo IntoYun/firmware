@@ -23,10 +23,10 @@
  ******************************************************************************
  */
 
-#include "delay_hal.h"
 #include "hw_config.h"
-#include "sdkconfig.h"
+#include "delay_hal.h"
 //#include "watchdog_hal.h"
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
