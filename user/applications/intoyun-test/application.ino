@@ -59,6 +59,7 @@ void loop()
                 break;
         }
         Serial.printf("\r\n");
+        IntoRobot.writeDataPoint(DPID_ENUM_LIGHT_MODE, LightMode);
     }
     //灯泡控制
     if (RESULT_DATAPOINT_NEW == IntoRobot.readDataPoint(DPID_BOOL_SWITCH, LightSwitch))
@@ -81,6 +82,7 @@ void loop()
 #endif
             IntoRobot.writeDataPoint(DPID_BOOL_LIGHT_STATUS, false);
         }
+        IntoRobot.writeDataPoint(DPID_BOOL_SWITCH, LightSwitch);
     }
 
     //速度控制
