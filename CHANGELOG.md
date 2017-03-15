@@ -7,8 +7,7 @@
 
 
 ### BUG FIXES(漏洞修复)
-- [[PR #25]](https://github.com/HITSZ-NRSL/firmware/pull/25) [nut] 部分应用程序在nut上编译出错，提示空间不足，修改该问题
-
+- [[PR #26]](https://github.com/HITSZ-NRSL/firmware/pull/26) [nut] 解决nut编译出现iram1_0_seg空间不足.
 
 ### INTERNAL(内部)
 
@@ -25,8 +24,8 @@
 
 
 ### BUG FIXES(漏洞修复)
-- [[PR #22]](https://github.com/HITSZ-NRSL/firmware/pull/22) [neutron/nut/pwm] 解决 neutorn和nut的pwm 分辨率不能到16bit问题,解决pwm分辨率保存时互相错乱问题 
-- [[PR #19]](https://github.com/HITSZ-NRSL/firmware/pull/19) [neutron/pwm] 解决 neutorn的pwm 分辨率不可调问题 
+- [[PR #22]](https://github.com/HITSZ-NRSL/firmware/pull/22) [neutron/nut/pwm] 解决 neutorn和nut的pwm 分辨率不能到16bit问题,解决pwm分辨率保存时互相错乱问题
+- [[PR #19]](https://github.com/HITSZ-NRSL/firmware/pull/19) [neutron/pwm] 解决 neutorn的pwm 分辨率不可调问题
 
 
 ### INTERNAL(内部)
