@@ -22,6 +22,8 @@
 #include "system_update.h"
 #include "core_hal.h"
 #include "ota_flash_hal.h"
+#include "params_hal.h"
+#include "wiring_ticks.h"
 
 /*debug switch*/
 #define SYSTEM_UPDATE_DEBUG
@@ -197,7 +199,7 @@ bool UpdaterClass::end(bool evenIfRemaining){
 }
 
 bool UpdaterClass::_writeBuffer(){
-    Stream error;
+    StreamString error;
 
     int result = HAL_FLASH_Update(_buffer, _currentAddress, _bufferLen, NULL);
     if (result) {
@@ -248,7 +250,7 @@ size_t UpdaterClass::write(uint8_t *data, size_t len) {
 }
 
 size_t UpdaterClass::writeStream(Stream &data) {
-    Stream error;
+    StreamString error;
     size_t written = 0;
     size_t toRead = 0;
 
@@ -348,7 +350,7 @@ String HTTPUpdate::getLastErrorString(void)
 
     // error from Update class
     if(_lastError > 0) {
-        Stream error;
+        StreamString error;
         Update.printError(error);
         error.trim(); // remove line ending
         return String(F("Update error: ")) + error;
@@ -398,9 +400,11 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     http.addHeader(F("Accept-Encoding"), F("gzip,deflate"));
     http.addHeader(F("Accept-Language"), F("zh-CN,eb-US;q=0.8"));
 
+    /*
     if(currentVersion && currentVersion[0] != 0x00) {
         http.addHeader(F("x-version"), currentVersion);
     }
+    */
 
     const char * headerkeys[] = { "X-Md5" };
     size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
@@ -408,36 +412,37 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     // track these headers
     http.collectHeaders(headerkeys, headerkeyssize);
 
-
     int code = http.GET();
     int len = http.getSize();
 
     if(code <= 0) {
-        DEBUG_HTTP_UPDATE("[httpUpdate] HTTP error: %s\n", http.errorToString(code).c_str());
+        SUPDATE_DEBUG("[httpUpdate] HTTP error: %s\n", http.errorToString(code).c_str());
         _lastError = code;
         http.end();
         return HTTP_UPDATE_FAILED;
     }
 
-    DEBUG_HTTP_UPDATE("[httpUpdate] Header read fin.\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate] Server header:\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate] - code: %d\n", code);
-    DEBUG_HTTP_UPDATE("[httpUpdate] - len: %d\n", len);
+    SUPDATE_DEBUG("[httpUpdate] Header read fin.\n");
+    SUPDATE_DEBUG("[httpUpdate] Server header:\n");
+    SUPDATE_DEBUG("[httpUpdate] - code: %d\n", code);
+    SUPDATE_DEBUG("[httpUpdate] - len: %d\n", len);
 
     if(http.hasHeader("X-Md5")) {
-        DEBUG_HTTP_UPDATE("[httpUpdate]  - MD5: %s\n", http.header("X-Md5").c_str());
+        SUPDATE_DEBUG("[httpUpdate]  - MD5: %s\n", http.header("X-Md5").c_str());
     }
 
+    /*
     if(currentVersion && currentVersion[0] != 0x00) {
-        DEBUG_HTTP_UPDATE("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
+        SUPDATE_DEBUG("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
     }
+    */
 
     switch(code) {
         case HTTP_CODE_OK:  ///< OK (Start Update)
             if(len > 0) {
                 bool startUpdate = true;
                 if(len > (int) HAL_OTA_FlashLength()) {
-                    DEBUG_HTTP_UPDATE("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", HAL_OTA_FlashLength(), len);
+                    SUPDATE_DEBUG("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", HAL_OTA_FlashLength(), len);
                     startUpdate = false;
                 }
 
@@ -455,21 +460,21 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
                     int command;
 
                     command = U_APP_FLASH;
-                    DEBUG_HTTP_UPDATE("[httpUpdate] runUpdate flash...\n");
+                    SUPDATE_DEBUG("[httpUpdate] runUpdate flash...\n");
 
                     if(runUpdate(*tcp, len, http.header("X-Md5"), command)) {
                         ret = HTTP_UPDATE_OK;
-                        DEBUG_HTTP_UPDATE("[httpUpdate] Update ok\n");
+                        SUPDATE_DEBUG("[httpUpdate] Update ok\n");
                         http.end();
                     } else {
                         ret = HTTP_UPDATE_FAILED;
-                        DEBUG_HTTP_UPDATE("[httpUpdate] Update failed\n");
+                        SUPDATE_DEBUG("[httpUpdate] Update failed\n");
                     }
                 }
             } else {
                 _lastError = HTTP_UE_SERVER_NOT_REPORT_SIZE;
                 ret = HTTP_UPDATE_FAILED;
-                DEBUG_HTTP_UPDATE("[httpUpdate] Content-Length is 0 or not set by Server?!\n");
+                SUPDATE_DEBUG("[httpUpdate] Content-Length is 0 or not set by Server?!\n");
             }
             break;
         case HTTP_CODE_NOT_MODIFIED:
@@ -487,7 +492,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
         default:
             _lastError = HTTP_UE_SERVER_WRONG_HTTP_CODE;
             ret = HTTP_UPDATE_FAILED;
-            DEBUG_HTTP_UPDATE("[httpUpdate] HTTP Code is (%d)\n", code);
+            SUPDATE_DEBUG("[httpUpdate] HTTP Code is (%d)\n", code);
             break;
     }
 
@@ -504,20 +509,20 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
  */
 bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
 {
-    Stream error;
+    StreamString error;
 
     if(!Update.begin(size, command)) {
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.begin failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.begin failed! (%s)\n", error.c_str());
         return false;
     }
 
     if(md5.length()) {
         if(!Update.setMD5(md5.c_str())) {
             _lastError = HTTP_UE_SERVER_FAULTY_MD5;
-            DEBUG_HTTP_UPDATE("[httpUpdate] Update.setMD5 failed! (%s)\n", md5.c_str());
+            SUPDATE_DEBUG("[httpUpdate] Update.setMD5 failed! (%s)\n", md5.c_str());
             return false;
         }
     }
@@ -526,7 +531,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.writeStream failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.writeStream failed! (%s)\n", error.c_str());
         return false;
     }
 
@@ -534,7 +539,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        DEBUG_HTTP_UPDATE("[httpUpdate] Update.end failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.end failed! (%s)\n", error.c_str());
         return false;
     }
 
@@ -542,4 +547,5 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
 }
 
 HTTPUpdate httpUpdate;
+
 #endif

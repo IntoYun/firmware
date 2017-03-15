@@ -22,6 +22,7 @@
  *
  */
 
+#include<stdlib.h>
 extern "C" {
 #include "libb64/cdecode.h"
 #include "libb64/cencode.h"
