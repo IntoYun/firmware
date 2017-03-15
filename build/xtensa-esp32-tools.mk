@@ -22,7 +22,7 @@ CFLAGS += -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-se
 CONLYFLAGS += -std=gnu99 -Wno-old-style-declaration
 
 # C++ 编译参数  -fpermissive 把代码的语法错误作为警告,并继续编译进程
-CPPFLAGS += -std=gnu++11 -fno-exceptions -fno-rtti -std=gnu++11 -fpermissive
+CPPFLAGS += -fno-exceptions -fno-rtti -std=gnu++11 -fpermissive
 
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 

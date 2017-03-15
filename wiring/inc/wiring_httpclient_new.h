@@ -25,14 +25,11 @@
 #ifndef WIRING_HTTPCLIENT_NEW_H_
 #define WIRING_HTTPCLIENT_NEW_H_
 
-#include <memory>
-#include <Arduino.h>
-#include <WiFiClient.h>
-
 #include "intorobot_config.h"
 
 #ifndef configNO_NETWORK
 
+#include <memory>
 #include "wiring_string.h"
 #include "wiring_tcpclient.h"
 
@@ -131,9 +128,7 @@ public:
     ~HTTPClient();
 
     bool begin(String url);
-    bool begin(String url, String httpsFingerprint);
     bool begin(String host, uint16_t port, String uri = "/");
-    bool begin(String host, uint16_t port, String uri, String httpsFingerprint);
 
     void end(void);
 
@@ -170,8 +165,8 @@ public:
 
     int getSize(void);
 
-    WiFiClient& getStream(void);
-    WiFiClient* getStreamPtr(void);
+    TCPClient& getStream(void);
+    TCPClient* getStreamPtr(void);
     int writeToStream(Stream* stream);
     String getString(void);
 
@@ -191,9 +186,8 @@ protected:
     int handleHeaderResponse();
     int writeToStreamDataBlock(Stream * stream, int len);
 
-
     TransportTraitsPtr _transportTraits;
-    std::unique_ptr<WiFiClient> _tcp;
+    std::unique_ptr<TCPClient> _tcp;
 
     /// request handling
     String _host;
@@ -205,7 +199,7 @@ protected:
     String _uri;
     String _protocol;
     String _headers;
-    String _userAgent = "ESP8266HTTPClient";
+    String _userAgent = "HTTPClient";
     String _base64Authorization;
 
     /// Response handling
@@ -218,4 +212,5 @@ protected:
     transferEncoding_t _transferEncoding = HTTPC_TE_IDENTITY;
 };
 
+#endif
 #endif /* WIRING_HTTPCLIENT_NEW_H_ */

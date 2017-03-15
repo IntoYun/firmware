@@ -20,6 +20,7 @@
 #include "intorobot_config.h"
 #include "system_update.h"
 #include "core_hal.h"
+#include "ota_flash_hal.h"
 
 /*debug switch*/
 #define SYSTEM_UPDATE_DEBUG
@@ -66,13 +67,14 @@ void system_lineCodingBitRateHandler(uint32_t bitrate)
 #ifndef configNO_NETWORK
 
 UpdaterClass::UpdaterClass()
-    : _error(0)
+    : _async(false)
+    , _error(0)
     , _buffer(0)
     , _bufferLen(0)
     , _size(0)
     , _startAddress(0)
     , _currentAddress(0)
-    , _command(U_FLASH)
+    , _command(U_APP_FLASH)
 {
 }
 
@@ -84,40 +86,40 @@ void UpdaterClass::_reset() {
     _startAddress = 0;
     _currentAddress = 0;
     _size = 0;
-    _command = U_FLASH;
+    _command = U_APP_FLASH;
 }
 
 bool UpdaterClass::begin(size_t size, int command) {
+    Stream error;
+
     if(_size > 0){
         SUPDATE_DEBUG("[begin] already running");
         return false;
     }
 
     if(size == 0) {
-        printError(UPDATE_ERROR_SIZE);
+        _error = UPDATE_ERROR_SIZE;
+        printerror(error);
+        error.trim(); // remove line ending
+        supdate_debug("error : (%s)", error.c_str());
         return false;
     }
 
     _reset();
+    _error = 0;
 
     uint32_t updateStartAddress = 0;
-    if (command == U_FLASH) {
-        //size of current sketch rounded to a sector
-        uint32_t currentSketchSize = (ESP.getSketchSize() + FLASH_SECTOR_SIZE - 1) & (~(FLASH_SECTOR_SIZE - 1));
-        //address of the end of the space available for sketch and update
-        uint32_t updateEndAddress = (uint32_t)&_SPIFFS_start - 0x40200000;
-        //size of the update rounded to a sector
-        uint32_t roundedSize = (size + FLASH_SECTOR_SIZE - 1) & (~(FLASH_SECTOR_SIZE - 1));
-        //address where we will start writing the update
-        updateStartAddress = updateEndAddress - roundedSize;
+    if (command == U_APP_FLASH) {
+        updateStartAddress = HAL_OTA_FlashAddress();
 
-        SUPDATE_DEBUG("[begin] roundedSize:       0x%08X (%d)\n", roundedSize, roundedSize);
-        SUPDATE_DEBUG("[begin] updateEndAddress:  0x%08X (%d)\n", updateEndAddress, updateEndAddress);
-        SUPDATE_DEBUG("[begin] currentSketchSize: 0x%08X (%d)\n", currentSketchSize, currentSketchSize);
+        SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)\n", updateStartAddress, updateStartAddress);
+        SUPDATE_DEBUG("[begin] updateFileSize:      0x%08X (%d)\n", size, size);
 
-        //make sure that the size of both sketches is less than the total space (updateEndAddress)
-        if(updateStartAddress < currentSketchSize) {
-            printError(UPDATE_ERROR_SPACE);
+        if(!HAL_OTA_CheckValidAddressRange(updateStartAddress, size)) {
+            _error = UPDATE_ERROR_SPACE;
+            printerror(error);
+            error.trim(); // remove line ending
+            supdate_debug("error : (%s)", error.c_str());
             return false;
         }
     }
@@ -131,7 +133,7 @@ bool UpdaterClass::begin(size_t size, int command) {
     _startAddress = updateStartAddress;
     _currentAddress = _startAddress;
     _size = size;
-    _buffer = new uint8_t[FLASH_SECTOR_SIZE];
+    _buffer = new uint8_t[UPDATE_SECTOR_SIZE];
     _command = command;
 
     SUPDATE_DEBUG("[begin] _startAddress:     0x%08X (%d)\n", _startAddress, _startAddress);
@@ -183,19 +185,9 @@ bool UpdaterClass::end(bool evenIfRemaining){
         }
     }
 
-    if(!_verifyEnd()) {
-        printError(DEBUG_UPDATER);
-        _reset();
-        return false;
-    }
-
-    if (_command == U_FLASH) {
-        eboot_command ebcmd;
-        ebcmd.action = ACTION_COPY_RAW;
-        ebcmd.args[0] = _startAddress;
-        ebcmd.args[1] = 0x00000;
-        ebcmd.args[2] = _size;
-        eboot_command_write(&ebcmd);
+    if (_command == U_APP_FLASH) {
+        HAL_PARAMS_Set_Boot_ota_app_size(_size);
+        HAL_PARAMS_Save_Params();
         SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X\n", _startAddress, _size);
     }
 
@@ -204,15 +196,15 @@ bool UpdaterClass::end(bool evenIfRemaining){
 }
 
 bool UpdaterClass::_writeBuffer(){
+    Stream error;
 
-    bool result = ESP.flashEraseSector(_currentAddress/FLASH_SECTOR_SIZE);
+    int result = HAL_FLASH_Update(_buffer, _currentAddress, _bufferLen, NULL);
     if (result) {
-        result = ESP.flashWrite(_currentAddress, (uint32_t*) _buffer, _bufferLen);
-    }
-
-    if (!result) {
+        _error = UPDATE_ERROR_WRITE;
         _currentAddress = (_startAddress + _size);
-        printError(UPDATE_ERROR_WRITE);
+        printerror(error);
+        error.trim(); // remove line ending
+        supdate_debug("error : (%s)", error.c_str());
         return false;
     }
     _md5.add(_buffer, _bufferLen);
@@ -233,8 +225,8 @@ size_t UpdaterClass::write(uint8_t *data, size_t len) {
 
     size_t left = len;
 
-    while((_bufferLen + left) > FLASH_SECTOR_SIZE) {
-        size_t toBuff = FLASH_SECTOR_SIZE - _bufferLen;
+    while((_bufferLen + left) > UPDATE_SECTOR_SIZE) {
+        size_t toBuff = UPDATE_SECTOR_SIZE - _bufferLen;
         memcpy(_buffer + _bufferLen, data + (len - left), toBuff);
         _bufferLen += toBuff;
         if(!_writeBuffer()){
@@ -254,76 +246,31 @@ size_t UpdaterClass::write(uint8_t *data, size_t len) {
     return len;
 }
 
-bool UpdaterClass::_verifyHeader(uint8_t data) {
-    if(_command == U_FLASH) {
-        // check for valid first magic byte (is always 0xE9)
-        if(data != 0xE9) {
-            _error = UPDATE_ERROR_MAGIC_BYTE;
-            _currentAddress = (_startAddress + _size);
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-bool UpdaterClass::_verifyEnd() {
-    if(_command == U_FLASH) {
-
-        uint8_t buf[4];
-        if(!ESP.flashRead(_startAddress, (uint32_t *) &buf[0], 4)) {
-            _error = UPDATE_ERROR_READ;
-            _currentAddress = (_startAddress);
-            return false;
-        }
-
-        // check for valid first magic byte
-        if(buf[0] != 0xE9) {
-            _error = UPDATE_ERROR_MAGIC_BYTE;
-            _currentAddress = (_startAddress);
-            return false;
-        }
-
-        uint32_t bin_flash_size = ESP.magicFlashChipSize((buf[3] & 0xf0) >> 4);
-
-        // check if new bin fits to SPI flash
-        if(bin_flash_size > ESP.getFlashChipRealSize()) {
-            _error = UPDATE_ERROR_NEW_FLASH_CONFIG;
-            _currentAddress = (_startAddress);
-            return false;
-        }
-
-        return true;
-    }
-    return false;
-}
-
 size_t UpdaterClass::writeStream(Stream &data) {
+    Stream error;
     size_t written = 0;
     size_t toRead = 0;
+
     if(hasError() || !isRunning())
         return 0;
 
-    if(!_verifyHeader(data.peek())) {
-        printError(DEBUG_UPDATER);
-        _reset();
-        return 0;
-    }
-
     while(remaining()) {
-        toRead = data.readBytes(_buffer + _bufferLen,  (FLASH_SECTOR_SIZE - _bufferLen));
+        toRead = data.readBytes(_buffer + _bufferLen,  (UPDATE_SECTOR_SIZE - _bufferLen));
         if(toRead == 0) { //Timeout
             delay(100);
-            toRead = data.readBytes(_buffer + _bufferLen, (FLASH_SECTOR_SIZE - _bufferLen));
+            toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
             if(toRead == 0) { //Timeout
+                _error = UPDATE_ERROR_STREAM;
                 _currentAddress = (_startAddress + _size);
-                printError(UPDATE_ERROR_STREAM);
+                printerror(error);
+                error.trim(); // remove line ending
+                supdate_debug("error : (%s)", error.c_str());
                 _reset();
                 return written;
             }
         }
         _bufferLen += toRead;
-        if((_bufferLen == remaining() || _bufferLen == FLASH_SECTOR_SIZE) && !_writeBuffer())
+        if((_bufferLen == remaining() || _bufferLen == UPDATE_SECTOR_SIZE) && !_writeBuffer())
             return written;
         written += toRead;
     }
@@ -331,31 +278,25 @@ size_t UpdaterClass::writeStream(Stream &data) {
 }
 
 void UpdaterClass::printError(Stream &out){
-    SUPDATE_DEBUG("ERROR[%u]: ", _error);
+    out.printf("ERROR[%u]: ", _error);
     if(_error == UPDATE_ERROR_OK){
-        SUPDATE_DEBUG("No Error");
+        out.println("No Error");
     } else if(_error == UPDATE_ERROR_WRITE){
-        SUPDATE_DEBUG("Flash Write Failed");
+        out.println("Flash Write Failed");
     } else if(_error == UPDATE_ERROR_ERASE){
-        SUPDATE_DEBUG("Flash Erase Failed");
+        out.println("Flash Erase Failed");
     } else if(_error == UPDATE_ERROR_READ){
-        SUPDATE_DEBUG("Flash Read Failed");
+        out.println("Flash Read Failed");
     } else if(_error == UPDATE_ERROR_SPACE){
-        SUPDATE_DEBUG("Not Enough Space");
+        out.println("Not Enough Space");
     } else if(_error == UPDATE_ERROR_SIZE){
-        SUPDATE_DEBUG("Bad Size Given");
+        out.println("Bad Size Given");
     } else if(_error == UPDATE_ERROR_STREAM){
-        SUPDATE_DEBUG("Stream Read Timeout");
+        out.println("Stream Read Timeout");
     } else if(_error == UPDATE_ERROR_MD5){
-        SUPDATE_DEBUG("MD5 Check Failed");
-    } else if(_error == UPDATE_ERROR_FLASH_CONFIG){
-        SUPDATE_DEBUG("Flash config wrong real: %d IDE: %d\n", ESP.getFlashChipRealSize(), ESP.getFlashChipSize());
-    } else if(_error == UPDATE_ERROR_NEW_FLASH_CONFIG){
-        SUPDATE_DEBUG("new Flash config wrong real: %d\n", ESP.getFlashChipRealSize());
-    } else if(_error == UPDATE_ERROR_MAGIC_BYTE){
-        SUPDATE_DEBUG("Magic byte is wrong, not 0xE9");
+        out.println("MD5 Check Failed");
     } else {
-        SUPDATE_DEBUG("UNKNOWN");
+        out.println("UNKNOWN");
     }
 }
 
@@ -406,7 +347,7 @@ String HTTPUpdate::getLastErrorString(void)
 
     // error from Update class
     if(_lastError > 0) {
-        StreamString error;
+        Stream error;
         Update.printError(error);
         error.trim(); // remove line ending
         return String(F("Update error: ")) + error;
@@ -452,21 +393,15 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     // use HTTP/1.0 for update since the update handler not support any transfer Encoding
     http.useHTTP10(true);
     http.setTimeout(8000);
-    http.setUserAgent(F("ESP8266-http-Update"));
-    http.addHeader(F("x-ESP8266-STA-MAC"), WiFi.macAddress());
-    http.addHeader(F("x-ESP8266-AP-MAC"), WiFi.softAPmacAddress());
-    http.addHeader(F("x-ESP8266-free-space"), String(ESP.getFreeSketchSpace()));
-    http.addHeader(F("x-ESP8266-sketch-size"), String(ESP.getSketchSize()));
-    http.addHeader(F("x-ESP8266-sketch-md5"), String(ESP.getSketchMD5()));
-    http.addHeader(F("x-ESP8266-chip-size"), String(ESP.getFlashChipRealSize()));
-    http.addHeader(F("x-ESP8266-sdk-version"), ESP.getSdkVersion());
-    http.addHeader(F("x-ESP8266-mode"), F("sketch"));
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    http.addHeader(F("Accept-Encoding"), F("gzip,deflate"));
+    http.addHeader(F("Accept-Language"), F("zh-CN,eb-US;q=0.8"));
 
     if(currentVersion && currentVersion[0] != 0x00) {
-        http.addHeader(F("x-ESP8266-version"), currentVersion);
+        http.addHeader(F("x-version"), currentVersion);
     }
 
-    const char * headerkeys[] = { "x-MD5" };
+    const char * headerkeys[] = { "X-Md5" };
     size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
 
     // track these headers
@@ -485,16 +420,12 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
 
     DEBUG_HTTP_UPDATE("[httpUpdate] Header read fin.\n");
     DEBUG_HTTP_UPDATE("[httpUpdate] Server header:\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - code: %d\n", code);
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - len: %d\n", len);
+    DEBUG_HTTP_UPDATE("[httpUpdate] - code: %d\n", code);
+    DEBUG_HTTP_UPDATE("[httpUpdate] - len: %d\n", len);
 
-    if(http.hasHeader("x-MD5")) {
-        DEBUG_HTTP_UPDATE("[httpUpdate]  - MD5: %s\n", http.header("x-MD5").c_str());
+    if(http.hasHeader("X-Md5")) {
+        DEBUG_HTTP_UPDATE("[httpUpdate]  - MD5: %s\n", http.header("X-Md5").c_str());
     }
-
-    DEBUG_HTTP_UPDATE("[httpUpdate] ESP8266 info:\n");
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - free Space: %d\n", ESP.getFreeSketchSpace());
-    DEBUG_HTTP_UPDATE("[httpUpdate]  - current Sketch Size: %d\n", ESP.getSketchSize());
 
     if(currentVersion && currentVersion[0] != 0x00) {
         DEBUG_HTTP_UPDATE("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
@@ -504,8 +435,8 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
         case HTTP_CODE_OK:  ///< OK (Start Update)
             if(len > 0) {
                 bool startUpdate = true;
-                if(len > (int) ESP.getFreeSketchSpace()) {
-                    DEBUG_HTTP_UPDATE("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", ESP.getFreeSketchSpace(), len);
+                if(len > (int) HAL_OTA_FlashLength()) {
+                    DEBUG_HTTP_UPDATE("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", HAL_OTA_FlashLength(), len);
                     startUpdate = false;
                 }
 
@@ -513,52 +444,22 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
                     _lastError = HTTP_UE_TOO_LESS_SPACE;
                     ret = HTTP_UPDATE_FAILED;
                 } else {
-                    WiFiClient * tcp = http.getStreamPtr();
+                    TCPClient * tcp = http.getStreamPtr();
 
-                    WiFiUDP::stopAll();
-                    WiFiClient::stopAllExcept(tcp);
+                    //UDP::stopAll();
+                    //TCPClient::stopAllExcept(tcp);
 
                     delay(100);
 
                     int command;
 
-                    command = U_FLASH;
+                    command = U_APP_FLASH;
                     DEBUG_HTTP_UPDATE("[httpUpdate] runUpdate flash...\n");
 
-                    uint8_t buf[4];
-                    if(tcp->peekBytes(&buf[0], 4) != 4) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] peekBytes magic header failed\n");
-                        _lastError = HTTP_UE_BIN_VERIFY_HEADER_FAILED;
-                        http.end();
-                        return HTTP_UPDATE_FAILED;
-                    }
-
-                    // check for valid first magic byte
-                    if(buf[0] != 0xE9) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] magic header not starts with 0xE9\n");
-                        _lastError = HTTP_UE_BIN_VERIFY_HEADER_FAILED;
-                        http.end();
-                        return HTTP_UPDATE_FAILED;
-                    }
-
-                    uint32_t bin_flash_size = ESP.magicFlashChipSize((buf[3] & 0xf0) >> 4);
-
-                    // check if new bin fits to SPI flash
-                    if(bin_flash_size > ESP.getFlashChipRealSize()) {
-                        DEBUG_HTTP_UPDATE("[httpUpdate] magic header, new bin not fits SPI Flash\n");
-                        _lastError = HTTP_UE_BIN_FOR_WRONG_FLASH;
-                        http.end();
-                        return HTTP_UPDATE_FAILED;
-                    }
-
-                    if(runUpdate(*tcp, len, http.header("x-MD5"), command)) {
+                    if(runUpdate(*tcp, len, http.header("X-Md5"), command)) {
                         ret = HTTP_UPDATE_OK;
                         DEBUG_HTTP_UPDATE("[httpUpdate] Update ok\n");
                         http.end();
-
-                        if(_rebootOnUpdate && !spiffs) {
-                            ESP.restart();
-                        }
                     } else {
                         ret = HTTP_UPDATE_FAILED;
                         DEBUG_HTTP_UPDATE("[httpUpdate] Update failed\n");
@@ -586,7 +487,6 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
             _lastError = HTTP_UE_SERVER_WRONG_HTTP_CODE;
             ret = HTTP_UPDATE_FAILED;
             DEBUG_HTTP_UPDATE("[httpUpdate] HTTP Code is (%d)\n", code);
-            //http.writeToStream(&Serial1);
             break;
     }
 
@@ -603,7 +503,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
  */
 bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
 {
-    StreamString error;
+    Stream error;
 
     if(!Update.begin(size, command)) {
         _lastError = Update.getError();

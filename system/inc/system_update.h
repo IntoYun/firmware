@@ -3,6 +3,8 @@
 #define SYSTEM_UPDATE_H
 
 #include "intorobot_config.h"
+#include "md5_builder.h"
+#include "wiring_httpclient_new.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,12 +32,13 @@ void system_lineCodingBitRateHandler(uint32_t bitrate);
 #define UPDATE_ERROR_SIZE               (5)
 #define UPDATE_ERROR_STREAM             (6)
 #define UPDATE_ERROR_MD5                (7)
-#define UPDATE_ERROR_FLASH_CONFIG       (8)
-#define UPDATE_ERROR_NEW_FLASH_CONFIG   (9)
-#define UPDATE_ERROR_MAGIC_BYTE         (10)
 
-#define U_FLASH   0
-#define U_AUTH    100
+#define U_APP_FLASH                     0
+#define U_BOOTLOADER_FLASH              100
+#define U_DEFAULT_APP_FLASH             200
+#define U_AUTH                          300
+
+#define UPDATE_SECTOR_SIZE              0x1000
 
 class UpdaterClass {
 public:
@@ -44,7 +47,7 @@ public:
       Call this to check the space needed for the update
       Will return false if there is not enough space
     */
-    bool begin(size_t size, int command = U_FLASH);
+    bool begin(size_t size, int command = U_APP_FLASH);
 
     /*
       Run Updater from asynchronous callbacs
@@ -125,8 +128,8 @@ public:
             if(_bufferLen + available > remaining()){
                 available = remaining() - _bufferLen;
             }
-            if(_bufferLen + available > FLASH_SECTOR_SIZE) {
-                size_t toBuff = FLASH_SECTOR_SIZE - _bufferLen;
+            if(_bufferLen + available > UPDATE_SECTOR_SIZE) {
+                size_t toBuff = UPDATE_SECTOR_SIZE - _bufferLen;
                 data.read(_buffer + _bufferLen, toBuff);
                 _bufferLen += toBuff;
                 if(!_writeBuffer())
@@ -207,7 +210,7 @@ public:
 
 protected:
     t_httpUpdate_return handleUpdate(HTTPClient& http, const String& currentVersion);
-    bool runUpdate(Stream& in, uint32_t size, String md5, int command = U_FLASH);
+    bool runUpdate(Stream& in, uint32_t size, String md5, int command = U_APP_FLASH);
 
     int _lastError;
     bool _rebootOnUpdate = true;

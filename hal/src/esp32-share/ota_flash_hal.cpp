@@ -19,8 +19,9 @@
 
 #include "ota_flash_hal.h"
 #include "core_hal.h"
+#include "flash_map.h"
 
-#define OTA_CHUNK_SIZE          512
+#define OTA_CHUNK_SIZE          0x1000
 
 static bool bootloader_requires_update(void)
 {
@@ -75,37 +76,35 @@ uint8_t HAL_OTA_Get_Download_Progress()
     return 0;
 }
 
+#define CACHE_BOOT_START_ADDR            CACHE_BOOT_SEC_START * SPI_FLASH_SEC_SIZE                                    //bootloader下载存放起始位置
+#define CACHE_BOOT_END_ADDR              ((CACHE_BOOT_SEC_START + CACHE_BOOT_SEC_NUM) * SPI_FLASH_SEC_SIZE -1)        //bootloader下载存放结束位置
+#define CACHE_ONLINE_APP_START_ADDR      CACHE_ONLINE_APP_SEC_START * SPI_FLASH_SEC_SIZE                              //在线编程程序下载存放起始地址
+#define CACHE_ONLINE_APP_END_ADDR        ((CACHE_ONLINE_APP_SEC_START + CACHE_ONLINE_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)   //在线编程程序下载存放结束地址
+#define CACHE_DEFAULT_APP_START_ADDR     CACHE_DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE                                     //默认程序下载存放起始地址
+#define CACHE_DEFAULT_APP_END_ADDR       ((CACHE_DEFAULT_APP_SEC_START + CACHE_DEFAULT_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1) //默认程序下载存放结束地址
+
+
+
 bool HAL_OTA_CheckValidAddressRange(uint32_t startAddress, uint32_t length)
 {
     uint32_t endAddress = startAddress + length;
 
-#ifdef USE_SERIAL_FLASH
-    if (startAddress == EXTERNAL_FLASH_OTA_ADDRESS && endAddress <= 0x100000)
+    if (startAddress == CACHE_ONLINE_APP_START_ADDR && endAddress < CACHE_ONLINE_APP_END_ADDR)
     {
         return true;
     }
-#else
-    if (startAddress == INTERNAL_FLASH_OTA_ADDRESS && endAddress < 0x8100000)
-    {
-        return true;
-    }
-#endif
 
     return false;
 }
 
 uint32_t HAL_OTA_FlashAddress()
 {
-#ifdef USE_SERIAL_FLASH
-    return EXTERNAL_FLASH_OTA_ADDRESS;
-#else
-    return 0;
-#endif
+    return CACHE_ONLINE_APP_START_ADDR;
 }
 
 uint32_t HAL_OTA_FlashLength()
 {
-    return 0;
+    return CACHE_ONLINE_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
 }
 
 uint16_t HAL_OTA_ChunkSize()
