@@ -46,6 +46,7 @@
 #include "driver/timer.h"
 #include "esp_attr.h"
 #include "eeprom_hal.h"
+#include "subsys_version.h"
 
 extern "C" {
 #include "freertos/FreeRTOS.h"
@@ -81,12 +82,13 @@ static void ui_task_start(void *pvParameters)
         SysTick_Handler();
     }
 }
-
+extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
 extern "C" void app_main()
 {
     nvs_flash_init();
     init();
     initVariant();
+    printf("\n%08x\n", intorobot_subsys_version);
     xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, 1);
 }
@@ -125,12 +127,12 @@ void HAL_Core_Load_params(void)
     // check if need init params
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG_D("init params fac\r\n");
+        DEBUG("init params fac");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG_D("init params all\r\n");
+        DEBUG("init params all");
         HAL_PARAMS_Init_All_System_Params();
     }
     if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
@@ -220,20 +222,19 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-    /*    char data[32];
-          uint16_t templen;
+    char data[32];
+    uint16_t templen;
 
-          if (buffer!=NULL && len>0) {
-          HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
-          if(!memcmp(data, "VERSION:", 8))
-          {
-          templen = MIN(strlen(&data[8]), len-1);
-          memset(buffer, 0, len);
-          memcpy(buffer, &data[8], templen);
-          return templen;
-          }
-          }
-          */
+    if (buffer!=NULL && len>0) {
+        spi_flash_read(SUBSYS_VERSION_ADDR, (uint32_t*) data, sizeof(data));
+        if(!memcmp(data, "VERSION:", 8))
+        {
+            templen = MIN(strlen(&data[8]), len-1);
+            memset(buffer, 0, len);
+            memcpy(buffer, &data[8], templen);
+            return templen;
+        }
+    }
     return 0;
 }
 

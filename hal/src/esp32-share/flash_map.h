@@ -85,6 +85,6 @@
 #define CACHE_ONLINE_APP_END_ADDR        ((CACHE_ONLINE_APP_SEC_START + CACHE_ONLINE_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)   //在线编程程序下载存放结束地址
 #define CACHE_DEFAULT_APP_START_ADDR     CACHE_DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE                                     //默认程序下载存放起始地址
 #define CACHE_DEFAULT_APP_END_ADDR       ((CACHE_DEFAULT_APP_SEC_START + CACHE_DEFAULT_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1) //默认程序下载存放结束地址
-#define SUBSYS_VERSION_ADDR              DEFAULT_APP_ADDR+0x10                            //子系统程序版本号
+#define SUBSYS_VERSION_ADDR              DEFAULT_APP_START_ADDR+0x10000+0x10                            //子系统程序版本号
 
 #endif /*FLASH_MAP_H_*/

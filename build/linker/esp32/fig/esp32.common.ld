@@ -141,6 +141,7 @@ SECTIONS
   .flash.rodata :
   {
     _rodata_start = ABSOLUTE(.);
+    *(.subsys.version)
     *(.rodata)
     *(.rodata.*)
     *(.irom1.text) /* catch stray ICACHE_RODATA_ATTR */
