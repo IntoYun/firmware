@@ -16,9 +16,9 @@ ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 CFLAGS += -DINTOROBOT=1 -DINTOYUN=1
 
 # Board definitions
-FLASH_SIZE ?= 16M    #此处必须是16M  此时用户参数区才会在1M 的最后16K上
+FLASH_SIZE ?= 4MB
 FLASH_MODE ?= qio
-FLASH_SPEED ?= 40
+FLASH_SPEED ?= 40m
 
 # Create a bin file from ELF file
 %.bin : %.elf
