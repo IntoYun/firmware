@@ -197,6 +197,19 @@ release_online_program_package() {
         mkdir -p $LIB/esp8266
         cp $PROJECT_DIR/platform/MCU/ESP8266-Arduino/sdk/lib/*.a $LIB/esp8266
 
+    elif [ "$1"x = "fig"x ]; then
+        # cp linker
+        cp -rf $BUILD_DIR/linker/esp32/fig/* $LINKER
+        # cp platform inc
+        cp -rf $PROJECT_DIR/platform/MCU/ESP32-Arduino/IntoRobot_Firmware_Driver/inc/* $INC_PLATFORM
+        cp -rf $PROJECT_DIR/platform/MCU/ESP32-Arduino/sdk/include/* $INC_PLATFORM
+
+        # esp32 private. Todo remove
+        cp $PROJECT_DIR/hal/src/esp32-share/esp32/*.h $INC_HAL
+
+        # cp esp32 libs
+        mkdir -p $LIB/esp32
+        cp $PROJECT_DIR/platform/MCU/ESP32-Arduino/sdk/lib/*.a $LIB/esp32
     fi
 }
 
@@ -218,8 +231,8 @@ case $1 in
         cecho "---------------------------------------------------------------------------" $yellow
         release_online_program_package neutron
         release_online_program_package nut
+        release_online_program_package fig
         #release_online_program_package atom
-        #release_online_program_package fig
         #release_online_program_package lora
 
         #release_online_program_package w67

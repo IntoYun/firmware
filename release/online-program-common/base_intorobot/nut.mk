@@ -1,7 +1,7 @@
 GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-
 include common-tools.mk
-include common-xtensa.mk
+include common-xtensa-lx106.mk
 
 CFLAGS += -DINTOROBOT_ARCH_XTENSA
 
@@ -40,7 +40,4 @@ USE_PRINTF_FLOAT ?= y
 ifeq ("$(USE_PRINTF_FLOAT)","y")
 LDFLAGS += -u _printf_float
 endif
-
-
-
 

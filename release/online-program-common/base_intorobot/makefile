@@ -1,8 +1,8 @@
 PROJECT_ROOT=$(cd "$(dirname "$0")"; pwd)..
 
 ##### Board Type #####
-# "888001 for atom, 888002 for neutron"
-# The .mk include the head files, lib of board, linker of board, startup files 
+# "888001 for atom, 888002 for neutron, 888003 for nut, 888005 for fig"
+# The .mk include the head files, lib of board, linker of board, startup files
 # also include the CFLAGS, CPPFLAGS, LDFLAGS, ASFLAGS
 # TODO:
 # Change to atom neutron etc.
@@ -19,6 +19,11 @@ endif
 ifeq ($(BOARD), 888003)
 -include nut.mk
 endif
+
+ifeq ($(BOARD), 888005)
+-include fig.mk
+endif
+
 
 ##### Define Useful  Functions #####
 # Recursive wildcard function
@@ -183,7 +188,4 @@ clean_public_lib:clean_ln_inc
 
 
 .PHONY: clean_public_lib clean_usr_lib clean_platform_bin $(IN_INC_FILE) create_ln_inc release_platform_bin clean_ln_inc
-
-
-
 

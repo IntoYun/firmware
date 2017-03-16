@@ -339,7 +339,7 @@ int HTTPClient::sendRequest(const char * type, uint8_t * payload, size_t size)
 
     // send Payload if needed
     if(payload && size > 0) {
-        WHTTPCLIENT_DEBUG("[HTTP-Client][sendRequest] payload : %s", payload);
+        //WHTTPCLIENT_DEBUG("[HTTP-Client][sendRequest] payload : %s", payload);
         if(_tcp->write(&payload[0], size) != size) {
             return returnError(HTTPC_ERROR_SEND_PAYLOAD_FAILED);
         }

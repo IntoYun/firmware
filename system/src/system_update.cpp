@@ -24,6 +24,7 @@
 #include "ota_flash_hal.h"
 #include "params_hal.h"
 #include "wiring_ticks.h"
+#include "platforms.h"
 
 /*debug switch*/
 #define SYSTEM_UPDATE_DEBUG
@@ -68,6 +69,7 @@ void system_lineCodingBitRateHandler(uint32_t bitrate)
 }
 
 #ifndef configNO_NETWORK
+#if PLATFORM_ID == PLATFORM_FIG
 
 UpdaterClass::UpdaterClass()
     : _async(false)
@@ -548,4 +550,5 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
 
 HTTPUpdate httpUpdate;
 
+#endif
 #endif

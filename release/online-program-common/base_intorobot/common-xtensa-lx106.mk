@@ -22,4 +22,4 @@ FLASH_SPEED ?= 40
 # Create a bin file from ELF file
 %.bin : %.elf
 	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
-	$(ESP_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec
+	$(ESP8266_TOOL) -eo $< -bo $@ -bs .irom0.text -bs .text -bs .data -bs .rodata -bc -ec

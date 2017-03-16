@@ -1248,8 +1248,7 @@ bool intorobot_device_register(void)
     aJson.deleteItem(root);
 
     http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=register");
-    http.useHTTP10(true);
-    http.addHeader(F("Cache-Control"), "no-cache");
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
         payload = http.getString();
@@ -1321,8 +1320,7 @@ bool intorobot_device_activate(void)
     aJson.deleteItem(root);
 
     http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=activate");
-    http.useHTTP10(true);
-    http.addHeader(F("Cache-Control"), "no-cache");
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
         payload = http.getString();
