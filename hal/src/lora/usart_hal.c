@@ -70,7 +70,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },                                // USART 2
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },        // USART 2
     { USART3, GPIO_AF7_USART3, USART3_IRQn, TX, RX }         // USART 1
 };
 

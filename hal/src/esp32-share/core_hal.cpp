@@ -100,6 +100,7 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
+    /*
     for (pin_t pin=FIRST_DIGITAL_PIN; pin<=FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
         HAL_Pin_Mode(pin, INPUT);
     }
@@ -107,6 +108,7 @@ void HAL_Core_Config(void)
     for (pin_t pin=FIRST_ANALOG_PIN; pin<=FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
         HAL_Pin_Mode(pin, INPUT);
     }
+    */
 
     HAL_RTC_Initial();
     HAL_RNG_Initial();
@@ -236,6 +238,10 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
         }
     }
     return 0;
+}
+
+void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
+{
 }
 
 void SysTick_Handler(void)

@@ -22,5 +22,6 @@ FLASH_SPEED ?= 40
 
 # Create a bin file from ELF file
 %.bin : %.elf
-    $(call echo,'Invoking: XTENSA GNU Create Flash Image')
-    $(ESP32_TOOL) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) --flash_size $(FLASH_SIZE) -o $@ $<
+	$(call echo,'Invoking: XTENSA GNU Create Flash Image')
+	$(ESP32_TOOL) --chip esp32 elf2image --flash_mode $(FLASH_MODE) --flash_freq $(FLASH_SPEED) --flash_size $(FLASH_SIZE) -o $@ $<
+

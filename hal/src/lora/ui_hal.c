@@ -146,21 +146,16 @@ void HAL_UI_UserLED_Control(uint8_t value)
 void HAL_UI_SysTick_Handler(void)
 {
     //三色灯处理
-    if(RGB_MODE_BLINK == rgb_info.rgb_mode)
-    {
-        if (TimingLED != 0x00)
-        {
+    if(RGB_MODE_BLINK == rgb_info.rgb_mode) {
+        if (TimingLED != 0x00) {
             TimingLED--;
-        }
-        else
-        {
+        } else {
             RGB_Color_Toggle();
             TimingLED = rgb_info.rgb_period;
         }
     }
     //侧边按键处理
-    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
-    {
+    if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
         if(!BUTTON_last_state) {
             TimingBUTTON = 0;
             BUTTON_last_state = 1;
@@ -168,12 +163,10 @@ void HAL_UI_SysTick_Handler(void)
         else {
             TimingBUTTON++;
         }
-    }
-    else {
-        if(BUTTON_last_state)
-        {
+    } else {
+        if(BUTTON_last_state) {
             TimingBUTTON = 0;
-            BUTTON_last_state = 1;
+            BUTTON_last_state = 0;
         }
     }
 }

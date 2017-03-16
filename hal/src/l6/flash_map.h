@@ -28,7 +28,7 @@
  *  20k     bootloader
  *  1k      bootloader参数区
  *  3k      应用系统参数区
- *  104k     应用程序区
+ *  104k    应用程序区
  */
 #define BOOTLOADER_START_ADDR            ((uint32_t)0x08000000)
 #define APPLICATION_START_ADDR           ((uint32_t)0x08006000)

@@ -1,4 +1,4 @@
-/** 
+/**
  ******************************************************************************
  * @file    GPIO/GPIO_IOToggle/Src/stm32l1xx_it.c
  * @author  MCD Application Team

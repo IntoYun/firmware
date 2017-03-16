@@ -223,8 +223,8 @@ void preprocess_cloud_connection(void)
             // 同步时间
             intorobot_sync_time();
 
-            //AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-            AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
+            AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+            //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
             switch(at_mode)
             {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥

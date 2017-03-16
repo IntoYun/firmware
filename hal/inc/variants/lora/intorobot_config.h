@@ -60,7 +60,7 @@
 
 /* config setup */
 #define configSETUP_ENABLE
-// #define configSETUP_USBSERIAL_ENABLE
+//#define configSETUP_USBSERIAL_ENABLE
 #define configSETUP_USARTSERIAL_ENABLE
 //#define configSETUP_TCP_ENABLE
 //#define configSETUP_UDP_ENABLE
@@ -70,6 +70,9 @@
 
 /* config cloud */
 #define configNO_CLOUD
+
+/* config cloud */
+//#define configNO_LORAWAN
 
 /* config rgb ui */
 //#define configNO_RGB_UI

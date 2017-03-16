@@ -86,19 +86,39 @@ void init_system_params(system_params_t *psystem_params) {
 
 /*初始化系统参数区 保留密钥参数*/
 void init_fac_system_params(system_params_t *psystem_params) {
-    uint8_t  at_mode;                  // 是否已经灌装密钥  0:未灌装 1:已经灌装
-    uint8_t  device_id[52]={0};        // 设备序列号
-    uint8_t  access_token[52]={0};     // 设备access_token
+    uint8_t  at_mode;
+    uint8_t  deveui[20]={0}, appeui[20]={0}, appkey[36]={0}, devaddr[12]={0}, nwkskey[36]={0}, appskey[36]={0};
 
-    at_mode = psystem_params->at_mode;
-    memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
-    memcpy(access_token, psystem_params->access_token, sizeof(psystem_params->access_token));
-
-    init_system_params(psystem_params);
-
-    psystem_params->at_mode = at_mode;
-    memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
-    memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
+    switch(psystem_params->at_mode)
+    {
+        case 1:      //Activation By Personalization  //已经灌好密钥
+            at_mode = psystem_params->at_mode;
+            memcpy(deveui, psystem_params->deveui, sizeof(psystem_params->deveui));
+            memcpy(devaddr, psystem_params->devaddr, sizeof(psystem_params->devaddr));
+            memcpy(nwkskey, psystem_params->nwkskey, sizeof(psystem_params->nwkskey));
+            memcpy(appskey, psystem_params->appskey, sizeof(psystem_params->appskey));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = at_mode;
+            memcpy(psystem_params->deveui, deveui, sizeof(psystem_params->deveui));
+            memcpy(psystem_params->devaddr, devaddr, sizeof(psystem_params->devaddr));
+            memcpy(psystem_params->nwkskey, nwkskey, sizeof(psystem_params->nwkskey));
+            memcpy(psystem_params->appskey, appskey, sizeof(psystem_params->appskey));
+            break;
+        case 2:      //Over-The-Air Activation //灌装激活码  未激活
+        case 3:      //灌装激活码 已激活
+            memcpy(deveui, psystem_params->deveui, sizeof(psystem_params->deveui));
+            memcpy(appeui, psystem_params->appeui, sizeof(psystem_params->appeui));
+            memcpy(appkey, psystem_params->appkey, sizeof(psystem_params->appkey));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = 2; //灌装激活码  未激活
+            memcpy(psystem_params->deveui, deveui, sizeof(psystem_params->deveui));
+            memcpy(psystem_params->appeui, appeui, sizeof(psystem_params->appeui));
+            memcpy(psystem_params->appkey, appkey, sizeof(psystem_params->appkey));
+            break;
+        default:     //没有密钥信息
+            init_system_params(psystem_params);
+            break;
+    }
 }
 
 void save_boot_params(boot_params_t *pboot_params);
@@ -258,64 +278,185 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
 }
 
 /*
- * 保存设备ID
+ * 获取设备识别号
  * */
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len) {
     uint16_t templen;
 
     if (buffer!=NULL && len>0) {
-        templen = MIN(strlen(intorobot_system_params.device_id), len-1);
+        templen = MIN(strlen(intorobot_system_params.deveui), len-1);
         memset(buffer, 0, len);
-        memcpy(buffer, intorobot_system_params.device_id, templen);
+        memcpy(buffer, intorobot_system_params.deveui, templen);
         return templen;
     }
     return 0;
 }
 
 /*
- * 设置设备ID
+ * 设置设备识别号
  * */
 int HAL_PARAMS_Set_System_device_id(const char* buffer) {
     uint16_t templen;
 
     if (buffer!=NULL) {
-        templen = MIN(sizeof(intorobot_system_params.device_id)-1, strlen(buffer));
-        memset(intorobot_system_params.device_id, 0, sizeof(intorobot_system_params.device_id));
-        memcpy(intorobot_system_params.device_id, buffer, templen);
+        templen = MIN(sizeof(intorobot_system_params.deveui)-1, strlen(buffer));
+        memset(intorobot_system_params.deveui, 0, sizeof(intorobot_system_params.deveui));
+        memcpy(intorobot_system_params.deveui, buffer, templen);
         return 0;
     }
     return -1;
 }
 
 /*
- * 读取设备access token
+ * 获取应用识别号
  * */
-uint16_t HAL_PARAMS_Get_System_access_token(char* buffer, uint16_t len) {
+uint16_t HAL_PARAMS_Get_System_appeui(char* buffer, uint16_t len) {
     uint16_t templen;
 
     if (buffer!=NULL && len>0) {
-        templen = MIN(strlen(intorobot_system_params.access_token), len-1);
+        templen = MIN(strlen(intorobot_system_params.appeui), len-1);
         memset(buffer, 0, len);
-        memcpy(buffer, intorobot_system_params.access_token, templen);
+        memcpy(buffer, intorobot_system_params.appeui, templen);
         return templen;
     }
     return 0;
 }
 
 /*
- * 设置设备access token
+ * 设置应用识别号
  * */
-int HAL_PARAMS_Set_System_access_token(const char* buffer) {
+int HAL_PARAMS_Set_System_appeui(const char* buffer) {
     uint16_t templen;
 
     if (buffer!=NULL) {
-        templen = MIN(sizeof(intorobot_system_params.access_token)-1, strlen(buffer));
-        memset(intorobot_system_params.access_token, 0, sizeof(intorobot_system_params.access_token));
-        memcpy(intorobot_system_params.access_token, buffer, templen);
+        templen = MIN(sizeof(intorobot_system_params.appeui)-1, strlen(buffer));
+        memset(intorobot_system_params.appeui, 0, sizeof(intorobot_system_params.appeui));
+        memcpy(intorobot_system_params.appeui, buffer, templen);
         return 0;
     }
     return -1;
 }
+
+/*
+ * 获取应用密钥
+ * */
+uint16_t HAL_PARAMS_Get_System_appkey(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.appkey), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.appkey, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置应用密钥
+ * */
+int HAL_PARAMS_Set_System_appkey(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.appkey)-1, strlen(buffer));
+        memset(intorobot_system_params.appkey, 0, sizeof(intorobot_system_params.appkey));
+        memcpy(intorobot_system_params.appkey, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
+/*
+ * 获取设备地址
+ * */
+uint16_t HAL_PARAMS_Get_System_devaddr(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.devaddr), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.devaddr, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置设备地址
+ * */
+int HAL_PARAMS_Set_System_devaddr(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.devaddr)-1, strlen(buffer));
+        memset(intorobot_system_params.devaddr, 0, sizeof(intorobot_system_params.devaddr));
+        memcpy(intorobot_system_params.devaddr, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
+/*
+ * 获取网络会话密钥
+ * */
+uint16_t HAL_PARAMS_Get_System_nwkskey(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.nwkskey), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.nwkskey, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置网络会话密钥
+ * */
+int HAL_PARAMS_Set_System_nwkskey(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.nwkskey)-1, strlen(buffer));
+        memset(intorobot_system_params.nwkskey, 0, sizeof(intorobot_system_params.nwkskey));
+        memcpy(intorobot_system_params.nwkskey, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
+/*
+ * 获取应用会话密钥
+ * */
+uint16_t HAL_PARAMS_Get_System_appskey(char* buffer, uint16_t len) {
+    uint16_t templen;
+
+    if (buffer!=NULL && len>0) {
+        templen = MIN(strlen(intorobot_system_params.appskey), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, intorobot_system_params.appskey, templen);
+        return templen;
+    }
+    return 0;
+}
+
+/*
+ * 设置应用会话密钥
+ * */
+int HAL_PARAMS_Set_System_appskey(const char* buffer) {
+    uint16_t templen;
+
+    if (buffer!=NULL) {
+        templen = MIN(sizeof(intorobot_system_params.appskey)-1, strlen(buffer));
+        memset(intorobot_system_params.appskey, 0, sizeof(intorobot_system_params.appskey));
+        memcpy(intorobot_system_params.appskey, buffer, templen);
+        return 0;
+    }
+    return -1;
+}
+
 /*
  * 读取at_mode标志
  * */
@@ -344,81 +485,6 @@ float HAL_PARAMS_Get_System_zone(void) {
 int HAL_PARAMS_Set_System_zone(float zone) {
     intorobot_system_params.zone = zone;
     return 0;
-}
-
-/*
- * 读取服务器域名
- * */
-uint16_t HAL_PARAMS_Get_System_sv_domain(char* buffer, uint16_t len) {
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        templen = MIN(strlen(intorobot_system_params.sv_domain), len-1);
-        memset(buffer, 0, len);
-        memcpy(buffer, intorobot_system_params.sv_domain, templen);
-        return templen;
-    }
-    return 0;
-}
-
-/*
- * 设置服务器域名
- * */
-int HAL_PARAMS_Set_System_sv_domain(const char* buffer) {
-    uint16_t templen;
-
-    if (buffer!=NULL) {
-        templen = MIN(sizeof(intorobot_system_params.sv_domain)-1, strlen(buffer));
-        memset(intorobot_system_params.sv_domain, 0, sizeof(intorobot_system_params.sv_domain));
-        memcpy(intorobot_system_params.sv_domain, buffer, templen);
-        return 0;
-    }
-    return -1;
-}
-
-/*
- * 读取服务器端口号
- * */
-int HAL_PARAMS_Get_System_sv_port(void) {
-    return intorobot_system_params.sv_port;
-}
-
-/*
- * 设置服务器端口号
- * */
-int HAL_PARAMS_Set_System_sv_port(int port) {
-    intorobot_system_params.sv_port = port;
-    return 0;
-}
-
-/*
- * 读取文件下载域名
- * */
-uint16_t HAL_PARAMS_Get_System_dw_domain(char* buffer, uint16_t len) {
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        templen = MIN(strlen(intorobot_system_params.dw_domain), len-1);
-        memset(buffer, 0, len);
-        memcpy(buffer, intorobot_system_params.dw_domain, templen);
-        return templen;
-    }
-    return 0;
-}
-
-/*
- * 设置文件下载域名
- * */
-int HAL_PARAMS_Set_System_dw_domain(const char* buffer) {
-    uint16_t templen;
-
-    if (buffer!=NULL) {
-        templen = MIN(sizeof(intorobot_system_params.dw_domain)-1, strlen(buffer));
-        memset(intorobot_system_params.dw_domain, 0, sizeof(intorobot_system_params.dw_domain));
-        memcpy(intorobot_system_params.dw_domain, buffer, templen);
-        return 0;
-    }
-    return -1;
 }
 
 /*

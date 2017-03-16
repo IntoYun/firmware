@@ -241,7 +241,7 @@ extern "C" void HAL_SysTick_Handler(void)
         }
     }
 
-#elif PLATFORM_ID == PLATFORM_LITTLEBEE || PLATFORM_ID == LORA
+#elif PLATFORM_ID == PLATFORM_LITTLEBEE || PLATFORM_ID == PLATFORM_LORA
 
 #define TIMING_MODE_CONFIG_SERIAL                       3000   //进入串口配置模式判断时间
 #define TIMING_MODE_DEFAULT_RESTORE                     7000   //进入默认固件灯程序升级判断时间
@@ -270,8 +270,8 @@ extern "C" void HAL_SysTick_Handler(void)
     } else {
         switch(BUTTON_Mode) {
             case BUTTON_MODE_CONFIG_SERIAL:
-                if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus()) {
-                    System.configBegin(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
+                if(SYSTEM_CONFIG_TYPE_SERIAL != System.configStatus()) {
+                    System.configBegin(SYSTEM_CONFIG_TYPE_SERIAL);
                 } else {
                     System.configEnd();
                 }
@@ -418,6 +418,8 @@ void app_setup_and_loop_initial(void)
         SystemThread.setCurrentThread();
         ApplicationThread.setCurrentThread();
     }
+    //create_system_task();
+#else
     HAL_Core_Set_System_Loop_Handler(&system_process_loop);
 #endif
 }

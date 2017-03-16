@@ -137,7 +137,7 @@ $(BIN_PLATFORM_OUT)/platform.elf: $(LINKER_DEPS)
 	@echo 'Building target: $@'
 	@echo Invoking: ARM GCC C++ Linker
 	$(MKDIR) $(dir $@)
-	$(CPP) $(CFLAGS) $(CPPFLAGS) $(CPPOBJ_USR) $(STARTUP_OBJFILE) $(LDFLAGS) --output $@
+	$(CPP) $(CFLAGS) $(CPPOBJ_USR) $(STARTUP_OBJFILE) $(LDFLAGS) --output $@
 	@echo " "
 
 # Clean the user .o files
@@ -157,16 +157,28 @@ release_usr_obj:$(CPPOBJ_USR)
 	@echo " ================================= "
 
 #用户.o文件生成规则
+$(ID_PATH)%.o:$(ID_PATH)%.c
+	@echo Building file: $<
+	@echo Invoking: ARM GCC CPP Compiler
+	$(CC) $(CFLAGS) $(CONLYFLAGS) -c -o $@ $<
+	@echo
+
 $(ID_PATH)%.o:$(ID_PATH)%.cpp
 	@echo Building file: $<
 	@echo Invoking: ARM GCC CPP Compiler
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	@echo
+
+$(LIB_PUBLIC_DIR)%.o:$(LIB_PUBLIC_DIR)%.c
+	@echo Building file: $<
+	@echo Invoking: ARM GCC CPP Compiler
+	$(CC) $(CFLAGS) $(CONLYFLAGS) -c -o $@ $<
 	@echo
 
 $(LIB_PUBLIC_DIR)%.o:$(LIB_PUBLIC_DIR)%.cpp
 	@echo Building file: $<
 	@echo Invoking: ARM GCC CPP Compiler
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 	@echo
 
 # Clean the public lib .o files

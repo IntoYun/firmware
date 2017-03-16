@@ -38,15 +38,18 @@ typedef struct __attribute__((packed))
     uint8_t  reset_flag;           // 是否上报重启成功状态   0:不上报  1:上报
     uint8_t  at_mode;              // 是否已经灌装密钥  0:未灌装 1:已经灌装
     uint8_t  sv_select;            // 是否选择默认服务参数  0:使用 1:不使用
-    uint8_t  reserverd1[31];       // 版本号预留区 每添加一个版本号，预留区大小减1
-    char     device_id[52];        // 设备序列号
-    char     access_token[52];     // 设备access_token
-    char     sv_domain[52];        // 服务器域名
-    int      sv_port;              // 服务器端口
-    char     dw_domain[52];        // 服务器下载域名
+    uint8_t  reserverd1[31];       // 状态预留区，没添加一个状态，预留区大小减1
+
+    char     deveui[20];           // 设备识别号    End-device identifier
+    char     appeui[20];           // 应用标识号    Application identifier
+    char     appkey[36];           // 应用密钥      Application key
+    char     devaddr[12];          // 设备地址      End-device address
+    char     nwkskey[36];          // 网络会话密钥  Network session key
+    char     appskey[36];          // 应用会话密钥  Application session key
+
     float    zone;                 // 核心板所在时区。用于实时时钟。
 
-    uint8_t  reserved2[599];       // 参数预留区 每添加一个参数，预留区大小减1
+    uint8_t  reserved2[651];       // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;
 } system_params_t;
 

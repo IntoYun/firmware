@@ -175,7 +175,7 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     // Default to Master mode
-    HAL_SPI_Begin_Ext(spi, SPI_MASTER_MODE_, pin, NULL);
+    HAL_SPI_Begin_Ext(spi, SPI_MODE_MASTER, pin, NULL);
 }
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
@@ -190,7 +190,7 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
 
     spiMap[spi]->SpiHandle.Init.Mode           = SPI_MODE_MASTER;
     spiMap[spi]->SpiHandle.Init.Direction      = SPI_DIRECTION_2LINES;
-    spiMap[spi]->SpiHandle.Init.DataSize       = SPI_DATASIZE_8BIT; 
+    spiMap[spi]->SpiHandle.Init.DataSize       = SPI_DATASIZE_8BIT;
     spiMap[spi]->SpiHandle.Init.NSS            = SPI_NSS_SOFT;
     spiMap[spi]->SpiHandle.Init.TIMode         = SPI_TIMODE_DISABLE;
     spiMap[spi]->SpiHandle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;

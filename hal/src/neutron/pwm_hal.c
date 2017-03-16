@@ -33,7 +33,7 @@ static pwm_state_t PWM_State[TIM_NUM] = {
     [0 ... (TIM_NUM - 1)].resolution = 8
 };
 
-#define TIM_PERIPHERAL_TO_STATE_IDX(tim) (((uint32_t)tim) == APB1PERIPH_BASE ? (((uint32_t)tim) - APB1PERIPH_BASE) / 0x400 : 0)
+#define TIM_PERIPHERAL_TO_STATE_IDX(tim) (((uint32_t)tim) >= APB1PERIPH_BASE ? ((((uint32_t)tim) - APB1PERIPH_BASE) / 0x400) : 0)
 /*
  * @brief Should take an integer 0-255 and create a PWM signal with a duty cycle from 0-100%.
  * configTIM_PWM_FREQ is set at 500 Hz
@@ -273,7 +273,7 @@ uint8_t HAL_PWM_Timer_Resolution(uint16_t pin)
 
     if(PIN_MAP[pin].timer_peripheral == TIM2 || PIN_MAP[pin].timer_peripheral == TIM5)
     {
-       return 32;
+       return 16;
     }
     return 16;
 }
@@ -283,7 +283,7 @@ void HAL_PWM_Set_Resolution(uint16_t pin, uint8_t resolution)
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     if(PIN_MAP[pin].timer_peripheral)
     {
-        if (resolution > 1 && resolution <= (HAL_PWM_Timer_Resolution(pin) - 1))
+        if (resolution > 1 && resolution <= HAL_PWM_Timer_Resolution(pin))
         {
             PWM_State[TIM_PERIPHERAL_TO_STATE_IDX(PIN_MAP[pin].timer_peripheral)].resolution = resolution;
         }

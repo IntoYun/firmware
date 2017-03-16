@@ -25,11 +25,10 @@ CFLAGS += -I nut/inc/wiring_ex/
 
 LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
 
-#LDFLAGS += -Lnut/lib/ -Wl,--whole-archive -lhal -lplatform -lservices -lsystem -lwiring -Wl,--no-whole-archive
-LDFLAGS += -L nut/lib
+LDFLAGS += -L nut/lib -L nut/lib/esp8266
 LIBS += hal platform services system wiring wiring_ex
 LIBS += m gcc halhal phy pp net80211 wpa crypto main wps axtls smartconfig airkiss mesh wpa2 lwip_gcc stdc++
-LDFLAGS += -L nut/lib/esp8266 -Wl,--start-group $(patsubst %,-l%,$(LIBS)) -Wl,--end-group
+LDFLAGS += -Wl,--start-group $(patsubst %,-l%,$(LIBS)) -Wl,--end-group
 
 STARTUP_OBJFILE +=
 

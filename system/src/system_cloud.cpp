@@ -1181,7 +1181,7 @@ static time_t get_ntp_time(void)
     {
         send_ntp_request_packet(ntpServer);
         uint32_t beginWait = millis();
-        while (millis() - beginWait < 6000)
+        while (millis() - beginWait < 2000)
         {
             if (ntp_time_udp.parsePacket()) {
                 ntp_time_udp.read(packetBuffer, 48);

@@ -18,8 +18,6 @@
  */
 
 #include "intorobot_config.h"
-#ifndef configNO_NETWORK
-
 #include "wiring_ticks.h"
 #include "system_network.h"
 #include "system_network_internal.h"
@@ -32,11 +30,13 @@
 #include "ui_hal.h"
 #include <string.h>
 
-uint32_t wlan_watchdog_base;
-uint32_t wlan_watchdog_duration;
-
 volatile uint8_t INTOROBOT_WLAN_STARTED;
 volatile uint8_t INTOROBOT_WLAN_SLEEP;
+
+#ifndef configNO_NETWORK
+
+uint32_t wlan_watchdog_base;
+uint32_t wlan_watchdog_duration;
 
 #ifdef configWIRING_WIFI_ENABLE
 #include "system_network_wifi.h"

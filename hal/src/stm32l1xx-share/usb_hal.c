@@ -18,17 +18,14 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
 #include "usb_hal.h"
+#include "hw_config.h"
 #include "sdkqueue.h"
 
 /* Private typedef -----------------------------------------------------------*/
 #ifdef configHAL_USB_CDC_ENABLE
 
 /* Private define ------------------------------------------------------------*/
-
-//TODO
-//static osMutexId usb_mutex;	//transfer all mutex
 
 /*******************************************************************************
  * Function Name  : USB_USART_Init
@@ -38,35 +35,28 @@
  *******************************************************************************/
 void USB_USART_Initial(uint32_t baudRate)
 {
-    //TODO
-    //create usb mutex
-    //osMutexDef(USB_MUT);
-    //usb_mutex = osMutexCreate(osMutex(USB_MUT));
     if (LineCoding.bitrate != baudRate)
     {
-        if (!baudRate && LineCoding.bitrate > 0)
+        if (!baudRate && LineCoding.bitrate)
         {
+            DEBUG("USBD_Stop");
             USBD_Stop(&USBD_Device);
             USBD_DeInit(&USBD_Device);
         }
         else if (!LineCoding.bitrate)
         {
-            DEBUG("usb cdc init");
             /* Init Device Library */
+            DEBUG("USBD_Init");
             USBD_Init(&USBD_Device, &VCP_Desc, 0);
-            DEBUG("usb registers init");
             /* Add Supported Class */
+            DEBUG("USBD_RegisterClass");
             USBD_RegisterClass(&USBD_Device, USBD_CDC_CLASS);
-
-            DEBUG("usb registers interface init");
             /* Add CDC Interface Class */
+            DEBUG("USBD_CDC_RegisterInterface");
             USBD_CDC_RegisterInterface(&USBD_Device, &USBD_CDC_fops);
-
-            DEBUG("usb registers interface init");
             /* Start Device Process */
+            DEBUG("USBD_Start");
             USBD_Start(&USBD_Device);
-
-            DEBUG("usb start");
         }
         //LineCoding.bitrate will be overwritten by USB Host
         LineCoding.bitrate = baudRate;
@@ -150,9 +140,6 @@ int32_t USB_USART_Available_Data_For_Write(void)
  *******************************************************************************/
 void USB_USART_Send_Data(uint8_t Data)
 {
-    //TODO
-    //osMutexWait(usb_mutex, osWaitForever);
-
     if (USBD_STATE_CONFIGURED == USBD_Device.dev_state)
     {
         USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
@@ -160,9 +147,6 @@ void USB_USART_Send_Data(uint8_t Data)
         USBD_CDC_TransmitPacket(&USBD_Device);
         HAL_Delay_Microseconds(100);
     }
-
-    //TODO
-    //osMutexRelease(usb_mutex);
 }
 
 void USB_USART_Flush_Data(void)
@@ -193,9 +177,3 @@ void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 {
 }
 #endif
-
-
-int32_t USB_USART_Flush_Output(unsigned timeout, void* reserved)
-{
-    return 0;
-}
