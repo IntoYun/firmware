@@ -94,9 +94,10 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 */
 
 #define TOTAL_PINS           26
-#define TOTAL_ANALOG_PINS    10
-#define TOTAL_DIGITAL_PINS   11 // include KEY, TXD0, RXD0 RST, and D7 is D6
+#define FIRST_DIGITAL_PIN    0
+#define TOTAL_DIGITAL_PINS   8
 #define FIRST_ANALOG_PIN     14
+#define TOTAL_ANALOG_PINS    10
 
 #define D0  0
 #define D1  1

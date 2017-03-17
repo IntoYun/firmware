@@ -26,6 +26,7 @@ extern volatile uint8_t INTOROBOT_WLAN_STARTED;
 extern volatile uint8_t SYSTEM_POWEROFF;
 extern volatile uint32_t TimingFlashUpdateTimeout;
 
+extern volatile uint8_t intorobot_process_flag;
 
 /**
  * Determines the backoff period after a number of failed connections.
@@ -38,6 +39,9 @@ unsigned backoff_period(unsigned connection_attempts);
  */
 void* system_internal(int item, void* reserved);
 
+void system_delay_ms(unsigned long ms, bool force_no_background_loop=false);
+
+#define INTOROBOT_LOOP_DELAY_MILLIS                 1000    //1sec
 
 #ifdef __cplusplus
 }

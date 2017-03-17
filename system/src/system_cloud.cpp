@@ -45,6 +45,7 @@
 #include "wiring_random.h"
 #include "wiring_httpclient.h"
 #include "system_product.h"
+#include "system_update.h"
 #include "ajson.h"
 
 /*debug switch*/
@@ -128,9 +129,95 @@ void sync_time_callback(uint8_t *payload, uint32_t len)
 }
 */
 
+#if 0
 void ota_update_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("v1 : online update!");
+
+    uint32_t n;
+    char flag=0;
+    String s_payload="", domain="", param="";
+    aJsonClass aJson;
+
+    for(n=0; n<len; n++)
+    {s_payload+=(char)payload[n];}
+
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
+
+    aJsonObject *root = aJson.parse((char *)s_payload.c_str());
+    if(root == NULL)
+    {flag=1;}
+
+    aJsonObject* type_Object = aJson.getObjectItem(root, "board");
+    if(type_Object == NULL)
+    {flag=1;}
+    else
+    {
+        char board[8]={0}, board1[8]={0};
+        HAL_Board_Type(board, sizeof(board), 0);
+        HAL_Board_Type(board1, sizeof(board1), 1);
+        if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
+        {flag=2;}
+    }
+
+    aJsonObject* md5_Object = aJson.getObjectItem(root, "md5");
+    if(md5_Object == NULL)
+    {flag=1;}
+
+    aJsonObject* dtoken_Object = aJson.getObjectItem(root, "dwn_token");
+    if(dtoken_Object == NULL)
+    {flag=1;}
+
+    if(0==flag)
+    {
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        if (strlen(down_domain)) {
+            domain+=down_domain;
+        }
+        else {
+            domain+=INTOROBOT_UPDATE_DOMAIN;
+        }
+
+        param+=INTOROBOT_OTA_UPDATE_URL;
+        param+="?dwn_token=";
+        param+=dtoken_Object->valuestring;
+
+        domain += param;
+        uint8_t down_status = 0, progress = 0;
+        down_status_t status;
+
+        t_httpUpdate_return ret = httpUpdate.update(domain);
+        switch(ret) {
+            case HTTP_UPDATE_OK:
+                intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT), 0, false);
+                //HAL_OTA_Update_App();
+                //HAL_Core_System_Reset();
+                while(1); //不会运行到地方
+                break;
+
+            default:
+                flag=1; //下载失败
+                break;
+        }
+    }
+    if (root != NULL)
+    {aJson.deleteItem(root);}
+    if (2==flag) {  // board type error
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR, strlen(INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR), 0, false);
+    }
+    else {//download fall
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL), 0, false);
+    }
+    led_state.restore();
+}
+#endif
+
+void ota_update_callback(uint8_t *payload, uint32_t len)
+{
+    SCLOUD_DEBUG("online update!");
 
     uint32_t n;
     char flag=0;
@@ -1224,20 +1311,11 @@ bool intorobot_sync_time(void)
 bool intorobot_device_register(void)
 {
     SCLOUD_DEBUG("---------device register begin---------");
-    http_header_t headers[] = {
-        { "Cache-Control" , "no-cache"},
-        { NULL, NULL }
-    };
-    HttpClient http;
-    http_request_t request;
-    http_response_t response;
 
-    request.hostname = INTOROBOT_HTTP_DOMAIN;
-    request.port = INTOROBOT_HTTP_PORT;
-    request.path = "/v1/device?act=register";
-    request.timeout = 5000; //5000ms超时
-
+    HTTPClient http;
     aJsonClass aJson;
+    bool flag = false;
+
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return false;}
@@ -1252,33 +1330,27 @@ bool intorobot_device_register(void)
     aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
 
     //计算签名 signature = md5(timestamp + productSecret)
-    String tmp = "";
-    struct MD5Context ctx;
-    uint8_t md5_calc[16];
-    char output[33];
+    MD5Builder md5;
+    String payload = "";
 
-    tmp += utc_time;
-    tmp += product_details.product_secret;
-    MD5Init(&ctx);
-    MD5Update(&ctx, (uint8_t *)tmp.c_str(), tmp.length());
-    MD5Final(md5_calc, &ctx);
-    memset(output, 0, sizeof(output));
-    for(int i = 0; i < 16; i++)
-    {
-        sprintf(output + (i * 2), "%02x", md5_calc[i]);
-    }
-
-    aJson.addStringToObject(root, "signature", output);
+    payload += utc_time;
+    payload += product_details.product_secret;
+    md5.begin();
+    md5.add((uint8_t *)payload.c_str(), payload.length());
+    md5.calculate();
+    aJson.addStringToObject(root, "signature", md5.toString().c_str());
     char* string = aJson.print(root);
-    request.body = string;
+    payload = string;
     free(string);
     aJson.deleteItem(root);
 
-    // Get request
-    http.post(request, response, headers);
-    if( 200 == response.status )
-    {
-        root = aJson.parse((char *)response.body.c_str());
+    http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=register");
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    int httpCode = http.POST(payload);
+    if(httpCode == HTTP_CODE_OK) {
+        payload = http.getString();
+
+        root = aJson.parse((char *)payload.c_str());
         if (root == NULL)
         {return false;}
 
@@ -1293,31 +1365,28 @@ bool intorobot_device_register(void)
             SCLOUD_DEBUG("device_id       : %s", deviceIdObject->valuestring);
             SCLOUD_DEBUG("activation_code : %s", activationCodeObject->valuestring);
             SCLOUD_DEBUG("device register success!");
-            return true;
+            flag = true;
         }
         aJson.deleteItem(root);
     }
+
     SCLOUD_DEBUG("device register failed!");
-    return false;
+    http.end();
+    if(flag) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool intorobot_device_activate(void)
 {
     SCLOUD_DEBUG("---------device activate begin---------");
-    http_header_t headers[] = {
-        { "Cache-Control" , "no-cache"},
-        { NULL, NULL }
-    };
-    HttpClient http;
-    http_request_t request;
-    http_response_t response;
 
-    request.hostname = INTOROBOT_HTTP_DOMAIN;
-    request.port = INTOROBOT_HTTP_PORT;
-    request.path = "/v1/device?act=activate";
-    request.timeout = 5000; //5000ms超时
-
+    HTTPClient http;
     aJsonClass aJson;
+    bool flag = false;
+
     aJsonObject* root = aJson.createObject();
     if (root == NULL)
     {return false;}
@@ -1333,33 +1402,27 @@ bool intorobot_device_activate(void)
     aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
 
     //计算签名 signature = md5(timestamp + productSecret)
-    String tmp = "";
-    struct MD5Context ctx;
-    uint8_t md5_calc[16];
-    char output[33];
+    MD5Builder md5;
+    String payload = "";
 
-    tmp += utc_time;
-    tmp += activation_code;
-    MD5Init(&ctx);
-    MD5Update(&ctx, (uint8_t *)tmp.c_str(), tmp.length());
-    MD5Final(md5_calc, &ctx);
-    memset(output, 0, sizeof(output));
-    for(int i = 0; i < 16; i++)
-    {
-        sprintf(output + (i * 2), "%02x", md5_calc[i]);
-    }
-
-    aJson.addStringToObject(root, "signature", output);
+    payload += utc_time;
+    payload += activation_code;
+    md5.begin();
+    md5.add((uint8_t *)payload.c_str(), payload.length());
+    md5.calculate();
+    aJson.addStringToObject(root, "signature", md5.toString().c_str());
     char* string = aJson.print(root);
-    request.body = string;
+    payload = string;
     free(string);
     aJson.deleteItem(root);
 
-    // Get request
-    http.post(request, response, headers);
-    if( 200 == response.status )
-    {
-        root = aJson.parse((char *)response.body.c_str());
+    http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=activate");
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    int httpCode = http.POST(payload);
+    if(httpCode == HTTP_CODE_OK) {
+        payload = http.getString();
+
+        root = aJson.parse((char *)payload.c_str());
         if (root == NULL)
         {return false;}
 
@@ -1371,16 +1434,23 @@ bool intorobot_device_activate(void)
             HAL_PARAMS_Save_Params();
             SCLOUD_DEBUG("access_token  : %s", accessTokenObject->valuestring);
             SCLOUD_DEBUG("device activate success!");
-            return true;
+            flag = true;
         }
         aJson.deleteItem(root);
     }
+
     SCLOUD_DEBUG("device activate failed!");
-    return false;
+    http.end();
+    if(flag) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool intorobot_get_version(String &body)
 {
+#if 0
     SCLOUD_DEBUG("---------get version begin---------");
     http_header_t headers[] = {
         { "Cache-Control" , "no-cache"},
@@ -1414,6 +1484,8 @@ bool intorobot_get_version(String &body)
     }
     SCLOUD_DEBUG("get version failed!");
     return false;
+#endif
+    return true;
 }
 
 #endif
@@ -1426,8 +1498,21 @@ String intorobot_deviceID(void)
     return device_id;
 }
 
+volatile uint8_t intorobot_process_flag = 0;
 void intorobot_process(void)
 {
-    HAL_Core_System_Loop();
+    intorobot_process_flag = 1;
+    // application thread will pump application messages
+#if PLATFORM_THREADING
+    if (system_thread_get_state(NULL) && APPLICATION_THREAD_CURRENT())
+    {
+        ApplicationThread.process();
+        return;
+    }
+#endif
+
+    // run the background processing loop, and specifically also pump cloud events
+    system_process_loop();
+    intorobot_process_flag = 0;
 }
 

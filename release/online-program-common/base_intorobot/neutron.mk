@@ -24,7 +24,11 @@ CFLAGS += -I neutron/inc/user/
 CFLAGS += -I neutron/inc/wiring/
 CFLAGS += -I neutron/inc/wiring_ex/
 
-LDFLAGS += -L neutron/lib/ -Wl,--whole-archive -lhal -lnewlib_nano -lplatform -lservices -lsystem -lwiring -lwiring_ex -lPDMFilter_CM4_GCC -Wl,--no-whole-archive
+LDFLAGS += -L neutron/lib/
+LIBS += wiring wiring_ex hal newlib_nano system services platform
+LIBS += PDMFilter_CM4_GCC
+LDFLAGS += -Wl,--start-group $(patsubst %,-l%,$(LIBS)) -Wl,--end-group
+
 LDFLAGS += -L neutron/linker/
 LDFLAGS += -T neutron/linker/linker_stm32f411xe_app.ld
 

@@ -257,7 +257,7 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     // Default to Master mode
-    HAL_SPI_Begin_Ext(spi, SPI_MASTER_MODE_, pin, NULL);
+    HAL_SPI_Begin_Ext(spi, SPI_MODE_MASTER, pin, NULL);
 }
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)

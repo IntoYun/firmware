@@ -131,8 +131,8 @@ case $1 in
         cecho "---------------------------------------------------------------------------" $yellow
         release_package neutron
         release_package nut
+        release_package fig
         #release_package atom
-        #release_package fig
         #release_package lora
 
         #release_package w67

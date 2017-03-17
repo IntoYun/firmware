@@ -26,7 +26,8 @@
 
 
 /*
- *  28k   bootloader
+ *  24k   bootloader
+ *  4k    mac暂存地址区
  *  4k    bootloader参数区
  *  16k   用户系统参数区
  *  32k   eeprom模拟区

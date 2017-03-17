@@ -96,8 +96,17 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag);
 
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);
-uint16_t HAL_PARAMS_Get_System_access_token(char* buffer, uint16_t len);
-int HAL_PARAMS_Set_System_access_token(const char* buffer);
+uint16_t HAL_PARAMS_Get_System_appeui(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_appeui(const char* buffer);
+uint16_t HAL_PARAMS_Get_System_appkey(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_appkey(const char* buffer);
+uint16_t HAL_PARAMS_Get_System_devaddr(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_devaddr(const char* buffer);
+uint16_t HAL_PARAMS_Get_System_nwkskey(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_nwkskey(const char* buffer);
+uint16_t HAL_PARAMS_Get_System_appskey(char* buffer, uint16_t len);
+int HAL_PARAMS_Set_System_appskey(const char* buffer);
+
 AT_MODE_FLAG_TypeDef HAL_PARAMS_Get_System_at_mode(void);
 int HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_TypeDef flag);
 

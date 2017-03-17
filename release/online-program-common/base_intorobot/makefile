@@ -1,8 +1,8 @@
 PROJECT_ROOT=$(cd "$(dirname "$0")"; pwd)..
 
 ##### Board Type #####
-# "888001 for atom, 888002 for neutron"
-# The .mk include the head files, lib of board, linker of board, startup files 
+# "888001 for atom, 888002 for neutron, 888003 for nut, 888005 for fig"
+# The .mk include the head files, lib of board, linker of board, startup files
 # also include the CFLAGS, CPPFLAGS, LDFLAGS, ASFLAGS
 # TODO:
 # Change to atom neutron etc.
@@ -19,6 +19,11 @@ endif
 ifeq ($(BOARD), 888003)
 -include nut.mk
 endif
+
+ifeq ($(BOARD), 888005)
+-include fig.mk
+endif
+
 
 ##### Define Useful  Functions #####
 # Recursive wildcard function
@@ -132,7 +137,7 @@ $(BIN_PLATFORM_OUT)/platform.elf: $(LINKER_DEPS)
 	@echo 'Building target: $@'
 	@echo Invoking: ARM GCC C++ Linker
 	$(MKDIR) $(dir $@)
-	$(CPP) $(CFLAGS) $(CPPFLAGS) $(CPPOBJ_USR) $(STARTUP_OBJFILE) $(LDFLAGS) --output $@
+	$(CPP) $(CFLAGS) $(CPPOBJ_USR) $(STARTUP_OBJFILE) $(LDFLAGS) --output $@
 	@echo " "
 
 # Clean the user .o files
@@ -152,16 +157,28 @@ release_usr_obj:$(CPPOBJ_USR)
 	@echo " ================================= "
 
 #用户.o文件生成规则
+$(ID_PATH)%.o:$(ID_PATH)%.c
+	@echo Building file: $<
+	@echo Invoking: ARM GCC CPP Compiler
+	$(CC) $(CFLAGS) $(CONLYFLAGS) -c -o $@ $<
+	@echo
+
 $(ID_PATH)%.o:$(ID_PATH)%.cpp
 	@echo Building file: $<
 	@echo Invoking: ARM GCC CPP Compiler
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	@echo
+
+$(LIB_PUBLIC_DIR)%.o:$(LIB_PUBLIC_DIR)%.c
+	@echo Building file: $<
+	@echo Invoking: ARM GCC CPP Compiler
+	$(CC) $(CFLAGS) $(CONLYFLAGS) -c -o $@ $<
 	@echo
 
 $(LIB_PUBLIC_DIR)%.o:$(LIB_PUBLIC_DIR)%.cpp
 	@echo Building file: $<
 	@echo Invoking: ARM GCC CPP Compiler
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
+	$(CPP) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 	@echo
 
 # Clean the public lib .o files
@@ -183,7 +200,4 @@ clean_public_lib:clean_ln_inc
 
 
 .PHONY: clean_public_lib clean_usr_lib clean_platform_bin $(IN_INC_FILE) create_ln_inc release_platform_bin clean_ln_inc
-
-
-
 

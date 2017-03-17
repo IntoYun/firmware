@@ -23,13 +23,13 @@
  ******************************************************************************
  */
 
-#include "delay_hal.h"
 #include "hw_config.h"
-#include "watchdog_hal.h"
+#include "delay_hal.h"
+//#include "watchdog_hal.h"
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp32-hal.h"
-#include "service_debug.h"
+
 /**
  * Updated by HAL_1Ms_Tick()
  */
@@ -44,42 +44,25 @@ volatile uint32_t TimingDelay;
 *******************************************************************************/
 void HAL_Delay_Milliseconds(uint32_t millis)
 {
-#if 0
     vTaskDelay(millis / portTICK_PERIOD_MS);
-#else
-    volatile system_tick_t start_millis, current_millis, elapsed_millis;
-
-    start_millis = HAL_Timer_Get_Milli_Seconds();
-    while (1)
-    {
-        current_millis = HAL_Timer_Get_Milli_Seconds();
-        elapsed_millis = current_millis - start_millis;
-        //Check for wrapping
-        if (elapsed_millis < 0)
-        {
-            elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
-        }
-
-        if (elapsed_millis >= (long)millis)
-        {
-            break;
-        }
-        system_loop_handler(100);
-    }
-#endif
 }
 
 /**
- * @brief  delay time in microseconds using 32-bit DWT->CYCCNT
+ * @brief  delay time in microseconds
  * @param  uSec: specifies the delay time length, in milliseconds.
  * @retval None
  */
 void HAL_Delay_Microseconds(uint32_t micros)
 {
-    if(micros) {
-        unsigned long endat = HAL_Timer_Get_Micro_Seconds();
-        endat += micros;
-        while(HAL_Timer_Get_Micro_Seconds() < endat) {
+    uint32_t m = HAL_Timer_Get_Micro_Seconds();
+    if(micros){
+        uint32_t e = (m + micros) % ((0xFFFFFFFF / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ) + 1);
+        if(m > e){ //overflow
+            while(HAL_Timer_Get_Micro_Seconds() > e){
+                NOP();
+            }
+        }
+        while(HAL_Timer_Get_Micro_Seconds() < e){
             NOP();
         }
     }

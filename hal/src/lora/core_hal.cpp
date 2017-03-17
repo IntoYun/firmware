@@ -50,6 +50,7 @@ void HAL_Core_Setup(void);
  * Updated by HAL_1Ms_Tick()
  */
 extern volatile uint32_t TimingDelay;
+
 volatile bool systick_hook_enabled = false;
 
 void HAL_SysTick_Hook(void) __attribute__((weak));
@@ -67,11 +68,17 @@ void HAL_Hook_Main()
 }
 
 int main() {
-    // the rtos systick can only be enabled after the system has been initialized
-    systick_hook_enabled = true;
-    HAL_Hook_Main();
+    HAL_Core_Setup();
     app_setup_and_loop();
     return 0;
+}
+
+void HAL_1Ms_Tick()
+{
+    if (TimingDelay != 0x00)
+    {
+        __sync_sub_and_fetch(&TimingDelay, 1);
+    }
 }
 
 void HAL_Core_Init(void)
@@ -112,15 +119,16 @@ void HAL_Core_Load_params(void)
     // check if need init params
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG_D("init params fac\r\n");
+        DEBUG("init params fac");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG_D("init params all\r\n");
+        DEBUG("init params all");
         HAL_PARAMS_Init_All_System_Params();
     }
-    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
+
+    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //保存参数
     {
         HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
     }
@@ -261,16 +269,10 @@ void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-
-    if (TimingDelay != 0x00)
-    {
-        TimingDelay--;
-    }
-
-    // another hook for an rtos
-    if (systick_hook_enabled)
-        HAL_SysTick_Hook();
-
+    /* Handle short and generic tasks for the device HAL on 1ms ticks */
+    HAL_1Ms_Tick();
     HAL_SysTick_Handler();
+    HAL_UI_SysTick_Handler();
+    //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }
 

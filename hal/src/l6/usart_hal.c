@@ -33,7 +33,6 @@ typedef enum USART_Num_Def {
     USART_D0_D1
 }USART_Num_Def;
 
-
 #define IS_USART_CONFIG_VALID(CONFIG) (((CONFIG & SERIAL_VALID_CONFIG) >> 2) != 0b11)
 
 

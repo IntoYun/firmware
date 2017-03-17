@@ -94,6 +94,13 @@ int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag);
 INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void);
 int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag);
 
+uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
+int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
+int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+uint32_t HAL_PARAMS_Get_Boot_boot_size(void);
+int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
+
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);
 uint16_t HAL_PARAMS_Get_System_access_token(char* buffer, uint16_t len);

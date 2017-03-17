@@ -14,13 +14,8 @@ AR = $(GCC_ARM_PATH)$(GCC_PREFIX)ar
 OBJCOPY = $(GCC_ARM_PATH)$(GCC_PREFIX)objcopy
 OBJDUMP = $(GCC_ARM_PATH)$(GCC_PREFIX)objdump
 SIZE = $(GCC_ARM_PATH)$(GCC_PREFIX)size
-#DFU = dfu-util
-#DFUSUFFIX = dfu-suffix
-#CURL = curl
-#CRC = crc32
-#XXD = xxd
-ESP_TOOL = $(PROJECT_ROOT)/tools/esptool/esptool
-#ST-FLASH = $(PROJECT_ROOT)/tools/stlink/st-flash
+ESP8266_TOOL = $(PROJECT_ROOT)/tools/esp8266/esptool
+ESP32_TOOL = $(PROJECT_ROOT)/tools/esp32/esptool
 #
 #CPPFLAGS +=
 

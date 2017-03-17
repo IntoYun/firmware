@@ -127,7 +127,7 @@ static void loop_wrapper() {
         intorobot_app_initial_flag = 1;
     }
     system_loop_handler(100);
-    app_loop();
+    app_loop(true);
     run_scheduled_functions();
     esp_schedule();
 }

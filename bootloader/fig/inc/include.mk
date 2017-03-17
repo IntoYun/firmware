@@ -2,7 +2,7 @@ INCLUDE_DIRS += $(BOOTLOADER_TYPE_PATH)/inc
 INCLUDE_DIRS += $(BOOTLOADER_TYPE_PATH)/inc/bootloader_support/include
 INCLUDE_DIRS += $(BOOTLOADER_TYPE_PATH)/inc/bootloader_support/include_priv
 
-LDFLAGS += -Tesp32.bootloader.ld -Tesp32.bootloader.rom.ld -Tesp32.rom.ld
+LDFLAGS += -Tesp32.bootloader.ld -Tesp32.bootloader.rom.ld -Tesp32.rom.ld -Tesp32.peripherals.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/esp32/$(PLATFORM_NAME)
 
 USE_PRINTF_FLOAT = n

@@ -2,6 +2,7 @@
 #include "spi_flash.h"
 #include "esp8266_upgrade.h"
 #include "params_hal.h"
+#include "md5_hash.h"
 
 LOCAL struct MD5Context _ctx;
 LOCAL struct espconn *upgrade_conn;

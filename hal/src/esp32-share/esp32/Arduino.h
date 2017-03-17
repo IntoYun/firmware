@@ -36,11 +36,7 @@ extern "C" {
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "esp32-hal.h"
 #include "soc/gpio_reg.h"
-
-#include "stdlib_noniso.h"
-#include "binary.h"
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
@@ -139,18 +135,6 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
 #ifdef __cplusplus
 }
 
-#include "WCharacter.h"
-#include "WString.h"
-#include "Stream.h"
-#include "Printable.h"
-#include "Print.h"
-#include "IPAddress.h"
-#include "Client.h"
-#include "Server.h"
-#include "Udp.h"
-#include "HardwareSerial.h"
-#include "Esp.h"
-
 uint16_t makeWord(uint16_t w);
 uint16_t makeWord(byte h, byte l);
 
@@ -172,6 +156,6 @@ long map(long, long, long, long, long);
 
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))
-#include "pins_arduino.h"
+//#include "pins_arduino.h"
 
 #endif /* _ESP32_CORE_ARDUINO_H_ */

@@ -26,26 +26,60 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "rtc_hal.h"
+#include "timer_hal.h"
+
+#define  RTC_MAGIC  0x55aaaa55
+
+typedef struct {
+        uint32_t magic;
+        time_t unix_time_base;
+        uint32_t rtc_base;
+}rtc_time_t;
+
+static rtc_time_t g_rtc_time;
 
 void HAL_RTC_Initial(void)
 {
-
+    memset((void *)&g_rtc_time, 0, sizeof(rtc_time_t));
+    g_rtc_time.magic = RTC_MAGIC;
 }
 
 time_t HAL_RTC_Get_UnixTime(void)
 {
-    /*
-    uint32_t rtc_time = system_get_rtc_time();
-    uint32_t cal_time = system_rtc_clock_cali_proc();
-    time_t time = rtc_time * ((cal_time*1000) >> 12)/1000 / 1000; // sencods
-    return time;
-    */
-    return 0;
+    time_t unix_time;
+
+    if(g_rtc_time.magic = RTC_MAGIC)
+    {
+        uint32_t elapsed_rtc_time = 0;
+        uint32_t rtc_time = HAL_Timer_Get_Milli_Seconds();
+
+        if(rtc_time < g_rtc_time.rtc_base)
+        {
+            elapsed_rtc_time = 0xFFFFFFFF - g_rtc_time.rtc_base + rtc_time;
+            unix_time = g_rtc_time.unix_time_base + elapsed_rtc_time/1000;
+            g_rtc_time.unix_time_base = unix_time;
+            g_rtc_time.rtc_base = rtc_time;
+        }
+        else
+        {
+            elapsed_rtc_time = rtc_time - g_rtc_time.rtc_base;
+            unix_time = g_rtc_time.unix_time_base + elapsed_rtc_time/1000;
+        }
+        return unix_time;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 void HAL_RTC_Set_UnixTime(time_t value)
 {
-
+    if(g_rtc_time.magic = RTC_MAGIC)
+    {
+        g_rtc_time.unix_time_base = value;
+        g_rtc_time.rtc_base = HAL_Timer_Get_Milli_Seconds();
+    }
 }
 
 void HAL_RTC_Set_Alarm(uint32_t value)
