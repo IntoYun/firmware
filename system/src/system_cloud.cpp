@@ -129,6 +129,7 @@ void sync_time_callback(uint8_t *payload, uint32_t len)
 }
 */
 
+#if 0
 void ota_update_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("v1 : online update!");
@@ -212,7 +213,8 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     }
     led_state.restore();
 }
-/*
+#endif
+
 void ota_update_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("online update!");
@@ -315,7 +317,6 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     }
     led_state.restore();
 }
-*/
 
 void subsys_update_callback(uint8_t *payload, uint32_t len)
 {

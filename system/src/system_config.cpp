@@ -859,7 +859,6 @@ void UsartDeviceConfig::close(void)
 #ifdef configSETUP_TCP_ENABLE
 void TcpDeviceConfig::init(void)
 {
-    server.setTimeout(50);
     server.begin();
 }
 
@@ -890,6 +889,7 @@ int TcpDeviceConfig::available(void)
             client.stop();
         }
         client=client_bak;
+        client.setTimeout(50);
     }
 
     if(client)
