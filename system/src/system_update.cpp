@@ -397,7 +397,6 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
 
     // use HTTP/1.0 for update since the update handler not support any transfer Encoding
     http.useHTTP10(true);
-    http.setTimeout(8000);
     http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     http.addHeader(F("Accept-Encoding"), F("gzip,deflate"));
     http.addHeader(F("Accept-Language"), F("zh-CN,eb-US;q=0.8"));

@@ -45,6 +45,7 @@
 #include "wiring_random.h"
 #include "wiring_httpclient.h"
 #include "system_product.h"
+#include "system_update.h"
 #include "ajson.h"
 
 /*debug switch*/
@@ -180,6 +181,90 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
         param+="?dwn_token=";
         param+=dtoken_Object->valuestring;
 
+        domain += param;
+        uint8_t down_status = 0, progress = 0;
+        down_status_t status;
+
+        t_httpUpdate_return ret = httpUpdate.update(domain);
+        switch(ret) {
+            case HTTP_UPDATE_OK:
+                intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT), 0, false);
+                //HAL_OTA_Update_App();
+                //HAL_Core_System_Reset();
+                while(1); //不会运行到地方
+                break;
+
+            default:
+                flag=1; //下载失败
+                break;
+        }
+    }
+    if (root != NULL)
+    {aJson.deleteItem(root);}
+    if (2==flag) {  // board type error
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR, strlen(INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR), 0, false);
+    }
+    else {//download fall
+        intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL, strlen(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL), 0, false);
+    }
+    led_state.restore();
+}
+/*
+void ota_update_callback(uint8_t *payload, uint32_t len)
+{
+    SCLOUD_DEBUG("online update!");
+
+    uint32_t n;
+    char flag=0;
+    String s_payload="", domain="", param="";
+    aJsonClass aJson;
+
+    for(n=0; n<len; n++)
+    {s_payload+=(char)payload[n];}
+
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_OTA_READY, strlen(INTOROBOT_MQTT_RESPONSE_OTA_READY), 0, false);
+
+    aJsonObject *root = aJson.parse((char *)s_payload.c_str());
+    if(root == NULL)
+    {flag=1;}
+
+    aJsonObject* type_Object = aJson.getObjectItem(root, "board");
+    if(type_Object == NULL)
+    {flag=1;}
+    else
+    {
+        char board[8]={0}, board1[8]={0};
+        HAL_Board_Type(board, sizeof(board), 0);
+        HAL_Board_Type(board1, sizeof(board1), 1);
+        if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
+        {flag=2;}
+    }
+
+    aJsonObject* md5_Object = aJson.getObjectItem(root, "md5");
+    if(md5_Object == NULL)
+    {flag=1;}
+
+    aJsonObject* dtoken_Object = aJson.getObjectItem(root, "dwn_token");
+    if(dtoken_Object == NULL)
+    {flag=1;}
+
+    if(0==flag)
+    {
+        char down_domain[36]={0};
+        HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
+        if (strlen(down_domain)) {
+            domain+=down_domain;
+        }
+        else {
+            domain+=INTOROBOT_UPDATE_DOMAIN;
+        }
+
+        param+=INTOROBOT_OTA_UPDATE_URL;
+        param+="?dwn_token=";
+        param+=dtoken_Object->valuestring;
+
         uint8_t down_status = 0, progress = 0;
         down_status_t status;
         down_status_t result = HAL_OTA_Download_App(domain.c_str(), param.c_str(),  md5_Object->valuestring);
@@ -227,6 +312,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
     }
     led_state.restore();
 }
+*/
 
 void subsys_update_callback(uint8_t *payload, uint32_t len)
 {
