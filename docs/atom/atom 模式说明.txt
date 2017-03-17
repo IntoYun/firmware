@@ -1,4 +1,4 @@
-nut 启动为浅蓝色
+atom 启动为浅蓝色
 
 一. bootloader
 
