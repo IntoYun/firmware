@@ -43,7 +43,7 @@
 /*debug switch*/
 #define SYSTEM_CONFIG_DEBUG
 
-#ifdef SYSTEM_CLOUD_DEBUG
+#ifdef SYSTEM_CONFIG_DEBUG
 #define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SCONFIG_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
 #else
@@ -759,6 +759,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 #ifdef configSETUP_USBSERIAL_ENABLE
 void UsbDeviceConfig::init(void)
 {
+    serialusb.setTimeout(50);
     serialusb.begin(115200);
     while (!serialusb);
 }
@@ -808,6 +809,7 @@ void UsbDeviceConfig::close(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
 void UsartDeviceConfig::init(void)
 {
+    serial.setTimeout(50);
     serial.begin(115200);
     while (!serial);
 }
@@ -857,6 +859,7 @@ void UsartDeviceConfig::close(void)
 #ifdef configSETUP_TCP_ENABLE
 void TcpDeviceConfig::init(void)
 {
+    server.setTimeout(50);
     server.begin();
 }
 
@@ -924,6 +927,7 @@ void TcpDeviceConfig::close(void)
 #ifdef configSETUP_UDP_ENABLE
 void UdpDeviceConfig::init(void)
 {
+    Udp.setTimeout(50);
     wlan_Imlink_start();
 }
 

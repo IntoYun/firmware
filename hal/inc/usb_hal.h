@@ -52,7 +52,7 @@ void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate));
  * Retrieves the number of bytes of data available.
  * @return
  */
-uint8_t USB_USART_Available_Data(void);
+int32_t USB_USART_Available_Data(void);
 
 /**
  * Retrieves the number of bytes of data available in the TX buffer.

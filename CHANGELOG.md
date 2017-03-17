@@ -8,6 +8,7 @@
 
 ### BUG FIXES(漏洞修复)
 - [[PR #26]](https://github.com/HITSZ-NRSL/firmware/pull/26) [nut] 解决nut编译出现iram1_0_seg空间不足.
+- [[PR #27]](https://github.com/HITSZ-NRSL/firmware/pull/27) [all] 1.解决usb串口配置，传输大数据指令无效. 2.减少配置等待时间.
 
 ### INTERNAL(内部)
 

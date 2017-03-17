@@ -40,7 +40,7 @@ void USB_USART_Initial(uint32_t baudRate)
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-uint8_t USB_USART_Available_Data(void)
+int32_t USB_USART_Available_Data(void)
 {
     return 0;
 }
