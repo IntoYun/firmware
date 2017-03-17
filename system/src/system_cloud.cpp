@@ -85,6 +85,7 @@ void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
     SCLOUD_DEBUG("mqtt callback!");
+    SCLOUD_DEBUG("topic: %s", topic);
 
     uint8_t *pdata = NULL;
     pCallBack pcallback=get_subscribe_callback(topic);
@@ -93,6 +94,7 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
         pdata = (uint8_t *)malloc(length+1);
         memset(pdata, 0, length+1);
         memcpy(pdata, payload, length);
+        SCLOUD_DEBUG("data: %s", pdata);
         pcallback(pdata,length);
         free(pdata);
     }
@@ -103,6 +105,7 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
         pdata = (uint8_t *)malloc(length+1);
         memset(pdata, 0, length+1);
         memcpy(pdata, payload, length);
+        SCLOUD_DEBUG("data: %s", pdata);
         pwidgetbase->widgetBaseCallBack(pdata,length);
         free(pdata);
     }
@@ -128,7 +131,7 @@ void sync_time_callback(uint8_t *payload, uint32_t len)
 
 void ota_update_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("online update!");
+    SCLOUD_DEBUG("v1 : online update!");
 
     uint32_t n;
     char flag=0;
@@ -316,7 +319,7 @@ void ota_update_callback(uint8_t *payload, uint32_t len)
 
 void subsys_update_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("subsys update!");
+    SCLOUD_DEBUG("v1 : subsys update!");
 
     uint32_t n;
     String s_payload="", domain="", param="";
@@ -471,6 +474,8 @@ void system_debug_callback(uint8_t *payload, uint32_t len)
 // 子系统升级
 void intorobot_subsys_upgrade(const char *version)
 {
+    SCLOUD_DEBUG("v2 :subsys_upgrade!");
+
     bool flag = false;
     char temp[64];
     String domain="", param="";
@@ -544,6 +549,8 @@ void intorobot_subsys_upgrade(const char *version)
 //在线编程升级
 void intorobot_bin_upgrade(const char *token, const char *md5)
 {
+    SCLOUD_DEBUG("v2 :online upgrade!");
+
     bool flag = false;
     char temp[64];
     String domain="", param="";
@@ -616,6 +623,8 @@ void intorobot_bin_upgrade(const char *token, const char *md5)
 //固件升级
 void intorobot_firmware_upgrade(const char *version)
 {
+    SCLOUD_DEBUG("v2 :firmware upgrade!");
+
     bool flag = false;
     char temp[64];
     String domain="", param="";
@@ -694,6 +703,7 @@ void cloud_datapoint_receive_callback(uint8_t *payload, uint32_t len)
 
 void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
+    SCLOUD_DEBUG("v2 :cloud_action_callback!");
     /*
     SCLOUD_DEBUG("Ok! receive action form cloud!");
 

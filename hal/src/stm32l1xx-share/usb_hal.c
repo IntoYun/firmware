@@ -87,7 +87,7 @@ static inline bool USB_USART_Connected() {
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-uint8_t USB_USART_Available_Data(void)
+int32_t USB_USART_Available_Data(void)
 {
     return sdkGetQueueDataLen(&USB_Rx_Queue);
 }
