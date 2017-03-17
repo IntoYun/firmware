@@ -1,7 +1,7 @@
 ## v1.4.3-rc.3
 
 ### FEATURES(功能)
-
+- [[PR #28]](https://github.com/HITSZ-NRSL/firmware/pull/28) [fig] 1.添加fig/w32/w33 bootloader和应用
 
 ### ENHANCEMENTS(优化)
 
@@ -11,7 +11,6 @@
 - [[PR #27]](https://github.com/HITSZ-NRSL/firmware/pull/27) [all] 1.解决usb串口配置，传输大数据指令无效. 2.减少配置等待时间.
 
 ### INTERNAL(内部)
-
 
 
 
