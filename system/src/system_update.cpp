@@ -69,7 +69,6 @@ void system_lineCodingBitRateHandler(uint32_t bitrate)
 }
 
 #ifndef configNO_NETWORK
-#if PLATFORM_ID == PLATFORM_FIG
 
 UpdaterClass::UpdaterClass()
     : _async(false)
@@ -117,8 +116,8 @@ bool UpdaterClass::begin(size_t size, int command) {
     if (command == U_APP_FLASH) {
         updateStartAddress = HAL_OTA_FlashAddress();
 
-        SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)\n", updateStartAddress, updateStartAddress);
-        SUPDATE_DEBUG("[begin] updateFileSize:      0x%08X (%d)\n", size, size);
+        SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)", updateStartAddress, updateStartAddress);
+        SUPDATE_DEBUG("[begin] updateFileSize:      0x%08X (%d)", size, size);
 
         if(!HAL_OTA_CheckValidAddressRange(updateStartAddress, size)) {
             _error = UPDATE_ERROR_SPACE;
@@ -141,9 +140,9 @@ bool UpdaterClass::begin(size_t size, int command) {
     _buffer = new uint8_t[UPDATE_SECTOR_SIZE];
     _command = command;
 
-    SUPDATE_DEBUG("[begin] _startAddress:     0x%08X (%d)\n", _startAddress, _startAddress);
-    SUPDATE_DEBUG("[begin] _currentAddress:   0x%08X (%d)\n", _currentAddress, _currentAddress);
-    SUPDATE_DEBUG("[begin] _size:             0x%08X (%d)\n", _size, _size);
+    SUPDATE_DEBUG("[begin] _startAddress:       0x%08X (%d)", _startAddress, _startAddress);
+    SUPDATE_DEBUG("[begin] _currentAddress:     0x%08X (%d)", _currentAddress, _currentAddress);
+    SUPDATE_DEBUG("[begin] _size:               0x%08X (%d)", _size, _size);
 
     _md5.begin();
     return true;
@@ -165,7 +164,7 @@ bool UpdaterClass::end(bool evenIfRemaining){
     }
 
     if(hasError() || (!isFinished() && !evenIfRemaining)){
-        SUPDATE_DEBUG("premature end: res:%u, pos:%u/%u\n", getError(), progress(), _size);
+        SUPDATE_DEBUG("premature end: res:%u, pos:%u/%u", getError(), progress(), _size);
         _reset();
         return false;
     }
@@ -181,19 +180,19 @@ bool UpdaterClass::end(bool evenIfRemaining){
     if(_target_md5.length()) {
         if(_target_md5 != _md5.toString()){
             _error = UPDATE_ERROR_MD5;
-            SUPDATE_DEBUG("MD5 Failed: expected:%s, calculated:%s\n", _target_md5.c_str(), _md5.toString().c_str());
+            SUPDATE_DEBUG("MD5 Failed: expected:%s, calculated:%s", _target_md5.c_str(), _md5.toString().c_str());
             _reset();
             return false;
         }
         else {
-            SUPDATE_DEBUG("MD5 Success: %s\n", _target_md5.c_str());
+            SUPDATE_DEBUG("MD5 Success: %s", _target_md5.c_str());
         }
     }
 
     if (_command == U_APP_FLASH) {
-        HAL_PARAMS_Set_Boot_ota_app_size(_size);
-        HAL_PARAMS_Save_Params();
-        SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X\n", _startAddress, _size);
+        //HAL_PARAMS_Set_Boot_ota_app_size(_size);
+        //HAL_PARAMS_Save_Params();
+        SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
     }
 
     _reset();
@@ -262,9 +261,11 @@ size_t UpdaterClass::writeStream(Stream &data) {
     while(remaining()) {
         toRead = data.readBytes(_buffer + _bufferLen,  (UPDATE_SECTOR_SIZE - _bufferLen));
         if(toRead == 0) { //Timeout
+            SUPDATE_DEBUG("writeStream timeout 1");
             delay(100);
             toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
             if(toRead == 0) { //Timeout
+                SUPDATE_DEBUG("writeStream timeout 2");
                 _error = UPDATE_ERROR_STREAM;
                 _currentAddress = (_startAddress + _size);
                 printError(error);
@@ -278,6 +279,7 @@ size_t UpdaterClass::writeStream(Stream &data) {
         if((_bufferLen == remaining() || _bufferLen == UPDATE_SECTOR_SIZE) && !_writeBuffer())
             return written;
         written += toRead;
+        SUPDATE_DEBUG("writeStream toRead = %d , _bufferLen = %d, written = %d", toRead, _bufferLen, written);
     }
     return written;
 }
@@ -397,7 +399,11 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
 
     // use HTTP/1.0 for update since the update handler not support any transfer Encoding
     http.useHTTP10(true);
-    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    http.setReuse(true); /// keep-alive
+    http.setTimeout(8000);
+    http.setUserAgent(F("Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    http.addHeader(F("Cache-Control"), F("no-cache"));
+    http.addHeader(F("Accept"), F("*/*"));
     http.addHeader(F("Accept-Encoding"), F("gzip,deflate"));
     http.addHeader(F("Accept-Language"), F("zh-CN,eb-US;q=0.8"));
 
@@ -407,7 +413,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     }
     */
 
-    const char * headerkeys[] = { "X-Md5" };
+    const char * headerkeys[] = { "X-Intorobot-Firmware-Md5" };
     size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
 
     // track these headers
@@ -417,24 +423,24 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     int len = http.getSize();
 
     if(code <= 0) {
-        SUPDATE_DEBUG("[httpUpdate] HTTP error: %s\n", http.errorToString(code).c_str());
+        SUPDATE_DEBUG("[httpUpdate] HTTP error: %s", http.errorToString(code).c_str());
         _lastError = code;
         http.end();
         return HTTP_UPDATE_FAILED;
     }
 
-    SUPDATE_DEBUG("[httpUpdate] Header read fin.\n");
-    SUPDATE_DEBUG("[httpUpdate] Server header:\n");
-    SUPDATE_DEBUG("[httpUpdate] - code: %d\n", code);
-    SUPDATE_DEBUG("[httpUpdate] - len: %d\n", len);
+    SUPDATE_DEBUG("[httpUpdate] Header read fin.");
+    SUPDATE_DEBUG("[httpUpdate] Server header:");
+    SUPDATE_DEBUG("[httpUpdate] - code: %d", code);
+    SUPDATE_DEBUG("[httpUpdate] - len: %d", len);
 
-    if(http.hasHeader("X-Md5")) {
-        SUPDATE_DEBUG("[httpUpdate]  - MD5: %s\n", http.header("X-Md5").c_str());
+    if(http.hasHeader("X-Intorobot-Firmware-Md5")) {
+        SUPDATE_DEBUG("[httpUpdate] - MD5: %s", http.header("X-Intorobot-Firmware-Md5").c_str());
     }
 
     /*
     if(currentVersion && currentVersion[0] != 0x00) {
-        SUPDATE_DEBUG("[httpUpdate]  - current version: %s\n", currentVersion.c_str() );
+        SUPDATE_DEBUG("[httpUpdate]  - current version: %s", currentVersion.c_str() );
     }
     */
 
@@ -443,7 +449,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
             if(len > 0) {
                 bool startUpdate = true;
                 if(len > (int) HAL_OTA_FlashLength()) {
-                    SUPDATE_DEBUG("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\n", HAL_OTA_FlashLength(), len);
+                    SUPDATE_DEBUG("[httpUpdate] FreeSketchSpace to low (%d) needed: %d", HAL_OTA_FlashLength(), len);
                     startUpdate = false;
                 }
 
@@ -461,21 +467,21 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
                     int command;
 
                     command = U_APP_FLASH;
-                    SUPDATE_DEBUG("[httpUpdate] runUpdate flash...\n");
+                    SUPDATE_DEBUG("[httpUpdate] runUpdate flash...");
 
-                    if(runUpdate(*tcp, len, http.header("X-Md5"), command)) {
+                    if(runUpdate(*tcp, len, http.header("X-Intorobot-Firmware-Md5"), command)) {
                         ret = HTTP_UPDATE_OK;
-                        SUPDATE_DEBUG("[httpUpdate] Update ok\n");
+                        SUPDATE_DEBUG("[httpUpdate] Update ok");
                         http.end();
                     } else {
                         ret = HTTP_UPDATE_FAILED;
-                        SUPDATE_DEBUG("[httpUpdate] Update failed\n");
+                        SUPDATE_DEBUG("[httpUpdate] Update failed");
                     }
                 }
             } else {
                 _lastError = HTTP_UE_SERVER_NOT_REPORT_SIZE;
                 ret = HTTP_UPDATE_FAILED;
-                SUPDATE_DEBUG("[httpUpdate] Content-Length is 0 or not set by Server?!\n");
+                SUPDATE_DEBUG("[httpUpdate] Content-Length is 0 or not set by Server?!");
             }
             break;
         case HTTP_CODE_NOT_MODIFIED:
@@ -493,7 +499,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
         default:
             _lastError = HTTP_UE_SERVER_WRONG_HTTP_CODE;
             ret = HTTP_UPDATE_FAILED;
-            SUPDATE_DEBUG("[httpUpdate] HTTP Code is (%d)\n", code);
+            SUPDATE_DEBUG("[httpUpdate] HTTP Code is (%d)", code);
             break;
     }
 
@@ -516,23 +522,24 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.begin failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.begin failed! (%s)", error.c_str());
         return false;
     }
 
     if(md5.length()) {
         if(!Update.setMD5(md5.c_str())) {
             _lastError = HTTP_UE_SERVER_FAULTY_MD5;
-            SUPDATE_DEBUG("[httpUpdate] Update.setMD5 failed! (%s)\n", md5.c_str());
+            SUPDATE_DEBUG("[httpUpdate] Update.setMD5 failed! (%s)", md5.c_str());
             return false;
         }
     }
 
+    //in.setTimeout(50);
     if(Update.writeStream(in) != size) {
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.writeStream failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.writeStream failed! (%s)", error.c_str());
         return false;
     }
 
@@ -540,14 +547,11 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.end failed! (%s)\n", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.end failed! (%s)", error.c_str());
         return false;
     }
 
     return true;
 }
 
-HTTPUpdate httpUpdate;
-
-#endif
 #endif

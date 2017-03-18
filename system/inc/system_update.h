@@ -173,8 +173,6 @@ private:
     MD5Builder _md5;
 };
 
-extern UpdaterClass Update;
-
 // note we use HTTP client errors too so we start at 100
 #define HTTP_UE_TOO_LESS_SPACE              (-100)
 #define HTTP_UE_SERVER_NOT_REPORT_SIZE      (-101)
@@ -201,9 +199,7 @@ public:
 
     // This function is deprecated, use rebootOnUpdate and the next one instead
     t_httpUpdate_return update(const String& url, const String& currentVersion = "");
-
-    t_httpUpdate_return update(const String& host, uint16_t port, const String& uri = "/",
-                               const String& currentVersion = "");
+    t_httpUpdate_return update(const String& host, uint16_t port, const String& uri = "/", const String& currentVersion = "");
 
     int getLastError(void);
     String getLastErrorString(void);
@@ -215,8 +211,6 @@ protected:
     int _lastError;
     bool _rebootOnUpdate = true;
 };
-
-extern HTTPUpdate httpUpdate;
 
 #endif
 
