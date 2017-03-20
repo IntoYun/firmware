@@ -33,45 +33,28 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef uint16_t pin_t;
 
-#if  0
 typedef enum PinMode {
     INPUT,
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
+    OPEN_DRAIN,
+    OUTPUT_OPEN_DRAIN,
+    SPECIAL,
+    FUNCTION_1,
+    FUNCTION_2,
+    FUNCTION_3,
+    FUNCTION_4,
+    FUNCTION_5,
+    FUNCTION_6,
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
-#endif
-
-#if  1
-typedef enum PinMode {
-    INPUT = 0x1,
-    OUTPUT = 0x2,
-    PULLUP = 0x4,
-    INPUT_PULLUP = 0x5,
-    PULLDOWN = 0x08,
-    INPUT_PULLDOWN = 0x09,
-    OPEN_DRAIN = 0x10,
-    OUTPUT_OPEN_DRAIN = 0x12,
-    SPECIAL = 0xF0,
-    FUNCTION_1 = 0x00,
-    FUNCTION_2 = 0x20,
-    FUNCTION_3 = 0x40,
-    FUNCTION_4 = 0x60,
-    FUNCTION_5 = 0x80,
-    FUNCTION_6 = 0xA0,
-    ANALOG = 0xc0,
-    AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
-    AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
-    AN_INPUT,           //Used internally for ADC Input
-    AN_OUTPUT,          //Used internally for DAC Output
-    PIN_MODE_NONE=0xFF
-} PinMode;
-#endif
 
 typedef enum {
     PF_NONE,
@@ -108,11 +91,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define D6  6
 #define D7  7
 
-#define LED_R 10
-#define LED_G 11
-#define LED_B 12
-#define KEY   13
-
 #define A0  14
 #define A1  15
 #define A2  16
@@ -131,10 +109,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // Serial1 pin
 #define TX1  D3
 #define RX1  D4
-
-// Serial2 pin
-#define TX2  A3
-#define RX2  A4
 
 // SPI pins
 #define SS   D5
@@ -162,7 +136,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define LED_USER  D6
 
-#define TOTAL_USARTS    3
+#define TOTAL_USARTS    2
 #define TOTAL_SPIS      2
 #define TOTAL_I2CS      2
 

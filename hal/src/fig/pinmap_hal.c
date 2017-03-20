@@ -57,7 +57,7 @@
 #define GPIO32                     32
 #define GPIO33                     33
 #define GPIO34                     34 /* input mode only */
-#define GPIO35                     35 /* input mode only */ 
+#define GPIO35                     35 /* input mode only */
 #define GPIO36                     36 /* input mode only */
 #define GPIO37                     37 /* input mode only */
 #define GPIO38                     38 /* input mode only */
@@ -87,11 +87,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
-EESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
+ESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 {
 /*
  * gpio_pin (0-16)
  * gpio_pin_source (GPIO_PinSource0 - GPIO_PinSource15)
+ * adc_channel
+ * dac_channel
  * timer_peripheral (TIM1 - TIM5, or NONE)
  * timer_ch (1-3, or NONE)
  * pin_mode (NONE by default, can be set to OUTPUT, INPUT, or other types)
@@ -125,6 +127,6 @@ EESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* NOT USED      - 25 */ { NONE,   NONE, NONE, NONE, PIN_MODE_NONE },
 };
 
-EESP32_Pin_Info* HAL_Pin_Map() {
+ESP32_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;
 }

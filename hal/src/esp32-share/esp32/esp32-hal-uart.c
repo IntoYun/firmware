@@ -148,7 +148,7 @@ void uartAttachRx(uart_t* uart, uint8_t rxPin, bool inverted)
     if(uart == NULL || rxPin > 39) {
         return;
     }
-    //pinMode(rxPin, INPUT);
+    pinMode(rxPin, INPUT);
     pinMatrixInAttach(rxPin, UART_RXD_IDX(uart->num), inverted);
     uartEnableInterrupt(uart);
     uartEnableGlobalInterrupt();
@@ -159,7 +159,7 @@ void uartAttachTx(uart_t* uart, uint8_t txPin, bool inverted)
     if(uart == NULL || txPin > 39) {
         return;
     }
-    //pinMode(txPin, OUTPUT);
+    pinMode(txPin, OUTPUT);
     pinMatrixOutAttach(txPin, UART_TXD_IDX(uart->num), inverted, false);
 }
 
