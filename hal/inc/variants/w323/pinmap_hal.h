@@ -33,46 +33,28 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 typedef uint16_t pin_t;
 
-#if 0
 typedef enum PinMode {
     INPUT,
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
+    OPEN_DRAIN,
+    OUTPUT_OPEN_DRAIN,
+    SPECIAL,
+    FUNCTION_1,
+    FUNCTION_2,
+    FUNCTION_3,
+    FUNCTION_4,
+    FUNCTION_5,
+    FUNCTION_6,
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
-#endif
-
-
-#if  1
-typedef enum PinMode {
-        INPUT = 0x1,
-        OUTPUT = 0x2,
-        PULLUP = 0x4,
-        INPUT_PULLUP = 0x5,
-        PULLDOWN = 0x08,
-        INPUT_PULLDOWN = 0x09,
-        OPEN_DRAIN = 0x10,
-        OUTPUT_OPEN_DRAIN = 0x12,
-        SPECIAL = 0xF0,
-        FUNCTION_1 = 0x00,
-        FUNCTION_2 = 0x20,
-        FUNCTION_3 = 0x40,
-        FUNCTION_4 = 0x60,
-        FUNCTION_5 = 0x80,
-        FUNCTION_6 = 0xA0,
-        ANALOG = 0xc0,
-        AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
-        AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
-        AN_INPUT,           //Used internally for ADC Input
-        AN_OUTPUT,          //Used internally for DAC Output
-        PIN_MODE_NONE=0xFF
-} PinMode;
-#endif
 
 typedef enum {
     PF_NONE,
@@ -105,66 +87,24 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define GPIO3 3
 #define GPIO4 4
 #define GPIO5 5
-// #define GPIO12 6
 #define GPIO12 12
-// #define GPIO13 7
 #define GPIO13 13
-// #define GPIO14 8
 #define GPIO14 14
-// #define GPIO15 9
 #define GPIO15 15
-// #define GPIO16 10
 #define GPIO16 16
-// #define GPIO17 11
 #define GPIO17 17
-// #define GPIO18 12
 #define GPIO18 18
-// #define GPIO19 13
 #define GPIO19 19
-// #define GPIO21 14
 #define GPIO21 21
-// #define GPIO22 15
 #define GPIO22 22
-// #define GPIO23 16
 #define GPIO23 23
-// #define GPIO25 17
 #define GPIO25 25
-// #define GPIO26 18
 #define GPIO26 26
-// #define GPIO27 19
 #define GPIO27 27
-// #define GPIO32 20
 #define GPIO32 32
-// #define GPIO33 21
 #define GPIO33 33
-// #define GPIO34 22
 #define GPIO34 34
-// #define GPIO35 23
 #define GPIO35 35
-
-// #define D0  0
-// #define D1  1
-// #define D2  2
-// #define D3  3
-// #define D4  4
-// #define D5  5
-// #define D6  6
-// #define D7  7
-#define LED_R 0 //10
-#define LED_G 0//11
-#define LED_B 0//12
-#define KEY   0//13
-
-// #define A0  14
-// #define A1  15
-// #define A2  16
-// #define A3  17
-// #define A4  18
-// #define A5  19
-// #define A6  20
-// #define A7  21
-// #define A8  22
-// #define A9  23
 
 // Serial pins
 #define TX  GPIO1
@@ -188,7 +128,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define MISO1 GPIO14 //A6
 #define MOSI1 GPIO12 //A7
 
-
 // I2C pins
 #define SDA  GPIO18 //D0
 #define SCL  GPIO19 //D1
@@ -201,9 +140,9 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
 
-// #define LED_USER  D6
+#define LED_USER  GPIO4
 
-#define TOTAL_USARTS       3
+#define TOTAL_USARTS       2
 #define TOTAL_I2CS         2
 #define TOTAL_SPIS         2
 

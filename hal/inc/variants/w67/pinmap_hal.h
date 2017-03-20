@@ -118,8 +118,6 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define INTOROBOT_TEST_PIN_ADC              ADC
 
 
-
-
 #ifdef __cplusplus
 }
 #endif

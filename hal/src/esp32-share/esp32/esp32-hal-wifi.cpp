@@ -22,7 +22,6 @@
 
 */
 
-#include "esp32_wifi_generic.h"
 
 #include <string.h>
 #include "timer_hal.h"
@@ -35,6 +34,8 @@ extern "C" {
 #include "esp_event_loop.h"
 #include "esp_smartconfig.h"
 }
+
+#include "esp32-hal-wifi.h"
 
 static ScanDoneCb _scanDoneCb = NULL;
 static wl_status_t _wifiStatus;

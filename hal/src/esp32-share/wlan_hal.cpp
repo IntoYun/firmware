@@ -18,13 +18,15 @@
 */
 
 #include "wlan_hal.h"
-#include "esp32_wifi_generic.h"
-#include "esp_wifi.h"
-#include "lwip/dns.h"
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "delay_hal.h"
 #include "macaddr_hal.h"
+
+#include "esp32-hal-wifi.h"
+#include "esp_wifi.h"
+#include "lwip/dns.h"
+
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01

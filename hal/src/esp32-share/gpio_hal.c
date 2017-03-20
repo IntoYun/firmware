@@ -130,10 +130,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
-    if(!digitalPinIsValid(gpio_pin)) {
-        return;
-    }
-
     uint32_t rtc_reg = rtc_gpio_desc[gpio_pin].reg;
     if(setMode == AN_INPUT) {
         PIN_MAP[pin].pin_mode = AN_INPUT;
@@ -161,9 +157,9 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     if(rtc_reg) {
         //lock rtc
         ESP_REG(rtc_reg) = ESP_REG(rtc_reg) & ~(rtc_gpio_desc[gpio_pin].mux);
-        if(mode & INPUT_PULLUP) {
+        if(setMode & INPUT_PULLUP) {
             ESP_REG(rtc_reg) = (ESP_REG(rtc_reg) | rtc_gpio_desc[gpio_pin].pullup) & ~(rtc_gpio_desc[gpio_pin].pulldown);
-        } else if(mode & INPUT_PULLDOWN) {
+        } else if(setMode & INPUT_PULLDOWN) {
             ESP_REG(rtc_reg) = (ESP_REG(rtc_reg) | rtc_gpio_desc[gpio_pin].pulldown) & ~(rtc_gpio_desc[gpio_pin].pullup);
         } else {
             ESP_REG(rtc_reg) = ESP_REG(rtc_reg) & ~(rtc_gpio_desc[gpio_pin].pullup | rtc_gpio_desc[gpio_pin].pulldown);
@@ -286,13 +282,12 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 
 void HAL_pinSetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, HIGH);
+    HAL_GPIO_Write(pin, 1);
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, LOW);
-}
+    HAL_GPIO_Write(pin, 0);
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
@@ -300,4 +295,3 @@ int32_t HAL_pinReadFast(pin_t pin)
     return HAL_GPIO_Read(pin);
 }
 
-#endif

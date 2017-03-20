@@ -26,6 +26,7 @@
 #include "soc/uart_struct.h"
 #include "soc/io_mux_reg.h"
 #include "soc/gpio_sig_map.h"
+#include "gpio_hal.h"
 
 #define ETS_UART_INUM  5
 #define ETS_UART2_INUM  ETS_UART_INUM
@@ -148,7 +149,7 @@ void uartAttachRx(uart_t* uart, uint8_t rxPin, bool inverted)
     if(uart == NULL || rxPin > 39) {
         return;
     }
-    pinMode(rxPin, INPUT);
+    HAL_Pin_Mode(rxPin, INPUT);
     pinMatrixInAttach(rxPin, UART_RXD_IDX(uart->num), inverted);
     uartEnableInterrupt(uart);
     uartEnableGlobalInterrupt();
@@ -159,7 +160,7 @@ void uartAttachTx(uart_t* uart, uint8_t txPin, bool inverted)
     if(uart == NULL || txPin > 39) {
         return;
     }
-    pinMode(txPin, OUTPUT);
+    HAL_Pin_Mode(txPin, OUTPUT);
     pinMatrixOutAttach(txPin, UART_TXD_IDX(uart->num), inverted, false);
 }
 
