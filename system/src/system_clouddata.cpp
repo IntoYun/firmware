@@ -61,8 +61,7 @@ int intorobotDiscoverProperty(const uint16_t dpID)
 {
     for (int i = 0; i < properties_count; i++)
     {
-        if (properties[i]->dpID == dpID)
-        {
+        if (properties[i]->dpID == dpID) {
             return i;
         }
     }
@@ -71,8 +70,7 @@ int intorobotDiscoverProperty(const uint16_t dpID)
 
 void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse)
 {
-    if (-1 == intorobotDiscoverProperty(dpID))
-    {
+    if (-1 == intorobotDiscoverProperty(dpID)) {
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_BOOL, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
         prop->value = String(value);
@@ -83,35 +81,29 @@ void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, cons
 
 void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy, const int lapse)
 {
-    if (-1 == intorobotDiscoverProperty(dpID))
-    {
+    if (-1 == intorobotDiscoverProperty(dpID)) {
         property_conf* prop;
         double defaultValue = value;
         // Create property structure
-        if(resolution == int(resolution))
-        {
+        if(resolution == int(resolution)) {
             prop = new property_conf {dpID, DATA_TYPE_INT, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
             prop->intProperty.minValue = (int)minValue;
             prop->intProperty.maxValue = (int)maxValue;
             prop->intProperty.resolution = (int)resolution;
             if(defaultValue < minValue) {
                 defaultValue = minValue;
-            }
-            else if(defaultValue > maxValue) {
+            } else if(defaultValue > maxValue) {
                 defaultValue = maxValue;
             }
             prop->value = String((int)defaultValue);
-        }
-        else
-        {
+        } else {
             prop = new property_conf {dpID, DATA_TYPE_FLOAT, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
             prop->floatProperty.minValue = String(minValue, calcDecimalPlaces(resolution)).toDouble();
             prop->floatProperty.maxValue = String(maxValue, calcDecimalPlaces(resolution)).toDouble();
             prop->floatProperty.resolution = resolution;
             if(defaultValue < minValue) {
                 defaultValue = minValue;
-            }
-            else if(defaultValue > maxValue) {
+            } else if(defaultValue > maxValue) {
                 defaultValue = maxValue;
             }
             prop->value = String(defaultValue, calcDecimalPlaces(resolution));
@@ -123,8 +115,7 @@ void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, co
 
 void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse)
 {
-    if (-1 == intorobotDiscoverProperty(dpID))
-    {
+    if (-1 == intorobotDiscoverProperty(dpID)) {
         double defaultValue = value;
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_ENUM, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
@@ -139,8 +130,7 @@ void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, cons
 
 void intorobotAddDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse)
 {
-    if (-1 == intorobotDiscoverProperty(dpID))
-    {
+    if (-1 == intorobotDiscoverProperty(dpID)) {
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_STRING, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
         prop->value = value;
@@ -151,8 +141,7 @@ void intorobotAddDataPointString(const uint16_t dpID, const char *permission, co
 
 void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse)
 {
-    if (-1 != intorobotDiscoverProperty(dpID))
-    {
+    if (-1 != intorobotDiscoverProperty(dpID)) {
         // Create property structure
         property_conf* prop = new property_conf {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
         prop->binaryValue = (uint8_t *)value;
@@ -315,8 +304,7 @@ void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
                         }
                         if(aJson_Float == propertyObject->type) {
                             valueInt = (int)propertyObject->valuefloat;
-                        }
-                        else {
+                        } else {
                             valueInt = propertyObject->valueint;
                         }
                         if(valueInt < properties[i]->intProperty.minValue) {
@@ -333,8 +321,7 @@ void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
                         {break;}
                         if(aJson_Int == propertyObject->type) {
                             valueDouble = (double)propertyObject->valueint;
-                        }
-                        else {
+                        } else {
                             valueDouble = propertyObject->valuefloat;
                         }
                         if(valueDouble < properties[i]->floatProperty.minValue) {
@@ -347,15 +334,13 @@ void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len)
                         properties[i]->readFlag = RESULT_DATAPOINT_NEW;
                         break;
                     case DATA_TYPE_ENUM:       //枚举型
-                        if(aJson_Int == propertyObject->type)
-                        {
+                        if(aJson_Int == propertyObject->type) {
                             properties[i]->value = String(propertyObject->valueint);
                             properties[i]->readFlag = RESULT_DATAPOINT_NEW;
                         }
                         break;
                     case DATA_TYPE_STRING:     //字符串型
-                        if(aJson_String == propertyObject->type)
-                        {
+                        if(aJson_String == propertyObject->type) {
                             properties[i]->value = String(propertyObject->valuestring);
                             properties[i]->readFlag = RESULT_DATAPOINT_NEW;
                         }

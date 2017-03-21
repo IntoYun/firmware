@@ -40,8 +40,7 @@ unsigned backoff_period(unsigned connection_attempts)
 
 int system_version(char *pversion)
 {
-    if(NULL != pversion)
-    {
+    if(NULL != pversion) {
         strcpy(pversion, stringify(SYSTEM_VERSION_STRING));
         return strlen(pversion);
     }
@@ -50,8 +49,7 @@ int system_version(char *pversion)
 
 int system_platform_id(char *pid)
 {
-    if(NULL != pid)
-    {
+    if(NULL != pid) {
         strcpy(pid, stringify(PLATFORM_ID));
         return strlen(pid);
     }
@@ -60,8 +58,7 @@ int system_platform_id(char *pid)
 
 int system_platform_name(char *pname)
 {
-    if(NULL != pname)
-    {
+    if(NULL != pname) {
         strcpy(pname, stringify(PLATFORM_NAME));
         return strlen(pname);
     }
