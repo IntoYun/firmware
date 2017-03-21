@@ -109,7 +109,7 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return (down_status_t)esp8266MDM.getDownOtafileStatus();
 }
 
-void HAL_OTA_Update_App(void)
+void HAL_OTA_Update_App(uint32_t size)
 {
     HAL_Core_Enter_Ota_Update_Mode();
 }

@@ -21,6 +21,7 @@
 #include "core_hal.h"
 #include "flash_map.h"
 #include "flash_mal.h"
+#include "params_hal.h"
 
 #define OTA_CHUNK_SIZE          0x1000
 
@@ -54,8 +55,11 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Update_App(void)
+void HAL_OTA_Update_App(uint32_t size)
 {
+    HAL_PARAMS_Set_Boot_ota_app_size(size);
+    HAL_Core_Enter_Ota_Update_Mode();
+    HAL_PARAMS_Save_Params();
 }
 
 down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)

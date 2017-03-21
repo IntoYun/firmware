@@ -20,6 +20,7 @@
 #include "intorobot_config.h"
 #include "stream_string.h"
 #include "system_update.h"
+#include "system_cloud.h"
 #include "core_hal.h"
 #include "ota_flash_hal.h"
 #include "params_hal.h"
@@ -60,8 +61,7 @@ void set_start_ymodem_flasher_serial_speed(uint32_t speed)
 void system_lineCodingBitRateHandler(uint32_t bitrate)
 {
 #ifdef START_DFU_FLASHER_SERIAL_SPEED
-    if (bitrate == start_dfu_flasher_serial_speed)
-    {
+    if (bitrate == start_dfu_flasher_serial_speed) {
         HAL_Core_Enter_DFU_Mode(false);
     }
 #endif
@@ -77,6 +77,7 @@ UpdaterClass::UpdaterClass()
     , _startAddress(0)
     , _currentAddress(0)
     , _command(U_APP_FLASH)
+    , _progress(0)
 {
 }
 
@@ -89,6 +90,7 @@ void UpdaterClass::_reset() {
     _currentAddress = 0;
     _size = 0;
     _command = U_APP_FLASH;
+    _progress = 0;
 }
 
 bool UpdaterClass::begin(size_t size, int command) {
@@ -124,8 +126,7 @@ bool UpdaterClass::begin(size_t size, int command) {
             SUPDATE_DEBUG("error : (%s)", error.c_str());
             return false;
         }
-    }
-    else {
+    } else {
         // unknown command
         SUPDATE_DEBUG("[begin] Unknown update command.");
         return false;
@@ -147,11 +148,18 @@ bool UpdaterClass::begin(size_t size, int command) {
 }
 
 bool UpdaterClass::setMD5(const char * expected_md5){
-    if(strlen(expected_md5) != 32)
-    {
+    if(strlen(expected_md5) != 32) {
         return false;
     }
     _target_md5 = expected_md5;
+    return true;
+}
+
+bool UpdaterClass::setSendProgressCb(progressCb Cb){
+    if(NULL == Cb) {
+        return false;
+    }
+    _progressCb = Cb;
     return true;
 }
 
@@ -181,19 +189,16 @@ bool UpdaterClass::end(bool evenIfRemaining){
             SUPDATE_DEBUG("MD5 Failed: expected:%s, calculated:%s", _target_md5.c_str(), _md5.toString().c_str());
             _reset();
             return false;
-        }
-        else {
+        } else {
             SUPDATE_DEBUG("MD5 Success: %s", _target_md5.c_str());
         }
     }
 
     if (_command == U_APP_FLASH) {
-        HAL_PARAMS_Set_Boot_ota_app_size(_size);
-        HAL_PARAMS_Save_Params();
         SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
     }
 
-    _reset();
+    //_reset();
     return true;
 }
 
@@ -252,10 +257,12 @@ size_t UpdaterClass::writeStream(Stream &data) {
     StreamString error;
     size_t written = 0;
     size_t toRead = 0;
+    uint8_t progress = 0;
 
     if(hasError() || !isRunning())
         return 0;
 
+    _progressCb(0);
     while(remaining()) {
         if((_bufferLen + remaining()) <= UPDATE_SECTOR_SIZE) {
             toRead = data.readBytes(_buffer + _bufferLen, remaining());
@@ -279,6 +286,14 @@ size_t UpdaterClass::writeStream(Stream &data) {
         if((_bufferLen == remaining() || _bufferLen == UPDATE_SECTOR_SIZE) && !_writeBuffer())
             return written;
         written += toRead;
+        if(NULL != _progressCb) {
+            progress = (written*100)/size();
+            if((progress - _progress) > 20) {
+                _progressCb(progress);
+                _progress = progress;
+            }
+        }
+        //intorobot_cloud_handle();
         SUPDATE_DEBUG("writeStream toRead = %d , _bufferLen = %d, written = %d", toRead, _bufferLen, written);
     }
     return written;
@@ -400,7 +415,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     // use HTTP/1.0 for update since the update handler not support any transfer Encoding
     http.useHTTP10(true);
     http.setReuse(true); /// keep-alive
-    http.setTimeout(8000);
+    http.setTimeout(4000);
     http.setUserAgent(F("Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     http.addHeader(F("Cache-Control"), F("no-cache"));
     http.addHeader(F("Accept"), F("*/*"));

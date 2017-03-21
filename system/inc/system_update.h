@@ -40,6 +40,8 @@ void system_lineCodingBitRateHandler(uint32_t bitrate);
 
 #define UPDATE_SECTOR_SIZE              0x1000
 
+typedef void (*progressCb)(uint8_t);
+
 class UpdaterClass {
 public:
     UpdaterClass();
@@ -89,7 +91,7 @@ public:
     /*
       sets the the progress display call back for the update
     */
-    bool setProgressCb(const char * expected_md5);
+    bool setSendProgressCb(progressCb);
 
     /*
       returns the MD5 String of the sucessfully ended firmware
@@ -160,6 +162,7 @@ private:
     bool _verifyHeader(uint8_t data);
     bool _verifyEnd();
 
+    uint8_t _progress;
     uint8_t _error;
     uint8_t *_buffer;
     size_t _bufferLen;
@@ -170,7 +173,10 @@ private:
 
     String _target_md5;
     MD5Builder _md5;
+    progressCb _progressCb;
 };
+
+extern UpdaterClass Update;
 
 // note we use HTTP client errors too so we start at 100
 #define HTTP_UE_TOO_LESS_SPACE              (-100)
