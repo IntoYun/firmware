@@ -30,47 +30,6 @@
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
-//board type
-#define INTOROBOT_BOARD_TYPE    "888102"
-#define INTOROBOT_BOARD_TYPE1   "887102"
-#define INTOROBOT_BOARD_NAME    "w32/w33"
-
-
-uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
-{
-    uint32_t len;
-
-    if (dest!=NULL && destLen>0) {
-        memset(dest, 0, destLen);
-        len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
-        if(0==type) {
-            memcpy(dest, INTOROBOT_BOARD_TYPE, len);
-        }
-        else{
-            memcpy(dest, INTOROBOT_BOARD_TYPE1, len);
-        }
-        return len;
-    }
-    return 0;
-}
-
-uint32_t HAL_Platform_ID(void)
-{
-    return PLATFORM_ID;
-}
-
-uint32_t HAL_Platform_Name(char* dest, uint16_t destLen)
-{
-    uint32_t len;
-
-    if (dest!=NULL && destLen>0) {
-        memset(dest, 0, destLen);
-        len = MIN(strlen(INTOROBOT_BOARD_NAME), destLen-1);
-        memcpy(dest, INTOROBOT_BOARD_NAME, len);
-        return len;
-    }
-    return 0;
-}
 
 /*初始化bootloader参数区*/
 void init_boot_params(boot_params_t *pboot_params) {

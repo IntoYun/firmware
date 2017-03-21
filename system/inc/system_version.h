@@ -27,6 +27,8 @@ extern "C" {
 #endif
 
 int system_version(char *pversion);
+int system_platform_id(char *pid);
+int system_platform_name(char *pname);
 
 #ifdef __cplusplus
 }

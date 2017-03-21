@@ -46,6 +46,7 @@
 #include "wiring_httpclient.h"
 #include "system_product.h"
 #include "system_update.h"
+#include "system_version.h"
 #include "ajson.h"
 
 /*debug switch*/
@@ -191,10 +192,9 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
     if(type_Object == NULL) {
         flag=1;
     } else {
-        char board[8]={0}, board1[8]={0};
-        HAL_Board_Type(board, sizeof(board), 0);
-        HAL_Board_Type(board1, sizeof(board1), 1);
-        if( strcmp(type_Object->valuestring, board) && strcmp(type_Object->valuestring, board1) )
+        char board[32]="";
+        system_platform_id(board);
+        if(strcmp(type_Object->valuestring + 3, board + 3))
         {flag=2;}
     }
 
@@ -324,7 +324,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
             domain+=INTOROBOT_UPDATE_DOMAIN;
         }
         char name[24]={0};
-        HAL_Platform_Name(name, sizeof(name));
+        system_platform_id(name);
 
         param+="/downloads/" + String(name) + "/" + String(sys_Ver_Object->valuestring);
 
@@ -477,7 +477,6 @@ static void intorobot_subsys_upgrade(const char *version)
     SCLOUD_DEBUG("v2 :subsys_upgrade!");
 
     bool flag = false;
-    char temp[64];
     String domain="", param="";
     uint8_t progress = 0;
 
@@ -494,7 +493,7 @@ static void intorobot_subsys_upgrade(const char *version)
         domain+=INTOROBOT_UPDATE_DOMAIN;
     }
     char name[24]={0};
-    HAL_Platform_Name(name, sizeof(name));
+    system_platform_id(name);
     param+="/downloads/" + String(name) + "/" + String(version);
 
     down_status_t status;
@@ -543,7 +542,6 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("v2 :cloud_action_callback!");
 
-    char temp[64];
     aJsonClass aJson;
     String s_payload;
     aJsonObject *root=NULL, *boardObject=NULL, *cmdObject=NULL, *dtokenObject=NULL, *versionObject=NULL;
@@ -562,10 +560,9 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
     if(boardObject == NULL){
         goto finish;
     } else {
-        char board[8]={0}, board1[8]={0};
-        HAL_Board_Type(board, sizeof(board), 0);
-        HAL_Board_Type(board1, sizeof(board1), 1);
-        if(strcmp(boardObject->valuestring, board) && strcmp(boardObject->valuestring, board1)) {
+        char board[32]="";
+        system_platform_id(board);
+        if(strcmp(boardObject->valuestring + 3, board + 3)) {
             goto finish;
         }
         SCLOUD_DEBUG("board: %s", boardObject->valuestring);
@@ -618,22 +615,21 @@ void cloud_debug_callback(uint8_t *payload, uint32_t len)
 
 void fill_mqtt_topic(String &fulltopic, api_version_t version, const char *topic, const char *device_id)
 {
-    char temp[128];
     String sdevice_id=intorobot_deviceID();
 
-    memset(temp,0,sizeof(temp));
     if( API_VERSION_V1 == version ) {
-        if(device_id == NULL)
-        {sprintf(temp,"v1/%s/", sdevice_id.c_str());}
-        else
-        {sprintf(temp,"v1/%s/", device_id);}
+        if(device_id == NULL) {
+            fulltopic = "v1/" + sdevice_id + "/";
+        } else {
+            fulltopic = "v1/" + String(device_id) + "/";
+        }
     } else {
-        if(device_id == NULL)
-        {sprintf(temp,"v2/device/%s/", sdevice_id.c_str());}
-        else
-        {sprintf(temp,"v2/device/%s/", device_id);}
+        if(device_id == NULL) {
+            fulltopic = "v2/device/" + sdevice_id + "/";
+        } else {
+            fulltopic = "v2/device/" + String(device_id) + "/";
+        }
     }
-    fulltopic=temp;
     fulltopic+=topic;
 }
 
@@ -992,12 +988,12 @@ int intorobot_cloud_connect(void)
     //client id change to device id. chenkaiyao 2016-01-17
     if(g_mqtt_client.connect(device_id, access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
         SCLOUD_DEBUG("---------connect success--------");
-        char fw_version[28]={0}, subsys_version[28]={0}, board[8];
+        char fw_version[28]="", subsys_version[28]="", board[32]="";
         product_details_t product_details;
 
         HAL_PARAMS_Get_System_fwlib_ver(fw_version, sizeof(fw_version));
         HAL_PARAMS_Get_System_subsys_ver(subsys_version, sizeof(subsys_version));
-        HAL_Board_Type(board, sizeof(board), 0);
+        system_platform_id(board);
         system_product_instance().get_product_details(product_details);
 
         aJsonClass aJson;
@@ -1267,41 +1263,6 @@ bool intorobot_device_activate(void)
 
 bool intorobot_get_version(String &body)
 {
-#if 0
-    SCLOUD_DEBUG("---------get version begin---------");
-    http_header_t headers[] = {
-        { "Cache-Control" , "no-cache"},
-        { NULL, NULL }
-    };
-    HttpClient http;
-    http_request_t request;
-    http_response_t response;
-
-    //获取product id
-    product_details_t product_details;
-    system_product_instance().get_product_details(product_details);
-    //获取板子类型
-    char board[8]={0};
-    HAL_Board_Type(board, sizeof(board), 0);
-    //http 请求头
-    request.hostname = INTOROBOT_HTTP_DOMAIN;
-    request.port = INTOROBOT_HTTP_PORT;
-    request.path = "/v1/firmware?act=check&productId=";
-    request.path = product_details.product_id;
-    request.path = "&board=";
-    request.path = board;
-    request.timeout = 5000; //5000ms超时
-
-    // Get request
-    http.get(request, response, headers);
-    if( 200 == response.status )
-    {
-        body = response.body;
-        return true;
-    }
-    SCLOUD_DEBUG("get version failed!");
-    return false;
-#endif
     return true;
 }
 

@@ -174,34 +174,36 @@ extern "C" void HAL_SysTick_Handler(void)
 #define TIMING_MODE_DEFAULT_RESTORE                     7000   //进入默认固件灯程序升级判断时间
 #define TIMING_MODE_FACTORY_RESET                       13000  //恢复出厂程序判断时间 不清除密钥
 #define TIMING_MODE_NC                                  20000  //无操作判断时间
+#define TIMING_MODE_ALL_RESET                           30000  //完全恢复出厂判断时间 清空密钥
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
     if(BUTTON_press_time) {
-        if( BUTTON_press_time > TIMING_MODE_NC ) {
+        if( BUTTON_press_time > TIMING_MODE_ALL_RESET ) {
+            if(BUTTON_Mode!=BUTTON_MODE_RESET) {
+                BUTTON_Mode=BUTTON_MODE_RESET; //恢复出厂设置  清除密钥
+                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);//黄灯打开
+            }
+        } else if( BUTTON_press_time > TIMING_MODE_NC ) {
             if(BUTTON_Mode!=BUTTON_MODE_NC) {
                 BUTTON_Mode=BUTTON_MODE_NC; //退出
                 HAL_UI_RGB_Color(RGB_COLOR_BLACK);//关灯
             }
-        }
-        if( BUTTON_press_time > TIMING_MODE_FACTORY_RESET ) {
+        } else if( BUTTON_press_time > TIMING_MODE_FACTORY_RESET ) {
             if(BUTTON_Mode!=BUTTON_MODE_FAC) {
                 BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
                 HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
             }
-        }
-        else if( BUTTON_press_time > TIMING_MODE_DEFAULT_RESTORE ) {
+        } else if( BUTTON_press_time > TIMING_MODE_DEFAULT_RESTORE ) {
             if(BUTTON_Mode!=BUTTON_MODE_DEFFW) {
                 BUTTON_Mode=BUTTON_MODE_DEFFW; //恢复默认出厂程序
                 HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
             }
-        }
-        else if( BUTTON_press_time > TIMING_MODE_CONFIG_AP_SERIAL ) {
+        } else if( BUTTON_press_time > TIMING_MODE_CONFIG_AP_SERIAL ) {
             if(BUTTON_Mode!=BUTTON_MODE_CONFIG_AP_SERIAL) {
                 BUTTON_Mode=BUTTON_MODE_CONFIG_AP_SERIAL; //wifi ap配置模式
                 HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);//粉红打开
             }
-        }
-        else if( BUTTON_press_time > TIMING_MODE_CONFIG_IMLINK_SERIAL ) {
+        } else if( BUTTON_press_time > TIMING_MODE_CONFIG_IMLINK_SERIAL ) {
             if(BUTTON_Mode!=BUTTON_MODE_CONFIG_IMLINK_SERIAL) {
                 BUTTON_Mode=BUTTON_MODE_CONFIG_IMLINK_SERIAL; //wifi imlink配置模式
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
@@ -233,6 +235,14 @@ extern "C" void HAL_SysTick_Handler(void)
                 HAL_Core_Enter_Factory_Reset_Mode();
                 break;
 
+            case BUTTON_MODE_NC:
+                HAL_Core_System_Reset();
+                break;
+
+            case BUTTON_MODE_RESET:
+                HAL_Core_Enter_Factory_All_Reset_Mode();
+                break;
+
             default:
                 break;
         }
@@ -254,14 +264,12 @@ extern "C" void HAL_SysTick_Handler(void)
                 BUTTON_Mode=BUTTON_MODE_FAC;//恢复出厂设置  不清除密钥
                 HAL_UI_RGB_Color(RGB_COLOR_CYAN);//浅蓝灯打开
             }
-        }
-        else if( BUTTON_press_time > TIMING_MODE_DEFAULT_RESTORE ) {
+        } else if( BUTTON_press_time > TIMING_MODE_DEFAULT_RESTORE ) {
             if(BUTTON_Mode!=BUTTON_MODE_DEFFW) {
                 BUTTON_Mode=BUTTON_MODE_DEFFW; //恢复默认出厂程序
                 HAL_UI_RGB_Color(RGB_COLOR_GREEN);//绿灯打开
             }
-        }
-        else if( BUTTON_press_time > TIMING_MODE_CONFIG_SERIAL ) {
+        } else if( BUTTON_press_time > TIMING_MODE_CONFIG_SERIAL ) {
             if(BUTTON_Mode!=BUTTON_MODE_CONFIG_SERIAL) {
                 BUTTON_Mode=BUTTON_MODE_CONFIG_SERIAL; //wifi imlink配置模式
                 HAL_UI_RGB_Color(RGB_COLOR_RED);//红灯打开
@@ -305,8 +313,7 @@ void app_loop(bool threaded)
         intorobot_process();
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
-    if ((INTOROBOT_WIRING_APPLICATION != 1))
-    {
+    if ((INTOROBOT_WIRING_APPLICATION != 1)) {
         //Execute user application setup only once
         DECLARE_SYS_HEALTH(ENTERED_Setup);
         if (system_mode()!=SAFE_MODE)

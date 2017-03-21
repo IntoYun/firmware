@@ -39,6 +39,7 @@
 #include "system_mode.h"
 #include "system_task.h"
 #include "system_test.h"
+#include "system_version.h"
 
 /*debug switch*/
 #define SYSTEM_CONFIG_DEBUG
@@ -255,23 +256,14 @@ void DeviceConfig::dealHello(void)
 
     aJson.addNumberToObject(root, "status", 200);
     aJson.addNumberToObject(root, "version", 2);  //v2版本配置协议
-    char device_id[32], board[8];
-    if (AT_MODE_FLAG_NONE == HAL_PARAMS_Get_System_at_mode()) {
-        HAL_Board_Type(board, sizeof(board), 1);
-        aJson.addStringToObject(root, "board", (char *)board);
-        aJson.addNumberToObject(root, "at_mode", 0);
-    } else {
-        HAL_Board_Type(board, sizeof(board), 0);
+    char device_id[32]="", board[32]="";
+    system_platform_id(board);
+    aJson.addStringToObject(root, "board", (char *)board);
+    if (AT_MODE_FLAG_NONE != HAL_PARAMS_Get_System_at_mode()) {
         HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-        if(!memcmp(board, device_id, 6)) {
-            aJson.addStringToObject(root, "board", (char *)board);
-        } else {
-            HAL_Board_Type(board, sizeof(board), 1);
-            aJson.addStringToObject(root, "board", (char *)board);
-        }
         aJson.addStringToObject(root, "device_id", (char *)device_id);
-        aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     }
+    aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
     free(string);
@@ -368,8 +360,8 @@ void DeviceConfig::dealGetInfo(void)
     if (value_object == NULL)
     {return;}
 
-    char device_id[32],board[8];
-    HAL_Board_Type(board, sizeof(board), 0);
+    char device_id[32]="",board[32]="";
+    system_platform_id(board);
     aJson.addStringToObject(value_object, "board", board);
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     aJson.addStringToObject(value_object, "device_id", device_id);
