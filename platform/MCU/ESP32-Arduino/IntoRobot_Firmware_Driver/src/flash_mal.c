@@ -245,22 +245,13 @@ void FLASH_Begin(uint32_t FLASH_Address, uint32_t imageSize)
 
 int FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t bufferSize)
 {
-    const uint8_t *writeBuffer = pBuffer;
-    uint8_t readBuffer[bufferSize];
-
-    readBuffer[0] = writeBuffer[0]+1;       // ensure different
-    int i;
-
-    for (i=50; i-->0 && memcmp(writeBuffer, readBuffer, bufferSize); )
-    {
-        /* Write Data Buffer to SPI Flash memory */
-        spi_flash_write(address, writeBuffer, bufferSize);
-
-        /* Read Data Buffer from SPI Flash memory */
-        spi_flash_read(address, readBuffer, bufferSize);
+    if (spi_flash_erase_sector(address/sFLASH_PAGESIZE) != ESP_OK) {
+        return 1;
     }
-
-    return !i;
+    if (spi_flash_write(address, (uint32_t*)pBuffer, bufferSize) != ESP_OK) {
+        return 1;
+    }
+    return 0;
 }
 
 void FLASH_End(void)

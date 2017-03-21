@@ -27,8 +27,8 @@ CPPFLAGS += -fno-exceptions -fno-rtti -std=gnu++11 -fpermissive
 ASFLAGS += -g3 -x assembler-with-cpp -MMD -mlongcalls
 
 FLASH_SIZE ?= 4MB
-FLASH_MODE ?= qio
-FLASH_SPEED ?= 40m
+FLASH_MODE ?= dio
+FLASH_SPEED ?= 80m
 
 # UPLOAD_SPEED ?= 230400
 UPLOAD_SPEED ?= 921600

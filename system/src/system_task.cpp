@@ -113,14 +113,12 @@ void Network_Setup(void)
     network.setup();
 
     // don't automatically connect when threaded since we want the thread to start asap
-    if(system_mode() == AUTOMATIC)
-    {
+    if(system_mode() == AUTOMATIC) {
         network.connect();
     }
     if (network.connected()) {
         system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
-    }
-    else {
+    } else {
         system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
     network_connection_attempt_init();
@@ -138,9 +136,7 @@ void manage_network_connection()
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }
         was_connected = true;
-    }
-    else
-    {
+    } else {
         if(was_connected) {
 #ifndef configNO_CLOUD
             g_intorobot_cloud_connected = 0;
@@ -216,10 +212,9 @@ void manage_app_auto_update(void)
 
 void preprocess_cloud_connection(void)
 {
-    if (network.connected())
-    {
-        if (!g_intorobot_cloud_pregrocessed)
-        {
+    if (network.connected()) {
+        if (!g_intorobot_cloud_pregrocessed) {
+
             // 同步时间
             intorobot_sync_time();
 
@@ -251,22 +246,17 @@ void preprocess_cloud_connection(void)
 
 void establish_cloud_connection(void)
 {
-    if (network.connected())
-    {
-        if (!g_intorobot_cloud_connected)
-        {
+    if (network.connected()) {
+        if (!g_intorobot_cloud_connected) {
             if (in_cloud_backoff_period())
                 return;
 
             int connect_result = intorobot_cloud_connect();
-            if (connect_result >= 0)
-            {
+            if (connect_result >= 0) {
                 g_intorobot_cloud_connected = 1;
                 cloud_failed_connection_attempts = 0;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-            }
-            else
-            {
+            } else {
                 g_intorobot_cloud_connected = 0;
                 intorobot_cloud_disconnect();
                 cloud_connection_failed();
@@ -277,10 +267,8 @@ void establish_cloud_connection(void)
 
 void handle_cloud_connection(void)
 {
-    if (network.connected())
-    {
-        if (g_intorobot_cloud_connected)
-        {
+    if (network.connected()) {
+        if (g_intorobot_cloud_connected) {
             int err = intorobot_cloud_handle();
             if (err) {
                 g_intorobot_cloud_connected = 0;
@@ -293,12 +281,10 @@ void handle_cloud_connection(void)
 
 void manage_cloud_connection(void)
 {
-    if (intorobot_cloud_flag_auto_connect() == 0)
-    {
+    if (intorobot_cloud_flag_auto_connect() == 0) {
         intorobot_cloud_disconnect();
-    }
-    else // cloud connection is wanted
-    {
+    } else {
+        // cloud connection is wanted
         preprocess_cloud_connection();
         establish_cloud_connection();
         handle_cloud_connection();
@@ -310,8 +296,7 @@ void system_process_loop(void)
 {
     intorobot_loop_total_millis = 0;
 #ifdef configSETUP_ENABLE
-    if(!g_intorobot_system_config)
-    {
+    if(!g_intorobot_system_config) {
 #endif
         NEWORK_FN(manage_network_connection(), (void)0);
         NEWORK_FN(manage_ip_config(), (void)0);
@@ -338,8 +323,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
         if (elapsed_millis > ms) {
             break;
-        }
-        else if (elapsed_millis >= (ms-1)) {
+        } else if (elapsed_millis >= (ms-1)) {
             // on the last millisecond, resolve using millis - we don't know how far in that millisecond had come
             // have to be careful with wrap around since start_micros can be greater than end_micros.
             for (;;) {
@@ -376,12 +360,9 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
     // if not threading, or we are the application thread, then implement delay
     // as a background message pump
 
-    if ((!PLATFORM_THREADING || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR())
-    {
+    if ((!PLATFORM_THREADING || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR()) {
         system_delay_pump(ms, force_no_background_loop);
-    }
-    else
-    {
+    } else {
         HAL_Delay_Milliseconds(ms);
     }
 }

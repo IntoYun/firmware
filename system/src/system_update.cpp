@@ -24,7 +24,6 @@
 #include "ota_flash_hal.h"
 #include "params_hal.h"
 #include "wiring_ticks.h"
-#include "platforms.h"
 
 /*debug switch*/
 #define SYSTEM_UPDATE_DEBUG
@@ -71,8 +70,7 @@ void system_lineCodingBitRateHandler(uint32_t bitrate)
 #ifndef configNO_NETWORK
 
 UpdaterClass::UpdaterClass()
-    : _async(false)
-    , _error(0)
+    : _error(0)
     , _buffer(0)
     , _bufferLen(0)
     , _size(0)
@@ -190,8 +188,8 @@ bool UpdaterClass::end(bool evenIfRemaining){
     }
 
     if (_command == U_APP_FLASH) {
-        //HAL_PARAMS_Set_Boot_ota_app_size(_size);
-        //HAL_PARAMS_Save_Params();
+        HAL_PARAMS_Set_Boot_ota_app_size(_size);
+        HAL_PARAMS_Save_Params();
         SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
     }
 
@@ -259,13 +257,15 @@ size_t UpdaterClass::writeStream(Stream &data) {
         return 0;
 
     while(remaining()) {
-        toRead = data.readBytes(_buffer + _bufferLen,  (UPDATE_SECTOR_SIZE - _bufferLen));
+        if((_bufferLen + remaining()) <= UPDATE_SECTOR_SIZE) {
+            toRead = data.readBytes(_buffer + _bufferLen, remaining());
+        } else {
+            toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
+        }
         if(toRead == 0) { //Timeout
-            SUPDATE_DEBUG("writeStream timeout 1");
             delay(100);
             toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
             if(toRead == 0) { //Timeout
-                SUPDATE_DEBUG("writeStream timeout 2");
                 _error = UPDATE_ERROR_STREAM;
                 _currentAddress = (_startAddress + _size);
                 printError(error);
@@ -534,7 +534,6 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5, int command)
         }
     }
 
-    //in.setTimeout(50);
     if(Update.writeStream(in) != size) {
         _lastError = Update.getError();
         Update.printError(error);

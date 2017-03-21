@@ -50,11 +50,6 @@ public:
     bool begin(size_t size, int command = U_APP_FLASH);
 
     /*
-      Run Updater from asynchronous callbacs
-    */
-    void runAsync(bool async){ _async = async; }
-
-    /*
       Writes a buffer to the flash and increments the address
       Returns the amount written
     */
@@ -90,6 +85,11 @@ public:
       sets the expected MD5 for the firmware (hexString)
     */
     bool setMD5(const char * expected_md5);
+
+    /*
+      sets the the progress display call back for the update
+    */
+    bool setProgressCb(const char * expected_md5);
 
     /*
       returns the MD5 String of the sucessfully ended firmware
@@ -160,7 +160,6 @@ private:
     bool _verifyHeader(uint8_t data);
     bool _verifyEnd();
 
-    bool _async;
     uint8_t _error;
     uint8_t *_buffer;
     size_t _bufferLen;
