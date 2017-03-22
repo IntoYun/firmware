@@ -101,7 +101,7 @@ bool HAL_Bootloader_Update_If_Needed(void)
 
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
-    return (down_status_t)esp8266MDM.downOtaFile(host, param, md5);
+    return (down_status_t)esp8266MDM.downOtaFile(host, param, "");
 }
 
 down_status_t HAL_OTA_Get_App_Download_Status(void)

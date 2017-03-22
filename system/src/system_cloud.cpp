@@ -258,7 +258,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
         }
 #else
         down_status_t status;
-        down_status_t result = HAL_OTA_Download_App(domain.c_str(), param.c_str(),  md5_Object->valuestring);
+        down_status_t result = HAL_OTA_Download_App(domain.c_str(), param.c_str(), md5_Object->valuestring);
         switch(result)
         {
             case DOWNSTATUS_SUCCESS:
