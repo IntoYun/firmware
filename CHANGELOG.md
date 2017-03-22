@@ -1,4 +1,4 @@
-## v1.4.3-rc.3
+## v1.5.0-rc.1
 
 ### FEATURES(功能)
 - [[PR #28]](https://github.com/HITSZ-NRSL/firmware/pull/28) [fig] 1.添加fig/w32/w33 bootloader和应用
