@@ -93,6 +93,7 @@ struct CloudDebugBuffer
 extern "C" {
 #endif
 
+void intorobot_send_upgrade_progress(uint8_t progress);
 void intorobot_cloud_init(void);
 bool intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
 bool intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);

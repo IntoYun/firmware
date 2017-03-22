@@ -22,8 +22,7 @@
 
 bool system_rgb_off(void)
 {
-    if(!RGB.controlled())
-    {
+    if(!RGB.controlled()) {
         HAL_UI_RGB_Color(RGB_COLOR_BLACK);
         return true;
     }
@@ -32,8 +31,7 @@ bool system_rgb_off(void)
 
 bool system_rgb_color(uint32_t rgb)
 {
-    if(!RGB.controlled())
-    {
+    if(!RGB.controlled()) {
         HAL_UI_RGB_Color(rgb);
         return true;
     }
@@ -42,8 +40,7 @@ bool system_rgb_color(uint32_t rgb)
 
 bool system_rgb_blink(uint32_t rgb, uint16_t period)
 {
-    if(!RGB.controlled())
-    {
+    if(!RGB.controlled()) {
         HAL_UI_RGB_Blink(rgb, period);
         return true;
     }
@@ -52,8 +49,7 @@ bool system_rgb_blink(uint32_t rgb, uint16_t period)
 
 bool system_rgb_breath(uint32_t rgb, uint16_t period)
 {
-    if(!RGB.controlled())
-    {
+    if(!RGB.controlled()) {
         HAL_UI_RGB_Breath(rgb, period);
         return true;
     }

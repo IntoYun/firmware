@@ -28,6 +28,8 @@
 #include "ui_hal.h"
 #include "service_debug.h"
 
+#define OTA_CHUNK_SIZE          0x1000
+
 extern "C"
 {
     extern uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
@@ -133,7 +135,7 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return esp8266_getDownOnlineAppStatus();
 }
 
-void HAL_OTA_Update_App(void)
+void HAL_OTA_Update_App(uint32_t size)
 {
     HAL_Core_Enter_Ota_Update_Mode();
 }
@@ -168,5 +170,52 @@ void HAL_OTA_Upadate_Subsys(void)
 uint8_t HAL_OTA_Get_Download_Progress()
 {
     return esp8266_getDownloadProgress();
+}
+
+bool HAL_OTA_CheckValidAddressRange(uint32_t startAddress, uint32_t length)
+{
+    /*
+    uint32_t endAddress = startAddress + length;
+
+    if (startAddress == CACHE_ONLINE_APP_START_ADDR && endAddress < CACHE_ONLINE_APP_END_ADDR)
+    {
+        return true;
+    }
+
+    return false;
+    */
+    return true;
+}
+
+uint32_t HAL_OTA_FlashAddress()
+{
+    return CACHE_ONLINE_APP_ADDR;
+}
+
+uint32_t HAL_OTA_FlashLength()
+{
+    return CACHE_ONLINE_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
+}
+
+uint16_t HAL_OTA_ChunkSize()
+{
+    return OTA_CHUNK_SIZE;
+}
+
+bool HAL_FLASH_Begin(uint32_t address, uint32_t length, void* reserved)
+{
+    //FLASH_Begin(address, length);
+    return true;
+}
+
+int HAL_FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    //return FLASH_Update(pBuffer, address, length);
+    return 0;
+}
+
+hal_update_complete_t HAL_FLASH_End(void)
+{
+    return 0;
 }
 

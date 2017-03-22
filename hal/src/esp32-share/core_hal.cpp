@@ -24,7 +24,7 @@
 #include "esp_wifi.h"
 #include "esp_event_loop.h"
 #include "esp32-hal-timer.h"
-#include "esp32_wifi_generic.h"
+#include "esp32-hal-wifi.h"
 
 #include "hw_config.h"
 #include "core_hal.h"

@@ -24,7 +24,7 @@
  */
 
 #include "inet_hal.h"
-#include "esp32_wifi_generic.h"
+#include "esp32-hal-wifi.h"
 
 
 int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,

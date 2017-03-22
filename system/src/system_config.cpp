@@ -39,6 +39,7 @@
 #include "system_mode.h"
 #include "system_task.h"
 #include "system_test.h"
+#include "system_version.h"
 
 /*debug switch*/
 #define SYSTEM_CONFIG_DEBUG
@@ -223,13 +224,11 @@ int DeviceConfig::process(void)
         if(_isConfigSuccessful)
         {break;}
     }
-    if(root!=NULL)
-    {
+    if(root!=NULL) {
         aJson.deleteItem(root);
     }
 
-    if(_isConfigSuccessful)
-    {
+    if(_isConfigSuccessful) {
         return 0;
     }
     else
@@ -257,27 +256,14 @@ void DeviceConfig::dealHello(void)
 
     aJson.addNumberToObject(root, "status", 200);
     aJson.addNumberToObject(root, "version", 2);  //v2版本配置协议
-    char device_id[32], board[8];
-    if ( AT_MODE_FLAG_NONE == HAL_PARAMS_Get_System_at_mode() )
-    {
-        HAL_Board_Type(board, sizeof(board), 1);
-        aJson.addStringToObject(root, "board", (char *)board);
-        aJson.addNumberToObject(root, "at_mode", 0);
-    }
-    else
-    {
-        HAL_Board_Type(board, sizeof(board), 0);
+    char device_id[32]="", board[32]="";
+    system_platform_id(board);
+    aJson.addStringToObject(root, "board", (char *)board);
+    if (AT_MODE_FLAG_NONE != HAL_PARAMS_Get_System_at_mode()) {
         HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-        if(!memcmp(board, device_id, 6)) {
-            aJson.addStringToObject(root, "board", (char *)board);
-        }
-        else {
-            HAL_Board_Type(board, sizeof(board), 1);
-            aJson.addStringToObject(root, "board", (char *)board);
-        }
         aJson.addStringToObject(root, "device_id", (char *)device_id);
-        aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     }
+    aJson.addNumberToObject(root, "at_mode", HAL_PARAMS_Get_System_at_mode());
     char* string = aJson.print(root);
     write((unsigned char *)string, strlen(string));
     free(string);
@@ -292,15 +278,12 @@ void DeviceConfig::dealCheckWifi(void)
     {return;}
 
     network_status(0, 0, NULL);
-    if(WiFi.ready())  //wifi连通
-    {
+    if(WiFi.ready()) {
         manage_ip_config();
         aJson.addNumberToObject(root, "status", 200);
         aJson.addStringToObject(root, "ssid", WiFi.SSID());
         aJson.addNumberToObject(root, "rssi", WiFi.RSSI());
-    }
-    else
-    {
+    } else {
         aJson.addNumberToObject(root, "status", 201);
     }
     char* string = aJson.print(root);
@@ -328,20 +311,16 @@ void DeviceConfig::dealGetWifiList(void)
 
     wlan_Imlink_stop();
     int found = WiFi.scan(ap, 10);
-    if(found < 1)
-    {
+    if(found < 1) {
         sendComfirm(201);
-    }
-    else
-    {
+    } else {
         aJsonObject* root = aJson.createObject();
         if (root == NULL)
         {return;}
         aJson.addNumberToObject(root, "status",200);
         aJson.addNumberToObject(root, "listnum",found);
         aJsonObject* ssidlistarray = aJson.createArray();
-        if (ssidlistarray == NULL)
-        {
+        if (ssidlistarray == NULL) {
             aJson.deleteItem(root);
             return;
         }
@@ -350,8 +329,7 @@ void DeviceConfig::dealGetWifiList(void)
         for(int n = 0; n < found; n++)
         {
             aJsonObject* ssid_object = aJson.createObject();
-            if (ssid_object == NULL)
-            {
+            if (ssid_object == NULL) {
                 aJson.deleteItem(root);
                 return;
             }
@@ -382,8 +360,8 @@ void DeviceConfig::dealGetInfo(void)
     if (value_object == NULL)
     {return;}
 
-    char device_id[32],board[8];
-    HAL_Board_Type(board, sizeof(board), 0);
+    char device_id[32]="",board[32]="";
+    system_platform_id(board);
     aJson.addStringToObject(value_object, "board", board);
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     aJson.addStringToObject(value_object, "device_id", device_id);
@@ -395,15 +373,13 @@ void DeviceConfig::dealGetInfo(void)
     HAL_PARAMS_Get_System_sv_domain(domain, sizeof(domain));
     if (strlen(domain)) {
         aJson.addStringToObject(value_object, "sv_domain", domain);
-    }
-    else {
+    } else {
         aJson.addStringToObject(value_object, "sv_domain", INTOROBOT_SERVER_DOMAIN);
     }
 
     if (HAL_PARAMS_Get_System_sv_port() > 0) {
         aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_System_sv_port());
-    }
-    else {
+    } else {
         aJson.addNumberToObject(value_object, "sv_port", INTOROBOT_SERVER_PORT);
     }
 
@@ -411,15 +387,13 @@ void DeviceConfig::dealGetInfo(void)
     HAL_PARAMS_Get_System_http_domain(domain, sizeof(domain));
     if (strlen(domain)) {
         aJson.addStringToObject(value_object, "http_domain", domain);
-    }
-    else {
+    } else {
         aJson.addStringToObject(value_object, "http_domain", INTOROBOT_HTTP_DOMAIN);
     }
 
     if (HAL_PARAMS_Get_System_http_port() > 0) {
         aJson.addNumberToObject(value_object, "http_port", HAL_PARAMS_Get_System_http_port());
-    }
-    else {
+    } else {
         aJson.addNumberToObject(value_object, "http_port", INTOROBOT_HTTP_PORT);
     }
 
@@ -427,8 +401,7 @@ void DeviceConfig::dealGetInfo(void)
     HAL_PARAMS_Get_System_dw_domain(domain, sizeof(domain));
     if (strlen(domain)) {
         aJson.addStringToObject(value_object, "dw_domain", domain);
-    }
-    else {
+    } else {
         aJson.addStringToObject(value_object, "dw_domain", INTOROBOT_UPDATE_DOMAIN);
     }
 
@@ -461,14 +434,10 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
     wlan_Imlink_stop();
     aJsonObject* ssidObject = aJson.getObjectItem(value_Object, "ssid");
     aJsonObject* passwdObject = aJson.getObjectItem(value_Object, "passwd");
-    if ((ssidObject != NULL) && (passwdObject != NULL))
-    {
-        if(0==strcmp(ssidObject->valuestring,""))  //密码为空
-        {
+    if ((ssidObject != NULL) && (passwdObject != NULL)) {
+        if(0==strcmp(ssidObject->valuestring,"")) { //密码为空
             WiFi.setCredentials(ssidObject->valuestring);
-        }
-        else
-        {
+        } else {
             WiFi.setCredentials(ssidObject->valuestring, passwdObject->valuestring);
         }
         network_setup(0, 0, NULL);
@@ -553,15 +522,13 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
                 HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
                 flag = true;
             }
-        }
-        else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
+        } else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
             if (deviceIdObject != NULL && activationCodeObject != NULL) {
                 HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
                 HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
                 flag = true;
             }
-        }
-        else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
+        } else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
             if (deviceIdObject != NULL && activationCodeObject != NULL && accessTokenObject != NULL) {
                 HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
                 HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
@@ -585,16 +552,14 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
                 HAL_PARAMS_Set_System_appskey(appskeyObject->valuestring);
                 flag = true;
             }
-        }
-        else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
+        } else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
             if (deviceIdObject != NULL && appeuiObject != NULL && appkeyObject != NULL) {
                 HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
                 HAL_PARAMS_Set_System_appeui(appeuiObject->valuestring);
                 HAL_PARAMS_Set_System_appkey(appkeyObject->valuestring);
                 flag = true;
             }
-        }
-        else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
+        } else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
             if (deviceIdObject != NULL && appeuiObject != NULL && appkeyObject != NULL \
                     && devaddrObject != NULL && nwkskeyObject != NULL && appskeyObject != NULL) {
                 HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
@@ -612,8 +577,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
         HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)atModeObject->valueint);
         HAL_PARAMS_Save_Params();
         sendComfirm(200);
-    }
-    else {
+    } else {
         sendComfirm(201);
     }
 }
@@ -674,8 +638,7 @@ void DeviceConfig::dealSetInfo(aJsonObject* value_object)
     if(true == flag) {
         HAL_PARAMS_Save_Params();
         sendComfirm(200);
-    }
-    else {
+    } else {
         sendComfirm(201);
     }
 }
@@ -731,27 +694,22 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
 
         if(strcmp(valObject->valuestring,"HIGH") == 0) {
             pinLevel = HIGH;
-        }
-        else {
+        } else {
             pinLevel = LOW;
         }
         testDigitalWrite(pinNum,pinLevel,this);
-    }
-    else if(strcmp(itemObject->valuestring,"analogRead") == 0) {
+    } else if(strcmp(itemObject->valuestring,"analogRead") == 0) {
         aJsonObject* pinObject = aJson.getObjectItem(value_object,"pin");
         if(pinObject == NULL) {
             return;
         }
         pinNum = pinObject->valueint;
         testAnalogRead(pinNum,this);
-    }
-    else if(strcmp(itemObject->valuestring,"selfTest") == 0) {
+    } else if(strcmp(itemObject->valuestring,"selfTest") == 0) {
         testSelfTest(this);
-    }
-    else if(strcmp(itemObject->valuestring,"rfCheck") == 0) {
+    } else if(strcmp(itemObject->valuestring,"rfCheck") == 0) {
         testRfCheck(this);
-    }
-    else if(strcmp(itemObject->valuestring,"sensorData") == 0) {
+    } else if(strcmp(itemObject->valuestring,"sensorData") == 0) {
         testSensorData(this);
     }
 }
@@ -882,20 +840,16 @@ void TcpDeviceConfig::sendComfirm(int status)
 int TcpDeviceConfig::available(void)
 {
     client_bak = server.available();
-    if(client_bak)
-    {
-        if(client)
-        {
+    if(client_bak) {
+        if(client) {
             client.stop();
         }
         client=client_bak;
         client.setTimeout(50);
     }
 
-    if(client)
-    {
-        if(client.connected())
-        {
+    if(client) {
+        if(client.connected()) {
             return client.available();
         }
         client.stop();
@@ -1040,8 +994,7 @@ system_config_mode_t get_system_config_mode(void)
 
 void set_system_config_type(system_config_type_t config_type)
 {
-    if(current_system_config_type == config_type)
-    {
+    if(current_system_config_type == config_type) {
         return;
     }
 
@@ -1130,10 +1083,8 @@ int system_config_process(void)
     system_config_type_t config_type = get_system_config_type();
     static system_config_type_t system_config_type = SYSTEM_CONFIG_TYPE_NONE;
 
-    if(SYSTEM_CONFIG_TYPE_NONE == config_type)
-    {
-        if(system_config_type != config_type)
-        {
+    if(SYSTEM_CONFIG_TYPE_NONE == config_type) {
+        if(system_config_type != config_type) {
             system_config_finish();
         }
         system_config_type = config_type;
@@ -1141,8 +1092,7 @@ int system_config_process(void)
     }
     system_config_type = config_type;
 
-    if(0 == system_config_initial_flag)
-    {
+    if(0 == system_config_initial_flag) {
         system_config_initial();
         system_config_initial_flag = 1;
     }
@@ -1152,8 +1102,7 @@ int system_config_process(void)
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
 #ifdef configSETUP_UDP_ENABLE
             result = DeviceSetupImlink.process();
-            if(!result)
-            {
+            if(!result) {
                 break;
             }
 #endif
@@ -1162,8 +1111,7 @@ int system_config_process(void)
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
 #ifdef configSETUP_TCP_ENABLE
             result = DeviceSetupAp.process();
-            if(!result)
-            {
+            if(!result) {
                 break;
             }
 #endif
@@ -1185,8 +1133,7 @@ int system_config_process(void)
         default:
             break;
     }
-    if(!result)
-    {
+    if(!result) {
         system_config_finish();
         set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
     }
@@ -1221,10 +1168,8 @@ void system_config_setup(void)
 
 void manage_system_config(void)
 {
-    if(SYSTEM_CONFIG_MODE_AUTOMATIC == get_system_config_mode()) //配置处理流程放后台处理,阻塞处理。
-    {
-        if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type())
-        {
+    if(SYSTEM_CONFIG_MODE_AUTOMATIC == get_system_config_mode()) { //配置处理流程放后台处理,阻塞处理。
+        if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
             CLOUD_FN(intorobot_cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);
             while(1)

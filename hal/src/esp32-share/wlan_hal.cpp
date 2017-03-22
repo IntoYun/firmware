@@ -18,13 +18,15 @@
 */
 
 #include "wlan_hal.h"
-#include "esp32_wifi_generic.h"
-#include "esp_wifi.h"
-#include "lwip/dns.h"
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "delay_hal.h"
 #include "macaddr_hal.h"
+
+#include "esp32-hal-wifi.h"
+#include "esp_wifi.h"
+#include "lwip/dns.h"
+
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
@@ -109,10 +111,11 @@ int wlan_set_credentials(WLanCredentials* c)
     strcpy((char*)(conf.sta.ssid), c->ssid);
 
     if(c->password) {
-        if (strlen(c->password) == 64) // it's not a passphrase, is the PSK
+        if (strlen(c->password) == 64) { // it's not a passphrase, is the PSK
             memcpy((char*)(conf.sta.password), c->password, 64);
-        else
+        } else {
             strcpy((char*)(conf.sta.password), c->password);
+        }
     } else {
         *conf.sta.password = 0;
     }
@@ -129,10 +132,11 @@ void wlan_Imlink_start()
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    if(!esp32_smartConfigDone())
+    if(!esp32_smartConfigDone()) {
         return IMLINK_DOING;
-    else
+    } else {
         return IMLINK_SUCCESS;
+    }
 }
 
 void wlan_Imlink_stop()
@@ -281,7 +285,7 @@ static void scan_done_cb()
     }
 
     wifi_ap_record_t *it = (wifi_ap_record_t*)pScanRecords;
-    for(n = 0; n < scanInfo.count; it = (wifi_ap_record_t*)pScanRecords + n, n++) {
+    for(n = 0; n < scanInfo.count; it++, n++) {
         memcpy(pNode[n].bssid, it->bssid, 6);
         pNode[n].rssi = it->rssi;
     }
@@ -304,7 +308,7 @@ static void scan_done_cb()
     //填充ap 列表
     for(n = 0; n < scanInfo.count; n++) {
         it = (wifi_ap_record_t*)pScanRecords;
-        for(m = 0; m < scanInfo.count; it = (wifi_ap_record_t*)pScanRecords + m, m++) {
+        for(m = 0; m < scanInfo.count; it++, m++) {
             if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
                 memset(&data, 0, sizeof(WiFiAccessPoint));
                 strcpy(data.ssid, it->ssid);
@@ -319,6 +323,7 @@ static void scan_done_cb()
             }
         }
     }
+
     scanInfo.completed = true;
     delete[] pScanRecords;
     free(pNode);
@@ -371,19 +376,19 @@ int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
 int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
     if (stamacaddr != NULL && apmacaddr != NULL){
-    mac_param_t mac_addrs;
-    mac_addrs.header = FLASH_MAC_HEADER;
+        mac_param_t mac_addrs;
+        mac_addrs.header = FLASH_MAC_HEADER;
 
-    memset(mac_addrs.stamac_addrs, 0, sizeof(mac_addrs.stamac_addrs));
-    memcpy(mac_addrs.stamac_addrs, stamacaddr, sizeof(mac_addrs.stamac_addrs));
+        memset(mac_addrs.stamac_addrs, 0, sizeof(mac_addrs.stamac_addrs));
+        memcpy(mac_addrs.stamac_addrs, stamacaddr, sizeof(mac_addrs.stamac_addrs));
 
-    memset(mac_addrs.apmac_addrs, 0, sizeof(mac_addrs.apmac_addrs));
-    memcpy(mac_addrs.apmac_addrs, apmacaddr, sizeof(mac_addrs.apmac_addrs));
+        memset(mac_addrs.apmac_addrs, 0, sizeof(mac_addrs.apmac_addrs));
+        memcpy(mac_addrs.apmac_addrs, apmacaddr, sizeof(mac_addrs.apmac_addrs));
 
-    uint32_t len = sizeof(mac_addrs);
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
-    HAL_FLASH_Interminal_Write(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, len);
-    return 0;
+        uint32_t len = sizeof(mac_addrs);
+        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
+        HAL_FLASH_Interminal_Write(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, len);
+        return 0;
     }
     return -1;
 
@@ -394,13 +399,11 @@ int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
  */
 int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
-    if(!esp_wifi_get_mac(WIFI_IF_STA, stamacaddr))
-    {
+    if(!esp_wifi_get_mac(WIFI_IF_STA, stamacaddr)) {
         return -1;
     }
 
-    if(!esp_wifi_get_mac(WIFI_IF_AP, apmacaddr))
-    {
+    if(!esp_wifi_get_mac(WIFI_IF_AP, apmacaddr)) {
         return -1;
     }
     return 0;
@@ -408,15 +411,14 @@ int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 
 int wlan_set_macaddr_from_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
-     if(!esp_wifi_set_mac(STATION_IF, stamacaddr))
-         {
-             return -1;
-         }
-     if(!esp_wifi_set_mac(SOFTAP_IF, apmacaddr))
-         {
-             return -1;
-         }
-     return 0;
+    if(!esp_wifi_set_mac(STATION_IF, stamacaddr)) {
+        return -1;
+    }
+
+    if(!esp_wifi_set_mac(SOFTAP_IF, apmacaddr)) {
+        return -1;
+    }
+    return 0;
 }
 
 int wlan_set_macaddr_when_init(void)

@@ -75,11 +75,6 @@ typedef enum
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-
-uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type);
-uint32_t HAL_Platform_ID(void);
-uint32_t HAL_Platform_Name(char* dest, uint16_t destLen);
-
 void HAL_PARAMS_Init_All_System_Params(void);
 void HAL_PARAMS_Init_Fac_System_Params(void);
 void HAL_PARAMS_Init_Boot_Params(void);
@@ -93,6 +88,13 @@ BOOT_FLAG_TypeDef HAL_PARAMS_Get_Boot_boot_flag(void);
 int HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_TypeDef flag);
 INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void);
 int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag);
+
+uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void);
+int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
+uint32_t HAL_PARAMS_Get_Boot_def_app_size(void);
+int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
+uint32_t HAL_PARAMS_Get_Boot_boot_size(void);
+int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
 
 uint16_t HAL_PARAMS_Get_System_device_id(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_device_id(const char* buffer);

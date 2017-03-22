@@ -67,7 +67,7 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Update_App(void)
+void HAL_OTA_Update_App(uint32_t size)
 {
 
 }

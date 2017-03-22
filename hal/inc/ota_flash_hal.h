@@ -45,7 +45,7 @@ typedef enum {
 bool HAL_Bootloader_Update_If_Needed(void);
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5);
 down_status_t HAL_OTA_Get_App_Download_Status(void);
-void HAL_OTA_Update_App(void);
+void HAL_OTA_Update_App(uint32_t size);
 down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param);
 down_status_t HAL_OTA_Get_Subsys_Download_Status(void);
 void HAL_OTA_Upadate_Subsys(void);

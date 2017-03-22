@@ -30,47 +30,6 @@
 boot_params_t intorobot_boot_params;         //bootloader参数
 system_params_t intorobot_system_params;     //设备参数
 
-//board type
-#define INTOROBOT_BOARD_TYPE    "888102"
-#define INTOROBOT_BOARD_TYPE1   "887102"
-#define INTOROBOT_BOARD_NAME    "fig"
-
-
-uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type)
-{
-    uint32_t len;
-
-    if (dest!=NULL && destLen>0) {
-        memset(dest, 0, destLen);
-        len = MIN(strlen(INTOROBOT_BOARD_TYPE1), destLen-1);
-        if(0==type) {
-            memcpy(dest, INTOROBOT_BOARD_TYPE, len);
-        }
-        else{
-            memcpy(dest, INTOROBOT_BOARD_TYPE1, len);
-        }
-        return len;
-    }
-    return 0;
-}
-
-uint32_t HAL_Platform_ID(void)
-{
-    return PLATFORM_ID;
-}
-
-uint32_t HAL_Platform_Name(char* dest, uint16_t destLen)
-{
-    uint32_t len;
-
-    if (dest!=NULL && destLen>0) {
-        memset(dest, 0, destLen);
-        len = MIN(strlen(INTOROBOT_BOARD_NAME), destLen-1);
-        memcpy(dest, INTOROBOT_BOARD_NAME, len);
-        return len;
-    }
-    return 0;
-}
 
 /*初始化bootloader参数区*/
 void init_boot_params(boot_params_t *pboot_params) {
@@ -284,15 +243,14 @@ extern "C" {
  * 读取ota文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void) {
-    // return intorobot_boot_params.ota_app_size;
-    return 0;
+    return intorobot_boot_params.ota_app_size;
 }
 
 /*
  * 保存ota文件大小
  * */
 int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
-    // intorobot_boot_params.ota_app_size = size;
+    intorobot_boot_params.ota_app_size = size;
     return 0;
 }
 
@@ -300,15 +258,14 @@ int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
  * 读取默认应用文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_def_app_size(void) {
-    // return intorobot_boot_params.def_app_size;
-    return 0;
+    return intorobot_boot_params.def_app_size;
 }
 
 /*
  * 保存默认应用文件大小
  * */
 int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
-    // intorobot_boot_params.def_app_size = size;
+    intorobot_boot_params.def_app_size = size;
     return 0;
 }
 
@@ -316,15 +273,14 @@ int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
  * 读取升级boot文件大小
  * */
 uint32_t HAL_PARAMS_Get_Boot_boot_size(void) {
-    // return intorobot_boot_params.boot_size;
-    return 0;
+    return intorobot_boot_params.boot_size;
 }
 
 /*
  * 保存升级boot文件大小
  * */
 int HAL_PARAMS_Set_Boot_boot_size(uint32_t size) {
-    // intorobot_boot_params.boot_size = size;
+    intorobot_boot_params.boot_size = size;
     return 0;
 }
 
@@ -572,8 +528,6 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
  * */
 CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
    return (CONFIG_FLAG_TypeDef)intorobot_system_params.config_flag;
-    // return CONFIG_FLAG_NONE;
-
 }
 
 /*

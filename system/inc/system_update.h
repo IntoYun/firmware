@@ -40,6 +40,8 @@ void system_lineCodingBitRateHandler(uint32_t bitrate);
 
 #define UPDATE_SECTOR_SIZE              0x1000
 
+typedef void (*progressCb)(uint8_t);
+
 class UpdaterClass {
 public:
     UpdaterClass();
@@ -48,11 +50,6 @@ public:
       Will return false if there is not enough space
     */
     bool begin(size_t size, int command = U_APP_FLASH);
-
-    /*
-      Run Updater from asynchronous callbacs
-    */
-    void runAsync(bool async){ _async = async; }
 
     /*
       Writes a buffer to the flash and increments the address
@@ -90,6 +87,11 @@ public:
       sets the expected MD5 for the firmware (hexString)
     */
     bool setMD5(const char * expected_md5);
+
+    /*
+      sets the the progress display call back for the update
+    */
+    bool setSendProgressCb(progressCb);
 
     /*
       returns the MD5 String of the sucessfully ended firmware
@@ -160,7 +162,7 @@ private:
     bool _verifyHeader(uint8_t data);
     bool _verifyEnd();
 
-    bool _async;
+    uint8_t _progress;
     uint8_t _error;
     uint8_t *_buffer;
     size_t _bufferLen;
@@ -171,6 +173,7 @@ private:
 
     String _target_md5;
     MD5Builder _md5;
+    progressCb _progressCb;
 };
 
 extern UpdaterClass Update;
@@ -201,9 +204,7 @@ public:
 
     // This function is deprecated, use rebootOnUpdate and the next one instead
     t_httpUpdate_return update(const String& url, const String& currentVersion = "");
-
-    t_httpUpdate_return update(const String& host, uint16_t port, const String& uri = "/",
-                               const String& currentVersion = "");
+    t_httpUpdate_return update(const String& host, uint16_t port, const String& uri = "/", const String& currentVersion = "");
 
     int getLastError(void);
     String getLastErrorString(void);
@@ -215,8 +216,6 @@ protected:
     int _lastError;
     bool _rebootOnUpdate = true;
 };
-
-extern HTTPUpdate httpUpdate;
 
 #endif
 

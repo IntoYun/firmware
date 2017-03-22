@@ -46,6 +46,7 @@ extern "C" {
 }
 #endif
 
+#define ESP_REG(addr) *((volatile uint32_t *)(addr))
 #define NOP() asm volatile ("nop")
 
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;

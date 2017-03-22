@@ -22,7 +22,6 @@
 
 */
 
-#include "esp32_wifi_generic.h"
 
 #include <string.h>
 #include "timer_hal.h"
@@ -35,6 +34,8 @@ extern "C" {
 #include "esp_event_loop.h"
 #include "esp_smartconfig.h"
 }
+
+#include "esp32-hal-wifi.h"
 
 static ScanDoneCb _scanDoneCb = NULL;
 static wl_status_t _wifiStatus;
@@ -91,7 +92,7 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         //DEBUG("SYSTEM_EVENT_STA_GOT_IP");
         tcpip_adapter_ip_info_t ip;
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-        //DEBUG("%x", ip.ip.addr);
+        DEBUG("%x", ip.ip.addr);
 
         _setStatus(WL_CONNECTED);
     }

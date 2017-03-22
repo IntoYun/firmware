@@ -172,6 +172,7 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
     uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
     uint32_t saddr = src_addr;
     uint32_t daddr = dst_addr;
+    bool flag = true;
 
     while (left){
         if (SPIEraseSector(daddr/buffer_size)){
@@ -186,6 +187,13 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
         saddr += buffer_size;
         daddr += buffer_size;
         left  -= buffer_size;
+
+        if(flag) {
+            HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
+        } else {
+            HAL_UI_RGB_Color(RGB_COLOR_BLACK);
+        }
+        flag = !flag;
     }
 
     return true;

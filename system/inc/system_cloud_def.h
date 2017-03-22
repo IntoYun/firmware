@@ -20,19 +20,23 @@
 #ifndef SYSTEM_CLOUD_DEF_H_
 #define SYSTEM_CLOUD_DEF_H_
 
-#define INTOROBOT_OTA_UPDATE_URL       "/v1/bins/"
+#define INTOROBOT_OTA_UPDATE_URL       "/v1/bin/"
 
-//#define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
-//#define INTOROBOT_SERVER_PORT          1883
-#define INTOROBOT_SERVER_DOMAIN        "112.124.117.64"
+/*
+#define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
+#define INTOROBOT_SERVER_PORT          1883
+#define INTOROBOT_SERVER_TLS_PORT      8883
+#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
+#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
+*/
+
+#define INTOROBOT_SERVER_DOMAIN        "ghgyldebugiot.intoyun.com"
 #define INTOROBOT_SERVER_PORT          1885
-
 #define INTOROBOT_SERVER_TLS_PORT      8883
 
-#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
+#define INTOROBOT_UPDATE_DOMAIN        "www.ghgyldebugwww.intoyun.com"
 
-//#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
-#define INTOROBOT_HTTP_DOMAIN          "112.124.117.64"
+#define INTOROBOT_HTTP_DOMAIN          "www.ghgyldebugwww.intoyun.com"
 #define INTOROBOT_HTTP_PORT            8088
 
 #define NTP_TIMESERVER                 "202.120.2.101"  //上海交通大学网络中心NTP服务器地址
@@ -120,12 +124,13 @@
 #define INTOROBOT_MQTT_ACTION_TOPIC    "action"
 #define INTOROBOT_MQTT_DEBUGTX_TOPIC   "debugtx"
 
-#define INTOROBOT_MQTT_REPLY_READY_PROGRESS    "10"  //subsys ready and progress
-#define INTOROBOT_MQTT_REPLY_DOWN_FAIL         "11"  //subsys down failed
-#define INTOROBOT_MQTT_REPLY_DOWN_SUCC         "12"  //subsys down success
-#define INTOROBOT_MQTT_REPLY_UPDATE_FAIL       "13"  //subsys update failed
-#define INTOROBOT_MQTT_REPLY_UPDATE_SUCC       "14"  //subsys update success
-#define INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT    "15"  //subsys down success and exit
-#define INTOROBOT_MQTT_REPLY_TYPEEEOR          "16"  //subsys update board type error
+#define INTOROBOT_MQTT_REPLY_READY_PROGRESS    "10"  //ready and progress
+#define INTOROBOT_MQTT_REPLY_DOWN_FAIL         "11"  //down failed
+#define INTOROBOT_MQTT_REPLY_DOWN_SUCC         "12"  //down success
+#define INTOROBOT_MQTT_REPLY_UPDATE_FAIL       "13"  //update failed
+#define INTOROBOT_MQTT_REPLY_UPDATE_SUCC       "14"  //update success
+#define INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT    "15"  //down success and exit
+#define INTOROBOT_MQTT_REPLY_TYPEEEOR          "16"  //update board type error
+#define INTOROBOT_MQTT_REPLY_REBOOT_READY      "30"  //reboot ready
 
 #endif	/*SYSTEM_CLOUD_DEF_H_ */

@@ -75,11 +75,6 @@ typedef enum
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported functions --------------------------------------------------------*/
-
-uint16_t HAL_Board_Type(char* dest, uint16_t destLen, uint8_t type);
-uint32_t HAL_Platform_ID(void);
-uint32_t HAL_Platform_Name(char* dest, uint16_t destLen);
-
 void HAL_PARAMS_Init_All_System_Params(void);
 void HAL_PARAMS_Init_Fac_System_Params(void);
 void HAL_PARAMS_Init_Boot_Params(void);
