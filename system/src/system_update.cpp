@@ -78,6 +78,7 @@ UpdaterClass::UpdaterClass()
     , _currentAddress(0)
     , _command(U_APP_FLASH)
     , _progress(0)
+    , _progressCb(NULL)
 {
 }
 
@@ -262,13 +263,16 @@ size_t UpdaterClass::writeStream(Stream &data) {
     if(hasError() || !isRunning())
         return 0;
 
-    _progressCb(0);
+    if(NULL != _progressCb) {
+        _progressCb(0);
+    }
     while(remaining()) {
         if((_bufferLen + remaining()) <= UPDATE_SECTOR_SIZE) {
             toRead = data.readBytes(_buffer + _bufferLen, remaining());
         } else {
             toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
         }
+
         if(toRead == 0) { //Timeout
             delay(100);
             toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
@@ -293,7 +297,7 @@ size_t UpdaterClass::writeStream(Stream &data) {
                 _progress = progress;
             }
         }
-        //intorobot_cloud_handle();
+        intorobot_cloud_handle();
         SUPDATE_DEBUG("writeStream toRead = %d , _bufferLen = %d, written = %d", toRead, _bufferLen, written);
     }
     return written;

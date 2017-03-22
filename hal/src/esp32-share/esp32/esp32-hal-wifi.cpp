@@ -92,7 +92,7 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         //DEBUG("SYSTEM_EVENT_STA_GOT_IP");
         tcpip_adapter_ip_info_t ip;
         tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-        DEBUG("%x", ip.ip.addr);
+        //DEBUG("%x", ip.ip.addr);
 
         _setStatus(WL_CONNECTED);
     }
@@ -295,10 +295,8 @@ static void smartConfigCallback(uint32_t st, void* result)
         esp_wifi_set_config(WIFI_IF_AP, (wifi_config_t *)sta_conf);
         esp_wifi_disconnect();
         esp_wifi_connect();
-    }
-    else if (status == SC_STATUS_LINK_OVER) {
+    } else if (status == SC_STATUS_LINK_OVER) {
         _smartConfigDone = true;
-        esp32_stopSmartConfig();
     }
 }
 
