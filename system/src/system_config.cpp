@@ -879,10 +879,14 @@ void TcpDeviceConfig::close(void)
 #endif
 
 #ifdef configSETUP_UDP_ENABLE
+static volatile uint8_t UdpStep = 0;
+
 void UdpDeviceConfig::init(void)
 {
     Udp.setTimeout(50);
+    wlan_setup();
     wlan_Imlink_start();
+    UdpStep = 0;
 }
 
 void UdpDeviceConfig::sendComfirm(int status)
@@ -904,22 +908,21 @@ void UdpDeviceConfig::sendComfirm(int status)
 
 int UdpDeviceConfig::available(void)
 {
-    static volatile uint8_t step = 0;
-    switch(step)
+    switch(UdpStep)
     {
         case 0:
             if( IMLINK_SUCCESS == wlan_Imlink_get_status() ) {
                 wlan_Imlink_stop();
                 network_connect(0, 0, 0, NULL);
                 ARM_CONFIG_TIMEOUT(5000);
-                step = 1;
+                UdpStep = 1;
             }
             break;
         case 1:
             if(IS_CONFIG_TIMEOUT()) {
                 wlan_Imlink_start();
                 CLR_CONFIG_TIMEOUT();
-                step = 0;
+                UdpStep = 0;
             }
             if( network_status(0, 0, NULL) ) {
                 system_rgb_blink(RGB_COLOR_RED, 200);
@@ -927,7 +930,7 @@ int UdpDeviceConfig::available(void)
                 //Udp.beginPacket 放在此处是因为设备接收到udp数据后，可以自动获取remoteip和remoteport。
                 //发送数据的时候不需要也不能指定remoteip和remoteport.
                 Udp.beginPacket(IPADDR_BROADCAST,5557);
-                step = 2;
+                UdpStep = 2;
             }
             break;
         case 2:

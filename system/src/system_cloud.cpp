@@ -122,48 +122,70 @@ typedef enum {
     UPGRADE_REPLY_REBOOT_READY
 } upgrade_reply_t;
 
-static void send_upgrade_status(const upgrade_reply_t upgrade_reply, const uint8_t progress)
+static void send_ota_status_v1(const upgrade_reply_t upgrade_reply, const uint8_t progress)
 {
-    String status = "{\"status\":\"";
+    String status = "";
     switch(upgrade_reply)
     {
-        case UPGRADE_REPLY_PROGRESS:
-            status += String(INTOROBOT_MQTT_REPLY_READY_PROGRESS) + "\",\"progress\":" + String(progress) + "}";
-            break;
         case UPGRADE_REPLY_DOWN_FAIL:
-            status += String(INTOROBOT_MQTT_REPLY_DOWN_FAIL) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_FAIL);
             break;
         case UPGRADE_REPLY_DOWN_SUCC:
-            status += String(INTOROBOT_MQTT_REPLY_DOWN_SUCC) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC);
             break;
         case UPGRADE_REPLY_UPDATE_FAIL:
-            status += String(INTOROBOT_MQTT_REPLY_UPDATE_FAIL) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_UPDATE_FAIL);
             break;
         case UPGRADE_REPLY_UPDATE_SUCC:
-            status += String(INTOROBOT_MQTT_REPLY_UPDATE_SUCC) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_UPDATE_SUCC);
             break;
         case UPGRADE_REPLY_DOWN_SUCC_EXIT:
-            status += String(INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_DOWN_SUCC_EXIT);
             break;
         case UPGRADE_REPLY_TYPEEEOR:
-            status += String(INTOROBOT_MQTT_REPLY_TYPEEEOR) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_TYPEEEOR);
             break;
         case UPGRADE_REPLY_REBOOT_READY:
-            status += String(INTOROBOT_MQTT_REPLY_REBOOT_READY) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_REBOOT_READY);
             break;
         case UPGRADE_REPLY_READY:
         default:
-            status += String(INTOROBOT_MQTT_REPLY_READY_PROGRESS) + "\"}";
+            status += String(INTOROBOT_MQTT_RESPONSE_OTA_READY);
             break;
     }
-    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)status.c_str(), status.length(), 0, false);
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t*)status.c_str(), status.length(), 0, false);
 }
 
-void intorobot_send_upgrade_progress(uint8_t progress)
+static void send_subsys_status_v1(const upgrade_reply_t upgrade_reply, const uint8_t progress)
 {
-    send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+    String status = "";
+    switch(upgrade_reply)
+    {
+        case UPGRADE_REPLY_DOWN_FAIL:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_FAIL);
+            break;
+        case UPGRADE_REPLY_DOWN_SUCC:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC);
+            break;
+        case UPGRADE_REPLY_UPDATE_FAIL:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_FAIL);
+            break;
+        case UPGRADE_REPLY_UPDATE_SUCC:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_UPDATE_SUCC);
+            break;
+        case UPGRADE_REPLY_DOWN_SUCC_EXIT:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_DOWN_SUCC_EXIT);
+            break;
+        case UPGRADE_REPLY_TYPEEEOR:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_TYPEEEOR);
+            break;
+        case UPGRADE_REPLY_READY:
+        default:
+            status += String(INTOROBOT_MQTT_RESPONSE_SUBSYS_READY_PROGRESS);
+            break;
+    }
+    intorobot_publish(API_VERSION_V1, INTOROBOT_MQTT_RESPONSE_JSON_TOPIC, (uint8_t*)status.c_str(), status.length(), 0, false);
 }
-
 
 /***********************v1版本控制回调函数***********************/
 static void ota_update_callback(uint8_t *payload, uint32_t len)
@@ -181,7 +203,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
 
-    send_upgrade_status(UPGRADE_REPLY_READY, 0);
+    send_ota_status_v1(UPGRADE_REPLY_READY, 0);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
     if(root == NULL) {
@@ -223,7 +245,6 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
 #if PLATFORM_ID == PLATFORM_FIG
         HTTPUpdate httpUpdate;
         String url="http://" + domain + param;
-        Update.setSendProgressCb(intorobot_send_upgrade_progress);
         t_httpUpdate_return ret = httpUpdate.update(url);
         switch(ret) {
             case HTTP_UPDATE_OK:
@@ -249,7 +270,6 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
                         break;
                     } else if(DOWNSTATUS_DOWNING == status) {
                         progress = HAL_OTA_Get_Download_Progress();
-                        send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
                         delay(1000);
                     } else if(DOWNSTATUS_FAIL == status) {
                         down_status = 1;
@@ -263,7 +283,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
         }
 #endif
         if(!down_status) {
-            send_upgrade_status(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
+            send_ota_status_v1(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
             delay(500);
             HAL_OTA_Update_App(size);
             HAL_Core_System_Reset();
@@ -275,9 +295,9 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
     if (root != NULL)
     {aJson.deleteItem(root);}
     if (2==flag) {  // board type error
-        send_upgrade_status(UPGRADE_REPLY_TYPEEEOR, 0);
+        send_ota_status_v1(UPGRADE_REPLY_TYPEEEOR, 0);
     } else {//download fall
-        send_upgrade_status(UPGRADE_REPLY_DOWN_FAIL, 0);
+        send_ota_status_v1(UPGRADE_REPLY_DOWN_FAIL, 0);
     }
     led_state.restore();
 }
@@ -298,7 +318,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
 
-    send_upgrade_status(UPGRADE_REPLY_READY, 0);
+    send_subsys_status_v1(UPGRADE_REPLY_READY, 0);
 
     aJsonObject *root = aJson.parse((char *)s_payload.c_str());
     if(root == NULL) {
@@ -341,7 +361,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
                         break;
                     } else if(DOWNSTATUS_DOWNING == status) {
                         progress = HAL_OTA_Get_Download_Progress();
-                        send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+                        send_subsys_status_v1(UPGRADE_REPLY_PROGRESS, progress);
                         delay(1000);
                     } else if(DOWNSTATUS_FAIL == status) {
                         down_status = 1;
@@ -354,7 +374,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
                 break;
         }
         if(!down_status) {
-            send_upgrade_status(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
+            send_subsys_status_v1(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
             HAL_OTA_Upadate_Subsys();
             HAL_Core_System_Reset();
             while(1); //不会运行到地方
@@ -367,9 +387,9 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
     {aJson.deleteItem(root);}
 
     if (2==flag) {  // board type error
-        send_upgrade_status(UPGRADE_REPLY_TYPEEEOR, 0);
+        send_subsys_status_v1(UPGRADE_REPLY_TYPEEEOR, 0);
     } else {//download fall
-        send_upgrade_status(UPGRADE_REPLY_DOWN_FAIL, 0);
+        send_subsys_status_v1(UPGRADE_REPLY_DOWN_FAIL, 0);
     }
     led_state.restore();
 }
@@ -391,6 +411,48 @@ static void system_debug_callback(uint8_t *payload, uint32_t len)
 /****************************************************************/
 
 /***********************v2版本控制回调函数***********************/
+static void send_upgrade_status(const upgrade_reply_t upgrade_reply, const uint8_t progress)
+{
+    String status = "{\"status\":\"";
+    switch(upgrade_reply)
+    {
+        case UPGRADE_REPLY_PROGRESS:
+            status += String(INTOROBOT_MQTT_REPLY_READY_PROGRESS) + "\",\"progress\":" + String(progress) + "}";
+            break;
+        case UPGRADE_REPLY_DOWN_FAIL:
+            status += String(INTOROBOT_MQTT_REPLY_DOWN_FAIL) + "\"}";
+            break;
+        case UPGRADE_REPLY_DOWN_SUCC:
+            status += String(INTOROBOT_MQTT_REPLY_DOWN_SUCC) + "\"}";
+            break;
+        case UPGRADE_REPLY_UPDATE_FAIL:
+            status += String(INTOROBOT_MQTT_REPLY_UPDATE_FAIL) + "\"}";
+            break;
+        case UPGRADE_REPLY_UPDATE_SUCC:
+            status += String(INTOROBOT_MQTT_REPLY_UPDATE_SUCC) + "\"}";
+            break;
+        case UPGRADE_REPLY_DOWN_SUCC_EXIT:
+            status += String(INTOROBOT_MQTT_REPLY_DOWN_SUCC_EXIT) + "\"}";
+            break;
+        case UPGRADE_REPLY_TYPEEEOR:
+            status += String(INTOROBOT_MQTT_REPLY_TYPEEEOR) + "\"}";
+            break;
+        case UPGRADE_REPLY_REBOOT_READY:
+            status += String(INTOROBOT_MQTT_REPLY_REBOOT_READY) + "\"}";
+            break;
+        case UPGRADE_REPLY_READY:
+        default:
+            status += String(INTOROBOT_MQTT_REPLY_READY_PROGRESS) + "\"}";
+            break;
+    }
+    intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)status.c_str(), status.length(), 0, false);
+}
+
+void intorobot_send_upgrade_progress(uint8_t progress)
+{
+    send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+}
+
 //在线编程升级
 static void intorobot_ota_upgrade(const char *token, const char *md5)
 {
