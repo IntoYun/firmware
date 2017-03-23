@@ -146,7 +146,7 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
-extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
+extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION;
 void init_done() {
     gdb_init();
     do_global_ctors();
