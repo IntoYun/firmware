@@ -124,7 +124,7 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
     return (down_status_t)esp8266MDM.getDownNetfileStatus();
 }
 
-void HAL_OTA_Upadate_Subsys(void)
+void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
 {
     HAL_Bootloader_Update_If_Needed();
     esp8266MDM.updateNet();

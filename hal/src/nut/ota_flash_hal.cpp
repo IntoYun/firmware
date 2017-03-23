@@ -65,20 +65,17 @@ static bool bootloader_requires_update(void)
 {
     char subsys_ver[32] = {0}, temp[16] = {0};
     char *ptr = NULL;
-    uint32_t boot_ver = 0, boot_ver1;
+    uint32_t boot_ver_current = 0, boot_ver_new = 0;
 
-    if(HAL_Core_Get_Subsys_Version(subsys_ver, sizeof(subsys_ver)))
-    {
-        uint32_t boot_ver = HAL_PARAMS_Get_Boot_boot_version();
-        DEBUG_D("boot %s boot_ver = %d \r\n", subsys_ver, boot_ver);
-        if(boot_ver)
-        {
+    if(HAL_Core_Get_Subsys_Version(subsys_ver, sizeof(subsys_ver))) {
+        uint32_t boot_ver_current = HAL_PARAMS_Get_Boot_boot_version();
+        DEBUG_D("subsys: %s\r\n", subsys_ver);
+        if(boot_ver_current) {
             memset(temp, 0, sizeof(temp));
             ptr = strrchr(subsys_ver, '.');
-            boot_ver1 = atoi(ptr+1);
-            DEBUG_D("boot_ver=%d  boot_ver1=%d \r\n", boot_ver, boot_ver1);
-            if(boot_ver != boot_ver1)
-            {
+            boot_ver_new = atoi(ptr+1);
+            DEBUG_D("boot_current=%d  boot_new=%d \r\n", boot_ver_current, boot_ver_new);
+            if(boot_ver_current < boot_ver_new) {
                 return true;
             }
         }
@@ -110,9 +107,19 @@ bool HAL_Bootloader_Update_If_Needed(void)
     bool updated = false;
     /*注意 bootloader升级过程不允许保存参数，因为bootloader暂放在系统参数存储区*/
     if (bootloader_requires_update()) {
+        HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
         updated = bootloader_update();
     }
     return updated;
+}
+
+bool HAL_SubSystem_Update_If_Needed(void)
+{
+    if (HAL_PARAMS_Get_System_subsys_flag()) {
+        HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
+        HAL_OTA_Upadate_Subsys(0, 0, false);
+    }
+    return true;
 }
 
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
@@ -140,20 +147,22 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
     return esp8266_getDownDefaultAppStatus();
 }
 
-void HAL_OTA_Upadate_Subsys(void)
+void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
 {
     int count=3;
+
+    HAL_PARAMS_Set_System_subsys_flag(1);
+    HAL_PARAMS_Save_Params();
     uint32_t def_app_size = HAL_PARAMS_Get_Boot_def_app_size();
 
-    if(def_app_size)
-    {
+    if(def_app_size) {
         while(count--) {
             if(copy_raw(CACHE_DEFAULT_APP_ADDR, DEFAULT_APP_ADDR, def_app_size)) {
                 break;
             }
         }
     }
-    HAL_PARAMS_Set_Boot_def_app_size(0);
+    HAL_PARAMS_Set_System_subsys_flag(0);
     HAL_PARAMS_Save_Params();
 }
 

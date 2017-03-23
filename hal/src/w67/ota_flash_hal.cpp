@@ -35,6 +35,11 @@ bool HAL_Bootloader_Update_If_Needed(void)
     return false;
 }
 
+bool HAL_SubSystem_Update_If_Needed(void)
+{
+    return true;
+}
+
 down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
 {
     return esp8266_downOnlineApp(host, param, "");
@@ -60,7 +65,7 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Upadate_Subsys(void)
+void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
 {
 }
 

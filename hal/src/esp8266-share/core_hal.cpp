@@ -239,6 +239,7 @@ void HAL_Core_Setup(void)
 {
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_params();
+    HAL_SubSystem_Update_If_Needed();
     HAL_Bootloader_Update_If_Needed();
 }
 
