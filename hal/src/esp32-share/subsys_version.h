@@ -26,8 +26,7 @@
  * 子系统的版本号组成, VERSION: 为固定字符串。主要用于识别版本号。 *.*.*为默认程序版本号
  * 最后一位为bootloader的版本号。
  */
-#define  SUBSYS_VERSION         "VERSION:0.0.9.1"
-//#define  SUBSYS_VERSION         "VERSION:1.0.0.1"
+#define  SUBSYS_VERSION         "VERSION:1.0.0.1"
 
 
 
