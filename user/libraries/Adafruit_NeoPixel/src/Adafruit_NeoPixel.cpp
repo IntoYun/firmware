@@ -92,7 +92,8 @@ void Adafruit_NeoPixel::show(void)
     // instances on different pins can be quickly issued in succession (each
     // instance doesn't delay the next).
 
-    disableIRQ();  // Need 100% focus on instruction timing
+    //disableIRQ();  // Need 100% focus on instruction timing
+    noInterrupts();
 
     volatile uint32_t 
     c,    // 24-bit pixel color
@@ -429,8 +430,8 @@ void Adafruit_NeoPixel::show(void)
             }
         } // end while(i) ... no more pixels
     }
-
-    enableIRQ();
+    interrupts();
+    //enableIRQ();
     endTime = micros(); // Save EOD time for latch on next call
 }
 
