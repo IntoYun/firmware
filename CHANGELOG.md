@@ -8,10 +8,9 @@
 
 ### BUG FIXES(漏洞修复)
 - [[PR #41]](https://github.com/HITSZ-NRSL/firmware/pull/41) [neutron] 因为neutron需要实时接收esp8266数据，所有不允许关闭总中断。ext_hal.c 里面的开启和关闭中断，只能处理用户中断.
+- [[PR #42]](https://github.com/HITSZ-NRSL/firmware/pull/42) [nut] 修改nut jsonGetValue()重启bug
 
 ### INTERNAL(内部)
-
-
 
 
 ## v1.5.0-rc.1
