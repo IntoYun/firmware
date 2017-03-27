@@ -236,22 +236,20 @@ void TwoWire::reset()
 }
 
 
-#ifndef INTOROBOT_WIRING_NO_I2C
-
+#ifdef configWIRING_WIRE_ENABLE
 TwoWire& __fetch_global_Wire()
 {
     static TwoWire wire(HAL_I2C_INTERFACE1);
     return wire;
 }
 
-#if Wiring_Wire1
+#ifdef configWIRING_WIRE1_ENABLE
 TwoWire& __fetch_global_Wire1()
 {
-    static TwoWire wire(HAL_I2C_INTERFACE2);
-    return wire;
+    static TwoWire wire1(HAL_I2C_INTERFACE2);
+    return wire1;
 }
+#endif  // configWIRING_WIRE1_ENABLE
 
-#endif
-
-#endif
+#endif  // configWIRING_WIRE_ENABLE
 

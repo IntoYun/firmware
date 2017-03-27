@@ -39,19 +39,44 @@ class I2SClass {
         bool isEnabled();
 };
 
-#ifndef INTOROBOT_WIRING_NO_I2S
+#ifdef configWIRING_I2S_ENABLE
 
+TwoWire& __fetch_global_Wire();
+#define I2S __fetch_global_I2S()
+
+#ifdef configWIRING_I2S1_ENABLE
+
+#ifdef I2S1
+#undef I2S1
+#endif  // I2S1
+
+TwoWire& __fetch_global_I2S1();
+#define I2S1 __fetch_global_I2S1()
+
+#endif  // configWIRING_I2S1_ENABLE
+
+#endif  // configWIRING_I2S_ENABLE
+
+
+
+
+
+
+
+
+#ifdef configWIRING_I2S_ENABLE
 extern I2SClass I2S;
 
-#if Wiring_I2S1
+#ifdef configWIRING_I2S1_ENABLE
+
 #ifdef I2S1
 #undef I2S1
 #endif  // I2S1
 
 extern I2SClass I2S1;
 
-#endif  // Wiring_I2S1
+#endif  // configWIRING_I2S1_ENABLE
 
-#endif  // INTOROBOT_WIRING_NO_I2S
+#endif  // configWIRING_I2S_ENABLE
 
 #endif

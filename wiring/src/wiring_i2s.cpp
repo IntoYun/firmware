@@ -53,12 +53,13 @@ bool I2SClass::isEnabled()
     return HAL_I2S_Is_Enabled(_i2s);
 }
 
-#ifndef INTOROBOT_WIRING_NO_I2S
+#ifdef configWIRING_I2S_ENABLE
 I2SClass I2S(HAL_I2S_INTERFACE1);
-#if Wiring_I2S1
+
+#ifdef configWIRING_I2S1_ENABLE
 I2SClass I2S1(HAL_I2S_INTERFACE2);
 #endif
 
-#endif  // INTOROBOT_WIRING_NO_I2S
+#endif  // configWIRING_I2S_ENABLE
 
 

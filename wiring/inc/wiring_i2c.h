@@ -73,19 +73,20 @@ class TwoWire : public Stream
 
 #ifdef configWIRING_WIRE_ENABLE
 
-#define Wire __fetch_global_Wire()
 TwoWire& __fetch_global_Wire();
+#define Wire __fetch_global_Wire()
 
 #ifdef configWIRING_WIRE1_ENABLE
 #ifdef Wire1
 #undef Wire1
 #endif  // Wire1
 
-#define Wire1 __fetch_global_Wire1()
 TwoWire& __fetch_global_Wire1();
-#endif  // Wiring_Wire1
+#define Wire1 __fetch_global_Wire1()
 
-#endif
+#endif  // configWIRING_WIRE1_ENABLE
+
+#endif  //configWIRING_WIRE_ENABLE
 
 #endif
 
