@@ -375,7 +375,7 @@ ActiveObjectCurrentThreadQueue ApplicationThread(ActiveObjectConfiguration(app_t
  * Output         : None.
  * Return         : None.
  *******************************************************************************/
-void app_setup_and_loop_initial(bool &threaded)
+void app_setup_and_loop_initial(bool *threaded)
 {
     HAL_Core_Init();
     // We have running firmware, otherwise we wouldn't have gotten here
@@ -412,11 +412,11 @@ void app_setup_and_loop_initial(bool &threaded)
     NEWORK_FN(Network_Setup(), (void)0);
 #endif
 
-    threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED &&
+    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED &&
       (system_mode()!=SAFE_MODE);
 
 #if PLATFORM_THREADING
-    if (threaded)
+    if (*threaded)
     {
         SystemThread.start();
         ApplicationThread.start();
@@ -442,7 +442,7 @@ void app_setup_and_loop(void)
 {
     bool threaded;
 
-    app_setup_and_loop_initial(threaded);
+    app_setup_and_loop_initial(&threaded);
 
     if(!threaded) {
         /* Main loop */

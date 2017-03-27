@@ -1,7 +1,0 @@
-﻿{
-  "Class": "Adafruit_NeoPixel",
-  "DataTypes": "",
-  "MethodsAndFunctions": "Adafruit_NeoPixel|begin|show|setPin|setPixelColor|setBrightness|getPixels|numPixels|Color|getPixelColor",
-  "Constants": "WS2812|WS2812B|WS2811|TM1803|TM1829"
-}
-

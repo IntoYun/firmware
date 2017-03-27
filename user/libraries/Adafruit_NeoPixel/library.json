@@ -1,9 +1,0 @@
-﻿{
-  "name": "Adafruit_NeoPixel",
-  "author": "Adafruit",
-  "maintainer": "IntoRobot Team",
-  "license": "GNU",
-  "version": "0.0.1",
-  "description": "Adafruit NeoPixel(WS2811/12/12B和TM1803/1829驱动芯片）RGB LED灯条驱动库"
-}
-
