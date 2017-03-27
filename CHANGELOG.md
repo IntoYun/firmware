@@ -1,3 +1,15 @@
+## v1.5.0-rc.2
+
+### FEATURES(功能)
+
+### ENHANCEMENTS(优化)
+
+### BUG FIXES(漏洞修复)
+- [[PR #42]](https://github.com/HITSZ-NRSL/firmware/pull/42) [nut] 修改nut jsonGetValue()重启bug
+
+### INTERNAL(内部)
+
+
 ## v1.5.0-rc.1
 
 ### FEATURES(功能)
