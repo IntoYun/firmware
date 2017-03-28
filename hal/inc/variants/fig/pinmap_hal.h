@@ -70,16 +70,17 @@ typedef struct EESP32_Pin_Info  EESP32_Pin_Info;
 
 EESP32_Pin_Info* HAL_Pin_Map(void);
 
+
 /* Exported macros -----------------------------------------------------------*/
 
 /*
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS           40
+#define TOTAL_PINS           41
 #define TOTAL_DIGITAL_PINS   8
 #define FIRST_DIGITAL_PIN    0
-#define TOTAL_ANALOG_PINS    10
+#define TOTAL_ANALOG_PINS    11
 #define FIRST_ANALOG_PIN     30
 
 #define D0  0
