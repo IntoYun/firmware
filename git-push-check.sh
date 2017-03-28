@@ -50,7 +50,7 @@ cecho "---->w67" $yellow
 make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=smartLight-module
 
 cecho "---->w323" $yellow
-make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=module
+make $VERBOSE PLATFORM=w323 clean all COMPILE_LTO=n APP=smartLight-module
 
 cecho "---->l6" $yellow
 make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=blink
