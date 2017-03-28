@@ -92,16 +92,19 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
         handler();
 }
 
-
+// 不要改成类 为了保证类构造函数使用时，已经初始化
 #ifdef configWIRING_USARTSERIAL_ENABLE
-extern USARTSerial Serial;
+extern USARTSerial &__fetch_global_serial();
+#define Serial __fetch_global_serial()
 
 #ifdef configWIRING_USARTSERIAL1_ENABLE
-extern USARTSerial Serial1;
+extern USARTSerial &__fetch_global_serial1();
+#define Serial1 __fetch_global_serial1()
 #endif
 
 #ifdef configWIRING_USARTSERIAL2_ENABLE
-extern USARTSerial Serial2;
+extern USARTSerial &__fetch_global_serial2();
+#define Serial2 __fetch_global_serial2()
 #endif
 
 #endif

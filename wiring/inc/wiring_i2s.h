@@ -39,18 +39,21 @@ class I2SClass {
         bool isEnabled();
 };
 
-
+// 不要改成类 为了保证类构造函数使用时，已经初始化
 #ifdef configWIRING_I2S_ENABLE
-extern I2SClass I2S;
+#ifdef I2S
+#undef I2S
+#endif
+
+#define I2S __fetch_global_i2s()
+I2SClass& __fetch_global_i2s();
 
 #ifdef configWIRING_I2S1_ENABLE
-
 #ifdef I2S1
 #undef I2S1
-#endif  // I2S1
-
-extern I2SClass I2S1;
-
+#endif
+#define I2S1 __fetch_global_i2s1()
+I2SClass& __fetch_global_i2s1();
 #endif  // configWIRING_I2S1_ENABLE
 
 #endif  // configWIRING_I2S_ENABLE

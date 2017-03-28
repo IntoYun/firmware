@@ -235,12 +235,20 @@ void TwoWire::reset()
     delay(50);
 }
 
-
+// 不要改成类 为了保证类构造函数使用时，已经初始化
 #ifdef configWIRING_WIRE_ENABLE
-TwoWire Wire(HAL_I2C_INTERFACE1);
+TwoWire& __fetch_global_wire()
+{
+    static TwoWire wire(HAL_I2C_INTERFACE1);
+    return wire;
+}
 
 #ifdef configWIRING_WIRE1_ENABLE
-TwoWire Wire1(HAL_I2C_INTERFACE2);
+TwoWire& __fetch_global_wire1()
+{
+    static TwoWire wire1(HAL_I2C_INTERFACE2);
+    return wire1;
+}
 #endif  // configWIRING_WIRE1_ENABLE
 
 #endif  // configWIRING_WIRE_ENABLE

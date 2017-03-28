@@ -105,15 +105,31 @@ bool USARTSerial::isEnabled() {
     return HAL_USART_Is_Enabled(_serial);
 }
 
+
+
+// 不要改成类 为了保证类构造函数使用时，已经初始化
 #ifdef configWIRING_USARTSERIAL_ENABLE
-USARTSerial Serial(HAL_USART_SERIAL1);
+USARTSerial &__fetch_global_serial()
+{
+    static USARTSerial serial(HAL_USART_SERIAL1);
+    return serial;
+}
 
 #ifdef configWIRING_USARTSERIAL1_ENABLE
-USARTSerial Serial1(HAL_USART_SERIAL2);
+USARTSerial &__fetch_global_serial1()
+{
+    static USARTSerial serial1(HAL_USART_SERIAL2);
+    return serial1;
+}
 #endif
 
 #ifdef configWIRING_USARTSERIAL2_ENABLE
-USARTSerial Serial2(HAL_USART_SERIAL3);
+USARTSerial &__fetch_global_serial2()
+{
+    static USARTSerial serial2(HAL_USART_SERIAL3);
+    return serial2;
+}
 #endif
 
 #endif
+
