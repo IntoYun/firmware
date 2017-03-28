@@ -23,6 +23,7 @@
 #include "soc/io_mux_reg.h"
 #include "soc/gpio_struct.h"
 #include "soc/rtc_io_reg.h"
+#include "service_debug.h"
 
 #define ETS_GPIO_INUM       12
 
@@ -71,7 +72,6 @@ const DRAM_ATTR esp32_gpioMux_t esp32_gpioMux[GPIO_PIN_COUNT]={
     {0x10, 3, 3, -1}
 };
 
-typedef void (*voidFuncPtr)(void);
 static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
 
 #include "driver/rtc_io.h"

@@ -75,6 +75,8 @@ extern const int8_t esp32_adc2gpio[20];
 #define digitalPinToDacChannel(pin)     (((pin) == 25)?0:((pin) == 26)?1:-1)
 
 
+typedef void (*voidFuncPtr)(void);
+
 extern void IRAM_ATTR __pinMode(uint8_t pin, uint8_t mode);
 extern void IRAM_ATTR __digitalWrite(uint8_t pin, uint8_t val);
 extern int IRAM_ATTR __digitalRead(uint8_t pin);

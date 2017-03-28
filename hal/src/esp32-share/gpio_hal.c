@@ -123,20 +123,7 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    if(value) {
-        if(gpio_pin < 32) {
-            GPIO.out_w1ts = ((uint32_t)1 << gpio_pin);
-        } else  if(pin < 34){
-            GPIO.out1_w1ts.val = ((uint32_t)1 << (gpio_pin - 32));
-        }
-    } else {
-        if(gpio_pin < 32) {
-            GPIO.out_w1tc = ((uint32_t)1 << gpio_pin);
-        } else if(pin< 34){
-            GPIO.out1_w1tc.val = ((uint32_t)1 << (gpio_pin - 32));
-        }
-    }
+    __digitalWrite(gpio_pin,value);
 }
 
 /*
@@ -146,13 +133,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    if(gpio_pin < 32) {
-        return (GPIO.in >> gpio_pin) & 0x1;
-    } else if(pin < 40){
-        return (GPIO.in1.val >> (gpio_pin - 32)) & 0x1;
-    }
-    return 0;
+    return __digitalRead(gpio_pin);
 }
 
 /*

@@ -33,9 +33,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_intr.h"
+#include "esp32-hal-gpio.h"
 
+
+#if 0
 #define ETS_GPIO_INUM       4
-
 typedef void (*voidFuncPtr)(void);
 static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
 
@@ -71,6 +73,7 @@ static void  __onPinInterrupt(void *arg)
         } while(++pin<GPIO_PIN_COUNT);
     }
 }
+#endif
 
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
@@ -80,6 +83,29 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
         return;
     }
 
+    #if 1
+    uint8_t interruptMode;
+    switch(mode)
+    {
+        case CHANGE:
+            interruptMode = ESP32_CHANGE;
+            break;
+
+        case RISING:
+            interruptMode = ESP32_RISING;
+            break;
+
+        case FALLING:
+            interruptMode = ESP32_FALLING;
+            break;
+
+        default:
+            break;
+    }
+    __attachInterrupt(gpio_pin,handler,mode);
+    #endif
+
+    #if 0
     static bool interrupt_initialized = false;
     static int core_id = 0;
 
@@ -114,6 +140,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     }
 
     ESP_INTR_ENABLE(ETS_GPIO_INUM);
+    #endif
 }
 
 void HAL_Interrupts_Detach(uint16_t pin)
@@ -124,11 +151,14 @@ void HAL_Interrupts_Detach(uint16_t pin)
         return;
     }
 
+    __detachInterrupt(gpio_pin);
+    #if 0
     __pinInterruptHandlers[gpio_pin] = NULL;
     ESP_INTR_DISABLE(ETS_GPIO_INUM);
     GPIO.pin[gpio_pin].int_ena = 0;
     GPIO.pin[gpio_pin].int_type = 0;
     ESP_INTR_ENABLE(ETS_GPIO_INUM);
+    #endif
 }
 
 void HAL_Interrupts_Enable_All(void)
