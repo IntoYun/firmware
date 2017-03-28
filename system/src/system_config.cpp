@@ -300,7 +300,9 @@ void DeviceConfig::dealGetNetworkStatus(void)
 #ifdef configWIRING_WIFI_ENABLE
     dealCheckWifi();
 #elif defined configWIRING_CELLULAR_ENABLE
+    sendComfirm(200);
 #elif defined configWIRING_LORA_ENABLE
+    sendComfirm(200);
 #endif
 }
 
@@ -344,7 +346,7 @@ void DeviceConfig::dealGetWifiList(void)
         aJson.deleteItem(root);
     }
 #elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
-    sendComfirm(200);
+    sendComfirm(201);
 #endif
 }
 
@@ -447,9 +449,9 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
     }
     sendComfirm(201);
 #elif defined configWIRING_CELLULAR_ENABLE
-    sendComfirm(200);
+    sendComfirm(201);
 #elif defined configWIRING_LORA_ENABLE
-    sendComfirm(200);
+    sendComfirm(201);
 #endif
 }
 
@@ -458,9 +460,9 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* value_Object)
 #ifdef configWIRING_WIFI_ENABLE
     dealSendWifiInfo(value_Object);
 #elif defined configWIRING_CELLULAR_ENABLE
-    sendComfirm(200);
+    sendComfirm(201);
 #elif defined configWIRING_LORA_ENABLE
-    sendComfirm(200);
+    sendComfirm(201);
 #endif
 }
 

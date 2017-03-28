@@ -104,8 +104,8 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define LIGHT_SENSOR_UC 40
 //Serial pins
-#define TX  1
-#define RX  3
+#define TX  8
+#define RX  9
 
 // Serial1 pin
 #define TX1  D3

@@ -1,12 +1,6 @@
 /**
  ******************************************************************************
- * @file    inet_hal.c
- * @author  Matthew McGowan
- * @version V1.0.0
- * @date    27-Sept-2014
- * @brief
- ******************************************************************************
-  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -20,20 +14,38 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
- */
+  ******************************************************************************
+*/
 
-#include "inet_hal.h"
+#ifndef SYSTEM_LORAWAN_H_
+#define SYSTEM_LORAWAN_H_
+
+#include "intorobot_config.h"
+
+#ifdef configNO_LORAWAN
+#define LORAWAN_FN(x,y) (y)
+#else
+#define LORAWAN_FN(x,y) (x)
+#endif
+
+#include "static_assert.h"
+#include "wiring_string.h"
+#include <string.h>
+#include <time.h>
+#include <stdint.h>
+
+#ifndef configNO_LORAWAN
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress* out_ip_addr,
-        network_interface_t nif, void* reserved)
-{
-    return 1;
+#ifdef __cplusplus
 }
+#endif
 
-int inet_ping(const HAL_IPAddress* address, network_interface_t nif, uint8_t nTries,
-        void* reserved)
-{
-    return 0;
-}
+#endif
+
+
+#endif	/* SYSTEM_LORAWAN_H_ */
