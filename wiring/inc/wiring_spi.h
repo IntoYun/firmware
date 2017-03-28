@@ -103,7 +103,6 @@ class SPIClass {
 };
 
 #ifdef configWIRING_SPI_ENABLE
-
 extern SPIClass SPI;
 
 #ifdef configWIRING_SPI1_ENABLE

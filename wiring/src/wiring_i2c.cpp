@@ -237,18 +237,10 @@ void TwoWire::reset()
 
 
 #ifdef configWIRING_WIRE_ENABLE
-TwoWire& __fetch_global_Wire()
-{
-    static TwoWire wire(HAL_I2C_INTERFACE1);
-    return wire;
-}
+TwoWire Wire(HAL_I2C_INTERFACE1);
 
 #ifdef configWIRING_WIRE1_ENABLE
-TwoWire& __fetch_global_Wire1()
-{
-    static TwoWire wire1(HAL_I2C_INTERFACE2);
-    return wire1;
-}
+TwoWire Wire1(HAL_I2C_INTERFACE2);
 #endif  // configWIRING_WIRE1_ENABLE
 
 #endif  // configWIRING_WIRE_ENABLE

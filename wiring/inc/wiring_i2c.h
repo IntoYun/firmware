@@ -71,22 +71,21 @@ class TwoWire : public Stream
         void reset();
 };
 
-#ifdef configWIRING_WIRE_ENABLE
 
-TwoWire& __fetch_global_Wire();
-#define Wire __fetch_global_Wire()
+#ifdef configWIRING_WIRE_ENABLE
+extern TwoWire Wire;
 
 #ifdef configWIRING_WIRE1_ENABLE
+
 #ifdef Wire1
 #undef Wire1
 #endif  // Wire1
 
-TwoWire& __fetch_global_Wire1();
-#define Wire1 __fetch_global_Wire1()
-
+extern TwoWire Wire1;
 #endif  // configWIRING_WIRE1_ENABLE
 
-#endif  //configWIRING_WIRE_ENABLE
+#endif  // configWIRING_WIRE_ENABLE
+
 
 #endif
 
