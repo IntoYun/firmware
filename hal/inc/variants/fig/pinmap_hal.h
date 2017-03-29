@@ -120,7 +120,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define SCL  D0
 
 // Wire1 pins
-#define SDA1  A2
+#define SDA1  A4
 #define SCL1  A3
 
 // The following pins are only defined for easy access during development.
