@@ -36,44 +36,17 @@
 #include "esp32-hal-gpio.h"
 
 
-#if 0
-#define ETS_GPIO_INUM       4
-typedef void (*voidFuncPtr)(void);
-static voidFuncPtr __pinInterruptHandlers[GPIO_PIN_COUNT] = {0,};
+static HAL_InterruptHandler exti_handle;
+static void *exti_data = NULL;
 
-/* static void IRAM_ATTR __onPinInterrupt(void *arg) */
-static void  __onPinInterrupt(void *arg)
+void HAL_CallbackExtiHandle(void)
 {
-    uint32_t gpio_intr_status_l=0;
-    uint32_t gpio_intr_status_h=0;
-
-    gpio_intr_status_l = GPIO.status;
-    gpio_intr_status_h = GPIO.status1.val;
-    GPIO.status_w1tc = gpio_intr_status_l;//Clear intr for gpio0-gpio31
-    GPIO.status1_w1tc.val = gpio_intr_status_h;//Clear intr for gpio32-39
-
-    uint8_t pin=0;
-    if(gpio_intr_status_l) {
-        do {
-            if(gpio_intr_status_l & ((uint32_t)1 << pin)) {
-                if(__pinInterruptHandlers[pin]) {
-                    __pinInterruptHandlers[pin]();
-                }
-            }
-        } while(++pin<32);
-    }
-    if(gpio_intr_status_h) {
-        pin=32;
-        do {
-            if(gpio_intr_status_h & ((uint32_t)1 << (pin - 32))) {
-                if(__pinInterruptHandlers[pin]) {
-                    __pinInterruptHandlers[pin]();
-                }
-            }
-        } while(++pin<GPIO_PIN_COUNT);
+    HAL_InterruptHandler isr_handle = exti_handle;
+    if (isr_handle)
+    {
+        isr_handle(exti_data);
     }
 }
-#endif
 
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
@@ -83,7 +56,6 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
         return;
     }
 
-    #if 1
     uint8_t interruptMode;
     switch(mode)
     {
@@ -102,45 +74,10 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
         default:
             break;
     }
-    __attachInterrupt(gpio_pin,handler,mode);
-    #endif
 
-    #if 0
-    static bool interrupt_initialized = false;
-    static int core_id = 0;
-
-    if(!interrupt_initialized) {
-        interrupt_initialized = true;
-        core_id = xPortGetCoreID();
-        ESP_INTR_DISABLE(ETS_GPIO_INUM);
-        intr_matrix_set(core_id, ETS_GPIO_INTR_SOURCE, ETS_GPIO_INUM);
-        xt_set_interrupt_handler(ETS_GPIO_INUM, &__onPinInterrupt, NULL);
-        ESP_INTR_ENABLE(ETS_GPIO_INUM);
-    }
-    /* __pinInterruptHandlers[gpio_pin] = (voidFuncPtr)handler; */
-    __pinInterruptHandlers[gpio_pin] = handler;
-    ESP_INTR_DISABLE(ETS_GPIO_INUM);
-    if(core_id) { //APP_CPU
-        GPIO.pin[gpio_pin].int_ena = 1;
-    } else { //PRO_CPU
-        GPIO.pin[gpio_pin].int_ena = 4;
-    }
-
-    if (mode == CHANGE) {
-        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_ANYEGDE; */
-        GPIO.pin[gpio_pin].int_type = 3;
-    }
-    else if(mode == RISING) {
-        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_POSEDGE; */
-        GPIO.pin[gpio_pin].int_type = 1;
-    }
-    else if(mode== FALLING) {
-        /* GPIO.pin[gpio_pin].int_type = GPIO_PIN_INTR_NEGEDGE; */
-        GPIO.pin[gpio_pin].int_type = 2;
-    }
-
-    ESP_INTR_ENABLE(ETS_GPIO_INUM);
-    #endif
+    exti_handle = handler;
+    exti_data = data;
+    __attachInterrupt(gpio_pin,HAL_CallbackExtiHandle,interruptMode);
 }
 
 void HAL_Interrupts_Detach(uint16_t pin)
@@ -150,15 +87,7 @@ void HAL_Interrupts_Detach(uint16_t pin)
     if (gpio_pin > 39) {
         return;
     }
-
     __detachInterrupt(gpio_pin);
-    #if 0
-    __pinInterruptHandlers[gpio_pin] = NULL;
-    ESP_INTR_DISABLE(ETS_GPIO_INUM);
-    GPIO.pin[gpio_pin].int_ena = 0;
-    GPIO.pin[gpio_pin].int_type = 0;
-    ESP_INTR_ENABLE(ETS_GPIO_INUM);
-    #endif
 }
 
 void HAL_Interrupts_Enable_All(void)
@@ -188,6 +117,7 @@ void HAL_Interrupts_Restore(void)
  *******************************************************************************/
 void HAL_EXTI_Handler(uint8_t EXTI_Line)
 {
+    //fetch the user function pointer from the array
 }
 
 
