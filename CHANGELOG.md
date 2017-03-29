@@ -2,6 +2,7 @@
 
 ### FEATURES(功能)
 - [[PR #45]](https://github.com/HITSZ-NRSL/firmware/pull/45) [w67/w323] 发布w67/w322
+- [[PR #48]](https://github.com/HITSZ-NRSL/firmware/pull/48) [fig] fig bootloader添加模式处理
 
 
 ### ENHANCEMENTS(优化)
