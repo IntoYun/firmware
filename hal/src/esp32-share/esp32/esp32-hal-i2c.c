@@ -64,7 +64,7 @@ static i2c_t _i2c_bus_array[2] = {
 };
 #endif
 
-#if 1 
+#if 1
 i2c_err_t i2cAttachSCL(i2c_t * i2c, int8_t scl)
 {
     if(i2c == NULL){
@@ -415,7 +415,7 @@ i2c_t * i2cInit(uint8_t i2c_num, uint16_t slave_addr, bool addr_10bit_en)
         SET_PERI_REG_MASK(DPORT_PERIP_CLK_EN_REG,DPORT_I2C_EXT1_CLK_EN);
         CLEAR_PERI_REG_MASK(DPORT_PERIP_RST_EN_REG,DPORT_I2C_EXT1_RST);
     }
-    
+
     I2C_MUTEX_LOCK();
     i2c->dev->ctr.val = 0;
     i2c->dev->ctr.ms_mode = (slave_addr == 0);
