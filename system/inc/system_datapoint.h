@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef SYSTEM_CLOUDDATA_H_
-#define SYSTEM_CLOUDDATA_H_
+#ifndef SYSTEM_DATAPOINT_H_
+#define SYSTEM_DATAPOINT_H_
 
 #include "intorobot_config.h"
 
@@ -26,8 +26,6 @@
 #include <stdint.h>
 #include "static_assert.h"
 #include "wiring_string.h"
-
-#ifndef configNO_CLOUD
 
 // Permission
 #define JSON_DATA_FORMAT    0x30
@@ -46,8 +44,7 @@
 
 typedef enum{
     DATA_TYPE_BOOL = 0,   //bool型
-    DATA_TYPE_INT,        //数值型 int型
-    DATA_TYPE_FLOAT,      //数值型 float型
+    DATA_TYPE_NUM,        //数值型
     DATA_TYPE_ENUM,       //枚举型
     DATA_TYPE_STRING,     //字符串型
     DATA_TYPE_BINARY      //透传型
@@ -59,18 +56,11 @@ typedef enum{
     RESULT_DATAPOINT_NONE = 2,   // 没有该数据点
 }read_datapoint_result_t;
 
-//int型属性
-struct int_property_t{
-    int minValue;
-    int maxValue;
-    int resolution;
-};
-
 //float型属性
 struct float_property_t{
     double minValue;
     double maxValue;
-    double resolution;
+    int resolution;
 };
 
 //透传型属性
@@ -88,11 +78,7 @@ struct property_conf {
     long lapse;
     long runtime;
     read_datapoint_result_t readFlag;
-    union
-    {
-        int_property_t intProperty;
-        float_property_t floatProperty;
-    };
+    float_property_t floatProperty;
     String value;
     uint8_t *binaryValue;
     uint16_t binaryLen;
@@ -102,13 +88,12 @@ struct property_conf {
 extern "C" {
 #endif
 
-void intorobotAddDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse);
-void intorobotAddDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const double resolution, const double value, const char *policy, const int lapse);
-void intorobotAddDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse);
-void intorobotAddDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse);
-void intorobotAddDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse);
+void intorobotDefineDataPointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse);
+void intorobotDefineDataPointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution, const double value, const char *policy, const int lapse);
+void intorobotDefineDataPointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse);
+void intorobotDefineDataPointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse);
+void intorobotDefineDataPointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse);
 
-void intorobotReceiveDataProcessJson(uint8_t *payload, uint32_t len);
 read_datapoint_result_t intorobotReadDataPointBool(const uint16_t dpID, bool &value);
 read_datapoint_result_t intorobotReadDataPointInt(const uint16_t dpID, int &value);
 read_datapoint_result_t intorobotReadDataPointInt32(const uint16_t dpID, int32_t &value);
@@ -119,14 +104,14 @@ read_datapoint_result_t intorobotReadDataPointString(const uint16_t dpID, String
 read_datapoint_result_t intorobotReadDataPointStringChar(const uint16_t dpID, char *value);
 read_datapoint_result_t intorobotReadDataPointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
 
-void intorobotWriteDataPointString(const uint16_t dpID, const char *value);
-void intorobotWriteDataPointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
-void intorobotWriteDataPointAll(void);
+void intorobotParseReceiveDataJson(uint8_t *payload, uint32_t len);
+void intorobotParseReceiveDataBinary(uint8_t *payload, uint32_t len);
+void intorobotWriteDataPoint(const uint16_t dpID, const char *value);
+void intorobotSendDataPoint(const uint16_t dpID, const char *value);
+void intorobotSendDataPointAll(void);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif	/* SYSTEM_CLOUDDATA_H_ */

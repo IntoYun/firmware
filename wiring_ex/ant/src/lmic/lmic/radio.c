@@ -298,7 +298,6 @@ static void readBuf (u1_t addr, xref2u1_t buf, u1_t len) {
 
 static void opmode (u1_t mode) {
     writeReg(RegOpMode, (readReg(RegOpMode) & ~OPMODE_MASK) | mode);
-    readReg(RegOpMode);
 }
 
 static void opmodeLora() {

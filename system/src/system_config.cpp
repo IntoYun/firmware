@@ -26,6 +26,7 @@
 #include "system_rgbled.h"
 #include "system_cloud_def.h"
 #include "system_cloud.h"
+#include "system_lorawan.h"
 #include "system_network.h"
 #include "params_hal.h"
 #include "core_hal.h"
@@ -1080,6 +1081,7 @@ void system_config_finish(void)
 #endif
     DeviceSetupSerial.close();
     NEWORK_FN(Network_Setup(), (void)0);
+    LORAWAN_FN(LoraWAN_Setup(), (void)0);
 }
 
 int system_config_process(void)

@@ -17,11 +17,11 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
-#ifndef configNO_CLOUD
+#include "wiring_intorobot.h"
 
-#include "wiring_cloud.h"
+IntoRobotClass& __fetch_global_intorobot()
+{
+    static IntoRobotClass _intorobot;
+    return _intorobot;
+}
 
-CloudClass IntoRobot;
-
-#endif
