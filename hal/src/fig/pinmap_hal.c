@@ -65,27 +65,8 @@
 #define GPIO38                     38 /* input mode only */
 #define GPIO39                     39 /* input mode only */
 
-/* #define GPIO_PinSource0            ((uint8_t)0x00) */
-/* #define GPIO_PinSource1            ((uint8_t)0x01) */
-/* #define GPIO_PinSource2            ((uint8_t)0x02) */
-/* #define GPIO_PinSource3            ((uint8_t)0x03) */
-/* #define GPIO_PinSource4            ((uint8_t)0x04) */
-/* #define GPIO_PinSource5            ((uint8_t)0x05) */
-/* #define GPIO_PinSource6            ((uint8_t)0x06) */
-/* #define GPIO_PinSource7            ((uint8_t)0x07) */
-/* #define GPIO_PinSource8            ((uint8_t)0x08) */
-/* #define GPIO_PinSource9            ((uint8_t)0x09) */
-/* #define GPIO_PinSource10           ((uint8_t)0x0A) */
-/* #define GPIO_PinSource11           ((uint8_t)0x0B) */
-/* #define GPIO_PinSource12           ((uint8_t)0x0C) */
-/* #define GPIO_PinSource13           ((uint8_t)0x0D) */
-/* #define GPIO_PinSource14           ((uint8_t)0x0E) */
-/* #define GPIO_PinSource15           ((uint8_t)0x0F) */
-/* #define GPIO_PinSource16           ((uint8_t)0x10) */
 
-
-/* #define ADC_Channel_0  ((uint8_t)0x00) */
-/* #define TIM1           ((uint8_t)0x00) */
+#define ADC_CHANNEL  ((uint8_t)0x01)
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -131,19 +112,20 @@ ESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* NOT USED         - 27 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
 /* NOT USED         - 28 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
 /* NOT USED         - 29 */ { NONE, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A0               - 30 */ { GPIO36, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A1               - 31 */ { GPIO39, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A2               - 32 */ { GPIO35, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A3               - 33 */ { GPIO25, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A4               - 34 */ { GPIO26, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A5               - 35 */ { GPIO14, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A6               - 36 */ { GPIO12, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A7               - 37 */ { GPIO15, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A8               - 38 */ { GPIO13, NONE, NONE, NONE, PIN_MODE_NONE },
-/* A9               - 39 */ { GPIO2,  NONE, NONE, NONE, PIN_MODE_NONE },
-/* LIGHT_SENSOR_UC  - 40 */ { GPIO34, NONE, NONE, NONE, PIN_MODE_NONE },
+/* A0               - 30 */ { GPIO36, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A1               - 31 */ { GPIO39, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A2               - 32 */ { GPIO35, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A3               - 33 */ { GPIO25, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A4               - 34 */ { GPIO26, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A5               - 35 */ { GPIO14, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A6               - 36 */ { GPIO12, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A7               - 37 */ { GPIO15, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A8               - 38 */ { GPIO13, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* A9               - 39 */ { GPIO2,  NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
+/* LIGHT_SENSOR_UC  - 40 */ { GPIO34, NONE, ADC_CHANNEL, NONE, PIN_MODE_NONE },
 };
 
 ESP32_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;
 }
+

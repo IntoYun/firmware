@@ -303,8 +303,8 @@ void LoraWAN_Setup(void)
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
 
-    //AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-    AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
+    AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+    //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
     switch(at_mode)
     {
         case AT_MODE_FLAG_ABP:            //已经灌好密钥
@@ -319,9 +319,16 @@ void LoraWAN_Setup(void)
                 STASK_DEBUG("devaddr = %s", devaddr);
                 STASK_DEBUG("nwkskey = %s", nwkskey);
                 STASK_DEBUG("appskey = %s", appskey);
-                uint32_t addr;
+
+                uint32_t addr = 0;
+                uint8_t nwkskeyBuf[16] = {0}, appskeyBuf[16] = {0};
                 string2hex(devaddr, (uint8_t *)&addr, 4, true);
-                LMIC_setSession (0x1, addr, nwkskey, appskey);
+                string2hex(nwkskey, nwkskeyBuf, 16, false);
+                string2hex(appskey, appskeyBuf, 16, false);
+                LMIC_setSession (0x1, addr, nwkskeyBuf, appskeyBuf);
+                LMIC_setLinkCheckMode(0);
+                LMIC.dn2Dr = DR_SF9;
+                LMIC_setDrTxpow(DR_SF7,14);
                 g_intorobot_lorawan_connected = 1;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }

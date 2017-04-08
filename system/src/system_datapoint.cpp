@@ -261,8 +261,7 @@ void intorobotWriteDataPoint(const uint16_t dpID, const char* value)
         } else {
             properties[i]->value = String(String(value).toFloat(), properties[i]->floatProperty.resolution);
         }
-    }
-    else {
+    } else {
         properties[i]->value = value;
     }
 }

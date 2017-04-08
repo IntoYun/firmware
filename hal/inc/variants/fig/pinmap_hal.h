@@ -39,15 +39,6 @@ typedef enum PinMode {
     INPUT_PULLUP,
     INPUT_PULLDOWN,
     //Used internally begin
-    OPEN_DRAIN,
-    OUTPUT_OPEN_DRAIN,
-    SPECIAL,
-    FUNCTION_1,
-    FUNCTION_2,
-    FUNCTION_3,
-    FUNCTION_4,
-    FUNCTION_5,
-    FUNCTION_6,
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
@@ -70,16 +61,17 @@ typedef struct EESP32_Pin_Info  EESP32_Pin_Info;
 
 EESP32_Pin_Info* HAL_Pin_Map(void);
 
+
 /* Exported macros -----------------------------------------------------------*/
 
 /*
 * Pin mapping. Borrowed from Wiring
 */
 
-#define TOTAL_PINS           40
+#define TOTAL_PINS           41
 #define TOTAL_DIGITAL_PINS   8
 #define FIRST_DIGITAL_PIN    0
-#define TOTAL_ANALOG_PINS    10
+#define TOTAL_ANALOG_PINS    11
 #define FIRST_ANALOG_PIN     30
 
 #define D0  0
@@ -128,7 +120,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define SCL  D0
 
 // Wire1 pins
-#define SDA1  A2
+#define SDA1  A4
 #define SCL1  A3
 
 // The following pins are only defined for easy access during development.

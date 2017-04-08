@@ -99,12 +99,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SX1278_RXTX     44
 
 // Uart pins
-#if 0 //新版
 #define TX 8
 #define RX 9
-#endif
-#define TX A0
-#define RX A1
 
 #define TX1 A0
 #define RX1 A1
@@ -112,10 +108,10 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define TX2 D0
 #define RX2 D1
 
-#define SS   D7
-#define SCK  D4
-#define MISO D5
-#define MOSI D6
+#define SS   D5
+#define SCK  D2
+#define MISO D3
+#define MOSI D4
 
 // I2C pins
 #define SDA  D1

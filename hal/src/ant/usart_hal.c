@@ -77,9 +77,10 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },          // USART2
-    { USART1, GPIO_AF7_USART1, USART1_IRQn, TX1, RX1 },        // USART1
-    { USART3, GPIO_AF7_USART3, USART3_IRQn, TX2, RX2 }         // USART3
+
+    { USART1, GPIO_AF7_USART1, USART1_IRQn, TX, RX },    // USART1
+    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX1, RX1 },  // USART2
+    { USART3, GPIO_AF7_USART3, USART3_IRQn, TX2, RX2 },  // USART3
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -134,17 +135,20 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     if(HAL_USART_SERIAL1 == serial)
     {
         __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_USART2_CLK_ENABLE();
+        __HAL_RCC_USART1_CLK_ENABLE();
+
     }
     else if(HAL_USART_SERIAL2 == serial)
     {
         __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_USART1_CLK_ENABLE();
+        __HAL_RCC_USART2_CLK_ENABLE();
+
     }
     else if(HAL_USART_SERIAL3 == serial)
     {
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_USART3_CLK_ENABLE();
+
     }
 
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -219,21 +223,19 @@ void HAL_USART_End(HAL_USART_Serial serial)
 
     if(HAL_USART_SERIAL1 == serial)
     {
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
     }
     else if(HAL_USART_SERIAL2 == serial)
     {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
-
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
     }
     else if(HAL_USART_SERIAL3 == serial)
     {
         __HAL_RCC_USART3_FORCE_RESET();
         __HAL_RCC_USART3_RELEASE_RESET();
     }
-
 
     //Disable the NVIC for UART ##########################################*/
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
@@ -325,12 +327,12 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
 // Serial1 interrupt handler
 void USART1_IRQHandler(void)
 {
-    HAL_USART_Handler(HAL_USART_SERIAL2);
+    HAL_USART_Handler(HAL_USART_SERIAL1);
 }
 // Serial2 interrupt handler
 void USART2_IRQHandler(void)
 {
-    HAL_USART_Handler(HAL_USART_SERIAL1);
+    HAL_USART_Handler(HAL_USART_SERIAL2);
 }
 // Serial3 interrupt handler
 void USART3_IRQHandler(void)

@@ -42,74 +42,6 @@
 #define GPIO_PinSource15           ((uint8_t)0x0F)
 
 
-STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
-{
-/*
- * gpio_peripheral (GPIOA, GPIOB, GPIOC or GPIOD)
- * gpio_pin (0-15)
- * gpio_pin_source (GPIO_PinSource0 - GPIO_PinSource15)
- * adc_channel (ADC_Channel_xx or NONE. Note we don't define the peripheral because our chip only has one)
- * dac_channel (DAC_Channel_xx or NONE)
- * timer_peripheral (TIM1 - TIM5, or NONE)
- * timer_ch (1-3, or NONE)
- * pin_mode (NONE by default, can be set to OUTPUT, INPUT, or other types)
- * timer_ccr (0 by default, store the CCR value for TIM interrupt use)
- * user_property (0 by default, user variable storage)
- */
-
-/* D0            - 00 */ { GPIOB, GPIO_PIN_10, GPIO_PinSource10, NONE, NONE, TIM2, TIM_CHANNEL_3, PIN_MODE_NONE, 0, 0 },
-/* D1            - 01 */ { GPIOB, GPIO_PIN_11, GPIO_PinSource11, NONE, NONE, TIM2, TIM_CHANNEL_4,PIN_MODE_NONE, 0, 0 },
-/* D2            - 02 */ { GPIOA, GPIO_PIN_14, GPIO_PinSource14, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* D3            - 03 */ { GPIOA, GPIO_PIN_13, GPIO_PinSource13, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* D4            - 04 */ { GPIOB, GPIO_PIN_13, GPIO_PinSource13, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* D5            - 05 */ { GPIOB, GPIO_PIN_14, GPIO_PinSource14, NONE, NONE, TIM9, TIM_CHANNEL_2, PIN_MODE_NONE, 0, 0 },
-/* D6            - 06 */ { GPIOB, GPIO_PIN_15, GPIO_PinSource15, NONE, NONE, TIM11, TIM_CHANNEL_1, PIN_MODE_NONE, 0, 0 },
-/* D7            - 07 */ { GPIOB, GPIO_PIN_12, GPIO_PinSource12, NONE, NONE, TIM10, TIM_CHANNEL_1, PIN_MODE_NONE, 0, 0 },
-
-/* NOT USED      - 08 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 09 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 10 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 11 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 12 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 13 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 14 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 15 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 16 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 17 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 18 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 19 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 20 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 21 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 22 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 23 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 24 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 25 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 26 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 27 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 28 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-/* NOT USED      - 29 */ { NULL, NONE, NONE, NONE, NONE, NULL, NONE, NONE, NONE, NONE },
-
-/* A0            - 30 */ { GPIOA, GPIO_PIN_2, GPIO_PinSource2, ADC_CHANNEL_2, NONE, TIM9, TIM_CHANNEL_1, PIN_MODE_NONE, 0, 0 },
-/* A1            - 31 */ { GPIOA, GPIO_PIN_3, GPIO_PinSource3, ADC_CHANNEL_3, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* A2            - 32 */ { GPIOA, GPIO_PIN_4, GPIO_PinSource4, ADC_CHANNEL_4, DAC_CHANNEL_1, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* A3            - 33 */ { GPIOA, GPIO_PIN_5, GPIO_PinSource5, ADC_CHANNEL_5, DAC_CHANNEL_2, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* A4            - 34 */ { GPIOA, GPIO_PIN_6, GPIO_PinSource6, ADC_CHANNEL_6, NONE, TIM3, TIM_CHANNEL_1, PIN_MODE_NONE, 0, 0 },
-/* A5            - 35 */ { GPIOA, GPIO_PIN_7, GPIO_PinSource7, ADC_CHANNEL_7, NONE, TIM3, TIM_CHANNEL_2, PIN_MODE_NONE, 0, 0 },
-
-//SX1278 pins
-/* SX1278_RESET  - 36 */ { GPIOB, GPIO_PIN_9, GPIO_PinSource9,   NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_NSS    - 37 */ { GPIOA, GPIO_PIN_15, GPIO_PinSource15, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO0   - 38 */ { GPIOC, GPIO_PIN_13, GPIO_PinSource13, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO1   - 39 */ { GPIOB, GPIO_PIN_0, GPIO_PinSource0, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO2   - 40 */ { GPIOB, GPIO_PIN_1, GPIO_PinSource1, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO3   - 41 */ { GPIOB, GPIO_PIN_6, GPIO_PinSource6, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO4   - 42 */ { GPIOB, GPIO_PIN_7, GPIO_PinSource7, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_DIO5   - 43 */ { GPIOB, GPIO_PIN_8, GPIO_PinSource8, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-/* SX1278_RXTX   - 44 */ { GPIOA, GPIO_PIN_8, GPIO_PinSource8, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
-};
-
-
-#if 0   //新版本映射
 /* Private typedef -----------------------------------------------------------*/
 
 STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
@@ -177,8 +109,6 @@ STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* SX1278_DIO5   - 43 */ { GPIOB, GPIO_PIN_8, GPIO_PinSource8, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
 /* SX1278_RXTX   - 44 */ { GPIOA, GPIO_PIN_8, GPIO_PinSource8, NONE, NONE, NULL, NONE, PIN_MODE_NONE, 0, 0 },
 };
-
-#endif
 
 STM32_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;

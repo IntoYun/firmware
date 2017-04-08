@@ -102,13 +102,11 @@ void lorawanSendData(char* buffer, uint16_t len)
         if (LMIC.opmode & OP_TXRXPEND) {
             SLORAWAN_DEBUG("op_txrxpend, not sending");
         } else {
-            /*
             for(int i=0; i<len; i++)
             {
                 SLORAWAN_DEBUG_D("%02x ", buffer[i]);
             }
             SLORAWAN_DEBUG_D("\r\n");
-            */
             LMIC_setTxData2(1, buffer, len, 0);
             SLORAWAN_DEBUG("packet queued");
         }
