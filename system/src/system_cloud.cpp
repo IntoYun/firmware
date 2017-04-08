@@ -733,7 +733,7 @@ finish:
 void cloud_datapoint_receive_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("Ok! receive datapoint form cloud!");
-    intorobotReceiveDataProcessJson(payload, len);
+    intorobotParseReceiveDataJson(payload, len);
 }
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
@@ -1177,7 +1177,7 @@ int intorobot_cloud_handle(void)
         }
         //write all datepoint
         if(RESULT_DATAPOINT_NEW == intorobotReadDataPointBool(0xFF81, all_datapoint_flag)) {
-            intorobotWriteDataPointAll();
+            intorobotSendDataPointAll();
         }
         //发送IntoRobot.printf打印到平台
         mqtt_send_debug_info();

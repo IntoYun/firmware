@@ -387,8 +387,9 @@ static String intorobotFormAllPropertyJson(void)
                 break;
             case DATA_TYPE_NUM:        //数值型
                 {
-                    int value = (properties[property_index]->value.toFloat() -  properties[property_index]->floatProperty.minValue) * pow(10, properties[property_index]->floatProperty.resolution);
-                    aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), value);
+                    int value = (properties[i]->value.toFloat() -  properties[i]->floatProperty.minValue)\
+                                * pow(10, properties[i]->floatProperty.resolution);
+                    aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), value);
                     break;
                 }
             case DATA_TYPE_ENUM:       //枚举型
@@ -442,7 +443,7 @@ void intorobotSendDataPoint(const uint16_t dpID, const char* value)
 
     if (elapsed_millis >= properties[i]->lapse) {
         String payload = intorobotFormSinglePropertyJson(i);
-        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), payload.lenght(), 0, false);
+        intorobot_publish(API_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, (uint8_t *)payload.c_str(), payload.length(), 0, false);
         properties[i]->runtime = current_millis;
     }
 }
@@ -647,7 +648,7 @@ void intorobotSendDataPoint(const uint16_t dpID, const char* value)
         uint16_t len;
 
         len = intorobotFormSinglePropertyBinary(dpID, buffer, sizeof(buffer));
-        lorawanSendData(buffer, len);
+        intorobot_lorawan_send_data(buffer, len);
         properties[i]->runtime = current_millis;
     }
 }
@@ -658,7 +659,7 @@ void intorobotSendDataPointAll(void)
     uint16_t len;
 
     len = intorobotFormAllPropertyBinary(buffer, sizeof(buffer));
-    lorawanSendData(buffer, len);
+    intorobot_lorawan_send_data(buffer, len);
 }
 
 #endif

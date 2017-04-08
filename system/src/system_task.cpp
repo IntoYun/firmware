@@ -329,7 +329,7 @@ void LoraWAN_Setup(void)
                 LMIC_setLinkCheckMode(0);
                 LMIC.dn2Dr = DR_SF9;
                 LMIC_setDrTxpow(DR_SF7,14);
-                g_intorobot_lorawan_connected = 1;
+                g_intorobot_lorawan_joined = 1;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }
             break;
@@ -347,8 +347,13 @@ void LoraWAN_Setup(void)
 
 void manage_lorawan_connection(void)
 {
+    if(g_intorobot_lorawan_joined && !g_intorobot_lorawan_connected) {
+        intorobot_lorawan_send_terminal_info();
+        g_intorobot_lorawan_connected = 1;
+    }
     os_runloop_once();
 }
+
 #endif
 
 void system_process_loop(void)

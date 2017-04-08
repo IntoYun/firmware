@@ -28,14 +28,14 @@
 #define LORAWAN_FN(x,y) (x)
 #endif
 
+#ifndef configNO_LORAWAN
+
 #include <string.h>
 #include <time.h>
 #include <stdint.h>
 #include "static_assert.h"
 #include "wiring_string.h"
-#include "wiring_ex.h"
-
-#ifndef configNO_LORAWAN
+#include "wiring_ex_lorawan.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,7 +44,9 @@ extern "C" {
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
-void lorawanSendData(char* buffer, uint16_t len);
+bool intorobot_lorawan_flag_connected(void);
+void intorobot_lorawan_send_terminal_info(void);
+void intorobot_lorawan_send_data(char* buffer, uint16_t len);
 
 #ifdef __cplusplus
 }
