@@ -1,9 +1,11 @@
 ## v1.5.2-rc.1
 
 ### FEATURES(功能)
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [ant] 添加ant的支持
 
 
 ### ENHANCEMENTS(优化)
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [all] 优化IntoRobot 数据点处理接口
 
 
 ### BUG FIXES(漏洞修复)
