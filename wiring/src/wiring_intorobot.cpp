@@ -19,9 +19,11 @@
 
 #include "wiring_intorobot.h"
 
+#ifndef configNO_CLOUD || configNO_LORAWAN
 IntoRobotClass& __fetch_global_intorobot()
 {
     static IntoRobotClass _intorobot;
     return _intorobot;
 }
+#endif
 

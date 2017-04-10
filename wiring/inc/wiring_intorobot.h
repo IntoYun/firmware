@@ -35,130 +35,9 @@
 #include <functional>
 #include "service_debug.h"
 
-class IntoRobotClass: public Print{
+class IntoRobotDatePointClass {
 
     public:
-
-#ifndef configNO_CLOUD
-        static bool publish(const char *topic, bool value)
-        {
-            return publish(topic, String(value).c_str());
-        }
-
-#ifdef INTOROBOT_ARCH_ARM
-        // stm32 arm 采取的是thumb指令集  int 实际是16位
-        static bool publish(const char *topic, int value)
-        {
-            return publish(topic, String(value).c_str());
-        }
-#endif
-
-        static bool publish(const char *topic, int32_t value)
-        {
-            return publish(topic, String(value).c_str());
-        }
-
-        static bool publish(const char *topic, uint32_t value)
-        {
-            return publish(topic, String(value).c_str());
-        }
-
-        static bool publish(const char *topic, float value)
-        {
-            //char buf[32];
-            //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str());
-        }
-
-        static bool publish(const char *topic, double value)
-        {
-            //char buf[32];
-            //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str());
-        }
-
-        static bool publish(const char *topic, String value)
-        {
-            return publish(topic, value.c_str());
-        }
-
-        static bool publish(const char *topic, const char *value)
-        {
-            return publish(topic, (uint8_t *)value, strlen(value), 0, true);
-        }
-
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength)
-        {
-            return publish(topic, payload, plength, 0, true);
-        }
-
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
-        {
-            return publish(topic, payload, plength, 0, retained);
-        }
-
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
-        {
-            return intorobot_publish(API_VERSION_V1, topic, payload, plength, qos, retained);
-        }
-
-        static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
-        {
-            return subscribe(topic, deviceID, callback, 0);
-        }
-
-        static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
-        {
-            return intorobot_subscribe(API_VERSION_V1, topic, deviceID, callback, qos);
-        }
-
-        static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
-        {
-            return subscribe(topic, deviceID, pWidgetBase, 0);
-        }
-
-        static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
-        {
-            return intorobot_widget_subscribe(API_VERSION_V1, topic, deviceID, pWidgetBase, qos);
-        }
-
-        static bool unsubscribe(const char *topic, const char *deviceID)
-        {
-            return intorobot_unsubscribe(API_VERSION_V1, topic, deviceID);
-        }
-
-        static void syncTime(void)
-        {
-            intorobot_sync_time();
-        }
-
-        static bool connected(void) { return intorobot_cloud_flag_connected(); }
-        static bool disconnected(void) { return !connected(); }
-        static void connect(void) {
-            intorobot_cloud_flag_connect();
-            if (system_thread_get_state(nullptr)==intorobot::feature::DISABLED &&
-                    SystemClass::mode() == SEMI_AUTOMATIC)
-            {
-                // IntoRobot.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
-                waitUntil(connected);
-            }
-        }
-        static void disconnect(void) { intorobot_cloud_flag_disconnect(); }
-        static void process(void) {
-            //application_checkin();
-            intorobot_process();
-        }
-#endif
-        static int read(void)
-        {
-            return intorobot_debug_info_read();
-        }
-        static int available(void)
-        {
-            return intorobot_debug_info_available();
-        }
-        static String deviceID(void) { return intorobot_deviceID(); }
-
         //添加通用数据收发接口
         // 添加数据点
         static void defineDataPointBool(const uint16_t dpID, const char *permission)
@@ -420,6 +299,132 @@ class IntoRobotClass: public Print{
         static void sendDataPointGroup(uint8_t group = 0)
         {
         }
+};
+
+#ifndef configNO_CLOUD
+class IntoRobotClass: public IntoRobotDatePointClass, Print{
+
+    public:
+
+        static bool publish(const char *topic, bool value)
+        {
+            return publish(topic, String(value).c_str());
+        }
+
+#ifdef INTOROBOT_ARCH_ARM
+        // stm32 arm 采取的是thumb指令集  int 实际是16位
+        static bool publish(const char *topic, int value)
+        {
+            return publish(topic, String(value).c_str());
+        }
+#endif
+
+        static bool publish(const char *topic, int32_t value)
+        {
+            return publish(topic, String(value).c_str());
+        }
+
+        static bool publish(const char *topic, uint32_t value)
+        {
+            return publish(topic, String(value).c_str());
+        }
+
+        static bool publish(const char *topic, float value)
+        {
+            //char buf[32];
+            //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
+            return publish(topic, String(value).c_str());
+        }
+
+        static bool publish(const char *topic, double value)
+        {
+            //char buf[32];
+            //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
+            return publish(topic, String(value).c_str());
+        }
+
+        static bool publish(const char *topic, String value)
+        {
+            return publish(topic, value.c_str());
+        }
+
+        static bool publish(const char *topic, const char *value)
+        {
+            return publish(topic, (uint8_t *)value, strlen(value), 0, true);
+        }
+
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength)
+        {
+            return publish(topic, payload, plength, 0, true);
+        }
+
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
+        {
+            return publish(topic, payload, plength, 0, retained);
+        }
+
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
+        {
+            return intorobot_publish(API_VERSION_V1, topic, payload, plength, qos, retained);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
+        {
+            return subscribe(topic, deviceID, callback, 0);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
+        {
+            return intorobot_subscribe(API_VERSION_V1, topic, deviceID, callback, qos);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
+        {
+            return subscribe(topic, deviceID, pWidgetBase, 0);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
+        {
+            return intorobot_widget_subscribe(API_VERSION_V1, topic, deviceID, pWidgetBase, qos);
+        }
+
+        static bool unsubscribe(const char *topic, const char *deviceID)
+        {
+            return intorobot_unsubscribe(API_VERSION_V1, topic, deviceID);
+        }
+
+        static void syncTime(void)
+        {
+            intorobot_sync_time();
+        }
+
+        static bool connected(void) { return intorobot_cloud_flag_connected(); }
+        static bool disconnected(void) { return !connected(); }
+        static void connect(void) {
+            intorobot_cloud_flag_connect();
+            if (system_thread_get_state(nullptr)==intorobot::feature::DISABLED &&
+                    SystemClass::mode() == SEMI_AUTOMATIC)
+            {
+                // IntoRobot.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
+                waitUntil(connected);
+            }
+        }
+        static void disconnect(void) { intorobot_cloud_flag_disconnect(); }
+        static void process(void) {
+            //application_checkin();
+            intorobot_process();
+        }
+
+        static int read(void)
+        {
+            return intorobot_debug_info_read();
+        }
+        static int available(void)
+        {
+            return intorobot_debug_info_available();
+        }
+
+        static String deviceID(void) { return intorobot_deviceID(); }
 
     private:
         virtual size_t write(uint8_t byte)
@@ -428,9 +433,29 @@ class IntoRobotClass: public Print{
         using Print::write; // pull in write(str) and write(buf, size) from Print
 };
 
+#endif
+
+#ifndef configNO_LORAWAN
+class IntoRobotClass: public IntoRobotDatePointClass {
+
+    public:
+        static void process(void) {
+            //application_checkin();
+            intorobot_process();
+        }
+
+        static String deviceID(void) { return intorobot_deviceID(); }
+
+};
+#endif
+
+#ifndef configNO_CLOUD || configNO_LORAWAN
+
 IntoRobotClass& __fetch_global_intorobot();
 #define IntoRobot __fetch_global_intorobot()
 #define IntoYun __fetch_global_intorobot()
+
+#endif
 
 #endif
 
