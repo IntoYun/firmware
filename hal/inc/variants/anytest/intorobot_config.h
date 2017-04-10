@@ -50,7 +50,7 @@
 
 /* config wring spi */
 #define configWIRING_SPI_ENABLE
-// #define configWIRING_SPI1_ENABLE
+#define configWIRING_SPI1_ENABLE
 //#define configWIRING_SPI2_ENABLE
 
 /* config wiring can. */
@@ -69,6 +69,9 @@
 
 /* config cloud */
 #define configNO_CLOUD
+
+/* config cloud */
+#define configNO_LORAWAN
 
 /* config rgb ui */
 #define configNO_RGB_UI
