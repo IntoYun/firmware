@@ -449,7 +449,7 @@ class IntoRobotClass: public IntoRobotDatePointClass {
 };
 #endif
 
-#ifndef configNO_CLOUD || configNO_LORAWAN
+#if (!defined configNO_CLOUD) || (!defined configNO_LORAWAN)
 
 IntoRobotClass& __fetch_global_intorobot();
 #define IntoRobot __fetch_global_intorobot()

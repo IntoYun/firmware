@@ -73,8 +73,8 @@ void intorobotDefineDataPointNumber(const uint16_t dpID, const char *permission,
         double defaultValue = value;
         // Create property structure
         prop = new property_conf {dpID, DATA_TYPE_NUM, permission, policy, (long)lapse*1000, 0, RESULT_DATAPOINT_OLD};
-        prop->floatProperty.minValue = String(minValue, resolution).toFloat();
-        prop->floatProperty.maxValue = String(maxValue, resolution).toFloat();
+        prop->floatProperty.minValue = String(minValue, resolution).toDouble();
+        prop->floatProperty.maxValue = String(maxValue, resolution).toDouble();
         prop->floatProperty.resolution = resolution;
         if(defaultValue < minValue) {
             defaultValue = minValue;
@@ -184,7 +184,7 @@ read_datapoint_result_t intorobotReadDataPointFloat(const uint16_t dpID, float &
         return RESULT_DATAPOINT_NONE;
     }
 
-    value = properties[index]->value.toFloat();
+    value = properties[index]->value.toDouble();
     read_datapoint_result_t readResult = properties[index]->readFlag;
     properties[index]->readFlag = RESULT_DATAPOINT_OLD;
     return readResult;
@@ -197,7 +197,7 @@ read_datapoint_result_t intorobotReadDataPointDouble(const uint16_t dpID, double
         return RESULT_DATAPOINT_NONE;
     }
 
-    value = properties[index]->value.toFloat();
+    value = properties[index]->value.toDouble();
     read_datapoint_result_t readResult = properties[index]->readFlag;
     properties[index]->readFlag = RESULT_DATAPOINT_OLD;
     return readResult;
@@ -254,12 +254,12 @@ void intorobotWriteDataPoint(const uint16_t dpID, const char* value)
 
     if(DATA_TYPE_NUM == properties[i]->dataType) {
         //根据分辨率  截取小数点位数。
-        if(String(value).toFloat() < properties[i]->floatProperty.minValue) {
+        if(String(value).toDouble() < properties[i]->floatProperty.minValue) {
             properties[i]->value = String(properties[i]->floatProperty.minValue, properties[i]->floatProperty.resolution);
-        } else if(String(value).toFloat() > properties[i]->floatProperty.maxValue) {
+        } else if(String(value).toDouble() > properties[i]->floatProperty.maxValue) {
             properties[i]->value = String(properties[i]->floatProperty.maxValue, properties[i]->floatProperty.resolution);
         } else {
-            properties[i]->value = String(String(value).toFloat(), properties[i]->floatProperty.resolution);
+            properties[i]->value = String(String(value).toDouble(), properties[i]->floatProperty.resolution);
         }
     } else {
         properties[i]->value = value;
@@ -341,7 +341,7 @@ static String intorobotFormSinglePropertyJson(int property_index)
             break;
         case DATA_TYPE_NUM:        //数值型
             {
-                int value = (properties[property_index]->value.toFloat() -  properties[property_index]->floatProperty.minValue) * pow(10, properties[property_index]->floatProperty.resolution);
+                int value = (properties[property_index]->value.toDouble() - properties[property_index]->floatProperty.minValue) * pow(10, properties[property_index]->floatProperty.resolution);
                 aJson.addNumberToObject(root, String(properties[property_index]->dpID).c_str(), value);
                 break;
             }
@@ -387,7 +387,7 @@ static String intorobotFormAllPropertyJson(void)
                 break;
             case DATA_TYPE_NUM:        //数值型
                 {
-                    int value = (properties[i]->value.toFloat() -  properties[i]->floatProperty.minValue)\
+                    int value = (properties[i]->value.toDouble() -  properties[i]->floatProperty.minValue)\
                                 * pow(10, properties[i]->floatProperty.resolution);
                     aJson.addNumberToObject(root, String(properties[i]->dpID).c_str(), value);
                     break;
@@ -469,11 +469,10 @@ void intorobotParseReceiveDataBinary(uint8_t *payload, uint32_t len)
     }
 }
 
-static uint16_t intorobotFormSinglePropertyBinary(int property_index, char* buffer, uint16_t len)
+static uint16_t intorobotFormDataPointBinary(int property_index, uint8_t* buffer)
 {
     int32_t index = 0;
 
-    buffer[index++] = BINARY_DATA_FORMAT;
     if(properties[property_index]->dpID < 0x80) {
         buffer[index++] = properties[property_index]->dpID & 0xFF;
     } else {
@@ -490,7 +489,7 @@ static uint16_t intorobotFormSinglePropertyBinary(int property_index, char* buff
         case DATA_TYPE_NUM:        //数值型 int型
             {
                 buffer[index++] = 0x01;
-                uint32_t value = (properties[property_index]->value.toFloat() - properties[property_index]->floatProperty.minValue) \
+                uint32_t value = (properties[property_index]->value.toDouble() - properties[property_index]->floatProperty.minValue) \
                                  * pow(10, properties[property_index]->floatProperty.resolution);
                 if(value & 0xFFFF0000) {
                     buffer[index++] = 0x04;
@@ -534,6 +533,15 @@ static uint16_t intorobotFormSinglePropertyBinary(int property_index, char* buff
     return index;
 }
 
+static uint16_t intorobotFormSinglePropertyBinary(int property_index, char* buffer, uint16_t len)
+{
+    int32_t index = 0;
+
+    buffer[index++] = BINARY_DATA_FORMAT;
+    index += intorobotFormDataPointBinary(property_index, buffer+index);
+    return index;
+}
+
 static uint16_t intorobotFormAllPropertyBinary(char* buffer, uint16_t len)
 {
     int32_t index = 0;
@@ -551,63 +559,7 @@ static uint16_t intorobotFormAllPropertyBinary(char* buffer, uint16_t len)
             continue;
         }
 
-        if(properties[i]->dpID < 0x80) {
-            buffer[index++] = properties[i]->dpID & 0xFF;
-        } else {
-            buffer[index++] = (properties[i]->dpID >> 8) | 0x80;
-            buffer[index++] = properties[i]->dpID & 0xFF;
-        }
-        switch(properties[i]->dataType)
-        {
-            case DATA_TYPE_BOOL:       //bool型
-                buffer[index++] = 0x00;  //类型
-                buffer[index++] = 0x01;  //长度
-                buffer[index++] = (bool)(properties[i]->value.toInt());
-                break;
-            case DATA_TYPE_NUM:        //数值型 int型
-                {
-                    buffer[index++] = 0x01;
-                    uint32_t value = (properties[i]->value.toFloat() -  properties[i]->floatProperty.minValue) \
-                                     * pow(10, properties[i]->floatProperty.resolution);
-                    if(value & 0xFFFF0000) {
-                        buffer[index++] = 0x04;
-                        buffer[index++] = (value >> 24) & 0xFF;
-                        buffer[index++] = (value >> 16) & 0xFF;
-                        buffer[index++] = (value >> 8) & 0xFF;
-                        buffer[index++] = value & 0xFF;
-                    } else if(value & 0xFFFFFF00) {
-                        buffer[index++] = 0x02;
-                        buffer[index++] = (value >> 8) & 0xFF;
-                        buffer[index++] = value & 0xFF;
-                    } else {
-                        buffer[index++] = 0x01;
-                        buffer[index++] = value & 0xFF;
-                    }
-                }
-                break;
-            case DATA_TYPE_ENUM:       //枚举型
-                buffer[index++] = 0x02;
-                buffer[index++] = 0x01;
-                buffer[index++] = (uint8_t)properties[i]->value.toInt() & 0xFF;
-                break;
-            case DATA_TYPE_STRING:     //字符串型
-                {
-                    uint16_t strlen = properties[i]->value.length();
-
-                    buffer[index++] = 0x03;
-                    if(strlen < 0x80) {
-                        buffer[index++] = strlen & 0xFF;
-                    } else {
-                        buffer[index++] = (strlen >> 8) | 0x80;
-                        buffer[index++] = strlen & 0xFF;
-                    }
-                    memcpy(&buffer[index], properties[i]->value.c_str(), strlen);
-                    index+=strlen;
-                    break;
-                }
-            default:
-                break;
-        }
+        index += intorobotFormDataPointBinary(i, buffer+index);
     }
     return index;
 }

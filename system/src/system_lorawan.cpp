@@ -53,21 +53,6 @@ using namespace intorobot;
 volatile uint8_t g_intorobot_lorawan_joined = 0;      //lorawan认证通过
 volatile uint8_t g_intorobot_lorawan_connected = 0;   //lorawan发送版本信息完毕
 
-size_t intorobot_debug_info_write(uint8_t byte)
-{
-    return 1;
-}
-
-int intorobot_debug_info_read(void)
-{
-    return -1;
-}
-
-int intorobot_debug_info_available(void)
-{
-    return -1;
-}
-
 void os_getDevEui(u1_t* buf)
 {
     char deveui[24]={0};
@@ -136,6 +121,11 @@ void intorobot_lorawan_send_terminal_info(void)
     memcpy(&buffer[index], String(product_details.product_firmware_version).c_str(), len);
     index+=len;
 
+    for(int i=0; i<index; i++)
+    {
+        SLORAWAN_DEBUG_D("%02x ", buffer[i]);
+    }
+
     LMIC_setTxData2(1, buffer, index, 0);
 }
 
@@ -146,13 +136,11 @@ void intorobot_lorawan_send_data(char* buffer, uint16_t len)
         if (LMIC.opmode & OP_TXRXPEND) {
             SLORAWAN_DEBUG("op_txrxpend, not sending");
         } else {
-            /*
             for(int i=0; i<len; i++)
             {
                 SLORAWAN_DEBUG_D("%02x ", buffer[i]);
             }
             SLORAWAN_DEBUG_D("\r\n");
-            */
             LMIC_setTxData2(1, buffer, len, 0);
             SLORAWAN_DEBUG("packet queued");
         }
