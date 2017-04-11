@@ -1,9 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/params_hal.cpp"
-
-#else
 
 #include <string.h>
 #include <stdio.h>
@@ -99,8 +93,6 @@ void read_system_params(system_params_t *psystem_params) {
         return;
     }
     flashStore.read(SYSTEM_PARAMS_START_ADDR, psystem_params, len);
-    for (int num = 0; num<len; num++) {
-    }
 }
 
 /*
@@ -220,4 +212,3 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     return 0;
 }
 
-#endif

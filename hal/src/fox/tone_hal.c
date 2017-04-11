@@ -76,6 +76,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM3) )
         {
+#if 0
             // D0 and A7 share the same TIM3->CHANNEL2, only one can work at a time.
             // D2 and A6 share the same TIM3->CHANNEL1, only one can work at a time.
             if (pin == D0)
@@ -106,6 +107,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
             HAL_NVIC_SetPriority(TIM3_IRQn, 0x0E, 0);
             HAL_NVIC_EnableIRQ(TIM3_IRQn);
 
+#endif
             //HAL_TIM3_Handler = Tone_TIM3_Handler;
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM4) )
@@ -447,6 +449,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
                     HAL_Tone_Stop(D0);
                 }
             }
+#if 0
             else if(PIN_MAP[A7].user_property != -1)
             {
                 /* Set the Capture Compare Register value */
@@ -460,6 +463,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
                     HAL_Tone_Stop(A7);
                 }
             }
+#endif
         }
         else if(htim->Instance == TIM5)
         {
