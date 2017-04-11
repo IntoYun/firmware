@@ -26,8 +26,7 @@
 // Types
 // ----------------------------------------------------------------
 //! MT Device Types
-typedef enum { DEV_UNKNOWN, DEV_SARA_G350, DEV_LISA_U200, DEV_LISA_C200,
-               DEV_SARA_U260, DEV_SARA_U270, DEV_LEON_G200 } Dev;
+typedef enum { DEV_UNKNOWN, DEV_SIM800 } Dev;
 //! SIM Status
 typedef enum { SIM_UNKNOWN, SIM_MISSING, SIM_PIN, SIM_READY } Sim;
 //! SIM Status
@@ -107,6 +106,17 @@ struct MDM_BandSelect {
 typedef struct MDM_BandSelect MDM_BandSelect;
 #endif
 
+typedef enum {
+    IPSTATUS_ATERROR       = 0,
+    IPSTATUS_INITIAL       = 1,
+    IPSTATUS_START         = 2,
+    IPSTATUS_CONFIG        = 3,
+    IPSTATUS_GPRSACT       = 4,
+    IPSTATUS_STATUS        = 5,
+    IPSTATUS_PROCESSING    = 6,
+    IPSTATUS_DEACT         = 7
+} ip_status_t;
+
 //! An IP v4 address
 typedef uint32_t MDM_IP;
 #define NOIP ((MDM_IP)0) //!< No IP address
@@ -160,10 +170,16 @@ enum {
     TYPE_ERROR      = 0x120000,
     TYPE_RING       = 0x210000,
     TYPE_CONNECT    = 0x220000,
-    TYPE_NOCARRIER  = 0x230000,
-    TYPE_NODIALTONE = 0x240000,
-    TYPE_BUSY       = 0x250000,
-    TYPE_NOANSWER   = 0x260000,
+    TYPE_CONNECTFAIL= 0x230000,
+    TYPE_CONNECTCLOSTED = 0x240000,
+    TYPE_SENDOK     = 0x250000,
+    TYPE_SENDERROR  = 0x260000,
+    TYPE_NOCARRIER  = 0x270000,
+    TYPE_NODIALTONE = 0x280000,
+    TYPE_BUSY       = 0x290000,
+    TYPE_NOANSWER   = 0x2a0000,
+    TYPE_IPSHUT     = 0x2b0000,
+    TYPE_STATUS     = 0x2c0000,
     TYPE_PROMPT     = 0x300000,
     TYPE_PLUS       = 0x400000,
     TYPE_TEXT       = 0x500000,
