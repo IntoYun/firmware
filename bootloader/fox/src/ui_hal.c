@@ -14,6 +14,9 @@
 #define MODE_BOTTON_GPIO_PIN       GPIO_PIN_2
 #define MODE_BOTTON_GPIO_PORT      GPIOB
 
+#define USER_LED_GPIO_PIN       GPIO_PIN_14
+#define USER_LED_GPIO_PORT      GPIOA
+
 
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;
@@ -84,6 +87,15 @@ void HAL_UI_Initial(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(MODE_BOTTON_GPIO_PORT, &GPIO_InitStruct);
+
+    //用户例子灯
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitStruct.Pin = USER_LED_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(USER_LED_GPIO_PORT, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_SET);
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
