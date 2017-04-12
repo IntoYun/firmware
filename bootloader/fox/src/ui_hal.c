@@ -89,6 +89,7 @@ void HAL_UI_Initial(void)
     HAL_GPIO_Init(MODE_BOTTON_GPIO_PORT, &GPIO_InitStruct);
 
     //用户例子灯
+    #if 0
     __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitStruct.Pin = USER_LED_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -96,6 +97,7 @@ void HAL_UI_Initial(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(USER_LED_GPIO_PORT, &GPIO_InitStruct);
     HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_SET);
+    #endif
 }
 
 uint8_t HAL_UI_Mode_BUTTON_GetState(Button_TypeDef Button)
