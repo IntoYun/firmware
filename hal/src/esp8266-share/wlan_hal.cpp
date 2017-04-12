@@ -57,6 +57,37 @@ int wlan_has_credentials()
     return 0;
 }
 
+static int wlan_status()
+{
+    wl_status_t status = esp8266_status();
+    switch(status) {
+        case WL_CONNECTED:
+            return 0;
+        default:
+            return 1;
+    }
+    return 0;
+}
+
+int wlan_connect_init()
+{
+    int result = 0;
+    if(wlan_status()) {
+        result = esp8266_connect();
+        return result;
+    }
+    return 0;
+}
+
+/**
+ * Do what is needed to finalize the connection.
+ * @return
+ */
+wlan_result_t wlan_connect_finalize()
+{
+    return 0;
+}
+
 wlan_result_t wlan_activate()
 {
     return 0;
@@ -67,32 +98,24 @@ wlan_result_t wlan_deactivate()
     return 0;
 }
 
-int wlan_connect()
-{
-    int result = 0;
-    if(wlan_status()) {
-        result = esp8266_connect();
-        return result;
-    }
-    else {
-        return 0;
-    }
-}
-
-wlan_result_t wlan_disconnect()
+wlan_result_t wlan_disconnect_now()
 {
     return esp8266_disconnect();
 }
 
-int wlan_status()
+void wlan_connect_cancel(bool called_from_isr)
 {
-    wl_status_t status = esp8266_status();
-    switch(status) {
-        case WL_CONNECTED:
-            return 0;
-        default:
-            return 1;
-    }
+
+}
+
+bool wlan_reset_credentials_store_required()
+{
+    return false;
+}
+
+wlan_result_t wlan_reset_credentials_store()
+{
+    wlan_clear_credentials();
     return 0;
 }
 

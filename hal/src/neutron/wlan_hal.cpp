@@ -35,6 +35,23 @@ int wlan_has_credentials()
 {
     return 0;
 }
+/**
+ * Enable wlan and connect to a network.
+ * @return
+ */
+int wlan_connect_init()
+{
+    return 0;
+}
+
+/**
+ * Do what is needed to finalize the connection.
+ * @return
+ */
+wlan_result_t wlan_connect_finalize()
+{
+    return 0;
+}
 
 wlan_result_t wlan_activate()
 {
@@ -46,13 +63,24 @@ wlan_result_t wlan_deactivate()
     return 0;
 }
 
-int wlan_connect()
+wlan_result_t wlan_disconnect_now()
 {
     return 0;
 }
 
-wlan_result_t wlan_disconnect()
+void wlan_connect_cancel(bool called_from_isr)
 {
+
+}
+
+bool wlan_reset_credentials_store_required()
+{
+    return false;
+}
+
+wlan_result_t wlan_reset_credentials_store()
+{
+    wlan_clear_credentials();
     return 0;
 }
 

@@ -278,7 +278,6 @@ void DeviceConfig::dealCheckWifi(void)
     if (root == NULL)
     {return;}
 
-    network_status(0, 0, NULL);
     if(WiFi.ready()) {
         manage_ip_config();
         aJson.addNumberToObject(root, "status", 200);
@@ -916,7 +915,6 @@ int UdpDeviceConfig::available(void)
         case 0:
             if( IMLINK_SUCCESS == wlan_Imlink_get_status() ) {
                 wlan_Imlink_stop();
-                network_connect(0, 0, 0, NULL);
                 ARM_CONFIG_TIMEOUT(5000);
                 UdpStep = 1;
             }
@@ -927,7 +925,7 @@ int UdpDeviceConfig::available(void)
                 CLR_CONFIG_TIMEOUT();
                 UdpStep = 0;
             }
-            if( network_status(0, 0, NULL) ) {
+            if( network_ready(0, 0, NULL) ) {
                 system_rgb_blink(RGB_COLOR_RED, 200);
                 Udp.begin(5556);
                 //Udp.beginPacket 放在此处是因为设备接收到udp数据后，可以自动获取remoteip和remoteport。

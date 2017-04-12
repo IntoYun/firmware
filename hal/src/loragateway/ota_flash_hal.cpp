@@ -29,8 +29,6 @@
 #include "memory_hal.h"
 #include "service_debug.h"
 
-
-
 static bool bootloader_requires_update(void)
 {
     char subsys_ver[32] = {0}, temp[16] = {0};
@@ -80,7 +78,7 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Update_App(uint32_t size)
+void HAL_OTA_Update_App(void)
 {
 }
 
@@ -94,7 +92,7 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
+void HAL_OTA_Upadate_Subsys(void)
 {
 }
 

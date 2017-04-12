@@ -70,10 +70,21 @@ typedef struct __attribute__((__packed__))  _WLanConfig_t {
 
 STATIC_ASSERT(WLanConfigSize, sizeof(WLanConfig)==WLanConfig_Size_V2);
 
+/**
+ * Connect start the wireless connection.
+ */
+wlan_result_t  wlan_connect_init();
 
-int wlan_connect();
-wlan_result_t wlan_disconnect();
-int wlan_status();
+/**
+ * Finalize the connection by connecting to stored profiles.
+ */
+wlan_result_t  wlan_connect_finalize();
+
+
+bool wlan_reset_credentials_store_required();
+wlan_result_t  wlan_reset_credentials_store();
+
+wlan_result_t wlan_disconnect_now();
 
 /**
  * Enable wifi without connecting.
@@ -161,6 +172,12 @@ void wlan_fetch_ipconfig(WLanConfig* config);
  * Called once at startup to initialize the wlan hardware.
  */
 void wlan_setup();
+
+/**
+ * Cancel a previous call to any blocking wifi connect method.
+ * @param called_from_isr - set to true if this is being called from an ISR.
+ */
+void wlan_connect_cancel(bool called_from_isr);
 
 /**
  * Select the Wi-Fi antenna.

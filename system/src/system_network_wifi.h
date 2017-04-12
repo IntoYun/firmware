@@ -30,13 +30,33 @@
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
 protected:
-    void connect_now() override { wlan_connect(); }
-    void disconnect_now() override { wlan_disconnect(); }
-    int status_now() override { return wlan_status(); }
+
+    void connect_init() override
+    {
+        wlan_connect_init();
+    }
+
+    void connect_finalize() override
+    {
+        wlan_connect_finalize();
+    }
+
+    void disconnect_now() override
+    {
+        wlan_disconnect_now();
+    }
+
     void on_now() override { wlan_activate(); }
     void off_now() override { wlan_deactivate(); }
 
 public:
+
+    void connect_cancel(bool cancel) override
+    {
+        if (cancel)
+            wlan_connect_cancel(HAL_IsISR());
+    }
+
     bool has_credentials() override
     {
         return wlan_has_credentials()==0;
@@ -59,9 +79,6 @@ public:
         credentials->security = security;
 
         int result = wlan_set_credentials(credentials);
-        if (!result)
-        {}
-            //system_notify_event(network_credentials, network_credentials_added, credentials);
         return result;
     }
 
@@ -73,6 +90,11 @@ public:
     void setup() override
     {
         wlan_setup();
+
+        if (wlan_reset_credentials_store_required())
+        {
+            wlan_reset_credentials_store();
+        }
     }
 
     void fetch_ipconfig(WLanConfig* target)

@@ -37,30 +37,6 @@ int wlan_has_credentials()
     return 0;
 }
 
-wlan_result_t wlan_activate()
-{
-    return 0;
-}
-
-wlan_result_t wlan_deactivate()
-{
-    return 0;
-}
-
-int wlan_connect()
-{
-    Process Proc;
-
-    Proc.begin("wifi_connect");
-    Proc.addParameter("BEGIN");
-    Proc.runAsynchronously();
-    return 0;
-}
-
-wlan_result_t wlan_disconnect()
-{
-    return 0;
-}
 
 int wlan_status()
 {
@@ -74,6 +50,56 @@ int wlan_status()
         return 0;
     }
     return -1;
+}
+
+int wlan_connect_init()
+{
+    Process Proc;
+
+    Proc.begin("wifi_connect");
+    Proc.addParameter("BEGIN");
+    Proc.runAsynchronously();
+    return 0;
+}
+
+/**
+ * Do what is needed to finalize the connection.
+ * @return
+ */
+wlan_result_t wlan_connect_finalize()
+{
+    return 0;
+}
+
+wlan_result_t wlan_activate()
+{
+    return 0;
+}
+
+wlan_result_t wlan_deactivate()
+{
+    return 0;
+}
+
+wlan_result_t wlan_disconnect_now()
+{
+    return 0;
+}
+
+void wlan_connect_cancel(bool called_from_isr)
+{
+
+}
+
+bool wlan_reset_credentials_store_required()
+{
+    return false;
+}
+
+wlan_result_t wlan_reset_credentials_store()
+{
+    wlan_clear_credentials();
+    return 0;
 }
 
 int wlan_connected_rssi(void)
