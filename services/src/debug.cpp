@@ -25,6 +25,9 @@
 #include "intorobot_macros.h"
 #include "service_debug.h"
 #include "timer_hal.h"
+
+#undef PLATFORM_THREADING  // 关闭debug 任务保护
+
 #if PLATFORM_THREADING
 #include "concurrent_hal.h"
 #endif

@@ -126,7 +126,6 @@
 #define USART2_IRQ_PRIORITY                 0       //modem(sim800c) USART2 Interrupt
 #endif
 
-
 #ifdef USE_USB_OTG_FS
 #define OTG_FS_IRQ_PRIORITY                 2       //USB OTG FS Interrupt
 #define OTG_FS_WKUP_IRQ_PRIORITY            2       //USB OTG FS Wakeup Interrupt
