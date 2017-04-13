@@ -144,7 +144,8 @@ void HAL_Core_Config(void)
     HAL_IWDG_Initial();
     HAL_UI_Initial();
     HAL_EEPROM_Init();
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    //HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    HAL_UI_RGB_Blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
 
 void HAL_Core_Load_params(void)
