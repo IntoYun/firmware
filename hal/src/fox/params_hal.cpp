@@ -245,6 +245,54 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     intorobot_boot_params.initparam_flag = flag;
     return 0;
 }
+/********************************************************************************
+ *  添加参数
+ ********************************************************************************/
+
+/*
+ * 读取ota文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void) {
+    return intorobot_boot_params.ota_app_size;
+}
+
+/*
+ * 保存ota文件大小
+ * */
+int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
+    intorobot_boot_params.ota_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取默认应用文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_def_app_size(void) {
+    return intorobot_boot_params.def_app_size;
+}
+
+/*
+ * 保存默认应用文件大小
+ * */
+int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
+    intorobot_boot_params.def_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取升级boot文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_boot_size(void) {
+    return intorobot_boot_params.boot_size;
+}
+
+/*
+ * 保存升级boot文件大小
+ * */
+int HAL_PARAMS_Set_Boot_boot_size(uint32_t size) {
+    intorobot_boot_params.boot_size = size;
+    return 0;
+}
 
 /*
  * 保存设备ID
@@ -408,6 +456,21 @@ int HAL_PARAMS_Set_System_dw_domain(const char* buffer) {
         return 0;
     }
     return -1;
+}
+
+/*
+ * 读取子系统升级标志
+ * */
+uint8_t HAL_PARAMS_Get_System_subsys_flag(void) {
+    return intorobot_system_params.subsys_flag;
+}
+
+/*
+ * 保存子系统升级标志
+ * */
+int HAL_PARAMS_Set_System_subsys_flag(uint8_t flag) {
+    intorobot_system_params.subsys_flag = flag;
+    return 0;
 }
 
 /*

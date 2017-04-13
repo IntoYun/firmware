@@ -58,10 +58,8 @@ void USBD_CDC_Process(void)
             break;
         }
     }
-    if(len)
-    {
-        if (USBD_STATE_CONFIGURED == USBD_Device.dev_state)
-        {
+    if(len) {
+        if (USBD_STATE_CONFIGURED == USBD_Device.dev_state) {
             USBD_CDC_SetTxBuffer(&USBD_Device, TxBuffer, len);
             while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK);
         }
@@ -83,12 +81,24 @@ void USBD_CDC_Process(void)
 
 bool FLASH_Restore(Firmware_TypeDef FmType)
 {
+    bool result;
+    uint32_t size;
+
     if(DEFAULT_FIRWARE == FmType) {
-        FLASH_Restore(EXTERNAL_FLASH_FAC_ADDRESS);
+        size = HAL_PARAMS_Get_Boot_def_app_size();
+        if(0 == size) {
+            //size = FIRMWARE_IMAGE_SIZE;
+            size = 0x40000; //默认程序没有这么，为了缩短恢复默认程序，大小修改成256k
+        }
+        result = FLASH_CopyMemory(FLASH_SERIAL, EXTERNAL_FLASH_FAC_ADDRESS, FLASH_INTERNAL, CORE_FW_ADDRESS, size, 0, 0);
     } else {
-        FLASH_Restore(EXTERNAL_FLASH_OTA_ADDRESS);
+        size = HAL_PARAMS_Get_Boot_ota_app_size();
+        if(0 == size) {
+            return true;
+        }
+        result = FLASH_CopyMemory(FLASH_SERIAL, EXTERNAL_FLASH_OTA_ADDRESS, FLASH_INTERNAL, CORE_FW_ADDRESS, size, 0, 0);
     }
-    return true;
+    return result;
 }
 
 bool DEFAULT_Flash_Reset(void)

@@ -106,7 +106,7 @@ void Cellular_GPIO_Initial(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);//高电平
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET); //PWK_KEY 高电平
 
     //sim800c VDD_EXT
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -121,9 +121,9 @@ void Cellular_Power_On(void)
 {
     if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8)) {
         //sim800c 重新开机
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);//低电平
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
         HAL_Delay(1200);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);  //高电平
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET); //PWK_KEY 高电平
     }
 }
 
@@ -133,10 +133,10 @@ void HAL_System_Config(void)
     usart_debug_initial(115200);
     HAL_UI_Initial();
     HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    Cellular_GPIO_Initial();
+    Cellular_Power_On(); //必须放到HAL_RTC_Initial()之前 因为HAL_RTC_Initial()断电运行需要1S以上,此时检测VDD_EXT可能带来不确定因素.
     HAL_RTC_Initial();
     usart_cellular_initial(115200);  //通讯采取115200波特率
-    Cellular_GPIO_Initial();
-    Cellular_Power_On();
     HAL_EEPROM_Init();  //初始化eeprom区
 }
 

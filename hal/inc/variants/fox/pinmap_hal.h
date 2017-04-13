@@ -106,7 +106,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA  D1
 #define SCL  D0
 
-#define LED_USER  D6
+#define LED_USER  D7
 
 #define TOTAL_USARTS        1
 #define TOTAL_SPIS          2
