@@ -168,10 +168,29 @@ void Enter_DFU_Mode(void)
 void Enter_Cellular_Update_Mode(void)
 {
     HAL_UI_RGB_Color(RGB_COLOR_RED);
-    USBD_CDC_Init();
+    Cellular_Enter_UpdateMode();
     while (1)
     {
-        USBD_CDC_Process();
+        if (!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
+        }
+    }
+}
+
+void Enter_Flash_Test(void)
+{
+    sFLASH_Init();
+    uint32_t success_count = 0, failed_count = 0;
+    int result =0;
+    while(1) {
+        result = sFLASH_SelfTest();
+        if(0 == result) {
+            success_count ++;
+        } else {
+            failed_count ++;
+        }
+        BOOT_DEBUG("success_count = %d, failed_count = %d\r\n", success_count, failed_count);
+        delay(1000);
     }
 }
 

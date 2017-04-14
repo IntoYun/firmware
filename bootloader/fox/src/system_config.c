@@ -49,7 +49,7 @@ void usart_debug_initial(uint32_t baud)
 
 void usart_cellular_initial(uint32_t baud)
 {
-    HAL_NVIC_DisableIRQ(USART1_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
     sdkReleaseQueue(&USART_Cellular_Queue);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -127,6 +127,20 @@ void Cellular_Power_On(void)
     }
 }
 
+void Cellular_Enter_UpdateMode(void)
+{
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+    sdkReleaseQueue(&USART_Cellular_Queue);
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitTypeDef  GPIO_InitStruct;
+    GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
+    GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
 void HAL_System_Config(void)
 {
     Set_System();
@@ -156,5 +170,10 @@ void delay(uint32_t ms)
 void System_Reset(void)
 {
     NVIC_SystemReset();
+}
+
+void System_LineCodingBitRateHandler(uint32_t bitrate)
+{
+    usart_cellular_initial(bitrate);
 }
 
