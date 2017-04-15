@@ -119,8 +119,10 @@ void Network_Setup(void)
         network.connect();
     }
     if (network.connected()) {
+        INTOROBOT_CLOUD_SOCKETED = 1;
         system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
     } else {
+        INTOROBOT_CLOUD_SOCKETED = 0;
         system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
     network_connection_attempt_init();
@@ -135,11 +137,14 @@ void manage_network_connection()
     static bool was_connected = false;
     if (network.ready()) {
         if(!was_connected) {
+            DEBUG("was_connected = %d", was_connected);
             system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            INTOROBOT_CLOUD_SOCKETED = 1;
         }
         was_connected = true;
     } else {
         if(was_connected) {
+            INTOROBOT_CLOUD_SOCKETED = 0;
 #ifndef configNO_CLOUD
             INTOROBOT_CLOUD_CONNECTED = 0;
 #endif
@@ -214,7 +219,7 @@ void manage_app_auto_update(void)
 
 void preprocess_cloud_connection(void)
 {
-    if (network.connected()) {
+    if (INTOROBOT_CLOUD_SOCKETED) {
         if (!INTOROBOT_CLOUD_CONNECT_PREPARED) {
             // 同步时间
             intorobot_sync_time();
@@ -248,7 +253,7 @@ void preprocess_cloud_connection(void)
 
 void establish_cloud_connection(void)
 {
-    if (network.connected()) {
+    if (INTOROBOT_CLOUD_SOCKETED) {
         if (!INTOROBOT_CLOUD_CONNECTED) {
             if (in_cloud_backoff_period())
                 return;
@@ -269,7 +274,7 @@ void establish_cloud_connection(void)
 
 void handle_cloud_connection(void)
 {
-    if (network.connected()) {
+    if (INTOROBOT_CLOUD_SOCKETED) {
         if (INTOROBOT_CLOUD_CONNECTED) {
             int err = intorobot_cloud_handle();
             if (err) {

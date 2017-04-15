@@ -82,6 +82,11 @@ protected:
         }
     }
 
+    void drive_now() override
+    {
+        cellular_drive_now();
+    }
+
     void on_now() override {
         cellular_on(NULL);
     }

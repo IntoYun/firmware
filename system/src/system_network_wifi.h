@@ -27,10 +27,14 @@
 #include "wlan_hal.h"
 #include "interrupts_hal.h"
 
+void network_notify_connected();
+void network_notify_disconnected();
+void network_notify_can_shutdown();
+void network_notify_dhcp(bool dhcp);
+
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
 protected:
-
     void connect_init() override
     {
         wlan_connect_init();
@@ -46,10 +50,25 @@ protected:
         wlan_disconnect_now();
     }
 
+    void drive_now() override
+    {
+        wlan_drive_now();
+    }
+
     void on_now() override { wlan_activate(); }
     void off_now() override { wlan_deactivate(); }
 
 public:
+
+    WiFiNetworkInterface() {
+        HAL_NET_Callbacks cb;
+        cb.size = sizeof(HAL_NET_Callbacks);
+        cb.notify_connected = network_notify_connected;
+        cb.notify_disconnected = network_notify_disconnected;
+        cb.notify_dhcp = network_notify_dhcp;
+        cb.notify_can_shutdown = network_notify_can_shutdown;
+        HAL_NET_SetCallbacks(&cb, nullptr);
+    }
 
     void connect_cancel(bool cancel) override
     {
@@ -64,15 +83,13 @@ public:
 
     int set_credentials(NetworkCredentials* credentials) override
     {
-        if (!INTOROBOT_WLAN_STARTED || !credentials)
-        {
+        if (!INTOROBOT_WLAN_STARTED || !credentials) {
             return -1;
         }
 
         WLanSecurityType security = credentials->security;
 
-        if (0 == credentials->password[0])
-        {
+        if (0 == credentials->password[0]) {
             security = WLAN_SEC_UNSEC;
         }
 
@@ -91,8 +108,7 @@ public:
     {
         wlan_setup();
 
-        if (wlan_reset_credentials_store_required())
-        {
+        if (wlan_reset_credentials_store_required()) {
             wlan_reset_credentials_store();
         }
     }

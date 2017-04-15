@@ -129,6 +129,7 @@ protected:
     virtual void connect_init()=0;
     virtual void connect_finalize()=0;
     virtual void disconnect_now()=0;
+    virtual void drive_now()=0;
 
     virtual void on_now()=0;
     virtual void off_now()=0;
@@ -157,8 +158,7 @@ public:
     void connect(bool listen_enabled=true) override
     {
         SNETWORK_DEBUG("ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
-        if (!ready() && !connecting())
-        {
+        if (!ready() && !connecting()) {
             bool was_sleeping = INTOROBOT_WLAN_SLEEP;
 
             on(); // activate WiFi
@@ -168,14 +168,11 @@ public:
             INTOROBOT_WLAN_STARTED = 1;
             INTOROBOT_WLAN_SLEEP = 0;
 
-            if (!has_credentials())
-            {
+            if (!has_credentials()) {
                 if (was_sleeping) {
                     disconnect();
                 }
-            }
-            else
-            {
+            } else {
                 WLAN_CONNECTING = 1;
                 SNETWORK_DEBUG("ARM_WLAN_WD 1");
                 ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
@@ -186,16 +183,13 @@ public:
 
     void disconnect() override
     {
-        if (INTOROBOT_WLAN_STARTED)
-        {
+        if (INTOROBOT_WLAN_STARTED) {
             WLAN_DISCONNECT = 1; //Do not ARM_WLAN_WD() in WLAN_Async_Callback()
             WLAN_CONNECTING = 0;
             WLAN_CONNECTED = 0;
             WLAN_DHCP = 0;
 
-#ifndef configNO_CLOUD
-            cloud_disconnect();
-#endif
+            CLOUD_FN(cloud_disconnect(), (void)0);
             disconnect_now();
             config_clear();
         }
@@ -203,18 +197,19 @@ public:
 
     bool ready() override
     {
+        drive_now();
         return (INTOROBOT_WLAN_STARTED && WLAN_DHCP);
     }
 
     bool connecting() override
     {
+        drive_now();
         return (INTOROBOT_WLAN_STARTED && WLAN_CONNECTING);
     }
 
     void on() override
     {
-        if (!INTOROBOT_WLAN_STARTED)
-        {
+        if (!INTOROBOT_WLAN_STARTED) {
             config_clear();
             on_now();
             update_config(true);
@@ -225,8 +220,7 @@ public:
 
     void off(bool disconnect_cloud=false) override
     {
-        if (INTOROBOT_WLAN_STARTED)
-        {
+        if (INTOROBOT_WLAN_STARTED) {
             disconnect();
             off_now();
 
@@ -251,8 +245,7 @@ public:
         /* If DHCP has completed, don't re-arm WD due to spurious notify_connected()
          * from WICED on loss of internet and reconnect
          */
-        if (!WLAN_DISCONNECT && !WLAN_DHCP)
-        {
+        if (!WLAN_DISCONNECT && !WLAN_DHCP) {
             SNETWORK_DEBUG("ARM_WLAN_WD 2");
             ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
         }
@@ -260,11 +253,8 @@ public:
 
     void notify_disconnected()
     {
-#ifndef configNO_CLOUD
-        cloud_disconnect(false); // don't close the socket on the callback since this causes a lockup on the Core
-#endif
-        if (WLAN_CONNECTED)     /// unsolicited disconnect
-        {
+        CLOUD_FN(cloud_disconnect(false), (void)0);
+        if (WLAN_CONNECTED) {
             //Breathe blue if established connection gets disconnected
             if (!WLAN_DISCONNECT) {
                 //if WiFi.disconnect called, do not enable wlan watchdog
@@ -280,14 +270,11 @@ public:
     void notify_dhcp(bool dhcp)
     {
         WLAN_CONNECTING = 0;
-        if (dhcp)
-        {
+        if (dhcp) {
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
-        }
-        else
-        {
+        } else {
             config_clear();
             WLAN_DHCP = 0;
             SNETWORK_DEBUG("DHCP fail, ARM_WLAN_WD 5");
@@ -329,17 +316,13 @@ public:
     {
         // todo - IPv6 may not set this field.
         bool fetched_config = ip_config.nw.aucIP.ipv4!=0;
-        if (hasDHCP() || force)
-        {
-            if (!fetched_config || force)
-            {
+        if (hasDHCP() || force) {
+            if (!fetched_config || force) {
                 memset(&ip_config, 0, sizeof(ip_config));
                 ip_config.size = sizeof(ip_config);
                 reinterpret_cast<C*>(this)->fetch_ipconfig(&ip_config);
             }
-        }
-        else if (fetched_config)
-        {
+        } else if (fetched_config) {
             config_clear();
         }
     }

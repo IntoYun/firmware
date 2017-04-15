@@ -25,6 +25,9 @@
 #include "macaddr_hal.h"
 #include "delay_hal.h"
 
+#define STATION_IF      0x00
+#define SOFTAP_IF       0x01
+
 static volatile uint32_t wlan_timeout_start;
 static volatile uint32_t wlan_timeout_duration;
 
@@ -42,58 +45,77 @@ inline void CLR_WLAN_TIMEOUT() {
     //DEBUG("WLAN WD Cleared, was %d", wlan_timeout_duration);
 }
 
+//=======net notify===========
+static HAL_NET_Callbacks netCallbacks = { 0 };
+
+void HAL_NET_SetCallbacks(const HAL_NET_Callbacks* callbacks, void* reserved)
+{
+    netCallbacks.notify_connected = callbacks->notify_connected;
+    netCallbacks.notify_disconnected = callbacks->notify_disconnected;
+    netCallbacks.notify_dhcp = callbacks->notify_dhcp;
+    netCallbacks.notify_can_shutdown = callbacks->notify_can_shutdown;
+}
+
+void HAL_NET_notify_connected()
+{
+    if (netCallbacks.notify_connected) {
+        netCallbacks.notify_connected();
+    }
+}
+
+void HAL_NET_notify_disconnected()
+{
+    if (netCallbacks.notify_disconnected) {
+        netCallbacks.notify_disconnected();
+    }
+}
+
+void HAL_NET_notify_dhcp(bool dhcp)
+{
+    if (netCallbacks.notify_dhcp) {
+        netCallbacks.notify_dhcp(dhcp); // dhcp dhcp
+    }
+}
+
+void HAL_NET_notify_can_shutdown()
+{
+    if (netCallbacks.notify_can_shutdown) {
+        netCallbacks.notify_can_shutdown();
+    }
+}
+
 uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 {
     return 0;
 }
 
-int wlan_clear_credentials()
-{
-    return 0;
-}
-
-int wlan_has_credentials()
-{
-    return 0;
-}
-
-static int wlan_status()
-{
-    wl_status_t status = esp8266_status();
-    switch(status) {
-        case WL_CONNECTED:
-            return 0;
-        default:
-            return 1;
-    }
-    return 0;
-}
-
-int wlan_connect_init()
-{
-    int result = 0;
-    if(wlan_status()) {
-        result = esp8266_connect();
-        return result;
-    }
-    return 0;
-}
-
-/**
- * Do what is needed to finalize the connection.
- * @return
- */
-wlan_result_t wlan_connect_finalize()
-{
-    return 0;
-}
-
+//=======wifi activate/deactivate===========
 wlan_result_t wlan_activate()
 {
     return 0;
 }
 
 wlan_result_t wlan_deactivate()
+{
+    return 0;
+}
+
+void wlan_setup()
+{
+    esp8266_wifiInit();
+    esp8266_setMode(WIFI_STA);
+    esp8266_setDHCP(true);
+    esp8266_setAutoConnect(true);
+    esp8266_setAutoReconnect(true);
+}
+
+//=======wifi connect===========
+int wlan_connect_init()
+{
+    return esp8266_connect();
+}
+
+wlan_result_t wlan_connect_finalize()
 {
     return 0;
 }
@@ -108,6 +130,26 @@ void wlan_connect_cancel(bool called_from_isr)
 
 }
 
+int wlan_connected_rssi(void)
+{
+    return esp8266_getRSSI();
+}
+
+void wlan_drive_now(void)
+{
+}
+
+//================credentials======================
+int wlan_clear_credentials()
+{
+    return 0;
+}
+
+int wlan_has_credentials()
+{
+    return 0;
+}
+
 bool wlan_reset_credentials_store_required()
 {
     return false;
@@ -119,9 +161,9 @@ wlan_result_t wlan_reset_credentials_store()
     return 0;
 }
 
-int wlan_connected_rssi(void)
+int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
 {
-    return esp8266_getRSSI();
+    return 0;
 }
 
 int wlan_set_credentials(WLanCredentials* c)
@@ -149,6 +191,7 @@ int wlan_set_credentials(WLanCredentials* c)
     return 0;
 }
 
+//==============imlink==================
 void wlan_Imlink_start()
 {
     esp8266_beginSmartConfig();
@@ -156,23 +199,16 @@ void wlan_Imlink_start()
 
 imlink_status_t wlan_Imlink_get_status()
 {
-    if(!esp8266_smartConfigDone())
-    return IMLINK_DOING;
-    else
-    return IMLINK_SUCCESS;
+    if(!esp8266_smartConfigDone()) {
+        return IMLINK_DOING;
+    } else {
+        return IMLINK_SUCCESS;
+    }
 }
 
 void wlan_Imlink_stop()
 {
     esp8266_stopSmartConfig();
-}
-
-void wlan_setup()
-{
-    esp8266_setMode(WIFI_STA);
-    esp8266_setDHCP(true);
-    esp8266_setAutoConnect(true);
-    esp8266_setAutoReconnect(true);
 }
 
 void wlan_fetch_ipconfig(WLanConfig* config)
@@ -200,7 +236,6 @@ void wlan_set_error_count(uint32_t errorCount)
 {
 }
 
-
 /**
  * Sets the IP source - static or dynamic.
  */
@@ -223,7 +258,7 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
 
 }
 
-WLanSecurityType toSecurityType(AUTH_MODE authmode)
+static WLanSecurityType toSecurityType(AUTH_MODE authmode)
 {
     switch(authmode)
     {
@@ -246,7 +281,7 @@ WLanSecurityType toSecurityType(AUTH_MODE authmode)
     }
 }
 
-WLanSecurityCipher toCipherType(AUTH_MODE authmode)
+static WLanSecurityCipher toCipherType(AUTH_MODE authmode)
 {
     switch(authmode)
     {
@@ -284,16 +319,14 @@ void scan_done_cb(void *arg, STATUS status)
     int n = 0, m = 0, j = 0;
     bss_info *it = (bss_info*)arg;
 
-    if(status == OK)
-    {
+    if(status == OK) {
         //获取ap数量
         for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
         scanInfo.count = n;
 
         //申请内存
         WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
-        if(pNode == NULL)
-        {
+        if(pNode == NULL) {
             scanInfo.completed = true;
             return;
         }
@@ -310,13 +343,11 @@ void scan_done_cb(void *arg, STATUS status)
             j = n;
             for(m = n+1; m < scanInfo.count; m++)
             {
-                if(pNode[m].rssi > pNode[j].rssi)
-                {
+                if(pNode[m].rssi > pNode[j].rssi) {
                     j = m;
                 }
             }
-            if(j != n)
-            {
+            if(j != n) {
                 memcpy(&apSimple, &pNode[n], sizeof(struct WlanApSimple));
                 memcpy(&pNode[n], &pNode[j], sizeof(struct WlanApSimple));
                 memcpy(&pNode[j], &apSimple, sizeof(struct WlanApSimple));
@@ -328,8 +359,7 @@ void scan_done_cb(void *arg, STATUS status)
         {
             for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
             {
-                if(!memcmp(pNode[n].bssid, it->bssid, 6))
-                {
+                if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
                     memset(&data, 0, sizeof(WiFiAccessPoint));
                     memcpy(data.ssid, it->ssid, it->ssid_len);
                     data.ssidLength = it->ssid_len;
@@ -360,8 +390,7 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
     scanInfo.callback_data = cookie;
     scanInfo.count = 0;
     scanInfo.completed = false;
-    if(wifi_station_scan(NULL, scan_done_cb))
-    {
+    if(wifi_station_scan(NULL, scan_done_cb)) {
         WLAN_TIMEOUT(6000);
         while(!scanInfo.completed)
         {
@@ -372,30 +401,17 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
             }
         }
         return scanInfo.count;
-    }
-    else
-    {
+    } else {
         return -1;
     }
 }
-
-/**
- * Lists all WLAN credentials currently stored on the device
- */
-int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
-{
-    return 0;
-}
-
-#define STATION_IF      0x00
-#define SOFTAP_IF       0x01
 
 /**
  * wifi set station and ap mac addr
  */
 int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
-    if (stamacaddr != NULL && apmacaddr != NULL){
+    if (stamacaddr != NULL && apmacaddr != NULL) {
         mac_param_t mac_addrs;
         mac_addrs.header = FLASH_MAC_HEADER;
 
@@ -418,12 +434,11 @@ int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
  */
 int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
-    if(!wifi_get_macaddr(STATION_IF, stamacaddr))
-    {
+    if(!wifi_get_macaddr(STATION_IF, stamacaddr)) {
         return -1;
     }
-    if(!wifi_get_macaddr(SOFTAP_IF, apmacaddr))
-    {
+
+    if(!wifi_get_macaddr(SOFTAP_IF, apmacaddr)) {
         return -1;
     }
     return 0;
@@ -431,14 +446,13 @@ int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 
 int wlan_set_macaddr_from_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
-    if(!wifi_set_macaddr(STATION_IF, stamacaddr))
-        {
-            return -1;
-        }
-    if(!wifi_set_macaddr(SOFTAP_IF, apmacaddr))
-        {
-            return -1;
-        }
+    if(!wifi_set_macaddr(STATION_IF, stamacaddr)) {
+        return -1;
+    }
+
+    if(!wifi_set_macaddr(SOFTAP_IF, apmacaddr)) {
+        return -1;
+    }
     return 0;
 }
 
@@ -450,10 +464,6 @@ int wlan_set_macaddr_when_init(void)
         esp8266_setMode(WIFI_AP_STA);
         wlan_set_macaddr_from_flash(mac_addrs.stamac_addrs, mac_addrs.apmac_addrs);
         esp8266_setMode(WIFI_STA);
-        // for (int i = 0; i < 6; i++){
-        //     DEBUG("stamac: %x", mac_addrs.stamac_addrs[i]);
-        // }
-        // HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
     }
 }
 

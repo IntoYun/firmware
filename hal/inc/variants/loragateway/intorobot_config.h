@@ -68,7 +68,7 @@
 //#define configNO_NETWORK
 
 /* config cloud */
-#define configNO_CLOUD
+//#define configNO_CLOUD
 
 /* config cloud */
 #define configNO_LORAWAN

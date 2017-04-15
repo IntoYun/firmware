@@ -43,7 +43,7 @@
 #include "system_version.h"
 
 /*debug switch*/
-//#define SYSTEM_CONFIG_DEBUG
+#define SYSTEM_CONFIG_DEBUG
 
 #ifdef SYSTEM_CONFIG_DEBUG
 #define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
@@ -886,7 +886,7 @@ static volatile uint8_t UdpStep = 0;
 void UdpDeviceConfig::init(void)
 {
     Udp.setTimeout(50);
-    wlan_setup();
+    network_setup(0, 0, NULL);
     wlan_Imlink_start();
     UdpStep = 0;
 }
@@ -915,6 +915,7 @@ int UdpDeviceConfig::available(void)
         case 0:
             if( IMLINK_SUCCESS == wlan_Imlink_get_status() ) {
                 wlan_Imlink_stop();
+                network_connect(0, 0, 0, NULL);
                 ARM_CONFIG_TIMEOUT(5000);
                 UdpStep = 1;
             }

@@ -78,7 +78,7 @@ down_status_t HAL_OTA_Get_App_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Update_App(void)
+void HAL_OTA_Update_App(uint32_t size)
 {
 }
 
@@ -92,7 +92,7 @@ down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
     return DOWNSTATUS_SUCCESS;
 }
 
-void HAL_OTA_Upadate_Subsys(void)
+void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
 {
 }
 

@@ -9,6 +9,7 @@ static CellularCredentials cellularCredentials;
 
 static HAL_NET_Callbacks netCallbacks = { 0 };
 
+//=======net notify===========
 void HAL_NET_notify_connected()
 {
     if (netCallbacks.notify_connected) {
@@ -53,6 +54,10 @@ cellular_result_t  cellular_off(void* reserved)
 {
     CHECK_SUCCESS(CellularMDM.powerOff());
     return 0;
+}
+
+void cellular_drive_now(void)
+{
 }
 
 cellular_result_t  cellular_register(void* reserved)
