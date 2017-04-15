@@ -12,6 +12,7 @@
 - [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/54) [neutron/nut/fig/w67/w323] 获取网络状态采取通知机制
 
 ### BUG FIXES(漏洞修复)
+- [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/55) [all] STM32L151xB 芯片 ajson print申请变量大小改成512个字节
 
 
 ### INTERNAL(内部)
