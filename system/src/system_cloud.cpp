@@ -1131,6 +1131,7 @@ int intorobot_cloud_connect(void)
         aJsonObject* root = aJson.createObject();
         if (root == NULL)
         {return -1;}
+        aJson.addStringToObject(root, "board", board);
         aJson.addStringToObject(root, "fw_ver", fw_version);
         aJson.addStringToObject(root, "sys_ver", subsys_version);
         char* string = aJson.print(root);
