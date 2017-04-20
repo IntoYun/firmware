@@ -17,6 +17,7 @@
 
 ### INTERNAL(内部)
 - [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/54) [all] PRODUCT_ID 默认值修改成空, PRODUCT_SECRET 默认值修改成空, PRODUCT_VERSION 默认值修改成1
+- [[PR #57]](https://github.com/HITSZ-NRSL/firmware/pull/55) [all] intorobot上送版本信息添加board字段
 
 
 ## v1.5.1-rc.1
