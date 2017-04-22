@@ -51,19 +51,19 @@ if [ $sysType = "Linux" ]; then
         cecho "--->install success " $blue
 
         cecho "--->install st-flash " $blue
-        wget https://github.com/IntoRobot/stlink/releases/download/1.2.0/stlink-1.2.0-linux64.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-linux64.tar.gz
         tar -zxf stlink-1.2.0-linux64.tar.gz
         mv stlink-1.2.0-linux64 ../stlink
         cecho "--->install success " $blue
 
         cecho "--->install esp8266 esptool " $blue
-        wget https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-linux64.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-linux64.tar.gz
         tar -zxf esptool-0.4.11-linux64.tar.gz
         mv esptool-0.4.11-linux64 ../esp8266
         cecho "--->install success " $blue
 
         cecho "--->install esp32 esptool " $blue
-        wget https://dl.espressif.com/dl/esptool-fe69994-linux64.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/esptool-fe69994-linux64.tar.gz
         tar -zxf esptool-fe69994-linux64.tar.gz
         mkdir ../esp32
         mv esptool ../esp32/
@@ -84,19 +84,19 @@ if [ $sysType = "Linux" ]; then
         cecho "--->install success " $blue
 
         cecho "--->install st-flash " $blue
-        wget https://github.com/IntoRobot/stlink/releases/download/1.2.0/stlink-1.2.0-linux32.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-linux64.tar.gz
         tar -zxf stlink-1.2.0-linux32.tar.gz
         mv stlink-1.2.0-linux32 ../stlink
         cecho "--->install success " $blue
 
         cecho "--->install esp8266 esptool " $blue
-        wget https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-linux64.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-linux64.tar.gz
         tar -zxf esptool-0.4.11-linux64.tar.gz
         mv  esptool-0.4.11-linux64 ../esp8266
         cecho "--->install success " $blue
 
         cecho "--->install esp32 esptool " $blue
-        wget https://dl.espressif.com/dl/esptool-fe69994-linux32.tar.gz
+        wget http://www.intoyun.com/downloads/terminal/tools/esptool-fe69994-linux32.tar.gz
         tar -zxf esptool-fe69994-linux32.tar.gz
         mkdir ../esp32
         mv esptool ../esp32/
@@ -128,19 +128,19 @@ elif [ $sysType = "Darwin" ]; then
     cecho "--->install success " $blue
 
     cecho "--->install st-flash " $blue
-    wget https://github.com/IntoRobot/stlink/releases/download/1.2.0/stlink-1.2.0-osx.tar.gz
+    wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-osx.tar.gz
     tar -zxf stlink-1.2.0-osx.tar.gz
     mv stlink-1.2.0-osx ../stlink
     cecho "--->install success " $blue
 
     cecho "--->install esp8266 esptool " $blue
-    wget https://github.com/igrr/esptool-ck/releases/download/0.4.11/esptool-0.4.11-osx.tar.gz
+    wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-osx.tar.gz
     tar -zxf esptool-0.4.11-osx.tar.gz
     mv esptool-0.4.11-osx ../esp8266
     cecho "--->install success " $blue
 
     cecho "--->install esp32 esptool " $blue
-    wget https://dl.espressif.com/dl/esptool-9072736-macos.tar.gz
+    wget http://www.intoyun.com/downloads/terminal/tools/esptool-9072736-macos.tar.gz
     tar -zxf esptool-9072736-macos.tar.gz
     mkdir ../esp32
     mv esptool ../esp32/
