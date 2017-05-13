@@ -43,9 +43,10 @@ typedef void (*pCallBack)(uint8_t*, uint32_t);
 
 typedef enum
 {
-    API_VERSION_V1 = 1,
-    API_VERSION_V2 = 2
-} api_version_t;
+    TOPIC_VERSION_CUSTOM = 0,
+    TOPIC_VERSION_V1,
+    TOPIC_VERSION_V2
+} topic_version_t;
 
 class WidgetBaseClass
 {
@@ -60,7 +61,7 @@ struct CallBackNode
     uint8_t qos;
     const char *topic;
     const char *device_id;
-    api_version_t version;
+    topic_version_t version;
 };
 
 struct WidgetCallBackNode
@@ -69,7 +70,7 @@ struct WidgetCallBackNode
     uint8_t qos;
     const char *topic;
     const char *device_id;
-    api_version_t version;
+    topic_version_t version;
 };
 
 struct CallBackList
@@ -95,10 +96,10 @@ extern "C" {
 
 void intorobot_send_upgrade_progress(uint8_t progress);
 void intorobot_cloud_init(void);
-bool intorobot_publish(api_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
-bool intorobot_subscribe(api_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
-bool intorobot_widget_subscribe(api_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
-bool intorobot_unsubscribe(api_version_t version, const char *topic, const char *device_id);
+bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained);
+bool intorobot_subscribe(topic_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
+bool intorobot_widget_subscribe(topic_version_t version, const char* topic, const char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
+bool intorobot_unsubscribe(topic_version_t version, const char *topic, const char *device_id);
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);

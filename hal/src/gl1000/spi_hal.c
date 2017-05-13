@@ -284,17 +284,13 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
  */
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
-    HAL_SPI_GPIO_DMA_DeInit(spi);
-    spiMap[spi]->SPI_Enabled = false;
+    if(spiMap[spi]->SPI_Enabled != false) {
+        HAL_SPI_GPIO_DMA_DeInit(spi);
+        spiMap[spi]->SPI_Enabled = false;
+    }
 }
 
-/*
- * @brief Set the SPI bit order.
- * @param spi: spi number chosed.
- * @param order: LSBFIRST or MSBFIRST.
- * @retral None
- */
-void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
+static inline void HAL_SPI_Set_Bit_Order_Impl(HAL_SPI_Interface spi, uint8_t order)
 {
     if(order == LSBFIRST)
     {
@@ -304,18 +300,20 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
     {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
     }
+}
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
+{
+    HAL_SPI_Set_Bit_Order_Impl(spi, order);
+
+    if(spiMap[spi]->SPI_Enabled != false) {
+        HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    }
+
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
-/*
- * @brief Set the SPI data mode.
- * @param spi: spi number chosed.
- * @param mode: SPI mode.
- * @retral None
- */
-void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
+static inline void HAL_SPI_Set_Data_Mode_Impl(HAL_SPI_Interface spi, uint8_t mode)
 {
     switch(mode)
     {
@@ -339,23 +337,32 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_2EDGE;
             break;
     }
+}
 
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
+{
+    HAL_SPI_Set_Data_Mode_Impl(spi, mode);
+
+    if(spiMap[spi]->SPI_Enabled != false) {
+        HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    }
     spiMap[spi]->SPI_Data_Mode_Set = true;
 }
 
-/*
- * @brief Set the SPI clock divider.
- * @param spi: spi number chosed.
- * @param order: spi baudrateprescaler.
- * @retral None
- */
-void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
+static inline void HAL_SPI_Set_Clock_Divider_Impl(HAL_SPI_Interface spi, uint8_t rate)
 {
     spiMap[spi]->SpiHandle.Init.BaudRatePrescaler = rate;
-    HAL_SPI_Init(&spiMap[spi]->SpiHandle);
-    spiMap[spi]->SPI_Clock_Divider_Set = true;
+}
 
+void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
+{
+    HAL_SPI_Set_Clock_Divider_Impl(spi, rate);
+
+    if(spiMap[spi]->SPI_Enabled != false) {
+        HAL_SPI_Init(&spiMap[spi]->SpiHandle);
+    }
+
+    spiMap[spi]->SPI_Clock_Divider_Set = true;
 }
 
 int32_t HAL_SPI_Set_Settings(HAL_SPI_Interface spi, uint8_t set_default, uint8_t clockdiv, uint8_t order, uint8_t mode, void* reserved)

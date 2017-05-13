@@ -159,7 +159,6 @@ uint16_t BridgeClass::transfer(const uint8_t *buff1, uint16_t len1,
     uint16_t len = len1 + len2 + len3;
     uint8_t retries = 0;
 
-    HAL_Core_System_Loop_Control(false);
     for ( ; retries < max_retries; retries++, delay(100), dropAll() /* Delay for retransmission */)
     {
         // Send packet
@@ -239,14 +238,12 @@ uint16_t BridgeClass::transfer(const uint8_t *buff1, uint16_t len1,
         // Increase index
         index++;
 
-        HAL_Core_System_Loop_Control(true);
         // Return bytes received
         if (l > rxlen)
         {return rxlen;}
         else
         {return l;}
     }
-    HAL_Core_System_Loop_Control(true);
 
     // Max retries exceeded
     return TRANSFER_TIMEOUT;

@@ -1,3 +1,20 @@
+## v1.5.3-rc.1
+
+### FEATURES(功能)
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [all] 数据点组织格式统一使用二进制方式
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [all] 添加事件通知接口
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [all] 数据点发送添加系统自动处理方式
+
+### ENHANCEMENTS(优化)
+- [[PR #51]](https://github.com/HITSZ-NRSL/firmware/pull/51) [nut/w6/w7] esp8266 process 放入到system层实现
+
+
+### BUG FIXES(漏洞修复)
+
+
+### INTERNAL(内部)
+
+
 ## v1.5.2-rc.1
 
 ### FEATURES(功能)

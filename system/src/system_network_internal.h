@@ -176,6 +176,7 @@ public:
                 WLAN_CONNECTING = 1;
                 SNETWORK_DEBUG("ARM_WLAN_WD 1");
                 ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
+                system_notify_event(event_network_status, ep_network_status_connecting);
                 connect_finalize();
             }
         }
@@ -183,6 +184,9 @@ public:
 
     void disconnect() override
     {
+        const bool was_connected = WLAN_CONNECTED;
+        const bool was_connecting = WLAN_CONNECTING;
+
         if (INTOROBOT_WLAN_STARTED) {
             WLAN_DISCONNECT = 1; //Do not ARM_WLAN_WD() in WLAN_Async_Callback()
             WLAN_CONNECTING = 0;
@@ -190,8 +194,15 @@ public:
             WLAN_DHCP = 0;
 
             CLOUD_FN(cloud_disconnect(), (void)0);
+            if (was_connected) {
+                // "Disconnecting" event is generated only for a successfully established connection
+                system_notify_event(event_network_status, ep_network_status_disconnecting);
+            }
             disconnect_now();
             config_clear();
+            if (was_connected || was_connecting) {
+                system_notify_event(event_network_status, ep_network_status_disconnected);
+            }
         }
     }
 
@@ -210,11 +221,13 @@ public:
     void on() override
     {
         if (!INTOROBOT_WLAN_STARTED) {
+            system_notify_event(event_network_status, ep_network_status_powering_on);
             config_clear();
             on_now();
             update_config(true);
             INTOROBOT_WLAN_STARTED = 1;
             INTOROBOT_WLAN_SLEEP = 0;
+            system_notify_event(event_network_status, ep_network_status_on);
         }
     }
 
@@ -222,6 +235,7 @@ public:
     {
         if (INTOROBOT_WLAN_STARTED) {
             disconnect();
+            system_notify_event(event_network_status, ep_network_status_powering_off);
             off_now();
 
             INTOROBOT_WLAN_SLEEP = 1;
@@ -234,6 +248,7 @@ public:
             WLAN_DHCP = 0;
             WLAN_CONNECTED = 0;
             WLAN_CONNECTING = 0;
+            system_notify_event(event_network_status, ep_network_status_off);
         }
     }
 
@@ -249,6 +264,7 @@ public:
             SNETWORK_DEBUG("ARM_WLAN_WD 2");
             ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
         }
+        system_notify_event(event_network_status, ep_network_status_disconnected);
     }
 
     void notify_disconnected()
@@ -274,11 +290,13 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
+            system_notify_event(event_network_status, ep_network_status_connected);
         } else {
             config_clear();
             WLAN_DHCP = 0;
             SNETWORK_DEBUG("DHCP fail, ARM_WLAN_WD 5");
             ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
+            system_notify_event(event_network_status, ep_network_status_disconnected);
         }
     }
 

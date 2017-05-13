@@ -28,72 +28,94 @@
 #include "wiring_string.h"
 
 // Permission
-#define JSON_DATA_FORMAT    0x30
-#define BINARY_DATA_FORMAT  0x31
+#define JSON_DATA_FORMAT                          0x30
+#define BINARY_DATA_FORMAT                        0x31
+
+#define PROPERTIES_MAX                            50
+
+//#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     600
+#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     10
+
+// transmit
+typedef enum {
+    DP_TRANSMIT_MODE_MANUAL = 0,       // 用户控制发送
+    DP_TRANSMIT_MODE_AUTOMATIC,        // 系统自动发送
+}dp_transmit_mode_t;
 
 // Permission
-#define DP_PERMISSION_UP_ONLY    "up_only"
-#define DP_PERMISSION_DOWN_ONLY  "down_only"
-#define DP_PERMISSION_UP_DOWN    "up_down"
+typedef enum {
+    DP_PERMISSION_UP_ONLY = 0,   //只上送
+    DP_PERMISSION_DOWN_ONLY,     //只下发
+    DP_PERMISSION_UP_DOWN        //可上送下发
+}dp_permission_t;
 
 // Policy
-#define DP_POLICY_NONE       ""
-#define DP_POLICY_TIMED      "timed"
-#define DP_POLICY_ON_CHANGE  "on_change"
+typedef enum {
+    DP_POLICY_NONE = 0,         //立即发送
+    DP_POLICY_TIMED,            //间隔发送
+    DP_POLICY_ON_CHANGE         //改变发送
+}dp_policy_t;
 
-#define PROPERTIES_MAX 50
-
-typedef enum{
-    DATA_TYPE_BOOL = 0,   //bool型
-    DATA_TYPE_NUM,        //数值型
-    DATA_TYPE_ENUM,       //枚举型
-    DATA_TYPE_STRING,     //字符串型
-    DATA_TYPE_BINARY      //透传型
+typedef enum {
+    DATA_TYPE_BOOL = 0,         //bool型
+    DATA_TYPE_NUM = 1,          //数值型
+    DATA_TYPE_ENUM = 2,         //枚举型
+    DATA_TYPE_STRING = 3,       //字符串型
+    DATA_TYPE_BINARY = 4        //透传型
 }data_type_t;
 
-typedef enum{
-    RESULT_DATAPOINT_OLD  = 0,   // 旧数据
-    RESULT_DATAPOINT_NEW  = 1,   // 新收取数据
-    RESULT_DATAPOINT_NONE = 2,   // 没有该数据点
+typedef enum {
+    RESULT_DATAPOINT_OLD = 0,   // 旧数据
+    RESULT_DATAPOINT_NEW,       // 新收取数据
+    RESULT_DATAPOINT_NONE       // 没有该数据点
 }read_datapoint_result_t;
 
-//float型属性
-struct float_property_t{
+//number型属性
+typedef struct {
     double minValue;
     double maxValue;
     int resolution;
-};
+}number_property_t;
 
-//透传型属性
-struct binary_property_t{
-    const uint8_t *value;
+//binary型属性
+typedef struct {
+    uint8_t *value;
     uint16_t len;
-};
+}binary_property_t;
 
-// Property configuration
-struct property_conf {
+//datapoint uint
+typedef struct {
     const uint16_t dpID;
     const data_type_t dataType;
-    const char *permission;
-    const char *policy;
+    const dp_permission_t permission;
+    const dp_policy_t policy;
     long lapse;
     long runtime;
+    bool change;
     read_datapoint_result_t readFlag;
-    float_property_t floatProperty;
+    number_property_t numberProperty;
     String value;
-    uint8_t *binaryValue;
-    uint16_t binaryLen;
-};
+    binary_property_t valueBinary;
+}property_conf_t;
+
+//datapoint control
+typedef struct {
+    bool datapoint_function_open;                // 数据点功能开关
+    dp_transmit_mode_t datapoint_transmit_mode;  // 数据点发送类型
+    uint32_t datapoint_transmit_lapse;           // 数据点自动发送 时间间隔
+    long runtime;                                // 数据点间隔发送时间
+}datapoint_control_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void intorobotDefineDatapointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse);
-void intorobotDefineDatapointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution, const double value, const char *policy, const int lapse);
-void intorobotDefineDatapointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse);
-void intorobotDefineDatapointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse);
-void intorobotDefineDatapointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse);
+void intorobotDatapointControl(bool open, dp_transmit_mode_t mode, uint32_t lapse);
+void intorobotDefineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse);
 
 read_datapoint_result_t intorobotReadDatapointBool(const uint16_t dpID, bool &value);
 read_datapoint_result_t intorobotReadDatapointInt(const uint16_t dpID, int &value);
@@ -105,11 +127,13 @@ read_datapoint_result_t intorobotReadDatapointString(const uint16_t dpID, String
 read_datapoint_result_t intorobotReadDatapointStringChar(const uint16_t dpID, char *value);
 read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
 
-void intorobotParseReceiveDataJson(uint8_t *payload, uint32_t len);
-void intorobotParseReceiveDataBinary(uint8_t *payload, uint32_t len);
-void intorobotWriteDatapoint(const uint16_t dpID, const char *value);
-void intorobotSendDatapoint(const uint16_t dpID, const char *value);
-void intorobotSendDatapointAll(void);
+void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len);
+void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8_t type );
+void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
+void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value);
+void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
+void intorobotSendAllDatapointManual(void);
+void intorobotSendAllDatapointAutomatic(void);
 
 #ifdef __cplusplus
 }

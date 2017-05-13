@@ -107,22 +107,22 @@ void intorobot_lorawan_send_terminal_info(void)
     memcpy(&buffer[index], product_details.product_id, len);
     index+=len;
 
-    // board
-    buffer[index++] = 0xFF;
-    buffer[index++] = 0x02;
-    buffer[index++] = 0x03;
-    len = strlen(board);
-    buffer[index++] = len;
-    memcpy(&buffer[index], board, len);
-    index+=len;
-
     // productver
     buffer[index++] = 0xFF;
-    buffer[index++] = 0x03;
+    buffer[index++] = 0x02;
     buffer[index++] = 0x03;
     len = String(product_details.product_firmware_version).length();
     buffer[index++] = len;
     memcpy(&buffer[index], String(product_details.product_firmware_version).c_str(), len);
+    index+=len;
+
+    // board
+    buffer[index++] = 0xFF;
+    buffer[index++] = 0x03;
+    buffer[index++] = 0x03;
+    len = strlen(board);
+    buffer[index++] = len;
+    memcpy(&buffer[index], board, len);
     index+=len;
 
     for(int i=0; i<index; i++)

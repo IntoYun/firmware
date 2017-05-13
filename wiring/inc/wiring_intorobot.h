@@ -38,104 +38,110 @@
 class IntoRobotDatepointClass {
 
     public:
+        //数据点自动发送设置
+        static void datapointControl(bool open, dp_transmit_mode_t mode = DP_TRANSMIT_MODE_AUTOMATIC, uint32_t lapse = DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL) //控制数据点  单位为s
+        {
+            intorobotDatapointControl(open, mode, lapse);
+        }
+
         //添加通用数据收发接口
         // 添加数据点
-        static void defineDatapointBool(const uint16_t dpID, const char *permission)
+        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission)
         {
-            defineDatapointBool(dpID, permission, false, "", 0);
+            defineDatapointBool(dpID, permission, false, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBool(const uint16_t dpID, const char *permission, const bool value)
+        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value)
         {
-            defineDatapointBool(dpID, permission, value, "", 0);
+            defineDatapointBool(dpID, permission, value, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy)
+        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy)
         {
             defineDatapointBool(dpID, permission, value, policy, 0);
         }
         // lapse 单位为秒
-        static void defineDatapointBool(const uint16_t dpID, const char *permission, const bool value, const char *policy, const int lapse)
+        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse)
         {
             intorobotDefineDatapointBool(dpID, permission, (bool)value, policy, lapse);
         }
 
-        static void defineDatapointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution)
+        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution)
         {
-            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, minValue, "", 0);
+            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, minValue, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution, const double value)
+        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value)
         {
-            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, "", 0);
+            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution, const double value, const char *policy)
+        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy)
         {
             defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, 0);
         }
 
-        static void defineDatapointNumber(const uint16_t dpID, const char *permission, const double minValue, const double maxValue, const int resolution, const double value, const char *policy, const int lapse)
+        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse)
         {
             intorobotDefineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, lapse);
         }
 
-        static void defineDatapointEnum(const uint16_t dpID, const char *permission)
+        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission)
         {
-            defineDatapointEnum(dpID, permission, 0, "", 0);
+            defineDatapointEnum(dpID, permission, 0, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointEnum(const uint16_t dpID, const char *permission, const int value)
+        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value)
         {
-            defineDatapointEnum(dpID, permission, value, "", 0);
+            defineDatapointEnum(dpID, permission, value, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy)
+        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy)
         {
             defineDatapointEnum(dpID, permission, value, policy, 0);
         }
 
-        static void defineDatapointEnum(const uint16_t dpID, const char *permission, const int value, const char *policy, const int lapse)
+        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse)
         {
             intorobotDefineDatapointEnum(dpID, permission, value, policy, lapse);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const char *permission)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission)
         {
-            defineDatapointString(dpID, permission, "", "", 0);
+            defineDatapointString(dpID, permission, "", DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const char *permission, const char *value)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value)
         {
-            defineDatapointString(dpID, permission, value, "", 0);
+            defineDatapointString(dpID, permission, value, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const char *permission, const char *value, const char *policy)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy)
         {
             defineDatapointString(dpID, permission, value, policy, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const char *permission, const char *value, const char *policy, const int lapse)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy, const int lapse)
         {
             intorobotDefineDatapointString(dpID, permission, value, policy, lapse);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const char *permission)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission)
         {
-            defineDatapointBinary(dpID, permission, NULL, 0, "", 0);
+            defineDatapointBinary(dpID, permission, NULL, 0, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len)
         {
-            defineDatapointBinary(dpID, permission, value, len, "", 0);
+            defineDatapointBinary(dpID, permission, value, len, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy)
         {
             defineDatapointBinary(dpID, permission, value, len, policy, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const char *permission, const uint8_t *value, const uint16_t len, const char *policy, const int lapse)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse)
         {
             intorobotDefineDatapointBinary(dpID, permission, value, len, policy, lapse);
         }
@@ -227,12 +233,12 @@ class IntoRobotDatepointClass {
 
         static void writeDatapoint(const uint16_t dpID, const char *value)
         {
-            intorobotWriteDatapoint(dpID, value);
+            intorobotWriteDatapoint(dpID, value, 1);
         }
 
         static void writeDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len)
         {
-            //todo
+            intorobotWriteDatapointBinary(dpID, value, len, 1);
         }
 
         // 发送数据点
@@ -274,17 +280,17 @@ class IntoRobotDatepointClass {
 
         static void sendDatapoint(const uint16_t dpID, const char *value)
         {
-            intorobotSendDatapoint(dpID, value);
+            intorobotSendSingleDatapoint(dpID, value);
         }
 
         static void sendDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len)
         {
-            //todo
+            intorobotSendSingleDatapointBinary(dpID, value, len);
         }
 
         static void sendDatapointAll(void)
         {
-            intorobotSendDatapointAll();
+            intorobotSendAllDatapointManual();
         }
 
         //数据点组处理  todo
@@ -305,66 +311,67 @@ class IntoRobotDatepointClass {
 class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
     public:
-        static bool publish(const char *topic, bool value)
+
+        static bool publish(const char *topic, bool value, topic_version_t version=TOPIC_VERSION_V1)
         {
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 
 #ifdef INTOROBOT_ARCH_ARM
         // stm32 arm 采取的是thumb指令集  int 实际是16位
-        static bool publish(const char *topic, int value)
+        static bool publish(const char *topic, int value, topic_version_t version=TOPIC_VERSION_V1)
         {
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 #endif
 
-        static bool publish(const char *topic, int32_t value)
+        static bool publish(const char *topic, int32_t value, topic_version_t version=TOPIC_VERSION_V1)
         {
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 
-        static bool publish(const char *topic, uint32_t value)
+        static bool publish(const char *topic, uint32_t value, topic_version_t version=TOPIC_VERSION_V1)
         {
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 
-        static bool publish(const char *topic, float value)
+        static bool publish(const char *topic, float value, topic_version_t version=TOPIC_VERSION_V1)
         {
             //char buf[32];
             //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 
-        static bool publish(const char *topic, double value)
+        static bool publish(const char *topic, double value, topic_version_t version=TOPIC_VERSION_V1)
         {
             //char buf[32];
             //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str());
+            return publish(topic, String(value).c_str(), version);
         }
 
-        static bool publish(const char *topic, String value)
+        static bool publish(const char *topic, String value, topic_version_t version = TOPIC_VERSION_V1)
         {
-            return publish(topic, value.c_str());
+            return publish(topic, value.c_str(), version);
         }
 
-        static bool publish(const char *topic, const char *value)
+        static bool publish(const char *topic, const char *value, topic_version_t version = TOPIC_VERSION_V1)
         {
-            return publish(topic, (uint8_t *)value, strlen(value), 0, true);
+            return publish(topic, (uint8_t *)value, strlen(value), 0, true, version);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, topic_version_t version = TOPIC_VERSION_V1)
         {
-            return publish(topic, payload, plength, 0, true);
+            return publish(topic, payload, plength, 0, true, version);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained, topic_version_t version = TOPIC_VERSION_V1)
         {
-            return publish(topic, payload, plength, 0, retained);
+            return publish(topic, payload, plength, 0, retained, version);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained, topic_version_t version = TOPIC_VERSION_V1)
         {
-            return intorobot_publish(API_VERSION_V1, topic, payload, plength, qos, retained);
+            return intorobot_publish(version, topic, payload, plength, qos, retained);
         }
 
         static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
@@ -374,7 +381,7 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
         static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
         {
-            return intorobot_subscribe(API_VERSION_V1, topic, deviceID, callback, qos);
+            return intorobot_subscribe(TOPIC_VERSION_V1, topic, deviceID, callback, qos);
         }
 
         static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
@@ -384,12 +391,12 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
         static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
         {
-            return intorobot_widget_subscribe(API_VERSION_V1, topic, deviceID, pWidgetBase, qos);
+            return intorobot_widget_subscribe(TOPIC_VERSION_V1, topic, deviceID, pWidgetBase, qos);
         }
 
         static bool unsubscribe(const char *topic, const char *deviceID)
         {
-            return intorobot_unsubscribe(API_VERSION_V1, topic, deviceID);
+            return intorobot_unsubscribe(TOPIC_VERSION_V1, topic, deviceID);
         }
 
         static void syncTime(void)
