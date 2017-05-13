@@ -786,7 +786,7 @@ void intorobot_cloud_init(void)
 
     // 添加默认数据点
     intorobotDefineDatapointBool(0xFF80, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
-    intorobotDefineDatapointBool(0xFF81, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //write all datapoint
+    intorobotDefineDatapointBool(0xFF81, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //get all datapoint
 }
 
 bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
@@ -1218,7 +1218,7 @@ int intorobot_cloud_handle(void)
             intorobotSendAllDatapointManual();
         }
 
-        intorobotSendAllDatapointAutomatic();
+        intorobotSendDatapointAutomatic();
 
         //发送IntoRobot.printf打印到平台
         mqtt_send_debug_info();

@@ -133,7 +133,7 @@ void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, co
 void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value);
 void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
 void intorobotSendAllDatapointManual(void);
-void intorobotSendAllDatapointAutomatic(void);
+void intorobotSendDatapointAutomatic(void);
 
 #ifdef __cplusplus
 }

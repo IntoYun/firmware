@@ -23,7 +23,6 @@
 #include "intorobot_config.h"
 #include <stdio.h>
 #include "wiring_string.h"
-//#include "events.h"
 #include "system_cloud.h"
 #include "system_lorawan.h"
 #include "system_datapoint.h"
@@ -39,7 +38,17 @@ class IntoRobotDatepointClass {
 
     public:
         //数据点自动发送设置
-        static void datapointControl(bool open, dp_transmit_mode_t mode = DP_TRANSMIT_MODE_AUTOMATIC, uint32_t lapse = DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL) //控制数据点  单位为s
+        static void datapointControl(bool open)
+        {
+            intorobotDatapointControl(open, DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
+        }
+
+        static void datapointControl(bool open, dp_transmit_mode_t mode)
+        {
+            intorobotDatapointControl(open, mode, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
+        }
+
+        static void datapointControl(bool open, dp_transmit_mode_t mode, uint32_t lapse) //控制数据点  单位为s
         {
             intorobotDatapointControl(open, mode, lapse);
         }
@@ -291,19 +300,6 @@ class IntoRobotDatepointClass {
         static void sendDatapointAll(void)
         {
             intorobotSendAllDatapointManual();
-        }
-
-        //数据点组处理  todo
-        static void cleanDatapointGroup(uint8_t group = 0)
-        {
-        }
-
-        static void addDatapointToGroup(const uint16_t dpID, uint8_t group = 0)
-        {
-        }
-
-        static void sendDatapointGroup(uint8_t group = 0)
-        {
         }
 };
 

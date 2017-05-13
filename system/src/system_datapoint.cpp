@@ -429,21 +429,19 @@ void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8
         valueTemp = value;
     }
 
-    if(!properties[i]->value.equals(valueTemp)) {
+    if(!properties[i]->value.equals(valueTemp)) {  //数据不相等
+        properties[i]->change = true;
         if(type) { //用户操作
-            properties[i]->change = true;
             properties[i]->readFlag = RESULT_DATAPOINT_OLD;
         } else {
-            properties[i]->change = true;
             properties[i]->readFlag = RESULT_DATAPOINT_NEW;
         }
         properties[i]->value = valueTemp;
     } else {
+        properties[i]->change = false;
         if(type) { //用户操作
-            properties[i]->change = false;
             properties[i]->readFlag = RESULT_DATAPOINT_OLD;
         } else {
-            properties[i]->change = true;
             properties[i]->readFlag = RESULT_DATAPOINT_NEW;
         }
     }
@@ -699,7 +697,8 @@ static uint16_t intorobotFormSingleDatapoint(int property_index, uint8_t* buffer
     return index;
 }
 
-static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len)
+// type   0: 组织改变的数据点   1：组织全部的数据点
+static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len, uint8_t type)
 {
     int32_t index = 0;
 
@@ -715,7 +714,9 @@ static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len)
             continue;
         }
 
-        index += intorobotFormSingleDatapoint(i, buffer+index, len);
+        if( type || ((!type) && properties[i]->change) )  {
+            index += intorobotFormSingleDatapoint(i, buffer+index, len);
+        }
     }
     return index;
 }
@@ -848,7 +849,7 @@ void intorobotSendAllDatapointManual(void)
     }
 
     buffer[index++] = BINARY_DATA_FORMAT;
-    index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1);
+    index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
     SDATAPOINT_DEBUG_D("manual send all data:");
     SDATAPOINT_DEBUG_DUMP(buffer, index);
 #ifndef configNO_CLOUD
@@ -859,8 +860,12 @@ void intorobotSendAllDatapointManual(void)
 #endif
 }
 
-void intorobotSendAllDatapointAutomatic(void)
+void intorobotSendDatapointAutomatic(void)
 {
+    uint8_t buffer[512];
+    uint16_t index = 0;
+    bool sendFlag = false;
+
     if(!intorobotDatapointOpened() || (0 == intorobotGetPropertyCount())) {
         return;
     }
@@ -869,20 +874,28 @@ void intorobotSendAllDatapointAutomatic(void)
         return;
     }
 
-    //发送时间间隔到
-    system_tick_t current_millis = millis();
-    system_tick_t elapsed_millis = current_millis - g_datapoint_control.runtime;
-    if (elapsed_millis < 0) {
-        elapsed_millis =  0xFFFFFFFF - g_datapoint_control.runtime + current_millis;
+    //当数值发生变化
+    if(intorobotPropertyChanged()) {
+        buffer[index++] = BINARY_DATA_FORMAT;
+        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 0);
+        sendFlag = true;
+    } else {
+        //发送时间间隔到
+        system_tick_t current_millis = millis();
+        system_tick_t elapsed_millis = current_millis - g_datapoint_control.runtime;
+        if (elapsed_millis < 0) {
+            elapsed_millis =  0xFFFFFFFF - g_datapoint_control.runtime + current_millis;
+        }
+
+        //发送时间时间到
+        if ( elapsed_millis >= DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL*1000 ) {
+            buffer[index++] = BINARY_DATA_FORMAT;
+            index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
+            sendFlag = true;
+        }
     }
 
-    //当数值发生变化  或者  发送时间时间到
-    if ( intorobotPropertyChanged() || (elapsed_millis >= DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL*1000) ) {
-        uint8_t buffer[512];
-        uint16_t index = 0;
-
-        buffer[index++] = BINARY_DATA_FORMAT;
-        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1);
+    if(sendFlag) {
         SDATAPOINT_DEBUG_D("automatic send all data:");
         SDATAPOINT_DEBUG_DUMP(buffer, index);
 #ifndef configNO_CLOUD
@@ -891,7 +904,7 @@ void intorobotSendAllDatapointAutomatic(void)
 #ifndef configNO_LORAWAN
         intorobot_lorawan_send_data(buffer, index);
 #endif
-        g_datapoint_control.runtime = current_millis;
+        g_datapoint_control.runtime = millis();
         intorobotPropertyChangeClear();
     }
 }
