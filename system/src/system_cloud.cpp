@@ -1328,7 +1328,19 @@ bool intorobot_device_register(void)
     free(string);
     aJson.deleteItem(root);
 
-    http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=register");
+    //http domain
+    char http_domain[32]={0};
+    HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
+    if(0 == strlen(http_domain)) {
+        strcpy(http_domain, INTOROBOT_HTTP_DOMAIN);
+    }
+    //http port
+    int http_port=HAL_PARAMS_Get_System_http_port();
+    if(http_port <= 0) {
+        http_port=INTOROBOT_HTTP_PORT;
+    }
+
+    http.begin(http_domain, http_port, "/v1/device?act=register");
     http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
@@ -1352,9 +1364,10 @@ bool intorobot_device_register(void)
             flag = true;
         }
         aJson.deleteItem(root);
+    } else {
+      SCLOUD_DEBUG("device register failed!");
     }
 
-    SCLOUD_DEBUG("device register failed!");
     http.end();
     if(flag) {
         return true;
@@ -1400,7 +1413,19 @@ bool intorobot_device_activate(void)
     free(string);
     aJson.deleteItem(root);
 
-    http.begin(INTOROBOT_HTTP_DOMAIN, INTOROBOT_HTTP_PORT, "/v1/device?act=activate");
+    //http domain
+    char http_domain[32]={0};
+    HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
+    if(0 == strlen(http_domain)) {
+        strcpy(http_domain, INTOROBOT_HTTP_DOMAIN);
+    }
+    //http port
+    int http_port=HAL_PARAMS_Get_System_http_port();
+    if(http_port <= 0) {
+        http_port=INTOROBOT_HTTP_PORT;
+    }
+
+    http.begin(http_domain, http_port, "/v1/device?act=activate");
     http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
@@ -1421,9 +1446,10 @@ bool intorobot_device_activate(void)
             flag = true;
         }
         aJson.deleteItem(root);
+    } else {
+      SCLOUD_DEBUG("device activate failed!");
     }
 
-    SCLOUD_DEBUG("device activate failed!");
     http.end();
     if(flag) {
         return true;

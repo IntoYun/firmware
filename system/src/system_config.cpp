@@ -435,6 +435,9 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
     wlan_Imlink_stop();
+    network_disconnect(0, 0, NULL);
+    network_connect(0, 0, 0, NULL);
+
     aJsonObject* ssidObject = aJson.getObjectItem(value_Object, "ssid");
     aJsonObject* passwdObject = aJson.getObjectItem(value_Object, "passwd");
     if ((ssidObject != NULL) && (passwdObject != NULL)) {
@@ -443,7 +446,7 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
         } else {
             WiFi.setCredentials(ssidObject->valuestring, passwdObject->valuestring);
         }
-        network_setup(0, 0, NULL);
+        network_disconnect(0, 0, NULL);
         network_connect(0, 0, 0, NULL);
         sendComfirm(200);
         return;
