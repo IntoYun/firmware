@@ -1,3 +1,22 @@
+## v1.5.3-rc.1
+
+### FEATURES(功能)
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [all] 数据点组织格式统一使用二进制方式
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [all] 添加事件通知接口
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [all] 数据点发送添加系统自动处理方式
+
+### ENHANCEMENTS(优化)
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [nut/w6/w7] esp8266 process 放入到system层实现
+
+
+### BUG FIXES(漏洞修复)
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [wifi] 修正恢复出厂设置后，设备无法注册和激活, http地址错误
+- [[PR #58]](https://github.com/HITSZ-NRSL/firmware/pull/58) [nut/w6/w7] 修正nut下载软件包后，通过串口配置wifi无法成功
+
+
+### INTERNAL(内部)
+
+
 ## v1.5.2-rc.1
 
 ### FEATURES(功能)

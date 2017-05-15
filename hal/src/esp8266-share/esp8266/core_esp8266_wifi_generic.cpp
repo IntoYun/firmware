@@ -98,6 +98,7 @@ static void _eventCallback(System_Event_t * evt)
  * @param m WiFiMode_t
  */
 bool esp8266_wifiInit(void) {
+    DEBUG("esp8266_wifiInit");
     wifi_set_event_handler_cb(_eventCallback);
 }
 

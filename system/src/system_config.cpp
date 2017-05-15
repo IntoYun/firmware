@@ -41,6 +41,7 @@
 #include "system_task.h"
 #include "system_test.h"
 #include "system_version.h"
+#include "system_event.h"
 
 /*debug switch*/
 #define SYSTEM_CONFIG_DEBUG
@@ -434,6 +435,9 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
 {
 #ifdef configWIRING_WIFI_ENABLE
     wlan_Imlink_stop();
+    network_disconnect(0, 0, NULL);
+    network_connect(0, 0, 0, NULL);
+
     aJsonObject* ssidObject = aJson.getObjectItem(value_Object, "ssid");
     aJsonObject* passwdObject = aJson.getObjectItem(value_Object, "passwd");
     if ((ssidObject != NULL) && (passwdObject != NULL)) {
@@ -442,7 +446,7 @@ void DeviceConfig::dealSendWifiInfo(aJsonObject* value_Object)
         } else {
             WiFi.setCredentials(ssidObject->valuestring, passwdObject->valuestring);
         }
-        network_setup(0, 0, NULL);
+        network_disconnect(0, 0, NULL);
         network_connect(0, 0, 0, NULL);
         sendComfirm(200);
         return;
@@ -1009,21 +1013,27 @@ void set_system_config_type(system_config_type_t config_type)
     switch(config_type)
     {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
+            system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_IMLINK_SERIAL);
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
+            system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_AP_SERIAL);
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
+            system_notify_event(event_mode_changed, ep_mode_serial_config);
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_SERIAL);
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
+            system_notify_event(event_mode_changed, ep_mode_imlink_config);
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_IMLINK);
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
+            system_notify_event(event_mode_changed, ep_mode_ap_config);
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_AP);
             break;
         default:   //退出配置模式
+            system_notify_event(event_mode_changed, ep_mode_normal);
             g_intorobot_system_config = 0;
             HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_NONE);
             break;

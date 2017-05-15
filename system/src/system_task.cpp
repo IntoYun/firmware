@@ -118,6 +118,7 @@ void Network_Setup(void)
     if(system_mode() == AUTOMATIC) {
         network.connect();
     }
+
     if (network.connected()) {
         INTOROBOT_CLOUD_SOCKETED = 1;
         system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
@@ -257,15 +258,18 @@ void establish_cloud_connection(void)
             if (in_cloud_backoff_period())
                 return;
 
+            system_notify_event(event_cloud_status, ep_cloud_status_connecting);
             int connect_result = intorobot_cloud_connect();
             if (connect_result >= 0) {
                 INTOROBOT_CLOUD_CONNECTED = 1;
                 cloud_failed_connection_attempts = 0;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                system_notify_event(event_cloud_status, ep_cloud_status_connected);
             } else {
                 INTOROBOT_CLOUD_CONNECTED = 0;
                 intorobot_cloud_disconnect();
                 cloud_connection_failed();
+                system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
             }
         }
     }
@@ -280,6 +284,7 @@ void handle_cloud_connection(void)
                 INTOROBOT_CLOUD_CONNECTED = 0;
                 intorobot_cloud_disconnect();
                 system_rgb_blink(RGB_COLOR_BLUE, 1000);
+                system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
             }
         }
     }
@@ -287,11 +292,11 @@ void handle_cloud_connection(void)
 
 void manage_cloud_connection(void)
 {
+    preprocess_cloud_connection();
     if (intorobot_cloud_flag_auto_connect() == 0) {
         intorobot_cloud_disconnect();
     } else {
         // cloud connection is wanted
-        preprocess_cloud_connection();
         establish_cloud_connection();
         handle_cloud_connection();
     }
@@ -301,9 +306,11 @@ void cloud_disconnect(bool closeSocket)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
         STASK_DEBUG("Cloud: disconnecting");
+        system_notify_event(event_cloud_status, ep_cloud_status_disconnecting);
         INTOROBOT_CLOUD_CONNECTED = 0;
         intorobot_cloud_disconnect();
         STASK_DEBUG("Cloud: disconnected");
+        system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
     }
 }
 
@@ -405,9 +412,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
         if (elapsed_millis > ms) {
             break;
         }
-        if(!intorobot_process_flag) {
-            intorobot_process();
-        }
+        intorobot_process();
     }
 }
 #else
@@ -445,9 +450,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
             intorobot_loop_elapsed_millis = elapsed_millis + INTOROBOT_LOOP_DELAY_MILLIS;
             //intorobot_loop_total_millis is reset to 0 in system_process_loop()
             //Run once if the above condition passes
-            if(!intorobot_process_flag) {
-                intorobot_process();
-            }
+            intorobot_process();
         }
     }
 }

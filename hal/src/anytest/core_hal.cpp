@@ -231,17 +231,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-void HAL_Core_System_Loop_Control(bool state)
-{
-}
-typedef void (*app_system_loop_handler)(void);
-app_system_loop_handler APP_System_Loop_Handler = NULL;
-
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-    APP_System_Loop_Handler = handler;
-}
-
 void HAL_Core_System_Yield(void)
 {
 

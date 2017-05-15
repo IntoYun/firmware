@@ -33,7 +33,6 @@
 
 
 extern void optimistic_yield(uint32_t interval_us);
-extern void system_loop_handler(uint32_t interval_us);
 
 #define ONCE 0
 #define REPEAT 1
@@ -76,7 +75,6 @@ void HAL_Delay_Milliseconds(uint32_t millis)
             break;
         }
         optimistic_yield(100);
-        system_loop_handler(100);
     }
 }
 

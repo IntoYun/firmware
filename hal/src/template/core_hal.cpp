@@ -182,11 +182,6 @@ bool HAL_Feature_Get(HAL_Feature feature)
     return false;
 }
 
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-   //APP_LineCodingBitRateHandler = handler;
-}
-
 /*******************************************************************************
  * Function Name  : SysTick_Handler
  * Description    : This function handles SysTick Handler.

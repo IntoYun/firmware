@@ -56,8 +56,6 @@ void HAL_Core_Setup(void);
 /* Private variables --------------------------------------------------------*/
 struct rst_info resetInfo;
 
-extern "C" void system_loop_handler(uint32_t interval_us);
-
 /* Extern variables ----------------------------------------------------------*/
 int atexit(void (*func)()) {
     return 0;
@@ -127,8 +125,7 @@ static void loop_wrapper() {
         app_setup_and_loop_initial(&threaded);
         intorobot_app_initial_flag = 1;
     }
-    system_loop_handler(100);
-    app_loop(true);
+    app_loop(false);
     run_scheduled_functions();
     esp_schedule();
 }
@@ -181,7 +178,6 @@ void HAL_Core_Init(void)
 
 }
 
-void System_Loop_Handler(void* arg);
 void SysTick_Handler(void* arg);
 static os_timer_t systick_timer;
 static os_timer_t system_loop_timer;
@@ -329,40 +325,10 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-typedef void (*app_system_loop_handler)(void);
-app_system_loop_handler APP_System_Loop_Handler = NULL;
-
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-    APP_System_Loop_Handler = handler;
-}
-
-static uint32_t g_at_system_loop = false;
-void system_loop_handler(uint32_t interval_us)
-{
-    if( true == g_at_system_loop )
-        return;
-
-    if ((system_get_time() - g_micros_at_system_loop_start) > interval_us) {
-        if (NULL != APP_System_Loop_Handler) {
-            g_at_system_loop = true;
-            APP_System_Loop_Handler();
-            g_at_system_loop = false;
-        }
-        g_micros_at_system_loop_start = system_get_time();
-    }
-}
-
 void SysTick_Handler(void* arg)
 {
     HAL_SysTick_Handler();
     HAL_UI_SysTick_Handler();
-}
-
-void HAL_Core_System_Loop(void)
-{
-    optimistic_yield(100);
-    system_loop_handler(100);
 }
 
 void HAL_Core_System_Yield(void)
@@ -374,5 +340,4 @@ uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
     return 0;
 }
-
 

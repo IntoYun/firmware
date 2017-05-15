@@ -54,6 +54,7 @@
 #include "service_debug.h"
 #include "platforms.h"
 #include "system_lorawan.h"
+#include "system_datapoint.h"
 
 using namespace intorobot;
 
@@ -401,9 +402,10 @@ void app_setup_and_loop_initial(bool *threaded)
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 #endif
 
-    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED &&
-      (system_mode()!=SAFE_MODE);
+    CLOUD_FN(intorobotDatapointControl(true, DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
+    LORAWAN_FN(intorobotDatapointControl(true, DP_TRANSMIT_MODE_MANUAL, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
 
+    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode()!=SAFE_MODE);
 #if PLATFORM_THREADING
     if (*threaded)
     {
@@ -415,8 +417,6 @@ void app_setup_and_loop_initial(bool *threaded)
         SystemThread.setCurrentThread();
         ApplicationThread.setCurrentThread();
     }
-#else
-    HAL_Core_Set_System_Loop_Handler(&system_process_loop);
 #endif
 }
 

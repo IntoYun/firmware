@@ -30,8 +30,6 @@ extern volatile uint8_t INTOROBOT_WLAN_STARTED;
 extern volatile uint8_t SYSTEM_POWEROFF;
 extern volatile uint32_t TimingFlashUpdateTimeout;
 
-extern volatile uint8_t intorobot_process_flag;
-
 /**
  * Determines the backoff period after a number of failed connections.
  */

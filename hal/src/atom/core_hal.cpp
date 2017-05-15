@@ -259,63 +259,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-void HAL_Core_System_Loop_Control(bool state)
-{
-    if (state == false)
-    {
-        HAL_NVIC_DisableIRQ(TIM1_UP_IRQn);
-    }
-    else
-    {
-        HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
-    }
-}
-
-TIM_HandleTypeDef    TimHandle;
-
-void UI_Timer1_Configure(void)
-{
-    __HAL_RCC_TIM1_CLK_ENABLE();
-
-    TimHandle.Instance = TIM1;
-    TimHandle.Init.Period            = 5000-1;//计数到5000为500ms;
-    TimHandle.Init.Prescaler         = (uint32_t)(SystemCoreClock / 10000)-1;
-    TimHandle.Init.ClockDivision     = 0;
-    TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    TimHandle.Init.RepetitionCounter = 0;
-
-    HAL_TIM_Base_DeInit(&TimHandle);
-    HAL_TIM_Base_Init(&TimHandle);
-
-    HAL_NVIC_SetPriority(TIM1_UP_IRQn, 14, 0);
-    HAL_NVIC_EnableIRQ(TIM1_UP_IRQn);
-
-    HAL_TIM_Base_Start_IT(&TimHandle);
-}
-
-typedef void (*app_system_loop_handler)(void);
-app_system_loop_handler APP_System_Loop_Handler = NULL;
-
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-    APP_System_Loop_Handler = handler;
-
-    UI_Timer1_Configure();
-}
-
-static uint32_t g_at_system_loop = false;
-void system_loop_handler(uint32_t interval_us)
-{
-    if( true == g_at_system_loop )
-        return;
-
-    if (NULL != APP_System_Loop_Handler) {
-        g_at_system_loop = true;
-        APP_System_Loop_Handler();
-        g_at_system_loop = false;
-    }
-}
-
 void HAL_Core_System_Yield(void)
 {
 
@@ -352,15 +295,6 @@ void SysTick_Handler(void)
         HAL_SysTick_Hook();
 
     HAL_SysTick_Handler();
-}
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    system_loop_handler(0);
-}
-
-void TIM1_UP_IRQHandler(void)
-{
-    HAL_TIM_IRQHandler(&TimHandle);
 }
 
 }

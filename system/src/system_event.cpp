@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <vector>
 
+
 struct SystemEventSubscription {
 
     system_event_t events;
@@ -46,10 +47,10 @@ struct SystemEventSubscription {
         return matchesHandler(subscription.handler) && matchesEvent(subscription.events);
     }
 
-    void notify(system_event_t event, uint32_t data, void* pointer) const
+    void notify(system_event_t event, int param, uint8_t *data, uint32_t datalen) const
     {
         if (matchesEvent(event))
-            handler(event, data, pointer);
+            handler(event, param, data, datalen);
     }
 };
 
@@ -66,12 +67,9 @@ std::vector<SystemEventSubscription> subscriptions;
  */
 int system_subscribe_event(system_event_t events, system_event_handler_t* handler, void* reserved)
 {
-#if 0
     size_t count = subscriptions.size();
     subscriptions.push_back(SystemEventSubscription(events, handler));
     return subscriptions.size()==count+1 ? 0 : -1;
-#endif
-    return 0;
 }
 
 /**
@@ -89,18 +87,16 @@ void system_unsubscribe_event(system_event_t events, system_event_handler_t* han
  * @param data
  * @param pointer
  */
-void system_notify_event(system_event_t event, uint32_t data, void* pointer, void (*fn)(void* data), void* fndata)
+void system_notify_event(system_event_t event, int param, uint8_t *data, uint32_t datalen, void (*fn)(void* data), void* fndata)
 {
-#if 0
-    APPLICATION_THREAD_CONTEXT_ASYNC(system_notify_event(event, data, pointer, fn, fndata));
+    APPLICATION_THREAD_CONTEXT_ASYNC(system_notify_event(event, param, data, datalen, fn, fndata));
     // run event notifications on the application thread
 
     for (const SystemEventSubscription& subscription : subscriptions)
     {
-        subscription.notify(event, data, pointer);
+        subscription.notify(event, param, data, datalen);
     }
     if (fn)
         fn(fndata);
-#endif
 }
 

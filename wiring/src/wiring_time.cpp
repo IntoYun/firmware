@@ -21,7 +21,7 @@
 #include "rtc_hal.h"
 #include "stdio.h"
 #include "stdlib.h"
-
+#include "system_event.h"
 
 const char* TIME_FORMAT_DEFAULT = "asctime";
 const char* TIME_FORMAT_ISO8601_FULL = "%Y-%m-%dT%H:%M:%S%z";
@@ -266,6 +266,7 @@ float TimeClass::zone()
 void TimeClass::setTime(time_t t)
 {
     HAL_RTC_Set_UnixTime(t);
+    system_notify_event(event_time_changed, ep_time_changed_sync);
 }
 
 /* return string representation for the given time */

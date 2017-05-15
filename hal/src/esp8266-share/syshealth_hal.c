@@ -14,5 +14,3 @@ eSystemHealth HAL_Get_Sys_Health() {
     return sys_health_cache;
 }
 
-
-

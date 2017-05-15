@@ -34,7 +34,14 @@
 #include "core_hal.h"
 #include "system_user.h"
 #include "system_config.h"
+
 #ifdef INTOROBOT_PLATFORM
+#define SYSTEM_HW_TICKS 1
+#else
+#define SYSTEM_HW_TICKS 0
+#endif
+
+#if SYSTEM_HW_TICKS
 #include "hw_ticks.h"
 #endif
 
@@ -64,7 +71,7 @@ public:
         HAL_Core_Enter_Safe_Mode(NULL);
     }
 
-#ifdef INTOROBOT_PLATFORM
+#if SYSTEM_HW_TICKS
     static inline uint32_t ticksPerMicrosecond()
     {
         return SYSTEM_US_TICKS;
@@ -91,27 +98,29 @@ public:
         return system_button_pushed_duration(button, NULL);
     }
 
-    static bool on(system_event_t events, void(*handler)(system_event_t, uint32_t,void*)) {
-        //return !system_subscribe_event(events, handler, nullptr);
-        return true;
+    //system event
+    static bool on(system_event_t events, void(*handler)(system_event_t, int, uint8_t*, uint32_t)) {
+        return !system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), nullptr);
     }
 
-    /* Contemplating allowing the callback to be a subset of the parameters
-    static bool on(system_event_t events, void(*handler)(system_event_t, uint32_t)) {
-        return system_subscribe_event(events, (system_event_handler_t*)handler, NULL);
+    static bool on(system_event_t events, void(*handler)(system_event_t, int)) {
+        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
 
     static bool on(system_event_t events, void(*handler)(system_event_t)) {
-        return system_subscribe_event(events, (system_event_handler_t*)handler, NULL);
+        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
 
     static bool on(system_event_t events, void(*handler)()) {
-        return system_subscribe_event(events, (system_event_handler_t*)handler, NULL);
+        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
-    */
 
-    static void off(void(*handler)(system_event_t, uint32_t,void*)) {
-        //system_unsubscribe_event(all_events, handler, nullptr);
+    static void off(void(*handler)(system_event_t, int, uint8_t, uint32_t)) {
+        system_unsubscribe_event(event_all, handler, nullptr);
+    }
+
+    static void off(system_event_t events, void(*handler)(system_event_t, int, uint8_t*, uint32_t)) {
+        system_unsubscribe_event(events, handler, nullptr);
     }
 
     static uint32_t freeMemory();

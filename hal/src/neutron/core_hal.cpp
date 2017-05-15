@@ -283,16 +283,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     return 0;
 }
 
-void HAL_Core_Set_System_Loop_Handler(void (*handler)(void))
-{
-
-}
-
-void HAL_Core_System_Loop(void)
-{
-
-}
-
 void HAL_Core_System_Yield(void)
 {
 

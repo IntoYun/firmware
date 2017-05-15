@@ -1547,6 +1547,8 @@ bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
             sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",\"%d\"\r\n", _sockets[socket].handle, "TCP", IPNUM(ip), port);
         if (RESP_OK == waitFinalResp()) {
             if (RESP_OK == waitFinalResp()) {
+                _sockets[socket].remoteip = ip;
+                _sockets[socket].remoteport = port;
                 ok = _sockets[socket].connected = true;
             }
         }
