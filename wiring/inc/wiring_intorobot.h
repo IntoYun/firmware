@@ -115,44 +115,44 @@ class IntoRobotDatepointClass {
             intorobotDefineDatapointEnum(dpID, permission, value, policy, lapse);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen)
         {
-            defineDatapointString(dpID, permission, "", DP_POLICY_NONE, 0);
+            defineDatapointString(dpID, permission, maxLen, "", DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value)
         {
-            defineDatapointString(dpID, permission, value, DP_POLICY_NONE, 0);
+            defineDatapointString(dpID, permission, maxLen, value, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy)
         {
-            defineDatapointString(dpID, permission, value, policy, 0);
+            defineDatapointString(dpID, permission, maxLen, value, policy, 0);
         }
 
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy, const int lapse)
+        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy, const int lapse)
         {
-            intorobotDefineDatapointString(dpID, permission, value, policy, lapse);
+            intorobotDefineDatapointString(dpID, permission, maxLen, value, policy, lapse);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen )
         {
-            defineDatapointBinary(dpID, permission, NULL, 0, DP_POLICY_NONE, 0);
+            defineDatapointBinary(dpID, permission, maxLen, NULL, 0, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len)
         {
-            defineDatapointBinary(dpID, permission, value, len, DP_POLICY_NONE, 0);
+            defineDatapointBinary(dpID, permission, maxLen, value, len, DP_POLICY_NONE, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy)
         {
-            defineDatapointBinary(dpID, permission, value, len, policy, 0);
+            defineDatapointBinary(dpID, permission, maxLen, value, len, policy, 0);
         }
 
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse)
+        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse)
         {
-            intorobotDefineDatapointBinary(dpID, permission, value, len, policy, lapse);
+            intorobotDefineDatapointBinary(dpID, permission, maxLen, value, len, policy, lapse);
         }
 
         // 读取数据点
