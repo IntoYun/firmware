@@ -3,9 +3,11 @@
 ### FEATURES(功能)
 
 ### ENHANCEMENTS(优化)
+- [[PR #60]](https://github.com/HITSZ-NRSL/firmware/pull/60) [all] 字符串和透传型数据点定义添加最大长度
 
 ### BUG FIXES(漏洞修复)
 - [[PR #59]](https://github.com/HITSZ-NRSL/firmware/pull/59) [fig] 修复fig第一次上电配置完成后无法转白灯问题
+- [[PR #61]](https://github.com/HITSZ-NRSL/firmware/pull/61) [all] 添加默认数据点处理。包括复位和获取全部可上送数据点
 
 
 ### INTERNAL(内部)
