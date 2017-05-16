@@ -114,8 +114,8 @@ void intorobotDatapointControl(bool open, dp_transmit_mode_t mode, uint32_t laps
 void intorobotDefineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse);
-void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy, const int lapse);
-void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy, const int lapse);
+void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse);
 
 read_datapoint_result_t intorobotReadDatapointBool(const uint16_t dpID, bool &value);
 read_datapoint_result_t intorobotReadDatapointInt(const uint16_t dpID, int &value);

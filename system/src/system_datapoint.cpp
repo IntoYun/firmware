@@ -202,7 +202,7 @@ void intorobotDefineDatapointEnum(const uint16_t dpID, const dp_permission_t per
     }
 }
 
-void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t permission, const char *value, const dp_policy_t policy, const int lapse)
+void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy, const int lapse)
 {
     int lapseTemp = lapse;
 
@@ -222,7 +222,7 @@ void intorobotDefineDatapointString(const uint16_t dpID, const dp_permission_t p
     }
 }
 
-void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse)
+void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse)
 {
     int lapseTemp = lapse;
 
