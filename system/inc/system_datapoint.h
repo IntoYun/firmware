@@ -33,8 +33,10 @@
 
 #define PROPERTIES_MAX                            50
 
-//#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     600
-#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     10
+#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     600
+
+#define DPID_DEFAULT_BOOL_RESET                   0x7F80        //默认数据点  复位
+#define DPID_DEFAULT_BOOL_GETALLDATAPOINT         0x7F81        //默认数据点  获取所有数据点
 
 // transmit
 typedef enum {
@@ -132,6 +134,7 @@ void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8
 void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
 void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value);
 void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
+void intorobotSendAllDatapoint(void);
 void intorobotSendAllDatapointManual(void);
 void intorobotSendDatapointAutomatic(void);
 

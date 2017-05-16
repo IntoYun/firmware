@@ -611,7 +611,17 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                 break;
         }
     }
-    system_notify_event(event_cloud_data, ep_cloud_data_datapoint);
+
+    bool dpReset = false;
+    bool dpGetAllDatapoint = false;
+    if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_RESET, dpReset)) {
+        system_notify_event(event_reset, 0);
+        HAL_Core_System_Reset();
+    } else if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, dpGetAllDatapoint)) {
+        intorobotSendAllDatapoint();
+    } else {
+        system_notify_event(event_cloud_data, ep_cloud_data_datapoint);
+    }
 }
 
 static uint16_t intorobotFormSingleDatapoint(int property_index, uint8_t* buffer, uint16_t len)
@@ -721,6 +731,18 @@ static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len, uint8_t ty
     return index;
 }
 
+static _intorobotSendRawData(uint8_t *data, uint16_t dataLen)
+{
+    SDATAPOINT_DEBUG_D("send data:");
+    SDATAPOINT_DEBUG_DUMP(data, dataLen);
+#ifndef configNO_CLOUD
+    intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
+#endif
+#ifndef configNO_LORAWAN
+    intorobot_lorawan_send_data(data, dataLen);
+#endif
+}
+
 //datepoint process
 void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value)
 {
@@ -766,14 +788,7 @@ void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value)
 
         buffer[index++] = BINARY_DATA_FORMAT;
         index += intorobotFormSingleDatapoint(i, buffer+index, sizeof(buffer)-1);
-        SDATAPOINT_DEBUG_D("manual send data:");
-        SDATAPOINT_DEBUG_DUMP(buffer, index);
-#ifndef configNO_CLOUD
-        intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, buffer, index, 0, false);
-#endif
-#ifndef configNO_LORAWAN
-        intorobot_lorawan_send_data(buffer, index);
-#endif
+        _intorobotSendRawData(buffer, index);
         properties[i]->runtime = current_millis;
     }
 }
@@ -823,15 +838,26 @@ void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *valu
 
         buffer[index++] = BINARY_DATA_FORMAT;
         index += intorobotFormSingleDatapoint(i, buffer+index, sizeof(buffer)-1);
-        SDATAPOINT_DEBUG_D("manual send binary data:");
-        SDATAPOINT_DEBUG_DUMP(buffer, index);
-#ifndef configNO_CLOUD
-        intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, buffer, index, 0, false);
-#endif
-#ifndef configNO_LORAWAN
-        intorobot_lorawan_send_data(buffer, index);
-#endif
+        _intorobotSendRawData(buffer, index);
         properties[i]->runtime = current_millis;
+    }
+}
+
+void intorobotSendAllDatapoint(void)
+{
+    uint8_t buffer[512];
+    uint16_t index = 0;
+
+    if(!intorobotDatapointOpened() || (0 == intorobotGetPropertyCount())) {
+        return;
+    }
+
+    buffer[index++] = BINARY_DATA_FORMAT;
+    index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
+    _intorobotSendRawData(buffer, index);
+    if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
+        g_datapoint_control.runtime = millis();
+        intorobotPropertyChangeClear();
     }
 }
 
@@ -850,14 +876,9 @@ void intorobotSendAllDatapointManual(void)
 
     buffer[index++] = BINARY_DATA_FORMAT;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
-    SDATAPOINT_DEBUG_D("manual send all data:");
-    SDATAPOINT_DEBUG_DUMP(buffer, index);
-#ifndef configNO_CLOUD
-    intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, buffer, index, 0, false);
-#endif
-#ifndef configNO_LORAWAN
-    intorobot_lorawan_send_data(buffer, index);
-#endif
+    _intorobotSendRawData(buffer, index);
+    g_datapoint_control.runtime = millis();
+    intorobotPropertyChangeClear();
 }
 
 void intorobotSendDatapointAutomatic(void)
@@ -896,14 +917,7 @@ void intorobotSendDatapointAutomatic(void)
     }
 
     if(sendFlag) {
-        SDATAPOINT_DEBUG_D("automatic send all data:");
-        SDATAPOINT_DEBUG_DUMP(buffer, index);
-#ifndef configNO_CLOUD
-        intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, buffer, index, 0, false);
-#endif
-#ifndef configNO_LORAWAN
-        intorobot_lorawan_send_data(buffer, index);
-#endif
+        _intorobotSendRawData(buffer, index);
         g_datapoint_control.runtime = millis();
         intorobotPropertyChangeClear();
     }
