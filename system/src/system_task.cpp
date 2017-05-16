@@ -120,10 +120,8 @@ void Network_Setup(void)
     }
 
     if (network.ready()) {
-        //INTOROBOT_CLOUD_SOCKETED = 1;
         system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
     } else {
-        //INTOROBOT_CLOUD_SOCKETED = 0;
         system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
     network_connection_attempt_init();
