@@ -1,3 +1,17 @@
+## v1.5.3-rc.2
+
+### FEATURES(功能)
+
+### ENHANCEMENTS(优化)
+
+### BUG FIXES(漏洞修复)
+- [[PR #59]](https://github.com/HITSZ-NRSL/firmware/pull/59) [fig] 修复fig第一次上电配置完成后无法转白灯问题
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.5.3-rc.1
 
 ### FEATURES(功能)
