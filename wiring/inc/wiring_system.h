@@ -99,15 +99,15 @@ public:
     }
 
     //system event
-    static bool on(system_event_t events, void(*handler)(system_event_t, int, uint8_t*, uint32_t)) {
+    static bool on(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
         return !system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), nullptr);
     }
 
-    static bool on(system_event_t events, void(*handler)(system_event_t, int)) {
+    static bool on(system_event_t events, void(*handler)(system_event_t event, int param)) {
         return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
 
-    static bool on(system_event_t events, void(*handler)(system_event_t)) {
+    static bool on(system_event_t events, void(*handler)(system_event_t event)) {
         return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
 
@@ -115,11 +115,11 @@ public:
         return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
     }
 
-    static void off(void(*handler)(system_event_t, int, uint8_t, uint32_t)) {
+    static void off(void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
         system_unsubscribe_event(event_all, handler, nullptr);
     }
 
-    static void off(system_event_t events, void(*handler)(system_event_t, int, uint8_t*, uint32_t)) {
+    static void off(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
         system_unsubscribe_event(events, handler, nullptr);
     }
 
