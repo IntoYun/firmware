@@ -47,7 +47,7 @@ struct SystemEventSubscription {
         return matchesHandler(subscription.handler) && matchesEvent(subscription.events);
     }
 
-    void notify(system_event_t event, int param, uint8_t *data, uint32_t datalen) const
+    void notify(system_event_t event, int param, uint8_t *data, uint16_t datalen) const
     {
         if (matchesEvent(event))
             handler(event, param, data, datalen);
@@ -87,7 +87,7 @@ void system_unsubscribe_event(system_event_t events, system_event_handler_t* han
  * @param data
  * @param pointer
  */
-void system_notify_event(system_event_t event, int param, uint8_t *data, uint32_t datalen, void (*fn)(void* data), void* fndata)
+void system_notify_event(system_event_t event, int param, uint8_t *data, uint16_t datalen, void (*fn)(void* data), void* fndata)
 {
     APPLICATION_THREAD_CONTEXT_ASYNC(system_notify_event(event, param, data, datalen, fn, fndata));
     // run event notifications on the application thread

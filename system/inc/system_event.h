@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 typedef uint64_t system_event_t;
-typedef void (system_event_handler_t)(system_event_t event, int param, uint8_t *data, uint32_t datalen);
+typedef void (system_event_handler_t)(system_event_t event, int param, uint8_t *data, uint16_t datalen);
 
 enum SystemEvents {
 
@@ -109,5 +109,5 @@ void system_unsubscribe_event(system_event_t events, system_event_handler_t* han
  * @param data
  * @param pointer
  */
-void system_notify_event(system_event_t event, int param=0, uint8_t *data=NULL, uint32_t datalen=0, void (*fn)(void* data)=nullptr, void* fndata=nullptr);
+void system_notify_event(system_event_t event, int param=0, uint8_t *data=NULL, uint16_t datalen=0, void (*fn)(void* data)=nullptr, void* fndata=nullptr);
 
