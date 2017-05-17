@@ -402,8 +402,8 @@ void app_setup_and_loop_initial(bool *threaded)
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 #endif
 
-    CLOUD_FN(intorobotDatapointControl(true, DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
-    LORAWAN_FN(intorobotDatapointControl(true, DP_TRANSMIT_MODE_MANUAL, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
+    CLOUD_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
+    LORAWAN_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_MANUAL, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
 
     *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode()!=SAFE_MODE);
 #if PLATFORM_THREADING

@@ -33,8 +33,10 @@
 
 #define PROPERTIES_MAX                            50
 
-//#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     600
-#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     10
+#define DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL     600
+
+#define DPID_DEFAULT_BOOL_RESET                   0x7F80        //默认数据点  复位
+#define DPID_DEFAULT_BOOL_GETALLDATAPOINT         0x7F81        //默认数据点  获取所有数据点
 
 // transmit
 typedef enum {
@@ -100,7 +102,6 @@ typedef struct {
 
 //datapoint control
 typedef struct {
-    bool datapoint_function_open;                // 数据点功能开关
     dp_transmit_mode_t datapoint_transmit_mode;  // 数据点发送类型
     uint32_t datapoint_transmit_lapse;           // 数据点自动发送 时间间隔
     long runtime;                                // 数据点间隔发送时间
@@ -110,7 +111,7 @@ typedef struct {
 extern "C" {
 #endif
 
-void intorobotDatapointControl(bool open, dp_transmit_mode_t mode, uint32_t lapse);
+void intorobotDatapointControl(dp_transmit_mode_t mode, uint32_t lapse);
 void intorobotDefineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse);
@@ -132,6 +133,7 @@ void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8
 void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
 void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value);
 void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
+void intorobotSendAllDatapoint(void);
 void intorobotSendAllDatapointManual(void);
 void intorobotSendDatapointAutomatic(void);
 

@@ -785,8 +785,8 @@ void intorobot_cloud_init(void)
 #endif
 
     // 添加默认数据点
-    intorobotDefineDatapointBool(0xFF80, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
-    intorobotDefineDatapointBool(0xFF81, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //get all datapoint
+    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
+    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //get all datapoint
 }
 
 bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
