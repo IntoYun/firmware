@@ -102,7 +102,6 @@ typedef struct {
 
 //datapoint control
 typedef struct {
-    bool datapoint_function_open;                // 数据点功能开关
     dp_transmit_mode_t datapoint_transmit_mode;  // 数据点发送类型
     uint32_t datapoint_transmit_lapse;           // 数据点自动发送 时间间隔
     long runtime;                                // 数据点间隔发送时间
@@ -112,7 +111,7 @@ typedef struct {
 extern "C" {
 #endif
 
-void intorobotDatapointControl(bool open, dp_transmit_mode_t mode, uint32_t lapse);
+void intorobotDatapointControl(dp_transmit_mode_t mode, uint32_t lapse);
 void intorobotDefineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse);
 void intorobotDefineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse);

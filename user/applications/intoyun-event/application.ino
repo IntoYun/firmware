@@ -108,7 +108,7 @@ void loop()
     IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
 
     //速度上送
-    if(Rheostat > 100)
+    if(Rheostat > 1000)
     {Rheostat = 0;}
     else
     {Rheostat += 5;}

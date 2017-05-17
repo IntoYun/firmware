@@ -38,19 +38,14 @@ class IntoRobotDatepointClass {
 
     public:
         //数据点自动发送设置
-        static void datapointControl(bool open)
+        static void datapointControl(dp_transmit_mode_t mode)
         {
-            intorobotDatapointControl(open, DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
+            intorobotDatapointControl(mode, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
         }
 
-        static void datapointControl(bool open, dp_transmit_mode_t mode)
+        static void datapointControl(dp_transmit_mode_t mode, uint32_t lapse) //控制数据点  单位为s
         {
-            intorobotDatapointControl(open, mode, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
-        }
-
-        static void datapointControl(bool open, dp_transmit_mode_t mode, uint32_t lapse) //控制数据点  单位为s
-        {
-            intorobotDatapointControl(open, mode, lapse);
+            intorobotDatapointControl(mode, lapse);
         }
 
         //添加通用数据收发接口

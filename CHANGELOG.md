@@ -4,6 +4,7 @@
 
 ### ENHANCEMENTS(优化)
 - [[PR #60]](https://github.com/HITSZ-NRSL/firmware/pull/60) [all] 字符串和透传型数据点定义添加最大长度
+- [[PR #60]](https://github.com/HITSZ-NRSL/firmware/pull/60) [all] 去除数据点功能开关
 
 ### BUG FIXES(漏洞修复)
 - [[PR #59]](https://github.com/HITSZ-NRSL/firmware/pull/59) [fig] 修复fig第一次上电配置完成后无法转白灯问题
