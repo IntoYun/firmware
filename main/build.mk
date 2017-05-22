@@ -29,3 +29,15 @@ endif
 BUILD_PATH = $(TARGET_PATH)/obj
 endif
 
+$(info APPDIR = $(APPDIR))
+$(info TARGET_DIR = $(TARGET_DIR))
+$(info TARGET_FILE_NAME = $(TARGET_FILE_NAME))
+$(info TARGET_DIR_NAME = $(TARGET_DIR_NAME))
+$(info TARGET_PATH = $(TARGET_PATH))
+$(info BUILD_PATH = $(BUILD_PATH))
+
+ifdef TEST
+TARGET_FILE_NAME ?= $(notdir $(TEST))
+TARGET_DIR_NAME ?= test/$(TEST)
+endif
+

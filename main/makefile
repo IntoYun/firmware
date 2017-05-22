@@ -40,10 +40,12 @@ else
 TARGET=exe
 endif
 
+ifndef APPDIR
 ifeq ("$(PLATFORM)","neutron-net")# neutron-net neutron esp8266程序 不是默认应用程序
 TARGET_FILE_NAME ?= $(PLATFORM)
 else
 TARGET_FILE_NAME ?= default-$(PLATFORM)
+endif
 endif
 
 include ../build/arm-tlm.mk

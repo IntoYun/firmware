@@ -34,6 +34,10 @@ endif
 # WINSOCK_H stops select.h from being used which conflicts with CC3000 headers
 CFLAGS += -D_GNU_SOURCE -D_WINSOCK_H
 
+
+$(info BUILD_PATH = $(BUILD_PATH))
+$(info COMMON_BUILD = $(COMMON_BUILD))
+
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o))
@@ -46,6 +50,8 @@ ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o.d))
 ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o.d)))
+
+$(info ALLDEPS = $(ALLDEPS))
 
 # All Target
 all: $(MAKE_DEPENDENCIES) $(TARGET) postbuild
