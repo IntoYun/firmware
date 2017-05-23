@@ -29,3 +29,9 @@ endif
 BUILD_PATH = $(TARGET_PATH)/obj
 endif
 
+
+ifdef TEST
+TARGET_FILE_NAME ?= $(notdir $(TEST))
+TARGET_DIR_NAME ?= test/$(TEST)
+endif
+

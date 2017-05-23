@@ -5,10 +5,6 @@ include $(COMMON_BUILD)/macros.mk
 
 SOURCE_PATH ?= $(MODULE_PATH)
 
-# Recursive wildcard function - finds matching files in a directory tree
-target_files = $(patsubst $(SOURCE_PATH)/%,%,$(call rwildcard,$(SOURCE_PATH)/$1,$2))
-here_files = $(call wildcard,$(SOURCE_PATH)/$1$2)
-
 # import this module's symbols
 include $(MODULE_PATH)/import.mk
 
@@ -33,18 +29,19 @@ CDEFINES += $(addprefix -D,$(GLOBAL_DEFINES))
 export GLOBAL_DEFINES
 endif
 
+
 # Collect all object and dep files
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.c.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.cpp.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.ino.o))
 ALLOBJ += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.S.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o)))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.S.o)))
 
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o.d)))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.c.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.cpp.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.ino.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.S.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.S.o.d)))
 
 # All Target
 all: $(MAKE_DEPENDENCIES) $(TARGET) postbuild
@@ -101,15 +98,45 @@ $(TARGET_BASE).a : $(ALLOBJ)
 	$(VERBOSE)$(AR) cru $@ $^
 	$(call echo,)
 
-# C compiler to build .o from .c in $(BUILD_DIR)
-$(BUILD_PATH)/%.c.o : $(SOURCE_PATH)/%.c
+define build_C_file
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: XTENSA GCC C Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CC) $(CFLAGS) $(CDEFINES) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
 	$(call echo,)
+endef
 
-# Assember to build .o from .S in $(BUILD_DIR)
+define build_CPP_file
+	$(call echo,'Building file: $<')
+	$(call echo,'Invoking: XTENSA GCC CPP Compiler')
+	$(VERBOSE)$(MKDIR) $(dir $@)
+	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
+	$(call echo,)
+endef
+
+# C compiler to build .c.o from .c in $(BUILD_DIR)
+$(BUILD_PATH)/%.c.o : $(SOURCE_PATH)/%.c
+	$(build_C_file)
+
+# CPP compiler to build .cpp.o from .cpp in $(BUILD_DIR)
+# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
+$(BUILD_PATH)/%.cpp.o : $(SOURCE_PATH)/%.cpp
+	$(build_CPP_file)
+
+define build_LIB_files
+$(BUILD_PATH)/$(notdir $1)/%.c.o : $1/%.c
+	$$(build_C_file)
+
+$(BUILD_PATH)/$(notdir $1)/%.cpp.o : $1/%.cpp
+	$$(build_CPP_file)
+endef
+
+# define rules for each library
+# only the sources added for each library are built (so for libraries only files under "src" are built.)
+$(foreach lib,$(MODULE_LIBS),$(eval $(call build_LIB_files,$(lib))))
+
+
+# Assember to build .S.o from .S in $(BUILD_DIR)
 $(BUILD_PATH)/%.S.o : $(SOURCE_PATH)/%.S
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: XTENSA GCC Assembler')
@@ -117,24 +144,15 @@ $(BUILD_PATH)/%.S.o : $(SOURCE_PATH)/%.S
 	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
-# Assember to build .o from .S in $(BUILD_DIR)
-$(BUILD_PATH)/%.o : $(COMMON_BUILD)/%.S
+# Assember to build .S.o from .S in $(COMMON_BUILD)
+$(BUILD_PATH)/%.S.o : $(COMMON_BUILD)/%.S
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: XTENSA GCC Assembler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
-# CPP compiler to build .o from .cpp in $(BUILD_DIR)
-# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
-$(BUILD_PATH)/%.cpp.o : $(SOURCE_PATH)/%.cpp
-	$(call echo,'Building file: $<')
-	$(call echo,'Invoking: XTENSA GCC CPP Compiler')
-	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
-	$(call echo,)
-
-# CPP compiler to build .o from .ino in $(BUILD_DIR)
+# CPP compiler to build .ino.o from .ino in $(BUILD_DIR)
 # Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
 $(BUILD_PATH)/%.ino.o : $(SOURCE_PATH)/%.ino
 	$(call echo,'Building file: $<')

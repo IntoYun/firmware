@@ -50,3 +50,7 @@ release/release-online-program
 
 # tags
 tags
+
+#项目工程
+project/*/target/
+

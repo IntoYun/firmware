@@ -6,6 +6,7 @@ USRSRC=src
 ifdef APP
 USRSRC := applications/$(APP)
 endif
+
 ifdef APPDIR
 USRSRC :=
 USER_BUILD_DIR=$(patsubst ..,.,$(notdir $(APPDIR))$(call appendir,$(APP)))

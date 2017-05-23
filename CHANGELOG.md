@@ -1,3 +1,21 @@
+## v1.5.4-rc.1
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+
+
+### BUG FIXES(漏洞修复)
+
+
+### INTERNAL(内部)
+- [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 添加独立工程编译
+- [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 修改编译目标文件名称
+
+
+
 ## v1.5.3-rc.2
 
 ### FEATURES(功能)
