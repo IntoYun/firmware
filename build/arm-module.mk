@@ -35,23 +35,19 @@ endif
 CFLAGS += -D_GNU_SOURCE -D_WINSOCK_H
 
 
-$(info BUILD_PATH = $(BUILD_PATH))
-$(info COMMON_BUILD = $(COMMON_BUILD))
-
 # Collect all object and dep files
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o))
-ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o)))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.c.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.cpp.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.ino.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.S.o))
+ALLOBJ += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.S.o)))
 
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o.d))
-ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.o.d)))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CSRC:.c=.c.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(CPPSRC:.cpp=.cpp.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(INOSRC:.ino=.ino.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.S.o.d))
+ALLDEPS += $(addprefix $(BUILD_PATH)/, $(patsubst $(COMMON_BUILD)/%,%,$(ASRC_STARTUP:.S=.S.o.d)))
 
-$(info ALLDEPS = $(ALLDEPS))
 
 # All Target
 all: $(MAKE_DEPENDENCIES) $(TARGET) postbuild
@@ -159,34 +155,63 @@ $(TARGET_BASE).a : $(ALLOBJ)
 	$(VERBOSE)$(AR) -cr $@ $^
 	$(call echo,)
 
-# C compiler to build .o from .c in $(BUILD_DIR)
-$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.c
+define build_C_file
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: ARM GCC C Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CC) $(CFLAGS) $(CDEFINES) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
 	$(call echo,)
+endef
 
-# Assember to build .o from .S in $(BUILD_DIR)
-$(BUILD_PATH)/%.o : $(COMMON_BUILD)/%.S
+define build_CPP_file
+	$(call echo,'Building file: $<')
+	$(call echo,'Invoking: ARM GCC CPP Compiler')
+	$(VERBOSE)$(MKDIR) $(dir $@)
+	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
+	$(call echo,)
+endef
+
+# C compiler to build .c.o from .c in $(BUILD_DIR)
+$(BUILD_PATH)/%.c.o : $(SOURCE_PATH)/%.c
+	$(build_C_file)
+
+# CPP compiler to build .cpp.o from .cpp in $(BUILD_DIR)
+# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
+$(BUILD_PATH)/%.cpp.o : $(SOURCE_PATH)/%.cpp
+	$(build_CPP_file)
+
+define build_LIB_files
+$(BUILD_PATH)/$(notdir $1)/%.c.o : $1/%.c
+	$$(build_C_file)
+
+$(BUILD_PATH)/$(notdir $1)/%.cpp.o : $1/%.cpp
+	$$(build_CPP_file)
+endef
+
+# define rules for each library
+# only the sources added for each library are built (so for libraries only files under "src" are built.)
+$(foreach lib,$(MODULE_LIBS),$(eval $(call build_LIB_files,$(lib))))
+
+# Assember to build .S.o from .S in $(BUILD_DIR)
+$(BUILD_PATH)/%.S.o : $(SOURCE_PATH)/%.S
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: ARM GCC Assembler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
 	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
-# CPP compiler to build .o from .cpp in $(BUILD_DIR)
-# Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
-$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.cpp
+# build start up
+# Assember to build .S.o from .S in $(COMMON_BUILD)
+$(BUILD_PATH)/%.S.o : $(COMMON_BUILD)/%.S
 	$(call echo,'Building file: $<')
-	$(call echo,'Invoking: ARM GCC CPP Compiler')
+	$(call echo,'Invoking: ARM GCC Assembler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CPP) $(CDEFINES) $(CFLAGS) $(CPPFLAGS) $(CINCLUDES) -c -o $@ $<
+	$(VERBOSE)$(CC) $(ASFLAGS) -c -o $@ $<
 	$(call echo,)
 
-# CPP compiler to build .o from .ino in $(BUILD_DIR)
+# CPP compiler to build .ino.o from .ino in $(BUILD_DIR)
 # Note: Calls standard $(CC) - gcc will invoke g++ as appropriate
-$(BUILD_PATH)/%.o : $(SOURCE_PATH)/%.ino
+$(BUILD_PATH)/%.ino.o : $(SOURCE_PATH)/%.ino
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: ARM GCC CPP Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)

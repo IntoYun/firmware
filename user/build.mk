@@ -14,22 +14,23 @@ ifdef APPDIR
 # if TARGET_FILE_NAME is not defined, defaults to the name of the $(APPDIR)
 SOURCE_PATH = $(call remove_slash,$(APPDIR))
 
+# the root of the application
+APPROOT := $(SOURCE_PATH)
+
+ifneq ($(wildcard $(APPROOT)/src),)
+# add vendored libraries to module libraries
+MODULE_LIBS += $(wildcard $(APPROOT)/lib/*)
+SOURCE_PATH := $(APPROOT)
+USRSRC = src
+INCLUDE_DIRS += $(APPROOT)/lib
+endif
+
 endif
 
 ifdef TEST
 INCLUDE_PLATFORM?=1
 include $(MODULE_PATH)/tests/tests.mk
 -include $(MODULE_PATH)/$(USRSRC)/test.mk
-endif
-
-# the root of the application
-APPROOT := $(SOURCE_PATH)$(USRSRC)
-
-ifneq ($(wildcard $(APPROOT)/src),)
-# add vendored libraries to module libraries
-MODULE_LIBS += $(wildcard $(APPROOT)/lib/*)
-SOURCE_PATH := $(APPROOT)/
-USRSRC = src
 endif
 
 USRSRC_SLASH = $(and $(USRSRC),$(USRSRC)/)
@@ -63,11 +64,8 @@ LIBCSRC += $(call target_files_dirs,$(MODULE_LIBS)/,src/,*.c)
 CPPSRC += $(LIBCPPSRC)
 CSRC += $(LIBCSRC)
 
-$(info MODULE_LIBS = $(MODULE_LIBS))
-
 # libraries contain their sources under a "src" folder
 ## add all module libraries as include directories
-INCLUDE_DIRS += $(MODULE_LIBS)
 INCLUDE_DIRS += $(addsuffix /src,$(MODULE_LIBS))
 
 #BUILTINS_EXCLUDE = malloc free realloc
