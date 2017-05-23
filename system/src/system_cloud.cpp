@@ -1425,7 +1425,7 @@ bool intorobot_device_activate(void)
         http_port=INTOROBOT_HTTP_PORT;
     }
 
-    http.begin(http_domain, http_port, "/v1/device?act=activate");
+    http.begin(http_domain, http_port, "/v1/device?act=reactivate");
     http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
