@@ -11,6 +11,8 @@
 
 
 ### INTERNAL(内部)
+- [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 添加独立工程编译
+- [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 修改编译目标文件名称
 
 
 
