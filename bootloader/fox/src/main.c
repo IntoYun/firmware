@@ -36,8 +36,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define BOOTLOADER_VERSION  1
-#define LIGHTTIME           400
+//#define BOOTLOADER_VERSION  1
+#define BOOTLOADER_VERSION  2       //1. 简化工作模式  2. 简化灯的变化
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -49,7 +49,6 @@ uint8_t SERIAL_COM_MODE       = 0;
 uint8_t DEFAULT_FIRMWARE_MODE = 0;
 uint8_t OTA_FIRMWARE_MODE     = 0;
 uint8_t FACTORY_RESET_MODE    = 0;
-uint8_t NC_MODE               = 0;
 uint8_t START_APP_MODE        = 0;
 
 /**
@@ -77,29 +76,15 @@ int main(void)
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_CELLULAR_UPDATE_MODE  3000   //celluar升级判断时间
 #define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_SERIAL_COM_MODE       10000  //celluar串口转接判断时间
 #define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间
-#define TIMING_NC                    20000  //无操作判断时间
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
             BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-            if( BUTTON_press_time > TIMING_NC )
-            {
-                FACTORY_RESET_MODE = 0;
-                NC_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_BLACK);
-            }
-            else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
-            {
-                SERIAL_COM_MODE = 0;
-                FACTORY_RESET_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
-            }
-            else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
+            if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
             {
                 DEFAULT_FIRMWARE_MODE = 0;
-                SERIAL_COM_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_BLUE);
+                FACTORY_RESET_MODE = 1;
+                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
             }
             else if( BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE )
             {
@@ -160,12 +145,6 @@ int main(void)
         Enter_Factory_RESTORE_Mode();
         FACTORY_RESET_MODE = 0;
     }
-    else if(SERIAL_COM_MODE)
-    {
-        BOOT_DEBUG("serial transmit\r\n");
-        Enter_Serail_Com_Mode();
-        SERIAL_COM_MODE=0;
-    }
     else if(DEFAULT_FIRMWARE_MODE)
     {
         BOOT_DEBUG("default firmware mode\r\n");
@@ -190,16 +169,8 @@ int main(void)
     }
 
     BOOT_DEBUG("start app\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
-    delay(LIGHTTIME);
-    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
-    delay(LIGHTTIME);
-    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
-    delay(LIGHTTIME);
     HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
-
     //Enter_Flash_Test();
-
     start_app();
     return 0;
 }

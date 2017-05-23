@@ -241,30 +241,10 @@ void Enter_Default_RESTORE_Mode(void)
     }
 }
 
-void Enter_Serail_Com_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
-    HAL_PARAMS_Save_Params();
-    System_Reset();
-}
-
 void Enter_Factory_RESTORE_Mode(void)
 {
     HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
-    if(DEFAULT_Flash_Reset()) {
-        HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
-        HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
-        HAL_PARAMS_Save_Params();
-    } else {
-        System_Reset();
-    }
-}
-
-void Enter_Factory_ALL_RESTORE_Mode(void)
-{
-    HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);
-    delay(1000);
-    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_ALL_RESET);
+    HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_FACTORY_RESET);
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
     HAL_PARAMS_Save_Params();
 }
