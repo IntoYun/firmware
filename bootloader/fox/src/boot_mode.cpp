@@ -122,6 +122,18 @@ void Enter_Default_RESTORE_Mode(void)
     }
 }
 
+void Enter_Serail_Com_Mode(void)
+{
+    HAL_UI_RGB_Color(RGB_COLOR_BLUE);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_NORMAL);
+    HAL_PARAMS_Save_Params();
+    USBD_CDC_Init();
+    while (1)
+    {
+        USBD_CDC_Process();
+    }
+}
+
 void Enter_Factory_RESTORE_Mode(void)
 {
     HAL_UI_RGB_Blink(RGB_COLOR_YELLOW, UPDATE_BLINK_PERIOD);

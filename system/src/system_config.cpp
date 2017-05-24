@@ -936,10 +936,18 @@ int UdpDeviceConfig::available(void)
                 //Udp.beginPacket 放在此处是因为设备接收到udp数据后，可以自动获取remoteip和remoteport。
                 //发送数据的时候不需要也不能指定remoteip和remoteport.
                 Udp.beginPacket(IPADDR_BROADCAST,5557);
+                ARM_CONFIG_TIMEOUT(10000);
                 UdpStep = 2;
             }
             break;
         case 2:
+            if(IS_CONFIG_TIMEOUT()) {
+                Udp.stop();
+                system_rgb_blink(RGB_COLOR_RED, 1000);
+                wlan_Imlink_start();
+                CLR_CONFIG_TIMEOUT();
+                UdpStep = 0;
+            }
             return Udp.parsePacket();
             break;
         default:
