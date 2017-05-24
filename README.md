@@ -94,6 +94,16 @@ make PLATFORM=l6 clean all DEBUG_BUILD=y USE_SWD=y program-dfu
 
 ```
 
+指定工程目录编译:
+工程目录结构：
+1. 工程目录/src  放用户代码
+2. 工程目录/lib  放用户库
+
+```
+make PLATFORM=w67 all DEBUG_BUILD=y USE_SWD=y APPDIR=../project/loragateway
+
+```
+
 DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的烧录工具。
 
 ## 代码架构
