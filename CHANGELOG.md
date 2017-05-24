@@ -5,9 +5,13 @@
 
 
 ### ENHANCEMENTS(优化)
+- [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [neutron/nut/fig/ant/fox] 简化设备bootloader和app设备配置模式
+- [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [neutron/nut/fig/ant/fox] 简化设备bootloader颜色变化
+- [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [neutron/nut/fig/w67/w323] 添加imlink失败重新进入imlink配置功能
 
 
 ### BUG FIXES(漏洞修复)
+- [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/62) [neutron/nut/fig/w67/w323] 修正tcp stop没有清除缓存，导致连接状态没有变化
 
 
 ### INTERNAL(内部)
