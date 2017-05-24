@@ -558,6 +558,7 @@ boolean MqttClientClass::unsubscribe(const char* topic) {
 }
 
 void MqttClientClass::disconnect() {
+    SMQTTCLIENT_DEBUG("mqttClient! disconnect");
     buffer[0] = MQTTDISCONNECT;
     buffer[1] = 0;
     _client->write(buffer,2);
