@@ -41,7 +41,7 @@ unsigned backoff_period(unsigned connection_attempts)
 int system_version(char *pversion)
 {
     if(NULL != pversion) {
-        strcpy(pversion, stringify(SYSTEM_VERSION_STRING));
+        strcpy(pversion, stringify(FIRMLIB_VERSION_STRING));
         return strlen(pversion);
     }
     return 0;

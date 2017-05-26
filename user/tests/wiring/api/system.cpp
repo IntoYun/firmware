@@ -59,7 +59,7 @@ test(system_thread_setting) {
 }
 
 test(system_version) {
-    API_COMPILE(Serial.println(stringify(SYSTEM_VERSION_STRING)));
+    API_COMPILE(Serial.println(stringify(FIRMLIB_VERSION_STRING)));
     //API_COMPILE(Serial.println(SYSTEM_VERSION));
 }
 

@@ -141,6 +141,7 @@ SECTIONS
   .flash.rodata :
   {
     _rodata_start = ABSOLUTE(.);
+    *(.subsys.version.header)
     *(.subsys.version)
     *(.rodata)
     *(.rodata.*)
