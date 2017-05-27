@@ -63,7 +63,12 @@ int main(void)
     if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
     {
         //延时2s 等待用户进入配置模式 和 等待用户st-link烧写程序
-        delay(2000);
+        for(int i = 0; i < 20; i++) {
+            if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
+                break;
+            }
+            delay(100);
+        }
     }
     HAL_Core_Write_Backup_Register(BKP_DR_03, 0xFFFF);
 

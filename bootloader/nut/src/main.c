@@ -46,8 +46,13 @@ int main()
 
     if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
     {
-        //延时1.5s 等待用户进入配置模式
-        delay(1500);
+        //延时2s 等待用户进入配置模式
+        for(int i = 0; i < 20; i++) {
+            if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
+                break;
+            }
+            delay(100);
+        }
     }
     HAL_Core_Write_Backup_Register(BKP_DR_03, 0xFFFF);
 
