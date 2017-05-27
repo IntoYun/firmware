@@ -87,9 +87,9 @@ extern "C" void HAL_SysTick_Handler(void)
 #ifndef configNO_SETUPBUTTON_UI
 
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG
-#define TIMING_MODE_CONFIG_IMLINK_SERIAL           2000   //进入imlink配置模式判断时间
-#define TIMING_MODE_CONFIG_AP_SERIAL               4000   //进入ap配置模式判断时间
-#define TIMING_MODE_FACTORY_RESET                  7000   //恢复出厂程序判断时间
+#define TIMING_MODE_CONFIG_IMLINK_SERIAL           3000    //进入imlink配置模式判断时间
+#define TIMING_MODE_CONFIG_AP_SERIAL               5000    //进入ap配置模式判断时间
+#define TIMING_MODE_FACTORY_RESET                  10000   //恢复出厂程序判断时间
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
     if(BUTTON_press_time) {
@@ -129,8 +129,8 @@ extern "C" void HAL_SysTick_Handler(void)
 
 #elif PLATFORM_ID == PLATFORM_FOX || PLATFORM_ID == PLATFORM_ANT
 
-#define TIMING_MODE_CONFIG_SERIAL                       2000   //进入串口配置模式判断时间
-#define TIMING_MODE_FACTORY_RESET                       7000   //恢复出厂程序判断时间
+#define TIMING_MODE_CONFIG_SERIAL                       3000   //进入串口配置模式判断时间
+#define TIMING_MODE_FACTORY_RESET                       10000   //恢复出厂程序判断时间
 
     BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
     if(BUTTON_press_time) {

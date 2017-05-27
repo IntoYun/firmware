@@ -323,8 +323,8 @@ void LoraWAN_Setup(void)
     // Reset the MAC state. Session and pending data transfers will be discarded.
     LMIC_reset();
 
-    AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-    //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
+    //AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+    AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
     switch(at_mode)
     {
         case AT_MODE_FLAG_ABP:            //已经灌好密钥

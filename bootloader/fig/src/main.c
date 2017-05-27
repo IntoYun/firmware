@@ -91,7 +91,7 @@ int main()
 
     if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
     {
-#define TIMING_DEFAULT_RESTORE_MODE  4000   //默认程序恢复判断时间
+#define TIMING_DEFAULT_RESTORE_MODE  3000   //默认程序恢复判断时间
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
             SysTick_Handler();

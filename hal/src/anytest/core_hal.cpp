@@ -208,16 +208,6 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
     HAL_Core_System_Reset();
 }
 
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
 void HAL_Core_Enter_Safe_Mode(void* reserved)
 {
 }

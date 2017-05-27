@@ -144,7 +144,6 @@ void HAL_Core_Config(void)
     HAL_IWDG_Initial();
     HAL_UI_Initial();
     HAL_EEPROM_Init();
-    //HAL_UI_RGB_Color(RGB_COLOR_CYAN);
     HAL_UI_RGB_Blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
 
@@ -191,6 +190,7 @@ void HAL_Core_Setup(void)
 
 void HAL_Core_System_Reset(void)
 {
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0x7DEA);
     NVIC_SystemReset();
 }
 
@@ -213,9 +213,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-//    HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-//    HAL_PARAMS_Save_Params();
-//    HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
@@ -245,16 +242,6 @@ void HAL_Core_Enter_Factory_Reset_Mode(void)
 void HAL_Core_Enter_Ota_Update_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }

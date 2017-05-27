@@ -26,6 +26,7 @@ uint8_t START_APP_MODE = 0;
 uint8_t OTA_FIRMWARE_MODE = 0;
 
 uint32_t BUTTON_press_time = 0;
+uint32_t BUTTON_press_start_time = 0;
 
 int main()
 {
@@ -59,10 +60,11 @@ int main()
 
     if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
     {
-#define TIMING_DEFAULT_RESTORE_MODE  4000   //默认程序恢复判断时间
+#define TIMING_DEFAULT_RESTORE_MODE  3000   //默认程序恢复判断时间
+        BUTTON_press_start_time = HAL_UI_Mode_Button_Pressed();
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
-            BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
+            BUTTON_press_time = HAL_UI_Mode_Button_Pressed() - BUTTON_press_start_time;
             if(BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE)
             {
                 DEFAULT_FIRMWARE_MODE = 1;

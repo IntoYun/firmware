@@ -254,9 +254,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-    //HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-    //HAL_PARAMS_Save_Params();
-    //HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
@@ -286,16 +283,6 @@ void HAL_Core_Enter_Factory_Reset_Mode(void)
 void HAL_Core_Enter_Ota_Update_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }

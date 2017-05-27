@@ -43,7 +43,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint32_t BUTTON_press_time=0;
+uint32_t BUTTON_press_time = 0;
+uint32_t BUTTON_press_start_time = 0;
 
 uint8_t USB_DFU_MODE          = 0;
 uint8_t ESP8266_UPDATE_MODE   = 0;
@@ -66,6 +67,13 @@ int main(void)
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
 
+    if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
+    {
+        //延时2s 等待用户进入配置模式 和 等待用户st-link烧写程序
+        delay(2000);
+    }
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0xFFFF);
+
     if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
     {
         BOOT_DEBUG("save boot version...\r\n");
@@ -77,19 +85,13 @@ int main(void)
     {
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
-#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_SERIAL_COM_MODE       10000  //esp8266串口转接判断时间
-#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间
+#define TIMING_DEFAULT_RESTORE_MODE  5000   //默认固件灯程序升级判断时间
+#define TIMING_SERIAL_COM_MODE       7000   //esp8266串口转接判断时间
+        BUTTON_press_start_time = HAL_UI_Mode_Button_Pressed();
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
-            BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-            if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
-            {
-                SERIAL_COM_MODE = 0;
-                FACTORY_RESET_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
-            }
-            else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
+            BUTTON_press_time = HAL_UI_Mode_Button_Pressed() - BUTTON_press_start_time;
+            if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
             {
                 DEFAULT_FIRMWARE_MODE = 0;
                 SERIAL_COM_MODE = 1;

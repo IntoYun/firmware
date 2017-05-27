@@ -89,8 +89,8 @@ extern "C" void app_main()
     nvs_flash_init();
     init();
     initVariant();
-    printf("\n%08x\n", intorobot_subsys_version_header);
-    printf("\n%08x\n", intorobot_subsys_version);
+    printf("\n%08x", intorobot_subsys_version_header);
+    printf("%08x\n", intorobot_subsys_version);
     xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, 1);
 }
@@ -119,7 +119,6 @@ void HAL_Core_Config(void)
     HAL_UI_Initial();
     HAL_EEPROM_Init();
 
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
     esp32_setMode(WIFI_MODE_STA);    // wifi初始化
 }
 
@@ -203,16 +202,6 @@ void HAL_Core_Enter_Factory_Reset_Mode(void)
 void HAL_Core_Enter_Ota_Update_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
