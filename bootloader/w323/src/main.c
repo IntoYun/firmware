@@ -17,7 +17,7 @@
 
 
 #define BOOTLOADER_VERSION  1
-#define LIGHTTIME           400
+
 
 uint8_t FACTORY_RESET_MODE=0;
 uint8_t START_APP_MODE=0;

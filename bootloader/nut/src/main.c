@@ -17,7 +17,7 @@
 
 //#define BOOTLOADER_VERSION  1
 //#define BOOTLOADER_VERSION  2       //修改开机三色灯高亮问题
-#define BOOTLOADER_VERSION  2       //1. 简化工作模式  2. 简化灯的变化
+#define BOOTLOADER_VERSION  3       //1. 简化工作模式  2. 简化灯的变化
 
 
 uint8_t DEFAULT_FIRMWARE_MODE = 0;

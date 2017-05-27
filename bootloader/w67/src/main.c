@@ -13,8 +13,7 @@
 #include "bkpreg_hal.h"
 #include "boot_debug.h"
 
-//#define BOOTLOADER_VERSION  1
-#define BOOTLOADER_VERSION  2       //修改开机三色灯高亮问题
+#define BOOTLOADER_VERSION  1
 
 
 uint8_t FACTORY_RESET_MODE=0;
