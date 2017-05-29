@@ -21,7 +21,6 @@
 #include "hw_config.h"
 #include "flash_map.h"
 
-static const int FLASH_INT_MASK = ((0x02 << 8) | 0x3A);
 
 /**
  * @brief  Gets the sector of a given address
@@ -42,7 +41,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_erase_sector(sector);
     switch(rlt)
     {
@@ -56,7 +55,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 
@@ -64,7 +63,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_read(address, pdata, datalen);
     switch(rlt)
     {
@@ -78,7 +77,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 
@@ -86,7 +85,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_write(address, pdata, datalen);
     switch(rlt)
     {
@@ -100,7 +99,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 
