@@ -24,7 +24,7 @@
  */
 
 #include "inet_hal.h"
-#include "core_esp8266_wifi_generic.h"
+#include "esp8266-hal-wifi.h"
 #include "service_debug.h"
 
 
@@ -34,11 +34,7 @@ int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress
     uint32_t ip_addr;
     int result = esp8266_gethostbyname(hostname, hostnameLen, ip_addr);
     if(!result) {
-        // 转换处理的ip地址从低位开始，需要转换成高位开始。
-        out_ip_addr->ipv4 = ((ip_addr & 0x000000FF) << 24) |
-        ((ip_addr & 0x0000FF00) << 8) |
-        ((ip_addr & 0x00FF0000) >> 8) |
-        ((ip_addr & 0xFF000000) >> 24) ;
+        out_ip_addr->ipv4 = ipv4_reverse(ip_addr);
     }
     return result;
 }

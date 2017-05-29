@@ -58,17 +58,17 @@ enum SystemEventsParam {
     ep_network_status_powering_off     = 1,
     ep_network_status_off              = 2,
     ep_network_status_powering_on      = 3,
-    ep_network_status_on               = 3,
-    ep_network_status_connecting       = 4,
-    ep_network_status_connected        = 5,
-    ep_network_status_disconnecting    = 6,
-    ep_network_status_disconnected     = 7,
+    ep_network_status_on               = 4,
+    ep_network_status_connecting       = 5,
+    ep_network_status_connected        = 6,
+    ep_network_status_disconnecting    = 7,
+    ep_network_status_disconnected     = 8,
 
     // Cloud connection status
-    ep_cloud_status_disconnected       = 0,
-    ep_cloud_status_connecting         = 1,
-    ep_cloud_status_connected          = 2,
-    ep_cloud_status_disconnecting      = 3,
+    ep_cloud_status_disconnected       = 1,
+    ep_cloud_status_connecting         = 2,
+    ep_cloud_status_connected          = 3,
+    ep_cloud_status_disconnecting      = 4,
 
     // app change status
     ep_app_status_disconneted          = 0,

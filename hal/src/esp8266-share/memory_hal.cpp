@@ -19,11 +19,9 @@
 
 #include "memory_hal.h"
 #include "hw_config.h"
-#include "flash_utils.h"
-#include "binary.h"
+#include "flash_map.h"
 
-
-static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
+static const int FLASH_INT_MASK = ((0x02 << 8) | 0x3A);
 
 /**
  * @brief  Gets the sector of a given address
@@ -32,7 +30,7 @@ static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
  */
 uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
-    return address/FLASH_SECTOR_SIZE;
+    return address/SPI_FLASH_SEC_SIZE;
 }
 
 /**

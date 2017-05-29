@@ -27,7 +27,7 @@
 #define APPLICATION_H_
 
 #include "stdio.h"
-#include "system_version.h"
+#include "system_utilities.h"
 
 #ifdef INTOROBOT_PLATFORM
 #include "platform_headers.h"

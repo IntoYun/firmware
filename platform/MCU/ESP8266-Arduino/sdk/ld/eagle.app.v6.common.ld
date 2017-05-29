@@ -18,6 +18,7 @@ EXTERN(_DoubleExceptionVector)
 EXTERN(_KernelExceptionVector)
 EXTERN(_NMIExceptionVector)
 EXTERN(_UserExceptionVector)
+EXTERN(core_version)
 PROVIDE(_memmap_vecbase_reset = 0x40000000);
 /* Various memory-map dependent cache attribute settings: */
 _memmap_cacheattr_wb_base = 0x00000110;
@@ -156,10 +157,15 @@ SECTIONS
     *.c.o( EXCLUDE_FILE (umm_malloc.c.o) .literal*, \
            EXCLUDE_FILE (umm_malloc.c.o) .text*)
     *.cpp.o(.literal*, .text*)
+    *libc.a:(.literal .text .literal.* .text.*)
     *libm.a:(.literal .text .literal.* .text.*)
     *libgcc.a:_umoddi3.o(.literal .text)
     *libgcc.a:_udivdi3.o(.literal .text)
     *libsmartconfig.a:(.literal .text .literal.* .text.*)
+    *libstdc++.a:(.literal .text .literal.* .text.*)
+    *liblwip_gcc.a:(.literal .text .literal.* .text.*)
+    *liblwip_src.a:(.literal .text .literal.* .text.*)
+    *libaxtls.a:(.literal .text .literal.* .text.*)
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text .irom.text.*)
     _irom0_text_end = ABSOLUTE(.);
     _flash_code_end = ABSOLUTE(.);

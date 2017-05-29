@@ -48,7 +48,7 @@
 #include "wiring_cellular.h"
 #include "wiring_cellular_printable.h"
 #include "wiring_system.h"
-#include "system_version.h"
+#include "system_utilities.h"
 #include "system_product.h"
 #include "system_config.h"
 #include "service_debug.h"
@@ -175,9 +175,6 @@ extern "C" void HAL_SysTick_Handler(void)
 void app_loop(bool threaded)
 {
     DECLARE_SYS_HEALTH(ENTERED_WLAN_Loop);
-    if (!threaded) {
-        intorobot_process();
-    }
 
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1)) {
@@ -189,16 +186,16 @@ void app_loop(bool threaded)
         _post_loop();
     }
 
-#ifdef configSETUP_ENABLE
-    manage_system_config();
-#endif
-
     // Execute user application loop
     DECLARE_SYS_HEALTH(ENTERED_Loop);
     if (system_mode()!=SAFE_MODE) {
         loop();
         DECLARE_SYS_HEALTH(RAN_Loop);
         _post_loop();
+    }
+
+    if (!threaded) {
+        intorobot_process();
     }
 }
 

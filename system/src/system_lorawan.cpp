@@ -32,7 +32,7 @@
 #include "system_rgbled.h"
 #include "system_lorawan.h"
 #include "system_product.h"
-#include "system_version.h"
+#include "system_utilities.h"
 #include "string_convert.h"
 
 /*debug switch*/

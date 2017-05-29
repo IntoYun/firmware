@@ -18,13 +18,10 @@
  */
 #include "hw_config.h"
 #include "ui_hal.h"
-#include "service_debug.h"
+#include "esp8266-hal-ledc.h"
 
 #define RGB_GPIO_PIN               5
 #define MODE_BOTTON_GPIO_PIN       0
-
-//extern void espShow(uint8_t pin, uint32_t color, uint8_t brightness);
-extern void ICACHE_RAM_ATTR espShow(uint8_t pin, uint32_t color, uint8_t brightness);
 
 volatile uint32_t BUTTON_last_state = 0;
 volatile uint32_t TimingBUTTON=0;

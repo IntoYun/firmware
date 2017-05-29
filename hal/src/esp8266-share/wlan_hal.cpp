@@ -19,11 +19,12 @@
 
 #include "hw_config.h"
 #include "wlan_hal.h"
-#include "core_esp8266_wifi_generic.h"
+#include "esp8266-hal-wifi.h"
 #include "flash_map.h"
 #include "memory_hal.h"
 #include "macaddr_hal.h"
 #include "delay_hal.h"
+#include "inet_hal.h"
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
@@ -218,12 +219,12 @@ void wlan_fetch_ipconfig(WLanConfig* config)
 
     struct ip_info ip;
     wifi_get_ip_info(STATION_IF, &ip);
-    config->nw.aucIP.ipv4 = ip.ip.addr;
-    config->nw.aucSubnetMask.ipv4 = ip.netmask.addr;
-    config->nw.aucDefaultGateway.ipv4 = ip.gw.addr;
+    config->nw.aucIP.ipv4 = ipv4_reverse(ip.ip.addr);
+    config->nw.aucSubnetMask.ipv4 = ipv4_reverse(ip.netmask.addr);
+    config->nw.aucDefaultGateway.ipv4 = ipv4_reverse(ip.gw.addr);
 
     ip_addr_t dns_ip = dns_getserver(0);
-    config->nw.aucDNSServer.ipv4 = dns_ip.addr;
+    config->nw.aucDNSServer.ipv4 = ipv4_reverse(dns_ip.addr);
     wifi_get_macaddr(STATION_IF, config->nw.uaMacAddr);
 
     struct station_config conf;
@@ -321,7 +322,7 @@ void scan_done_cb(void *arg, STATUS status)
 
     if(status == OK) {
         //获取ap数量
-        for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
+        for(n = 0; it; it = it->next, n++);
         scanInfo.count = n;
 
         //申请内存
@@ -331,7 +332,7 @@ void scan_done_cb(void *arg, STATUS status)
             return;
         }
 
-        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
+        for(n = 0, it = (bss_info*)arg; it; it = it->next, n++)
         {
             memcpy(pNode[n].bssid, it->bssid, 6);
             pNode[n].rssi = it->rssi;
@@ -357,7 +358,7 @@ void scan_done_cb(void *arg, STATUS status)
         //填充ap 列表
         for(n = 0; n < scanInfo.count; n++)
         {
-            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
+            for(it = (bss_info*)arg; it; it = it->next)
             {
                 if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
                     memset(&data, 0, sizeof(WiFiAccessPoint));

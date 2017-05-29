@@ -29,7 +29,6 @@
 #include "gpio_hal.h"
 #include "hw_config.h"
 #include "pinmap_impl.h"
-#include "Arduino_Nut.h"
 
 unsigned char twi_dcount = 18;
 static unsigned char twi_sda, twi_scl;
@@ -256,7 +255,7 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     //DEBUG("Enter HAL_I2C_Begin...");
     // only for default pin
     //if (i2c != HAL_I2C_INTERFACE1)
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
     unsigned char sda = PIN_MAP[default_sda_pin].gpio_pin;
     unsigned char scl = PIN_MAP[default_scl_pin].gpio_pin;
 

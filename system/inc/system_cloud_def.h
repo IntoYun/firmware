@@ -22,14 +22,14 @@
 
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bin/"
 
-#define INTOROBOT_SERVER_DOMAIN        "iot.intorobot.com"
+#define INTOROBOT_SERVER_DOMAIN        "iot.intoyun.com"
 #define INTOROBOT_SERVER_PORT          1883
 #define INTOROBOT_SERVER_TLS_PORT      8883
 
-#define INTOROBOT_UPDATE_DOMAIN        "www.intorobot.com"
+#define INTOROBOT_UPDATE_DOMAIN        "www.intoyun.com"
 
-#define INTOROBOT_HTTP_DOMAIN          "www.intorobot.com"
-#define INTOROBOT_HTTP_PORT            8088
+#define INTOROBOT_HTTP_DOMAIN          "www.intoyun.com"
+#define INTOROBOT_HTTP_PORT            80
 
 #define NTP_TIMESERVER                 "202.120.2.101"  //上海交通大学网络中心NTP服务器地址
 

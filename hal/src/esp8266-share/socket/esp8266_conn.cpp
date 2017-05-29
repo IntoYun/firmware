@@ -203,7 +203,7 @@ bool Esp8266ConnClass::socketClose(int socket)
     if (ISSOCKET(socket) && (_sockets[socket].connected || _sockets[socket].open))
     {
         HALSOCKET_DEBUG("OK! %s socket %d close!", (_sockets[socket].ipproto?"UDP":"TCP"), socket);
-        if(MDM_IPPROTO_TCP == _sockets[socket].ipproto) {
+        if((MDM_IPPROTO_TCP == _sockets[socket].ipproto) && (_sockets[socket].connected)) {
             ARM_CONN_TIMEOUT(2000);
             _socketDisconnected =0;
             espconn_disconnect(_sockets[socket].esp8266_conn_ptr);

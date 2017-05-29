@@ -39,11 +39,23 @@ typedef enum PinMode {
     INPUT,
     OUTPUT,
     INPUT_PULLUP,
-    INPUT_PULLDOWN,
+    INPUT_PULLDOWN,     // PULLDOWN only possible for pin16
+    //Used internally begin
+    OUTPUT_OPEN_DRAIN,
+    WAKEUP_PULLUP,
+    WAKEUP_PULLDOWN,
+    SPECIAL,            //defaults to the usable BUSes uart0rx/tx uart1tx and hspi
+    FUNCTION_0,
+    FUNCTION_1,
+    FUNCTION_2,
+    FUNCTION_3,
+    FUNCTION_4,
+
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -57,9 +69,9 @@ typedef enum {
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
 
-typedef struct EESP82666_Pin_Info  EESP82666_Pin_Info;
+typedef struct EESP8266_Pin_Info  EESP8266_Pin_Info;
 
-EESP82666_Pin_Info* HAL_Pin_Map(void);
+EESP8266_Pin_Info* HAL_Pin_Map(void);
 
 /* Exported macros -----------------------------------------------------------*/
 
@@ -81,8 +93,13 @@ EESP82666_Pin_Info* HAL_Pin_Map(void);
 #define D5 5
 #define D6 6
 #define D7 7
+
+// Serial pin
 #define TX 8
 #define RX 9
+
+// Serial1 pin
+#define TX1  D0
 
 #define A0 30
 

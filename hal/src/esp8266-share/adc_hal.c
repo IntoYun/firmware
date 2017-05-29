@@ -39,7 +39,7 @@ void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
  */
 int32_t HAL_ADC_Read(uint16_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
     // accept both A0 constant and ADC channel number
     if(gpio_pin == 17 || gpio_pin == 0) {
