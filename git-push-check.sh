@@ -64,7 +64,7 @@ cecho "---->neutron-net" $yellow
 make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
 
 cecho "---->anytest" $yellow
-make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=default-anytest
+make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=blank
 
 cecho "---->gl1000" $yellow
 make $VERBOSE PLATFORM=gl1000 clean all COMPILE_LTO=n APP=blank

@@ -99,7 +99,7 @@ void Cellular_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    //sim800c PWK_KEY
+    //sim800c PWK_KEY  开关机控制管脚
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_6;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -116,7 +116,7 @@ void Cellular_GPIO_Initial(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    //sim800c VBAT
+    //sim800c VBAT 电源开关控制
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -127,6 +127,7 @@ void Cellular_GPIO_Initial(void)
 
 void Cellular_Power_On(void)
 {
+    /*
     //sim800c VBAT Power On
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
     HAL_Delay(1000);
@@ -136,18 +137,15 @@ void Cellular_Power_On(void)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
     HAL_Delay(1200);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET); //PWK_KEY 高电平
+    */
 
-#if 0   //重启不断电重启模块
+    //sim800c 为了加快上电速度 PWK_KEY 上电默认低电平 此时VDD_EXT不能使用
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
+
+    //sim800c VBAT Power On
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+    HAL_Delay(200);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
-
-    //sim800c VDD_EXT
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8)) {
-        //sim800c 重新开机
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
-        HAL_Delay(1200);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET); //PWK_KEY 高电平
-    }
-#endif
 }
 
 void Cellular_Enter_UpdateMode(void)
@@ -169,9 +167,9 @@ void HAL_System_Config(void)
     Set_System();
     usart_debug_initial(115200);
     HAL_UI_Initial();
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    HAL_UI_RGB_Color(RGB_COLOR_WHITE);
     Cellular_GPIO_Initial();
-    Cellular_Power_On(); //必须放到HAL_RTC_Initial()之前 因为HAL_RTC_Initial()断电运行需要1S以上,此时检测VDD_EXT可能带来不确定因素.
+    Cellular_Power_On();
     HAL_RTC_Initial();
     usart_cellular_initial(115200);  //通讯采取115200波特率
     HAL_EEPROM_Init();  //初始化eeprom区

@@ -42,7 +42,6 @@
 
 uint8_t USB_DFU_MODE          = 0;
 uint8_t FACTORY_RESET_MODE    = 0;
-uint8_t NC_MODE               = 0;
 uint8_t START_APP_MODE        = 0;
 
 
@@ -98,11 +97,6 @@ int main(void)
     {
         BOOT_DEBUG("dfu\r\n");
         Enter_DFU_Mode();
-    }
-    else if(NC_MODE)
-    {
-        BOOT_DEBUG("reboot\r\n");
-        System_Reset();
     }
 
     BOOT_DEBUG("start app\r\n");

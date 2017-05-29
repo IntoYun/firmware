@@ -114,7 +114,6 @@ void HAL_Core_Enter_Firmware_Recovery_Mode(void);
 void HAL_Core_Enter_Com_Mode(void);
 void HAL_Core_Enter_Factory_Reset_Mode(void);
 void HAL_Core_Enter_Ota_Update_Mode(void);
-void HAL_Core_Enter_Factory_All_Reset_Mode(void);
 
 
 void HAL_Core_Enter_Safe_Mode(void* reserved);

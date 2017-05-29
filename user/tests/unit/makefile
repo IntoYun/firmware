@@ -24,7 +24,7 @@ WIRING_SRC=$(WIRING)src/
 TARGETDIR=obj/
 TARGET=runner
 
-include $(SRC_ROOT)/build/version.mk
+include $(SRC_ROOT)/build/firmlib_version.mk
 
 BUILD_PATH=$(TARGETDIR)core-firmware/
 # Define the target directories. Nest 2 levels deep since we also include

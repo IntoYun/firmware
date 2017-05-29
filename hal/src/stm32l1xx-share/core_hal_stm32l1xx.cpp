@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "core_hal.h"
+#include "core_hal_stm32l1xx.h"
 #include "watchdog_hal.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
@@ -30,13 +31,9 @@
 #include "hw_config.h"
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
-#include "stm32f1xx_it.h"
-#include "delay_hal.h"
+#include "stm32l1xx_it.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
-#include "wiring_ex_bridge.h"
-#include "wiring_ex_process.h"
-#include "service_debug.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -52,6 +49,7 @@ void HAL_Core_Setup(void);
  * Updated by HAL_1Ms_Tick()
  */
 extern volatile uint32_t TimingDelay;
+
 volatile bool systick_hook_enabled = false;
 
 void HAL_SysTick_Hook(void) __attribute__((weak));
@@ -69,16 +67,17 @@ void HAL_Hook_Main()
 }
 
 int main() {
-    // the rtos systick can only be enabled after the system has been initialized
-    systick_hook_enabled = true;
-    HAL_Hook_Main();
-    //open bridge
-    DEBUG_D("Bridge Connecting\r\n");
-    Bridge.begin();
-    DEBUG_D("Bridge Connected\r\n");
-
+    HAL_Core_Setup();
     app_setup_and_loop();
     return 0;
+}
+
+void HAL_1Ms_Tick()
+{
+    if (TimingDelay != 0x00)
+    {
+        __sync_sub_and_fetch(&TimingDelay, 1);
+    }
 }
 
 void HAL_Core_Init(void)
@@ -93,24 +92,20 @@ void HAL_Core_Config(void)
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x7000);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x6000);
 #endif
 
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
-    __HAL_RCC_AFIO_CLK_ENABLE();
-    __HAL_AFIO_REMAP_SWJ_DISABLE();
-    for (pin_t pin=A0; pin<=A15; pin++)
-        HAL_Pin_Mode(pin, INPUT);
-    for (pin_t pin=D0; pin<=D24; pin++)
-        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin=0; pin<=7; pin++)
+//        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin=30; pin<=37; pin++)
+//        HAL_Pin_Mode(pin, INPUT);
 #endif
-
     HAL_RTC_Initial();
     HAL_RNG_Initial();
     HAL_IWDG_Initial();
     HAL_UI_Initial();
-    USB_Cable_Initial();
 }
 
 void HAL_Core_Load_params(void)
@@ -121,15 +116,16 @@ void HAL_Core_Load_params(void)
     // check if need init params
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG_D("init params fac\r\n");
+        DEBUG("init params fac");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG_D("init params all\r\n");
+        DEBUG("init params all");
         HAL_PARAMS_Init_All_System_Params();
     }
-    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
+
+    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //保存参数
     {
         HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
     }
@@ -150,11 +146,12 @@ void HAL_Core_Setup(void)
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_params();
     HAL_Bootloader_Update_If_Needed();
-    HAL_Bootloader_Lock(true);
+    //HAL_Bootloader_Lock(true);
 }
 
 void HAL_Core_System_Reset(void)
 {
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0x7DEA);
     NVIC_SystemReset();
 }
 
@@ -177,11 +174,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-    /*
-    HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-    */
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
@@ -197,10 +189,10 @@ void HAL_Core_Enter_Com_Mode(void)
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
+
 /**
  * 恢复出厂设置 不清除密钥
  */
-
 void HAL_Core_Enter_Factory_Reset_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_FACTORY_RESET);
@@ -225,26 +217,15 @@ void HAL_Core_Enter_Bootloader(bool persist)
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-    String tmp="";
+    char data[32] = "";
     uint16_t templen;
-    Process Proc;
 
-    Proc.begin("openwrt_update_online");
-    Proc.addParameter("GETVERSION");
-    int res = Proc.run();
-    if(res == 0)
-    {
-        while (Proc.available())
-        {
-            tmp+=(char)Proc.read();
-        }
-        if(tmp.length())
-        {
-            templen = MIN(tmp.length(), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, tmp.c_str(), templen);
-            return templen;
-        }
+    if (buffer!=NULL && len>0) {
+        sprintf(data, "1.0.0.%d", HAL_PARAMS_Get_Boot_boot_version());
+        templen = MIN(strlen(data), len-1);
+        memset(buffer, 0, len);
+        memcpy(buffer, &data[8], templen);
+        return templen;
     }
     return 0;
 }
@@ -267,24 +248,14 @@ uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
  * Output         : None
  * Return         : None
  *******************************************************************************/
-extern "C"
-{
-
 void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
-
-    if (TimingDelay != 0x00)
-    {
-        TimingDelay--;
-    }
-
-    // another hook for an rtos
-    if (systick_hook_enabled)
-        HAL_SysTick_Hook();
-
+    /* Handle short and generic tasks for the device HAL on 1ms ticks */
+    HAL_1Ms_Tick();
     HAL_SysTick_Handler();
+    HAL_UI_SysTick_Handler();
+    //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }
 
-}

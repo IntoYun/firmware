@@ -128,7 +128,7 @@ void HAL_System_Config(void)
     Set_System();
     usart_debug_initial(115200);
     HAL_UI_Initial();
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
+    HAL_UI_RGB_Color(RGB_COLOR_WHITE);
     HAL_RTC_Initial();
     usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
     ESP8266_GPIO_Initial();

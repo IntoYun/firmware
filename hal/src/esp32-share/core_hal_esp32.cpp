@@ -28,6 +28,7 @@
 
 #include "hw_config.h"
 #include "core_hal.h"
+#include "core_hal_esp32.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
 #include "ota_flash_hal.h"
@@ -36,7 +37,6 @@
 #include "syshealth_hal.h"
 #include "intorobot_macros.h"
 #include "rtc_hal.h"
-#include "service_debug.h"
 #include "delay_hal.h"
 #include "timer_hal.h"
 #include "params_hal.h"
@@ -46,7 +46,6 @@
 #include "driver/timer.h"
 #include "esp_attr.h"
 #include "eeprom_hal.h"
-#include "subsys_version.h"
 
 extern "C" {
 #include "freertos/FreeRTOS.h"
@@ -82,13 +81,16 @@ static void ui_task_start(void *pvParameters)
         SysTick_Handler();
     }
 }
-extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION ;
+
+extern "C" const char intorobot_subsys_version_header[8] __attribute__((section(".subsys.version.header"))) = {'V', 'E', 'R', 'S', 'I', 'O', 'N', ':'};
+extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = stringify(SUBSYS_VERSION_STRING);
 extern "C" void app_main()
 {
     nvs_flash_init();
     init();
     initVariant();
-    printf("\n%08x\n", intorobot_subsys_version);
+    printf("\n%08x", intorobot_subsys_version_header);
+    printf("%08x\n", intorobot_subsys_version);
     xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
     xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, 1);
 }
@@ -117,7 +119,6 @@ void HAL_Core_Config(void)
     HAL_UI_Initial();
     HAL_EEPROM_Init();
 
-    HAL_UI_RGB_Color(RGB_COLOR_CYAN);
     esp32_setMode(WIFI_MODE_STA);    // wifi初始化
 }
 
@@ -205,40 +206,12 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
     HAL_Core_System_Reset();
 }
 
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
 void HAL_Core_Enter_Safe_Mode(void* reserved)
 {
 }
 
 void HAL_Core_Enter_Bootloader(bool persist)
 {
-}
-
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
-{
-    char data[32];
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        spi_flash_read(SUBSYS_VERSION_ADDR, (uint32_t*) data, sizeof(data));
-        if(!memcmp(data, "VERSION:", 8))
-        {
-            templen = MIN(strlen(&data[8]), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, &data[8], templen);
-            return templen;
-        }
-    }
-    return 0;
 }
 
 void SysTick_Handler(void)

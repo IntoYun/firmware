@@ -17,23 +17,30 @@
   ******************************************************************************
 */
 
-#ifndef SUBSYS_VERSION_H_
-#define SUBSYS_VERSION_H_
-
-/* 说明
- * nut 不像atom,neutron有一个子系统，但为了保证统一性，为nut定义一个子系统版本号
- * 子系统的版本号，主要为了升级默认应用程序和nut的bootloader程序。
- * 子系统的版本号组成, VERSION: 为固定字符串。主要用于识别版本号。 *.*.*为默认程序版本号
- * 最后一位为bootloader的版本号。
- */
-
-//#define  SUBSYS_VERSION         "VERSION:1.0.0.1"
-
-/*默认程序内部更新升级到1.0.1     bootloader版本号升级到2*/
-#define  SUBSYS_VERSION         "VERSION:1.0.1.2"
+/* Includes ------------------------------------------------------------------*/
+//#include <string.h>
+#include "hw_config.h"
+#include "core_hal.h"
+#include "flash_map.h"
+#include "memory_hal.h"
+#include "intorobot_macros.h"
 
 
+uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
+{
+    char data[32];
+    uint16_t templen;
 
-#endif /*SUBSYS_VERSION_H_*/
-
+    if (buffer!=NULL && len>0) {
+        HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
+        if(!memcmp(data, "VERSION:", 8))
+        {
+            templen = MIN(strlen(&data[8]), len-1);
+            memset(buffer, 0, len);
+            memcpy(buffer, &data[8], templen);
+            return templen;
+        }
+    }
+    return 0;
+}
 

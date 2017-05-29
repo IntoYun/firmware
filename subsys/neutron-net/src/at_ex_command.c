@@ -152,7 +152,7 @@ at_queryCmdGetVersion(uint8_t id){
     char output[128] = {0};
 
     os_memset(output, 0, sizeof(output));
-    os_sprintf(output, "%s:%s\r\n", CMD_GETVERSION, WIFIVERSION);
+    os_sprintf(output, "%s:%s\r\n", CMD_GETVERSION, stringify(SUBSYS_VERSION_STRING));
     at_port_print(output);
     at_response_ok();
 }

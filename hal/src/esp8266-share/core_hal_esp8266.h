@@ -17,4 +17,17 @@
   ******************************************************************************
 */
 
+#ifndef CORE_HAL_ESP8266_H
+#define CORE_HAL_ESP8266_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CORE_HAL_ESP8266_H */
 

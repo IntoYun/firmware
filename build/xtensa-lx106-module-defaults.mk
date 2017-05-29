@@ -1,4 +1,4 @@
-include $(COMMON_BUILD)/version.mk
+include $(COMMON_BUILD)/firmlib_version.mk
 
 QUOTE='
 

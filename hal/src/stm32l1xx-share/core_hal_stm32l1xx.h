@@ -17,19 +17,17 @@
   ******************************************************************************
 */
 
-#ifndef SUBSYS_VERSION_H_
-#define SUBSYS_VERSION_H_
+#ifndef CORE_HAL_STM32L1XX_H
+#define CORE_HAL_STM32L1XX_H
 
-/* 说明
- * fig 不像atom,neutron有一个子系统，但为了保证统一性，为nut定义一个子系统版本号
- * 子系统的版本号，主要为了升级默认应用程序和fig的bootloader程序。
- * 子系统的版本号组成, VERSION: 为固定字符串。主要用于识别版本号。 *.*.*为默认程序版本号
- * 最后一位为bootloader的版本号。
- */
-#define  SUBSYS_VERSION         "VERSION:1.0.0.1"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif /*SUBSYS_VERSION_H_*/
-
+#endif /* CORE_HAL_STM32L1XX_H */
 

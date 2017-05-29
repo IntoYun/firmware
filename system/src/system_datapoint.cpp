@@ -71,6 +71,25 @@ static int intorobotDiscoverProperty(const uint16_t dpID)
     return -1;
 }
 
+static uint8_t intorobotGetPropertyPermissionUpCount(void)
+{
+    uint8_t count = 0;
+
+    for (int i = 0; i < properties_count; i++)
+    {
+        //允许上送
+        if((DP_PERMISSION_UP_ONLY == properties[i]->permission) || (DP_PERMISSION_UP_DOWN == properties[i]->permission)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static uint8_t intorobotGetPropertyCount(void)
+{
+    return properties_count;
+}
+
 static bool intorobotPropertyChanged(void)
 {
     for (int i = 0; i < properties_count; i++)
@@ -80,11 +99,6 @@ static bool intorobotPropertyChanged(void)
         }
     }
     return false;
-}
-
-static uint8_t intorobotGetPropertyCount(void)
-{
-    return properties_count;
 }
 
 static void intorobotPropertyChangeClear(void)
@@ -644,7 +658,7 @@ static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len, uint8_t ty
         }
 
         //系统默认dpID  不上传
-        if (properties[i]->dpID > 0xFF00) {
+        if (properties[i]->dpID > 0x3F00) {
             continue;
         }
 
@@ -764,7 +778,7 @@ void intorobotSendAllDatapoint(void)
     uint8_t buffer[512];
     uint16_t index = 0;
 
-    if(0 == intorobotGetPropertyCount()) {
+    if(0 == intorobotGetPropertyPermissionUpCount()) {
         return;
     }
 
@@ -782,7 +796,7 @@ void intorobotSendAllDatapointManual(void)
     uint8_t buffer[512];
     uint16_t index = 0;
 
-    if(0 == intorobotGetPropertyCount()) {
+    if(0 == intorobotGetPropertyPermissionUpCount()) {
         return;
     }
 
@@ -803,7 +817,7 @@ void intorobotSendDatapointAutomatic(void)
     uint16_t index = 0;
     bool sendFlag = false;
 
-    if(0 == intorobotGetPropertyCount()) {
+    if(0 == intorobotGetPropertyPermissionUpCount()) {
         return;
     }
 

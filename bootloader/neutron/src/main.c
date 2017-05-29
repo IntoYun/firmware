@@ -37,15 +37,14 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 //#define BOOTLOADER_VERSION  1
-#define BOOTLOADER_VERSION  2   // 1.修正flash烧写失败处理,保证烧写成功  2. esp8266升级模式，波特率可以通过usb设置
+//#define BOOTLOADER_VERSION  2   // 1.修正flash烧写失败处理,保证烧写成功  2. esp8266升级模式，波特率可以通过usb设置
+#define BOOTLOADER_VERSION  3       //1. 简化工作模式  2. 简化灯的变化
 
-
-
-#define LIGHTTIME           400
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint32_t BUTTON_press_time=0;
+uint32_t BUTTON_press_time = 0;
+uint32_t BUTTON_press_start_time = 0;
 
 uint8_t USB_DFU_MODE          = 0;
 uint8_t ESP8266_UPDATE_MODE   = 0;
@@ -53,8 +52,6 @@ uint8_t SERIAL_COM_MODE       = 0;
 uint8_t DEFAULT_FIRMWARE_MODE = 0;
 uint8_t OTA_FIRMWARE_MODE     = 0;
 uint8_t FACTORY_RESET_MODE    = 0;
-uint8_t NC_MODE               = 0;
-uint8_t ALL_RESET_MODE        = 0;
 uint8_t START_APP_MODE        = 0;
 
 /**
@@ -70,6 +67,18 @@ int main(void)
     HAL_PARAMS_Load_Boot_Params();
     HAL_PARAMS_Load_System_Params();
 
+    if(0x7DEA != HAL_Core_Read_Backup_Register(BKP_DR_03))
+    {
+        //延时2s 等待用户进入配置模式 和 等待用户st-link烧写程序
+        for(int i = 0; i < 20; i++) {
+            if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
+                break;
+            }
+            delay(100);
+        }
+    }
+    HAL_Core_Write_Backup_Register(BKP_DR_03, 0xFFFF);
+
     if(BOOTLOADER_VERSION != HAL_PARAMS_Get_Boot_boot_version())
     {
         BOOT_DEBUG("save boot version...\r\n");
@@ -81,33 +90,13 @@ int main(void)
     {
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266 升级判断时间
-#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_SERIAL_COM_MODE       10000  //esp8266串口转接判断时间
-#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间 不清空密钥
-#define TIMING_NC                    20000  //无操作判断时间
-#define TIMING_ALL_RESET_MODE        30000  //完全恢复出厂判断时间 清空密钥
+#define TIMING_DEFAULT_RESTORE_MODE  5000   //默认固件灯程序升级判断时间
+#define TIMING_SERIAL_COM_MODE       7000   //esp8266串口转接判断时间
+        BUTTON_press_start_time = HAL_UI_Mode_Button_Pressed();
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
-            BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-            if( BUTTON_press_time > TIMING_ALL_RESET_MODE )
-            {
-                FACTORY_RESET_MODE = 0;
-                ALL_RESET_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_YELLOW);
-            }
-            else if( BUTTON_press_time > TIMING_NC )
-            {
-                FACTORY_RESET_MODE = 0;
-                NC_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_BLACK);
-            }
-            else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
-            {
-                SERIAL_COM_MODE = 0;
-                FACTORY_RESET_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
-            }
-            else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
+            BUTTON_press_time = HAL_UI_Mode_Button_Pressed() - BUTTON_press_start_time;
+            if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
             {
                 DEFAULT_FIRMWARE_MODE = 0;
                 SERIAL_COM_MODE = 1;
@@ -151,9 +140,6 @@ int main(void)
             case BOOT_FLAG_OTA_UPDATE:      //在线升级
                 OTA_FIRMWARE_MODE = 1;
                 break;
-            case BOOT_FLAG_ALL_RESET:       //完全恢复出厂  清除密钥
-                ALL_RESET_MODE = 1;
-                break;
             case BOOT_FLAG_USB_DFU:         //进入DFU下载模式
                 USB_DFU_MODE = 1;
                 break;
@@ -169,13 +155,7 @@ int main(void)
     }
     HAL_Core_Write_Backup_Register(BKP_DR_01, 0xFFFF);
 
-    if(ALL_RESET_MODE)
-    {
-        BOOT_DEBUG("ALL factroy reset\r\n");
-        Enter_Factory_ALL_RESTORE_Mode();
-        ALL_RESET_MODE = 0;
-    }
-    else if(FACTORY_RESET_MODE)
+    if(FACTORY_RESET_MODE)
     {
         BOOT_DEBUG("factroy reset\r\n");
         Enter_Factory_RESTORE_Mode();
@@ -211,12 +191,6 @@ int main(void)
     }
 
     BOOT_DEBUG("start app\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_RED);   // color the same with atom
-    delay(LIGHTTIME);
-    HAL_UI_RGB_Color(RGB_COLOR_GREEN); // color the same with atom
-    delay(LIGHTTIME);
-    HAL_UI_RGB_Color(RGB_COLOR_BLUE);  // color the same with atom
-    delay(LIGHTTIME);
     HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
 
     start_app();

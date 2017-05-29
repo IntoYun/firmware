@@ -159,6 +159,7 @@ SECTIONS
   .irom0.text : ALIGN(4)
   {
     _irom0_text_start = ABSOLUTE(.);
+    *(.subsys.version.header)
     *(.subsys.version)
     *.c.o( EXCLUDE_FILE (umm_malloc.c.o) .literal*, \
            EXCLUDE_FILE (umm_malloc.c.o) .text*)

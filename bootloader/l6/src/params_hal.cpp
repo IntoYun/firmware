@@ -33,19 +33,39 @@ void init_system_params(system_params_t *psystem_params) {
 
 /*初始化系统参数区 保留密钥参数*/
 void init_fac_system_params(system_params_t *psystem_params) {
-    uint8_t  at_mode;                  // 是否已经灌装密钥  0:未灌装 1:已经灌装
-    uint8_t  device_id[52]={0};        // 设备序列号
-    uint8_t  access_token[52]={0};     // 设备access_token
+    uint8_t  at_mode;
+    uint8_t  deveui[20]={0}, appeui[20]={0}, appkey[36]={0}, devaddr[12]={0}, nwkskey[36]={0}, appskey[36]={0};
 
-    at_mode = psystem_params->at_mode;
-    memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
-    memcpy(access_token, psystem_params->access_token, sizeof(psystem_params->access_token));
-
-    init_system_params(psystem_params);
-
-    psystem_params->at_mode = at_mode;
-    memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
-    memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
+    switch(psystem_params->at_mode)
+    {
+        case 1:      //Activation By Personalization  //已经灌好密钥
+            at_mode = psystem_params->at_mode;
+            memcpy(deveui, psystem_params->deveui, sizeof(psystem_params->deveui));
+            memcpy(devaddr, psystem_params->devaddr, sizeof(psystem_params->devaddr));
+            memcpy(nwkskey, psystem_params->nwkskey, sizeof(psystem_params->nwkskey));
+            memcpy(appskey, psystem_params->appskey, sizeof(psystem_params->appskey));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = at_mode;
+            memcpy(psystem_params->deveui, deveui, sizeof(psystem_params->deveui));
+            memcpy(psystem_params->devaddr, devaddr, sizeof(psystem_params->devaddr));
+            memcpy(psystem_params->nwkskey, nwkskey, sizeof(psystem_params->nwkskey));
+            memcpy(psystem_params->appskey, appskey, sizeof(psystem_params->appskey));
+            break;
+        case 2:      //Over-The-Air Activation //灌装激活码  未激活
+        case 3:      //灌装激活码 已激活
+            memcpy(deveui, psystem_params->deveui, sizeof(psystem_params->deveui));
+            memcpy(appeui, psystem_params->appeui, sizeof(psystem_params->appeui));
+            memcpy(appkey, psystem_params->appkey, sizeof(psystem_params->appkey));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = 2; //灌装激活码  未激活
+            memcpy(psystem_params->deveui, deveui, sizeof(psystem_params->deveui));
+            memcpy(psystem_params->appeui, appeui, sizeof(psystem_params->appeui));
+            memcpy(psystem_params->appkey, appkey, sizeof(psystem_params->appkey));
+            break;
+        default:     //没有密钥信息
+            init_system_params(psystem_params);
+            break;
+    }
 }
 
 void save_boot_params(boot_params_t *pboot_params);

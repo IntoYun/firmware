@@ -21,6 +21,7 @@
 #include <string.h>
 #include "hw_config.h"
 #include "core_hal.h"
+#include "core_hal_esp8266.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
 #include "ota_flash_hal.h"
@@ -29,7 +30,6 @@
 #include "syshealth_hal.h"
 #include "intorobot_macros.h"
 #include "rtc_hal.h"
-#include "service_debug.h"
 #include "delay_hal.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
@@ -38,7 +38,6 @@
 #include "Schedule.h"
 #include "core_esp8266_wifi_generic.h"
 #include <core_version.h>
-#include "subsys_version.h"
 #include "flash_map.h"
 #include "memory_hal.h"
 #include "macaddr_hal.h"
@@ -144,11 +143,13 @@ static void do_global_ctors(void) {
         (*--p)();
 }
 
-extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = SUBSYS_VERSION;
+extern "C" const char intorobot_subsys_version_header[8] __attribute__((section(".subsys.version.header"))) = {'V', 'E', 'R', 'S', 'I', 'O', 'N', ':'};
+extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = stringify(SUBSYS_VERSION_STRING);
 void init_done() {
     gdb_init();
     do_global_ctors();
-    printf("\n%08x\n", intorobot_subsys_version);
+    printf("\n%08x ", intorobot_subsys_version_header);
+    printf("%08x\n", intorobot_subsys_version);
     HAL_Core_Config();
     HAL_Core_Setup();
     wlan_set_macaddr_when_init();
@@ -253,9 +254,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist)
 
 void HAL_Core_Enter_Config_Mode(void)
 {
-    //HAL_PARAMS_Set_System_config_flag(!HAL_PARAMS_Get_System_config_flag());
-    //HAL_PARAMS_Save_Params();
-    //HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Firmware_Recovery_Mode(void)
@@ -289,40 +287,12 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
     HAL_Core_System_Reset();
 }
 
-/**
- * 恢复出厂设置 清除密钥
- */
-void HAL_Core_Enter_Factory_All_Reset_Mode(void)
-{
-    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_ALL_RESET);
-    HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
-}
-
 void HAL_Core_Enter_Safe_Mode(void* reserved)
 {
 }
 
 void HAL_Core_Enter_Bootloader(bool persist)
 {
-}
-
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
-{
-    char data[32];
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        HAL_FLASH_Interminal_Read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
-        if(!memcmp(data, "VERSION:", 8))
-        {
-            templen = MIN(strlen(&data[8]), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, &data[8], templen);
-            return templen;
-        }
-    }
-    return 0;
 }
 
 void SysTick_Handler(void* arg)

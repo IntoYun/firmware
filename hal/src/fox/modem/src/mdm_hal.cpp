@@ -460,20 +460,21 @@ void MDMParser::reset(void)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);//高电平
 
-    //sim800c VDD_EXT
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    //sim800c VBAT Power On
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8)) {
-        //sim800c 重新开机
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);//低电平
-        HAL_Delay(1200);
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);  //高电平
-    }
+    //sim800c 为了加快上电速度 PWK_KEY 上电默认低电平 此时VDD_EXT不能使用
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
+
+    //sim800c VBAT Power On
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+    HAL_Delay(200);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
 }
 
 bool MDMParser::_powerOn(void)
@@ -688,11 +689,9 @@ bool MDMParser::powerOff(void)
             resume(); // make sure we can use the AT parser
         }
 
-        if(!HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8)) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);//低电平
-            HAL_Delay(1200);
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);  //高电平
-        }
+        //sim800c VBAT Power off
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+
         _pwr = false;
         // todo - add if these are automatically done on power down
         _activated = false;

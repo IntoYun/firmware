@@ -2,6 +2,11 @@
 #define __AT_EX_COMMAND_H__
 
 
+#ifndef stringify
+#define stringify(x) __stringify(x)
+#define __stringify(x) #x
+#endif
+
 
 #define CMD_GETVERSION          "+IR_GETVERSION"       //获取wifi程序版本信息
 #define CMD_DOWN_PROGRESS       "+IR_DOWNPROGRESS"     //获取文件下载进度
