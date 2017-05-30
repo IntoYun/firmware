@@ -23,7 +23,6 @@
 #include "core_hal.h"
 #include "flash_map.h"
 #include "memory_hal.h"
-#include "flash_utils.h"
 #include "params_hal.h"
 #include "ui_hal.h"
 
@@ -38,7 +37,7 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
         return false;
     }
 
-    const uint32_t buffer_size = FLASH_SECTOR_SIZE;
+    const uint32_t buffer_size = SPI_FLASH_SEC_SIZE;
     uint8_t buffer[buffer_size];
     uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
     uint32_t saddr = src_addr;

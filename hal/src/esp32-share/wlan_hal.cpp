@@ -23,6 +23,7 @@
 #include "flash_map.h"
 #include "delay_hal.h"
 #include "macaddr_hal.h"
+#include "inet_hal.h"
 
 #include "esp32-hal-wifi.h"
 #include "esp_wifi.h"
@@ -216,12 +217,12 @@ void wlan_fetch_ipconfig(WLanConfig* config)
 
     tcpip_adapter_ip_info_t ip;
     tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-    config->nw.aucIP.ipv4 = ip.ip.addr;
-    config->nw.aucSubnetMask.ipv4 = ip.netmask.addr;
-    config->nw.aucDefaultGateway.ipv4 = ip.gw.addr;
+    config->nw.aucIP.ipv4 = ipv4_reverse(ip.ip.addr);
+    config->nw.aucSubnetMask.ipv4 = ipv4_reverse(ip.netmask.addr);
+    config->nw.aucDefaultGateway.ipv4 = ipv4_reverse(ip.gw.addr);
 
     ip_addr_t dns_ip = dns_getserver(0);
-    config->nw.aucDNSServer.ipv4 = dns_ip.u_addr.ip4.addr;
+    config->nw.aucDNSServer.ipv4 = ipv4_reverse(dns_ip.u_addr.ip4.addr);
     esp_wifi_get_mac(WIFI_IF_STA, config->nw.uaMacAddr);
 
     wifi_config_t conf;
@@ -233,7 +234,6 @@ void wlan_fetch_ipconfig(WLanConfig* config)
 void wlan_set_error_count(uint32_t errorCount)
 {
 }
-
 
 /**
  * Sets the IP source - static or dynamic.

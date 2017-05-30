@@ -66,7 +66,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
-EESP82666_Pin_Info __PIN_MAP[TOTAL_PINS] =
+EESP8266_Pin_Info __PIN_MAP[TOTAL_PINS] =
 {
 /*
  * gpio_pin (0-16)
@@ -109,6 +109,6 @@ EESP82666_Pin_Info __PIN_MAP[TOTAL_PINS] =
 /* ADC           - 30 */ { GPIO_17, NONE, ADC_Channel_0, NONE, PIN_MODE_NONE }
 };
 
-EESP82666_Pin_Info* HAL_Pin_Map() {
+EESP8266_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;
 }

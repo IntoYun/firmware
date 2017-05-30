@@ -71,6 +71,15 @@ inline bool is_ipv4(const HAL_IPAddress* address)
 #endif
 }
 
+inline uint32_t ipv4_reverse(uint32_t ip_addr)
+{
+    // 转换处理的ip地址从低位开始，需要转换成高位开始。
+    return ((ip_addr & 0x000000FF) << 24) |
+        ((ip_addr & 0x0000FF00) << 8) |
+        ((ip_addr & 0x00FF0000) >> 8) |
+        ((ip_addr & 0xFF000000) >> 24) ;
+}
+
 typedef struct __attribute__((__packed__)) _NetworkConfig_t {
     HAL_IPAddress aucIP;             // byte 0 is MSB, byte 3 is LSB
     HAL_IPAddress aucSubnetMask;     // byte 0 is MSB, byte 3 is LSB

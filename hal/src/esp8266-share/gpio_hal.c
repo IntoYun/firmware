@@ -21,6 +21,7 @@
 #include "hw_config.h"
 #include "gpio_hal.h"
 #include "pinmap_impl.h"
+#include "esp8266-hal-gpio.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -30,10 +31,8 @@
 
 /* Private variables --------------------------------------------------------*/
 PinMode digitalPinModeSaved = PIN_MODE_NONE;
-uint8_t esp8266_gpioToFn[16] = {0x34, 0x18, 0x38, 0x14, 0x3C, 0x40, 0x1C, 0x20, 0x24, 0x28, 0x2C, 0x30, 0x04, 0x08, 0x0C, 0x10};
 
 /* Extern variables ---------------------------------------------------------*/
-
 /* Private function prototypes ----------------------------------------------*/
 
 inline bool is_valid_pin(pin_t pin) __attribute__((always_inline));
@@ -49,7 +48,7 @@ PinMode HAL_Get_Pin_Mode(pin_t pin)
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
 
     if (!is_valid_pin(pin))
         return PF_NONE;
@@ -66,69 +65,82 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
  */
 void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    uint8_t mode;
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16)
+
+    switch (setMode)
     {
-        switch (setMode)
-        {
-            case OUTPUT:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)); //SOURCE(GPIO) | DRIVER(NORMAL) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                GPES = (1 << gpio_pin); //Enable
-                PIN_MAP[pin].pin_mode = OUTPUT;
-                break;
+        case OUTPUT:
+            PIN_MAP[pin].pin_mode = OUTPUT;
+            mode = ESP8266_OUTPUT;
+            break;
 
-            case INPUT:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPEC = (1 << gpio_pin); //Disable
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                PIN_MAP[pin].pin_mode = INPUT;
-                break;
+        case INPUT:
+            PIN_MAP[pin].pin_mode = INPUT;
+            mode = ESP8266_INPUT;
+            break;
 
-            case INPUT_PULLUP:
-                GPF(gpio_pin) = GPFFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPEC = (1 << gpio_pin); //Disable
-                GPC(gpio_pin) = (GPC(gpio_pin) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
-                GPF(gpio_pin) |= (1 << GPFPU);  // Enable  Pullup
-                PIN_MAP[pin].pin_mode = INPUT_PULLUP;
-                break;
+        case INPUT_PULLUP:
+            PIN_MAP[pin].pin_mode = INPUT_PULLUP;
+            mode = ESP8266_INPUT_PULLUP;
+            break;
 
-            default:
-                break;
-        }
+        case INPUT_PULLDOWN:
+            PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
+            mode = ESP8266_INPUT_PULLDOWN_16;
+            break;
+
+        //Used internally begin
+        case OUTPUT_OPEN_DRAIN:
+            PIN_MAP[pin].pin_mode = OUTPUT_OPEN_DRAIN;
+            mode = ESP8266_OUTPUT_OPEN_DRAIN;
+            break;
+
+        case WAKEUP_PULLUP:
+            PIN_MAP[pin].pin_mode = WAKEUP_PULLUP;
+            mode = ESP8266_WAKEUP_PULLUP;
+            break;
+
+        case WAKEUP_PULLDOWN:
+            PIN_MAP[pin].pin_mode = WAKEUP_PULLDOWN;
+            mode = ESP8266_WAKEUP_PULLDOWN;
+            break;
+
+        case SPECIAL:
+            PIN_MAP[pin].pin_mode = SPECIAL;
+            mode = ESP8266_SPECIAL;
+            break;
+
+        case FUNCTION_0:
+            PIN_MAP[pin].pin_mode = FUNCTION_0;
+            mode = ESP8266_FUNCTION_0;
+            break;
+
+        case FUNCTION_1:
+            PIN_MAP[pin].pin_mode = FUNCTION_1;
+            mode = ESP8266_FUNCTION_1;
+            break;
+
+        case FUNCTION_2:
+            PIN_MAP[pin].pin_mode = FUNCTION_2;
+            mode = ESP8266_FUNCTION_2;
+            break;
+
+        case FUNCTION_3:
+            PIN_MAP[pin].pin_mode = FUNCTION_3;
+            mode = ESP8266_FUNCTION_3;
+            break;
+
+        case FUNCTION_4:
+            PIN_MAP[pin].pin_mode = FUNCTION_4;
+            mode = ESP8266_FUNCTION_4;
+            break;
+
+        default:
+            break;
     }
-    else if(gpio_pin == 16)
-    {
-        switch (setMode)
-        {
-            case OUTPUT:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GP16E |= 1;
-                PIN_MAP[pin].pin_mode = OUTPUT;
-                break;
-
-            case INPUT:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GP16E &= ~1;
-                PIN_MAP[pin].pin_mode = INPUT;
-                break;
-
-            case INPUT_PULLDOWN:
-                GPF16 = GP16FFS(GPFFS_GPIO(gpio_pin));//Set mode to GPIO
-                GPC16 = 0;
-                GPF16 |= (1 << GP16FPD);//Enable Pulldown
-                GP16E &= ~1;
-                PIN_MAP[pin].pin_mode = INPUT_PULLDOWN;
-                break;
-
-            default:
-                break;
-        }
-    }
+    __pinMode(gpio_pin, mode);
 }
 
 /*
@@ -152,16 +164,9 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
  */
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        if(value) GPOS = (1 << gpio_pin);
-        else GPOC = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        if(value) GP16O |= 1;
-        else GP16O &= ~1;
-    }
+    __digitalWrite(gpio_pin, value);
 }
 
 /*
@@ -169,16 +174,10 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
  */
 int32_t HAL_GPIO_Read(uint16_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
 
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    if(gpio_pin < 16){
-        return GPIP(gpio_pin);
-    } else if(gpio_pin == 16){
-        return GP16I & 0x01;
-    }
-    return 0;
+    return __digitalRead(gpio_pin);
 }
 
 /*
@@ -188,16 +187,13 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 {
-    EESP82666_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
-#define pinReadFast(_pin) ( SOLO_PIN_MAP[_pin].gpio_pin < 16 ? GPIP(SOLO_PIN_MAP[_pin].gpio_pin) : (GP16I&0x01))
-
     // FIXME: SYTME_TICK_COUNTER change to system_get_time which return the micro seconds
     volatile uint32_t timeoutStart = system_get_time(); // total 3 seconds for entire function!
 
     /* If already on the value we want to measure, wait for the next one.
      * Time out after 3 seconds so we don't block the background tasks
      */
-    while (pinReadFast(pin) == value) {
+    while (HAL_pinReadFast(pin) == value) {
         if (sytem_get_time() - timeoutStart > 3000000UL) {
             return 0;
         }
@@ -206,7 +202,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
     /* Wait until the start of the pulse.
      * Time out after 3 seconds so we don't block the background tasks
      */
-    while (pinReadFast(pin) != value) {
+    while (HAL_pinReadFast(pin) != value) {
         if (system_get_time() - timeoutStart > 3000000UL) {
             return 0;
         }
@@ -216,7 +212,7 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
      * Time out after 3 seconds so we don't block the background tasks
      */
     volatile uint32_t pulseStart = system_get_time();
-    while (pinReadFast(pin) == value) {
+    while (HAL_pinReadFast(pin) == value) {
         if (system_get_time()- timeoutStart > 3000000UL) {
             return 0;
         }
@@ -227,36 +223,16 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
 
 void HAL_pinSetFast(pin_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        GPOS = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        GP16O |= 1;
-    }
+    HAL_GPIO_Write(pin, 1);
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        GPOC = (1 << gpio_pin);
-    } else if(gpio_pin == 16){
-        GP16O &= ~1;
-    }
+    HAL_GPIO_Write(pin, 0);
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(gpio_pin < 16){
-        return GPIP(gpio_pin);
-    } else if(gpio_pin == 16){
-        return GP16I & 0x01;
-    }
-    return 0;
+    return HAL_GPIO_Read(pin);
 }
 

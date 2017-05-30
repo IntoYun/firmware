@@ -19,11 +19,8 @@
 
 #include "memory_hal.h"
 #include "hw_config.h"
-#include "flash_utils.h"
-#include "binary.h"
+#include "flash_map.h"
 
-
-static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
 
 /**
  * @brief  Gets the sector of a given address
@@ -32,7 +29,7 @@ static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
  */
 uint32_t HAL_FLASH_Interminal_Get_Sector(uint32_t address)
 {
-    return address/FLASH_SECTOR_SIZE;
+    return address/SPI_FLASH_SEC_SIZE;
 }
 
 /**
@@ -44,7 +41,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_erase_sector(sector);
     switch(rlt)
     {
@@ -58,7 +55,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 
@@ -66,7 +63,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_read(address, pdata, datalen);
     switch(rlt)
     {
@@ -80,7 +77,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 
@@ -88,7 +85,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    ets_isr_mask(FLASH_INT_MASK);
+    xt_rsil(15);
     SpiFlashOpResult rlt = spi_flash_write(address, pdata, datalen);
     switch(rlt)
     {
@@ -102,7 +99,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
             result = HAL_FLASH_STATUS_ERROR;
             break;
     }
-    ets_isr_unmask(FLASH_INT_MASK);
+    xt_rsil(0);
     return result;
 }
 

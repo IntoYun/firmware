@@ -29,6 +29,7 @@
 #include "system_sleep.h"
 #include "system_cloud.h"
 #include "system_event.h"
+#include "system_utilities.h"
 #include "core_hal.h"
 #include "interrupts_hal.h"
 #include "core_hal.h"
@@ -92,6 +93,7 @@ public:
     static void sleep(IntoRobot_Sleep_TypeDef sleepMode, long seconds=0);
     static void sleep(long seconds) { sleep(SLEEP_MODE_WLAN, seconds); }
     static void sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds=0);
+
     static String deviceID(void) { return intorobot_deviceID(); }
 
     static uint16_t buttonPushed(uint8_t button=0) {
@@ -171,17 +173,17 @@ public:
     }
 */
 #ifdef configSETUP_ENABLE
-    void configBegin(system_config_type_t config_type)
+    void configEnterMode(system_config_type_t config_type)
     {
         set_system_config_type(config_type);
     }
 
-    void configEnd(void)
+    void configExit(void)
     {
         set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
     }
 
-    system_config_type_t configStatus(void)
+    system_config_type_t configCurrentMode(void)
     {
         return get_system_config_type();
     }
@@ -191,13 +193,38 @@ public:
         system_config_process();
     }
 #endif
+
+    String version(void)
+    {
+        char version[32] = {0};
+
+        system_version(version);
+        return String(version);
+    }
+
+    String platformID(void)
+    {
+        char platformId[32] = {0};
+
+        system_platform_id(platformId);
+        return String(platformId);
+    }
+
+    String platformName(void)
+    {
+        char platformName[32] = {0};
+
+        system_platform_name(platformName);
+        return String(platformName);
+    }
+
+    AT_MODE_FLAG_TypeDef securityMode(void) { return system_security_mode(); }
 };
 
 extern SystemClass System;
 
 #define SYSTEM_MODE(mode)  SystemClass SystemMode(mode);
 #define SYSTEM_THREAD(state) STARTUP(system_thread_set_state(intorobot::feature::state, NULL));
-#define SYSTEM_CONFIG_MODE(mode) STARTUP(set_system_config_mode(mode));
 
 #define waitFor(condition, timeout) System.waitCondition([]{ return (condition)(); }, (timeout))
 #define waitUntil(condition) System.waitCondition([]{ return (condition)(); })

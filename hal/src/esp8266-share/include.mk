@@ -7,7 +7,6 @@ TARGET_HAL_ESP8266_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp8266-share
 INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)
 INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)/esp8266
 INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)/socket
-INCLUDE_DIRS += $(TARGET_HAL_ESP8266_SHARE_PATH)/esp8266/umm_malloc
 
 
 # if hal is used as a make dependency (linked) then add linker commands
@@ -22,7 +21,7 @@ LDFLAGS += -u _printf_float
 endif
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
-LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,register_chipv6_phy
-LIBS += m gcc halhal phy pp net80211 wpa crypto main wps axtls smartconfig airkiss mesh wpa2 lwip_gcc stdc++
+LDFLAGS += -nostdlib -Wl,--no-check-sections -u call_user_start -u _scanf_float -Wl,-static -Wl,--gc-sections -Wl,-wrap,system_restart_local -Wl,-wrap,spi_flash_read
+LIBS += m c gcc halhal phy pp net80211 wpa crypto main wps axtls espnow smartconfig airkiss mesh wpa2 lwip_gcc stdc++
 
 endif

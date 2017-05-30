@@ -40,7 +40,7 @@
 #include "system_mode.h"
 #include "system_task.h"
 #include "system_test.h"
-#include "system_version.h"
+#include "system_utilities.h"
 #include "system_event.h"
 
 /*debug switch*/
@@ -999,18 +999,10 @@ static system_config_type_t current_system_config_type = SYSTEM_CONFIG_TYPE_NONE
 static uint8_t system_config_initial_flag = 0;
 volatile uint8_t g_intorobot_system_config = 0;    //默认不是配置状态
 
-void set_system_config_mode(system_config_mode_t mode)
-{
-    current_system_config_mode = mode;
-}
-
-system_config_mode_t get_system_config_mode(void)
-{
-    return current_system_config_mode;
-}
-
 void set_system_config_type(system_config_type_t config_type)
 {
+    CONFIG_FLAG_TypeDef flag = CONFIG_FLAG_NONE;
+
     if(current_system_config_type == config_type) {
         return;
     }
@@ -1018,35 +1010,40 @@ void set_system_config_type(system_config_type_t config_type)
     g_intorobot_system_config = 1;
     system_config_initial_flag = 0;
     current_system_config_type = config_type;
+
     switch(config_type)
     {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
             system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_IMLINK_SERIAL);
+            flag = CONFIG_FLAG_IMLINK_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
             system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_AP_SERIAL);
+            flag = CONFIG_FLAG_AP_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
             system_notify_event(event_mode_changed, ep_mode_serial_config);
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_SERIAL);
+            flag = CONFIG_FLAG_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
             system_notify_event(event_mode_changed, ep_mode_imlink_config);
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_IMLINK);
+            flag = CONFIG_FLAG_IMLINK;
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
             system_notify_event(event_mode_changed, ep_mode_ap_config);
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_AP);
+            flag = CONFIG_FLAG_AP;
             break;
         default:   //退出配置模式
             system_notify_event(event_mode_changed, ep_mode_normal);
             g_intorobot_system_config = 0;
-            HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_NONE);
+            flag = CONFIG_FLAG_NONE;
             break;
     }
-    HAL_PARAMS_Save_Params();
+
+    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+        HAL_PARAMS_Set_System_config_flag(flag);
+        HAL_PARAMS_Save_Params();
+    }
 }
 
 system_config_type_t get_system_config_type(void)
@@ -1159,6 +1156,7 @@ int system_config_process(void)
     }
     if(!result) {
         system_config_finish();
+        system_config_type = SYSTEM_CONFIG_TYPE_NONE;
         set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
     }
     return result;
@@ -1167,34 +1165,38 @@ int system_config_process(void)
 // These are internal methods
 void system_config_setup(void)
 {
-    switch(HAL_PARAMS_Get_System_config_flag())
-    {
-        case CONFIG_FLAG_IMLINK_SERIAL:   //进入imlink+串口配置模式
-            set_system_config_type(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
-            break;
-        case CONFIG_FLAG_AP_SERIAL:      //进入ap+串口配置模式
-            set_system_config_type(SYSTEM_CONFIG_TYPE_AP_SERIAL);
-            break;
-        case CONFIG_FLAG_SERIAL:         //串口配置模式
-            set_system_config_type(SYSTEM_CONFIG_TYPE_SERIAL);
-            break;
-        case CONFIG_FLAG_IMLINK:         //进入imlink配置模式
-            set_system_config_type(SYSTEM_CONFIG_TYPE_IMLINK);
-            break;
-        case CONFIG_FLAG_AP:             //进入ap配置模式
-            set_system_config_type(SYSTEM_CONFIG_TYPE_AP);
-            break;
-        default:
-            set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
-            break;
+    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+        switch(HAL_PARAMS_Get_System_config_flag())
+        {
+            case CONFIG_FLAG_IMLINK_SERIAL:   //进入imlink+串口配置模式
+                set_system_config_type(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
+                break;
+            case CONFIG_FLAG_AP_SERIAL:      //进入ap+串口配置模式
+                set_system_config_type(SYSTEM_CONFIG_TYPE_AP_SERIAL);
+                break;
+            case CONFIG_FLAG_SERIAL:         //串口配置模式
+                set_system_config_type(SYSTEM_CONFIG_TYPE_SERIAL);
+                break;
+            case CONFIG_FLAG_IMLINK:         //进入imlink配置模式
+                set_system_config_type(SYSTEM_CONFIG_TYPE_IMLINK);
+                break;
+            case CONFIG_FLAG_AP:             //进入ap配置模式
+                set_system_config_type(SYSTEM_CONFIG_TYPE_AP);
+                break;
+            default:
+                set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
+                break;
+        }
+    } else {
+        set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
     }
 }
 
 void manage_system_config(void)
 {
-    if(SYSTEM_CONFIG_MODE_AUTOMATIC == get_system_config_mode()) { //配置处理流程放后台处理,阻塞处理。
+    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
-            CLOUD_FN(intorobot_cloud_disconnect(), (void)0);
+            CLOUD_FN(cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);
             while(1)
             {

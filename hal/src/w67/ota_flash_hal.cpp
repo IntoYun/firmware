@@ -23,7 +23,6 @@
 #include "core_hal.h"
 #include "flash_map.h"
 #include "memory_hal.h"
-#include "flash_utils.h"
 #include "params_hal.h"
 
 

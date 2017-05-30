@@ -77,8 +77,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define D4 4   //l7 DIO4
 #define D5 5   //l7 DIO5
 #define D6 6   //l7 RXTX
-#define D7 7
-#define D8 8   //l7 RSET
+#define D7 7   //l7 RSET
+#define D8 8   //gl1000 indicator led
+#define D9 9   //gl1000 mode pin
 
 #define A2 32
 #define A3 33

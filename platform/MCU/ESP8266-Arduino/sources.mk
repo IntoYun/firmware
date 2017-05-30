@@ -14,5 +14,5 @@ CSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.c)
 CPPSRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.cpp)
 
 # ASM source files included in this build.
-ASRC +=
+ASRC += $(call target_files,$(TARGET_INTOROBOT_SRC_PATH)/,*.S)
 

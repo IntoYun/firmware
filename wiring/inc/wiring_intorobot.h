@@ -303,76 +303,81 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
     public:
 
-        static bool publish(const char *topic, bool value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, bool value)
         {
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 
 #ifdef INTOROBOT_ARCH_ARM
         // stm32 arm 采取的是thumb指令集  int 实际是16位
-        static bool publish(const char *topic, int value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, int value)
         {
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 #endif
 
-        static bool publish(const char *topic, int32_t value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, int32_t value)
         {
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, uint32_t value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, uint32_t value)
         {
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, float value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, float value)
         {
             //char buf[32];
             //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, double value, topic_version_t version=TOPIC_VERSION_V1)
+        static bool publish(const char *topic, double value)
         {
             //char buf[32];
             //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str(), version);
+            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, String value, topic_version_t version = TOPIC_VERSION_V1)
+        static bool publish(const char *topic, String value)
         {
-            return publish(topic, value.c_str(), version);
+            return publish(topic, value.c_str(), TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, const char *value, topic_version_t version = TOPIC_VERSION_V1)
+        static bool publish(const char *topic, const char *value)
         {
-            return publish(topic, (uint8_t *)value, strlen(value), 0, true, version);
+            return publish(topic, (uint8_t *)value, strlen(value), 0, true, TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, topic_version_t version = TOPIC_VERSION_V1)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength)
         {
-            return publish(topic, payload, plength, 0, true, version);
+            return publish(topic, payload, plength, 0, true, TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained, topic_version_t version = TOPIC_VERSION_V1)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t retained)
         {
-            return publish(topic, payload, plength, 0, retained, version);
+            return publish(topic, payload, plength, 0, retained, TOPIC_VERSION_V1);
         }
 
-        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained, topic_version_t version = TOPIC_VERSION_V1)
+        static bool publish(const char *topic, uint8_t *payload, unsigned int plength, uint8_t qos, uint8_t retained, topic_version_t version)
         {
             return intorobot_publish(version, topic, payload, plength, qos, retained);
         }
 
         static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t))
         {
-            return subscribe(topic, deviceID, callback, 0);
+            return subscribe(topic, deviceID, callback, 0, TOPIC_VERSION_V1);
         }
 
         static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
         {
-            return intorobot_subscribe(TOPIC_VERSION_V1, topic, deviceID, callback, qos);
+            return subscribe(topic, deviceID, callback, qos, TOPIC_VERSION_V1);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, void (*callback)(uint8_t*, uint32_t), uint8_t qos, topic_version_t version)
+        {
+            return intorobot_subscribe(version, topic, deviceID, callback, qos);
         }
 
         static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase)
@@ -382,17 +387,27 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
         static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos)
         {
-            return intorobot_widget_subscribe(TOPIC_VERSION_V1, topic, deviceID, pWidgetBase, qos);
+            return subscribe(topic, deviceID, pWidgetBase, qos, TOPIC_VERSION_V1);
+        }
+
+        static bool subscribe(const char *topic, const char *deviceID, WidgetBaseClass *pWidgetBase, uint8_t qos, topic_version_t version)
+        {
+            return intorobot_widget_subscribe(version, topic, deviceID, pWidgetBase, qos);
         }
 
         static bool unsubscribe(const char *topic, const char *deviceID)
         {
-            return intorobot_unsubscribe(TOPIC_VERSION_V1, topic, deviceID);
+            return unsubscribe(topic, deviceID, TOPIC_VERSION_V1);
         }
 
-        static void syncTime(void)
+        static bool unsubscribe(const char *topic, const char *deviceID, topic_version_t version)
         {
-            intorobot_sync_time();
+            return intorobot_unsubscribe(version, topic, deviceID);
+        }
+
+        static bool syncTime(void)
+        {
+            return intorobot_sync_time();
         }
 
         static bool connected(void) { return intorobot_cloud_flag_connected(); }
@@ -419,6 +434,16 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
         static int available(void)
         {
             return intorobot_debug_info_available();
+        }
+
+        static int deviceRegister(char *prodcut_id, char *signature)
+        {
+            return intorobot_device_register(prodcut_id, signature);
+        }
+
+        static int deviceActivate(void)
+        {
+            return intorobot_device_activate();
         }
 
         static String deviceID(void) { return intorobot_deviceID(); }

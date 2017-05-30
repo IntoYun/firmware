@@ -19,9 +19,10 @@
 
 #include "system_task.h"
 #include <algorithm>
-#include "system_version.h"
+#include "system_utilities.h"
 #include "static_assert.h"
 #include "intorobot_macros.h"
+#include "params_hal.h"
 
 using std::min;
 
@@ -64,3 +65,16 @@ int system_platform_name(char *pname)
     }
     return 0;
 }
+
+AT_MODE_FLAG_TypeDef system_security_mode(void)
+{
+    return HAL_PARAMS_Get_System_at_mode();
+}
+
+product_mode_t system_product_mode(void)
+{
+    product_details_t product_details;
+    system_product_instance().get_product_details(product_details);
+    return product_details.product_mode;
+}
+

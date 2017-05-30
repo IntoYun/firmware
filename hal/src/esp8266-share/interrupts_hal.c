@@ -60,7 +60,7 @@ void HAL_Interrupts_Initial(void)
 
 void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* data, InterruptMode mode, HAL_InterruptExtraConfiguration* config)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
     uint8_t GPIO_PinSource = PIN_MAP[pin].gpio_pin_source;
@@ -104,7 +104,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
 
 void HAL_Interrupts_Detach(uint16_t pin)
 {
-    EESP82666_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
     uint8_t GPIO_PinSource = PIN_MAP[pin].gpio_pin_source;

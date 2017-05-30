@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <ctype.h>
+#include <limits.h>
 #include "stringbuffer.h"
 #include "ajson.h"
 #include "wiring.h"
@@ -196,7 +197,7 @@ void aJsonClass::deleteItem(aJsonObject *c)
 // Parse the input text to generate a number, and populate the result into item.
 int aJsonStream::parseNumber(aJsonObject *item)
 {
-    int i = 0;
+    unsigned i = 0;
     int sign = 1;
 
     int in = this->getch();
@@ -226,8 +227,15 @@ int aJsonStream::parseNumber(aJsonObject *item)
     //end of integer part � or isn't it?
     if (!(in == '.' || in == 'e' || in == 'E'))
     {
-        item->valueint = i * (int) sign;
-        item->type = aJson_Int;
+        if((i > INT_MAX) && (1 == sign)) {
+            item->valueuint = i;
+            item->type = aJson_Uint;
+        }
+        else
+        {
+            item->valueint = i * (int) sign;
+            item->type = aJson_Int;
+        }
     }
     //ok it seems to be a double
     else
@@ -282,6 +290,17 @@ int aJsonStream::printInt(aJsonObject *item)
     if (item != NULL)
     {
         return this->print(item->valueint, DEC);
+    }
+    //printing nothing is ok
+    return 0;
+}
+
+// Render the number nicely from the given item into a string.
+int aJsonStream::printUint(aJsonObject *item)
+{
+    if (item != NULL)
+    {
+        return this->print(item->valueuint, DEC);
     }
     //printing nothing is ok
     return 0;
@@ -673,6 +692,9 @@ int aJsonStream::printValue(aJsonObject *item)
             break;
         case aJson_Int:
             result = this->printInt(item);
+            break;
+        case aJson_Uint:
+            result = this->printUint(item);
             break;
         case aJson_Float:
             result = this->printFloat(item);
@@ -1101,6 +1123,17 @@ aJsonObject *aJsonClass::createItem(int num)
     return item;
 }
 
+aJsonObject *aJsonClass::createItem(unsigned num)
+{
+    aJsonObject *item = newItem();
+    if (item)
+    {
+        item->type = aJson_Uint;
+        item->valueuint = (unsigned)num;
+    }
+    return item;
+}
+
 aJsonObject *aJsonClass::createItem(double num)
 {
     aJsonObject *item = newItem();
@@ -1217,6 +1250,11 @@ void aJsonClass::addBooleanToObject(aJsonObject* object, const char* name, bool 
 }
 
 void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, int n)
+{
+    addItemToObject(object, name, createItem(n));
+}
+
+void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, unsigned n)
 {
     addItemToObject(object, name, createItem(n));
 }

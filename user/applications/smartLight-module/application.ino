@@ -34,11 +34,11 @@ void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 
 void systemConfigKeyDeal()
 {
-    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configStatus()) {
-        System.configBegin(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
+    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configCurrentMode()) {
+        System.configEnterMode(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
         digitalWrite(LEDPIN, LOW);
     } else {
-        System.configEnd();
+        System.configExit();
         digitalWrite(LEDPIN, HIGH);
     }
 }
@@ -47,7 +47,7 @@ void setup()
 {
     //初始化
     pinMode(LEDPIN, OUTPUT);
-    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL == System.configStatus()) {
+    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL == System.configCurrentMode()) {
         digitalWrite(LEDPIN, LOW);
     } else {
         digitalWrite(LEDPIN, HIGH);

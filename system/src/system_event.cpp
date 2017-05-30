@@ -49,8 +49,9 @@ struct SystemEventSubscription {
 
     void notify(system_event_t event, int param, uint8_t *data, uint16_t datalen) const
     {
-        if (matchesEvent(event))
+        if (matchesEvent(event)) {
             handler(event, param, data, datalen);
+        }
     }
 };
 
@@ -92,11 +93,11 @@ void system_notify_event(system_event_t event, int param, uint8_t *data, uint16_
     APPLICATION_THREAD_CONTEXT_ASYNC(system_notify_event(event, param, data, datalen, fn, fndata));
     // run event notifications on the application thread
 
-    for (const SystemEventSubscription& subscription : subscriptions)
-    {
+    for (const SystemEventSubscription& subscription : subscriptions) {
         subscription.notify(event, param, data, datalen);
     }
-    if (fn)
+    if (fn) {
         fn(fndata);
+    }
 }
 

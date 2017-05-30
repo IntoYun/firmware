@@ -16,6 +16,7 @@ static int sCount = 0;
 
 static void init_lists()
 {
+    (void) init_lists;
     if (sCount != 0) {
         return;
     }
@@ -95,3 +96,4 @@ void run_scheduled_functions()
         recycle_fn(item);
     }
 }
+

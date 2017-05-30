@@ -44,6 +44,7 @@
 #include "system_product.h"
 #include "system_lorawan.h"
 #include "string_convert.h"
+#include "wiring_time.h"
 
 /*debug switch*/
 #define SYSTEM_TASK_DEBUG
@@ -215,33 +216,53 @@ void manage_app_auto_update(void)
 #endif
 }
 
+static bool _device_register(void)
+{
+    //获取product id
+    product_details_t product_details;
+    system_product_instance().get_product_details(product_details);
+
+    //计算签名 signature = md5(timestamp + productSecret)
+    MD5Builder md5;
+    String payload = "";
+
+    time_t utc_time = Time.now();
+    payload += utc_time;
+    payload += product_details.product_secret;
+    md5.begin();
+    md5.add((uint8_t *)payload.c_str(), payload.length());
+    md5.calculate();
+    return intorobot_device_register(product_details.product_id, md5.toString().c_str());
+}
+
 void preprocess_cloud_connection(void)
 {
     if (INTOROBOT_CLOUD_SOCKETED) {
         if (!INTOROBOT_CLOUD_CONNECT_PREPARED) {
             // 同步时间
             intorobot_sync_time();
-
-            AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-            //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
-            switch(at_mode)
-            {
-                case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
-                    break;
-                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
-                    // 激活设备成功
-                    intorobot_device_activate();
-                    break;
-                default:                          //没有密钥信息
-                    // 注册设备
-                    if(intorobot_device_register())
-                    {
-                        HAL_Delay_Milliseconds(200);
-                        // 激活设备
+            if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+                AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+                //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
+                switch(at_mode)
+                {
+                    case AT_MODE_FLAG_ABP:            //已经灌好密钥
+                    case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
+                        break;
+                    case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
+                        // 激活设备成功
                         intorobot_device_activate();
-                    }
-                    break;
+                        break;
+                    default:                          //没有密钥信息
+                        // 注册设备
+                        if(_device_register())
+                        {
+                            HAL_Delay_Milliseconds(200);
+                            // 激活设备
+                            intorobot_device_activate();
+                        }
+                        break;
+                }
             }
             cloud_connection_attempt_init();
             INTOROBOT_CLOUD_CONNECT_PREPARED = 1;
@@ -303,11 +324,9 @@ void manage_cloud_connection(void)
 void cloud_disconnect(bool closeSocket)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
-        STASK_DEBUG("Cloud: disconnecting");
         system_notify_event(event_cloud_status, ep_cloud_status_disconnecting);
         INTOROBOT_CLOUD_CONNECTED = 0;
         intorobot_cloud_disconnect();
-        STASK_DEBUG("Cloud: disconnected");
         system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
     }
 }
@@ -398,6 +417,7 @@ void system_process_loop(void)
 #ifndef configNO_LORAWAN
 static void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
 {
+    HAL_Core_System_Yield();
     if (ms==0) return;
     system_tick_t intorobot_loop_elapsed_millis = INTOROBOT_LOOP_DELAY_MILLIS;
     intorobot_loop_total_millis += ms;
@@ -406,6 +426,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
     system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
 
     while (1) {
+        HAL_Core_System_Yield();
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
         if (elapsed_millis > ms) {
             break;
@@ -416,6 +437,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
 #else
 static void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
 {
+    HAL_Core_System_Yield();
     if (ms==0) return;
     system_tick_t intorobot_loop_elapsed_millis = INTOROBOT_LOOP_DELAY_MILLIS;
     intorobot_loop_total_millis += ms;
@@ -424,6 +446,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
     system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
 
     while (1) {
+        HAL_Core_System_Yield();
         system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
         if (elapsed_millis > ms) {
             break;
@@ -462,7 +485,6 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
 {
     // if not threading, or we are the application thread, then implement delay
     // as a background message pump
-
     if ((!PLATFORM_THREADING || APPLICATION_THREAD_CURRENT()) && !HAL_IsISR()) {
         system_delay_pump(ms, force_no_background_loop);
     } else {

@@ -196,12 +196,12 @@ public:
             CLOUD_FN(cloud_disconnect(), (void)0);
             if (was_connected) {
                 // "Disconnecting" event is generated only for a successfully established connection
-                system_notify_event(event_network_status, ep_network_status_disconnecting);
+                //system_notify_event(event_network_status, ep_network_status_disconnecting);
             }
             disconnect_now();
             config_clear();
             if (was_connected || was_connecting) {
-                system_notify_event(event_network_status, ep_network_status_disconnected);
+                //system_notify_event(event_network_status, ep_network_status_disconnected);
             }
         }
     }
@@ -264,7 +264,7 @@ public:
             SNETWORK_DEBUG("ARM_WLAN_WD 2");
             ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
         }
-        system_notify_event(event_network_status, ep_network_status_disconnected);
+        //system_notify_event(event_network_status, ep_network_status_connected);
     }
 
     void notify_disconnected()
@@ -281,6 +281,7 @@ public:
         WLAN_CONNECTED = 0;
         WLAN_CONNECTING = 0;
         WLAN_DHCP = 0;
+        system_notify_event(event_network_status, ep_network_status_disconnected);
     }
 
     void notify_dhcp(bool dhcp)
@@ -290,6 +291,7 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
+            update_config(true);
             system_notify_event(event_network_status, ep_network_status_connected);
         } else {
             config_clear();

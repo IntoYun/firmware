@@ -17,7 +17,6 @@
   ******************************************************************************
 */
 #include "ext_hal.h"
-#include "Arduino_Nut.h"
 
 void disable_irq(void)
 {
