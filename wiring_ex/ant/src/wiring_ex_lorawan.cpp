@@ -331,26 +331,6 @@ int LoRaWanReceiveFrame(uint8_t *buffer)
     }
 }
 
-#if 0
-void LoRaWanPlatformDataCallback(platformDataCb handler)
-{
-    platformDataCb handler = handler;
-    if(handler != NULL)
-    {
-        if(LoRaWanBuffer.available)
-        {
-            handler(LoRaWanBuffer.buffer,LoRaWanBuffer.bufferSize);
-        }
-    }
-}
-
-
-void LoRaWanRunLoop(dataCallback handle)
-{
-    LoRaWanPlatformDataCallback(handle);
-}
-#endif
-
 #endif
 
 #define TEST_SX1276
