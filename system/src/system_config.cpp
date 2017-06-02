@@ -44,7 +44,7 @@
 #include "system_event.h"
 
 /*debug switch*/
-// #define SYSTEM_CONFIG_DEBUG
+#define SYSTEM_CONFIG_DEBUG
 
 #ifdef SYSTEM_CONFIG_DEBUG
 #define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
@@ -138,7 +138,7 @@ int DeviceConfig::process(void)
     {
         String tmp=readString();
 
-        //SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
+        SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}
