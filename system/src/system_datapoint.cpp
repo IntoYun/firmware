@@ -71,12 +71,18 @@ static int intorobotDiscoverProperty(const uint16_t dpID)
     return -1;
 }
 
+//剔除默认数据点，可上送数据点的个数
 static uint8_t intorobotGetPropertyPermissionUpCount(void)
 {
     uint8_t count = 0;
 
     for (int i = 0; i < properties_count; i++)
     {
+        //系统默认dpID  不上传
+        if (properties[i]->dpID > 0x3F00) {
+            continue;
+        }
+
         //允许上送
         if((DP_PERMISSION_UP_ONLY == properties[i]->permission) || (DP_PERMISSION_UP_DOWN == properties[i]->permission)) {
             count++;
