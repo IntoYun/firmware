@@ -180,7 +180,6 @@ void HAL_Core_Load_params(void)
 
 void HAL_Core_Setup(void)
 {
-    esp8266MDM.init();
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_params();
     HAL_Bootloader_Update_If_Needed();

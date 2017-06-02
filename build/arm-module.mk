@@ -83,7 +83,7 @@ ifeq ("$(wildcard $(INTOROBOT_SERIAL_DEV))","")
 	@echo Serial device INTOROBOT_SERIAL_DEV : $(INTOROBOT_SERIAL_DEV) not available
 else
 	@echo Entering dfu bootloader mode:
-	$(UPLOAD-RESET) -p $(INTOROBOT_SERIAL_DEV) -b $(START_DFU_FLASHER_SERIAL_SPEED) -t 1000
+	$(UPLOAD-RESET) -p $(INTOROBOT_SERIAL_DEV) -b $(START_DFU_FLASHER_SERIAL_SPEED) -t 2000
 endif
 endif
 	@echo Flashing using dfu:
