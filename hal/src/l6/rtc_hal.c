@@ -42,32 +42,23 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     //__HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
 
-    /*##-1- Configure LSE as RTC clock source ###################################*/
     RCC_OscInitStruct.OscillatorType =  RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
-    //RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         rtcFailFlag = false;
         return;
-        /* DEBUG("RCC_OscConfg Error"); */
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
-        /* DEBUG("RCCEx_PeriphCLKConfig Error"); */
         rtcFailFlag = false;
         return;
     }
-    /*##-2- Enable RTC peripheral Clocks #######################################*/
-    /* Enable RTC Clock */
     __HAL_RCC_RTC_ENABLE();
-    /*##-3- Configure the NVIC for RTC Alarm ###################################*/
-    /* HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0F, 0); */
-    /* HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn); */
 }
 
 bool GetRTCSatus(void)
@@ -83,80 +74,10 @@ bool GetRTCSatus(void)
  */
 void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
 {
-    /*##-1- Reset peripherals ##################################################*/
     __HAL_RCC_RTC_DISABLE();
-
-    /*##-2- Disables the PWR Clock and Disables access to the backup domain ###################################*/
     HAL_PWR_DisableBkUpAccess();
     __HAL_RCC_PWR_CLK_DISABLE();
 }
-
-#if 0
-/**
- * @brief  Configure the current time and date.
- * @param  None
- * @retval None
- */
-static void RTC_CalendarAlarmConfig(void)
-{
-    RTC_DateTypeDef sdatestructure;
-    RTC_TimeTypeDef stimestructure;
-
-    /*##-1- Configure the Date #################################################*/
-    /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year    = 0x16;
-    sdatestructure.Month   = RTC_MONTH_JANUARY;
-    sdatestructure.Date    = 0x01;
-    sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
-
-    if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
-    {
-        DEBUG("RTC CalendarAlarmConfig SetDate Error!");
-    }
-
-    /*##-2- Configure the Time #################################################*/
-    /* Set Time: 00:00:00 */
-    stimestructure.Hours          = 0x00;
-    stimestructure.Minutes        = 0x00;
-    stimestructure.Seconds        = 0x00;
-    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
-    stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
-    stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
-
-    if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
-    {
-        DEBUG("RTC CalendarAlarmConfig SetTime Error!");
-    }
-}
-#endif
-
-#if 0
-void HAL_RTC_Initial(void)
-{
-   /*##-1- Configure the RTC peripheral #######################################*/
-    /* Configure RTC prescaler and RTC data registers */
-    /* RTC configured as follows:
-       - Hour Format    = Format 24
-       - Asynch Prediv  = Value according to source clock
-       - Synch Prediv   = Value according to source clock
-       - OutPut         = Output Disable
-       - OutPutPolarity = High Polarity
-       - OutPutType     = Open Drain */
-    RtcHandle.Instance            = RTC;
-    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-    RtcHandle.Init.AsynchPrediv   = 0x7F; //RTC_ASYNCH_PREDIV; //0x7F;
-    RtcHandle.Init.SynchPrediv    = 0x00FF; //RTC_SYNCH_PREDIV;  //0x00FF;
-    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
-    RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
-
-    if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
-    {
-        DEBUG("RTC Init Error!");
-    }
-    RTC_CalendarAlarmConfig();
-}
-#endif
 
 time_t HAL_RTC_Get_UnixTime(void)
 {
@@ -238,77 +159,6 @@ void HAL_RTC_Set_UnixTime(time_t value)
     #endif
 }
 
-#if 0
-void HAL_RTC_Set_Alarm(uint32_t value)
-{
-
-}
-
-void HAL_RTC_Set_UnixAlarm(time_t value)
-{
-    #if 0
-    HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
-    RTC_AlarmTypeDef salarmstructure;
-
-    time_t alarm_time = HAL_RTC_Get_UnixTime() + value;
-    struct tm *tmTemp = gmtime( &value );
-
-
-    /*##-- Configure the RTC Alarm peripheral #################################*/
-    /* Set Alam to 00:00:20
-       RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
-    salarmstructure.Alarm                = RTC_ALARM_A;
-    salarmstructure.AlarmDateWeekDay     = RTC_WEEKDAY_FRIDAY;
-    salarmstructure.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY;
-   // salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE;
-    salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    salarmstructure.AlarmTime.Hours      = dec2hex_direct(tmTemp->tm_hour);
-    salarmstructure.AlarmTime.Minutes    = dec2hex_direct(tmTemp->tm_min);
-    salarmstructure.AlarmTime.Seconds    = dec2hex_direct(tmTemp->tm_sec);
-   // salarmstructure.AlarmTime.SubSeconds = 0x00;
-
-    if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
-    {
-        /* Initialization Error */
-        DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
-    }
-    #endif
-}
-#endif
-
-#if 0
-void HAL_RTC_Cancel_UnixAlarm(void)
-{
-    HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
-}
-#endif
-
-
-#if 0
-/*
- * @brief Alarm callback to test the RTC Alarm.
- * @param rtc: RTC handle pointer
- * @retral None
- */
-void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
-{
-    DEBUG("RTC Alarm Callback");
-}
-#endif
-
-#if 0
-/**
-  * @brief  This function handles RTC Alarm interrupt request.
-  * @param  None
-  * @retval None
-  */
-void RTC_Alarm_IRQHandler(void)
-{
-    HAL_RTC_AlarmIRQHandler(&RtcHandle);
-}
-#endif
-
 /*!
  * RTC Time base in ms
  */
@@ -368,7 +218,7 @@ static uint16_t Century = 0;
 /*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
-static bool CallendarRollOverReady = false;
+static bool CalendarRollOverReady = false;
 
 /*!
  * Flag used to indicates a the MCU has waken-up from an external IRQ
@@ -410,7 +260,7 @@ static bool LowPowerDisableDuringTask = false;
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -485,13 +335,12 @@ static void RtcCheckCalendarRollOver( uint8_t year );
 
 
 
-/* #if 0 */
 /* void RtcInit( void ) */
 void HAL_RTC_Initial( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -530,10 +379,9 @@ void HAL_RTC_Initial( void )
 
         HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 4, 0 );
         HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
-        RtcInitalized = true;
+        RtcInitialized = true;
     }
 }
-/* #endif */
 
 void RtcSetTimeout( uint32_t timeout )
 {
@@ -781,7 +629,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     }
 
     // Calculate seconds
-    seconds = seconds + timeoutValue;
+    seconds += timeoutValue;
 
     // Correct for modulo
     while( seconds >= 60 )
@@ -990,12 +838,12 @@ static void RtcCheckCalendarRollOver( uint8_t year )
 {
     if( year == 99 )
     {
-        CallendarRollOverReady = true;
+        CalendarRollOverReady = true;
     }
 
-    if( ( CallendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
     {   // Indicate a roll-over of the calendar
-        CallendarRollOverReady = false;
+        CalendarRollOverReady = false;
         Century = Century + 100;
     }
 }

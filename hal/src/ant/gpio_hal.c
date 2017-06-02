@@ -70,7 +70,6 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-
     GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 

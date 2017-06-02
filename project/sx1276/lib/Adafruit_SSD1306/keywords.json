@@ -1,0 +1,7 @@
+﻿{
+  "Class": "Adafruit_SSD1306",
+  "DataTypes": "",
+  "MethodsAndFunctions": "Adafruit_SSD1306|begin|ssd1306_command|ssd1306_data|clearDisplay|invertDisplay|display|startscrollright|startscrollleft|startscrolldiagright|startscrolldiagleft|stopscroll|dim|drawPixel|drawFastVLine|drawFastHLine",
+  "Constants": "SSD1306_I2C_ADDRESS|BLACK|WHITE"
+}
+

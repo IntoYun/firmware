@@ -154,7 +154,7 @@ define build_C_file
 	$(call echo,'Building file: $<')
 	$(call echo,'Invoking: ARM GCC C Compiler')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CC) $(CFLAGS) $(CDEFINES) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
+	$(VERBOSE)$(CC) $(CDEFINES) $(CFLAGS) $(CINCLUDES) $(CONLYFLAGS) -c -o $@ $<
 	$(call echo,)
 endef
 

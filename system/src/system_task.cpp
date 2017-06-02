@@ -337,12 +337,10 @@ void cloud_disconnect(bool closeSocket)
 void LoraWAN_Setup(void)
 {
     STASK_DEBUG("LoraWAN_Setup");
-    // LMIC init
-    os_init();
     // Reset the MAC state. Session and pending data transfers will be discarded.
-    LMIC_reset();
+    LoRaWanInitialize();
 
-    //AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+    // AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
     AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
     switch(at_mode)
     {
@@ -364,18 +362,61 @@ void LoraWAN_Setup(void)
                 string2hex(devaddr, (uint8_t *)&addr, 4, true);
                 string2hex(nwkskey, nwkskeyBuf, 16, false);
                 string2hex(appskey, appskeyBuf, 16, false);
-                LMIC_setSession (0x1, addr, nwkskeyBuf, appskeyBuf);
-                LMIC_setLinkCheckMode(0);
-                LMIC.dn2Dr = DR_SF9;
-                LMIC_setDrTxpow(DR_SF7,14);
+
+                uint8_t i;
+                STASK_DEBUG("dev = 0x%x",addr);
+
+                for( i=0;i<16;i++)
+                {
+                    STASK_DEBUG("nwkSkey= 0x%x",nwkskeyBuf[i]);
+                }
+
+                for( i=0;i<16;i++)
+                {
+                    STASK_DEBUG("app skey= 0x%x",appskeyBuf[i]);
+                }
+
+                LoRaWanABPJoin(addr,nwkskeyBuf,appskeyBuf);
                 INTOROBOT_LORAWAN_JOINED = 1;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
             }
             break;
         case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
-            STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
-            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
-            LMIC_startJoining();
+            {
+                STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
+                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+                uint8_t _devEui[8];
+                uint8_t _appEui[8];
+                uint8_t appKey[16];
+                os_getDevEui(_devEui);
+                os_getAppEui(_appEui);
+                os_getAppKey(appKey);
+                uint8_t devEui[8];
+                uint8_t appEui[8];
+
+                memcpyr(devEui,_devEui,8);
+                memcpyr(appEui,_appEui,8);
+
+                #if  0
+                uint8_t i;
+                for( i=0;i<8;i++)
+                {
+                    STASK_DEBUG("dev eui= 0x%x",devEui[i]);
+                }
+                for( i=0;i<8;i++)
+                {
+                    STASK_DEBUG("app eui= 0x%x",appEui[i]);
+                }
+
+                for( i=0;i<16;i++)
+                {
+                    STASK_DEBUG("app key= 0x%x",appKey[i]);
+                }
+                #endif
+
+                STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
+                LoRaWanOTAAJoin(devEui,appEui,appKey);
+            }
             break;
         default:                          //没有密钥信息
             STASK_DEBUG("default");
@@ -390,7 +431,7 @@ void manage_lorawan_connection(void)
         intorobot_lorawan_send_terminal_info();
         INTOROBOT_LORAWAN_CONNECTED = 1;
     }
-    os_runloop_once();
+    // LoRaWanRunLoop(intorobotParseReceiveDatapoints);
 }
 
 #endif
@@ -491,4 +532,3 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
         HAL_Delay_Milliseconds(ms);
     }
 }
-

@@ -50,7 +50,7 @@
 
 /* config wring spi */
 #define configWIRING_SPI_ENABLE
-//#define configWIRING_SPI1_ENABLE
+#define configWIRING_SPI1_ENABLE
 //#define configWIRING_SPI2_ENABLE
 
 /* config wiring can. */
@@ -60,8 +60,8 @@
 
 /* config setup */
 #define configSETUP_ENABLE
-#define configSETUP_USBSERIAL_ENABLE
-//#define configSETUP_USARTSERIAL_ENABLE
+// #define configSETUP_USBSERIAL_ENABLE
+#define configSETUP_USARTSERIAL_ENABLE
 //#define configSETUP_TCP_ENABLE
 //#define configSETUP_UDP_ENABLE
 

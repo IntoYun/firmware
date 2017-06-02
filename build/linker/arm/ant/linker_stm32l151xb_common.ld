@@ -100,6 +100,7 @@ SECTIONS
         _sdata = . ;
         *(.data)
         *(.data.*)
+        *(.RamFunc)        /* .RamFunc sections */
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _edata = . ;
