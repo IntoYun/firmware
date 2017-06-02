@@ -241,7 +241,7 @@ bool at_get_next_int_dec(char **p_src, int *result, int *err)
   *         max_len :max len of string excepted to get
   * @retval None
   */
-int32 at_data_str_copy(char *p_dest, char **p_src, int32 max_len)
+int32_t at_data_str_copy(char *p_dest, char **p_src, int32_t max_len)
 {
     int n = 0, i = 0;
     char value = 0, start = false;
