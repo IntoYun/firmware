@@ -54,7 +54,7 @@
 //#define configWIRING_SPI2_ENABLE
 
 /* config wiring can. */
-#define configWIRING_CAN_ENABLE
+// #define configWIRING_CAN_ENABLE
 //#define configWIRING_CAN1_ENABLE
 
 /* config setup */

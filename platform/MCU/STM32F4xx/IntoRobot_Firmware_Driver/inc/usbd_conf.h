@@ -49,8 +49,7 @@
 /* DFU Class Config */
 #define USBD_DFU_MAX_ITF_NUM                   1
 #define USBD_DFU_XFER_SIZE                     1024   /* Max DFU Packet Size   = 1024 bytes */
-/* #define USBD_DFU_APP_DEFAULT_ADD               0x0800C000 /\* The first 3 sectors (48 KB) are reserved for DFU code *\/ */
-#define USBD_DFU_APP_DEFAULT_ADD               0x08020000 /* The first 3 sectors (48 KB) are reserved for DFU code */
+#define USBD_DFU_APP_DEFAULT_ADD               0x08020000 /* not used */
 
 /* Exported macro ------------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd;

@@ -39,6 +39,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_it.h"
+#include "service_debug.h"
 
 /** @addtogroup STM32L1xx_HAL_Examples
  * @{
@@ -76,6 +77,7 @@ void NMI_Handler(void)
  */
 void HardFault_Handler(void)
 {
+    DEBUG("HardFault Handler");
     /* Go to infinite loop when Hard Fault exception occurs */
     while (1)
     {

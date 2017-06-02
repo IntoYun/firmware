@@ -24,6 +24,8 @@
 
 RTC_HandleTypeDef RtcHandle;
 
+static bool rtcExtOscStatus = true;//rtc 外置晶振是否起振　false为未起振
+
 /**
   * @brief RTC MSP Initialization
   *        This function configures the hardware resources
@@ -51,14 +53,16 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     //RCC_OscInitStruct.LSIState = RCC_LSI_OFF;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        DEBUG("RCC_OscConfg Error\r\n");
+        rtcExtOscStatus = false;
+        return;
     }
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
-        //DEBUG("RCCEx_PeriphCLKConfig Error");
+        rtcExtOscStatus = false;
+        return;
     }
     /*##-2- Enable RTC peripheral Clocks #######################################*/
     /* Enable RTC Clock */
@@ -82,6 +86,12 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
     /*##-2- Disables the PWR Clock and Disables access to the backup domain ###################################*/
     HAL_PWR_DisableBkUpAccess();
     __HAL_RCC_PWR_CLK_DISABLE();
+}
+
+
+bool GetRTCSatus(void)
+{
+    return rtcExtOscStatus;
 }
 
 /**

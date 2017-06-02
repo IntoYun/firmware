@@ -336,7 +336,7 @@ static uint16_t Century = 0;
 /*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
-static bool CallendarRollOverReady = false;
+static bool CalendarRollOverReady = false;
 
 /*!
  * Flag used to indicates a the MCU has waken-up from an external IRQ
@@ -378,7 +378,7 @@ static bool LowPowerDisableDuringTask = false;
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -453,13 +453,12 @@ static void RtcCheckCalendarRollOver( uint8_t year );
 
 
 
-/* #if 0 */
 /* void RtcInit( void ) */
 void HAL_RTC_Initial( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -486,8 +485,7 @@ void HAL_RTC_Initial( void )
 
         HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 4, 0 );
         HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
-        RtcInitalized = true;
-        DEBUG("init rtc ");
+        RtcInitialized = true;
     }
 }
 /* #endif */
@@ -733,7 +731,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     }
 
     // Calculate seconds
-    seconds = seconds + timeoutValue;
+    seconds += timeoutValue;
 
     // Correct for modulo
     while( seconds >= 60 )
@@ -942,12 +940,12 @@ static void RtcCheckCalendarRollOver( uint8_t year )
 {
     if( year == 99 )
     {
-        CallendarRollOverReady = true;
+        CalendarRollOverReady = true;
     }
 
-    if( ( CallendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
     {   // Indicate a roll-over of the calendar
-        CallendarRollOverReady = false;
+        CalendarRollOverReady = false;
         Century = Century + 100;
     }
 }
@@ -976,4 +974,5 @@ void RTC_Alarm_IRQ( void )
 
     /* TimerIrqHandler( ); */
 }
+
 #endif

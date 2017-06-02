@@ -23,6 +23,7 @@
 - [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 修改编译目标文件名称
 - [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [all] 子系统版本版本统一放入build/subsys_version.mk统一管理
 - [[PR #67]](https://github.com/HITSZ-NRSL/firmware/pull/67) [all] dfu-util upload-reset放入tools文件夹 修正dfu-util下载成功提示失败问题
+- [[PR #68]](https://github.com/HITSZ-NRSL/firmware/pull/68) [L6/Ant] 变更LoRaWan驱动库
 
 
 

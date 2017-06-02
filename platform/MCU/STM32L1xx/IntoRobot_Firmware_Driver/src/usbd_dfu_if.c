@@ -28,10 +28,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu_if.h"
 #include "stm32l1xx_hal_conf.h"
+#include "service_debug.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define FLASH_DESC_STR      "@Internal Flash   /0x08000000/04*04Ka,28*04Kg"
+#define FLASH_DESC_STR      "@Internal Flash   /0x08000000/20*01Ka,108*01Kg"
 #define FLASH_ERASE_TIME    (uint16_t)50
 #define FLASH_PROGRAM_TIME  (uint16_t)50
 
@@ -86,7 +88,6 @@ uint16_t Flash_If_DeInit(void)
 {
     /* Lock the internal flash */
     HAL_FLASH_Lock();
-    HAL_NVIC_SystemReset();  //下载完毕后 重启
     return 0;
 }
 
@@ -104,10 +105,9 @@ uint16_t Flash_If_Erase(uint32_t Add)
     FLASH_EraseInitTypeDef eraseinitstruct;
 
     /* Get the number of sector to erase from 1st sector*/
-    NbOfPages = (USBD_DFU_APP_END_ADD - USBD_DFU_APP_DEFAULT_ADD) / FLASH_PAGE_SIZE;
     eraseinitstruct.TypeErase = FLASH_TYPEERASE_PAGES;
-    eraseinitstruct.PageAddress = USBD_DFU_APP_DEFAULT_ADD;
-    eraseinitstruct.NbPages = NbOfPages;
+    eraseinitstruct.PageAddress = Add;
+    eraseinitstruct.NbPages = 4;
     status = HAL_FLASHEx_Erase(&eraseinitstruct, &PageError);
 
     if (status != HAL_OK)
@@ -127,23 +127,16 @@ uint16_t Flash_If_Erase(uint32_t Add)
 uint16_t Flash_If_Write(uint8_t *src, uint8_t *dest, uint32_t Len)
 {
     uint32_t i = 0;
+    __IO uint8_t memBuffer[128];
 
-    for(i = 0; i < Len; i+=4)
-    {
-        /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
-           be done by byte */
-        if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)(dest+i), *(uint32_t*)(src+i)) == HAL_OK)
-        {
-            /* Check the written value */
-            if(*(uint32_t *)(src + i) != *(uint32_t*)(dest+i))
-            {
-                /* Flash content doesn't match SRAM content */
-                return 2;
-            }
+    for(i = 0; i < Len; i += 128) {
+        memset(memBuffer, 0, sizeof(memBuffer));
+        if((i + 128) < Len) {
+            memcpy(memBuffer, src+i, 128);
+        } else {
+            memcpy(memBuffer, src+i, Len - i);
         }
-        else
-        {
-            /* Error occurred while writing data in Flash memory */
+        if(FLASH_HalfPageProgram((uint32_t)(dest+i), (uint32_t*)memBuffer) != HAL_OK ) {
             return 1;
         }
     }

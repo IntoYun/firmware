@@ -1,0 +1,9 @@
+﻿{
+  "name": "Adafruit_SSD1306",
+  "author": "IntoRobot",
+  "maintainer": "IntoRobot",
+  "license": "GPLv3",
+  "version": "0.0.1",
+  "description": "SSD1306屏驱动库"
+}
+
