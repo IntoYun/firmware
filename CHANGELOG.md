@@ -9,6 +9,8 @@
 - [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [neutron/nut/fig/ant/fox] 简化设备bootloader颜色变化
 - [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [neutron/nut/fig/w67/w323] 添加imlink失败重新进入imlink配置功能
 - [[PR #65]](https://github.com/HITSZ-NRSL/firmware/pull/65) [nut/w67] esp8266 sdk更新至2.0
+- [[PR #67]](https://github.com/HITSZ-NRSL/firmware/pull/67) [neutron] 去掉neutron modem AT指令解析函数延时，加快平台控制响应
+- [[PR #67]](https://github.com/HITSZ-NRSL/firmware/pull/67) [neutron] 优化neutron wlan_setup流程，区别设备进入配置模式再手动退出配置模式，能够正常联网.
 
 
 ### BUG FIXES(漏洞修复)
@@ -20,6 +22,7 @@
 - [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 添加独立工程编译
 - [[PR #62]](https://github.com/HITSZ-NRSL/firmware/pull/62) [all] 修改编译目标文件名称
 - [[PR #63]](https://github.com/HITSZ-NRSL/firmware/pull/63) [all] 子系统版本版本统一放入build/subsys_version.mk统一管理
+- [[PR #67]](https://github.com/HITSZ-NRSL/firmware/pull/67) [all] dfu-util upload-reset放入tools文件夹 修正dfu-util下载成功提示失败问题
 
 
 

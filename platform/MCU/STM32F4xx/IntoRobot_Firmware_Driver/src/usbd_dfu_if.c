@@ -85,7 +85,6 @@ static uint16_t Internal_Flash_If_DeInit(void)
 {
     /* Lock the internal flash */
     HAL_FLASH_Lock();
-    HAL_NVIC_SystemReset();  //下载完毕后 重启
     return 0;
 }
 

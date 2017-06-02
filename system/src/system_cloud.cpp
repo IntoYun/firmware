@@ -1470,27 +1470,28 @@ void intorobot_process(void)
         return;
     }
 
-#ifdef configSETUP_ENABLE
-    manage_system_config();
+    intorobot_process_flag = 1;
 
+#ifdef configSETUP_ENABLE
     if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
-        return;
+        manage_system_config();
+        goto exit_process;
     }
 #endif
-
-    intorobot_process_flag = 1;
 
     // application thread will pump application messages
 #if PLATFORM_THREADING
     if (system_thread_get_state(NULL) && APPLICATION_THREAD_CURRENT()) {
         ApplicationThread.process();
-        return;
+        goto exit_process;
     }
 #endif
+
     // run the background processing loop, and specifically also pump cloud events
     system_process_loop();
     HAL_Core_System_Yield();
 
+exit_process:
     intorobot_process_flag = 0;
 }
 

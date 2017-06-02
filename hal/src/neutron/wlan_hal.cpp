@@ -79,8 +79,8 @@ wlan_result_t wlan_deactivate()
 
 void wlan_setup()
 {
-    //esp8266MDM.reset();
-    //esp8266MDM.init();
+    esp8266MDM.reset();
+    esp8266MDM.init();
 }
 
 //=======wifi connect===========

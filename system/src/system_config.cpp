@@ -138,7 +138,7 @@ int DeviceConfig::process(void)
     {
         String tmp=readString();
 
-        SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
+        //SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}
@@ -226,15 +226,16 @@ int DeviceConfig::process(void)
         if(_isConfigSuccessful)
         {break;}
     }
+
     if(root!=NULL) {
         aJson.deleteItem(root);
     }
 
     if(_isConfigSuccessful) {
         return 0;
+    } else {
+      return 1;
     }
-    else
-    {return 1;}
 }
 
 void DeviceConfig::sendComfirm(int status)
@@ -898,8 +899,9 @@ void UdpDeviceConfig::init(void)
 void UdpDeviceConfig::sendComfirm(int status)
 {
     aJsonObject* root = aJson.createObject();
-    if (root == NULL)
-    {return;}
+    if (root == NULL) {
+      return;
+    }
 
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);

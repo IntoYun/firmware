@@ -304,7 +304,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 return RESP_ABORTED; // This means the current command was ABORTED, so retry your command if critical.
         }
         // relax a bit
-        HAL_Delay_Milliseconds(10);
+        //HAL_Delay_Milliseconds(10);
     }while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
     return WAIT;
