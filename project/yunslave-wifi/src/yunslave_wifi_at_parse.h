@@ -36,7 +36,7 @@ extern bool AtSendDataCmd;
 
 void at_parse(void);
 bool at_get_next_int_dec(char **p_src, int *result, int *err);
-int32 at_data_str_copy(char *p_dest, char **p_src, int32 max_len);
+int32_t at_data_str_copy(char *p_dest, char **p_src, int32_t max_len);
 void at_response_ok(void);
 void at_response_error(void);
 void at_response(const char *str);
