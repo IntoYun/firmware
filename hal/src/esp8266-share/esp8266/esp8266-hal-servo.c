@@ -329,7 +329,7 @@ int ESP8266ServoReadMicroseconds(int8_t pin)
 
 int ESP8266ServoRead(int8_t pin) // return the value as degrees
 {
-    // read returns the angle for an assumed 0-180, so we calculate using
+    // read returns the angle for an assumed 0-180, so we calculate using 
     // the normal min/max constants and not user defined ones
     return improved_map(ESP8266ServoReadMicroseconds(pin), MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, 0, 180);
 }
