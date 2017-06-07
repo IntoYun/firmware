@@ -58,6 +58,7 @@
 
 // NOTE: to maintain a strict refresh interval the user needs to not exceede 8 servos 
 #define SERVOS_PER_TIMER       12     // the maximum number of servos controlled by one timer 
+
 #define MAX_SERVOS   (ServoTimerSequence_COUNT  * SERVOS_PER_TIMER)
 
 #ifdef __cplusplus
