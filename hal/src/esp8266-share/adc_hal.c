@@ -43,7 +43,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
     // accept both A0 constant and ADC channel number
     if(gpio_pin == 17 || gpio_pin == 0) {
-        return 2*system_adc_read();
+        return system_adc_read();
     }
     return digitalRead(gpio_pin) * 1023;
 }
