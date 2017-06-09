@@ -305,49 +305,49 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 
         static bool publish(const char *topic, bool value)
         {
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 
 #ifdef INTOROBOT_ARCH_ARM
         // stm32 arm 采取的是thumb指令集  int 实际是16位
         static bool publish(const char *topic, int value)
         {
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 #endif
 
         static bool publish(const char *topic, int32_t value)
         {
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 
         static bool publish(const char *topic, uint32_t value)
         {
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 
         static bool publish(const char *topic, float value)
         {
             //char buf[32];
             //char *string = dtostrf(payload, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 
         static bool publish(const char *topic, double value)
         {
             //char buf[32];
             //char *string = dtostrf(value, 4, 2, buf);  //如果要截取小数点后两位 调用该函数
-            return publish(topic, String(value).c_str(), TOPIC_VERSION_V1);
+            return publish(topic, String(value).c_str());
         }
 
         static bool publish(const char *topic, String value)
         {
-            return publish(topic, value.c_str(), TOPIC_VERSION_V1);
+            return publish(topic, value.c_str());
         }
 
         static bool publish(const char *topic, const char *value)
         {
-            return publish(topic, (uint8_t *)value, strlen(value), 0, true, TOPIC_VERSION_V1);
+            return publish(topic, (uint8_t *)value, strlen(value));
         }
 
         static bool publish(const char *topic, uint8_t *payload, unsigned int plength)
