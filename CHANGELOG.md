@@ -1,3 +1,22 @@
+## v1.5.4-rc.2
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #75]](https://github.com/HITSZ-NRSL/firmware/pull/75) [nut/fig/w67/w323] esp8266 esp32 添加u8等定义
+- [[PR #75]](https://github.com/HITSZ-NRSL/firmware/pull/75) [nut/w67] esp8266移植sdk2.0后添加支持servo功能
+
+
+### BUG FIXES(漏洞修复)
+- [[PR #75]](https://github.com/HITSZ-NRSL/firmware/pull/75) [wifi/gprs] 修正IntoRobot.Publish()发送错误。版本号当做了字符串长度，导致每次只发一个数据
+- [[PR #75]](https://github.com/HITSZ-NRSL/firmware/pull/75) [nut/w67] 修正esp8266 AD读值bug 之前乘以2倍
+
+
+### INTERNAL(内部)
+
+
 ## v1.5.4-rc.1
 
 
