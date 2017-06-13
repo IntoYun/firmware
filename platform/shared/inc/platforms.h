@@ -35,7 +35,7 @@
 //商业模块
 #define PLATFORM_W67                 888006
 #define PLATFORM_W323                888007
-#define PLATFORM_L6                  86800a
+#define PLATFORM_L6                  868010
 
 //产品
 #define PLATFORM_GL1000              188001

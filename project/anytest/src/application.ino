@@ -220,7 +220,7 @@ uint8_t getBoardType(void)
             else if(strcmp(boardPtr,"888007") == 0) {aJson.deleteItem(root);return W323;}    //w32/33
             else if(strcmp(boardPtr,"878008") == 0) {aJson.deleteItem(root);return FOX;}     //fox
             else if(strcmp(boardPtr,"868009") == 0) {aJson.deleteItem(root);return ANT;}     //ant
-            else if(strcmp(boardPtr,"86800a") == 0) {aJson.deleteItem(root);return L6;}      //l6
+            else if(strcmp(boardPtr,"868010") == 0) {aJson.deleteItem(root);return L6;}      //l6
             else
             {
                 boardType = UNKOWN_BOARD_TYPE;
