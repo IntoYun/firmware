@@ -29,19 +29,22 @@
 #define PLATFORM_NUT                 888003
 #define PLATFORM_ATOM                888004
 #define PLATFORM_FIG                 888005
-#define PLATFORM_ANT                 888006
-#define PLATFORM_FOX                 888007
+#define PLATFORM_FOX                 878008
+#define PLATFORM_ANT                 868009
 
 //商业模块
-#define PLATFORM_W67                 888101
-#define PLATFORM_W323                888102
-#define PLATFORM_L6                  888103
+#define PLATFORM_W67                 888006
+#define PLATFORM_W323                888007
+#define PLATFORM_L6                  868010
 
-//其他产品
-#define PLATFORM_GCC                 888201
-#define PLATFORM_NEUTRON_NET         888202
-#define PLATFORM_ANYTEST             888203
-#define PLATFORM_GL1000              888204
+//产品
+#define PLATFORM_GL1000              188001
+#define PLATFORM_GL2000              128002
+
+//其他
+#define PLATFORM_GCC                 208001
+#define PLATFORM_NEUTRON_NET         208002
+#define PLATFORM_ANYTEST             208003
 
 
 #endif	/* PLATFORMS_H */

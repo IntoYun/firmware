@@ -212,15 +212,15 @@ uint8_t getBoardType(void)
             }
 
             boardPtr = boardObject->valuestring;
-            if(strcmp(boardPtr,"888004") == 0 || strcmp(boardPtr,"887004") == 0) {aJson.deleteItem(root);return ATOM;}         //atom
-            else if(strcmp(boardPtr,"888002") == 0 || strcmp(boardPtr,"887002") == 0) {aJson.deleteItem(root);return NEUTRON;} //neutron
-            else if(strcmp(boardPtr,"888003") == 0 || strcmp(boardPtr,"887003") == 0) {aJson.deleteItem(root);return NUT;}     //nut
-            else if(strcmp(boardPtr,"888005") == 0 || strcmp(boardPtr,"887005") == 0) {aJson.deleteItem(root);return FIG;}     //fig
-            else if(strcmp(boardPtr,"888006") == 0 || strcmp(boardPtr,"887006") == 0) {aJson.deleteItem(root);return ANT;}     //ant
-            else if(strcmp(boardPtr,"888007") == 0 || strcmp(boardPtr,"887007") == 0) {aJson.deleteItem(root);return FOX;}     //fox
-            else if(strcmp(boardPtr,"888101") == 0 || strcmp(boardPtr,"887101") == 0) {aJson.deleteItem(root);return W67;}     //w6/7
-            else if(strcmp(boardPtr,"888102") == 0 || strcmp(boardPtr,"887102") == 0) {aJson.deleteItem(root);return W323;}    //w32/33
-            else if(strcmp(boardPtr,"888103") == 0 || strcmp(boardPtr,"887103") == 0) {aJson.deleteItem(root);return L6;}      //l6
+            if(strcmp(boardPtr,"888004") == 0) {aJson.deleteItem(root);return ATOM;}         //atom
+            else if(strcmp(boardPtr,"888002") == 0) {aJson.deleteItem(root);return NEUTRON;} //neutron
+            else if(strcmp(boardPtr,"888003") == 0) {aJson.deleteItem(root);return NUT;}     //nut
+            else if(strcmp(boardPtr,"888005") == 0) {aJson.deleteItem(root);return FIG;}     //fig
+            else if(strcmp(boardPtr,"888006") == 0) {aJson.deleteItem(root);return W67;}     //w6/7
+            else if(strcmp(boardPtr,"888007") == 0) {aJson.deleteItem(root);return W323;}    //w32/33
+            else if(strcmp(boardPtr,"878008") == 0) {aJson.deleteItem(root);return FOX;}     //fox
+            else if(strcmp(boardPtr,"868009") == 0) {aJson.deleteItem(root);return ANT;}     //ant
+            else if(strcmp(boardPtr,"868010") == 0) {aJson.deleteItem(root);return L6;}      //l6
             else
             {
                 boardType = UNKOWN_BOARD_TYPE;
