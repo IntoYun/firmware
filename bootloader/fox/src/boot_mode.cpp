@@ -164,11 +164,11 @@ void Enter_DFU_Mode(void)
 void Enter_Cellular_Update_Mode(void)
 {
     HAL_UI_RGB_Color(RGB_COLOR_RED);
-    Cellular_Enter_UpdateMode();
+    Cellular_Enter_UpdateMode_Pre();
     while (1)
     {
         if (!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
+            Cellular_Enter_UpdateMode();
         }
     }
 }
