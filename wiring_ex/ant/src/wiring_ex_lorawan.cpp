@@ -270,14 +270,14 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
 
-    DEBUG("send frame");
-    DEBUG("len = %d",len);
+    DEBUG("LoRaWan start send frame");
+    DEBUG("LoRaWan data len = %d",len);
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
     DEBUG("LoRaMac Status = %d",loramacStatus);
     // if( LoRaMacQueryTxPossible( len, &txInfo ) != LORAMAC_STATUS_OK )
     if(loramacStatus != LORAMAC_STATUS_OK)
     {
-        DEBUG("send empty frame");
+        DEBUG("LoRaWan send empty frame");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -288,7 +288,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
     {
         if( IsTxConfirmed == false )
         {
-            DEBUG("send unconfirmed frame");
+            DEBUG("LoRaWan send unconfirmed frame");
             mcpsReq.Type = MCPS_UNCONFIRMED;
             mcpsReq.Req.Unconfirmed.fPort = 2;//AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = buffer;//AppData;
@@ -297,7 +297,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
         }
         else
         {
-            DEBUG("send confirmed frame");
+            DEBUG("LoRaWan send confirmed frame");
             mcpsReq.Type = MCPS_CONFIRMED;
             mcpsReq.Req.Confirmed.fPort = 2;//AppPort;
             mcpsReq.Req.Confirmed.fBuffer = buffer;//AppData;
@@ -309,7 +309,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
     {
-        DEBUG("satrt send frame");
+        DEBUG("LoRaWan send frame OK!!!");
         LoRaWanOnEvent(LORAWAN_EVENT_TX_COMPLETE);
         return true;
     }
@@ -333,7 +333,7 @@ int LoRaWanReceiveFrame(uint8_t *buffer)
 
 #endif
 
-#define TEST_SX1276
+// #define TEST_SX1276
 #ifdef TEST_SX1276
 
 
