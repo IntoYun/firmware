@@ -984,10 +984,10 @@ void UdpDeviceConfig::close(void)
 #endif
 
 #ifdef configSETUP_USBSERIAL_ENABLE
-UsbDeviceConfig DeviceSetupSerial;
+UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-UsartDeviceConfig DeviceSetupSerial;
+UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
 #ifdef configSETUP_TCP_ENABLE
 TcpDeviceConfig DeviceSetupAp;
@@ -1061,16 +1061,31 @@ void system_config_initial(void)
 #ifdef configSETUP_UDP_ENABLE
             DeviceSetupImlink.init();
 #endif
-            DeviceSetupSerial.init();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            DeviceSetupUsbSerial.init();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            DeviceSetupUsartSerial.init();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
 #ifdef configSETUP_TCP_ENABLE
             DeviceSetupAp.init();
 #endif
-            DeviceSetupSerial.init();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            DeviceSetupUsbSerial.init();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            DeviceSetupUsartSerial.init();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-            DeviceSetupSerial.init();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            DeviceSetupUsbSerial.init();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            DeviceSetupUsartSerial.init();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
 #ifdef configSETUP_UDP_ENABLE
@@ -1095,7 +1110,12 @@ void system_config_finish(void)
 #ifdef configSETUP_TCP_ENABLE
     DeviceSetupAp.close();
 #endif
-    DeviceSetupSerial.close();
+#ifdef configSETUP_USBSERIAL_ENABLE
+    DeviceSetupUsbSerial.close();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+    DeviceSetupUsartSerial.close();
+#endif
     NEWORK_FN(Network_Setup(), (void)0);
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 }
@@ -1125,23 +1145,32 @@ int system_config_process(void)
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
 #ifdef configSETUP_UDP_ENABLE
             result = DeviceSetupImlink.process();
-            if(!result) {
-                break;
-            }
 #endif
-            result = DeviceSetupSerial.process();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            result = DeviceSetupUsbSerial.process();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            result = DeviceSetupUsartSerial.process();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
 #ifdef configSETUP_TCP_ENABLE
             result = DeviceSetupAp.process();
-            if(!result) {
-                break;
-            }
 #endif
-            result = DeviceSetupSerial.process();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            result = DeviceSetupUsbSerial.process();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            result = DeviceSetupUsartSerial.process();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-            result = DeviceSetupSerial.process();
+#ifdef configSETUP_USBSERIAL_ENABLE
+            result = DeviceSetupUsbSerial.process();
+#endif
+#ifdef configSETUP_USARTSERIAL_ENABLE
+            result = DeviceSetupUsartSerial.process();
+#endif
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
 #ifdef configSETUP_TCP_ENABLE
