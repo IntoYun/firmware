@@ -114,6 +114,7 @@ void loop()
     {Rheostat += 5;}
     IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
 
-    delay(3000);
+    IntoRobot.sendDatapointAll();
+    delay(20000);
 }
 

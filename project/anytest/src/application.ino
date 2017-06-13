@@ -1,6 +1,6 @@
-#define ANYTEST_TEST_ALL_BOARD
+// #define ANYTEST_TEST_ALL_BOARD
 // #define ANYTEST_TEST_L7_MODULE
-// #define ANYTEST_TEST_SX1276
+#define ANYTEST_TEST_SX1276
 
 #ifdef ANYTEST_TEST_ALL_BOARD
 // 测试板程序
@@ -1693,26 +1693,15 @@ void loop()
 
 #elif defined ANYTEST_TEST_SX1276
 
-#if 0
+#if 1
 //lora　一方只发　一方只收  透传测试
-#if (PLATFORM_ID == PLATFORM_L6) || (PLATFORM_ID == PLATFORM_ANT)
+#include "lora.h" //用于测试板
 
-SerialDebugOutput debugOutput(115200, ALL_LEVEL);
-
-#include "wiring_ex_lorawan.h"
-#define LED           D6
-#define RED_LED       A0
-#define GRREN_LED     A1
-#define BLUE_LED      A2
-
-#define OLED_RESET  A3
-#define OLED_DC     A4
-#define OLED_CS     A5
-
-#elif PLATFORM_ID == PLATFORM_ANYTEST
 //anytest board Serial: A7-TX A8-RX
 SerialDebugOutput debugOutput(115200, ALL_LEVEL);
-#include "lora.h" //用于测试板
+
+#define SX1276_TX_EN
+#define OLED_DISPLAY
 
 #define OLED_RESET  D16
 #define OLED_DC     D17
@@ -1723,17 +1712,11 @@ SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 #define GRREN_LED     A1
 #define BLUE_LED      A2
 
-#endif
 
 #define USE_BAND_433
 #define USE_MODEM_LORA
 
-#define SX1276_TX_EN
-#define OLED_DISPLAY
-
-// #define RF_FREQUENCY                                434665000 // Hz
-#define RF_FREQUENCY                                   470000000 // Hz
-// #define RF_FREQUENCY                                433175000 // Hz
+#define RF_FREQUENCY                                433175000 // Hz
 
 #define TX_OUTPUT_POWER                            20        // dBm
 
@@ -1751,7 +1734,7 @@ SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 #define LORA_PREAMBLE_LENGTH                       8         // Same for Tx and Rx
 #define LORA_SYMBOL_TIMEOUT                        1023      // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                 false
-#define LORA_IQ_INVERSION_ON                       false//true
+#define LORA_IQ_INVERSION_ON                       false
 
 
 typedef enum
@@ -1766,9 +1749,6 @@ typedef enum
 
 #define RX_TIMEOUT_VALUE    1000
 #define BUFFER_SIZE         4 // Define the payload size here
-
-const uint8_t PingMsg[] = "PING";
-const uint8_t PongMsg[] = "PONG";
 
 uint16_t BufferSize = BUFFER_SIZE;
 
@@ -1811,23 +1791,16 @@ void OnRxError( void );
 
 #include "Adafruit_SSD1306.h"
 
-#if PLATFORM_ID == PLATFORM_ANYTEST
 Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);  // Hareware SPI
-#else
-Adafruit_SSD1306 display(OLED_RESET);  // Hareware I2C
-#endif
-
 
 void OLEDDisplay(const char *itemName, const char *result)
 {
      display.clearDisplay();
-     display.setTextSize(2);
+     display.setTextSize(1);
      display.setCursor(0,0);
-     // display.setCursor(row,column);
      display.println(itemName);
      display.setTextSize(1);
      display.setCursor(0,32);
-     // display.setCursor(row,column);
      display.println(result);
      display.display();
 }
@@ -1861,19 +1834,16 @@ void RFParameterDispaly(int8_t snr ,int8_t rssi)
 
 void OLEDInit(void)
 {
-    #if PLATFORM_ID == PLATFORM_ANYTEST
     display.begin(SSD1306_SWITCHCAPVCC);
-    #else
-    display.begin(SSD1306_SWITCHCAPVCC,0x78>>1);
-    #endif
     display.setTextSize(2);
     display.setTextColor(WHITE);
     display.setCursor(0,0);
     display.clearDisplay();
-    display.println("SX1276 Test");
+    display.println("SX1278 Test");
     display.display();
 }
 
+#if 0
 static uint8_t regDat[2];
 static uint8_t len;
 
@@ -1930,11 +1900,20 @@ void OnRxWindow1TimerEvent()
         }
 }
 
+#endif
+
 void setup()
 {
     #ifdef OLED_DISPLAY
     OLEDInit();
+    delay(500);
+    #ifdef SX1276_TX_EN
+    OLEDDisplay("TX","");
+    #else
+    OLEDDisplay("RX","");
     #endif
+    #endif
+    delay(1000);
     pinMode(LED,OUTPUT);
     pinMode(RED_LED,OUTPUT);
     pinMode(GRREN_LED,OUTPUT);
@@ -1943,7 +1922,6 @@ void setup()
     digitalWrite(GRREN_LED,1);
     digitalWrite(BLUE_LED,1);
 
-    DEBUG("lora board test");
     delay(100);
     DEBUG("***********sx1278-lora test******************");
     DEBUG("system clock = %d",SystemCoreClock);
@@ -1964,10 +1942,11 @@ void setup()
 
     Radio.SetModem( MODEM_LORA );
     // Change LoRa modem SyncWord
-    Radio.Write( REG_LR_SYNCWORD, 0x34 );
+    // Radio.Write( REG_LR_SYNCWORD, 0x34 );
 
     DEBUG("sx1278 version = %d", SX1276GetVersion());
     DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
+    DEBUG("sync data = %x",SX1276Read(0x39));
 
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                        LORA_SPREADING_FACTOR, LORA_CODINGRATE,
@@ -1981,40 +1960,26 @@ void setup()
                        LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                        0, true, 0, 0, LORA_IQ_INVERSION_ON, 1 );
 
-    // Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
-    //                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
-    //                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-    //                    0, false, 0, 0, false, false );
-
-    TimerInit( &RxWindowTimer1, OnRxWindow1TimerEvent );
-    TimerSetValue( &RxWindowTimer1, 1000 ); // 1s后调用OnRxWindow1TimerEvent
+    // TimerInit( &RxWindowTimer1, OnRxWindow1TimerEvent );
+    // TimerSetValue( &RxWindowTimer1, 1000 ); // 1s后调用OnRxWindow1TimerEvent
     // TimerStart( &RxWindowTimer1 );
 
-    // DEBUG("rx config success");
-
     // Radio.Rx( RX_TIMEOUT_VALUE );
-
     Radio.Rx( 0);
 
-    // Radio.Write( 0x01, 0x8d );
-
-    DEBUG("sync data = %x",SX1276Read(0x39));
-    DEBUG("sx1278 init success ");
-//    for(uint8_t i = 0x01; i <= 0x40; i++)
-//         {
-//             DEBUG("register address = %x",i);
-//             DEBUG("register data = %x",SX1276Read(i));
-//         }
-//     while(1);
+    DEBUG("sx1278 init ok!!! ");
+    #if 0
+    for(uint8_t i = 0x01; i <= 0x40; i++)
+    {
+        DEBUG("register address = %x",i);
+        DEBUG("register data = %x",SX1276Read(i));
+    }
+    while(1);
+    #endif
 }
-
-
-
 
 void loop()
 {
-    // ReadSX1276RegData();
-
 #ifdef  SX1276_TX_EN
 
     #ifdef OLED_DISPLAY
@@ -2041,12 +2006,8 @@ void loop()
 #endif
 
 #if  0
-
     // Radio.Rx( RX_TIMEOUT_VALUE );
     Radio.Rx( 0 );
-    delay(500);
-    digitalWrite(D7,0);   //从机一直接收
-
 #endif
 }
 
@@ -2076,6 +2037,7 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     SnrValue = snr;
     DEBUG("snr = %d",SnrValue);
     State = RX_SX1276;
+    DEBUG("rx done");
 
 #ifdef OLED_DISPLAY
    RFParameterDispaly(SnrValue,RssiValue);
@@ -2089,15 +2051,14 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     ledFlag = !ledFlag;
     digitalWrite(LED,ledFlag);
 
-    // DEBUG("radio status = %d",Radio.GetStatus( ) );
     Radio.Rx( 0 );
-    // TimerStart( &RxWindowTimer1 );
 }
 
 void OnTxTimeout( void )
 {
     Radio.Sleep( );
     State = TX_TIMEOUT;
+    DEBUG("tx timeout");
 }
 
 void OnRxTimeout( void )
@@ -2106,8 +2067,6 @@ void OnRxTimeout( void )
     State = RX_TIMEOUT;
     Radio.Rx( 0 );
     DEBUG("rx timeout");
-    // DEBUG("radio status = %d",Radio.GetStatus( ) );
-    // TimerStart( &RxWindowTimer1 );
 }
 
 void OnRxError( void )
@@ -2117,7 +2076,6 @@ void OnRxError( void )
     Radio.Rx( 0 );
 
     DEBUG("rx error");
-    // TimerStart( &RxWindowTimer1 );
     digitalWrite(RED_LED,0);
 }
 #endif
@@ -2130,7 +2088,7 @@ SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 #include "Adafruit_SSD1306.h"
 #include "lora.h" //用于测试板
 
-#define MASTER_SX1276
+// #define MASTER_SX1276
 #define OLED_DISPLAY
 
 #define OLED_RESET  D16
@@ -2149,17 +2107,14 @@ uint32_t errorPacketCnt;
 
 Adafruit_SSD1306 display(OLED_DC, OLED_RESET, OLED_CS);  // Hareware SPI
 
-// void OLEDDisplay(const char *itemName, const char *result)
-void OLEDDisplay(const char *result)
+void OLEDDisplay(const char *itemName, const char *result)
 {
      display.clearDisplay();
      display.setTextSize(1);
      display.setCursor(0,0);
-     // display.setCursor(row,column);
-     // display.println(itemName);
-     // display.setTextSize(1);
-     // display.setCursor(0,32);
-     // display.setCursor(row,column);
+     display.println(itemName);
+     display.setTextSize(1);
+     display.setCursor(0,16);
      display.println(result);
      display.display();
 }
@@ -2196,7 +2151,11 @@ void RFParameterDispaly(int8_t snr ,int8_t rssi)
 
     // p = p+tmp;
     // OLEDDisplay("RX",p);
-    OLEDDisplay(p);
+    #ifdef MASTER_SX1276
+    OLEDDisplay("tx",p);
+    #else
+    OLEDDisplay("rx",p);
+    #endif
 }
 
 void OLEDInit(void)
@@ -2206,7 +2165,11 @@ void OLEDInit(void)
     display.setTextColor(WHITE);
     display.setCursor(0,0);
     display.clearDisplay();
-    display.println("SX1276 Test");
+    #ifdef MASTER_SX1276
+    display.println("SX1278 TX");
+    #else
+    display.println("SX1278 RX");
+    #endif
     display.display();
 }
 
@@ -2289,6 +2252,7 @@ void OnRxTimeout( void );
  */
 void OnRxError( void );
 
+#if 0
 TimerEvent_t RxWindowTimer1;
 
 void OnRxWindow1TimerEvent()
@@ -2312,6 +2276,7 @@ void OnRxWindow1TimerEvent()
             DEBUG("startup rx");
         }
 }
+#endif
 
 void setup()
 {
@@ -2326,9 +2291,8 @@ void setup()
     digitalWrite(GRREN_LED,1);
     digitalWrite(BLUE_LED,1);
 
-    DEBUG("lora board test");
     delay(100);
-    DEBUG("***********sx1278-lora test******************");
+    DEBUG("***********sx1278 test******************");
     DEBUG("system clock = %d",SystemCoreClock);
 
     // Target board initialisation
@@ -2351,6 +2315,7 @@ void setup()
 
     DEBUG("sx1278 version = 0x%2x", SX1276GetVersion());
     DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
+    DEBUG("sync data = 0x%2x",SX1276Read(0x39));
 
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                        LORA_SPREADING_FACTOR, LORA_CODINGRATE,
@@ -2362,27 +2327,29 @@ void setup()
                        LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                        0, true, 0, 0, LORA_IQ_INVERSION_ON, 1 );
 
-    TimerInit( &RxWindowTimer1, OnRxWindow1TimerEvent );
-    TimerSetValue( &RxWindowTimer1, 1000 ); // 1s后调用OnRxWindow1TimerEvent
+    // TimerInit( &RxWindowTimer1, OnRxWindow1TimerEvent );
+    // TimerSetValue( &RxWindowTimer1, 1000 ); // 1s后调用OnRxWindow1TimerEvent
     // TimerStart( &RxWindowTimer1 );
 
     // Radio.Rx( RX_TIMEOUT_VALUE );
 
-    DEBUG("sync data = 0x%2x",SX1276Read(0x39));
     DEBUG("sx1278 init success ");
-    // for(uint8_t i = 0x01; i < 0x40; i++)
-    //     {
-    //         DEBUG("register address = %x",i);
-    //         DEBUG("register data = %x",SX1276Read(i));
-    //     }
+    #if 0
+    //读取寄存器值
+    for(uint8_t i = 0x01; i < 0x40; i++)
+    {
+        DEBUG("register address = %x",i);
+        DEBUG("register data = %x",SX1276Read(i));
+    }
+    #endif
 
     delay(100);
     #ifdef MASTER_SX1276
     State = TX_START;
-    DEBUG("SX1276 Start TX");
+    DEBUG("SX1278 Start TX");
     #else
     Radio.Rx( 0 );
-    DEBUG("SX1276 Start RX");
+    DEBUG("SX1278 Start RX");
     #endif
 }
 
@@ -2395,6 +2362,7 @@ void loop()
     case TX_START:
         DEBUG("master start tx");
         // OLEDDisplay("Start TX..","");
+        delay(1000);
         Radio.Send( Buffer, BufferSize );
         txPacketCnt++;
         State = LOWPOWER;
@@ -2412,15 +2380,12 @@ void loop()
         #ifdef OLED_DISPLAY
         RFParameterDispaly(SnrValue,RssiValue);
         #endif
-        delay(1000);
         State = TX_START;
         break;
 
     case TX_TIMEOUT:
         DEBUG("master tx timeout");
-        // State = TX_START;
-        Radio.Rx( 3000 );
-        State = LOWPOWER;
+        State = TX_START;
         break;
 
     case RX_TIMEOUT:
@@ -2463,6 +2428,7 @@ void loop()
             break;
 
         case TX_TIMEOUT:
+            DEBUG("salve tx timeout");
             Radio.Rx( 0 );
             State = LOWPOWER;
             break;
@@ -2518,7 +2484,6 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     }
 
     // Radio.Rx( 0 );
-    // TimerStart( &RxWindowTimer1 );
 }
 
 void OnTxTimeout( void )
@@ -2534,7 +2499,6 @@ void OnRxTimeout( void )
     State = RX_TIMEOUT;
     DEBUG("rx timeout");
     // Radio.Rx( 0 );
-    // TimerStart( &RxWindowTimer1 );
 }
 
 void OnRxError( void )
@@ -2544,7 +2508,6 @@ void OnRxError( void )
     errorPacketCnt++;
     DEBUG("rx error");
     // Radio.Rx( 0 );
-    // TimerStart( &RxWindowTimer1 );
 }
 
 #endif
