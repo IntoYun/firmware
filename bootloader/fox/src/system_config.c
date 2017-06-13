@@ -127,18 +127,6 @@ void Cellular_GPIO_Initial(void)
 
 void Cellular_Power_On(void)
 {
-    /*
-    //sim800c VBAT Power On
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
-    HAL_Delay(1000);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
-
-    //sim800c 重新开机
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
-    HAL_Delay(1200);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET); //PWK_KEY 高电平
-    */
-
     //sim800c 为了加快上电速度 PWK_KEY 上电默认低电平 此时VDD_EXT不能使用
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
 
@@ -148,7 +136,7 @@ void Cellular_Power_On(void)
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
 }
 
-void Cellular_Enter_UpdateMode(void)
+void Cellular_Enter_UpdateMode_Pre(void)
 {
     HAL_NVIC_DisableIRQ(USART2_IRQn);
     sdkReleaseQueue(&USART_Cellular_Queue);
@@ -160,6 +148,16 @@ void Cellular_Enter_UpdateMode(void)
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+void Cellular_Enter_UpdateMode(void)
+{
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);   //PWK_KEY 低电平
+
+    //sim800c VBAT Power On
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_RESET);
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, GPIO_PIN_SET);
 }
 
 void HAL_System_Config(void)
