@@ -188,8 +188,7 @@ void HAL_Core_Config(void)
     os_timer_arm(&systick_timer, 1, 1);
 
     //Wiring pins default to inputs
-    for (pin_t pin=FIRST_DIGITAL_PIN; pin<=TOTAL_DIGITAL_PINS; pin++)
-    {
+    for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
         //HAL_Pin_Mode(pin, INPUT);
     }
 
@@ -223,11 +222,13 @@ void HAL_Core_Load_params(void)
 
     //保存子系统程序版本号
     char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
-    HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
-    HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
-    if(strcmp(subsys_ver1, subsys_ver2))
+    if(HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1)))
     {
-        HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+        HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
+        if(strcmp(subsys_ver1, subsys_ver2))
+        {
+            HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+        }
     }
 }
 

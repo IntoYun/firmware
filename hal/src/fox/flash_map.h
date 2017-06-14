@@ -42,6 +42,7 @@
 #define BOOT_ADDR                        ((uint32_t)0x08000000)
 #define EEPROM_ADDR                      ((uint32_t)0x08008000)
 #define APP_ADDR                         ((uint32_t)0x08020000)
+#define SUBSYS_VERSION_ADDR              0x1a0                            //子系统程序版本号
 
 #endif /*FLASH_MAP_H_*/
 
