@@ -113,6 +113,7 @@ inline uint8_t in_cloud_backoff_period()
 
 void Network_Setup(void)
 {
+    system_rgb_blink(RGB_COLOR_GREEN, 1000);//neuwork setup默认为闪绿灯
     network.setup();
 
     // don't automatically connect when threaded since we want the thread to start asap
