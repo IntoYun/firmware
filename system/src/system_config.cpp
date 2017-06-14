@@ -1142,46 +1142,56 @@ int system_config_process(void)
 
     switch(get_system_config_type())
     {
-        case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
 #ifdef configSETUP_UDP_ENABLE
+        case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
             result = DeviceSetupImlink.process();
-#endif
 #ifdef configSETUP_USBSERIAL_ENABLE
-            result = DeviceSetupUsbSerial.process();
+            if(result) {
+                result = DeviceSetupUsbSerial.process();
+            }
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            result = DeviceSetupUsartSerial.process();
+            if(result) {
+                result = DeviceSetupUsartSerial.process();
+            }
 #endif
             break;
-        case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
+#endif
 #ifdef configSETUP_TCP_ENABLE
+        case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
             result = DeviceSetupAp.process();
-#endif
 #ifdef configSETUP_USBSERIAL_ENABLE
-            result = DeviceSetupUsbSerial.process();
+            if(result) {
+                result = DeviceSetupUsbSerial.process();
+            }
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            result = DeviceSetupUsartSerial.process();
+            if(result) {
+                result = DeviceSetupUsartSerial.process();
+            }
 #endif
             break;
+#endif
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
 #ifdef configSETUP_USBSERIAL_ENABLE
             result = DeviceSetupUsbSerial.process();
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            result = DeviceSetupUsartSerial.process();
+            if(result) {
+                result = DeviceSetupUsartSerial.process();
+            }
 #endif
             break;
+#ifdef configSETUP_UDP_ENABLE
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-#ifdef configSETUP_TCP_ENABLE
             result = DeviceSetupImlink.process();
-#endif
             break;
-        case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
+#endif
 #ifdef configSETUP_TCP_ENABLE
+        case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
             result = DeviceSetupAp.process();
-#endif
             break;
+#endif
         default:
             break;
     }

@@ -66,9 +66,10 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 #define TOTAL_PINS             40
-#define TOTAL_ANALOG_PINS      6
+#define FIRST_DIGITAL_PIN      0
 #define TOTAL_DIGITAL_PINS     9
 #define FIRST_ANALOG_PIN       30
+#define TOTAL_ANALOG_PINS      6
 
 #define D0 0   //l7 DIO0
 #define D1 1   //l7 DIO1

@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "core_hal.h"
-#include "core_hal_stm32l1xx.h"
+#include "core_hal_stm32f4xx.h"
 #include "watchdog_hal.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
@@ -31,9 +31,14 @@
 #include "hw_config.h"
 #include "syshealth_hal.h"
 #include "rtc_hal.h"
-#include "stm32l1xx_it.h"
+#include "stm32f4xx_it.h"
+#include "concurrent_hal.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
+#include "eeprom_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "malloc.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -41,8 +46,10 @@
 void HAL_Core_Setup(void);
 
 /* Private macro ------------------------------------------------------------*/
+#define APPLICATION_STACK_SIZE 6144
 
 /* Private variables --------------------------------------------------------*/
+static TaskHandle_t  app_thread_handle;
 
 /* Extern variables ----------------------------------------------------------*/
 /**
@@ -50,25 +57,53 @@ void HAL_Core_Setup(void);
  */
 extern volatile uint32_t TimingDelay;
 
-volatile bool systick_hook_enabled = false;
 
-void HAL_SysTick_Hook(void) __attribute__((weak));
-
-void HAL_SysTick_Hook(void)
+/* Private function prototypes -----------------------------------------------*/
+extern "C"
 {
+    /**
+     * The mutex to ensure only one thread manipulates the heap at a given time.
+     */
+    static os_mutex_recursive_t malloc_mutex = 0;
 
+    //static void init_malloc_semaphore(void)
+    static void init_malloc_mutex(void)
+    {
+        os_mutex_recursive_create(&malloc_mutex);
+    }
+
+    void __malloc_lock(void* ptr)
+    {
+        if (malloc_mutex)
+            os_mutex_recursive_lock(malloc_mutex);
+    }
+
+    void __malloc_unlock(void* ptr)
+    {
+        if (malloc_mutex)
+            os_mutex_recursive_unlock(malloc_mutex);
+    }
 }
 
-void HAL_Hook_Main() __attribute__((weak));
-
-void HAL_Hook_Main()
+static void application_task_start(void *argument)
 {
-    // nada
-}
-
-int main() {
     HAL_Core_Setup();
     app_setup_and_loop();
+}
+
+/**
+ * Called from startup_stm32f2xx.s at boot, main entry point.
+ */
+int main(void)
+{
+#if defined(DEBUG_BUILD)
+    init_debug_mutex();
+#endif
+    init_malloc_mutex();
+    xTaskCreate( application_task_start, "app_thread", APPLICATION_STACK_SIZE/sizeof( portSTACK_TYPE ), NULL, 2, &app_thread_handle);
+    vTaskStartScheduler();
+    /* we should never get here */
+    while (1);
     return 0;
 }
 
@@ -82,7 +117,6 @@ void HAL_1Ms_Tick()
 
 void HAL_Core_Init(void)
 {
-
 }
 
 void HAL_Core_Config(void)
@@ -92,9 +126,8 @@ void HAL_Core_Config(void)
 
 #ifdef DFU_BUILD_ENABLE
     //Currently this is done through WICED library API so commented.
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x6000);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x20000);
 #endif
-
     //Wiring pins default to inputs
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
@@ -109,26 +142,26 @@ void HAL_Core_Config(void)
     HAL_RNG_Initial();
     HAL_IWDG_Initial();
     HAL_UI_Initial();
+    HAL_EEPROM_Init();
 }
 
 void HAL_Core_Load_params(void)
 {
     // load params
-    HAL_PARAMS_Load_System_Params();
     HAL_PARAMS_Load_Boot_Params();
+    HAL_PARAMS_Load_System_Params();
     // check if need init params
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG("init params fac");
+        DEBUG_D("init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG("init params all");
+        DEBUG_D("init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
-
-    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //保存参数
+    if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
         HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
     }
@@ -193,10 +226,10 @@ void HAL_Core_Enter_Com_Mode(void)
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
 }
-
 /**
  * 恢复出厂设置 不清除密钥
  */
+
 void HAL_Core_Enter_Factory_Reset_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_FACTORY_RESET);
@@ -219,43 +252,31 @@ void HAL_Core_Enter_Bootloader(bool persist)
 {
 }
 
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
-{
-    char data[32] = "";
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        sprintf(data, "1.0.0.%d", HAL_PARAMS_Get_Boot_boot_version());
-        templen = MIN(strlen(data), len-1);
-        memset(buffer, 0, len);
-        memcpy(buffer, &data[8], templen);
-        return templen;
-    }
-    return 0;
-}
-
 void HAL_Core_System_Yield(void)
 {
-
 }
 
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
+    extern unsigned char _eheap[];
+    extern unsigned char *sbrk_heap_top;
+
+    struct mallinfo heapinfo = mallinfo();
+    info->freeheap = _eheap-sbrk_heap_top + heapinfo.fordblks;
+
     return 0;
 }
 
-
-/*******************************************************************************
- * Function Name  : SysTick_Handler
- * Description    : This function handles SysTick Handler.
- * Input          : None
- * Output         : None
- * Return         : None
- *******************************************************************************/
+/**
+ * @brief  This function handles SysTick Handler.
+ * @param  None
+ * @retval None
+ */
 void SysTick_Handler(void)
 {
     HAL_IncTick();
     System1MsTick();
+    os_systick_handler();
     /* Handle short and generic tasks for the device HAL on 1ms ticks */
     HAL_1Ms_Tick();
     HAL_SysTick_Handler();
