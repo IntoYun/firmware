@@ -896,6 +896,13 @@ static void McuEnterStopMode(void)
     HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
     HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 
+    //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
+    GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStructure.Mode = INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_Pin_Mode(SX1278_NSS,INPUT_PULLUP);
+
     __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗
     __HAL_RCC_LSI_DISABLE();
 
