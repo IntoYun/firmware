@@ -1,12 +1,12 @@
 #ifndef  WIRING_EX_LORAWAN_H_
 #define  WIRING_EX_LORAWAN_H_
 
-#include "../src/lorawan/radio/inc/radio.h"
-#include "../src/lorawan/board/inc/sx1276-board.h"
-#include "../src/lorawan/radio/inc/sx1276.h"
-#include "../src/lorawan/board/inc/timer.h"
-#include "../src/lorawan/mac/inc/LoRaMac.h"
-#include "../src/lorawan/board/inc/utilities.h"
+#include "lorawan/radio/inc/radio.h"
+#include "lorawan/board/inc/sx1276-board.h"
+#include "lorawan/radio/inc/sx1276.h"
+#include "lorawan/board/inc/timer.h"
+#include "lorawan/mac/inc/LoRaMac.h"
+#include "lorawan/board/inc/utilities.h"
 
 typedef enum event_t{
     LORAWAN_EVENT_JOINING, //入网中

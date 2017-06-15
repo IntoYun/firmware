@@ -1,3 +1,20 @@
+## v1.6.0-rc.1
+
+
+### FEATURES(功能)
+- [[PR #79]](https://github.com/HITSZ-NRSL/firmware/pull/79) [fox/ant/l6] 新增fox、ant、l6的支持
+
+
+### ENHANCEMENTS(优化)
+
+
+### BUG FIXES(漏洞修复)
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.5.4-rc.2
 
 
