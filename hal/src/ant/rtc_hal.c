@@ -477,7 +477,7 @@ void RtcEnterLowPowerStopMode( void )
 {
     if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
     {
-        /* BoardDeInitMcu( ); */
+        BoardDeInitMcu( );
 
         // Disable the Power Voltage Detector
         HAL_PWR_DisablePVD( );
@@ -510,7 +510,7 @@ void RtcRecoverMcuStatus( void )
     if( ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_HSI ) ||
         ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_MSI ) )
     {
-        /* BoardInitMcu( ); */
+        BoardInitMcu( );
     }
 }
 
@@ -869,6 +869,57 @@ void RTC_Alarm_IRQ( void )
     RtcRecoverMcuStatus( );
     RtcComputeWakeUpTime( );
     BlockLowPowerDuringTask( false );
-
     /* TimerIrqHandler( ); */
+}
+
+
+static void McuEnterStopMode(void)
+{
+    DEBUG("mcu into stop");
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+
+    /* Enable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+
+    /* Configure all GPIO port pins in Analog Input mode (floating input trigger OFF) */
+    //无用IO需设为模拟输入
+    GPIO_InitStructure.Pin = GPIO_PIN_All;
+    GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
+
+    //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
+    GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStructure.Mode = INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_Pin_Mode(SX1278_NSS,INPUT_PULLUP);
+
+    __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗
+    __HAL_RCC_LSI_DISABLE();
+
+    //禁用比较器
+    __COMP_CLK_DISABLE();
+
+    // 允许/禁用 调试端口 少800uA
+    HAL_DBGMCU_DisableDBGStopMode();
+}
+
+
+void BoardDeInitMcu(void)
+{
+    McuEnterStopMode();
+}
+
+void BoardInitMcu(void)
+{
+    Set_System();
 }

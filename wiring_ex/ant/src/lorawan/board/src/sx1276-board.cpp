@@ -287,7 +287,7 @@ uint8_t GetBoardPowerSource( void )
     return BATTERY_POWER;
     #endif
     #endif
-    return 0;
+    return BATTERY_POWER;
 }
 
 uint8_t BoardGetBatteryLevel(void)
