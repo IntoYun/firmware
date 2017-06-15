@@ -17,28 +17,17 @@
   ******************************************************************************
 */
 
-/* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
-#include "core_hal.h"
-#include "flash_map.h"
-#include "parser.h"
-#include "intorobot_macros.h"
+#ifndef CORE_HAL_STM32F4XX_H
+#define CORE_HAL_STM32F4XX_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
-{
-    char temp[32];
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        if(esp8266MDM.getNetVersion(temp))
-        {
-            templen = MIN(strlen(temp), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, temp, templen);
-            return templen;
-        }
-    }
-    return 0;
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* CORE_HAL_STM32F4XX_H */
 

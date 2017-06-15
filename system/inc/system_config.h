@@ -180,10 +180,10 @@ public:
 #endif
 
 #ifdef configSETUP_USBSERIAL_ENABLE
-extern UsbDeviceConfig DeviceSetupSerial;
+extern UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-extern UsartDeviceConfig DeviceSetupSerial;
+extern UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
 #ifdef configSETUP_TCP_ENABLE
 extern TcpDeviceConfig DeviceSetupAp;

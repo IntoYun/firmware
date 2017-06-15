@@ -14,7 +14,8 @@ void log_output(const char* msg);
 #endif
 
 #if defined(DEBUG_BUILD)
-#define BOOT_DEBUG        DEBUG_D
+#define BOOT_DEBUG        log_output
+//#define BOOT_DEBUG        DEBUG_D
 #else
 #define BOOT_DEBUG
 #endif

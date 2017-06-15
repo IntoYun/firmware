@@ -35,6 +35,8 @@ SECTIONS
     .text :
     {
         . = ALIGN(4);
+        *(.subsys.version.header)
+        *(.subsys.version)
         *(.text)           /* .text sections (code) */
         *(.text*)          /* .text* sections (code) */
         *(.gnu.linkonce.t.*)

@@ -102,15 +102,13 @@ void HAL_Core_Init(void)
 
 void HAL_Core_Config(void)
 {
-    /*
-    for (pin_t pin=FIRST_DIGITAL_PIN; pin<=FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
-        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
+        //HAL_Pin_Mode(pin, INPUT);
     }
 
-    for (pin_t pin=FIRST_ANALOG_PIN; pin<=FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
-        HAL_Pin_Mode(pin, INPUT);
+    for (pin_t pin = FIRST_ANALOG_PIN; pin <= FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
+        //HAL_Pin_Mode(pin, INPUT);
     }
-    */
 
     HAL_RTC_Initial();
     HAL_RNG_Initial();
@@ -145,11 +143,13 @@ void HAL_Core_Load_params(void)
 
     //保存子系统程序版本号
     char subsys_ver1[32] = {0}, subsys_ver2[32] = {0};
-    HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1));
-    HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
-    if(strcmp(subsys_ver1, subsys_ver2))
+    if(HAL_Core_Get_Subsys_Version(subsys_ver1, sizeof(subsys_ver1)))
     {
-        HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+        HAL_PARAMS_Get_System_subsys_ver(subsys_ver2, sizeof(subsys_ver2));
+        if(strcmp(subsys_ver1, subsys_ver2))
+        {
+            HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+        }
     }
 }
 

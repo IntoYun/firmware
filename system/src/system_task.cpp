@@ -113,6 +113,9 @@ inline uint8_t in_cloud_backoff_period()
 
 void Network_Setup(void)
 {
+    //系统指示灯, 默认为闪绿灯
+    system_rgb_blink(RGB_COLOR_GREEN, 1000);
+
     network.setup();
 
     // don't automatically connect when threaded since we want the thread to start asap
@@ -121,10 +124,10 @@ void Network_Setup(void)
     }
 
     if (network.ready()) {
-        system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
-    } else {
-        system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+        //连接上网络，默认蓝灯闪烁
+        system_rgb_blink(RGB_COLOR_BLUE, 1000);
     }
+
     network_connection_attempt_init();
     CLOUD_FN(intorobot_cloud_init(), (void)0);
 }

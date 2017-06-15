@@ -69,10 +69,10 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 */
 
 #define TOTAL_PINS           41
-#define TOTAL_DIGITAL_PINS   8
 #define FIRST_DIGITAL_PIN    0
-#define TOTAL_ANALOG_PINS    11
+#define TOTAL_DIGITAL_PINS   8
 #define FIRST_ANALOG_PIN     30
+#define TOTAL_ANALOG_PINS    11
 
 #define D0  0
 #define D1  1

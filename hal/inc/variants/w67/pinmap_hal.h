@@ -80,10 +80,10 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 */
 
 #define TOTAL_PINS              31
-#define TOTAL_DIGITAL_PINS      10
 #define FIRST_DIGITAL_PIN       0
-#define TOTAL_ANALOG_PINS       1
+#define TOTAL_DIGITAL_PINS      10
 #define FIRST_ANALOG_PIN        30
+#define TOTAL_ANALOG_PINS       1
 
 #define GPIO0  0
 #define GPIO1  1
