@@ -98,6 +98,12 @@ void RtcRecoverMcuStatus( void );
 
 void RTC_Alarm_IRQ( void );
 
+//mcu进入休眠处理
+void BoardDeInitMcu(void);
+
+//mcu休眠唤醒后处理
+void BoardInitMcu(void);
+
 #ifdef __cplusplus
 }
 #endif
