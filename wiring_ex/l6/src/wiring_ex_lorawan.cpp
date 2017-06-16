@@ -1,7 +1,9 @@
+#include "intorobot_config.h"
 #include "wiring_ex_lorawan.h"
 #include "system_lorawan.h"
 #include "service_debug.h"
 
+#ifndef configNO_LORAWAN
 static lorawan_data_t LoRaWanBuffer;
 static lorawan_params_t LoRaWanParams;
 static LoRaMacPrimitives_t LoRaMacPrimitives;
@@ -268,14 +270,14 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
 
-    DEBUG("send frame");
-    DEBUG("len = %d",len);
+    DEBUG("LoRaWan start send frame");
+    DEBUG("LoRaWan data len = %d",len);
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
     DEBUG("LoRaMac Status = %d",loramacStatus);
     // if( LoRaMacQueryTxPossible( len, &txInfo ) != LORAMAC_STATUS_OK )
     if(loramacStatus != LORAMAC_STATUS_OK)
     {
-        DEBUG("send empty frame");
+        DEBUG("LoRaWan send empty frame");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -286,7 +288,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
     {
         if( IsTxConfirmed == false )
         {
-            DEBUG("send unconfirmed frame");
+            DEBUG("LoRaWan send unconfirmed frame");
             mcpsReq.Type = MCPS_UNCONFIRMED;
             mcpsReq.Req.Unconfirmed.fPort = 2;//AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = buffer;//AppData;
@@ -295,7 +297,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
         }
         else
         {
-            DEBUG("send confirmed frame");
+            DEBUG("LoRaWan send confirmed frame");
             mcpsReq.Type = MCPS_CONFIRMED;
             mcpsReq.Req.Confirmed.fPort = 2;//AppPort;
             mcpsReq.Req.Confirmed.fBuffer = buffer;//AppData;
@@ -307,7 +309,7 @@ bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed)
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
     {
-        DEBUG("satrt send frame");
+        DEBUG("LoRaWan send frame OK!!!");
         LoRaWanOnEvent(LORAWAN_EVENT_TX_COMPLETE);
         return true;
     }
@@ -329,16 +331,18 @@ int LoRaWanReceiveFrame(uint8_t *buffer)
     }
 }
 
+#endif
 
 // #define TEST_SX1276
 #ifdef TEST_SX1276
+
 
 #include "wiring.h"
 
 #define USE_BAND_433
 #define USE_MODEM_LORA
 
-#define RF_FREQUENCY                                470000000 // Hz
+#define RF_FREQUENCY                               434665000 // Hz
 
 #define TX_OUTPUT_POWER                            20        // dBm
 
@@ -396,10 +400,6 @@ static uint8_t ProcessSX1276(void);
 
 void TestSX1276Init(void)
 {
-    delay(100);
-    // DEBUG("***********SX1276 Lora test******************");
-    // STEST_DEBUG("system clock = %d",SystemCoreClock);
-
     SX1276BoardInit();
 
     // Radio initialization
@@ -415,6 +415,7 @@ void TestSX1276Init(void)
 
     Radio.SetModem( MODEM_LORA );
 
+    SX1276Write(0x39,0x12);
     sx1278Version = SX1276GetVersion();
     // DEBUG("sx1278 version = 0x%2x", sx1278Version);
     // DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
@@ -503,7 +504,6 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     }
     DEBUG_D("\r\n");
     #endif
-
 }
 
 void OnTxTimeout( void )
@@ -585,5 +585,4 @@ bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
     return false;
 }
 #endif
-
 
