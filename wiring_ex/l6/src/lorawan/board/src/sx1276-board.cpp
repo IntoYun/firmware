@@ -241,9 +241,9 @@ void SX1276SetReset(void)
 {
     pinMode(SX1276.Reset,OUTPUT);
     digitalWrite(SX1276.Reset,0);
-    delay(1);
+    DelayMs(1);
     pinMode(SX1276.Reset,INPUT);
-    delay(6);
+    DelayMs(6);
 }
 
 void SpiSetNss(uint8_t val)
@@ -267,7 +267,8 @@ void SX1276BoardInit(void)
 
 void DelayMs(uint32_t ms)
 {
-    delay(ms);
+    // delay(ms);
+    HAL_Delay_Microseconds(ms);//因delay时需运行intorobot_process　会导致配置模式下无法运行1278驱动 故换成  HAL_Delay_Microseconds
 }
 
 uint8_t GetBoardPowerSource( void )
@@ -286,7 +287,7 @@ uint8_t GetBoardPowerSource( void )
     return BATTERY_POWER;
     #endif
     #endif
-    return 0;
+    return BATTERY_POWER;
 }
 
 uint8_t BoardGetBatteryLevel(void)
