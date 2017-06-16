@@ -1177,9 +1177,7 @@ int system_config_process(void)
             result = DeviceSetupUsbSerial.process();
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsartSerial.process();
-            }
+            result = DeviceSetupUsartSerial.process();
 #endif
             break;
 #ifdef configSETUP_UDP_ENABLE
