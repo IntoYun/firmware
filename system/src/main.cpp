@@ -258,15 +258,20 @@ void app_setup_and_loop_initial(bool *threaded)
 
 #if 1
     char buffer[33] = {0};
-    DEBUG("product_type=%d", system_get_product_type());
+
+    if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+        DEBUG("product_type = gateway");
+    } else {
+        DEBUG("product_type = note");
+    }
     system_get_product_software_version(buffer, sizeof(buffer));
-    DEBUG("product_software_version=%d", buffer);
+    DEBUG("product_software_version = %s", buffer);
     system_get_product_hardware_version(buffer, sizeof(buffer));
-    DEBUG("product_hardware_version=%d", buffer);
+    DEBUG("product_hardware_version = %s", buffer);
     system_get_product_id(buffer, sizeof(buffer));
-    DEBUG("product_id=%s", buffer);
+    DEBUG("product_id = %s", buffer);
     system_get_product_secret(buffer, sizeof(buffer));
-    DEBUG("product_secret=%s", buffer);
+    DEBUG("product_secret = %s", buffer);
 #endif
 
 #ifdef configSETUP_ENABLE

@@ -757,9 +757,17 @@ void fill_mqtt_topic(String &fulltopic, topic_version_t version, const char *top
         }
     } else if(TOPIC_VERSION_V2 == version) {
         if(device_id == NULL) {
-            fulltopic = "v2/device/" + sdevice_id + "/";
+            if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                fulltopic = "v2/gateway/" + sdevice_id + "/";
+            } else {
+                fulltopic = "v2/device/" + sdevice_id + "/";
+            }
         } else {
-            fulltopic = "v2/device/" + String(device_id) + "/";
+            if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                fulltopic = "v2/gateway/" + String(device_id) + "/";
+            } else {
+                fulltopic = "v2/device/" + String(device_id) + "/";
+            }
         }
     }
     fulltopic+=topic;

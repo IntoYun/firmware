@@ -37,13 +37,13 @@ struct __ApplicationProductSecret {
 };
 
 struct __ApplicationProductSoftwareVersion {
-    __ApplicationProductSoftwareVersion(uint16_t version) {
+    __ApplicationProductSoftwareVersion(char *version) {
         system_set_product_software_version(version);
     }
 };
 
 struct __ApplicationProductHardwareVersion {
-    __ApplicationProductHardwareVersion(uint16_t version) {
+    __ApplicationProductHardwareVersion(char *version) {
         system_set_product_hardware_version(version);
     }
 };
@@ -56,9 +56,9 @@ struct __ApplicationProductType {
 
 #define PRODUCT_ID(x)                __ApplicationProductID __appProductID(stringify(x));
 #define PRODUCT_SECRET(x)            __ApplicationProductSecret __appProductSecret(stringify(x));
-#define PRODUCT_VERSION(x)           __ApplicationProductSoftwareVersion __appProductSoftwareVersion(x);
-#define PRODUCT_SOFTWARE_VERSION(x)  __ApplicationProductSoftwareVersion __appProductSoftwareVersion(x);
-#define PRODUCT_HARDWARE_VERSION(x)  __ApplicationProductHardwareVersion __appProductHardwareVersion(x);
+#define PRODUCT_SOFTWARE_VERSION(x)  __ApplicationProductSoftwareVersion __appProductSoftwareVersion(stringify(x));
+#define PRODUCT_HARDWARE_VERSION(x)  __ApplicationProductHardwareVersion __appProductHardwareVersion(stringify(x));
+#define PRODUCT_VERSION(x)           PRODUCT_SOFTWARE_VERSION(x);
 #define PRODUCT_TYPE(x)              __ApplicationProductType __appProductType(x);
 
 #endif /* __WIRING_PRODUCT_H */
