@@ -165,107 +165,60 @@ void manage_network_connection()
  */
 void manage_app_auto_update(void)
 {
-#if 0
-    if (network.connected())
-    {
-        if (INTOROBOT_CLOUD_CONNECTED)
-        {
-            //发送时间间隔到
-            static system_tick_t start_millis = millis();
-            system_tick_t current_millis = millis();
-            system_tick_t elapsed_millis = current_millis - start_millis;
-            if (elapsed_millis < 0)
-            {
-                elapsed_millis =  0xFFFFFFFF - start_millis + current_millis;
-            }
-            if (elapsed_millis < 300*1000)  //5分钟查询一次
-            {
-                return;
-            }
-            start_millis = millis();
-
-            String body;
-            if(intorobot_get_version(body))
-            {
-                aJsonClass aJson;
-                aJsonObject *root = aJson.parse(body.c_str());
-                if (root == NULL)
-                {return false;}
-
-                //获取product id
-                product_details_t product_details;
-                system_product_instance().get_product_details(product_details);
-                String version = product_details.product_firmware_version;
-
-                //固件升级
-                aJsonObject *firmwareVerObject = aJson.getObjectItem(root, "firmwareVer");
-                if ( firmwareVerObject != NULL ) {
-                    //固件判断升级
-                    if((strcmp(firmwareVerObject->valuestring,""))&&(strcmp(firmwareVerObject->valuestring,version.c_str())))
-                    {
-                        //固件升级
-                    }
-                    return true;
-                }
-                //子系统升级
-                aJsonObject *subsysVerObject = aJson.getObjectItem(root, "subsysVer");
-                if ( subsysVerObject != NULL ) {
-                    //子系统版本判断升级
-                }
-                aJson.deleteItem(root);
-            }
-        }
-    }
-#endif
 }
 
 static bool _device_register(void)
 {
-    //获取product id
-    product_details_t product_details;
-    system_product_instance().get_product_details(product_details);
-
     //计算签名 signature = md5(timestamp + productSecret)
     MD5Builder md5;
     String payload = "";
+    char buffer[33] = {0};
 
     time_t utc_time = Time.now();
     payload += utc_time;
-    payload += product_details.product_secret;
+    system_get_product_secret(buffer, sizeof(buffer));
+    payload += buffer;
     md5.begin();
     md5.add((uint8_t *)payload.c_str(), payload.length());
     md5.calculate();
-    return intorobot_device_register(product_details.product_id, md5.toString().c_str());
+    system_get_product_id(buffer, sizeof(buffer));
+    return intorobot_device_register(buffer, md5.toString().c_str());
 }
 
 void preprocess_cloud_connection(void)
 {
     if (INTOROBOT_CLOUD_SOCKETED) {
         if (!INTOROBOT_CLOUD_CONNECT_PREPARED) {
-            // 同步时间
-            intorobot_sync_time();
-            if(PRODUCT_MODE_SLAVE != system_product_mode()) {
-                AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
-                //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
-                switch(at_mode)
-                {
-                    case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                    case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
-                        break;
-                    case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
+            if(System.featureEnabled(SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED)) {
+                // 同步时间
+                intorobot_sync_time();
+            }
+            AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
+            //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
+            switch(at_mode)
+            {
+                case AT_MODE_FLAG_ABP:            //已经灌好密钥
+                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
+                    break;
+                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
+                    if(System.featureEnabled(SYSTEM_FEATURE_ACTIVATE_ENABLED)) {
                         // 激活设备成功
                         intorobot_device_activate();
-                        break;
-                    default:                          //没有密钥信息
+                    }
+                    break;
+                default:                          //没有密钥信息
+                    if(System.featureEnabled(SYSTEM_FEATURE_REGISTER_ENABLED)) {
                         // 注册设备
                         if(_device_register())
                         {
                             HAL_Delay_Milliseconds(200);
-                            // 激活设备
-                            intorobot_device_activate();
+                            if(System.featureEnabled(SYSTEM_FEATURE_ACTIVATE_ENABLED)) {
+                                // 激活设备
+                                intorobot_device_activate();
+                            }
                         }
-                        break;
-                }
+                    }
+                    break;
             }
             cloud_connection_attempt_init();
             INTOROBOT_CLOUD_CONNECT_PREPARED = 1;

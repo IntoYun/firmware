@@ -36,6 +36,7 @@
 #include "wiring_cellular.h"
 #include "wiring_constants.h"
 #include "wiring_ticks.h"
+#include "wiring_system.h"
 #include "string_convert.h"
 #include "system_mode.h"
 #include "system_task.h"
@@ -260,7 +261,7 @@ void DeviceConfig::dealHello(void)
     aJson.addNumberToObject(root, "status", 200);
     aJson.addNumberToObject(root, "version", 2);  //v2版本配置协议
     char device_id[32]="", board[32]="";
-    system_platform_id(board);
+    system_get_board_id(board, sizeof(board));
     aJson.addStringToObject(root, "board", (char *)board);
     if (AT_MODE_FLAG_NONE != HAL_PARAMS_Get_System_at_mode()) {
         HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
@@ -365,7 +366,7 @@ void DeviceConfig::dealGetInfo(void)
     {return;}
 
     char device_id[32]="",board[32]="";
-    system_platform_id(board);
+    system_get_board_id(board, sizeof(board));
     aJson.addStringToObject(value_object, "board", board);
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     aJson.addStringToObject(value_object, "device_id", device_id);
@@ -1042,7 +1043,7 @@ void set_system_config_type(system_config_type_t config_type)
             break;
     }
 
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
         HAL_PARAMS_Set_System_config_flag(flag);
         HAL_PARAMS_Save_Params();
     }
@@ -1204,7 +1205,7 @@ int system_config_process(void)
 // These are internal methods
 void system_config_setup(void)
 {
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
         switch(HAL_PARAMS_Get_System_config_flag())
         {
             case CONFIG_FLAG_IMLINK_SERIAL:   //进入imlink+串口配置模式
@@ -1233,7 +1234,7 @@ void system_config_setup(void)
 
 void manage_system_config(void)
 {
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED)) {
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
             CLOUD_FN(cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);

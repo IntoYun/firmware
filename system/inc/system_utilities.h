@@ -28,11 +28,35 @@
 extern "C" {
 #endif
 
-int system_version(char *pversion);
-int system_platform_id(char *pid);
-int system_platform_name(char *pname);
-AT_MODE_FLAG_TypeDef system_security_mode(void);
-product_mode_t system_product_mode(void);
+typedef enum
+{
+    SYSTEM_PARAMS_PRODUCT_BOARD_ID = 0,
+    SYSTEM_PARAMS_PRODUCT_BOARD_NAME,
+    SYSTEM_PARAMS_SECURITY_MODE
+} system_params_t;
+
+uint16_t system_get_firmlib_version(char* buffer, uint16_t len);
+product_type_t system_get_product_type(void);
+int system_set_product_type(product_type_t type);
+uint16_t system_get_product_software_version(char *buffer, uint16_t len);
+int system_set_product_software_version(char *buffer);
+uint16_t system_get_product_hardware_version(char *buffer, uint16_t len);
+int system_set_product_hardware_version(char *buffer);
+uint16_t system_get_product_id(char *buffer, uint16_t len);
+int system_set_product_id(char *buffer);
+uint16_t system_get_product_secret(char *buffer, uint16_t len);
+int system_set_product_secret(char *buffer);
+uint16_t system_get_board_id(char *buffer, uint16_t len);
+int system_set_board_id(char *buffer);
+uint16_t system_get_board_name(char *buffer, uint16_t len);
+int system_set_board_name(char *buffer);
+
+int system_get_params_int(system_params_t params_type, int &value);
+int system_set_params_int(system_params_t params_type, int value);
+int system_get_params_double(system_params_t params_type, double &value);
+int system_set_params_double(system_params_t params_type, double value);
+uint16_t system_get_params_array(system_params_t params_type, char *buffer, uint16_t len);
+int system_set_params_array(system_params_t params_type, char *buffer, uint16_t len);
 
 #ifdef __cplusplus
 }

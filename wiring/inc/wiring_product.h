@@ -21,35 +21,44 @@
 #define WIRING_PRODUCT_H_
 
 #include "system_product.h"
+#include "system_utilities.h"
 
 
 struct __ApplicationProductID {
     __ApplicationProductID(char *id) {
-        system_product_instance().set_product_id(id);
+        system_set_product_id(id);
     }
 };
 
 struct __ApplicationProductSecret {
     __ApplicationProductSecret(char *secret) {
-        system_product_instance().set_product_secret(secret);
+        system_set_product_secret(secret);
     }
 };
 
-struct __ApplicationProductVersion {
-    __ApplicationProductVersion(uint16_t version) {
-        system_product_instance().set_product_firmware_version(version);
+struct __ApplicationProductSoftwareVersion {
+    __ApplicationProductSoftwareVersion(uint16_t version) {
+        system_set_product_software_version(version);
     }
 };
 
-struct __ApplicationProductMode {
-    __ApplicationProductMode(product_mode_t mode) {
-        system_product_instance().set_product_mode(mode);
+struct __ApplicationProductHardwareVersion {
+    __ApplicationProductHardwareVersion(uint16_t version) {
+        system_set_product_hardware_version(version);
     }
 };
 
-#define PRODUCT_ID(x)              __ApplicationProductID __appProductID(stringify(x));
-#define PRODUCT_SECRET(x)          __ApplicationProductSecret __appProductSecret(stringify(x));
-#define PRODUCT_VERSION(x)         __ApplicationProductVersion __appProductVersion(x);
-#define PRODUCT_MODE(x)              __ApplicationProductMode __appProductMode(x);
+struct __ApplicationProductType {
+    __ApplicationProductType(product_type_t type) {
+        system_set_product_type(type);
+    }
+};
+
+#define PRODUCT_ID(x)                __ApplicationProductID __appProductID(stringify(x));
+#define PRODUCT_SECRET(x)            __ApplicationProductSecret __appProductSecret(stringify(x));
+#define PRODUCT_VERSION(x)           __ApplicationProductSoftwareVersion __appProductSoftwareVersion(x);
+#define PRODUCT_SOFTWARE_VERSION(x)  __ApplicationProductSoftwareVersion __appProductSoftwareVersion(x);
+#define PRODUCT_HARDWARE_VERSION(x)  __ApplicationProductHardwareVersion __appProductHardwareVersion(x);
+#define PRODUCT_TYPE(x)              __ApplicationProductType __appProductType(x);
 
 #endif /* __WIRING_PRODUCT_H */

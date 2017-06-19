@@ -13,26 +13,26 @@
 #include "flash_storage_impl.h"
 #include "intorobot_macros.h"
 
-boot_params_t intorobot_boot_params;         //bootloader参数
-system_params_t intorobot_system_params;     //设备参数
+hal_boot_params_t intorobot_boot_params;         //bootloader参数
+hal_system_params_t intorobot_system_params;     //设备参数
 
 
 /*初始化bootloader参数区*/
-void init_boot_params(boot_params_t *pboot_params) {
-    memset((uint8_t *)pboot_params, 0, sizeof(boot_params_t));
+void init_boot_params(hal_boot_params_t *pboot_params) {
+    memset((uint8_t *)pboot_params, 0, sizeof(hal_boot_params_t));
     pboot_params->header = BOOT_PARAMS_HEADER;
 }
 
 /*初始化系统参数区*/
-void init_system_params(system_params_t *psystem_params) {
-    memset((uint8_t *)psystem_params, 0, sizeof(system_params_t));
+void init_system_params(hal_system_params_t *psystem_params) {
+    memset((uint8_t *)psystem_params, 0, sizeof(hal_system_params_t));
     psystem_params->header = SYSTEM_PARAMS_HEADER;
     psystem_params->config_flag = 1;
     psystem_params->zone = 8;
 }
 
 /*初始化系统参数区 保留密钥参数*/
-void init_fac_system_params(system_params_t *psystem_params) {
+void init_fac_system_params(hal_system_params_t *psystem_params) {
     uint8_t  at_mode;
     uint8_t  deveui[20]={0}, appeui[20]={0}, appkey[36]={0}, devaddr[12]={0}, nwkskey[36]={0}, appskey[36]={0};
 
@@ -68,15 +68,15 @@ void init_fac_system_params(system_params_t *psystem_params) {
     }
 }
 
-void save_boot_params(boot_params_t *pboot_params);
+void save_boot_params(hal_boot_params_t *pboot_params);
 /*
  * 读取bootloader参数区
  * */
-void read_boot_params(boot_params_t *pboot_params) {
-    uint32_t len = sizeof(boot_params_t);
+void read_boot_params(hal_boot_params_t *pboot_params) {
+    uint32_t len = sizeof(hal_boot_params_t);
     InternalFlashStore flashStore;
 
-    memset(pboot_params, 0, sizeof(boot_params_t));
+    memset(pboot_params, 0, sizeof(hal_boot_params_t));
     if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
@@ -86,8 +86,8 @@ void read_boot_params(boot_params_t *pboot_params) {
 /*
  * 保存bootloader参数区
  * */
-void save_boot_params(boot_params_t *pboot_params) {
-    uint32_t len = sizeof(boot_params_t);
+void save_boot_params(hal_boot_params_t *pboot_params) {
+    uint32_t len = sizeof(hal_boot_params_t);
     InternalFlashStore flashStore;
 
     if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
@@ -97,15 +97,15 @@ void save_boot_params(boot_params_t *pboot_params) {
     flashStore.write(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
-void save_system_params(system_params_t *psystem_params);
+void save_system_params(hal_system_params_t *psystem_params);
 /*
  * 加载系统参数区
  * */
-void read_system_params(system_params_t *psystem_params) {
-    uint32_t len = sizeof(system_params_t);
+void read_system_params(hal_system_params_t *psystem_params) {
+    uint32_t len = sizeof(hal_system_params_t);
     InternalFlashStore flashStore;
 
-    memset(psystem_params, 0, sizeof(system_params_t));
+    memset(psystem_params, 0, sizeof(hal_system_params_t));
     if(len > (SYSTEM_PARAMS_END_ADDR - SYSTEM_PARAMS_START_ADDR)) {
         return;
     }
@@ -115,8 +115,8 @@ void read_system_params(system_params_t *psystem_params) {
 /*
  * 保存系统参数区
  * */
-void save_system_params(system_params_t *psystem_params) {
-    uint32_t len = sizeof(system_params_t);
+void save_system_params(hal_system_params_t *psystem_params) {
+    uint32_t len = sizeof(hal_system_params_t);
     InternalFlashStore flashStore;
 
     if(len > (SYSTEM_PARAMS_END_ADDR - SYSTEM_PARAMS_START_ADDR)) {
