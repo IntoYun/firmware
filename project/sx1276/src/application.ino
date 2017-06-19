@@ -440,7 +440,7 @@ void OnRxError( void )
 SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
 // #define SX1276_TX_EN
-#define OLED_DISPLAY
+// #define OLED_DISPLAY
 
 
 #define LED           D5
@@ -453,7 +453,8 @@ SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 #define USE_BAND_433
 #define USE_MODEM_LORA
 
-#define RF_FREQUENCY                                433175000 // Hz
+// #define RF_FREQUENCY                                433175000 // Hz
+#define RF_FREQUENCY                                433575000 // Hz
 
 #define TX_OUTPUT_POWER                            20        // dBm
 
@@ -485,7 +486,7 @@ typedef enum
 }States_t;
 
 #define RX_TIMEOUT_VALUE    1000
-#define BUFFER_SIZE         4 // Define the payload size here
+#define BUFFER_SIZE         64 // Define the payload size here
 
 uint16_t BufferSize = BUFFER_SIZE;
 
@@ -631,7 +632,7 @@ void setup()
 
     Radio.SetModem( MODEM_LORA );
     // Change LoRa modem SyncWord
-    // Radio.Write( REG_LR_SYNCWORD, 0x34 );
+    Radio.Write( REG_LR_SYNCWORD, 0x34 );
 
     DEBUG("sx1278 version = %d", SX1276GetVersion());
     DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
@@ -734,10 +735,13 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
    RFParameterDispaly(SnrValue,RssiValue);
 #endif
 
-    for(uint8_t i=0; i<BUFFER_SIZE;i++)
+    DEBUG_D("receive data = ");
+    for(uint8_t i=0; i<size;i++)
     {
-        DEBUG("reveive data = %d",Buffer[i]);
+        // DEBUG("reveive data = 0x%x",Buffer[i]);
+        DEBUG_D("0x%x ",Buffer[i]);
     }
+    DEBUG_D("\r\n");
 
     ledFlag = !ledFlag;
     digitalWrite(LED,ledFlag);
