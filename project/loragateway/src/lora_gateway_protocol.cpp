@@ -5,6 +5,7 @@
 #include "lora_gateway_log.h"
 #include "lora_gateway_os.h"
 #include "lora_gateway_params.h"
+#include "lora_gateway_ui.h"
 #include "gBase64.h"
 #include "sx1278-board.h"
 #include "sx1278.h"
@@ -39,6 +40,10 @@ static void waitMqttConnect(void)
         IntoRobot.process();
         delay(1000);
     }
+}
+
+static void manageMqttConnect(void)
+{
 }
 
 static bool mqttSend(uint8_t * msg, int length)
@@ -201,6 +206,7 @@ void waitServerConnect(void)
 void manageServerConnect(void)
 {
 #ifdef CONFIG_GATEWAY_COMMUNICATION_MQTT
+    manageMqttConnect();
 #else
     manageUdpConnect();
 #endif
@@ -297,7 +303,6 @@ static int parseServerPacket(uint8_t *buffer, int bufferLen)
                     }
                 }
             }
-
 
             // Now respond with an PKT_PULL_ACK; 0x04 UP
             buff_up[0]=buffer[0];

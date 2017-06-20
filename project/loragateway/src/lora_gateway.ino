@@ -22,6 +22,7 @@
 #include "lora_gateway_log.h"
 #include "lora_gateway_os.h"
 #include "lora_gateway_params.h"
+#include "lora_gateway_ui.h"
 #include "sx1278-board.h"
 #include "sx1278.h"
 
@@ -37,40 +38,17 @@ PRODUCT_SECRET(b05b732bfb4d1917433e7849c495a8d9)
 PRODUCT_SOFTWARE_VERSION(1.0.0)
 PRODUCT_HARDWARE_VERSION(1.0.0)
 
-#if PLATFORM_ID == PLATFORM_GL1000
-#define INDICATOR_LED_PIN    D8    //定义指示灯引脚
-#define MODE_PIN             D9    //定义按键引脚
-// 定义网关管脚连接
-const lora_pinmap_t lora_pins = {
-    .nss  = A4,
-    .rxtx = D6,
-    .rst  = D7,
-    .dio  = {D0, D1, D2, D3, LORA_UNUSED_PIN, LORA_UNUSED_PIN},
-};
-#else
-#define MODE_PIN             GPIO0     //定义按键引脚
-#define INDICATOR_LED_PIN    GPIO16    //定义指示灯引脚
-// 定义网关管脚连接
-const lora_pinmap_t lora_pins = {
-    .nss  = GPIO15,
-    .rxtx = GPIO5,
-    .rst  = GPIO2,
-    .dio  = {GPIO4, LORA_UNUSED_PIN, LORA_UNUSED_PIN, LORA_UNUSED_PIN, LORA_UNUSED_PIN, LORA_UNUSED_PIN},
-};
-#endif
 
 uint8_t gatewayIDHex[8];
 static osjob_t initJob, statReportJob, pullDataJob, dealUdpPackageJob;
 static RadioEvents_t RadioEvents;
 
-static void OnTxDone( void )
-{
+static void OnTxDone( void ) {
     log_v("OnTxDone\r\n");
     loraRx();
 }
 
-static void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
-{
+static void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ) {
     uint8_t bufferUp[512];
     uint16_t bufferLen;
 
@@ -88,42 +66,35 @@ static void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr 
     } else {
         log_v("eH:: WARNING S_RX empty message, sf=%d\r\n", SX1278.Settings.LoRa.Datarate);
     }
-
     loraRx();
 }
 
-static void OnTxTimeout( void )
-{
+static void OnTxTimeout( void ) {
     log_v("OnTxTimeout\r\n");
     loraRx();
 }
 
-static void OnRxTimeout( void )
-{
+static void OnRxTimeout( void ) {
     log_v("OnRxTimeout\r\n");
     loraRx();
 }
 
-static void OnRxError( void )
-{
+static void OnRxError( void ) {
     log_v("OnRxError\r\n");
     GatewayParams.Statistics.cp_nb_rx_rcv++;           // Receive statistics counter
     GatewayParams.Statistics.cp_nb_rx_bad++;
     loraRx();
 }
 
-static void OnFhssChangeChannel( uint8_t currentChannel )
-{
+static void OnFhssChangeChannel( uint8_t currentChannel ) {
     log_v("OnFhssChangeChannel\r\n");
 }
 
-static void OnCadDone( bool channelActivityDetected )
-{
+static void OnCadDone( bool channelActivityDetected ) {
     log_v("OnCadDone\r\n");
 }
 
-static void gatewayInit(void)
-{
+static void gatewayInit(void) {
     SX1278BoardInit();
     // Radio initialization
     RadioEvents.TxDone = OnTxDone;
@@ -171,21 +142,42 @@ static void initFunc(osjob_t *job) {
 #endif
 }
 
-void systemConfigKeyDeal()
-{
-    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL != System.configCurrentMode()) {
-        System.configEnterMode(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
-        digitalWrite(INDICATOR_LED_PIN, LOW);
-        log_v("enter config ...\r\n");
-    } else {
-        System.configExit();
-        digitalWrite(INDICATOR_LED_PIN, HIGH);
-        log_v("exit config ...\r\n");
+void system_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen) {
+    switch(event) {
+        case event_mode_changed:
+            switch(param) {
+                case ep_mode_normal:
+                    gatewayUiIndicatorControl(false);
+                    break;
+                case ep_mode_imlink_serial_config:
+                    gatewayUiIndicatorBlink(500);
+                    break;
+                case ep_mode_ap_serial_config:
+                    gatewayUiIndicatorBlink(1000);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case event_cloud_status:
+            switch(param) {
+                case ep_cloud_status_disconnected:
+                    gatewayUiIndicatorControl(false);
+                    break;
+                case ep_cloud_status_connected:
+                    gatewayUiIndicatorControl(true);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
 }
 
-void setup()
-{
+void setup() {
+    log_gateway_int();
     log_v("lora gateway start ...\r\n");
     String gatewayID = System.deviceID();
 
@@ -203,23 +195,17 @@ void setup()
     memset(gatewayIDHex, 0, sizeof(gatewayIDHex));
     string2hex(gatewayID.c_str(), gatewayIDHex, sizeof(gatewayIDHex), false);
 
-    //初始化
-    pinMode(INDICATOR_LED_PIN, OUTPUT);
-    if(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL == System.configCurrentMode()) {
-        digitalWrite(INDICATOR_LED_PIN, LOW);
-    } else {
-        digitalWrite(INDICATOR_LED_PIN, HIGH);
-    }
-    attachInterrupt(MODE_PIN, systemConfigKeyDeal, FALLING);
-
+    gatewayUiInitial();
+    System.on(event_mode_changed|event_cloud_status, &system_event_callback);
+    System.set(SYSTEM_PARAMS_PRODUCT_BOARD_ID, "188001");
+    System.set(SYSTEM_PARAMS_PRODUCT_BOARD_NAME, "gl1000");
     initCommunication();
     waitServerConnect();
     os_init();
     os_setCallback(&initJob, initFunc);
 }
 
-void loop()
-{
+void loop() {
     os_runloop();
 }
 

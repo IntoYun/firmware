@@ -30,7 +30,6 @@ typedef uint64_t system_event_t;
 typedef void (system_event_handler_t)(system_event_t event, int param, uint8_t *data, uint16_t datalen);
 
 enum SystemEvents {
-
     event_mode_changed           = 1<<1,         // mode event
     event_network_status         = 1<<2,         // network event
     event_cloud_status           = 1<<3,         // cloud event

@@ -1017,27 +1017,21 @@ void set_system_config_type(system_config_type_t config_type)
     switch(config_type)
     {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             flag = CONFIG_FLAG_IMLINK_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             flag = CONFIG_FLAG_AP_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_serial_config);
             flag = CONFIG_FLAG_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-            system_notify_event(event_mode_changed, ep_mode_imlink_config);
             flag = CONFIG_FLAG_IMLINK;
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
-            system_notify_event(event_mode_changed, ep_mode_ap_config);
             flag = CONFIG_FLAG_AP;
             break;
         default:   //退出配置模式
-            system_notify_event(event_mode_changed, ep_mode_normal);
             g_intorobot_system_config = 0;
             flag = CONFIG_FLAG_NONE;
             break;
@@ -1068,6 +1062,7 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
 #ifdef configSETUP_TCP_ENABLE
@@ -1079,6 +1074,7 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
 #ifdef configSETUP_USBSERIAL_ENABLE
@@ -1087,16 +1083,19 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
 #ifdef configSETUP_UDP_ENABLE
             DeviceSetupImlink.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_imlink_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
 #ifdef configSETUP_TCP_ENABLE
             DeviceSetupAp.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_ap_config);
             break;
         default:
             break;
@@ -1117,6 +1116,7 @@ void system_config_finish(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
     DeviceSetupUsartSerial.close();
 #endif
+    system_notify_event(event_mode_changed, ep_mode_normal);
     NEWORK_FN(Network_Setup(), (void)0);
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 }

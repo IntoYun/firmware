@@ -31,7 +31,7 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
         sprintf(data, "1.0.0.%d", HAL_PARAMS_Get_Boot_boot_version());
         templen = MIN(strlen(data), len-1);
         memset(buffer, 0, len);
-        memcpy(buffer, &data[8], templen);
+        memcpy(buffer, data, templen);
         return templen;
     }
     return 0;
