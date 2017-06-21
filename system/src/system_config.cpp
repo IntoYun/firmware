@@ -235,7 +235,7 @@ int DeviceConfig::process(void)
     if(_isConfigSuccessful) {
         return 0;
     } else {
-      return 1;
+      return -1;
     }
 }
 
@@ -1123,7 +1123,7 @@ void system_config_finish(void)
 
 int system_config_process(void)
 {
-    int result = 0;
+    int result = -1;
     system_config_type_t config_type = get_system_config_type();
     static system_config_type_t system_config_type = SYSTEM_CONFIG_TYPE_NONE;
 
@@ -1178,7 +1178,9 @@ int system_config_process(void)
             result = DeviceSetupUsbSerial.process();
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            result = DeviceSetupUsartSerial.process();
+            if(result) {
+                result = DeviceSetupUsartSerial.process();
+            }
 #endif
             break;
 #ifdef configSETUP_UDP_ENABLE
