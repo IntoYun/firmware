@@ -36,6 +36,7 @@
 #include "wiring_cellular.h"
 #include "wiring_constants.h"
 #include "wiring_ticks.h"
+#include "wiring_system.h"
 #include "string_convert.h"
 #include "system_mode.h"
 #include "system_task.h"
@@ -234,7 +235,7 @@ int DeviceConfig::process(void)
     if(_isConfigSuccessful) {
         return 0;
     } else {
-      return 1;
+      return -1;
     }
 }
 
@@ -260,7 +261,7 @@ void DeviceConfig::dealHello(void)
     aJson.addNumberToObject(root, "status", 200);
     aJson.addNumberToObject(root, "version", 2);  //v2版本配置协议
     char device_id[32]="", board[32]="";
-    system_platform_id(board);
+    system_get_board_id(board, sizeof(board));
     aJson.addStringToObject(root, "board", (char *)board);
     if (AT_MODE_FLAG_NONE != HAL_PARAMS_Get_System_at_mode()) {
         HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
@@ -365,7 +366,7 @@ void DeviceConfig::dealGetInfo(void)
     {return;}
 
     char device_id[32]="",board[32]="";
-    system_platform_id(board);
+    system_get_board_id(board, sizeof(board));
     aJson.addStringToObject(value_object, "board", board);
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     aJson.addStringToObject(value_object, "device_id", device_id);
@@ -1016,33 +1017,27 @@ void set_system_config_type(system_config_type_t config_type)
     switch(config_type)
     {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             flag = CONFIG_FLAG_IMLINK_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             flag = CONFIG_FLAG_AP_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-            system_notify_event(event_mode_changed, ep_mode_serial_config);
             flag = CONFIG_FLAG_SERIAL;
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-            system_notify_event(event_mode_changed, ep_mode_imlink_config);
             flag = CONFIG_FLAG_IMLINK;
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
-            system_notify_event(event_mode_changed, ep_mode_ap_config);
             flag = CONFIG_FLAG_AP;
             break;
         default:   //退出配置模式
-            system_notify_event(event_mode_changed, ep_mode_normal);
             g_intorobot_system_config = 0;
             flag = CONFIG_FLAG_NONE;
             break;
     }
 
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
         HAL_PARAMS_Set_System_config_flag(flag);
         HAL_PARAMS_Save_Params();
     }
@@ -1067,6 +1062,7 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
 #ifdef configSETUP_TCP_ENABLE
@@ -1078,6 +1074,7 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
 #ifdef configSETUP_USBSERIAL_ENABLE
@@ -1086,16 +1083,19 @@ void system_config_initial(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
 #ifdef configSETUP_UDP_ENABLE
             DeviceSetupImlink.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_imlink_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
 #ifdef configSETUP_TCP_ENABLE
             DeviceSetupAp.init();
 #endif
+            system_notify_event(event_mode_changed, ep_mode_ap_config);
             break;
         default:
             break;
@@ -1116,13 +1116,14 @@ void system_config_finish(void)
 #ifdef configSETUP_USARTSERIAL_ENABLE
     DeviceSetupUsartSerial.close();
 #endif
+    system_notify_event(event_mode_changed, ep_mode_normal);
     NEWORK_FN(Network_Setup(), (void)0);
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 }
 
 int system_config_process(void)
 {
-    int result = 0;
+    int result = -1;
     system_config_type_t config_type = get_system_config_type();
     static system_config_type_t system_config_type = SYSTEM_CONFIG_TYPE_NONE;
 
@@ -1177,7 +1178,9 @@ int system_config_process(void)
             result = DeviceSetupUsbSerial.process();
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            result = DeviceSetupUsartSerial.process();
+            if(result) {
+                result = DeviceSetupUsartSerial.process();
+            }
 #endif
             break;
 #ifdef configSETUP_UDP_ENABLE
@@ -1204,7 +1207,7 @@ int system_config_process(void)
 // These are internal methods
 void system_config_setup(void)
 {
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
         switch(HAL_PARAMS_Get_System_config_flag())
         {
             case CONFIG_FLAG_IMLINK_SERIAL:   //进入imlink+串口配置模式
@@ -1233,7 +1236,7 @@ void system_config_setup(void)
 
 void manage_system_config(void)
 {
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+    if(System.featureEnabled(SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED)) {
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
             CLOUD_FN(cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);

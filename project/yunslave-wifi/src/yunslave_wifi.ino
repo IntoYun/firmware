@@ -26,7 +26,19 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 Serial1DebugOutput debugOutput(115200, ALL_LEVEL);
 
-PRODUCT_MODE(PRODUCT_MODE_SLAVE)   //模块处于从模式
+void init_before_setup(void)
+{
+    //关闭部分功能
+    System.disableFeature(SYSTEM_FEATURE_SEND_INFO_ENABLED);            //发送设备信息
+    System.disableFeature(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED);          //配置模式保存
+    System.disableFeature(SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED);  //自动配置处理
+    System.disableFeature(SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED);        //自动时间同步
+    System.disableFeature(SYSTEM_FEATURE_DATAPOINT_ENABLED);            //数据点处理
+    System.disableFeature(SYSTEM_FEATURE_REGISTER_ENABLED);             //设备注册
+    System.disableFeature(SYSTEM_FEATURE_ACTIVATE_ENABLED);             //设备激活
+}
+
+STARTUP( init_before_setup() );
 
 #if PLATFORM_ID == PLATFORM_W67
 #define INDICATOR_LED_PIN    GPIO0    //定义指示灯引脚
@@ -179,6 +191,7 @@ bool sendProductInfo(void)
     String infoTopic = "";
     aJsonClass aJson;
     bool flag = false;
+    char buffer[17];
 
     infoTopic = "v2/device/";
     infoTopic += System.deviceID();
@@ -192,10 +205,11 @@ bool sendProductInfo(void)
 
     aJson.addStringToObject(root, "productId", yunSlaveParams.product_id);
     aJson.addStringToObject(root, "productMode", "slave");
-    aJson.addStringToObject(root, "board", System.platformID().c_str());
+    System.get(SYSTEM_PARAMS_PRODUCT_BOARD_ID, buffer, sizeof(buffer));
+    aJson.addStringToObject(root, "board", buffer);
+    aJson.addStringToObject(root, "slaveVer", YUNSLAVE_WIFI_VERSION);
     aJson.addStringToObject(root, "productVer", yunSlaveParams.soft_version);
     aJson.addStringToObject(root, "productHwVer", yunSlaveParams.hardware_version);
-    aJson.addStringToObject(root, "slaveVer", YUNSLAVE_WIFI_VERSION);
     aJson.addBooleanToObject(root, "online", true);
 
     char* string = aJson.print(root);
@@ -244,7 +258,9 @@ void userInit(void)
 
     IntoRobot.subscribe(CloudDataRxTopic.c_str(), NULL, cloudDataCb, 0, TOPIC_VERSION_CUSTOM);
 
-    if(AT_MODE_FLAG_OTAA_INACTIVE == System.securityMode()) {
+    int mode;
+    System.get(SYSTEM_PARAMS_SECURITY_MODE, mode);
+    if(AT_MODE_FLAG_OTAA_INACTIVE == mode) {
         g_productActivateRequest = true;
         g_productActivateTimes = 0;
     }

@@ -86,15 +86,21 @@ void at_queryCmdInfo(uint8_t id)
 {
     log_v("at_queryCmdInfo\r\n");
     String infoString = "";
+    char buffer[17];
+    int mode;
 
     infoString = "+INFO:\"";
     infoString += YUNSLAVE_WIFI_VERSION;
     infoString += "\",\"";
-    infoString += System.platformName();
+
+    System.get(SYSTEM_PARAMS_PRODUCT_BOARD_NAME, buffer, sizeof(buffer));
+    infoString += buffer;
     infoString += "\",\"";
     infoString += System.deviceID();
     infoString += "\",";
-    infoString += System.securityMode();
+
+    System.get(SYSTEM_PARAMS_SECURITY_MODE, mode);
+    infoString += mode;
     infoString += "\r\n";
     at_response(infoString.c_str());
     at_response_ok();
@@ -205,6 +211,7 @@ void at_setupRegister(uint8_t id, char *pPara)
 {
     log_v("at_exeRegister\r\n");
     char product_id[32];
+    int mode;
 
     if (*pPara++ != '=') {// skip '='
         at_response_error();
@@ -228,7 +235,8 @@ void at_setupRegister(uint8_t id, char *pPara)
         return;
     }
 
-    switch(System.securityMode()) {
+    System.get(SYSTEM_PARAMS_SECURITY_MODE, mode);
+    switch(mode) {
         case AT_MODE_FLAG_ABP:           //Activation By Personalization  //已经灌好密钥
         case AT_MODE_FLAG_OTAA_INACTIVE: //Over-The-Air Activation //灌装激活码  未激活
         case AT_MODE_FLAG_OTAA_ACTIVE:   //灌装激活码 已激活

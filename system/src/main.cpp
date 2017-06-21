@@ -203,7 +203,8 @@ static void load_system_fwlib_version(void)
 {
     //保存固件库版本号
     char fw_ver1[32] = {0}, fw_ver2[32] = {0};
-    system_version(fw_ver1);
+
+    system_get_firmlib_version(fw_ver1, sizeof(fw_ver1));
     HAL_PARAMS_Get_System_fwlib_ver(fw_ver2, sizeof(fw_ver2));
     if(strcmp(fw_ver1, fw_ver2))
     {
@@ -256,12 +257,21 @@ void app_setup_and_loop_initial(bool *threaded)
 #endif
 
 #if 1
-    product_details_t product_details;
-    system_product_instance().get_product_details(product_details);
-    DEBUG("product_firmware_version=%d", product_details .product_firmware_version);
-    DEBUG("product_mode=%d", product_details.product_mode);
-    DEBUG("product_id=%s", product_details.product_id);
-    DEBUG("product_secret=%s", product_details.product_secret);
+    char buffer[33] = {0};
+
+    if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+        DEBUG("product_type = gateway");
+    } else {
+        DEBUG("product_type = note");
+    }
+    system_get_product_software_version(buffer, sizeof(buffer));
+    DEBUG("product_software_version = %s", buffer);
+    system_get_product_hardware_version(buffer, sizeof(buffer));
+    DEBUG("product_hardware_version = %s", buffer);
+    system_get_product_id(buffer, sizeof(buffer));
+    DEBUG("product_id = %s", buffer);
+    system_get_product_secret(buffer, sizeof(buffer));
+    DEBUG("product_secret = %s", buffer);
 #endif
 
 #ifdef configSETUP_ENABLE

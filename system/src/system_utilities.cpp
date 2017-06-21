@@ -1,21 +1,21 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation, either
-  version 3 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation, either
+ version 3 of the License, or (at your option) any later version.
 
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************
+ */
 
 #include "system_task.h"
 #include <algorithm>
@@ -39,42 +39,138 @@ unsigned backoff_period(unsigned connection_attempts)
     return 1000*(1<<exponent);
 }
 
-int system_version(char *pversion)
+uint16_t system_get_firmlib_version(char* buffer, uint16_t len)
 {
-    if(NULL != pversion) {
-        strcpy(pversion, stringify(FIRMLIB_VERSION_STRING));
-        return strlen(pversion);
+    if(NULL != buffer) {
+        strcpy(buffer, stringify(FIRMLIB_VERSION_STRING));
+        return strlen(buffer);
     }
     return 0;
 }
 
-int system_platform_id(char *pid)
-{
-    if(NULL != pid) {
-        strcpy(pid, stringify(PLATFORM_ID));
-        return strlen(pid);
+product_type_t system_get_product_type(void) {
+    return system_product_instance().get_product_type();
+}
+
+int system_set_product_type(product_type_t type) {
+    return system_product_instance().set_product_type(type);
+}
+
+uint16_t system_get_product_software_version(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_SOFTWARE_VERSION, buffer, len);
+}
+
+int system_set_product_software_version(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_SOFTWARE_VERSION, buffer);
+}
+
+uint16_t system_get_product_hardware_version(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_HARDWARE_VERSION, buffer, len);
+}
+
+int system_set_product_hardware_version(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_HARDWARE_VERSION, buffer);
+}
+
+uint16_t system_get_product_id(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_ID, buffer, len);
+}
+
+int system_set_product_id(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_ID, buffer);
+}
+
+uint16_t system_get_product_secret(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_SECRET, buffer, len);
+}
+
+int system_set_product_secret(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_SECRET, buffer);
+}
+
+uint16_t system_get_board_id(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_BOARD_ID, buffer, len);
+}
+
+int system_set_board_id(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_BOARD_ID, buffer);
+}
+
+uint16_t system_get_board_name(char *buffer, uint16_t len) {
+    return system_product_instance().get_product_param(SYSTEM_PRODUCT_PARAM_BOARD_NAME, buffer, len);
+}
+
+int system_set_board_name(char *buffer) {
+    return system_product_instance().set_product_param(SYSTEM_PRODUCT_PARAM_BOARD_NAME, buffer);
+}
+
+int system_get_params_int(system_params_t params_type, int &value) {
+    switch(params_type) {
+        case SYSTEM_PARAMS_SECURITY_MODE:
+            value = HAL_PARAMS_Get_System_at_mode();
+            return 0;
+            break;
+        default:
+            break;
+    }
+    return -1;
+}
+
+int system_set_params_int(system_params_t params_type, int value) {
+    switch(params_type) {
+        case SYSTEM_PARAMS_SECURITY_MODE:
+            HAL_PARAMS_Set_System_at_mode(value);
+            HAL_PARAMS_Save_Params();
+            return 0;
+            break;
+        default:
+            break;
+    }
+    return -1;
+}
+
+int system_get_params_double(system_params_t params_type, double &value) {
+    return -1;
+}
+
+int system_set_params_double(system_params_t params_type, double value) {
+    return -1;
+}
+
+uint16_t system_get_params_array(system_params_t params_type, char *buffer, uint16_t len) {
+    switch(params_type) {
+        case SYSTEM_PARAMS_PRODUCT_BOARD_ID:
+            return system_get_board_id(buffer, len);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_BOARD_NAME:
+            return system_get_board_name(buffer, len);
+            break;
+        case SYSTEM_PARAMS_SECURITY_MODE:
+            *buffer = HAL_PARAMS_Get_System_at_mode();
+            return 1;
+            break;
+        default:
+            break;
     }
     return 0;
 }
 
-int system_platform_name(char *pname)
-{
-    if(NULL != pname) {
-        strcpy(pname, stringify(PLATFORM_NAME));
-        return strlen(pname);
+int system_set_params_array(system_params_t params_type, char *buffer, uint16_t len) {
+    switch(params_type) {
+        case SYSTEM_PARAMS_PRODUCT_BOARD_ID:
+            return system_set_board_id(buffer);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_BOARD_NAME:
+            return system_set_board_name(buffer);
+            break;
+        case SYSTEM_PARAMS_SECURITY_MODE:
+            HAL_PARAMS_Set_System_at_mode(*buffer);
+            HAL_PARAMS_Save_Params();
+            return 0;
+            break;
+        default:
+            break;
     }
-    return 0;
-}
-
-AT_MODE_FLAG_TypeDef system_security_mode(void)
-{
-    return HAL_PARAMS_Get_System_at_mode();
-}
-
-product_mode_t system_product_mode(void)
-{
-    product_details_t product_details;
-    system_product_instance().get_product_details(product_details);
-    return product_details.product_mode;
+    return -1;
 }
 

@@ -22,7 +22,7 @@ typedef struct __attribute__((packed))
     uint32_t boot_size;       // boot文件大小
     uint8_t  reserved1[47];   // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;             // 参数预留区 每添加一个参数，预留区大小减1
-}boot_params_t;
+}hal_boot_params_t;
 
 
 typedef struct __attribute__((packed))
@@ -46,7 +46,7 @@ typedef struct __attribute__((packed))
 
     uint8_t  reserved2[599];       // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;
-} system_params_t;
+}hal_system_params_t;
 
 #endif /*SYSTEM_PARAMS_H_*/
 

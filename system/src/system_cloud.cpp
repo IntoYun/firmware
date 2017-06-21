@@ -31,6 +31,7 @@
 #include "wiring_udp.h"
 #include "wiring_wifi.h"
 #include "wiring_cellular.h"
+#include "wiring_system.h"
 #include "system_mqttclient.h"
 #include "system_cloud_def.h"
 #include "system_datapoint.h"
@@ -225,7 +226,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
         flag=1;
     } else {
         char board[32]="";
-        system_platform_id(board);
+        system_get_board_id(board, sizeof(board));
         if(strcmp(type_Object->valuestring + 3, board + 3))
         {flag=2;}
     }
@@ -358,7 +359,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
             domain+=INTOROBOT_UPDATE_DOMAIN;
         }
         char name[24]={0};
-        system_platform_name(name);
+        system_get_board_name(name, sizeof(name));
 
         param+="/downloads/" + String(name) + "/" + String(sys_Ver_Object->valuestring);
 
@@ -596,7 +597,7 @@ static void intorobot_subsys_upgrade(const char *version)
         domain+=INTOROBOT_UPDATE_DOMAIN;
     }
     char name[24]={0};
-    system_platform_name(name);
+    system_get_board_name(name, sizeof(name));
     param+="/downloads/" + String(name) + "/" + String(version);
 
     uint32_t defAppSize = 0, bootSize = 0;
@@ -686,7 +687,7 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
         goto finish;
     } else {
         char board[32]="";
-        system_platform_id(board);
+        system_get_board_id(board, sizeof(board));
         if(strcmp(boardObject->valuestring + 3, board + 3)) {
             goto finish;
         }
@@ -756,9 +757,17 @@ void fill_mqtt_topic(String &fulltopic, topic_version_t version, const char *top
         }
     } else if(TOPIC_VERSION_V2 == version) {
         if(device_id == NULL) {
-            fulltopic = "v2/device/" + sdevice_id + "/";
+            if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                fulltopic = "v2/gateway/" + sdevice_id + "/";
+            } else {
+                fulltopic = "v2/device/" + sdevice_id + "/";
+            }
         } else {
-            fulltopic = "v2/device/" + String(device_id) + "/";
+            if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                fulltopic = "v2/gateway/" + String(device_id) + "/";
+            } else {
+                fulltopic = "v2/device/" + String(device_id) + "/";
+            }
         }
     }
     fulltopic+=topic;
@@ -770,22 +779,24 @@ void intorobot_cloud_init(void)
     memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
 
     g_mqtt_client = MqttClientClass((char *)INTOROBOT_SERVER_DOMAIN, INTOROBOT_SERVER_PORT, mqtt_client_callback, g_mqtt_tcp_client);
-
-    if(PRODUCT_MODE_SLAVE != system_product_mode()) {
-        // v1版本subscibe
+    //ota 升级
+    if(System.featureEnabled(SYSTEM_FEATURE_OTA_UPDATE_ENABLED)) {
 #if 1
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_UPDATE_TOPIC, NULL, ota_update_callback, 0);                 //固件升级
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_JSON_UPDATE_TOPIC, NULL, subsys_update_callback, 0);         //子系统升级
-#endif
+
+        // v1版本subscibe
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_REBOOT_TOPIC, NULL, system_reboot_callback, 0);              //stm32重启
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
-
-        // v2版本subscibe
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_datapoint_receive_callback, 0); //从平台获取数据通讯信息
-#if 0
+#else
         intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);        //从平台获取系统控制信息
         intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);        //从平台获取调试信息
 #endif
+    }
+    //数据点处理
+    if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)) {
+        // v2版本subscibe
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_datapoint_receive_callback, 0); //从平台获取数据通讯信息
 
         // 添加默认数据点
         intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
@@ -876,9 +887,17 @@ static pCallBack get_subscribe_callback(char * fulltopic)
         } else if( TOPIC_VERSION_V2 == g_callback_list.callback_node[i].version ) {
             if(g_callback_list.callback_node[i].device_id == NULL) {
                 HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-                sprintf(topictmp,"v2/device/%s/", device_id);
+                if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                    sprintf(topictmp,"v2/gateway/%s/", device_id);
+                } else {
+                    sprintf(topictmp,"v2/device/%s/", device_id);
+                }
             } else {
-                sprintf(topictmp,"v2/device/%s/", g_callback_list.callback_node[i].device_id);
+                if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                    sprintf(topictmp,"v2/gateway/%s/", g_callback_list.callback_node[i].device_id);
+                } else {
+                    sprintf(topictmp,"v2/device/%s/", g_callback_list.callback_node[i].device_id);
+                }
             }
         }
         strcat(topictmp, g_callback_list.callback_node[i].topic);
@@ -954,9 +973,17 @@ static WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic)
         } else if( TOPIC_VERSION_V2 == g_callback_list.callback_node[i].version ) {
             if(g_callback_list.widget_callback_node[i].device_id == NULL) {
                 HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-                sprintf(topictmp,"v2/device/%s/", device_id);
+                if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                    sprintf(topictmp,"v2/gateway/%s/", device_id);
+                } else {
+                    sprintf(topictmp,"v2/device/%s/", device_id);
+                }
             } else {
-                sprintf(topictmp,"v2/device/%s/", g_callback_list.widget_callback_node[i].device_id);
+                if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
+                    sprintf(topictmp,"v2/gateway/%s/", g_callback_list.widget_callback_node[i].device_id);
+                } else {
+                    sprintf(topictmp,"v2/device/%s/", g_callback_list.widget_callback_node[i].device_id);
+                }
             }
         }
         strcat(topictmp,g_callback_list.widget_callback_node[i].topic);
@@ -1157,43 +1184,44 @@ int intorobot_cloud_connect(void)
     //client id change to device id. chenkaiyao 2016-01-17
     if(g_mqtt_client.connect(device_id, access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
         SCLOUD_DEBUG("---------connect success--------");
-        char fw_version[28]="", subsys_version[28]="", board[32]="";
-        product_details_t product_details;
-
-        HAL_PARAMS_Get_System_fwlib_ver(fw_version, sizeof(fw_version));
-        HAL_PARAMS_Get_System_subsys_ver(subsys_version, sizeof(subsys_version));
-        system_platform_id(board);
-        system_product_instance().get_product_details(product_details);
-
-        if(PRODUCT_MODE_SLAVE != system_product_mode()) {
+        if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
-            //intorobot 平台上送数据
+            char buffer[32]="";
+
+            //intorobot 平台上送设备信息
             aJsonObject* root = aJson.createObject();
-            if (root == NULL)
-            {return -1;}
-            aJson.addStringToObject(root, "board", board);
-            aJson.addStringToObject(root, "fw_ver", fw_version);
-            aJson.addStringToObject(root, "sys_ver", subsys_version);
+            if (root == NULL) {
+                return -1;
+            }
+            system_get_board_id(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "board", buffer);
+            HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "fw_ver", buffer);
+            HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "sys_ver", buffer);
             char* string = aJson.print(root);
             intorobot_publish(TOPIC_VERSION_V1, INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)string, strlen(string), 0, true);
             free(string);
             aJson.deleteItem(root);
 
-            //intoYun   平台上送数据
+            //intoYun 平台上送设备信息
             root = aJson.createObject();
             if (root == NULL) {
                 return -1;
             }
-            aJson.addStringToObject(root, "productId", product_details.product_id);
-
-            if(PRODUCT_MODE_MASTER == system_product_mode())
-            {aJson.addStringToObject(root, "productMode", "master");}
-            else
-            {aJson.addStringToObject(root, "productMode", "slave");}
-            aJson.addStringToObject(root, "board", board);
-            aJson.addStringToObject(root, "productVer", String(product_details.product_firmware_version).c_str());
-            aJson.addStringToObject(root, "libVer", fw_version);
-            aJson.addStringToObject(root, "subsysVer", subsys_version);
+            system_get_board_id(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "board", buffer);
+            system_get_product_id(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "productId", buffer);
+            aJson.addStringToObject(root, "productMode", "master");
+            system_get_product_software_version(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "productVer", buffer);
+            system_get_product_hardware_version(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "productHwVer", buffer);
+            HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "libVer", buffer);
+            HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "subsysVer", buffer);
             aJson.addBooleanToObject(root, "online", true);
             string = aJson.print(root);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);

@@ -91,39 +91,38 @@ void intorobot_lorawan_send_terminal_info(void)
 {
     SLORAWAN_DEBUG("---------lorawan send termianal info--------");
     int32_t index = 0, len = 0;
-    char board[32]="";
     uint8_t buffer[256] = {0};
-    product_details_t product_details;
-
-    system_platform_id(board);
-    system_product_instance().get_product_details(product_details);
+    char temp[32] = {0};
 
     buffer[index++] = BINARY_DATA_FORMAT;
     // product_id
     buffer[index++] = 0xFF;
     buffer[index++] = 0x01;
     buffer[index++] = 0x03;
-    len = strlen(product_details.product_id);
+    system_get_product_id(temp, sizeof(temp));
+    len = strlen(temp);
     buffer[index++] = len;
-    memcpy(&buffer[index], product_details.product_id, len);
+    memcpy(&buffer[index], temp, len);
     index+=len;
 
     // productver
     buffer[index++] = 0xFF;
     buffer[index++] = 0x02;
     buffer[index++] = 0x03;
-    len = String(product_details.product_firmware_version).length();
+    system_get_product_software_version(temp, sizeof(temp));
+    len = strlen(temp);
     buffer[index++] = len;
-    memcpy(&buffer[index], String(product_details.product_firmware_version).c_str(), len);
+    memcpy(&buffer[index], temp, len);
     index+=len;
 
     // board
     buffer[index++] = 0xFF;
     buffer[index++] = 0x03;
     buffer[index++] = 0x03;
-    len = strlen(board);
+    system_get_board_id(temp, sizeof(temp));
+    len = strlen(temp);
     buffer[index++] = len;
-    memcpy(&buffer[index], board, len);
+    memcpy(&buffer[index], temp, len);
     index+=len;
 
     for(int i=0; i<index; i++)

@@ -139,6 +139,7 @@ void HAL_Core_Load_params(void)
     if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
         HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_NORMAL);
+        HAL_PARAMS_Save_Params();
     }
 
     //保存子系统程序版本号
@@ -149,6 +150,7 @@ void HAL_Core_Load_params(void)
         if(strcmp(subsys_ver1, subsys_ver2))
         {
             HAL_PARAMS_Set_System_subsys_ver(subsys_ver1);
+            HAL_PARAMS_Save_Params();
         }
     }
 }

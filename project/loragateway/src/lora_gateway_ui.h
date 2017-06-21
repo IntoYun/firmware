@@ -17,41 +17,48 @@
   ******************************************************************************
 */
 
+#ifndef LORA_GATEWAY_UI_H_
+#define LORA_GATEWAY_UI_H_
+
 #include "lora_gateway_config.h"
-#include "lora_gateway_hal.h"
-#include "lora_gateway_log.h"
 
-void hal_init(void) {
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+typedef enum {
+    LED_MODE_COLOR = 0,
+    LED_MODE_BLINK,
+    LED_MODE_BREATH
+}led_mode_t;
+
+typedef struct {
+    led_mode_t  led_mode;
+    uint8_t     led_value;
+    uint16_t    led_period;
+}led_info_t;
+
+typedef enum
+{
+    BUTTON_MODE_NONE = 0,
+    BUTTON_MODE_CONFIG_IMLINK_SERIAL,
+    BUTTON_MODE_CONFIG_AP_SERIAL,
+    BUTTON_MODE_FAC,
+} button_mode_t;
+
+void gatewayUiInitial(void);
+uint8_t gatewayUiModeButtonGetState(void);
+uint32_t gatewayUiModeButtonPressed(void);
+void gatewayUiIndicatorToggle(void);
+void gatewayUiIndicatorControl(uint8_t value);
+void gatewayUiIndicatorBlink(uint16_t period);
+void gatewayUiSysTickHandler(void);
+void gatewayUiModeSysTickHandler(void);
+
+#ifdef __cplusplus
 }
+#endif
 
-uint32_t hal_ticks(void) {
-    return micros();
-}
-
-bool hal_checkTimer (uint32_t time) {
-    uint32_t current = micros();
-
-    if(((current >= time) && ((current - time) < 60*1000000)) \
-            || ((current <= time) && ((time - current) > (0xFFFFFFFF - 60*1000000))))
-    {
-        return true;
-    }
-    return false;
-}
-
-static uint8_t irqlevel = 0;
-
-void hal_disableIRQs(void) {
-    noInterrupts();
-    irqlevel++;
-}
-
-void hal_enableIRQs(void) {
-    if(--irqlevel == 0) {
-        interrupts();
-    }
-}
-
-void hal_sleep(void) {
-}
+#endif
 

@@ -142,36 +142,57 @@ public:
         const system_tick_t start = millis();
         return waitConditionWhile(_condition, [=]{ return (millis()-start)<timeout; });
     }
-/*
-    bool set(hal_system_config_t config_type, const void* data, unsigned length)
+
+    bool get(system_params_t params_type, int &value)
     {
-        return HAL_Set_System_Config(config_type, data, length)>=0;
+        return system_get_params_int(params_type, value) >= 0;
     }
 
-    bool set(hal_system_config_t config_type, const char* data)
+    bool get(system_params_t params_type, double &value)
     {
-        return set(config_type, data, strlen(data));
+        return system_get_params_double(params_type, value) >= 0;
     }
 
-    inline bool featureEnabled(HAL_Feature feature)
+    uint16_t get(system_params_t params_type, const void *data, uint16_t length)
     {
-        return HAL_Feature_Get(feature);
+        return system_get_params_array(params_type, (uint8_t *)data, length);
     }
 
-    inline int enableFeature(HAL_Feature feature)
+    bool set(system_params_t params_type, int value)
     {
-        int result = HAL_Feature_Set(feature, true);
-        if (feature==FEATURE_RETAINED_MEMORY && !HAL_Feature_Get(FEATURE_WARM_START)) {
-            system_initialize_user_backup_ram();
-        }
-        return result;
+        return system_set_params_int(params_type, value) >= 0;
     }
 
-    inline int disableFeature(HAL_Feature feature)
+    bool set(system_params_t params_type, double value)
     {
-        return HAL_Feature_Set(feature, false);
+        return system_set_params_double(params_type, value) >= 0;
     }
-*/
+
+    bool set(system_params_t params_type, const char *data)
+    {
+        return set(params_type, data, strlen(data));
+    }
+
+    bool set(system_params_t params_type, const void *data, uint16_t length)
+    {
+        return system_set_params_array(params_type, (uint8_t *)data, length) >= 0;
+    }
+
+    inline bool featureEnabled(system_feature_t feature)
+    {
+        return system_product_instance().get_system_feature(feature);
+    }
+
+    inline int enableFeature(system_feature_t feature)
+    {
+        return system_product_instance().set_system_feature(feature, true);
+    }
+
+    inline int disableFeature(system_feature_t feature)
+    {
+        return system_product_instance().set_system_feature(feature, false);
+    }
+
 #ifdef configSETUP_ENABLE
     void configEnterMode(system_config_type_t config_type)
     {
@@ -198,27 +219,9 @@ public:
     {
         char version[32] = {0};
 
-        system_version(version);
+        system_get_firmlib_version(version, sizeof(version));
         return String(version);
     }
-
-    String platformID(void)
-    {
-        char platformId[32] = {0};
-
-        system_platform_id(platformId);
-        return String(platformId);
-    }
-
-    String platformName(void)
-    {
-        char platformName[32] = {0};
-
-        system_platform_name(platformName);
-        return String(platformName);
-    }
-
-    AT_MODE_FLAG_TypeDef securityMode(void) { return system_security_mode(); }
 };
 
 extern SystemClass System;

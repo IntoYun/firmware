@@ -3,7 +3,9 @@
 
 ### FEATURES(功能)
 - [[PR #79]](https://github.com/HITSZ-NRSL/firmware/pull/79) [fox/ant/l6] 新增fox、ant、l6的支持
-
+- [[PR #86]](https://github.com/HITSZ-NRSL/firmware/pull/86) [all] 新增System.set() System.get()接口设置系统参数，涉及board_id、board_name等
+- [[PR #86]](https://github.com/HITSZ-NRSL/firmware/pull/86) [all] 新增System.enabeFeature()等接口，涉及设备信息上送、ota升级等.
+- [[PR #86]](https://github.com/HITSZ-NRSL/firmware/pull/86) [neutron/nut/w67/w323] 添加软件定时器接口.
 
 ### ENHANCEMENTS(优化)
 
