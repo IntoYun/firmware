@@ -43,6 +43,14 @@ uint8_t gatewayIDHex[8];
 static osjob_t initJob, statReportJob, pullDataJob, dealUdpPackageJob;
 static RadioEvents_t RadioEvents;
 
+void init_before_setup(void)
+{
+    System.disableFeature(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED);          //不保存配置模式
+    System.disableFeature(SYSTEM_FEATURE_DATAPOINT_ENABLED);            //关闭数据点处理
+}
+
+STARTUP( init_before_setup() );
+
 static void OnTxDone( void ) {
     log_v("OnTxDone\r\n");
     loraRx();
