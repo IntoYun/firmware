@@ -434,13 +434,15 @@ void LoRaWanClass::systemWakeupHandler(void)
     SX1276BoardInit();
 }
 
+typedef void (*FUNC)(void);
 void LoRaWanClass::setSystemWakeup(radioCb userHandler, uint32_t timeout) //单位s
 {
     wakeupCb = userHandler;
-    TimerInit( &systemWakeupTimer,  systemWakeupHandler);
+    TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);
     TimerSetValue( &systemWakeupTimer, timeout*1000 );
     TimerStart( &systemWakeupTimer );
 }
+
 //sx1278休眠
 void LoRaWanClass::radioSetSleep(void)
 {

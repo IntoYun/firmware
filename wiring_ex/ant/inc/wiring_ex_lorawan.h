@@ -109,8 +109,8 @@ class LoRaWanClass
     int8_t _snr;
     int16_t _rssi;
 
-    static TimerEvent_t systemWakeupTimer;
-    static radioCb wakeupCb = 0;
+    TimerEvent_t systemWakeupTimer;
+    radioCb wakeupCb = 0;
 
     public:
         //切换class 类型
@@ -125,7 +125,7 @@ class LoRaWanClass
         void systemSleep(void);
 
         //唤醒后处理
-        static void systemWakeupHandler(void);
+        void systemWakeupHandler(void);
 
        //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
         void setSystemWakeup(radioCb userHandler, uint32_t timeout); //单位s
