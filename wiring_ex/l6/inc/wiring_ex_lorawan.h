@@ -38,20 +38,11 @@ typedef struct sLoRaWanParams{
     uint8_t  appKey[16];
 }lorawan_params_t;
 
-
-// typedef void (*platformDataCb)(uint8_t *data, uint16_t len);
-// static platformDataCb platformHandler = NULL;
-
-
 #define LORAWAN_DEFAULT_DATARATE      DR_5
 #define LORAWAN_ADR_ON                1
 #define LORAWAN_PUBLIC_NETWORK        true
 #define LORAWAN_NETWORK_ID            ( uint32_t )0
 
-
-
-
-bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 void LoRaWanInitialize(void);
 void LoRaWanOTAAJoin(uint8_t *DevEui, uint8_t *AppEui, uint8_t *AppKey);
@@ -60,106 +51,138 @@ void LoRaWanGetABPParams(uint32_t &DevAddr, uint8_t *NwkSKey, uint8_t *AppSKey);
 bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed);
 int LoRaWanReceiveFrame(uint8_t *buffer);
 
-#if 0
-#define DEFAULT_TIMEOUT     5     // second
-#define DEFAULT_TIMEWAIT    100   // millisecond
+void LoRaRadioInitialize(void);
+bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
-enum _class_type_t { CLASS_A = 0, CLASS_B, CLASS_C };
-enum _device_mode_t { LWABP = 0, LWOTAA, TEST };
-enum _band_width_t { BW125 = 125, BW250 = 250, BW500 = 500 };
-enum _spreading_factor_t { SF12 = 12, SF11 = 11, SF10 = 10, SF9 = 9, SF8 = 8, SF7 = 7 };
-enum _data_rate_t { DR0 = 0, DR1, DR2, DR3, DR4, DR5, DR6, DR7, DR8, DR9, DR10, DR11, DR12, DR13, DR14, DR15 };
+enum _band_width_t {
+    BW125 = 0,
+    BW250,
+    BW500
+};
 
+enum _spreading_factor_t {
+    SF12 = 12,
+    SF11 = 11,
+    SF10 = 10,
+    SF9 = 9,
+    SF8 = 8,
+    SF7 = 7,
+    SF6 = 6
+};
 
-/*****************************************************************
-Type    DataRate    Configuration   BitRate| TxPower Configuration
-EU434   0           SF12/125 kHz    250    | 0       10dBm
-        1           SF11/125 kHz    440    | 1       7 dBm
-        2           SF10/125 kHz    980    | 2       4 dBm
-        3           SF9 /125 kHz    1760   | 3       1 dBm
-        4           SF8 /125 kHz    3125   | 4       -2dBm
-        5           SF7 /125 kHz    5470   | 5       -5dBm
-        6           SF7 /250 kHz    11000  | 6:15    RFU
-        7           FSK:50 kbps     50000  |
-        8:15        RFU                    |
-******************************************************************
-Type    DataRate    Configuration   BitRate| TxPower Configuration
-EU868   0           SF12/125 kHz    250    | 0       20dBm
-        1           SF11/125 kHz    440    | 1       14dBm
-        2           SF10/125 kHz    980    | 2       11dBm
-        3           SF9 /125 kHz    1760   | 3       8 dBm
-        4           SF8 /125 kHz    3125   | 4       5 dBm
-        5           SF7 /125 kHz    5470   | 5       2 dBm
-        6           SF7 /250 kHz    11000  | 6:15    RFU
-        7           FSK:50 kbps     50000  |
-        8:15        RFU                    |
-******************************************************************
-Type    DataRate    Configuration   BitRate| TxPower Configuration
-US915   0           SF10/125 kHz    980    | 0       30dBm
-        1           SF9 /125 kHz    1760   | 1       28dBm
-        2           SF8 /125 kHz    3125   | 2       26dBm
-        3           SF7 /125 kHz    5470   | 3       24dBm
-        4           SF8 /500 kHz    12500  | 4       22dBm
-        5:7         RFU                    | 5       20dBm
-        8           SF12/500 kHz    980    | 6       18dBm
-        9           SF11/500 kHz    1760   | 7       16dBm
-        10          SF10/500 kHz    3900   | 8       14dBm
-        11          SF9 /500 kHz    7000   | 9       12dBm
-        12          SF8 /500 kHz    12500  | 10      10dBm
-        13          SF7 /500 kHz    21900  | 11:15   RFU
-        14:15       RFU                    |
-*******************************************************************
-Type    DataRate    Configuration   BitRate| TxPower Configuration
-CN780   0           SF12/125 kHz    250    | 0       10dBm
-        1           SF11/125 kHz    440    | 1       7 dBm
-        2           SF10/125 kHz    980    | 2       4 dBm
-        3           SF9 /125 kHz    1760   | 3       1 dBm
-        4           SF8 /125 kHz    3125   | 4       -2dBm
-        5           SF7 /125 kHz    5470   | 5       -5dBm
-        6           SF7 /250 kHz    11000  | 6:15    RFU
-        7           FSK:50 kbps     50000  |
-        8:15        RFU                    |
-******************************************************************/
+enum _coderate_t{
+    CR4_5 = 1,
+    CR4_6,
+    CR4_7,
+    CR4_8
+};
+
+typedef void (*radioCb)(void);
 
 class LoRaWanClass
 {
     public:
-        LoRaWanClass(void);
+    uint8_t _modem = 1;              //模式 0:fsk 1:lora
+    uint32_t _bandwidth  = 0;        //带宽fsk:2600-250000Hz lora:0-125KHz 1-250K 2-500K
+    uint32_t _datarate   = 7;        //速率fsk:600-300000　lora:扩频因子 6-12
+    uint8_t _coderate    = 0;        //纠错码率 fsk:0 lora: 1(4/5) 2(4/6) 3(4/7) 4(4/8) 仅lora用
+    uint32_t _bandwidthAfc = 0;      //fsk:2600-250000 lora:0 仅fsk用
+    uint16_t _preambleLen  = 8;      //前导码长度
+    uint16_t _symbTimeout  = 8;      //单次接收超时
+    bool _fixLen = false;            //固定包长 true:固定　false:无效
+    uint8_t _payloadLen = 0;         //当fixLen设为1时才有效,设置包长度
+    bool _crcOn = true;              //crc 校验 1:on 0:off
+    bool _freqHopOn = false;         //内部跳频 fsk无效,设为0 lora:1-on 0-off
+    uint8_t _hopPeriod = 0;          //跳频周期 单位symbols fsk:0 lora: number of symbols
+    bool _iqInverted = false;        //IQ位翻转 1:翻转 0:不翻转
+    bool _rxContinuous = true;       //接收是否连续 1-连续　0-不连续
+    int8_t _power = 20;              //发射功率
+    uint32_t _fdev = 0;              //频率偏差　仅fsk有效 fsk:Hz lora:0
+    uint32_t _txTimeout = 3000;      //发射超时时间 单位ms
+    uint32_t _freq = 434000000;      //工作频率
+    int8_t _snr;                     //接收完数据收snr值
+    int16_t _rssi;                   //接收完数据收rssi值
 
-        void init(void);
+    TimerEvent_t systemWakeupTimer;
+    radioCb wakeupCb = 0;
 
-        void getId(char *DevAddr, char *DevEUI, char *AppEUI);
+    public:
+        //切换class 类型
+        void loramacSetClassType(DeviceClass_t classType);
+        //暂停loramac
+        void loramacPause(void);
+        //恢复loramac
+        void loramacResume(void);
+        //休眠
+        void systemSleep(void);
+        //唤醒后处理
+        void systemWakeupHandler(void);
+       //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
+        void setSystemWakeup(radioCb userHandler, uint32_t timeout); //单位s
+        //sx1278休眠
+        void radioSetSleep(void);
+        //设置频率
+        void radioSetFreq(uint32_t freq);
+        //设置模式 0:fsk 1:lora
+        void radioSetModem(RadioModems_t modem);
+        //设置带宽
+        void radioSetBanwidth(uint32_t bandwidth);
+        //设置扩频因子
+        void radioSetSF(uint32_t sf);
+        //设置纠错编码率
+        void radioSetCoderate(uint32_t coderate);
+        //设置前导码超时
+        void radioSetSymbTimeout(uint32_t symbTimeout);
+        //设置crc校验
+        void radioSetCrcOn(bool crcOn);
+        //设置前导码长度
+        void radioSetPreambleLen(uint16_t preambleLen);
+        //设置发送超时时间 单位ms
+        void radioSetTxTimeout(uint32_t timeout);
+        //接收设置
+        void radioSetRxConfig(void);
+        //发送设置
+        void radioSetTxConfig(void);
+        //开始发送
+        void radioSend( uint8_t *buffer, uint8_t size );
+        //开始接收
+        void radioRx(uint32_t timeout);
 
-        void setDataRate(uint8_t datarate);
-        void setADR(bool command);
-        void setPower(uint16_t power);
-        void setChannelFreq(uint8_t channel, uint32_t freq);
-        void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);
-        void setDeciveMode(_device_mode_t mode);
-        void setClassType(_class_type_t type);
-
-        bool joinABP(void);
-        bool joinOTAA(void);
-
-        bool sendConfirmed(uint8_t *buffer, uint16_t length, uint16_t timeout = DEFAULT_TIMEOUT);
-        bool sendUnconfirmed(uint8_t *buffer, uint16_t length, uint16_t timeout = DEFAULT_TIMEOUT);
-        uint16_t receivePacket(uint8_t *buffer, uint16_t length, uint16_t *rssi);
-
-        void initP2PMode(uint16_t frequency = 433, _spreading_factor_t spreadingFactor = SF12, _band_width_t bandwidth = BW125,
-                         uint8_t txPreamble = 8, uint8_t rxPreamble = 8, uint16_t power = 20);
-
-        bool p2pSend(uint8_t *buffer, uint16_t length);
-        uint16_t p2pReceive(uint8_t *buffer, uint16_t length, uint16_t *rssi, uint16_t timeout = DEFAULT_TIMEOUT);
+        //获取频率
+        uint32_t radioGetFreq(void);
+        //获取模式　0:fsk 1:lora
+        uint8_t radioGetModem(void);
+        //获取带宽
+        uint32_t radioGetBanwidth(void);
+        //获取扩频因子
+        uint8_t radioGetSF(void);
+        //获取纠错码率
+        uint8_t radioGetCoderate(void);
+        //获取前导码超时值
+        uint16_t radioGetSymbTimeout(void);
+        //获取crc是否开启 0:关闭1:开启
+        bool radioGetCrcOn(void);
+        //获取前导码长度
+        uint16_t radioGetPreambleLen(void);
+        //读取寄存器值
+        uint8_t radioRead(uint8_t addr);
+        //写寄存器值
+        void radioWrite(uint8_t addr, uint8_t data);
+        //启动CAD
+        void radioStartCad(void);
+        //获取rssi
+        int16_t radioReadRssi(void);
+        //获取rssi
+        int8_t radioReadSnr(void);
+        //设置负载最大长度
+        void radioSetMaxPayloadLength(uint8_t max);
+        //设置同步字
+        void radioSetSyncword(uint8_t syncword);
 
     private:
-
 };
 
-extern LoRaWanClass LoRaWAN;
-#endif
-
-
-
+extern LoRaWanClass LoRaWan;
 
 #endif /* WIRING_LORAWAN_H_ */
 
