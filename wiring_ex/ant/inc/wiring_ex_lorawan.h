@@ -83,6 +83,8 @@ enum _coderate_t{
     CR4_8
 };
 
+typedef void (*radioCb)(void);
+
 class LoRaWanClass
 {
     public:
@@ -107,21 +109,26 @@ class LoRaWanClass
     int8_t _snr;
     int16_t _rssi;
 
+    static TimerEvent_t systemWakeupTimer;
+    static radioCb wakeupCb = 0;
+
     public:
-        //暂停lorawan
+        //切换class 类型
+        void loramacSetClassType(DeviceClass_t classType);
+        //暂停loramac
         void loramacPause(void);
 
-        //恢复lorawan
+        //恢复loramac
         void loramacResume(void);
 
         //休眠
         void systemSleep(void);
 
         //唤醒后处理
-       void systemWakeupHandler(void);
+        static void systemWakeupHandler(void);
 
        //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
-        // void setSystemWakeup(radioEvtCb userHandler, uint32_t timeout); //单位s
+        void setSystemWakeup(radioCb userHandler, uint32_t timeout); //单位s
 
         //sx1278休眠
         void radioSetSleep(void);
@@ -191,7 +198,7 @@ class LoRaWanClass
         void radioSetSyncword(uint8_t syncword);
 
     private:
-    TimerEvent_t systemWakeupTimer;
+    // TimerEvent_t systemWakeupTimer;
 };
 
 extern LoRaWanClass LoRaWan;

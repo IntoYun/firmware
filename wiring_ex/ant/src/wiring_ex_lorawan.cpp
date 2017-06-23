@@ -398,6 +398,14 @@ void LoRaRadioInitialize(void)
 
 LoRaWanClass LoRaWan;
 
+void LoRaWanClass::loramacSetClassType(DeviceClass_t classType)
+{
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_DEVICE_CLASS;
+    mibReq.Param.Class = classType;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+}
+
 //暂停lorawan
 void LoRaWanClass::loramacPause(void)
 {
@@ -410,6 +418,29 @@ void LoRaWanClass::loramacResume(void)
     System.enableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
 }
 
+//系统休眠
+void LoRaWanClass::systemSleep(void)
+{
+    TimerLowPowerHandler();
+}
+
+void LoRaWanClass::systemWakeupHandler(void)
+{
+    TimerStop( &systemWakeupTimer );
+    if(wakeupCb != NULL)
+    {
+        wakeupCb();
+    }
+    SX1276BoardInit();
+}
+
+void LoRaWanClass::setSystemWakeup(radioCb userHandler, uint32_t timeout) //单位s
+{
+    wakeupCb = userHandler;
+    TimerInit( &systemWakeupTimer,  systemWakeupHandler);
+    TimerSetValue( &systemWakeupTimer, timeout*1000 );
+    TimerStart( &systemWakeupTimer );
+}
 //sx1278休眠
 void LoRaWanClass::radioSetSleep(void)
 {
