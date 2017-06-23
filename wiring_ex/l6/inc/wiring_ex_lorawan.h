@@ -126,7 +126,7 @@ class LoRaWanClass
         //设置模式 0:fsk 1:lora
         void radioSetModem(RadioModems_t modem);
         //设置带宽
-        void radioSetBanwidth(uint32_t bandwidth);
+        void radioSetBandwidth(uint32_t bandwidth);
         //设置扩频因子
         void radioSetSF(uint32_t sf);
         //设置纠错编码率
@@ -153,7 +153,7 @@ class LoRaWanClass
         //获取模式　0:fsk 1:lora
         uint8_t radioGetModem(void);
         //获取带宽
-        uint32_t radioGetBanwidth(void);
+        uint32_t radioGetBandwidth(void);
         //获取扩频因子
         uint8_t radioGetSF(void);
         //获取纠错码率

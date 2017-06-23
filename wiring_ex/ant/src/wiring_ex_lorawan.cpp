@@ -486,12 +486,12 @@ uint8_t LoRaWanClass::radioGetModem(void)
 }
 
 //设置带宽
-void LoRaWanClass::radioSetBanwidth(uint32_t bandwidth)
+void LoRaWanClass::radioSetBandwidth(uint32_t bandwidth)
 {
     _bandwidth = bandwidth;
 }
 
-uint32_t LoRaWanClass::radioGetBanwidth(void)
+uint32_t LoRaWanClass::radioGetBandwidth(void)
 {
     return _bandwidth;
 }
