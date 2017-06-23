@@ -139,6 +139,8 @@ class LoRaWanClass
         void radioSetPreambleLen(uint16_t preambleLen);
         //设置发送超时时间 单位ms
         void radioSetTxTimeout(uint32_t timeout);
+        //设置接收模式
+        void radioSetRxContinuous(bool rxContinuous);
         //接收设置
         void radioSetRxConfig(void);
         //发送设置
@@ -160,6 +162,8 @@ class LoRaWanClass
         uint8_t radioGetCoderate(void);
         //获取前导码超时值
         uint16_t radioGetSymbTimeout(void);
+        //获取接收模式值
+        bool radioGetRxContinuous(void);
         //获取crc是否开启 0:关闭1:开启
         bool radioGetCrcOn(void);
         //获取前导码长度

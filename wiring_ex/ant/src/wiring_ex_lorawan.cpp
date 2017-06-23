@@ -556,6 +556,16 @@ void LoRaWanClass::radioSetTxTimeout(uint32_t timeout)
     _txTimeout = timeout;
 }
 
+void LoRaWanClass::radioSetRxContinuous(bool rxContinuous)
+{
+    _rxContinuous = rxContinuous;
+}
+
+bool LoRaWanClass::radioGetRxContinuous(void)
+{
+    return _rxContinuous;
+}
+
 //接收设置
 void LoRaWanClass::radioSetRxConfig(void)
 {
