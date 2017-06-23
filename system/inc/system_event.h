@@ -38,6 +38,7 @@ enum SystemEvents {
     event_reset                  = 1<<6,         // notifies that the system will now reset on return from this event.
     event_time_changed           = 1<<7,
     event_low_battery            = 1<<8,         // generated when low battery condition is detected
+    event_lora_radio_status      = 1<<9,         //lora radio event
 
     event_all                    = 0xFFFFFFFFFFFFFFFF
 };
@@ -79,7 +80,15 @@ enum SystemEventsParam {
 
     // time change
     ep_time_changed_manually           = 0,
-    ep_time_changed_sync               = 1
+    ep_time_changed_sync               = 1,
+
+    //lorawan radio
+    ep_lora_radio_tx_done              = 0,
+    ep_lora_radio_tx_timeout           = 1,
+    ep_lora_radio_rx_done              = 2,
+    ep_lora_radio_rx_timeout           = 3,
+    ep_lora_radio_rx_error             = 4,
+    ep_lora_radio_cad_done             = 5,
 };
 
 /**
