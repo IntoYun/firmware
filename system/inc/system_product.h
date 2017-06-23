@@ -74,8 +74,8 @@ class IntoRobotProduct
 public:
     IntoRobotProduct() {
         product_type = PRODUCT_TYPE_NOTE;                                       //产品类型  节点类型
-        strcpy(product_software_version, stringify(DEFAULT_SOFTWARE_VERSION));  //产品软件版本号
-        strcpy(product_hardware_version, stringify(DEFAULT_HARDWARE_VERSION));  //产品硬件版本号
+        strcpy(product_software_version, stringify(DEFAULT_PRODUCT_SOFTWARE_VERSION));  //产品软件版本号
+        strcpy(product_hardware_version, stringify(DEFAULT_PRODUCT_HARDWARE_VERSION));  //产品硬件版本号
         strcpy(product_id, stringify(DEFAULT_PRODUCT_ID));                      //产品ID
         strcpy(product_secret, stringify(DEFAULT_PRODUCT_SECRET));              //产品密钥
         strcpy(board_id, stringify(PLATFORM_ID));                               //模组ID
@@ -83,6 +83,7 @@ public:
 
         feature_send_info_enable = true;            //发送设备信息  0:关闭  1:打开
         feature_ota_update_enable = true;           //OTA升级       0:关闭  1:打开
+        feature_config_save_enable = true;          //配置模式保存  0:关闭  1:打开
         feature_auto_config_process_enable = true;  //自动配置处理  0:关闭  1:打开
         feature_auto_time_syn_enable = true;        //自动时间同步  0:关闭  1:打开
         feature_datapoint_enable = true;            //数据点处理    0:关闭  1:打开
