@@ -329,7 +329,7 @@ int LoRaWanReceiveFrame(uint8_t *buffer)
     }
 }
 
-
+//======loramac不运行========
 static  RadioEvents_t loraRadioEvents;
 
 static void OnLoRaRadioTxDone(void)
@@ -395,6 +395,16 @@ void LoRaRadioInitialize(void)
     DEBUG("sx1278 mode = 0x%x",SX1276Read(0x1));
 }
 
+static void SystemWakeupCb(void)
+{
+    TimerStop( &LoRaWan.systemWakeupTimer );
+    SX1276BoardInit();
+    LoRaWan.radioSetModem(MODEM_LORA);
+    if(LoRaWan.wakeupCb != NULL)
+    {
+        LoRaWan.wakeupCb();
+    }
+}
 
 LoRaWanClass LoRaWan;
 
@@ -421,24 +431,27 @@ void LoRaWanClass::loramacResume(void)
 //系统休眠
 void LoRaWanClass::systemSleep(void)
 {
+    radioSetSleep();
     TimerLowPowerHandler();
 }
 
 void LoRaWanClass::systemWakeupHandler(void)
 {
     TimerStop( &systemWakeupTimer );
+
+    SX1276BoardInit();
     if(wakeupCb != NULL)
     {
         wakeupCb();
     }
-    SX1276BoardInit();
 }
 
 typedef void (*FUNC)(void);
 void LoRaWanClass::setSystemWakeup(radioCb userHandler, uint32_t timeout) //单位s
 {
     wakeupCb = userHandler;
-    TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);
+    // TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);//TODO 此处回调无法运行
+    TimerInit( &systemWakeupTimer, SystemWakeupCb);
     TimerSetValue( &systemWakeupTimer, timeout*1000 );
     TimerStart( &systemWakeupTimer );
 }
