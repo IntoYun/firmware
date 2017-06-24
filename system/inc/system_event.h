@@ -71,24 +71,24 @@ enum SystemEventsParam {
     ep_cloud_status_disconnecting      = 4,
 
     // app change status
-    ep_app_status_disconneted          = 0,
-    ep_app_status_connected            = 1,
+    ep_app_status_disconneted          = 1,
+    ep_app_status_connected            = 2,
 
     // cloud data
-    ep_cloud_data_datapoint            = 0,
-    ep_cloud_data_custom               = 1,
+    ep_cloud_data_datapoint            = 1,
+    ep_cloud_data_custom               = 2,
 
     // time change
-    ep_time_changed_manually           = 0,
-    ep_time_changed_sync               = 1,
+    ep_time_changed_manually           = 1,
+    ep_time_changed_sync               = 2,
 
     //lorawan radio
-    ep_lora_radio_tx_done              = 0,
-    ep_lora_radio_tx_timeout           = 1,
-    ep_lora_radio_rx_done              = 2,
-    ep_lora_radio_rx_timeout           = 3,
-    ep_lora_radio_rx_error             = 4,
-    ep_lora_radio_cad_done             = 5,
+    ep_lora_radio_tx_done              = 1,
+    ep_lora_radio_tx_timeout           = 2,
+    ep_lora_radio_rx_done              = 3,
+    ep_lora_radio_rx_timeout           = 4,
+    ep_lora_radio_rx_error             = 5,
+    ep_lora_radio_cad_done             = 6,
 };
 
 /**
