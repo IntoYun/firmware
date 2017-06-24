@@ -179,9 +179,9 @@ void LoRaWanInitialize(void)
     LoRaMacMibSetRequestConfirm( &mibReq );
 
     //设置为C类
-    // mibReq.Type = MIB_DEVICE_CLASS;
-    // mibReq.Param.Class = CLASS_C;
-    // LoRaMacMibSetRequestConfirm( &mibReq );
+    mibReq.Type = MIB_DEVICE_CLASS;
+    mibReq.Param.Class = CLASS_C;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 //无线激活
