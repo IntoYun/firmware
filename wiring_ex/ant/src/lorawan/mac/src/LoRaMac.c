@@ -4441,8 +4441,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             // Enables at least the usage of all datarates.
             if( mlmeRequest->Req.Join.NbTrials < 48 )
             {
-                /* mlmeRequest->Req.Join.NbTrials = 48; */
-                mlmeRequest->Req.Join.NbTrials = 1;
+                mlmeRequest->Req.Join.NbTrials = 48;
             }
 #endif
 

@@ -38,6 +38,7 @@ enum SystemEvents {
     event_reset                  = 1<<6,         // notifies that the system will now reset on return from this event.
     event_time_changed           = 1<<7,
     event_low_battery            = 1<<8,         // generated when low battery condition is detected
+    event_lora_radio_status      = 1<<9,         //lora radio event
 
     event_all                    = 0xFFFFFFFFFFFFFFFF
 };
@@ -70,16 +71,24 @@ enum SystemEventsParam {
     ep_cloud_status_disconnecting      = 4,
 
     // app change status
-    ep_app_status_disconneted          = 0,
-    ep_app_status_connected            = 1,
+    ep_app_status_disconneted          = 1,
+    ep_app_status_connected            = 2,
 
     // cloud data
-    ep_cloud_data_datapoint            = 0,
-    ep_cloud_data_custom               = 1,
+    ep_cloud_data_datapoint            = 1,
+    ep_cloud_data_custom               = 2,
 
     // time change
-    ep_time_changed_manually           = 0,
-    ep_time_changed_sync               = 1
+    ep_time_changed_manually           = 1,
+    ep_time_changed_sync               = 2,
+
+    //lorawan radio
+    ep_lora_radio_tx_done              = 1,
+    ep_lora_radio_tx_timeout           = 2,
+    ep_lora_radio_rx_done              = 3,
+    ep_lora_radio_rx_timeout           = 4,
+    ep_lora_radio_rx_error             = 5,
+    ep_lora_radio_cad_done             = 6,
 };
 
 /**
