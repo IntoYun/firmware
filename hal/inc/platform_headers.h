@@ -2,7 +2,7 @@
  * File:   platform_headers.h
  * Author: mat
  *
- * Created on 31 October 2014, 21:25
+ * Created on 10 October 2014, 11:04
  */
 
 #ifndef PLATFORM_HEADERS_H
@@ -13,15 +13,12 @@ extern "C" {
 #endif
 
 // These headers contain platform-specific defines.
-#include "gpio_hal.h"
 #include "hw_config.h"
-#include "pinmap_impl.h"
 #include "variant.h"
-//#include "deepsleep_hal_impl.h"
+
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* PLATFORM_HEADERS_H */
-
