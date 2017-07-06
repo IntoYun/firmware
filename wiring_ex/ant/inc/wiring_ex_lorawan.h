@@ -8,21 +8,6 @@
 #include "lorawan/mac/inc/LoRaMac.h"
 #include "lorawan/board/inc/utilities.h"
 
-typedef enum event_t{
-    LORAWAN_EVENT_JOINING, //入网中
-    LORAWAN_EVENT_JOINED, //已入网
-    LORAWAN_EVENT_JOIN_FAIL, //入网失败
-    LORAWAN_EVENT_TX_COMPLETE,//发送完成
-    LORAWAN_EVENT_RX_COMPLETE, //接收完成
-    LORAWAN_EVENT_MLME_JOIN,
-    LORAWAN_EVENT_MLME_LINK_CHECK,
-    LORAWAN_EVENT_MCPS_UNCONFIRMED,
-    LORAWAN_EVENT_MCPS_CONFIRMED,
-    LORAWAN_EVENT_MCPS_PROPRIETARY,
-    LORAWAN_EVENT_MCPS_MULTICAST,
-}lorawan_event_t;
-
-
 typedef struct {
     bool available; //接收到数据
     uint16_t bufferSize; //接收的数据长度
@@ -44,14 +29,7 @@ typedef struct sLoRaWanParams{
 #define LORAWAN_NETWORK_ID            ( uint32_t )0
 
 
-void LoRaWanInitialize(void);
-void LoRaWanOTAAJoin(uint8_t *DevEui, uint8_t *AppEui, uint8_t *AppKey);
-void LoRaWanABPJoin(uint32_t DevAddr, uint8_t *NwkSKey, uint8_t *AppSKey);
-void LoRaWanGetABPParams(uint32_t &DevAddr, uint8_t *NwkSKey, uint8_t *AppSKey);
-bool LoRaWanSendFrame(uint8_t *buffer, uint16_t len, bool IsTxConfirmed);
-int LoRaWanReceiveFrame(uint8_t *buffer);
-
-void LoRaRadioInitialize(void);
+// void LoRaRadioInitialize(void);
 bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 enum _band_width_t {
@@ -106,6 +84,14 @@ class LoRaWanClass
     TimerEvent_t systemWakeupTimer;
     radioCb wakeupCb = 0;
 
+    //loramc
+    uint8_t _port = 2;
+    lorawan_data_t macBuffer;
+    lorawan_params_t macParams;
+    bool _adrEnable = false;
+    uint8_t _confirmedFrameNbTrials = 8;
+    uint8_t _joinNbTrials = 3;
+
     public:
         //切换class 类型
         void loramacSetClassType(DeviceClass_t classType);
@@ -113,12 +99,49 @@ class LoRaWanClass
         void loramacPause(void);
         //恢复loramac
         void loramacResume(void);
+
+        void begin(void);
+        void joinOTAA(uint8_t *devEui, uint8_t *appEui, uint8_t *appKey);
+        void joinOTAA(void);
+        void joinABP(uint32_t devAddr, uint8_t *nwkSkey, uint8_t *appSKey);
+        void joinABP(void);
+
+        void setDeviceEUI(uint8_t *devEui);
+        void getDeviceEUI(uint8_t *devEui);
+        void setAppEUI(uint8_t *appEui);
+        void getAppEUI(uint8_t *appEui);
+        void setAppKey(uint8_t *appKey);
+        void getAppKey(uint8_t *appKey);
+        void setDeviceAddr(uint32_t devAddr);//设置device addr
+        uint32_t getDeviceAddr(void);
+        void setNwkSessionKey(uint8_t *nwkSkey);
+        void getNwkSessionKey(uint8_t *nwkSkey);
+        void setAppSessionKey(uint8_t *appSkey);
+        void getAppSessionKey(uint8_t *appSkey);
+
+        void setPort(uint8_t port);//设置端口号
+        uint8_t getPort(void);
+
+        bool sendFrame(uint8_t *buffer,uint16_t len, bool IsTxConfirmed);//发送帧
+        void sendConfirmedFrame(uint8_t *payload,uint16_t len);//发送确认帧
+        void sendUnconfirmedFrame(uint8_t *payload,uint16_t len);//发送无需确认帧
+        int receiveFrame(uint8_t *buffer);
+
+        void setADR(bool enabled);//ADR使能 true使能 flase关闭
+        void setJoinNbTrials(uint8_t trilas);//设置入网包重发次数 默认48次
+        void setConfirmedFrameNbTrials(uint8_t trials);//设置确认帧重发次数
+        void setUnconfirmedFrameNbTrials(uint8_t trials);//设置无需确认帧重发次数 1-15
+        uint16_t  getUpLinkCounter(void);//获取上行帧个数
+        uint16_t  getDownLinkCounter(void);//获取下行帧个数
+
+        void radioInitialize(void);
         //休眠
         void systemSleep(void);
         //唤醒后处理
         void systemWakeupHandler(void);
        //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
         void setSystemWakeup(radioCb userHandler, uint32_t timeout); //单位s
+
         //sx1278休眠
         void radioSetSleep(void);
         //设置频率

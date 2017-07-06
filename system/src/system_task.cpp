@@ -296,7 +296,7 @@ void LoraWAN_Setup(void)
     {
         STASK_DEBUG("LoraWAN_Setup");
         // Reset the MAC state. Session and pending data transfers will be discarded.
-        LoRaWanInitialize();
+        LoRaWan.begin();
 
         // AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
         AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
@@ -334,7 +334,7 @@ void LoraWAN_Setup(void)
                 STASK_DEBUG("app skey= 0x%x",appskeyBuf[i]);
             }
 
-            LoRaWanABPJoin(addr,nwkskeyBuf,appskeyBuf);
+            LoRaWan.joinABP(addr,nwkskeyBuf,appskeyBuf);
             INTOROBOT_LORAWAN_JOINED = 1;
             system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
         }
@@ -355,7 +355,7 @@ void LoraWAN_Setup(void)
             memcpyr(devEui,_devEui,8);
             memcpyr(appEui,_appEui,8);
 
-#if  0
+            #if 0
             uint8_t i;
             for( i=0;i<8;i++)
             {
@@ -370,10 +370,10 @@ void LoraWAN_Setup(void)
             {
                 STASK_DEBUG("app key= 0x%x",appKey[i]);
             }
-#endif
+            #endif
 
             STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
-            LoRaWanOTAAJoin(devEui,appEui,appKey);
+            LoRaWan.joinOTAA(devEui,appEui,appKey);
         }
         break;
         default:                          //没有密钥信息
@@ -384,7 +384,8 @@ void LoraWAN_Setup(void)
     }
     else
     {
-        LoRaRadioInitialize();
+        // LoRaRadioInitialize();
+        LoRaWan.radioInitialize();
     }
 }
 
