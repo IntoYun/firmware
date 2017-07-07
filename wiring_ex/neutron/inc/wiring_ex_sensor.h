@@ -24,11 +24,11 @@
 
 extern "C"
 {
-#include "bmi160.h"
-#include "bmi160_support.h"
+#include "sensors/inc/bmi160.h"
+#include "sensors/inc/bmi160_support.h"
 }
-#include "BMP280.h"
-#include "lib_mic_hal.h"
+#include "sensors/inc/BMP280.h"
+#include "sensors/inc/lib_mic_hal.h"
 
 #include "wiring.h"
 #include "wiring_usartserial.h"
