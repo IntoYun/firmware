@@ -120,6 +120,7 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 #define BUTTON_UC          10
 
 #define LED_USER           D6
+#define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS        2
 #define TOTAL_SPIS          1

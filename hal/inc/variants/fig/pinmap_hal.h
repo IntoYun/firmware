@@ -128,6 +128,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // should not have too easy of access or bad code could do harm.
 
 #define LED_USER  D6
+#define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS    2
 #define TOTAL_SPIS      2
