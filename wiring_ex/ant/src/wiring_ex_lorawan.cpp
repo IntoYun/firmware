@@ -3,6 +3,7 @@
 #include "system_lorawan.h"
 #include "system_event.h"
 #include "wiring_system.h"
+#include "string_convert.h"
 #include "service_debug.h"
 
 #ifndef configNO_LORAWAN
@@ -332,37 +333,56 @@ void LoRaWanClass::joinABP(void)
 
 void LoRaWanClass::setDeviceEUI(uint8_t *devEui)
 {
+    char deveui[24]={0};
     memcpy1(macParams.devEui,devEui,8);
+    hex2string(macParams.devEui, 8, deveui, true);
+    HAL_PARAMS_Set_System_device_id(deveui);
+    HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getDeviceEUI(uint8_t *devEui)
 {
+    os_getDevEui(macParams.devEui);
     memcpy1(devEui,macParams.devEui,8);
 }
 
 void LoRaWanClass::setAppEUI(uint8_t *appEui)
 {
-    memcpy1(macParams.appEui,appEui,16);
+    char appeui[24]={0};
+    memcpy1(macParams.appEui,appEui,8);
+    hex2string(macParams.appEui, 8, appeui, true);
+    HAL_PARAMS_Set_System_appeui(appeui);
+    HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getAppEUI(uint8_t *appEui)
 {
+    os_getAppEui(macParams.appEui);
     memcpy1(appEui,macParams.appEui,16);
 }
 
 void LoRaWanClass::setAppKey(uint8_t *appKey)
 {
+    char appkey[36]={0};
     memcpy1(macParams.appKey,appKey,16);
+    hex2string(macParams.appKey, 16, appkey, false);
+    HAL_PARAMS_Set_System_appkey(appkey);
+    HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getAppKey(uint8_t *appKey)
 {
+    os_getAppKey(macParams.appKey);
     memcpy1(appKey,macParams.appKey,16);
 }
 
 void LoRaWanClass::setDeviceAddr(uint32_t devAddr)//设置device addr
 {
+    char devaddr[16] = "";
     macParams.devAddr = devAddr;
+    hex2string((uint8_t *)&macParams.devAddr, 4, devaddr, true);
+    HAL_PARAMS_Set_System_devaddr(devaddr);
+    HAL_PARAMS_Save_Params();
 }
 
 uint32_t LoRaWanClass::getDeviceAddr(void)
@@ -381,7 +401,11 @@ uint32_t LoRaWanClass::getDeviceAddr(void)
 
 void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
 {
+    char nwkskey[36] = "";
     memcpy1(macParams.nwkSkey,nwkSkey,16);
+    hex2string(macParams.nwkSkey, 16, nwkskey, false);
+    HAL_PARAMS_Set_System_nwkskey(nwkskey);
+    HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getNwkSessionKey(uint8_t *nwkSkey)
@@ -400,7 +424,11 @@ void LoRaWanClass::getNwkSessionKey(uint8_t *nwkSkey)
 
 void LoRaWanClass::setAppSessionKey(uint8_t *appSkey)
 {
+    char appskey[36] = "";
     memcpy1(macParams.appSkey,appSkey,16);
+    hex2string(macParams.appSkey, 16, appskey, false);
+    HAL_PARAMS_Set_System_appskey(appskey);
+    HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getAppSessionKey(uint8_t *appSkey)
