@@ -149,110 +149,99 @@ void LoRaWanEventCallback(system_event_t event, int param, uint8_t *data, uint16
 
             switch(param)
             {
-            case ep_lorawan_joining:
+                case ep_lorawan_joining:
+                    break;
+
+                case ep_lorawan_joined:
+                {
+                    SLORAWAN_DEBUG("--event joined--");
+                    char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
+                    uint32_t devAddr;
+                    uint8_t nwkSkey[16],appSkey[16];
+                    devAddr = LoRaWan.getDeviceAddr();
+                    LoRaWan.getNwkSessionKey(nwkSkey);
+                    LoRaWan.getAppSessionKey(appSkey);
+                    #if 0
+                    uint8_t i;
+                    SLORAWAN_DEBUG("dev = 0x%x",devAddr);
+                    for( i=0;i<16;i++)
+                    {
+                        SLORAWAN_DEBUG("nwkSkey= 0x%x",nwkSkey[i]);
+                    }
+                    for( i=0;i<16;i++)
+                    {
+                        SLORAWAN_DEBUG("app skey= 0x%x",appSkey[i]);
+                    }
+                    #endif
+                    //devaddr
+                    hex2string((uint8_t *)&devAddr, 4, devaddr, true);
+                    HAL_PARAMS_Set_System_devaddr(devaddr);
+                    //nwkskey
+                    hex2string(nwkSkey, 16, nwkskey, false);
+                    HAL_PARAMS_Set_System_nwkskey(nwkskey);
+                    //appskey
+                    hex2string(appSkey, 16, appskey, false);
+                    HAL_PARAMS_Set_System_appskey(appskey);
+
+                    HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
+                    HAL_PARAMS_Save_Params();
+
+                    SLORAWAN_DEBUG("devaddr: %s", devaddr);
+                    SLORAWAN_DEBUG("nwkskey: %s", nwkskey);
+                    SLORAWAN_DEBUG("appskey: %s", appskey);
+                    SLORAWAN_DEBUG("---------");
+                    INTOROBOT_LORAWAN_JOINED = 1;
+                    system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                }
                 break;
 
-            case ep_lorawan_joined:
-            {
-                SLORAWAN_DEBUG("--event joined--");
-                char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
-                uint32_t devAddr;
-                uint8_t nwkSkey[16],appSkey[16];
-                // LoRaWanGetABPParams(devAddr,nwkSkey,appSkey);
-                devAddr = LoRaWan.getDeviceAddr();
-                LoRaWan.getNwkSessionKey(nwkSkey);
-                LoRaWan.getAppSessionKey(appSkey);
+                case ep_lorawan_join_fail:
+                    break;
 
-                #if 0
-                uint8_t i;
-                SLORAWAN_DEBUG("dev = 0x%x",devAddr);
+                case ep_lorawan_tx_complete:
+                    break;
 
-                for( i=0;i<16;i++)
+                case ep_lorawan_rx_complete:
                 {
-                    SLORAWAN_DEBUG("nwkSkey= 0x%x",nwkSkey[i]);
+                    SLORAWAN_DEBUG("--event RX completed--");
+                    int len;
+                    uint8_t buffer[256];
+                    len = LoRaWan.receiveFrame(buffer);
+                    if(len == -1)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        intorobotParseReceiveDatapoints(buffer,len);
+                    }
                 }
+                break;
 
-                for( i=0;i<16;i++)
-                {
-                    SLORAWAN_DEBUG("app skey= 0x%x",appSkey[i]);
-                }
-                #endif
+                case ep_lorawan_mlme_join:
+                    break;
 
-                //devaddr
-                hex2string((uint8_t *)&devAddr, 4, devaddr, true);
+                case ep_lorawan_mlme_link_check:
+                    break;
 
-                HAL_PARAMS_Set_System_devaddr(devaddr);
-                //nwkskey
-                hex2string(nwkSkey, 16, nwkskey, false);
-                HAL_PARAMS_Set_System_nwkskey(nwkskey);
-                //appskey
-                hex2string(appSkey, 16, appskey, false);
-                HAL_PARAMS_Set_System_appskey(appskey);
-                HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
-                HAL_PARAMS_Save_Params();
+                case ep_lorawan_mcps_unconfirmed:
+                    break;
 
-                SLORAWAN_DEBUG("devaddr: %s", devaddr);
-                SLORAWAN_DEBUG("nwkskey: %s", nwkskey);
-                SLORAWAN_DEBUG("appskey: %s", appskey);
-                SLORAWAN_DEBUG("---------");
-                INTOROBOT_LORAWAN_JOINED = 1;
-                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                case ep_lorawan_mcps_confirmed:
+                    break;
+
+                case ep_lorawan_mcps_proprietary:
+                    break;
+
+                case ep_lorawan_mcps_multicast:
+                    break;
+                default:
+                    break;
             }
-            break;
-
-            case ep_lorawan_join_fail:
-                break;
-
-            case ep_lorawan_tx_complete:
-                break;
-
-            case ep_lorawan_rx_complete:
-            {
-                SLORAWAN_DEBUG("--event RX completed--");
-                int len;
-                uint8_t buffer[256];
-                len = LoRaWan.receiveFrame(buffer);
-                if(len == -1)
-                {
-                    return;
-                }
-                else
-                {
-                    intorobotParseReceiveDatapoints(buffer,len);
-                }
-
-            }
-
-            break;
-
-            case ep_lorawan_mlme_join:
-                break;
-
-            case ep_lorawan_mlme_link_check:
-                break;
-
-            case ep_lorawan_mcps_unconfirmed:
-                break;
-
-            case ep_lorawan_mcps_confirmed:
-                break;
-
-            case ep_lorawan_mcps_proprietary:
-                break;
-
-            case ep_lorawan_mcps_multicast:
-                break;
-
-            default:
-                break;
-            }
-
             break;
 
             default:
                 break;
     }
 }
-
-
 #endif

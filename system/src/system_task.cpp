@@ -384,7 +384,6 @@ void LoraWAN_Setup(void)
     }
     else
     {
-        // LoRaRadioInitialize();
         LoRaWan.radioInitialize();
     }
 }

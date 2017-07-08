@@ -58,27 +58,6 @@ static void OnLoRaRadioCadDone(bool channelActivityDetected)
     system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
 }
 
-#if 0
-void LoRaRadioInitialize(void)
-{
-    // Radio initialization
-    SX1276BoardInit();
-    loraRadioEvents.TxDone = OnLoRaRadioTxDone;
-    loraRadioEvents.RxDone = OnLoRaRadioRxDone;
-    loraRadioEvents.TxTimeout = OnLoRaRadioTxTimeout;
-    loraRadioEvents.RxTimeout = OnLoRaRadioRxTimeout;
-    loraRadioEvents.RxError = OnLoRaRadioRxError;
-    loraRadioEvents.CadDone = OnLoRaRadioCadDone;
-    Radio.Init( &loraRadioEvents );
-    Radio.SetModem( MODEM_LORA );
-
-    DEBUG("sync data = 0x%x",SX1276Read(0x39));
-    DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
-    DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
-    DEBUG("sx1278 mode = 0x%x",SX1276Read(0x1));
-}
-#endif
-
 static void SystemWakeupCb(void)
 {
     TimerStop( &LoRaWan.systemWakeupTimer );

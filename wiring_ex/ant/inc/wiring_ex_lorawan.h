@@ -8,10 +8,15 @@
 #include "lorawan/mac/inc/LoRaMac.h"
 #include "lorawan/board/inc/utilities.h"
 
+#define LORAWAN_DEFAULT_DATARATE      DR_5
+#define LORAWAN_ADR_ON                1
+#define LORAWAN_PUBLIC_NETWORK        true
+#define LORAWAN_NETWORK_ID            ( uint32_t )0
+
 typedef struct {
-    bool available; //接收到数据
+    bool available;      //是否接收到数据 true有效
     uint16_t bufferSize; //接收的数据长度
-    uint8_t buffer[256];
+    uint8_t buffer[256]; //缓存大小
 }lorawan_data_t;
 
 typedef struct sLoRaWanParams{
@@ -22,15 +27,6 @@ typedef struct sLoRaWanParams{
     uint8_t  appEui[8];
     uint8_t  appKey[16];
 }lorawan_params_t;
-
-#define LORAWAN_DEFAULT_DATARATE      DR_5
-#define LORAWAN_ADR_ON                1
-#define LORAWAN_PUBLIC_NETWORK        true
-#define LORAWAN_NETWORK_ID            ( uint32_t )0
-
-
-// void LoRaRadioInitialize(void);
-bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 enum _band_width_t {
     BW125 = 0,
@@ -63,7 +59,7 @@ class LoRaWanClass
     uint8_t _modem = 1;              //模式 0:fsk 1:lora
     uint32_t _bandwidth  = 0;        //带宽fsk:2600-250000Hz lora:0-125KHz 1-250K 2-500K
     uint32_t _datarate   = 7;        //速率fsk:600-300000　lora:扩频因子 6-12
-    uint8_t _coderate    = 0;        //纠错码率 fsk:0 lora: 1(4/5) 2(4/6) 3(4/7) 4(4/8) 仅lora用
+    uint8_t _coderate    = 1;        //纠错码率 fsk:0 lora: 1(4/5) 2(4/6) 3(4/7) 4(4/8) 仅lora用
     uint32_t _bandwidthAfc = 0;      //fsk:2600-250000 lora:0 仅fsk用
     uint16_t _preambleLen  = 8;      //前导码长度
     uint16_t _symbTimeout  = 8;      //单次接收超时
@@ -85,12 +81,12 @@ class LoRaWanClass
     radioCb wakeupCb = 0;
 
     //loramc
-    uint8_t _port = 2;
-    lorawan_data_t macBuffer;
+    uint8_t _port = 2; //端口号
+    lorawan_data_t macBuffer; 
     lorawan_params_t macParams;
-    bool _adrEnable = false;
-    uint8_t _confirmedFrameNbTrials = 8;
-    uint8_t _joinNbTrials = 3;
+    bool _adrEnable = false; //ADR使能
+    uint8_t _confirmedFrameNbTrials = 8; //确认帧重发次数
+    uint8_t _joinNbTrials = 3; //入网包重发次数
 
     public:
         //切换class 类型
@@ -100,40 +96,55 @@ class LoRaWanClass
         //恢复loramac
         void loramacResume(void);
 
+        //初始化
         void begin(void);
+        //OTAA入网激活
         void joinOTAA(uint8_t *devEui, uint8_t *appEui, uint8_t *appKey);
         void joinOTAA(void);
+        //ABP入网
         void joinABP(uint32_t devAddr, uint8_t *nwkSkey, uint8_t *appSKey);
         void joinABP(void);
-
+        //设置deveui
         void setDeviceEUI(uint8_t *devEui);
         void getDeviceEUI(uint8_t *devEui);
+        //设置appeui
         void setAppEUI(uint8_t *appEui);
         void getAppEUI(uint8_t *appEui);
+        //设置appkey
         void setAppKey(uint8_t *appKey);
         void getAppKey(uint8_t *appKey);
+        //设置devaddr
         void setDeviceAddr(uint32_t devAddr);//设置device addr
         uint32_t getDeviceAddr(void);
+        //设置nwkSkey
         void setNwkSessionKey(uint8_t *nwkSkey);
         void getNwkSessionKey(uint8_t *nwkSkey);
+        //设置appSkey
         void setAppSessionKey(uint8_t *appSkey);
         void getAppSessionKey(uint8_t *appSkey);
-
+        //设置端口号
         void setPort(uint8_t port);//设置端口号
         uint8_t getPort(void);
-
+        //发送数据帧
         bool sendFrame(uint8_t *buffer,uint16_t len, bool IsTxConfirmed);//发送帧
         void sendConfirmedFrame(uint8_t *payload,uint16_t len);//发送确认帧
         void sendUnconfirmedFrame(uint8_t *payload,uint16_t len);//发送无需确认帧
+        //接收数据帧 返回-1没有数据 否则返回数据长度
         int receiveFrame(uint8_t *buffer);
+        //使能ADR自适应速率 true使能 false不使能
+        void setADR(bool enabled);
+        //设置入网重发次数 默认最大48次
+        void setJoinNbTrials(uint8_t trilas);
+        //设置确认帧重发次数
+        void setConfirmedFrameNbTrials(uint8_t trials);
+        //设置无需确认帧重发次数 1-15
+        void setUnconfirmedFrameNbTrials(uint8_t trials);
+        //获取上行帧个数
+        uint16_t  getUpLinkCounter(void);
+        //获取下行帧个数
+        uint16_t  getDownLinkCounter(void);
 
-        void setADR(bool enabled);//ADR使能 true使能 flase关闭
-        void setJoinNbTrials(uint8_t trilas);//设置入网包重发次数 默认48次
-        void setConfirmedFrameNbTrials(uint8_t trials);//设置确认帧重发次数
-        void setUnconfirmedFrameNbTrials(uint8_t trials);//设置无需确认帧重发次数 1-15
-        uint16_t  getUpLinkCounter(void);//获取上行帧个数
-        uint16_t  getDownLinkCounter(void);//获取下行帧个数
-
+        //sx1278透传初始化
         void radioInitialize(void);
         //休眠
         void systemSleep(void);
@@ -210,6 +221,8 @@ class LoRaWanClass
 };
 
 extern LoRaWanClass LoRaWan;
+
+bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 #endif /* WIRING_LORAWAN_H_ */
 
