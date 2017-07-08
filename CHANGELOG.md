@@ -1,3 +1,25 @@
+## v1.6.1-rc.1
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #90]](https://github.com/HITSZ-NRSL/firmware/pull/90) [all] arduino.h 修改成 Arduino.h 兼容arduino
+- [[PR #91]](https://github.com/HITSZ-NRSL/firmware/pull/91) [ant/l6] ant/l6 配置模式支持串口和USB口
+- [[PR #91]](https://github.com/HITSZ-NRSL/firmware/pull/91) [ant/l6] 实现空闲堆大小统计接口
+
+### BUG FIXES(漏洞修复)
+- [[PR #91]](https://github.com/HITSZ-NRSL/firmware/pull/91) [ant/l6] 修正ant l6配置模式,USB驱动出现黄色感叹号的问题。该问题是由于配置模式时每次上电都保存配置模式，导致中断关闭，引起USB驱动问题
+
+
+### INTERNAL(内部)
+- [[PR #90]](https://github.com/HITSZ-NRSL/firmware/pull/90) [all] 添加intoyuniot frameworks生成脚本
+
+
+
+
+
 ## v1.6.0-rc.1
 
 

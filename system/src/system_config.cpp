@@ -1038,8 +1038,10 @@ void set_system_config_type(system_config_type_t config_type)
     }
 
     if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
-        HAL_PARAMS_Set_System_config_flag(flag);
-        HAL_PARAMS_Save_Params();
+        if(flag != HAL_PARAMS_Get_System_config_flag()) {
+            HAL_PARAMS_Set_System_config_flag(flag);
+            HAL_PARAMS_Save_Params();
+        }
     }
 }
 
