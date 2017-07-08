@@ -97,7 +97,7 @@ class LoRaWanClass
 
     //loramc
     uint8_t _port = 2; //端口号
-    lorawan_data_t macBuffer; 
+    lorawan_data_t macBuffer;
     lorawan_params_t macParams;
     bool _adrEnable = false; //ADR使能
     uint8_t _confirmedFrameNbTrials = 8; //确认帧重发次数
