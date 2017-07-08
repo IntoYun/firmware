@@ -8,7 +8,7 @@
   *          This Library is used to decode and reconstruct the audio signal
   *          produced by MP45DT02 MEMS microphone from STMicroelectronics.
   *          For more details about this Library, please refer to document
-  *          "PDM audio software decoding on STM32 microcontrollers (AN3998)".  
+  *          "PDM audio software decoding on STM32 microcontrollers (AN3998)".
   ******************************************************************************
   * @attention
   *
@@ -20,9 +20,9 @@
   * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
   *
   * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
-  ******************************************************************************  
-  */ 
-  
+  ******************************************************************************
+  */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __PDM_FILTER_H
 #define __PDM_FILTER_H
@@ -49,7 +49,7 @@ typedef struct {
 #define HTONS(A)  ((((uint16_t)(A) & 0xff00) >> 8) | \
                    (((uint16_t)(A) & 0x00ff) << 8))
 
-/* Exported functions ------------------------------------------------------- */ 
+/* Exported functions ------------------------------------------------------- */
 void PDM_Filter_Init(PDMFilter_InitStruct * Filter);
 
 int32_t PDM_Filter_64_MSB(uint8_t* data, uint16_t* dataOut, uint16_t MicGain,  PDMFilter_InitStruct * Filter);

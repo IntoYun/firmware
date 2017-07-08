@@ -5,4 +5,3 @@
 #include "application.h"
 
 #endif	/* ARDUINO_H */
-

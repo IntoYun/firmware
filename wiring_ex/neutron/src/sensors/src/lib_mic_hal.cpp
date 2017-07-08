@@ -1,6 +1,6 @@
 #include "hw_config.h"
-#include "pdm_filter.h"
-#include "lib_mic_hal.h"
+#include "sensors/inc/pdm_filter.h"
+#include "sensors/inc/lib_mic_hal.h"
 
 I2S_HandleTypeDef I2sHandle;
 
