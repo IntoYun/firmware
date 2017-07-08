@@ -34,6 +34,7 @@
 #include "stm32l1xx_it.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
+#include "malloc.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -243,6 +244,12 @@ void HAL_Core_System_Yield(void)
 
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
+    extern unsigned char _eheap[];
+    extern unsigned char *sbrk_heap_top;
+
+    struct mallinfo heapinfo = mallinfo();
+    info->freeheap = _eheap-sbrk_heap_top + heapinfo.fordblks;
+
     return 0;
 }
 
