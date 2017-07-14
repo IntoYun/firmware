@@ -306,6 +306,8 @@ void LoraWAN_Setup(void)
             STASK_DEBUG("AT_MODE_FLAG_ABP");
         case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
         {
+            LoRaWan.resetUpLinkCounter();
+            LoRaWan.resetDownLinkCounter();
             STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE");
             char devaddr[16] = {0}, nwkskey[36] = {0}, appskey[36] = {0};
             HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
@@ -324,6 +326,7 @@ void LoraWAN_Setup(void)
             uint8_t i;
             STASK_DEBUG("dev = 0x%x",addr);
 
+            #if 1
             for( i=0;i<16;i++)
             {
                 STASK_DEBUG("nwkSkey= 0x%x",nwkskeyBuf[i]);
@@ -333,6 +336,7 @@ void LoraWAN_Setup(void)
             {
                 STASK_DEBUG("app skey= 0x%x",appskeyBuf[i]);
             }
+            #endif
 
             LoRaWan.joinABP(addr,nwkskeyBuf,appskeyBuf);
             INTOROBOT_LORAWAN_JOINED = 1;

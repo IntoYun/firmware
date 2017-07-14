@@ -21,7 +21,6 @@ static void OnLoRaRadioTxDone(void)
 
 static void OnLoRaRadioTxTimeout(void)
 {
-
     system_notify_event(event_lora_radio_status,ep_lora_radio_tx_timeout);
 }
 
@@ -34,13 +33,11 @@ static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int
 
 static void OnLoRaRadioRxTimeout(void)
 {
-
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_timeout);
 }
 
 static void OnLoRaRadioRxError(void)
 {
-
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_error);
 }
 
@@ -81,6 +78,8 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             {
                 // Check Datarate
                 // Check TxPower
+                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
                 break;
             }
@@ -90,11 +89,15 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check TxPower
                 // Check AckReceived
                 // Check NbTrials
+                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_CONFIRMED);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_mcps_confirmed);
                 break;
             }
             case MCPS_PROPRIETARY:
             {
+                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_PROPRIETARY);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_mcps_proprietary);
                 break;
             }
@@ -115,21 +118,29 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         case MCPS_UNCONFIRMED:
         {
+            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
+
             system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
             break;
         }
         case MCPS_CONFIRMED:
         {
+            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_CONFIRMED);
+
             system_notify_event(event_lorawan_status,ep_lorawan_mcps_confirmed);
             break;
         }
         case MCPS_PROPRIETARY:
         {
+            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_PROPRIETARY);
+
             system_notify_event(event_lorawan_status,ep_lorawan_mcps_proprietary);
             break;
         }
         case MCPS_MULTICAST:
         {
+            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_MULTICAST);
+
             system_notify_event(event_lorawan_status,ep_lorawan_mcps_multicast);
             break;
         }
@@ -152,6 +163,9 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         LoRaWan.macBuffer.available = true;
         LoRaWan.macBuffer.bufferSize = mcpsIndication->BufferSize;
         memcpy1(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
+
+        LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
+
         system_notify_event(event_lorawan_status,ep_lorawan_rx_complete);
     }
     else
@@ -170,11 +184,15 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
+                LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_joined);
             }
             else
             {
                 // Join was not successful. Try to join again
+                LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_join_fail);
             }
             break;
@@ -185,6 +203,8 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Check DemodMargin
                 // Check NbGateways
+                LoRaWanOnEvent(LORAWAN_EVENT_MLME_LINK_CHECK);
+
                 system_notify_event(event_lorawan_status,ep_lorawan_mlme_link_check);
             }
             break;
@@ -204,7 +224,7 @@ void LoRaWanClass::begin(void)
     LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
     LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
 
-    System.on(event_lorawan_status, &LoRaWanEventCallback);
+    // System.on(event_lorawan_status, &LoRaWanEventCallback);
 
     DEBUG("sync data = 0x%x",SX1276Read(0x39));
     DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
@@ -366,14 +386,24 @@ void LoRaWanClass::setDeviceAddr(uint32_t devAddr)//设置device addr
 
 uint32_t LoRaWanClass::getDeviceAddr(void)
 {
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
 
-    mibReq.Type = MIB_DEV_ADDR;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
+    if(HAL_PARAMS_Get_System_at_mode() != 3) //otaa入网成功时获取
     {
-        macParams.devAddr = mibReq.Param.DevAddr;
+        MibRequestConfirm_t mibReq;
+        LoRaMacStatus_t status;
+
+        mibReq.Type = MIB_DEV_ADDR;
+        status = LoRaMacMibGetRequestConfirm( &mibReq );
+        if(status == LORAMAC_STATUS_OK)
+        {
+            macParams.devAddr = mibReq.Param.DevAddr;
+        }
+    }
+    else
+    {
+        char devaddr[16] = {0};
+        HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
+        string2hex(devaddr, (uint8_t *)&macParams.devAddr, 4, true);
     }
     return macParams.devAddr;
 }
@@ -389,14 +419,23 @@ void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
 
 void LoRaWanClass::getNwkSessionKey(uint8_t *nwkSkey)
 {
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
-
-    mibReq.Type = MIB_NWK_SKEY;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
+    if(HAL_PARAMS_Get_System_at_mode() != 3)
     {
-        memcpy1(macParams.nwkSkey,mibReq.Param.NwkSKey,16);
+        MibRequestConfirm_t mibReq;
+        LoRaMacStatus_t status;
+
+        mibReq.Type = MIB_NWK_SKEY;
+        status = LoRaMacMibGetRequestConfirm( &mibReq );
+        if(status == LORAMAC_STATUS_OK)
+        {
+            memcpy1(macParams.nwkSkey,mibReq.Param.NwkSKey,16);
+        }
+    }
+    else
+    {
+        char nwkskey[36] = {0};
+        HAL_PARAMS_Get_System_nwkskey(nwkskey, sizeof(nwkskey));
+        string2hex(nwkskey, macParams.nwkSkey, 16, false);
     }
     memcpy1(nwkSkey,macParams.nwkSkey,16);
 }
@@ -412,13 +451,23 @@ void LoRaWanClass::setAppSessionKey(uint8_t *appSkey)
 
 void LoRaWanClass::getAppSessionKey(uint8_t *appSkey)
 {
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
-    mibReq.Type = MIB_APP_SKEY;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
+
+    if(HAL_PARAMS_Get_System_at_mode() != 3)
     {
-        memcpy1(macParams.appSkey,mibReq.Param.AppSKey,16);
+        MibRequestConfirm_t mibReq;
+        LoRaMacStatus_t status;
+        mibReq.Type = MIB_APP_SKEY;
+        status = LoRaMacMibGetRequestConfirm( &mibReq );
+        if(status == LORAMAC_STATUS_OK)
+        {
+            memcpy1(macParams.appSkey,mibReq.Param.AppSKey,16);
+        }
+    }
+    else
+    {
+        char appskey[36] = {0};
+        HAL_PARAMS_Get_System_appskey(appskey, sizeof(appskey));
+        string2hex(appskey, macParams.appSkey, 16, false);
     }
     memcpy1(appSkey,macParams.appSkey,16);
 }
@@ -574,6 +623,21 @@ void LoRaWanClass::loramacSetClassType(DeviceClass_t classType)
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
+void LoRaWanClass::resetUpLinkCounter(void)
+{
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_UPLINK_COUNTER;
+    mibReq.Param.UpLinkCounter = 0;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+}
+
+void LoRaWanClass::resetDownLinkCounter(void)
+{
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_DOWNLINK_COUNTER;
+    mibReq.Param.DownLinkCounter = 0;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+}
 //暂停lorawan
 void LoRaWanClass::loramacPause(void)
 {

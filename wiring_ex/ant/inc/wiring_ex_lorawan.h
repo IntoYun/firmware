@@ -13,6 +13,21 @@
 #define LORAWAN_PUBLIC_NETWORK        true
 #define LORAWAN_NETWORK_ID            ( uint32_t )0
 
+typedef enum event_t{
+    LORAWAN_EVENT_JOINING, //入网中
+    LORAWAN_EVENT_JOINED, //已入网
+    LORAWAN_EVENT_JOIN_FAIL, //入网失败
+    LORAWAN_EVENT_TX_COMPLETE,//发送完成
+    LORAWAN_EVENT_RX_COMPLETE, //接收完成
+    LORAWAN_EVENT_MLME_JOIN,
+    LORAWAN_EVENT_MLME_LINK_CHECK,
+    LORAWAN_EVENT_MCPS_UNCONFIRMED,
+    LORAWAN_EVENT_MCPS_CONFIRMED,
+    LORAWAN_EVENT_MCPS_PROPRIETARY,
+    LORAWAN_EVENT_MCPS_MULTICAST,
+}lorawan_event_t;
+
+
 typedef struct {
     bool available;      //是否接收到数据 true有效
     uint16_t bufferSize; //接收的数据长度
@@ -143,6 +158,11 @@ class LoRaWanClass
         uint16_t  getUpLinkCounter(void);
         //获取下行帧个数
         uint16_t  getDownLinkCounter(void);
+
+        //复位上行帧个数 即清0
+        void  resetUpLinkCounter(void);
+        //复位下行帧个数 即清0
+        void  resetDownLinkCounter(void);
 
         //sx1278透传初始化
         void radioInitialize(void);
