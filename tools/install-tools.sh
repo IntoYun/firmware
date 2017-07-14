@@ -40,6 +40,7 @@ if [ $sysType = "Linux" ]; then
 
     if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ] ; then
         cecho "Your system is 64 bit " $blue
+        apt-get install lib32ncurses5 lib32z1  # 安装32位的兼容库
         cecho "--->install xtensa lx106 gnu toolchain " $blue
         wget http://arduino.esp8266.com/linux64-xtensa-lx106-elf-gb404fb9.tar.gz 2>/dev/null
         tar -zxf linux64-xtensa-lx106-elf-gb404fb9.tar.gz
