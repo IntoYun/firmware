@@ -1241,7 +1241,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[9] << 16 );
                 LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[10] << 24 );
 
-                LORAMAC_DEBUG("Joined LoRaMacDevAddr = 0x%x",LoRaMacDevAddr);
+                /* LORAMAC_DEBUG("Joined LoRaMacDevAddr = 0x%x",LoRaMacDevAddr); */
 
                 // DLSettings
                 LoRaMacParams.Rx1DrOffset = ( LoRaMacRxPayload[11] >> 4 ) & 0x07;
@@ -3231,8 +3231,8 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             LoRaMacBuffer[LoRaMacBufferPktLen++] = LoRaMacDevNonce & 0xFF;
             LoRaMacBuffer[LoRaMacBufferPktLen++] = ( LoRaMacDevNonce >> 8 ) & 0xFF;
 
-            #if 1
-            LORAMAC_DEBUG_D("AppKey:");
+            #if 0
+            LORAMAC_DEBUG("AppKey:");
             LORAMAC_DEBUG_DUMP(LoRaMacAppKey,16);
             #endif
 
@@ -3261,7 +3261,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
                 fCtrl->Bits.Ack = 1;
             }
 
-            LORAMAC_DEBUG("PrepareFrame LoRaMacDevAddr = 0x%x",LoRaMacDevAddr);
+            /* LORAMAC_DEBUG("PrepareFrame LoRaMacDevAddr = 0x%x",LoRaMacDevAddr); */
 
             LoRaMacBuffer[pktHeaderLen++] = ( LoRaMacDevAddr ) & 0xFF;
             LoRaMacBuffer[pktHeaderLen++] = ( LoRaMacDevAddr >> 8 ) & 0xFF;
@@ -4453,15 +4453,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacAppKey = mlmeRequest->Req.Join.AppKey;
             MaxJoinRequestTrials = mlmeRequest->Req.Join.NbTrials;
 
-            #if 0
+            #if 1
             //debug
             LORAMAC_DEBUG("LoRaMacDevEui:");
+            LORAMAC_DEBUG_D("LoRaMacDevEui:");
             LORAMAC_DEBUG_DUMP(LoRaMacDevEui,8);
 
             LORAMAC_DEBUG("LoRaMacAppEui:");
+            LORAMAC_DEBUG_D("LoRaMacAppEui:");
             LORAMAC_DEBUG_DUMP(LoRaMacAppEui,8);
 
             LORAMAC_DEBUG("LoRaMacAppKey:");
+            LORAMAC_DEBUG_D("LoRaMacAppKey:");
             LORAMAC_DEBUG_DUMP(LoRaMacAppKey,16);
             #endif
 
@@ -4596,7 +4599,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
             }
         }
 
-        LORAMAC_DEBUG("LoRaMac User Data mcpsRequest!!!");
+        /* LORAMAC_DEBUG("LoRaMac User Data mcpsRequest!!!"); */
         status = Send( &macHdr, fPort, fBuffer, fBufferSize );
         if( status == LORAMAC_STATUS_OK )
         {

@@ -67,6 +67,7 @@ typedef enum
     SYSTEM_FEATURE_REGISTER_ENABLED,                //设备注册      0:关闭  1:打开
     SYSTEM_FEATURE_ACTIVATE_ENABLED,                //设备激活      0:关闭  1:打开
     SYSTEM_FEATURE_LORAMAC_ENABLED,                //loramac运行   0:关闭  1:打开
+    SYSTEM_FEATURE_LORAMAC_MASTER_ENABLED,         //loramac主模式运行   0:关闭  1:打开
     SYSTEM_FEATURE_MAX
 } system_feature_t;
 
@@ -91,6 +92,7 @@ public:
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_activater_enable = true;            //设备激活      0:关闭  1:打开
         feature_loramac_enable = true;              //loramac运行  0:关闭  1:打开
+        feature_loramac_master_enable = true;       //loraman主模式运行　0:关闭  1:打开
     }
     ~IntoRobotProduct(){}
 
@@ -213,6 +215,9 @@ public:
             case SYSTEM_FEATURE_LORAMAC_ENABLED:
                 return feature_loramac_enable;              //loramac运行   0:关闭  1:打开
                 break;
+            case SYSTEM_FEATURE_LORAMAC_MASTER_ENABLED:
+                return feature_loramac_master_enable;       //loramac主模式运行   0:关闭  1:打开
+                break;
 
             default:
                 break;
@@ -249,6 +254,9 @@ public:
             case SYSTEM_FEATURE_LORAMAC_ENABLED:
                 feature_loramac_enable = enabled;              //loramac运行   0:关闭  1:打开
                 break;
+            case SYSTEM_FEATURE_LORAMAC_MASTER_ENABLED:
+                feature_loramac_master_enable = enabled;       //loramac主模式运行   0:关闭  1:打开
+                break;
 
             default:
                 break;
@@ -274,6 +282,7 @@ private:
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
     bool feature_activater_enable;            //设备激活      0:关闭  1:打开
     bool feature_loramac_enable;              //loraman运行　0:关闭  1:打开
+    bool feature_loramac_master_enable;       //loraman主模式运行　0:关闭  1:打开
 };
 
 extern IntoRobotProduct &system_product_instance(void);

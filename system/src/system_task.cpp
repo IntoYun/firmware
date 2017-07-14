@@ -292,9 +292,9 @@ void cloud_disconnect(bool closeSocket)
 #ifndef configNO_LORAWAN
 void LoraWAN_Setup(void)
 {
-    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_ENABLED))
+    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_ENABLED) && System.featureEnabled(SYSTEM_FEATURE_LORAMAC_MASTER_ENABLED))
     {
-        STASK_DEBUG("LoraWAN_Setup");
+        STASK_DEBUG("LoRaWan_Setup");
         // Reset the MAC state. Session and pending data transfers will be discarded.
         LoRaWan.begin();
 
@@ -326,7 +326,7 @@ void LoraWAN_Setup(void)
             uint8_t i;
             STASK_DEBUG("dev = 0x%x",addr);
 
-            #if 1
+            #if 0
             for( i=0;i<16;i++)
             {
                 STASK_DEBUG("nwkSkey= 0x%x",nwkskeyBuf[i]);
@@ -376,7 +376,6 @@ void LoraWAN_Setup(void)
             }
             #endif
 
-            STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
             LoRaWan.joinOTAA(devEui,appEui,appKey);
         }
         break;

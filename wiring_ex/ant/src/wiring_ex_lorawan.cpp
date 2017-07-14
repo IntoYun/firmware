@@ -229,7 +229,6 @@ void LoRaWanClass::begin(void)
     DEBUG("sync data = 0x%x",SX1276Read(0x39));
     DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
     DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
-    DEBUG("sx1278 mode = 0x%x",SX1276Read(0x1));
 
     MibRequestConfirm_t mibReq;
 
