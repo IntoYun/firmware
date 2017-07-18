@@ -31,7 +31,7 @@
 //#define configWIRING_IPV6_ENABLE
 
 /* config wiring usb serial. */
-#define configWIRING_USBSERIAL_ENABLE
+// #define configWIRING_USBSERIAL_ENABLE
 //#define configWIRING_USBMOUSE_ENABLE
 //#define configWIRING_USBKEYBOARD_ENABLE
 
@@ -60,8 +60,8 @@
 
 /* config setup */
 #define configSETUP_ENABLE
-#define configSETUP_USBSERIAL_ENABLE
-#define configSETUP_USARTSERIAL_ENABLE
+// #define configSETUP_USBSERIAL_ENABLE
+// #define configSETUP_USARTSERIAL_ENABLE
 //#define configSETUP_TCP_ENABLE
 //#define configSETUP_UDP_ENABLE
 

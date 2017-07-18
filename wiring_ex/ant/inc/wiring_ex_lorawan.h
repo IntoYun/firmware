@@ -66,7 +66,7 @@ enum _coderate_t{
     CR4_8
 };
 
-typedef void (*radioCb)(void);
+typedef void (*loraWakeupCb)(void);
 
 class LoRaWanClass
 {
@@ -93,12 +93,15 @@ class LoRaWanClass
     int16_t _rssi;                   //接收完数据收rssi值
 
     TimerEvent_t systemWakeupTimer;
-    radioCb wakeupCb = 0;
+    loraWakeupCb wakeupCb = 0;
+    bool _systemSleepEnabled = false;
 
     //loramc
-    uint8_t _port = 2; //端口号
     lorawan_data_t macBuffer;
     lorawan_params_t macParams;
+
+    DeviceClass_t _classType = CLASS_C; //class 类型
+    uint8_t _port = 2; //端口号
     bool _adrEnable = false; //ADR使能
     uint8_t _confirmedFrameNbTrials = 8; //确认帧重发次数
     uint8_t _joinNbTrials = 3; //入网包重发次数
@@ -106,7 +109,9 @@ class LoRaWanClass
     public:
         //切换class 类型
         void loramacSetClassType(DeviceClass_t classType);
-        //暂停loramac
+        //获取 class类型
+        DeviceClass_t loramacGetClassType(void);
+        //暂停loramac 不运行lorawan协议
         void loramacPause(void);
         //恢复loramac
         void loramacResume(void);
@@ -119,7 +124,8 @@ class LoRaWanClass
         //ABP入网
         void joinABP(uint32_t devAddr, uint8_t *nwkSkey, uint8_t *appSKey);
         void joinABP(void);
-        //设置deveui
+
+        //设置deviceeui
         void setDeviceEUI(uint8_t *devEui);
         void getDeviceEUI(uint8_t *devEui);
         //设置appeui
@@ -128,15 +134,23 @@ class LoRaWanClass
         //设置appkey
         void setAppKey(uint8_t *appKey);
         void getAppKey(uint8_t *appKey);
-        //设置devaddr
+
+        //设置device addr
         void setDeviceAddr(uint32_t devAddr);//设置device addr
         uint32_t getDeviceAddr(void);
+        //入网成功后从loramac层获取参数
+        uint32_t getMacDeviceAddr(void);
         //设置nwkSkey
         void setNwkSessionKey(uint8_t *nwkSkey);
         void getNwkSessionKey(uint8_t *nwkSkey);
+        //入网成功后从loramac层获取参数
+        void getMacNwkSessionKey(uint8_t *nwkSkey);
         //设置appSkey
         void setAppSessionKey(uint8_t *appSkey);
         void getAppSessionKey(uint8_t *appSkey);
+        //入网成功后从loramac层获取参数
+        void getMacAppSessionKey(uint8_t *appSkey);
+
         //设置端口号
         void setPort(uint8_t port);//设置端口号
         uint8_t getPort(void);
@@ -146,10 +160,11 @@ class LoRaWanClass
         void sendUnconfirmedFrame(uint8_t *payload,uint16_t len);//发送无需确认帧
         //接收数据帧 返回-1没有数据 否则返回数据长度
         int receiveFrame(uint8_t *buffer);
+
         //使能ADR自适应速率 true使能 false不使能
         void setADR(bool enabled);
         //设置入网重发次数 默认最大48次
-        void setJoinNbTrials(uint8_t trilas);
+        void setJoinNbTrials(uint8_t trials);
         //设置确认帧重发次数
         void setConfirmedFrameNbTrials(uint8_t trials);
         //设置无需确认帧重发次数 1-15
@@ -158,21 +173,20 @@ class LoRaWanClass
         uint16_t  getUpLinkCounter(void);
         //获取下行帧个数
         uint16_t  getDownLinkCounter(void);
-
         //复位上行帧个数 即清0
         void  resetUpLinkCounter(void);
         //复位下行帧个数 即清0
         void  resetDownLinkCounter(void);
 
-        //sx1278透传初始化
-        void radioInitialize(void);
         //休眠
-        void systemSleep(void);
-        //唤醒后处理
+        void systemSleep(loraWakeupCb userHandler, uint32_t timeout);
+        //唤醒后处理 TODO暂不采用
         void systemWakeupHandler(void);
        //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
-        void setSystemWakeup(radioCb userHandler, uint32_t timeout); //单位s
+        void setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout); //单位s
 
+        //sx1278透传初始化
+        void radioInitialize(void);
         //sx1278休眠
         void radioSetSleep(void);
         //设置频率
@@ -195,6 +209,10 @@ class LoRaWanClass
         void radioSetTxTimeout(uint32_t timeout);
         //设置接收模式
         void radioSetRxContinuous(bool rxContinuous);
+        //设置负载最大长度
+        void radioSetMaxPayloadLength(uint8_t max);
+        //设置同步字
+        void radioSetSyncword(uint8_t syncword);
         //接收设置
         void radioSetRxConfig(void);
         //发送设置
@@ -232,10 +250,6 @@ class LoRaWanClass
         int16_t radioReadRssi(void);
         //获取rssi
         int8_t radioReadSnr(void);
-        //设置负载最大长度
-        void radioSetMaxPayloadLength(uint8_t max);
-        //设置同步字
-        void radioSetSyncword(uint8_t syncword);
 
     private:
 };

@@ -64,6 +64,7 @@ static void SystemWakeupCb(void)
     {
         LoRaWan.wakeupCb();
     }
+    LoRaWan._systemSleepEnabled = false;
 }
 //======loramac不运行 end ========
 
@@ -214,6 +215,32 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     }
 }
 
+void LoRaWanClass::loramacSetClassType(DeviceClass_t classType)
+{
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_DEVICE_CLASS;
+    mibReq.Param.Class = classType;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+    _classType = classType;
+}
+
+DeviceClass_t LoRaWanClass::loramacGetClassType(void)
+{
+    return _classType;
+}
+
+//暂停lorawan
+void LoRaWanClass::loramacPause(void)
+{
+    System.disableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
+}
+
+//恢复lorawan
+void LoRaWanClass::loramacResume(void)
+{
+    System.enableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
+}
+
 //初始化
 void LoRaWanClass::begin(void)
 {
@@ -333,14 +360,16 @@ void LoRaWanClass::setDeviceEUI(uint8_t *devEui)
 {
     char deveui[24]={0};
     memcpy1(macParams.devEui,devEui,8);
-    hex2string(macParams.devEui, 8, deveui, true);
+    hex2string(macParams.devEui, 8, deveui, false);
     HAL_PARAMS_Set_System_device_id(deveui);
     HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getDeviceEUI(uint8_t *devEui)
 {
-    os_getDevEui(macParams.devEui);
+    uint8_t _devEui[8];
+    os_getDevEui(_devEui);
+    memcpyr(macParams.devEui,_devEui,8);
     memcpy1(devEui,macParams.devEui,8);
 }
 
@@ -348,15 +377,17 @@ void LoRaWanClass::setAppEUI(uint8_t *appEui)
 {
     char appeui[24]={0};
     memcpy1(macParams.appEui,appEui,8);
-    hex2string(macParams.appEui, 8, appeui, true);
+    hex2string(macParams.appEui, 8, appeui, false);
     HAL_PARAMS_Set_System_appeui(appeui);
     HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getAppEUI(uint8_t *appEui)
 {
-    os_getAppEui(macParams.appEui);
-    memcpy1(appEui,macParams.appEui,16);
+    uint8_t _appEui[8];
+    os_getAppEui(_appEui);
+    memcpyr(macParams.appEui,_appEui,8);
+    memcpy1(appEui,macParams.appEui,8);
 }
 
 void LoRaWanClass::setAppKey(uint8_t *appKey)
@@ -383,27 +414,25 @@ void LoRaWanClass::setDeviceAddr(uint32_t devAddr)//设置device addr
     HAL_PARAMS_Save_Params();
 }
 
+uint32_t LoRaWanClass::getMacDeviceAddr(void)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+
+    mibReq.Type = MIB_DEV_ADDR;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK)
+    {
+        macParams.devAddr = mibReq.Param.DevAddr;
+    }
+    return macParams.devAddr;
+}
+
 uint32_t LoRaWanClass::getDeviceAddr(void)
 {
-
-    if(HAL_PARAMS_Get_System_at_mode() != 3) //otaa入网成功时获取
-    {
-        MibRequestConfirm_t mibReq;
-        LoRaMacStatus_t status;
-
-        mibReq.Type = MIB_DEV_ADDR;
-        status = LoRaMacMibGetRequestConfirm( &mibReq );
-        if(status == LORAMAC_STATUS_OK)
-        {
-            macParams.devAddr = mibReq.Param.DevAddr;
-        }
-    }
-    else
-    {
-        char devaddr[16] = {0};
-        HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
-        string2hex(devaddr, (uint8_t *)&macParams.devAddr, 4, true);
-    }
+    char devaddr[16] = {0};
+    HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
+    string2hex(devaddr, (uint8_t *)&macParams.devAddr, 4, true);
     return macParams.devAddr;
 }
 
@@ -416,26 +445,26 @@ void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
     HAL_PARAMS_Save_Params();
 }
 
+void LoRaWanClass::getMacNwkSessionKey(uint8_t *nwkSkey)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+
+    mibReq.Type = MIB_NWK_SKEY;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK)
+    {
+        memcpy1(macParams.nwkSkey,mibReq.Param.NwkSKey,16);
+    }
+
+    memcpy1(nwkSkey,macParams.nwkSkey,16);
+}
+
 void LoRaWanClass::getNwkSessionKey(uint8_t *nwkSkey)
 {
-    if(HAL_PARAMS_Get_System_at_mode() != 3)
-    {
-        MibRequestConfirm_t mibReq;
-        LoRaMacStatus_t status;
-
-        mibReq.Type = MIB_NWK_SKEY;
-        status = LoRaMacMibGetRequestConfirm( &mibReq );
-        if(status == LORAMAC_STATUS_OK)
-        {
-            memcpy1(macParams.nwkSkey,mibReq.Param.NwkSKey,16);
-        }
-    }
-    else
-    {
-        char nwkskey[36] = {0};
-        HAL_PARAMS_Get_System_nwkskey(nwkskey, sizeof(nwkskey));
-        string2hex(nwkskey, macParams.nwkSkey, 16, false);
-    }
+    char nwkskey[36] = {0};
+    HAL_PARAMS_Get_System_nwkskey(nwkskey, sizeof(nwkskey));
+    string2hex(nwkskey, macParams.nwkSkey, 16, false);
     memcpy1(nwkSkey,macParams.nwkSkey,16);
 }
 
@@ -448,26 +477,26 @@ void LoRaWanClass::setAppSessionKey(uint8_t *appSkey)
     HAL_PARAMS_Save_Params();
 }
 
+
+void LoRaWanClass::getMacAppSessionKey(uint8_t *appSkey)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+    mibReq.Type = MIB_APP_SKEY;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK)
+    {
+        memcpy1(macParams.appSkey,mibReq.Param.AppSKey,16);
+    }
+
+    memcpy1(appSkey,macParams.appSkey,16);
+}
+
 void LoRaWanClass::getAppSessionKey(uint8_t *appSkey)
 {
-
-    if(HAL_PARAMS_Get_System_at_mode() != 3)
-    {
-        MibRequestConfirm_t mibReq;
-        LoRaMacStatus_t status;
-        mibReq.Type = MIB_APP_SKEY;
-        status = LoRaMacMibGetRequestConfirm( &mibReq );
-        if(status == LORAMAC_STATUS_OK)
-        {
-            memcpy1(macParams.appSkey,mibReq.Param.AppSKey,16);
-        }
-    }
-    else
-    {
-        char appskey[36] = {0};
-        HAL_PARAMS_Get_System_appskey(appskey, sizeof(appskey));
-        string2hex(appskey, macParams.appSkey, 16, false);
-    }
+    char appskey[36] = {0};
+    HAL_PARAMS_Get_System_appskey(appskey, sizeof(appskey));
+    string2hex(appskey, macParams.appSkey, 16, false);
     memcpy1(appSkey,macParams.appSkey,16);
 }
 
@@ -486,10 +515,10 @@ bool LoRaWanClass::sendFrame(uint8_t *buffer,uint16_t len, bool IsTxConfirmed)//
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
 
-    DEBUG("LoRaWan start send frame");
-    DEBUG("LoRaWan data len = %d",len);
+    // DEBUG("LoRaWan start send frame");
+    // DEBUG("LoRaWan data len = %d",len);
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
-    DEBUG("LoRaMac Status = %d",loramacStatus);
+    // DEBUG("LoRaMac Status = %d",loramacStatus);
 
     if(loramacStatus != LORAMAC_STATUS_OK)
     {
@@ -614,14 +643,6 @@ uint16_t LoRaWanClass::getDownLinkCounter(void)//获取下行帧个数
     }
 }
 
-void LoRaWanClass::loramacSetClassType(DeviceClass_t classType)
-{
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_DEVICE_CLASS;
-    mibReq.Param.Class = classType;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-}
-
 void LoRaWanClass::resetUpLinkCounter(void)
 {
     MibRequestConfirm_t mibReq;
@@ -637,22 +658,16 @@ void LoRaWanClass::resetDownLinkCounter(void)
     mibReq.Param.DownLinkCounter = 0;
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
-//暂停lorawan
-void LoRaWanClass::loramacPause(void)
-{
-    System.disableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
-}
-
-//恢复lorawan
-void LoRaWanClass::loramacResume(void)
-{
-    System.enableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
-}
 
 //系统休眠
-void LoRaWanClass::systemSleep(void)
+void LoRaWanClass::systemSleep(loraWakeupCb userHandler, uint32_t timeout)
 {
-    radioSetSleep();
+    if(!_systemSleepEnabled)
+    {
+        setSystemWakeup(userHandler,timeout);
+        radioSetSleep();
+        _systemSleepEnabled = true;
+    }
     TimerLowPowerHandler();
 }
 
@@ -668,7 +683,7 @@ void LoRaWanClass::systemWakeupHandler(void)
 }
 
 typedef void (*FUNC)(void);
-void LoRaWanClass::setSystemWakeup(radioCb userHandler, uint32_t timeout) //单位s
+void LoRaWanClass::setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout) //单位s
 {
     wakeupCb = userHandler;
     // TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);//TODO 此处回调无法运行
@@ -709,20 +724,10 @@ void LoRaWanClass::radioSetFreq(uint32_t freq)
     Radio.SetChannel(_freq);
 }
 
-uint32_t LoRaWanClass::radioGetFreq(void)
-{
-    return _freq;
-}
-
 //设置模式 0:fsk 1:lora
 void LoRaWanClass::radioSetModem(RadioModems_t modem)
 {
     _modem = modem;
-}
-
-uint8_t LoRaWanClass::radioGetModem(void)
-{
-    return _modem;
 }
 
 //设置带宽
@@ -731,20 +736,10 @@ void LoRaWanClass::radioSetBandwidth(uint32_t bandwidth)
     _bandwidth = bandwidth;
 }
 
-uint32_t LoRaWanClass::radioGetBandwidth(void)
-{
-    return _bandwidth;
-}
-
 //设置扩频因子
 void LoRaWanClass::radioSetSF(uint32_t sf)
 {
     _datarate = sf;
-}
-
-uint8_t LoRaWanClass::radioGetSF(void)
-{
-    return _datarate;
 }
 
 //设置纠错编码率
@@ -753,20 +748,13 @@ void LoRaWanClass::radioSetCoderate(uint32_t coderate)
     _coderate = coderate;
 }
 
-uint8_t LoRaWanClass::radioGetCoderate(void)
-{
-    return _coderate;
-}
-
 //设置前导码超时
 void LoRaWanClass::radioSetSymbTimeout(uint32_t symbTimeout)
 {
-    _symbTimeout = symbTimeout;
-}
-
-uint16_t LoRaWanClass::radioGetSymbTimeout(void)
-{
-    return _symbTimeout;
+    if(symbTimeout >= 4 && symbTimeout <= 1023)
+    {
+        _symbTimeout = symbTimeout;
+    }
 }
 
 //设置crc校验
@@ -775,20 +763,10 @@ void LoRaWanClass::radioSetCrcOn(bool crcOn)
     _crcOn = crcOn;
 }
 
-bool LoRaWanClass::radioGetCrcOn(void)
-{
-    return _crcOn;
-}
-
 //设置前导码长度
 void LoRaWanClass::radioSetPreambleLen(uint16_t preambleLen)
 {
     _preambleLen = preambleLen;
-}
-
-uint16_t LoRaWanClass::radioGetPreambleLen(void)
-{
-    return _preambleLen;
 }
 
 void LoRaWanClass::radioSetTxTimeout(uint32_t timeout)
@@ -801,9 +779,16 @@ void LoRaWanClass::radioSetRxContinuous(bool rxContinuous)
     _rxContinuous = rxContinuous;
 }
 
-bool LoRaWanClass::radioGetRxContinuous(void)
+//设置负载最大长度
+void LoRaWanClass::radioSetMaxPayloadLength(uint8_t max)
 {
-    return _rxContinuous;
+    Radio.SetMaxPayloadLength(_modem,max);
+}
+
+//设置同步字
+void LoRaWanClass::radioSetSyncword(uint8_t syncword)
+{
+    Radio.Write(0x39,syncword);
 }
 
 //接收设置
@@ -830,6 +815,51 @@ void LoRaWanClass::radioRx(uint32_t timeout)
 {
     radioSetRxConfig();
     Radio.Rx(timeout);
+}
+
+uint32_t LoRaWanClass::radioGetFreq(void)
+{
+    return _freq;
+}
+
+uint8_t LoRaWanClass::radioGetModem(void)
+{
+    return _modem;
+}
+
+uint32_t LoRaWanClass::radioGetBandwidth(void)
+{
+    return _bandwidth;
+}
+
+uint8_t LoRaWanClass::radioGetSF(void)
+{
+    return _datarate;
+}
+
+uint8_t LoRaWanClass::radioGetCoderate(void)
+{
+    return _coderate;
+}
+
+uint16_t LoRaWanClass::radioGetSymbTimeout(void)
+{
+    return _symbTimeout;
+}
+
+bool LoRaWanClass::radioGetCrcOn(void)
+{
+    return _crcOn;
+}
+
+uint16_t LoRaWanClass::radioGetPreambleLen(void)
+{
+    return _preambleLen;
+}
+
+bool LoRaWanClass::radioGetRxContinuous(void)
+{
+    return _rxContinuous;
 }
 
 //读取寄存器值
@@ -861,18 +891,6 @@ int8_t LoRaWanClass::radioReadSnr(void)
 {
     return LoRaWan._snr;
 }
-//设置负载最大长度
-void LoRaWanClass::radioSetMaxPayloadLength(uint8_t max)
-{
-    Radio.SetMaxPayloadLength(_modem,max);
-}
-
-//设置同步字
-void LoRaWanClass::radioSetSyncword(uint8_t syncword)
-{
-    Radio.Write(0x39,syncword);
-}
-
 
 #endif
 

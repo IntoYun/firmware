@@ -160,9 +160,9 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
                     uint32_t devAddr;
                     uint8_t nwkSkey[16],appSkey[16];
-                    devAddr = LoRaWan.getDeviceAddr();
-                    LoRaWan.getNwkSessionKey(nwkSkey);
-                    LoRaWan.getAppSessionKey(appSkey);
+                    devAddr = LoRaWan.getMacDeviceAddr();
+                    LoRaWan.getMacNwkSessionKey(nwkSkey);
+                    LoRaWan.getMacAppSessionKey(appSkey);
 
                     //devaddr
                     hex2string((uint8_t *)&devAddr, 4, devaddr, true);
