@@ -96,7 +96,7 @@ class Timer
 
         bool _changePeriod(unsigned period, unsigned block, bool fromISR=false)
         {
-            return handle ? !HAL_Software_Timers_Change_Period(handle, fromISR, period, block) : false;
+            return handle ? !HAL_Software_Timers_Change_Period(handle, period, fromISR , block) : false;
         }
 
         /*
