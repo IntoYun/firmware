@@ -865,7 +865,7 @@ bool LoRaWanClass::radioGetRxContinuous(void)
 //读取寄存器值
 uint8_t LoRaWanClass::radioRead(uint8_t addr)
 {
-    Radio.Read(addr);
+    return Radio.Read(addr);
 }
 
 //写寄存器值
