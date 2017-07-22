@@ -5,6 +5,7 @@
 #include "wiring_system.h"
 #include "string_convert.h"
 #include "service_debug.h"
+#include "wiring.h"
 
 #ifndef configNO_LORAWAN
 
@@ -250,8 +251,6 @@ void LoRaWanClass::begin(void)
     LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
     LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
     LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
-
-    // System.on(event_lorawan_status, &LoRaWanEventCallback);
 
     DEBUG("sync data = 0x%x",SX1276Read(0x39));
     DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
@@ -728,6 +727,7 @@ void LoRaWanClass::radioSetFreq(uint32_t freq)
 void LoRaWanClass::radioSetModem(RadioModems_t modem)
 {
     _modem = modem;
+    Radio.SetModem(_modem);
 }
 
 //设置带宽
@@ -772,6 +772,11 @@ void LoRaWanClass::radioSetPreambleLen(uint16_t preambleLen)
 void LoRaWanClass::radioSetTxTimeout(uint32_t timeout)
 {
     _txTimeout = timeout;
+}
+
+void LoRaWanClass::radioSetIqInverted(bool iqInverted)
+{
+    _iqInverted = iqInverted;
 }
 
 void LoRaWanClass::radioSetRxContinuous(bool rxContinuous)
@@ -857,6 +862,11 @@ uint16_t LoRaWanClass::radioGetPreambleLen(void)
     return _preambleLen;
 }
 
+bool LoRaWanClass::radioGetIqInverted(void)
+{
+    return _iqInverted;
+}
+
 bool LoRaWanClass::radioGetRxContinuous(void)
 {
     return _rxContinuous;
@@ -884,7 +894,6 @@ void LoRaWanClass::radioStartCad(void)
 int16_t LoRaWanClass::radioReadRssi(void)
 {
     return LoRaWan._rssi;
-    // return Radio.Rssi(1);
 }
 
 int8_t LoRaWanClass::radioReadSnr(void)
@@ -894,224 +903,112 @@ int8_t LoRaWanClass::radioReadSnr(void)
 
 #endif
 
-// #define TEST_SX1276
-#ifdef TEST_SX1276
-
-
-#include "wiring.h"
-
-#define USE_BAND_433
-#define USE_MODEM_LORA
-
-#define RF_FREQUENCY                               434665000 // Hz
-
-#define TX_OUTPUT_POWER                            20        // dBm
-
-#define LORA_BANDWIDTH                             0         // [0: 125 kHz,
-                                                             //  1: 250 kHz,
-                                                             //  2: 500 kHz,
-                                                             //  3: Reserved]
-
-#define LORA_SPREADING_FACTOR                      7         // [SF7..SF12]
-#define LORA_CODINGRATE                            1         // [1: 4/5,
-                                                             //  2: 4/6,
-                                                             //  3: 4/7,
-                                                             //  4: 4/8]
-
-#define LORA_PREAMBLE_LENGTH                       8         // Same for Tx and Rx
-#define LORA_SYMBOL_TIMEOUT                        1023      // Symbols
-#define LORA_FIX_LENGTH_PAYLOAD_ON                 false
-#define LORA_IQ_INVERSION_ON                       true
-
+//生产时板子测试代码
+#define RF_FREQUENCY        434665000 // Hz
+#define RF_IQ_INVERTED      true
+#define RX_TIMEOUT_VALUE    2000
+#define BUFFER_SIZE         8 // Define the payload size here
 
 typedef enum
 {
     LOWPOWER,
-    RX_SX1276,
+    RX_DONE,
     RX_TIMEOUT,
     RX_ERROR,
-    TX_SX1276,
+    TX_DONE,
     TX_TIMEOUT,
-    TX_STATUS,
-    RX_STATUS
+    TX_START,
 }States_t;
 
-#define RX_TIMEOUT_VALUE    1000
-#define BUFFER_SIZE         64 // Define the payload size here
-
 static uint16_t BufferSize = BUFFER_SIZE;
-
+static int8_t Buffer[BUFFER_SIZE] = {11,20,30,40,50,60,70,80};
 static States_t State = LOWPOWER;
-
 static int8_t RssiValue = 0;
 static int8_t SnrValue = 0;
-static uint32_t currentTime = 0;
 static uint8_t sx1278Version = 0;
+static RadioEvents_t testRadioEvents;
 
-static int8_t Buffer[BUFFER_SIZE] = {11,20,30,40,50,60,70,80};
+static void TestOnTxDone( void );
+static void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
+static void TestOnTxTimeout( void );
+static void TestOnRxTimeout( void );
+static void TestOnRxError( void );
+static void TestSX1278Init(void);
+static int8_t TestSX1278Run(void);
 
-static RadioEvents_t RadioEvents;
-static void OnTxDone( void );
-static void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
-static void OnTxTimeout( void );
-static void OnRxTimeout( void );
-static void OnRxError( void );
-static void TestSX1276Init(void);
-static uint8_t ProcessSX1276(void);
-
-void TestSX1276Init(void)
+void TestSX1278Init(void)
 {
     SX1276BoardInit();
 
     // Radio initialization
-    RadioEvents.TxDone = OnTxDone;
-    RadioEvents.RxDone = OnRxDone;
-    RadioEvents.TxTimeout = OnTxTimeout;
-    RadioEvents.RxTimeout = OnRxTimeout;
-    RadioEvents.RxError = OnRxError;
+    testRadioEvents.TxDone = TestOnTxDone;
+    testRadioEvents.RxDone = TestOnRxDone;
+    testRadioEvents.TxTimeout = TestOnTxTimeout;
+    testRadioEvents.RxTimeout = TestOnRxTimeout;
+    testRadioEvents.RxError = TestOnRxError;
+    Radio.Init( &testRadioEvents );
 
-    Radio.Init( &RadioEvents );
+    LoRaWan.radioSetFreq(RF_FREQUENCY);
+    LoRaWan.radioSetModem(MODEM_LORA);
+    LoRaWan.radioSetIqInverted(RF_IQ_INVERTED);
 
-    Radio.SetChannel( RF_FREQUENCY );
-
-    Radio.SetModem( MODEM_LORA );
-
-    SX1276Write(0x39,0x12);
-    sx1278Version = SX1276GetVersion();
+    sx1278Version = LoRaWan.radioRead(0x42);
     // DEBUG("sx1278 version = 0x%2x", sx1278Version);
     // DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
-    // DEBUG("sync data = 0x%2x",SX1276Read(0x39));
+    // DEBUG("sync data = 0x%2x",LoRaWan.radioRead(0x39));
 
-    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-                       LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-                       LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                       true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
-
-    Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
-                       LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
-                       LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                       0, true, 0, 0, LORA_IQ_INVERSION_ON, 1 );
-
-    Radio.Rx( 0);
-
-    State = TX_STATUS;
-    currentTime = timerGetId();
+    State = TX_START;
 }
 
 
-uint8_t ProcessSX1276(void)
+int8_t TestSX1278Run(void)
 {
     switch(State)
     {
-        case TX_STATUS:
-                Radio.Send( Buffer, BufferSize );
+        case TX_START:
+                LoRaWan.radioSend(Buffer,BufferSize);
                 State = LOWPOWER;
                 return 0;
             break;
 
-        case TX_SX1276:
-                Radio.Rx( 0 );
+        case TX_DONE:
+                LoRaWan.radioRx(RX_TIMEOUT_VALUE);
                 State = LOWPOWER;
                 return 1;
             break;
 
-        case RX_SX1276:
+        case RX_DONE:
             return 2;
             break;
 
         case LOWPOWER:
-            if(timerIsEnd(currentTime,2000)) // 2s rx timeout
-            {
-                return 255;
-            }
-            else
-            {
-                return 1;
-            }
-
             break;
+
+         case TX_TIMEOUT:
+         case RX_TIMEOUT:
+         case RX_ERROR:
+             return -1;
+             break;
 
         default:
             break;
     }
 }
 
-void OnTxDone( void )
+bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
 {
-    Radio.Sleep( );
-    State = TX_SX1276;
-    // DEBUG("tx done");
-}
-
-void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
-{
-    Radio.Sleep( );
-    BufferSize = size;
-    memcpy( Buffer, payload, BufferSize );
-    State = RX_SX1276;
-
-    RssiValue = rssi;
-    SnrValue = snr;
-
-    #if 0
-    DEBUG("rx done");
-    DEBUG_D("rx data:");
-    for(uint8_t i=0; i<BufferSize; i++)
-    {
-        if(Buffer[i] != 0)
-        {
-            DEBUG_D("%d ",Buffer[i]);
-        }
-    }
-    DEBUG_D("\r\n");
-    #endif
-}
-
-void OnTxTimeout( void )
-{
-    Radio.Sleep( );
-    State = TX_TIMEOUT;
-    // DEBUG("tx timeout");
-}
-
-void OnRxTimeout( void )
-{
-    Radio.Sleep( );
-    State = RX_TIMEOUT;
-    // DEBUG("rx timeout");
-}
-
-void OnRxError( void )
-{
-    Radio.Sleep( );
-    State = RX_ERROR;
-    // DEBUG("rx error");
-}
-
-
-uint32_t currTime = 0;
-
-bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
-{
-    TestSX1276Init();
+    TestSX1278Init();
     if(sx1278Version != 18)
     {
         return false;
     }
     else
     {
-        currTime = timerGetId();
         while(1)
         {
-            switch(ProcessSX1276())
+            switch(TestSX1278Run())
             {
                 case 0:
-                    if(timerIsEnd(currTime,2000)) // tx timeout
-                    {
-                        return false;
-                    }
-                    break;
-
                 case 1:
                     break;
 
@@ -1132,18 +1029,61 @@ bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
                     break;
 
                 default:
-                    return false; // rx timeout
+                    return false; // tx or rx timeout
                     break;
             }
         }
     }
 }
 
-#else
-
-bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
+void TestOnTxDone( void )
 {
-    return false;
+    LoRaWan.radioSetSleep();
+    State = TX_DONE;
+    // DEBUG("tx done");
 }
-#endif
 
+void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
+{
+    LoRaWan.radioSetSleep();
+    BufferSize = size;
+    memcpy( Buffer, payload, BufferSize );
+    State = RX_DONE;
+
+    RssiValue = rssi;
+    SnrValue = snr;
+    // DEBUG("rx done");
+
+    #if 0
+    DEBUG_D("rx data:");
+    for(uint8_t i=0; i<BufferSize; i++)
+    {
+        if(Buffer[i] != 0)
+        {
+            DEBUG_D("%d ",Buffer[i]);
+        }
+    }
+    DEBUG_D("\r\n");
+    #endif
+}
+
+void TestOnTxTimeout( void )
+{
+    LoRaWan.radioSetSleep();
+    State = TX_TIMEOUT;
+    // DEBUG("tx timeout");
+}
+
+void TestOnRxTimeout( void )
+{
+    LoRaWan.radioSetSleep();
+    State = RX_TIMEOUT;
+    // DEBUG("rx timeout");
+}
+
+void TestOnRxError( void )
+{
+    LoRaWan.radioSetSleep();
+    State = RX_ERROR;
+    // DEBUG("rx error");
+}

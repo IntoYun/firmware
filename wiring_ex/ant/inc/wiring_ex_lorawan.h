@@ -207,6 +207,8 @@ class LoRaWanClass
         void radioSetPreambleLen(uint16_t preambleLen);
         //设置发送超时时间 单位ms
         void radioSetTxTimeout(uint32_t timeout);
+        //设置iq翻转
+        void radioSetIqInverted(bool iqInverted);
         //设置接收模式
         void radioSetRxContinuous(bool rxContinuous);
         //设置负载最大长度
@@ -234,6 +236,8 @@ class LoRaWanClass
         uint8_t radioGetCoderate(void);
         //获取前导码超时值
         uint16_t radioGetSymbTimeout(void);
+        //获取Iq是否翻转
+        bool radioGetIqInverted(void);
         //获取接收模式值
         bool radioGetRxContinuous(void);
         //获取crc是否开启 0:关闭1:开启
@@ -256,7 +260,7 @@ class LoRaWanClass
 
 extern LoRaWanClass LoRaWan;
 
-bool SX1276Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
+bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 #endif /* WIRING_LORAWAN_H_ */
 
