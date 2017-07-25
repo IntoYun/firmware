@@ -73,6 +73,7 @@ void downfile_rsp(void *arg){
             DEBUG("online_app_success\r\n");
             _downOnlineAppFile_status = DOWNSTATUS_SUCCESS;
         }
+#if PLATFORM_NUT == PLATFORM_ID
         else if(BOOT_FILE == filetype) //esp8266升级文件
         {
             DEBUG("boot_success\r\n");
@@ -85,6 +86,7 @@ void downfile_rsp(void *arg){
             DEBUG("default_app_success\r\n");
             _downDefaultAppFile_status = DOWNSTATUS_SUCCESS;
         }
+#endif
     }
     else
     {

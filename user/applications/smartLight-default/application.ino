@@ -7,7 +7,7 @@ SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 #define SMARTLIGHT_CMD_SWITCH    "channel/smartLight_0/cmd/switch"   //开关命令
 #define SMARTLIGHT_DATA_STATUS   "channel/smartLight_0/data/status"  //开关状态
 
-#define LEDPIN    LED_USER    //定义灯泡控制引脚
+#define LEDPIN    LED_BUILTIN    //定义灯泡控制引脚
 
 void smartLightSwitchCb(uint8_t *payload, uint32_t len)
 {

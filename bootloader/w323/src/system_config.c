@@ -59,7 +59,7 @@ static void Update_flash_config(void)
     esp_image_header_t fhdr;
     uint32_t size;
 
-    if(esp_image_load_header(APP_ADDR, true, &fhdr) != ESP_OK) {
+    if(esp_image_load_header(APP_START_ADDR, true, &fhdr) != ESP_OK) {
         return;
     }
     SPIUnlock();
