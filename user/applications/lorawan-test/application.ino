@@ -16,7 +16,7 @@ PRODUCT_VERSION(2)     //产品版本号
 #define DPID_NUMBER_RHEOSTAT             5        //速度
 #define DPID_STRING_LCD_DISPLAY          6        //字符显示
 
-#define LEDPIN    LED_USER    //例子灯
+#define LEDPIN    LED_BUILTIN    //例子灯
 
 int LightMode;
 double Temperature;

@@ -109,6 +109,7 @@ void ICACHE_FLASH_ATTR system_upgrade_init(void)
         upgrade->fw_bin_sec = CACHE_ONLINE_APP_SEC_START;
         upgrade->fw_bin_sec_num = CACHE_ONLINE_APP_SEC_NUM;
     }
+#if PLATFORM_NUT == PLATFORM_ID
     else if (BOOT_FILE == filetype){
         upgrade->fw_bin_sec = CACHE_BOOT_SEC_START;
         upgrade->fw_bin_sec_num = CACHE_BOOT_SEC_NUM;
@@ -117,6 +118,7 @@ void ICACHE_FLASH_ATTR system_upgrade_init(void)
         upgrade->fw_bin_sec = CACHE_DEFAULT_APP_SEC_START;
         upgrade->fw_bin_sec_num = CACHE_DEFAULT_APP_SEC_NUM;
     }
+#endif
     DEBUG("sec=%d  sec_num=%d", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
     upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
 }
@@ -281,12 +283,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
                 if (ONLINE_APP_FILE == filetype) {
                     limit_size = CACHE_ONLINE_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
                 }
+#if PLATFORM_NUT == PLATFORM_ID
                 else if (BOOT_FILE == filetype) {
                     limit_size = CACHE_BOOT_SEC_NUM * SPI_FLASH_SEC_SIZE;
                 }
                 else if (DEFAULT_APP_FILE == filetype) {
                     limit_size = CACHE_DEFAULT_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
                 }
+#endif
 
                 if(sumlength >= limit_size){
                     DEBUG("sumlength failed\n");
@@ -330,12 +334,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
     if (ONLINE_APP_FILE == filetype) {
         down_progress = totallength*100/sumlength;
     }
+#if PLATFORM_NUT == PLATFORM_ID
     else if (BOOT_FILE == filetype) { //下载完毕进度60
         down_progress = totallength*10/sumlength;
     }
     else if (DEFAULT_APP_FILE == filetype) { //下载完毕进度100
         down_progress = 10+totallength*90/sumlength;
     }
+#endif
 
     if ((totallength == sumlength)) {
         DEBUG("upgrade file download finished.\n");
@@ -353,12 +359,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
             if (ONLINE_APP_FILE == filetype) {
                 HAL_PARAMS_Set_Boot_ota_app_size(sumlength);
             }
+#if PLATFORM_NUT == PLATFORM_ID
             else if (BOOT_FILE == filetype) {
                 HAL_PARAMS_Set_Boot_boot_size(sumlength);
             }
             else if (DEFAULT_APP_FILE == filetype) {
                 HAL_PARAMS_Set_Boot_def_app_size(sumlength);
             }
+#endif
             else {
             }
             HAL_PARAMS_Save_Params();

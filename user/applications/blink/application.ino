@@ -5,7 +5,7 @@
 //SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);
 //SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
-#define LEDPIN    LED_USER    //例子灯
+#define LEDPIN    LED_BUILTIN    //例子灯
 
 void setup()
 {
