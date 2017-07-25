@@ -117,11 +117,7 @@ bool FLASH_Restore(Firmware_TypeDef FmType)
     uint32_t size;
 
     if(DEFAULT_FIRWARE == FmType) {
-        size = HAL_PARAMS_Get_Boot_def_app_size();
-        if(0 == size) {
-            size = DEFAULT_APP_SEC_NUM*SPI_FLASH_SEC_SIZE;
-        }
-        result = copy_raw(DEFAULT_APP_ADDR, APP_ADDR, size);
+        result = true;
     }
     else
     {

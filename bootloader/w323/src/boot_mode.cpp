@@ -148,7 +148,7 @@ static void load_app(const uint32_t flash_addr)
 
 void start_app(void)
 {
-    load_app(APP_ADDR);
+    load_app(APP_START_ADDR);
 
     while(true)
     {}
@@ -199,11 +199,7 @@ bool FLASH_Restore(Firmware_TypeDef FmType)
     uint32_t size;
 
     if(DEFAULT_FIRWARE == FmType) {
-        size = HAL_PARAMS_Get_Boot_def_app_size();
-        if(0 == size) {
-            size = DEFAULT_APP_SEC_NUM*SPI_FLASH_SEC_SIZE;
-        }
-        result = copy_raw(DEFAULT_APP_ADDR, APP_ADDR, size);
+        result = true;
     }
     else
     {
@@ -211,7 +207,7 @@ bool FLASH_Restore(Firmware_TypeDef FmType)
         if(0 == size) {
             return true;
         }
-        result = copy_raw(CACHE_ONLINE_APP_ADDR, APP_ADDR, size);
+        result = copy_raw(CACHE_ONLINE_APP_START_ADDR, APP_START_ADDR, size);
     }
     return result;
 }

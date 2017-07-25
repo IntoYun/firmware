@@ -44,14 +44,14 @@
 #define SYSTEM_PARAMS_SEC_START          8    //用户系统参数区
 #define EEPROM_SEC_START                 12   //eeprom模拟区
 #define APP_SEC_START                    20   //应用程序运行起始扇区
-#define CACHE_ONLINE_APP_SEC_START       276  //默认应用程序存放起始扇区
+#define CACHE_ONLINE_APP_SEC_START       276  //应用程序下载缓冲区起始扇区
 
 #define BOOT_SEC_NUM                     6    //BOOT占用总扇区
 #define MAC_SEC_NUM                      1    //mac 地址暂存扇区个数
 #define BOOT_PARAMS_SEC_NUM              1    //boot参数区扇区总个数
 #define SYSTEM_PARAMS_SEC_NUM            4    //用户系统参数区扇区总个数
 #define APP_SEC_NUM                      256  //应用程序扇区总个数
-#define CACHE_ONLINE_APP_SEC_NUM         256  //默认应用程序扇区总个数
+#define CACHE_ONLINE_APP_SEC_NUM         256  //应用程序下载缓冲区扇区总个数
 
 #define BOOT_ADDR                        BOOT_SEC_START * SPI_FLASH_SEC_SIZE              //BOOT存放地址
 #define FLASH_MAC_START_ADDR             MAC_SEC_START * SPI_FLASH_SEC_SIZE      //boot参数起始地址
@@ -63,3 +63,4 @@
 #define CACHE_ONLINE_APP_ADDR            CACHE_ONLINE_APP_SEC_START * SPI_FLASH_SEC_SIZE  //在线编程程序下载存放地址
 
 #endif /*FLASH_MAP_H_*/
+

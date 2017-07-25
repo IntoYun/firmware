@@ -20,7 +20,6 @@
 #ifndef FLASH_MAP_H_
 #define FLASH_MAP_H_
 
-
 #define SPI_FLASH_SEC_SIZE      0x1000     //Flash 扇区大小
 #define LIMIT_ERASE_SIZE        0x10000    //Flash 擦除扇区大小限制
 
@@ -49,26 +48,42 @@
 #define SYSTEM_PARAMS_SEC_START          18   //用户系统参数区
 #define EEPROM_SEC_START                 22   //eeprom模拟区
 #define APP_SEC_START                    32   //应用程序运行起始扇区
-#define CACHE_ONLINE_APP_SEC_START       288  //应用程序下载缓冲区起始扇区
+#define DEFAULT_APP_SEC_START            288  //默认应用程序存放起始扇区
+#define CACHE_BOOT_SEC_START             537  //boot存放起始扇区
+#define CACHE_ONLINE_APP_SEC_START       544  //在线编程 缓冲起始扇区
+#define CACHE_DEFAULT_APP_SEC_START      544  //默认固件 缓冲起始扇区
+
 
 #define BOOT_SEC_NUM                     7    //BOOT占用总扇区
 #define MAC_SEC_NUM                      1    //mac 地址暂存扇区个数
 #define BOOT_PARAMS_SEC_NUM              1    //boot参数区扇区总个数
 #define SYSTEM_PARAMS_SEC_NUM            4    //用户系统参数区扇区总个数
 #define APP_SEC_NUM                      256  //应用程序扇区总个数
-#define CACHE_ONLINE_APP_SEC_NUM         256  //应用程序下载缓冲区扇区总个数
+#define DEFAULT_APP_SEC_NUM              249  //默认应用程序扇区总个数
+#define CACHE_BOOT_SEC_NUM               7    //boot程序扇区总个数
+#define CACHE_ONLINE_APP_SEC_NUM         256  //在线应用程序  缓冲扇区总个数
+#define CACHE_DEFAULT_APP_SEC_NUM        256  //默认应用程序 缓冲扇区总个数
 
-#define BOOT_START_ADDR                  BOOT_SEC_START * SPI_FLASH_SEC_SIZE                                     //boot存放起始地址
-#define BOOT_END_ADDR                    ((BOOT_SEC_START + BOOT_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)              //boot存放结束地址
 #define FLASH_MAC_START_ADDR             MAC_SEC_START * SPI_FLASH_SEC_SIZE                          //mac 存储起始地址
 #define FLASH_MAC_END_ADDR               ((MAC_SEC_START + MAC_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)    //mac 存储结束地址
 #define BOOT_PARAMS_START_ADDR           BOOT_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE                                   //boot参数起始地址
 #define BOOT_PARAMS_END_ADDR             ((BOOT_PARAMS_SEC_START + BOOT_PARAMS_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)     //boot参数结束地址
 #define SYSTEM_PARAMS_START_ADDR         SYSTEM_PARAMS_SEC_START * SPI_FLASH_SEC_SIZE                                 //应用参数起始地址
 #define SYSTEM_PARAMS_END_ADDR           ((SYSTEM_PARAMS_SEC_START + SYSTEM_PARAMS_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1) //应用参数结束地址
+
+#define BOOT_START_ADDR                  BOOT_SEC_START * SPI_FLASH_SEC_SIZE                                     //boot存放起始地址
+#define BOOT_END_ADDR                    ((BOOT_SEC_START + BOOT_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)              //boot存放结束地址
 #define APP_START_ADDR                   APP_SEC_START * SPI_FLASH_SEC_SIZE                                      //应用程序存放起始地址
 #define APP_END_ADDR                     ((APP_SEC_START + APP_SEC_NUM) * SPI_FLASH_SEC_SIZE -1)                 //应用程序存放结束地址
+#define DEFAULT_APP_START_ADDR           DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE                              //默认程序 存放起始地址
+#define DEFAULT_APP_END_ADDR             ((DEFAULT_APP_SEC_START + DEFAULT_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE -1) //默认程序 存放结束地址
+
+#define CACHE_BOOT_START_ADDR            CACHE_BOOT_SEC_START * SPI_FLASH_SEC_SIZE                                    //bootloader下载存放起始位置
+#define CACHE_BOOT_END_ADDR              ((CACHE_BOOT_SEC_START + CACHE_BOOT_SEC_NUM) * SPI_FLASH_SEC_SIZE -1)        //bootloader下载存放结束位置
 #define CACHE_ONLINE_APP_START_ADDR      CACHE_ONLINE_APP_SEC_START * SPI_FLASH_SEC_SIZE                              //在线编程程序下载存放起始地址
 #define CACHE_ONLINE_APP_END_ADDR        ((CACHE_ONLINE_APP_SEC_START + CACHE_ONLINE_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1)   //在线编程程序下载存放结束地址
+#define CACHE_DEFAULT_APP_START_ADDR     CACHE_DEFAULT_APP_SEC_START * SPI_FLASH_SEC_SIZE                                     //默认程序下载存放起始地址
+#define CACHE_DEFAULT_APP_END_ADDR       ((CACHE_DEFAULT_APP_SEC_START + CACHE_DEFAULT_APP_SEC_NUM) * SPI_FLASH_SEC_SIZE - 1) //默认程序下载存放结束地址
+#define SUBSYS_VERSION_ADDR              DEFAULT_APP_START_ADDR+0x10000+0x10                            //子系统程序版本号
 
 #endif /*FLASH_MAP_H_*/
