@@ -228,5 +228,7 @@ void HAL_Core_System_Yield(void)
 
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
+    info->freeheap = esp_get_free_heap_size();
     return 0;
 }
+
