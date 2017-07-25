@@ -59,13 +59,15 @@ SUBSYS_VERSION_STRING_FOX = 1.0.0.1
 #w67
 #w67子系统的版本号，主要用于管理bootloader程序
 #版本号组成:  前面3位固定为1.0.0, 第四位为bootloader的版本号。
-SUBSYS_VERSION_STRING_W67 = 1.0.0.1
+#SUBSYS_VERSION_STRING_W67 = 1.0.0.1
+SUBSYS_VERSION_STRING_W67 = 1.0.1.2
 
 
 #w323
 #w323子系统的版本号，主要用于管理bootloader程序
 #版本号组成:  前面3位固定为1.0.0, 第四位为bootloader的版本号。
-SUBSYS_VERSION_STRING_W323 = 1.0.0.1
+#SUBSYS_VERSION_STRING_W323 = 1.0.0.1
+SUBSYS_VERSION_STRING_W323 = 1.0.1.2
 
 
 #l6

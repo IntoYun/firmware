@@ -16,7 +16,9 @@
 #include "soc/cpu.h"
 
 
-#define BOOTLOADER_VERSION  1
+//修改记录见README.md
+//#define BOOTLOADER_VERSION  1
+#define BOOTLOADER_VERSION  2
 
 
 uint8_t FACTORY_RESET_MODE=0;
