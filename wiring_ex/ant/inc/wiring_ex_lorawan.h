@@ -115,7 +115,10 @@ class LoRaWanClass
         void loramacPause(void);
         //恢复loramac
         void loramacResume(void);
-
+        //不固定频率
+        void macUnfixedFrequency(void);
+        //不固定扩频因子
+        void macUnfixedDatarate(void);
         //初始化
         void begin(void);
         //OTAA入网激活

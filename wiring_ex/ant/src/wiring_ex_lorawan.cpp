@@ -242,6 +242,16 @@ void LoRaWanClass::loramacResume(void)
     System.enableFeature(SYSTEM_FEATURE_LORAMAC_ENABLED);
 }
 
+void LoRaWanClass::macUnfixedFrequency(void)
+{
+    System.disableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED);
+}
+
+void LoRaWanClass::macUnfixedDatarate(void)
+{
+    System.disableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED);
+}
+
 //初始化
 void LoRaWanClass::begin(void)
 {

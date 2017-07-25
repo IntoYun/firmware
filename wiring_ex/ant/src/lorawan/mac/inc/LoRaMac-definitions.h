@@ -32,6 +32,14 @@ extern "C" {
 
 #if defined( USE_BAND_433 )
 
+#define LORAMAC_TX_RX1_FIXED_FREQUENCY    433575000
+#define LORAMAC_TX_RX1_FIXED_DATARATE     DR_5
+
+#define LORAMAC_RX2_FIXED_FREQUENCY    434665000
+#define LORAMAC_RX2_FIXED_DATARATE     DR_0
+
+#define LORAMAC_FIXED_BANDWIDTH    0
+
 /*!
  * LoRaMac maximum number of channels
  */
