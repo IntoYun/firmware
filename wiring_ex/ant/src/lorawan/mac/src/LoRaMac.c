@@ -1410,6 +1410,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         {
                             SrvAckRequested = true;
                             McpsIndication.McpsIndication = MCPS_CONFIRMED;
+                            LORAMAC_DEBUG("loramac servr ack requested");
 
                             if( ( DownLinkCounter == downLinkCounter ) &&
                                 ( DownLinkCounter != 0 ) )
@@ -1420,6 +1421,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 // It should not provide the same frame to the application
                                 // layer again.
                                 skipIndication = true;
+                                LORAMAC_DEBUG("loramac downLinkCounter is not equal");
                             }
                         }
                         else
@@ -1780,6 +1782,7 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
                 }
+                LORAMAC_DEBUG("loramac confirmed frame ack send again");
                 // Try to send the frame again
                 if( ScheduleTx( ) == LORAMAC_STATUS_OK )
                 {
@@ -1918,12 +1921,10 @@ static void OnRxWindow1TimerEvent( void )
     }
 
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-    /* if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE)) */
     if(!LoRaMacIsFixedDatarate())
     {
         RxWindowSetup( Channels[Channel].Frequency, RxWindowsParams[0].Datarate, RxWindowsParams[0].Bandwidth, RxWindowsParams[0].RxWindowTimeout, false );
     }
-    /* else if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY)) */
     else if(!LoRaMacIsFixedFrequency())
     {
         RxWindowSetup( Channels[Channel].Frequency, LORAMAC_TX_RX1_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[0].RxWindowTimeout, false );
@@ -1955,7 +1956,6 @@ static void OnRxWindow2TimerEvent( void )
         rxContinuousMode = true;
     }
 
-    /* if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE)) //不固定速率 运行本身lorawan协议 */
     if(!LoRaMacIsFixedDatarate())
     {
         if( RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, RxWindowsParams[1].Datarate, RxWindowsParams[1].Bandwidth, RxWindowsParams[1].RxWindowTimeout, rxContinuousMode ) == true )
@@ -1963,7 +1963,6 @@ static void OnRxWindow2TimerEvent( void )
             RxSlot = 1;
         }
     }
-    /* else if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY)) //不固定频率 固定速率SF=12 */
     else if(!LoRaMacIsFixedFrequency())
     {
         if(RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LORAMAC_RX2_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[1].RxWindowTimeout, rxContinuousMode ) == true)
@@ -3061,6 +3060,12 @@ static LoRaMacStatus_t ScheduleTx( void )
     }
     else
     {
+        /* if(NodeAckRequested == false) */
+        /* { */
+            dutyCycleTimeOff += randr(0,2000);
+            /* LORAMAC_DEBUG("NodeAckRequested=false set dutyCycleTimeOff"); */
+        /* } */
+        LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff);
         // Send later - prepare timer
         LoRaMacState |= LORAMAC_TX_DELAYED;
         TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
@@ -3394,19 +3399,17 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     McpsConfirm.TxPower = txPowerIndex;
     McpsConfirm.UpLinkFrequency = channel.Frequency;
 
-    LORAMAC_DEBUG("tx frequency = %d",channel.Frequency);
-    /* if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY)) */
     if(!LoRaMacIsFixedFrequency())
     {
         Radio.SetChannel( channel.Frequency );
+        LORAMAC_DEBUG("loramac tx frequency = %d",channel.Frequency);
     }
     else
     {
         Radio.SetChannel(LORAMAC_TX_RX1_FIXED_FREQUENCY);
-        LORAMAC_DEBUG("tx fixed frequency = %d",LORAMAC_TX_RX1_FIXED_FREQUENCY);
+        LORAMAC_DEBUG("loramac tx fixed frequency = %d",LORAMAC_TX_RX1_FIXED_FREQUENCY);
     }
 
-    /* if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE)) */
     if(LoRaMacIsFixedDatarate())
     {
         datarate = 7;
@@ -3428,7 +3431,7 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     }
     else
     { // Normal LoRa channel
-        #if  1
+        #if  0
         LORAMAC_DEBUG("loramac normal channel send");
         LORAMAC_DEBUG("tx power=%d",txPower);
         LORAMAC_DEBUG("datarate=%d",datarate);

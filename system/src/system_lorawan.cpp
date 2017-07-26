@@ -139,6 +139,7 @@ void intorobot_lorawan_send_data(char* buffer, uint16_t len)
     if(intorobot_lorawan_flag_connected())
     {
         LoRaWan.sendUnconfirmedFrame(buffer,len);
+        // LoRaWan.sendConfirmedFrame(buffer,len);
     }
 }
 
@@ -188,6 +189,10 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
             case LORAWAN_EVENT_JOIN_FAIL:
                 SLORAWAN_DEBUG("--event join failed--");
+                LoRaWan.getDeviceEUI(NULL);
+                LoRaWan.getAppEUI(NULL);
+                LoRaWan.getAppKey(NULL);
+                LoRaWan.joinOTAA();
                 break;
 
             case LORAWAN_EVENT_TX_COMPLETE:
@@ -200,6 +205,16 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     int len;
                     uint8_t buffer[256];
                     len = LoRaWan.receiveFrame(buffer);
+
+                    #if 1
+                    SLORAWAN_DEBUG_D("lorawan receive data:");
+                    for(uint16_t i=0;i<len;i++)
+                    {
+                        SLORAWAN_DEBUG_D("0x%x ",buffer[i]);
+                    }
+                    SLORAWAN_DEBUG_D("\r\n");
+                    #endif
+
                     if(len == -1)
                     {
                         return;

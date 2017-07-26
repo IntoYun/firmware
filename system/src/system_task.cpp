@@ -377,7 +377,9 @@ void LoraWAN_Setup(void)
                     STASK_DEBUG("app key= 0x%x",appKey[i]);
                 }
 #endif
-
+                int32_t joinDelay = LoRaWan.getRandomNumber(0,30000);
+                STASK_DEBUG("joinDelay = %d",joinDelay);
+                delay((uint32_t)joinDelay);
                 LoRaWan.joinOTAA(devEui,appEui,appKey);
             }
             break;

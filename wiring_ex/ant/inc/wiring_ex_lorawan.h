@@ -119,6 +119,10 @@ class LoRaWanClass
         void macUnfixedFrequency(void);
         //不固定扩频因子
         void macUnfixedDatarate(void);
+        //设置随机种子
+        void setRandomSeed(void);
+        //获取随机数
+        int32_t getRandomNumber(int32_t min, int32_t max);
         //初始化
         void begin(void);
         //OTAA入网激活

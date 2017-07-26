@@ -252,6 +252,16 @@ void LoRaWanClass::macUnfixedDatarate(void)
     System.disableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED);
 }
 
+void LoRaWanClass::setRandomSeed(void)
+{
+    srand1( Radio.Random( ) );
+}
+
+int32_t LoRaWanClass::getRandomNumber(int32_t min, int32_t max)
+{
+    return randr(min,max);
+}
+
 //初始化
 void LoRaWanClass::begin(void)
 {

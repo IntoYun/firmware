@@ -83,8 +83,13 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
     }
 }
 
+void init_before_setup(void)
+{
+    // LoRaWan.macUnfixedFrequency();
+    // LoRaWan.macUnfixedDatarate();
+}
 
-//STARTUP( LoRaWan.macUnfixedDatarate());
+STARTUP(init_before_setup());
 
 void setup()
 {
@@ -118,6 +123,6 @@ void loop()
     IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
 
     IntoRobot.sendDatapointAll();
-    delay(10000);
+    delay(20000+LoRaWan.getRandomNumber(0,5000));
 }
 
