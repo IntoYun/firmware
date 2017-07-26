@@ -2139,7 +2139,7 @@ static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
     if( Radio.GetStatus( ) == RF_IDLE )
     {
         Radio.SetChannel( freq );
-        LORAMAC_DEBUG("rx frequency = %d",freq);
+        /* LORAMAC_DEBUG("rx frequency = %d",freq); */
 
         // Store downlink datarate
         McpsIndication.RxDatarate = ( uint8_t ) datarate;
@@ -2153,7 +2153,7 @@ static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
         else
         {
             modem = MODEM_LORA;
-            #if 1
+            #if 0
             LORAMAC_DEBUG("bandwidth = %d",bandwidth);
             LORAMAC_DEBUG("datarate = %d",downlinkDatarate);
             LORAMAC_DEBUG("timeout = %d",timeout);
@@ -3403,6 +3403,7 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     else
     {
         Radio.SetChannel(LORAMAC_TX_RX1_FIXED_FREQUENCY);
+        LORAMAC_DEBUG("tx fixed frequency = %d",LORAMAC_TX_RX1_FIXED_FREQUENCY);
     }
 
     /* if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE)) */

@@ -83,6 +83,9 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
     }
 }
 
+
+//STARTUP( LoRaWan.macUnfixedDatarate());
+
 void setup()
 {
     Serial.begin(115200);

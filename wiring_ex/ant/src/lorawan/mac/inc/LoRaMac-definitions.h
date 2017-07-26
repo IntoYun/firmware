@@ -130,8 +130,6 @@ extern "C" {
  */
 // Channel = { Frequency [Hz], Datarate }
 #define RX_WND_2_CHANNEL                                  { 434665000, DR_0 }
-//先固定频率进行调试
-// #define RX_WND_2_CHANNEL                                  { 434000000, DR_0 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -145,13 +143,13 @@ extern "C" {
  * LoRaMac default channels
  */
 // Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
-// #define LC1                { 433175000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-// #define LC2                { 433375000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-// #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-//先固定频率进行调试
-#define LC1                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC2                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC1                { 433175000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC2                { 433375000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+//先固定频率进行调试
+// #define LC1                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+// #define LC2                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+// #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
