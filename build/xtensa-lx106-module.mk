@@ -87,7 +87,7 @@ $(TARGET_BASE).elf : $(ALLOBJ) $(LIB_DEPS) $(LINKER_DEPS)
 	$(call echo,'Building target: $@')
 	$(call echo,'Invoking: XTENSA GCC C++ Linker')
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)$(CPP) $(CFLAGS) $(ALLOBJ) --output $@ $(LDFLAGS)
+	$(VERBOSE)$(CPP) $(ALLOBJ) --output $@ $(LDFLAGS)
 	$(call echo,)
 
 # Tool invocations
