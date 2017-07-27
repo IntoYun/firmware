@@ -903,7 +903,9 @@ static void McuEnterStopMode(void)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
     HAL_Pin_Mode(SX1278_NSS,INPUT_PULLUP);
 
+#ifdef configHAL_USB_CDC_ENABLE
     USB_USART_Initial(0);
+#endif
     /* __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗 USB_USART_Initial(0)会运行此功能*/
     __HAL_RCC_LSI_DISABLE();
 
@@ -923,5 +925,7 @@ void BoardDeInitMcu(void)
 void BoardInitMcu(void)
 {
     Set_System();
+#ifdef configHAL_USB_CDC_ENABLE
     USB_USART_Initial(115200);
+#endif
 }

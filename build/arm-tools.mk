@@ -29,19 +29,20 @@ CONLYFLAGS += -Wno-pointer-sign -std=gnu99
 # C++ 编译参数  -fpermissive 把代码的语法错误作为警告,并继续编译进程
 CPPFLAGS += -fno-exceptions -fno-rtti -fcheck-new -std=gnu++11 -fpermissive
 
-ASFLAGS += -mcpu=$(MCU_CORE) -g3 -gdwarf-2 -mthumb -x assembler-with-cpp -fmessage-length=0
+ASFLAGS += -mcpu=$(MCU_CORE) -g3 -gdwarf-2 -Os -mthumb -x assembler-with-cpp -fmessage-length=0
 
-LDFLAGS += -nostartfiles -mlittle-endian -Xlinker --gc-sections
+LDFLAGS += -mcpu=$(MCU_CORE) -Os -mthumb -nostartfiles -mlittle-endian -Xlinker --gc-sections
 
 
 ifeq ($(COMPILE_LTO),y)
-CFLAGS += -flto
-LDFLAGS += -flto -Os -fuse-linker-plugin
+CFLAGS += -flto -fno-fat-lto-objects
+CPPFLAGS += -flto -fno-devirtualize
+LDFLAGS += -flto -fuse-linker-plugin
 endif
 
 
-INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
-
+#INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
+INTOROBOT_SERIAL_DEV = /dev/cu.usbmodemFD1231
 
 
 
