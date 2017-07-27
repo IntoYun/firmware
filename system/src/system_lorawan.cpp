@@ -130,6 +130,7 @@ void intorobot_lorawan_send_terminal_info(void)
     {
         SLORAWAN_DEBUG_D("%02x ", buffer[i]);
     }
+    SLORAWAN_DEBUG_D("\r\n");
 
     LoRaWan.sendUnconfirmedFrame(buffer,index);
 }
@@ -189,10 +190,8 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
             case LORAWAN_EVENT_JOIN_FAIL:
                 SLORAWAN_DEBUG("--event join failed--");
-                LoRaWan.getDeviceEUI(NULL);
-                LoRaWan.getAppEUI(NULL);
-                LoRaWan.getAppKey(NULL);
-                LoRaWan.joinOTAA();
+                System.reset();
+                // LoRaWan.joinOTAA();
                 break;
 
             case LORAWAN_EVENT_TX_COMPLETE:

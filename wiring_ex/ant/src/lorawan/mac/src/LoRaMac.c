@@ -1882,6 +1882,7 @@ static void OnMacStateCheckTimerEvent( void )
 
 static void OnTxDelayedTimerEvent( void )
 {
+    /* LORAMAC_DEBUG("loramac onTxDelayedTimerEvent"); */
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
 
@@ -1927,12 +1928,12 @@ static void OnRxWindow1TimerEvent( void )
     }
     else if(!LoRaMacIsFixedFrequency())
     {
-        RxWindowSetup( Channels[Channel].Frequency, LORAMAC_TX_RX1_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[0].RxWindowTimeout, false );
+        RxWindowSetup( Channels[Channel].Frequency, LORAMAC_RX1_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[0].RxWindowTimeout, false );
     }
     else
     {
         //固定频率125K SF=7
-        RxWindowSetup( LORAMAC_TX_RX1_FIXED_FREQUENCY, LORAMAC_TX_RX1_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[0].RxWindowTimeout, false );
+        RxWindowSetup( LORAMAC_RX1_FIXED_FREQUENCY, LORAMAC_RX1_FIXED_DATARATE, LORAMAC_FIXED_BANDWIDTH, RxWindowsParams[0].RxWindowTimeout, false );
     }
 
 #elif defined( USE_BAND_470 )
@@ -3047,25 +3048,29 @@ static LoRaMacStatus_t ScheduleTx( void )
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //固定 RX2接收窗口打开时间
         /* LORAMAC_DEBUG("rx1 window delay = %d",RxWindow1Delay); */
         /* LORAMAC_DEBUG("rx2 window delay = %d",RxWindow2Delay); */
-
-        //此时间为SF固定为12的时候值
     }
 
+    /* LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff); */
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
     {
-        // Try to send now
         /* LORAMAC_DEBUG("Channel = %d",Channel); */
+        // Try to send now
         return SendFrameOnChannel( Channels[Channel] );
     }
     else
     {
-        /* if(NodeAckRequested == false) */
-        /* { */
+        #if 0
+        if(NodeAckRequested == false)
+        {
             dutyCycleTimeOff += randr(0,2000);
-            /* LORAMAC_DEBUG("NodeAckRequested=false set dutyCycleTimeOff"); */
-        /* } */
-        LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff);
+            LORAMAC_DEBUG("NodeAckRequested=false set dutyCycleTimeOff");
+        }
+        #endif
+
+        dutyCycleTimeOff += randr(0,2000); //设置重发随机时间
+        /* LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff); */
+
         // Send later - prepare timer
         LoRaMacState |= LORAMAC_TX_DELAYED;
         TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
@@ -3402,17 +3407,17 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     if(!LoRaMacIsFixedFrequency())
     {
         Radio.SetChannel( channel.Frequency );
-        LORAMAC_DEBUG("loramac tx frequency = %d",channel.Frequency);
+        /* LORAMAC_DEBUG("loramac tx frequency = %d",channel.Frequency); */
     }
     else
     {
-        Radio.SetChannel(LORAMAC_TX_RX1_FIXED_FREQUENCY);
-        LORAMAC_DEBUG("loramac tx fixed frequency = %d",LORAMAC_TX_RX1_FIXED_FREQUENCY);
+        Radio.SetChannel(LORAMAC_TX_FIXED_FREQUENCY);
+        /* LORAMAC_DEBUG("loramac tx fixed frequency = %d",LORAMAC_TX_FIXED_FREQUENCY); */
     }
 
     if(LoRaMacIsFixedDatarate())
     {
-        datarate = 7;
+        datarate = Datarates[LORAMAC_TX_FIXED_DATARATE];
     }
 
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
