@@ -19,7 +19,7 @@ APPROOT := $(SOURCE_PATH)
 
 ifneq ($(wildcard $(APPROOT)/src),)
 # add vendored libraries to module libraries
-MODULE_LIBS += $(wildcard $(APPROOT)/lib/*)
+MODULE_LIBS += $(filter-out %.txt, $(wildcard $(APPROOT)/lib/*))
 SOURCE_PATH := $(APPROOT)
 USRSRC = src
 INCLUDE_DIRS += $(APPROOT)/lib
