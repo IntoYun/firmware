@@ -311,3 +311,15 @@ void BoardGetUniqueId( uint8_t *id )
     id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
+
+//lorawan协议频率是否是固定的 true固定 false不固定
+bool LoRaMacIsFixedFrequency(void)
+{
+    return System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED);
+}
+
+//lorawan协议速率(即扩频因子)是否是固定的 true固定 false不固定
+bool LoRaMacIsFixedDatarate(void)
+{
+    return System.featureEnabled(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED);
+}
