@@ -98,10 +98,10 @@ void RtcRecoverMcuStatus( void );
 
 void RTC_Alarm_IRQ( void );
 
-//mcu½øÈëĞİÃß´¦Àí
+//mcuè¿›å…¥ä¼‘çœ å¤„ç†
 void BoardDeInitMcu(void);
 
-//mcuĞİÃß»½ĞÑºó´¦Àí
+//mcuä¼‘çœ å”¤é†’åå¤„ç†
 void BoardInitMcu(void);
 
 #ifdef __cplusplus

@@ -32,6 +32,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #include "LoRaMac.h"
 #include "LoRaMacTest.h"
 #include "service_debug.h"
+#include "sx1276-board.h"
 
 /*debug switch*/
 #define LORAWAN_MAC_DEBUG

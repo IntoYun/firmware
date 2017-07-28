@@ -108,26 +108,20 @@ class LoRaWanClass
 
     public:
         //切换class 类型
-        void loramacSetClassType(DeviceClass_t classType);
+        void setMacClassType(DeviceClass_t classType);
         //获取 class类型
-        DeviceClass_t loramacGetClassType(void);
+        DeviceClass_t getMacClassType(void);
         //暂停loramac 不运行lorawan协议
-        void loramacPause(void);
+        void macPause(void);
         //恢复loramac
-        void loramacResume(void);
+        void macResume(void);
         //不固定频率
-        void macUnfixedFrequency(void);
+        void setMacFixedFreq(bool enabled);
         //不固定扩频因子
-        void macUnfixedDatarate(void);
-        //获取随机数
-        int32_t getRandomNumber(int32_t min, int32_t max);
-        //初始化
-        void begin(void);
+        void setMacFixedSF(bool enabled);
         //OTAA入网激活
-        void joinOTAA(uint8_t *devEui, uint8_t *appEui, uint8_t *appKey);
         void joinOTAA(void);
         //ABP入网
-        void joinABP(uint32_t devAddr, uint8_t *nwkSkey, uint8_t *appSKey);
         void joinABP(void);
 
         //设置deviceeui
@@ -138,24 +132,13 @@ class LoRaWanClass
         void getAppEUI(uint8_t *appEui);
         //设置appkey
         void setAppKey(uint8_t *appKey);
-        void getAppKey(uint8_t *appKey);
-
         //设置device addr
         void setDeviceAddr(uint32_t devAddr);//设置device addr
         uint32_t getDeviceAddr(void);
-        //入网成功后从loramac层获取参数
-        uint32_t getMacDeviceAddr(void);
         //设置nwkSkey
         void setNwkSessionKey(uint8_t *nwkSkey);
-        void getNwkSessionKey(uint8_t *nwkSkey);
-        //入网成功后从loramac层获取参数
-        void getMacNwkSessionKey(uint8_t *nwkSkey);
         //设置appSkey
         void setAppSessionKey(uint8_t *appSkey);
-        void getAppSessionKey(uint8_t *appSkey);
-        //入网成功后从loramac层获取参数
-        void getMacAppSessionKey(uint8_t *appSkey);
-
         //设置端口号
         void setPort(uint8_t port);//设置端口号
         uint8_t getPort(void);
@@ -190,8 +173,6 @@ class LoRaWanClass
        //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
         void setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout); //单位s
 
-        //sx1278透传初始化
-        void radioInitialize(void);
         //sx1278休眠
         void radioSetSleep(void);
         //设置频率
@@ -218,8 +199,6 @@ class LoRaWanClass
         void radioSetRxContinuous(bool rxContinuous);
         //设置负载最大长度
         void radioSetMaxPayloadLength(uint8_t max);
-        //设置同步字
-        void radioSetSyncword(uint8_t syncword);
         //接收设置
         void radioSetRxConfig(void);
         //发送设置
@@ -265,6 +244,7 @@ class LoRaWanClass
 
 extern LoRaWanClass LoRaWan;
 
+void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey);
 bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 #endif /* WIRING_LORAWAN_H_ */
