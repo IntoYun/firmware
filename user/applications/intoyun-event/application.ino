@@ -83,16 +83,10 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
     }
 }
 
-void init_before_setup(void)
-{
-    // LoRaWan.macUnfixedFrequency();
-    // LoRaWan.macUnfixedDatarate();
-}
-
-STARTUP(init_before_setup());
-
 void setup()
 {
+    // LoRaWan.setMacFixedFreq(false);
+    // LoRaWan.setMacFixedSF(false);
     Serial.begin(115200);
     pinMode(LEDPIN, OUTPUT);
     IntoRobot.defineDatapointEnum(DPID_ENUM_LIGHT_MODE, DP_PERMISSION_UP_DOWN, 0);                          //颜色模式
@@ -123,6 +117,6 @@ void loop()
     IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
 
     IntoRobot.sendDatapointAll();
-    delay(20000+LoRaWan.getRandomNumber(0,5000));
+    delay(20000);
 }
 

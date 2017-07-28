@@ -91,16 +91,6 @@ void SX1276IoInit( void )
     pinMode(SX1276.DIO5,INPUT_PULLUP);
 }
 
-void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
-{
-    attachInterrupt(SX1276.DIO0, irqHandlers[0], RISING, 1, 0);
-    attachInterrupt(SX1276.DIO1, irqHandlers[1], RISING, 1, 0);
-    attachInterrupt(SX1276.DIO2, irqHandlers[2], RISING, 1, 0);
-    attachInterrupt(SX1276.DIO3, irqHandlers[3], RISING, 1, 0);
-    attachInterrupt(SX1276.DIO4, irqHandlers[4], RISING, 1, 0);
-    // attachInterrupt(SX1276.DIO5, irqHandlers[5], RISING, 1, 0); //DIO5不使用
-}
-
 void SX1276IoDeInit( void )
 {
     pinMode(SX1276.SpiNss,OUTPUT);
@@ -111,6 +101,26 @@ void SX1276IoDeInit( void )
     pinMode(SX1276.DIO3,INPUT);
     pinMode(SX1276.DIO4,INPUT);
     pinMode(SX1276.DIO5,INPUT);
+}
+
+void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
+{
+    attachInterrupt(SX1276.DIO0, irqHandlers[0], RISING, 1, 0);
+    attachInterrupt(SX1276.DIO1, irqHandlers[1], RISING, 1, 0);
+    attachInterrupt(SX1276.DIO2, irqHandlers[2], RISING, 1, 0);
+    attachInterrupt(SX1276.DIO3, irqHandlers[3], RISING, 1, 0);
+    attachInterrupt(SX1276.DIO4, irqHandlers[4], RISING, 1, 0);
+    // attachInterrupt(SX1276.DIO5, irqHandlers[5], RISING, 1, 0); //DIO5不使用
+}
+
+void SX1276IoIrqDeInit( void )
+{
+    detachInterrupt(SX1276.DIO0);
+    detachInterrupt(SX1276.DIO1);
+    detachInterrupt(SX1276.DIO2);
+    detachInterrupt(SX1276.DIO3);
+    detachInterrupt(SX1276.DIO4);
+    detachInterrupt(SX1276.DIO5);
 }
 
 void SX1276SetRfTxPower( int8_t power )

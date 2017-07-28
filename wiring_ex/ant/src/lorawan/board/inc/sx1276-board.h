@@ -125,6 +125,8 @@ extern SX1276_t SX1276;
 
 void SX1276SetReset(void);
 
+void SX1276IoIrqDeInit(void);
+
 void SX1276BoardInit(void);
 
 void SpiSetNss(uint8_t val);

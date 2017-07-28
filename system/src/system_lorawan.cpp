@@ -146,7 +146,7 @@ void intorobot_lorawan_send_data(char* buffer, uint16_t len)
 
 void LoRaWanOnEvent(lorawan_event_t event)
 {
-    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_MASTER_ENABLED))
+    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED))
     {
         switch(event)
         {
@@ -162,10 +162,8 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
                     uint32_t devAddr;
                     uint8_t nwkSkey[16],appSkey[16];
-                    devAddr = LoRaWan.getMacDeviceAddr();
-                    LoRaWan.getMacNwkSessionKey(nwkSkey);
-                    LoRaWan.getMacAppSessionKey(appSkey);
 
+                    LoRaWanGetABPParams(devAddr,nwkSkey,appSkey);
                     //devaddr
                     hex2string((uint8_t *)&devAddr, 4, devaddr, true);
                     HAL_PARAMS_Set_System_devaddr(devaddr);
@@ -176,7 +174,6 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     hex2string(appSkey, 16, appskey, false);
                     HAL_PARAMS_Set_System_appskey(appskey);
                     HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
-
                     HAL_PARAMS_Save_Params();
 
                     SLORAWAN_DEBUG("devaddr: %s", devaddr);
@@ -190,7 +187,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
             case LORAWAN_EVENT_JOIN_FAIL:
                 SLORAWAN_DEBUG("--event join failed--");
-                System.reset();
+                // System.reset();
                 // LoRaWan.joinOTAA();
                 break;
 
