@@ -711,6 +711,11 @@ void LoRaWanClass::radioSetCoderate(uint32_t coderate)
     _coderate = coderate;
 }
 
+void LoRaWanClass::radioSetTxPower(uint8_t txPower)
+{
+    _power = txPower;
+}
+
 //设置前导码超时
 void LoRaWanClass::radioSetSymbTimeout(uint32_t symbTimeout)
 {
@@ -802,6 +807,11 @@ uint8_t LoRaWanClass::radioGetSF(void)
 uint8_t LoRaWanClass::radioGetCoderate(void)
 {
     return _coderate;
+}
+
+uint8_t LoRaWanClass::radioGetTxPower(void)
+{
+    return _power;
 }
 
 uint16_t LoRaWanClass::radioGetSymbTimeout(void)

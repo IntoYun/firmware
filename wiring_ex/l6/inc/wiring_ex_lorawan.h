@@ -185,6 +185,8 @@ class LoRaWanClass
         void radioSetSF(uint32_t sf);
         //设置纠错编码率
         void radioSetCoderate(uint32_t coderate);
+        //设置发射功率
+        void radioSetTxPower(uint8_t txPower);
         //设置前导码超时
         void radioSetSymbTimeout(uint32_t symbTimeout);
         //设置crc校验
@@ -218,6 +220,8 @@ class LoRaWanClass
         uint8_t radioGetSF(void);
         //获取纠错码率
         uint8_t radioGetCoderate(void);
+        //获取发射功率
+        uint8_t radioGetTxPower(void);
         //获取前导码超时值
         uint16_t radioGetSymbTimeout(void);
         //获取Iq是否翻转
