@@ -1,3 +1,21 @@
+## v1.6.2-rc.1
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #93]](https://github.com/HITSZ-NRSL/firmware/pull/93) [esp8266/esp32] 添加获取堆空闲大小接口
+- [[PR #94]](https://github.com/HITSZ-NRSL/firmware/pull/94) [w67/w323] 更新w67/w323 flash地址分布，去掉bootloaer缓冲区和默认程序区。合并到文件系统区。
+
+### BUG FIXES(漏洞修复)
+- [[PR #93]](https://github.com/HITSZ-NRSL/firmware/pull/93) [w67/neutron/fox] 修正软件定时器设置定时周期无效问题
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.6.1-rc.1
 
 
