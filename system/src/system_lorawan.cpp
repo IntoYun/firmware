@@ -34,6 +34,7 @@
 #include "system_product.h"
 #include "system_utilities.h"
 #include "string_convert.h"
+#include "wiring_system.h"
 
 /*debug switch*/
 #define SYSTEM_LORAWAN_DEBUG
@@ -129,125 +130,124 @@ void intorobot_lorawan_send_terminal_info(void)
     {
         SLORAWAN_DEBUG_D("%02x ", buffer[i]);
     }
+    SLORAWAN_DEBUG_D("\r\n");
 
-    LoRaWanSendFrame(buffer,index,0);
+    LoRaWan.sendUnconfirmedFrame(buffer,index);
 }
 
 void intorobot_lorawan_send_data(char* buffer, uint16_t len)
 {
     if(intorobot_lorawan_flag_connected())
     {
-        LoRaWanSendFrame(buffer,len,0);
+        LoRaWan.sendUnconfirmedFrame(buffer,len);
+        // LoRaWan.sendConfirmedFrame(buffer,len);
     }
 }
 
 void LoRaWanOnEvent(lorawan_event_t event)
 {
-    switch(event)
+    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED))
     {
-        case LORAWAN_EVENT_JOINING:
-            {
-                SLORAWAN_DEBUG("--event joining--");
-            }
-            break;
-
-        case LORAWAN_EVENT_JOINED:
-            {
-                SLORAWAN_DEBUG("--event joined--");
-                char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
-                uint32_t devAddr;
-                uint8_t nwkSkey[16],appSkey[16];
-                LoRaWanGetABPParams(devAddr,nwkSkey,appSkey);
-
-                #if 0
-                uint8_t i;
-                SLORAWAN_DEBUG("dev = 0x%x",devAddr);
-
-                for( i=0;i<16;i++)
+        switch(event)
+        {
+            case LORAWAN_EVENT_JOINING:
                 {
-                    SLORAWAN_DEBUG("nwkSkey= 0x%x",nwkSkey[i]);
+                    SLORAWAN_DEBUG("--event joining--");
                 }
+                break;
 
-                for( i=0;i<16;i++)
+            case LORAWAN_EVENT_JOINED:
                 {
-                    SLORAWAN_DEBUG("app skey= 0x%x",appSkey[i]);
+                    SLORAWAN_DEBUG("--event joined--");
+                    char devaddr[16] = "", nwkskey[36] = "", appskey[36] = "";
+                    uint32_t devAddr;
+                    uint8_t nwkSkey[16],appSkey[16];
+
+                    LoRaWanGetABPParams(devAddr,nwkSkey,appSkey);
+                    //devaddr
+                    hex2string((uint8_t *)&devAddr, 4, devaddr, true);
+                    HAL_PARAMS_Set_System_devaddr(devaddr);
+                    //nwkskey
+                    hex2string(nwkSkey, 16, nwkskey, false);
+                    HAL_PARAMS_Set_System_nwkskey(nwkskey);
+                    //appskey
+                    hex2string(appSkey, 16, appskey, false);
+                    HAL_PARAMS_Set_System_appskey(appskey);
+                    HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
+                    HAL_PARAMS_Save_Params();
+
+                    SLORAWAN_DEBUG("devaddr: %s", devaddr);
+                    SLORAWAN_DEBUG("nwkskey: %s", nwkskey);
+                    SLORAWAN_DEBUG("appskey: %s", appskey);
+                    SLORAWAN_DEBUG("---------");
+                    INTOROBOT_LORAWAN_JOINED = 1;
+                    system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
                 }
-                #endif
-
-
-                //devaddr
-                hex2string((uint8_t *)&devAddr, 4, devaddr, true);
-
-                HAL_PARAMS_Set_System_devaddr(devaddr);
-                //nwkskey
-                hex2string(nwkSkey, 16, nwkskey, false);
-                HAL_PARAMS_Set_System_nwkskey(nwkskey);
-                //appskey
-                hex2string(appSkey, 16, appskey, false);
-                HAL_PARAMS_Set_System_appskey(appskey);
-                HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
-                HAL_PARAMS_Save_Params();
-
-                SLORAWAN_DEBUG("devaddr: %s", devaddr);
-                SLORAWAN_DEBUG("nwkskey: %s", nwkskey);
-                SLORAWAN_DEBUG("appskey: %s", appskey);
-                SLORAWAN_DEBUG("---------");
-                INTOROBOT_LORAWAN_JOINED = 1;
-                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-            }
-        break;
-
-        case LORAWAN_EVENT_JOIN_FAIL:
-            SLORAWAN_DEBUG("--event join failed--");
             break;
 
-        case LORAWAN_EVENT_TX_COMPLETE:
-            // SLORAWAN_DEBUG("--event TX completed--");
-            break;
+            case LORAWAN_EVENT_JOIN_FAIL:
+                SLORAWAN_DEBUG("--event join failed--");
+                // System.reset();
+                // LoRaWan.joinOTAA();
+                break;
 
-        case LORAWAN_EVENT_RX_COMPLETE:
-            {
-                SLORAWAN_DEBUG("--event RX completed--");
-                int len;
-                uint8_t buffer[256];
-                len = LoRaWanReceiveFrame(buffer);
-                if(len == -1)
+            case LORAWAN_EVENT_TX_COMPLETE:
+                // SLORAWAN_DEBUG("--event TX completed--");
+                break;
+
+            case LORAWAN_EVENT_RX_COMPLETE:
                 {
-                    return;
+                    SLORAWAN_DEBUG("--event RX completed--");
+                    int len;
+                    uint8_t buffer[256];
+                    len = LoRaWan.receiveFrame(buffer);
+
+                    #if 1
+                    SLORAWAN_DEBUG_D("lorawan receive data:");
+                    for(uint16_t i=0;i<len;i++)
+                    {
+                        SLORAWAN_DEBUG_D("0x%x ",buffer[i]);
+                    }
+                    SLORAWAN_DEBUG_D("\r\n");
+                    #endif
+
+                    if(len == -1)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        intorobotParseReceiveDatapoints(buffer,len);
+                    }
                 }
-                else
-                {
-                    intorobotParseReceiveDatapoints(buffer,len);
-                }
+                break;
 
-            }
-            break;
+            case LORAWAN_EVENT_MLME_JOIN:
+                break;
 
-        case LORAWAN_EVENT_MLME_JOIN:
-            break;
+            case LORAWAN_EVENT_MLME_LINK_CHECK:
+                SLORAWAN_DEBUG("--event MLME link check--");
+                break;
 
-        case LORAWAN_EVENT_MLME_LINK_CHECK:
-            SLORAWAN_DEBUG("--event MLME link check--");
-            break;
+            case LORAWAN_EVENT_MCPS_UNCONFIRMED:
+                // SLORAWAN_DEBUG("--event MCPS unconfirmed--");
+                break;
 
-        case LORAWAN_EVENT_MCPS_UNCONFIRMED:
-            // SLORAWAN_DEBUG("--event MCPS unconfirmed--");
-            break;
+            case LORAWAN_EVENT_MCPS_CONFIRMED:
+                SLORAWAN_DEBUG("--event MCPS confirmed--");
+                break;
 
-        case LORAWAN_EVENT_MCPS_CONFIRMED:
-            SLORAWAN_DEBUG("--event MCPS confirmed--");
-            break;
+            case LORAWAN_EVENT_MCPS_PROPRIETARY:
+                SLORAWAN_DEBUG("--event MCPS proprietary--");
+                break;
 
-        case LORAWAN_EVENT_MCPS_PROPRIETARY:
-            SLORAWAN_DEBUG("--event MCPS proprietary--");
-            break;
+            case LORAWAN_EVENT_MCPS_MULTICAST:
+                SLORAWAN_DEBUG("--event MCPS multicast--");
+                break;
 
-        case LORAWAN_EVENT_MCPS_MULTICAST:
-            SLORAWAN_DEBUG("--event MCPS multicast--");
-            break;
-
-        default:
-            break;
+            default:
+                break;
+        }
     }
 }
 

@@ -125,6 +125,8 @@ extern SX1276_t SX1276;
 
 void SX1276SetReset(void);
 
+void SX1276IoIrqDeInit(void);
+
 void SX1276BoardInit(void);
 
 void SpiSetNss(uint8_t val);
@@ -140,6 +142,10 @@ uint8_t BoardGetBatteryLevel(void);
 uint32_t BoardGetRandomSeed( void );
 
 void BoardGetUniqueId( uint8_t *id );
+
+bool LoRaMacIsFixedFrequency(void);
+
+bool LoRaMacIsFixedDatarate(void);
 
 #ifdef __cplusplus
 }

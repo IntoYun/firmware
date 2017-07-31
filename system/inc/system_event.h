@@ -39,6 +39,7 @@ enum SystemEvents {
     event_time_changed           = 1<<7,
     event_low_battery            = 1<<8,         // generated when low battery condition is detected
     event_lora_radio_status      = 1<<9,         //lora radio event
+    event_lorawan_status         = 1<<10,        //lorawan event
 
     event_all                    = 0xFFFFFFFFFFFFFFFF
 };
@@ -89,6 +90,19 @@ enum SystemEventsParam {
     ep_lora_radio_rx_timeout           = 4,
     ep_lora_radio_rx_error             = 5,
     ep_lora_radio_cad_done             = 6,
+
+    //lorawan
+    ep_lorawan_joining                 = 1,
+    ep_lorawan_joined                  = 2,
+    ep_lorawan_join_fail               = 3,
+    ep_lorawan_tx_complete             = 4,
+    ep_lorawan_rx_complete             = 5,
+    ep_lorawan_mlme_join               = 6,
+    ep_lorawan_mlme_link_check         = 7,
+    ep_lorawan_mcps_unconfirmed        = 8,
+    ep_lorawan_mcps_confirmed          = 9,
+    ep_lorawan_mcps_proprietary        = 10,
+    ep_lorawan_mcps_multicast          = 11,
 };
 
 /**

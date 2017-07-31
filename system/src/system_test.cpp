@@ -390,7 +390,7 @@ void testRfCheck(void* cookie)
     int8_t rssiVal = 0;
     int8_t txRssiVal = 0;
 
-    if(SX1276Test(snrVal,rssiVal,txRssiVal))
+    if(SX1278Test(snrVal,rssiVal,txRssiVal))
     {
         aJson.addNumberToObject(root, "status", 200);
     }

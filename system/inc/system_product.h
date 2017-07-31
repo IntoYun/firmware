@@ -66,7 +66,10 @@ typedef enum
     SYSTEM_FEATURE_DATAPOINT_ENABLED,               //数据点处理    0:关闭  1:打开
     SYSTEM_FEATURE_REGISTER_ENABLED,                //设备注册      0:关闭  1:打开
     SYSTEM_FEATURE_ACTIVATE_ENABLED,                //设备激活      0:关闭  1:打开
-    SYSTEM_FEATURE_LORAMAC_ENABLED,                //loramac运行   0:关闭  1:打开
+    SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,             //loramac是否运行 0:
+    SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED,     //loramac是否自动激活运行   0:关闭  1:打开
+    SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED, //lorawan协议固定频率 0:不固定 1固定
+    SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED,  //lorawan协议固定扩频因子 0:不固定 1固定
     SYSTEM_FEATURE_MAX
 } system_feature_t;
 
@@ -90,7 +93,10 @@ public:
         feature_datapoint_enable = true;            //数据点处理    0:关闭  1:打开
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_activater_enable = true;            //设备激活      0:关闭  1:打开
-        feature_loramac_enable = true;              //loramac运行  0:关闭  1:打开
+        feature_loramac_run_enable = true;
+        feature_loramac_auto_active_enable = true;          //loramac是否自动激活运行  0:关闭  1:打开
+        feature_loramac_fixed_frequency_enable = true;      //loraman固定频率　0:不固定  1:固定
+        feature_loramac_fixed_datarate_enable = true;       //loraman固定扩频因子　0:不固定  1:固定
     }
     ~IntoRobotProduct(){}
 
@@ -210,8 +216,17 @@ public:
             case SYSTEM_FEATURE_ACTIVATE_ENABLED:
                 return feature_activater_enable;            //设备激活      0:关闭  1:打开
                 break;
-            case SYSTEM_FEATURE_LORAMAC_ENABLED:
-                return feature_loramac_enable;              //loramac运行   0:关闭  1:打开
+            case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
+                return feature_loramac_run_enable;
+                break;
+            case SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED:
+                return feature_loramac_auto_active_enable;
+                break;
+            case SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED:
+                return feature_loramac_fixed_frequency_enable;
+                break;
+            case SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED:
+                return feature_loramac_fixed_datarate_enable;
                 break;
 
             default:
@@ -246,8 +261,18 @@ public:
             case SYSTEM_FEATURE_ACTIVATE_ENABLED:
                 feature_activater_enable = enabled;            //设备激活      0:关闭  1:打开
                 break;
-            case SYSTEM_FEATURE_LORAMAC_ENABLED:
-                feature_loramac_enable = enabled;              //loramac运行   0:关闭  1:打开
+            case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
+                feature_loramac_run_enable = enabled;    //loramac是否自动激活   0:关闭  1:打开
+                break;
+
+            case SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED:
+                feature_loramac_auto_active_enable = enabled;    //loramac是否自动激活   0:关闭  1:打开
+                break;
+            case SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED:
+                feature_loramac_fixed_frequency_enable = enabled;
+                break;
+            case SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED:
+                feature_loramac_fixed_datarate_enable = enabled;
                 break;
 
             default:
@@ -273,7 +298,10 @@ private:
     bool feature_datapoint_enable;            //数据点处理    0:关闭  1:打开
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
     bool feature_activater_enable;            //设备激活      0:关闭  1:打开
-    bool feature_loramac_enable;              //loraman运行　0:关闭  1:打开
+    bool feature_loramac_run_enable;
+    bool feature_loramac_auto_active_enable;     //loraman是否自动激活运行　0:关闭  1:打开
+    bool feature_loramac_fixed_frequency_enable;
+    bool feature_loramac_fixed_datarate_enable;
 };
 
 extern IntoRobotProduct &system_product_instance(void);

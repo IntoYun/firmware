@@ -85,6 +85,8 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
 
 void setup()
 {
+    // LoRaWan.setMacFixedFreq(false);
+    // LoRaWan.setMacFixedSF(false);
     Serial.begin(115200);
     pinMode(LEDPIN, OUTPUT);
     IntoRobot.defineDatapointEnum(DPID_ENUM_LIGHT_MODE, DP_PERMISSION_UP_DOWN, 0);                          //颜色模式
