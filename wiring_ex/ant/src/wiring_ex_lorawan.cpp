@@ -11,6 +11,7 @@
 #ifndef configNO_LORAWAN
 
 LoRaWanClass LoRaWan;
+LoRaClass LoRa;
 static LoRaMacPrimitives_t LoRaMacPrimitives;
 static LoRaMacCallback_t LoRaMacCallbacks;
 static  RadioEvents_t loraRadioEvents;
@@ -55,8 +56,8 @@ static void OnLoRaRadioTxTimeout(void)
 
 static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    LoRaWan._rssi = rssi;
-    LoRaWan._snr = snr;
+    LoRa._rssi = rssi;
+    LoRa._snr = snr;
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_done,payload,size);
 }
 
@@ -88,7 +89,7 @@ static void SystemWakeupCb(void)
 {
     TimerStop( &LoRaWan.systemWakeupTimer );
     SX1276BoardInit();
-    LoRaWan.radioSetModem(MODEM_LORA);
+    LoRa.radioSetModem(MODEM_LORA);
     if(LoRaWan.wakeupCb != NULL)
     {
         LoRaWan.wakeupCb();
@@ -646,7 +647,7 @@ void LoRaWanClass::systemSleep(loraWakeupCb userHandler, uint32_t timeout)
     if(!_systemSleepEnabled)
     {
         setSystemWakeup(userHandler,timeout);
-        radioSetSleep();
+        LoRa.radioSetSleep();
         _systemSleepEnabled = true;
     }
     TimerLowPowerHandler();
@@ -674,50 +675,50 @@ void LoRaWanClass::setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout) /
 }
 
 //sx1278休眠
-void LoRaWanClass::radioSetSleep(void)
+void LoRaClass::radioSetSleep(void)
 {
     Radio.Sleep();
 }
 
 //设置频率
-void LoRaWanClass::radioSetFreq(uint32_t freq)
+void LoRaClass::radioSetFreq(uint32_t freq)
 {
     _freq = freq;
     Radio.SetChannel(_freq);
 }
 
 //设置模式 0:fsk 1:lora
-void LoRaWanClass::radioSetModem(RadioModems_t modem)
+void LoRaClass::radioSetModem(RadioModems_t modem)
 {
     _modem = modem;
     Radio.SetModem(_modem);
 }
 
 //设置带宽
-void LoRaWanClass::radioSetBandwidth(uint32_t bandwidth)
+void LoRaClass::radioSetBandwidth(uint32_t bandwidth)
 {
     _bandwidth = bandwidth;
 }
 
 //设置扩频因子
-void LoRaWanClass::radioSetSF(uint32_t sf)
+void LoRaClass::radioSetSF(uint32_t sf)
 {
     _datarate = sf;
 }
 
 //设置纠错编码率
-void LoRaWanClass::radioSetCoderate(uint32_t coderate)
+void LoRaClass::radioSetCoderate(uint32_t coderate)
 {
     _coderate = coderate;
 }
 
-void LoRaWanClass::radioSetTxPower(uint8_t txPower)
+void LoRaClass::radioSetTxPower(uint8_t txPower)
 {
     _power = txPower;
 }
 
 //设置前导码超时
-void LoRaWanClass::radioSetSymbTimeout(uint32_t symbTimeout)
+void LoRaClass::radioSetSymbTimeout(uint32_t symbTimeout)
 {
     if(symbTimeout >= 4 && symbTimeout <= 1023)
     {
@@ -726,146 +727,146 @@ void LoRaWanClass::radioSetSymbTimeout(uint32_t symbTimeout)
 }
 
 //设置crc校验
-void LoRaWanClass::radioSetCrcOn(bool crcOn)
+void LoRaClass::radioSetCrcOn(bool crcOn)
 {
     _crcOn = crcOn;
 }
 
 //设置前导码长度
-void LoRaWanClass::radioSetPreambleLen(uint16_t preambleLen)
+void LoRaClass::radioSetPreambleLen(uint16_t preambleLen)
 {
     _preambleLen = preambleLen;
 }
 
-void LoRaWanClass::radioSetTxTimeout(uint32_t timeout)
+void LoRaClass::radioSetTxTimeout(uint32_t timeout)
 {
     _txTimeout = timeout;
 }
 
-void LoRaWanClass::radioSetIqInverted(bool iqInverted)
+void LoRaClass::radioSetIqInverted(bool iqInverted)
 {
     _iqInverted = iqInverted;
 }
 
-void LoRaWanClass::radioSetRxContinuous(bool rxContinuous)
+void LoRaClass::radioSetRxContinuous(bool rxContinuous)
 {
     _rxContinuous = rxContinuous;
 }
 
 //设置负载最大长度
-void LoRaWanClass::radioSetMaxPayloadLength(uint8_t max)
+void LoRaClass::radioSetMaxPayloadLength(uint8_t max)
 {
     Radio.SetMaxPayloadLength(_modem,max);
 }
 
 //接收设置
-void LoRaWanClass::radioSetRxConfig(void)
+void LoRaClass::radioSetRxConfig(void)
 {
     Radio.SetRxConfig(_modem,_bandwidth,_datarate,_coderate,_bandwidthAfc,_preambleLen,_symbTimeout,_fixLen,_payloadLen,_crcOn,_freqHopOn,_hopPeriod,_iqInverted,_rxContinuous);
 }
 
 //发送设置
-void LoRaWanClass::radioSetTxConfig(void)
+void LoRaClass::radioSetTxConfig(void)
 {
     Radio.SetTxConfig(_modem,_power,_fdev,_bandwidth,_datarate,_coderate,_preambleLen,_fixLen,_crcOn,_freqHopOn,_hopPeriod,_iqInverted,_txTimeout);
 }
 
 //开始发送
-void LoRaWanClass::radioSend( uint8_t *buffer, uint8_t size )
+void LoRaClass::radioSend( uint8_t *buffer, uint8_t size )
 {
     radioSetTxConfig();
     Radio.Send(buffer,size);
 }
 
 //开始接收
-void LoRaWanClass::radioRx(uint32_t timeout)
+void LoRaClass::radioRx(uint32_t timeout)
 {
     radioSetRxConfig();
     Radio.Rx(timeout);
 }
 
-uint32_t LoRaWanClass::radioGetFreq(void)
+uint32_t LoRaClass::radioGetFreq(void)
 {
     return _freq;
 }
 
-uint8_t LoRaWanClass::radioGetModem(void)
+uint8_t LoRaClass::radioGetModem(void)
 {
     return _modem;
 }
 
-uint32_t LoRaWanClass::radioGetBandwidth(void)
+uint32_t LoRaClass::radioGetBandwidth(void)
 {
     return _bandwidth;
 }
 
-uint8_t LoRaWanClass::radioGetSF(void)
+uint8_t LoRaClass::radioGetSF(void)
 {
     return _datarate;
 }
 
-uint8_t LoRaWanClass::radioGetCoderate(void)
+uint8_t LoRaClass::radioGetCoderate(void)
 {
     return _coderate;
 }
 
-uint8_t LoRaWanClass::radioGetTxPower(void)
+uint8_t LoRaClass::radioGetTxPower(void)
 {
     return _power;
 }
 
-uint16_t LoRaWanClass::radioGetSymbTimeout(void)
+uint16_t LoRaClass::radioGetSymbTimeout(void)
 {
     return _symbTimeout;
 }
 
-bool LoRaWanClass::radioGetCrcOn(void)
+bool LoRaClass::radioGetCrcOn(void)
 {
     return _crcOn;
 }
 
-uint16_t LoRaWanClass::radioGetPreambleLen(void)
+uint16_t LoRaClass::radioGetPreambleLen(void)
 {
     return _preambleLen;
 }
 
-bool LoRaWanClass::radioGetIqInverted(void)
+bool LoRaClass::radioGetIqInverted(void)
 {
     return _iqInverted;
 }
 
-bool LoRaWanClass::radioGetRxContinuous(void)
+bool LoRaClass::radioGetRxContinuous(void)
 {
     return _rxContinuous;
 }
 
 //读取寄存器值
-uint8_t LoRaWanClass::radioRead(uint8_t addr)
+uint8_t LoRaClass::radioRead(uint8_t addr)
 {
     return Radio.Read(addr);
 }
 
 //写寄存器值
-void LoRaWanClass::radioWrite(uint8_t addr, uint8_t data)
+void LoRaClass::radioWrite(uint8_t addr, uint8_t data)
 {
     Radio.Write(addr,data);
 }
 
 //启动CAD
-void LoRaWanClass::radioStartCad(void)
+void LoRaClass::radioStartCad(void)
 {
     Radio.StartCad();
 }
 
 //获取rssi
-int16_t LoRaWanClass::radioReadRssi(void)
+int16_t LoRaClass::radioReadRssi(void)
 {
-    return LoRaWan._rssi;
+    return LoRa._rssi;
 }
 
-int8_t LoRaWanClass::radioReadSnr(void)
+int8_t LoRaClass::radioReadSnr(void)
 {
-    return LoRaWan._snr;
+    return LoRa._snr;
 }
 
 #endif
@@ -915,11 +916,11 @@ void TestSX1278Init(void)
     testRadioEvents.RxError = TestOnRxError;
     Radio.Init( &testRadioEvents );
 
-    LoRaWan.radioSetFreq(RF_FREQUENCY);
-    LoRaWan.radioSetModem(MODEM_LORA);
-    LoRaWan.radioSetIqInverted(RF_IQ_INVERTED);
+    LoRa.radioSetFreq(RF_FREQUENCY);
+    LoRa.radioSetModem(MODEM_LORA);
+    LoRa.radioSetIqInverted(RF_IQ_INVERTED);
 
-    sx1278Version = LoRaWan.radioRead(0x42);
+    sx1278Version = LoRa.radioRead(0x42);
     // DEBUG("sx1278 version = 0x%2x", sx1278Version);
     // DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
     // DEBUG("sync data = 0x%2x",LoRaWan.radioRead(0x39));
@@ -933,13 +934,13 @@ int8_t TestSX1278Run(void)
     switch(State)
     {
         case TX_START:
-                LoRaWan.radioSend(Buffer,BufferSize);
+                LoRa.radioSend(Buffer,BufferSize);
                 State = LOWPOWER;
                 return 0;
             break;
 
         case TX_DONE:
-                LoRaWan.radioRx(RX_TIMEOUT_VALUE);
+                LoRa.radioRx(RX_TIMEOUT_VALUE);
                 State = LOWPOWER;
                 return 1;
             break;
@@ -1005,14 +1006,14 @@ bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
 
 void TestOnTxDone( void )
 {
-    LoRaWan.radioSetSleep();
+    LoRa.radioSetSleep();
     State = TX_DONE;
     // DEBUG("tx done");
 }
 
 void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
-    LoRaWan.radioSetSleep();
+    LoRa.radioSetSleep();
     BufferSize = size;
     memcpy( Buffer, payload, BufferSize );
     State = RX_DONE;
@@ -1036,21 +1037,21 @@ void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 
 void TestOnTxTimeout( void )
 {
-    LoRaWan.radioSetSleep();
+    LoRa.radioSetSleep();
     State = TX_TIMEOUT;
     // DEBUG("tx timeout");
 }
 
 void TestOnRxTimeout( void )
 {
-    LoRaWan.radioSetSleep();
+    LoRa.radioSetSleep();
     State = RX_TIMEOUT;
     // DEBUG("rx timeout");
 }
 
 void TestOnRxError( void )
 {
-    LoRaWan.radioSetSleep();
+    LoRa.radioSetSleep();
     State = RX_ERROR;
     // DEBUG("rx error");
 }
