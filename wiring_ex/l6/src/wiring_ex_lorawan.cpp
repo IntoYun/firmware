@@ -85,17 +85,6 @@ static void OnLoRaRadioCadDone(bool channelActivityDetected)
     system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
 }
 
-static void SystemWakeupCb(void)
-{
-    TimerStop( &LoRaWan.systemWakeupTimer );
-    SX1276BoardInit();
-    LoRa.radioSetModem(MODEM_LORA);
-    if(LoRaWan.wakeupCb != NULL)
-    {
-        LoRaWan.wakeupCb();
-    }
-    LoRaWan._systemSleepEnabled = false;
-}
 //======loramac不运行 end ========
 
 //loramac运行回调函数
@@ -641,39 +630,7 @@ void LoRaWanClass::resetDownLinkCounter(void)
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
-//系统休眠
-void LoRaWanClass::systemSleep(loraWakeupCb userHandler, uint32_t timeout)
-{
-    if(!_systemSleepEnabled)
-    {
-        setSystemWakeup(userHandler,timeout);
-        LoRa.radioSetSleep();
-        _systemSleepEnabled = true;
-    }
-    TimerLowPowerHandler();
-}
-
-void LoRaWanClass::systemWakeupHandler(void)
-{
-    TimerStop( &systemWakeupTimer );
-
-    SX1276BoardInit();
-    if(wakeupCb != NULL)
-    {
-        wakeupCb();
-    }
-}
-
-typedef void (*FUNC)(void);
-void LoRaWanClass::setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout) //单位s
-{
-    wakeupCb = userHandler;
-    // TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);//TODO 此处回调无法运行
-    TimerInit( &systemWakeupTimer, SystemWakeupCb);
-    TimerSetValue( &systemWakeupTimer, timeout*1000 );
-    TimerStart( &systemWakeupTimer );
-}
-
+//P2P透传接口
 //sx1278休眠
 void LoRaClass::radioSetSleep(void)
 {

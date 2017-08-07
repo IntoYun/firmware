@@ -44,7 +44,7 @@ static void LoRaSetSystemSleep(userLoRaWakeupCb userHandler, uint32_t timeout) /
     userLoRaSystemWakeupHandler = userHandler;
     TimerInit( &loraSystemSleepTimer, LoRaSystemWakeupCb);
     TimerSetValue( &loraSystemSleepTimer, timeout*1000 );
-    // TimerStart(&loraSystemSleepTimer);
+    TimerStart(&loraSystemSleepTimer);
 }
 
 //主模式下
@@ -55,7 +55,7 @@ void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
         LoRaSetSystemSleep(userHandler,seconds);
         LoRa.radioSetSleep();
         loraSystemSleepEnabled = true;
-        DEBUG("lora into sleep");
+        // DEBUG("lora into sleep");
     }
     TimerLowPowerHandler();
 }
@@ -64,6 +64,7 @@ static void LoRaSlaveSystemWakeup(void)
 {
     SX1276BoardInit();
     LoRa.radioSetModem(MODEM_LORA);
+    // DEBUG("sync data = 0x%x",SX1276Read(0x39));
 }
 
 void system_sleep_lora_slave(void)

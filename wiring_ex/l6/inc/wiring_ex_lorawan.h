@@ -66,15 +66,10 @@ enum _coderate_t{
     CR4_8
 };
 
-typedef void (*loraWakeupCb)(void);
 
 class LoRaWanClass
 {
     public:
-    TimerEvent_t systemWakeupTimer;
-    loraWakeupCb wakeupCb = 0;
-    bool _systemSleepEnabled = false;
-
     //loramc
     lorawan_data_t macBuffer;
     lorawan_params_t macParams;
@@ -144,13 +139,6 @@ class LoRaWanClass
     void  resetUpLinkCounter(void);
     //复位下行帧个数 即清0
     void  resetDownLinkCounter(void);
-
-    //休眠
-    void systemSleep(loraWakeupCb userHandler, uint32_t timeout);
-    //唤醒后处理 TODO暂不采用
-    void systemWakeupHandler(void);
-    //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
-    void setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout); //单位s
 
     private:
 };

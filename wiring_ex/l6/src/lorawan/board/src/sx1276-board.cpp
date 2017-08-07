@@ -22,6 +22,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "sx1276.h"
 #include "sx1276-board.h"
 #include "timer.h"
+
 #include "wiring.h"
 #include "wiring_interrupts.h"
 #include "wiring_spi.h"
