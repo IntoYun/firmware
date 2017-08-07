@@ -19,8 +19,8 @@
 
 #include "ota_flash_hal.h"
 #include "core_hal.h"
-#include "flash_map.h"
 #include "flash_mal.h"
+#include "flash_map.h"
 #include "params_hal.h"
 #include "ui_hal.h"
 
@@ -234,6 +234,6 @@ int HAL_FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t length, 
 
 hal_update_complete_t HAL_FLASH_End(void)
 {
-    return 0;
+    return HAL_UPDATE_ERROR;
 }
 

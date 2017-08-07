@@ -29,6 +29,7 @@
 volatile uint32_t _cycleStartTimer0;
 volatile int8_t _currentChannelTimer0;
 
+void ESP8266setEndOfCycleTimer0();
 
 void ESP8266ServoTimer0(void)
 {
@@ -134,6 +135,8 @@ servo_timer_t  s_servoTimer0 = {
 
 volatile uint32_t _cycleTicksTimer1;
 volatile int8_t _currentChannelTimer1;
+
+void ESP8266setEndOfCycleTimer1();
 
 void ESP8266ServoTimer1()
 {

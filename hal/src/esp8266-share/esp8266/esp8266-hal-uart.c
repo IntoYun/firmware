@@ -35,6 +35,7 @@
  * NC = Not Connected to Module Pads --> No Access
  *
  */
+#include <stdlib.h>
 #include "esp8266_peri.h"
 #include "user_interface.h"
 #include "esp8266-hal-uart.h"

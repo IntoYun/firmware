@@ -21,7 +21,7 @@
 #define WIRING_INTOROBOT_H_
 
 #include "intorobot_config.h"
-#include <stdio.h>
+//#include <stdio.h>
 #include "wiring_string.h"
 #include "system_cloud.h"
 #include "system_lorawan.h"

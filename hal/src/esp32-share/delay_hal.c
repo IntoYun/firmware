@@ -25,6 +25,7 @@
 
 #include "hw_config.h"
 #include "delay_hal.h"
+#include "timer_hal.h"
 //#include "watchdog_hal.h"
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"

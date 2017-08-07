@@ -155,7 +155,7 @@ public:
 
     uint16_t get(system_params_t params_type, const void *data, uint16_t length)
     {
-        return system_get_params_array(params_type, (uint8_t *)data, length);
+        return system_get_params_array(params_type, (char *)data, length);
     }
 
     bool set(system_params_t params_type, int value)
@@ -175,7 +175,7 @@ public:
 
     bool set(system_params_t params_type, const void *data, uint16_t length)
     {
-        return system_set_params_array(params_type, (uint8_t *)data, length) >= 0;
+        return system_set_params_array(params_type, (char *)data, length) >= 0;
     }
 
     inline bool featureEnabled(system_feature_t feature)

@@ -16,7 +16,7 @@
 
 
 //参数区大小不能变动
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint32_t header;          // 系统标志参数区标志  固定为0x5AA5F66F
     uint32_t boot_version;    // bootloader版本号
@@ -27,7 +27,7 @@ typedef struct __attribute__((packed))
 }hal_boot_params_t;
 
 
-typedef struct __attribute__((packed))
+typedef struct
 {
     uint32_t header;               // 系统标志参数区标志  固定为0x5AA5F66F
     char     fwlib_ver[24];        // 固件库版本号

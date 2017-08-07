@@ -26,6 +26,8 @@
 #include "service_debug.h"
 #include "timer_hal.h"
 
+#define MAX_DEBUG_MESSAGE_LENGTH        256
+
 #undef PLATFORM_THREADING  // 关闭debug 任务保护
 
 #if PLATFORM_THREADING

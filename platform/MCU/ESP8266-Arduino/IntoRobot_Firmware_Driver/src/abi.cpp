@@ -49,11 +49,13 @@ extern "C" void __cxa_deleted_virtual(void) __attribute__ ((__noreturn__));
 
 void __cxa_pure_virtual(void)
 {
+    while(1);
     //panic();
 }
 
 void __cxa_deleted_virtual(void)
 {
+    while(1);
     //panic();
 }
 

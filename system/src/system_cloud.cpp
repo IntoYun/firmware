@@ -79,12 +79,12 @@ MqttClientClass g_mqtt_client;
 RGBLEDState led_state;
 
 
-pCallBack get_subscribe_callback(char * fulltopic);
-WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic);
-void add_subscribe_callback(topic_version_t version, char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
-void add_widget_subscibe_callback(topic_version_t version, char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
-void del_subscribe_callback(topic_version_t version, char * topic, char *device_id);
-void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
+static pCallBack get_subscribe_callback(char * fulltopic);
+static WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic);
+static void add_subscribe_callback(topic_version_t version, char *topic, char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos);
+static void add_widget_subscibe_callback(topic_version_t version, char *topic, char *device_id, WidgetBaseClass *pWidgetBase, uint8_t qos);
+static void del_subscribe_callback(topic_version_t version, char * topic, char *device_id);
+static void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
@@ -937,13 +937,13 @@ static void add_subscribe_callback(topic_version_t version, char *topic, char *d
         } else {
             g_callback_list.callback_node[g_callback_list.total_callbacks].callback = callback;
             g_callback_list.callback_node[g_callback_list.total_callbacks].qos = qos;
-            g_callback_list.callback_node[g_callback_list.total_callbacks].topic = malloc(strlen(topic)+1);
+            g_callback_list.callback_node[g_callback_list.total_callbacks].topic = (char *)malloc(strlen(topic)+1);
             if(NULL != g_callback_list.callback_node[g_callback_list.total_callbacks].topic) {
                 memset(g_callback_list.callback_node[g_callback_list.total_callbacks].topic, 0, strlen(topic)+1);
                 memcpy(g_callback_list.callback_node[g_callback_list.total_callbacks].topic, topic, strlen(topic));
             }
             if(NULL != device_id) {
-                g_callback_list.callback_node[g_callback_list.total_callbacks].device_id = malloc(strlen(device_id)+1);
+                g_callback_list.callback_node[g_callback_list.total_callbacks].device_id = (char *)malloc(strlen(device_id)+1);
                 if(NULL !=g_callback_list.callback_node[g_callback_list.total_callbacks].device_id) {
                     memset(g_callback_list.callback_node[g_callback_list.total_callbacks].device_id, 0, strlen(device_id)+1);
                     memcpy(g_callback_list.callback_node[g_callback_list.total_callbacks].device_id, device_id, strlen(device_id));
@@ -1023,13 +1023,13 @@ static void add_widget_subscibe_callback(topic_version_t version, char *topic, c
         } else {
             g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].pWidgetBase = pWidgetBase;
             g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].qos = qos;
-            g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic = malloc(strlen(topic)+1);
+            g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic = (char *)malloc(strlen(topic)+1);
             if(NULL !=g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic) {
                 memset(g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic, 0, strlen(topic)+1);
                 memcpy(g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].topic, topic, strlen(topic));
             }
             if(NULL != device_id) {
-                g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id = malloc(strlen(device_id)+1);
+                g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id = (char *)malloc(strlen(device_id)+1);
                 if(NULL !=g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id) {
                     memset(g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id, 0, strlen(device_id)+1);
                     memcpy(g_callback_list.widget_callback_node[g_callback_list.total_wcallbacks].device_id, device_id, strlen(device_id));

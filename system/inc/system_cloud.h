@@ -59,8 +59,8 @@ struct CallBackNode
 {
     void (*callback)(uint8_t*, uint32_t);
     uint8_t qos;
-    const char *topic;
-    const char *device_id;
+    char *topic;
+    char *device_id;
     topic_version_t version;
 };
 
@@ -68,8 +68,8 @@ struct WidgetCallBackNode
 {
     WidgetBaseClass *pWidgetBase;
     uint8_t qos;
-    const char *topic;
-    const char *device_id;
+    char *topic;
+    char *device_id;
     topic_version_t version;
 };
 

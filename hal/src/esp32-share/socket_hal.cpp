@@ -16,11 +16,11 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
 #include <string.h>
-#include "socket_hal.h"
 extern "C" {
 #include <lwip/sockets.h>
 #include <lwip/netdb.h>
 }
+#include "socket_hal.h"
 //#define HAL_SOCKET_DEBUG
 
 #ifdef HAL_SOCKET_DEBUG

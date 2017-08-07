@@ -23,11 +23,11 @@
 #include "flash_map.h"
 #include "delay_hal.h"
 #include "macaddr_hal.h"
-#include "inet_hal.h"
 
 #include "esp32-hal-wifi.h"
 #include "esp_wifi.h"
 #include "lwip/dns.h"
+#include "inet_hal.h"
 
 
 #define STATION_IF      0x00

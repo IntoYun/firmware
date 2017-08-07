@@ -161,12 +161,10 @@ SECTIONS
     _irom0_text_start = ABSOLUTE(.);
     *(.subsys.version.header)
     *(.subsys.version)
-    /*
     *.c.o( EXCLUDE_FILE (umm_malloc.c.o) .literal*, \
            EXCLUDE_FILE (umm_malloc.c.o) .text*)
     *.cpp.o(.literal*, .text*)
     *.ino.o(.literal*, .text*)
-    */
     *libc.a:(.literal .text .literal.* .text.*)
     *libm.a:(.literal .text .literal.* .text.*)
     *libgcc.a:_umoddi3.o(.literal .text)
@@ -176,16 +174,6 @@ SECTIONS
     *liblwip_gcc.a:(.literal .text .literal.* .text.*)
     *liblwip_src.a:(.literal .text .literal.* .text.*)
     *libaxtls.a:(.literal .text .literal.* .text.*)
-    *libuser.a:(.literal .text .literal.* .text.*)
-    *libhal.a:( EXCLUDE_FILE (umm_malloc.c.o) .literal, \
-                EXCLUDE_FILE (umm_malloc.c.o) .text, \
-                EXCLUDE_FILE (umm_malloc.c.o) .literal*, \
-                EXCLUDE_FILE (umm_malloc.c.o) .text*)
-    *libplatform.a:(.literal .text .literal.* .text.*)
-    *libservices.a:(.literal .text .literal.* .text.*)
-    *libsystem.a:(.literal .text .literal.* .text.*)
-    *libwiring.a:(.literal .text .literal.* .text.*)
-    *libwiring_ex.a:(.literal .text .literal.* .text.*)
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text .irom.text.*)
     _irom0_text_end = ABSOLUTE(.);
     _flash_code_end = ABSOLUTE(.);
@@ -223,18 +211,9 @@ SECTIONS
     *(.init.literal)
     *(.init)
     *(.literal .text .literal.* .text.* .stub .gnu.warning .gnu.linkonce.literal.* .gnu.linkonce.t.*.literal .gnu.linkonce.t.*)
-    /*
-    *.cpp.o(.iram.text)
     *.c.o(.iram.text)
+    *.cpp.o(.iram.text)
     *.ino.o(.iram.text)
-    */
-    *libuser.a:(.iram.text)
-    *libhal.a:(.iram.text)
-    *libplatform.a:(.iram.text)
-    *libservices.a:(.iram.text)
-    *libsystem.a:(.iram.text)
-    *libwiring.a:(.iram.text)
-    *libwiring_ex.a:(.iram.text)
     *(.fini.literal)
     *(.fini)
     *(.gnu.version)

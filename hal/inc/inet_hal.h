@@ -29,13 +29,21 @@ extern "C" {
 #include "static_assert.h"
 
 /** 255.255.255.255 */
+#ifndef IPADDR_NONE
 #define IPADDR_NONE         ((uint32_t)0xffffffffUL)
+#endif
 /** 127.0.0.1 */
+#ifndef IPADDR_LOOPBACK
 #define IPADDR_LOOPBACK     ((uint32_t)0x7f000001UL)
+#endif
 /** 0.0.0.0 */
+#ifndef IPADDR_ANY
 #define IPADDR_ANY          ((uint32_t)0x00000000UL)
+#endif
 /** 255.255.255.255 */
+#ifndef IPADDR_BROADCAST
 #define IPADDR_BROADCAST    ((uint32_t)0xffffffffUL)
+#endif
 
 #define HAL_IPv6 0
 
