@@ -260,14 +260,14 @@ size_t UpdaterClass::writeStream(Stream &data) {
     }
     while(remaining()) {
         if((_bufferLen + remaining()) <= UPDATE_SECTOR_SIZE) {
-            toRead = data.readBytes(_buffer + _bufferLen, remaining());
+            toRead = data.readBytes((char *)_buffer + _bufferLen, remaining());
         } else {
-            toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
+            toRead = data.readBytes((char *)_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
         }
 
         if(toRead == 0) { //Timeout
             delay(100);
-            toRead = data.readBytes(_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
+            toRead = data.readBytes((char *)_buffer + _bufferLen, (UPDATE_SECTOR_SIZE - _bufferLen));
             if(toRead == 0) { //Timeout
                 _error = UPDATE_ERROR_STREAM;
                 _currentAddress = (_startAddress + _size);

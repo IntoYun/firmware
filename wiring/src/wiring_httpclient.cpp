@@ -415,7 +415,7 @@ int HTTPClient::sendRequest(const char * type, Stream * stream, size_t size)
                 }
 
                 // read data
-                int bytesRead = stream->readBytes(buff, readBytes);
+                int bytesRead = stream->readBytes((char *)buff, readBytes);
 
                 // write it to Stream
                 int bytesWrite = _tcp->write((const uint8_t *) buff, bytesRead);
@@ -594,7 +594,7 @@ int HTTPClient::writeToStream(Stream * stream)
 
             // read trailing \r\n at the end of the chunk
             char buf[2];
-            auto trailing_seq_len = _tcp->readBytes((uint8_t*)buf, 2);
+            auto trailing_seq_len = _tcp->readBytes((char *)buf, 2);
             if (trailing_seq_len != 2 || buf[0] != '\r' || buf[1] != '\n') {
                 return returnError(HTTPC_ERROR_READ_TIMEOUT);
             }
@@ -976,7 +976,7 @@ int HTTPClient::writeToStreamDataBlock(Stream * stream, int size)
                 }
 
                 // read data
-                int bytesRead = _tcp->readBytes(buff, readBytes);
+                int bytesRead = _tcp->readBytes((char *)buff, readBytes);
 
                 // write it to Stream
                 int bytesWrite = stream->write(buff, bytesRead);

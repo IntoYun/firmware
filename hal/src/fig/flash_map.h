@@ -20,7 +20,9 @@
 #ifndef FLASH_MAP_H_
 #define FLASH_MAP_H_
 
+#ifndef SPI_FLASH_SEC_SIZE
 #define SPI_FLASH_SEC_SIZE      0x1000     //Flash 扇区大小
+#endif
 #define LIMIT_ERASE_SIZE        0x10000    //Flash 擦除扇区大小限制
 
 /*

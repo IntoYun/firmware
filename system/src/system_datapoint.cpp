@@ -36,7 +36,7 @@
 #ifdef SYSTEM_DATAPOINT_DEBUG
 #define SDATAPOINT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SDATAPOINT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-static void debug_dump(const char* buf, int len)
+static void debug_dump(uint8_t *buf, uint16_t len)
 {
     int i = 0;
 
@@ -229,7 +229,7 @@ void intorobotDefineDatapointBinary(const uint16_t dpID, const dp_permission_t p
 
         // Create property structure
         property_conf_t *prop = new property_conf_t {dpID, DATA_TYPE_BINARY, permission, policy, (long)lapseTemp*1000, 0, false, RESULT_DATAPOINT_OLD};
-        prop->valueBinary.value = malloc(len);
+        prop->valueBinary.value = (uint8_t *)malloc(len);
         if(NULL != prop->valueBinary.value) {
             memcpy(prop->valueBinary.value, value, len);
             prop->valueBinary.len = len;
@@ -421,7 +421,7 @@ void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, co
             if(NULL != properties[i]->valueBinary.value) {
                 free(properties[i]->valueBinary.value);
             }
-            properties[i]->valueBinary.value = malloc(len);
+            properties[i]->valueBinary.value = (uint8_t *)malloc(len);
             if(NULL != properties[i]->valueBinary.value) {
                 memcpy(properties[i]->valueBinary.value, value, len);
                 properties[i]->valueBinary.len = len;
@@ -652,7 +652,7 @@ static uint16_t intorobotFormSingleDatapoint(int property_index, uint8_t* buffer
 }
 
 // type   0: 组织改变的数据点   1：组织全部的数据点
-static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len, uint8_t type)
+static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t type)
 {
     int32_t index = 0;
 
@@ -669,13 +669,13 @@ static uint16_t intorobotFormAllDatapoint(char* buffer, uint16_t len, uint8_t ty
         }
 
         if( type || ((!type) && properties[i]->change) )  {
-            index += intorobotFormSingleDatapoint(i, buffer+index, len);
+            index += intorobotFormSingleDatapoint(i, (uint8_t *)buffer+index, len);
         }
     }
     return index;
 }
 
-static _intorobotSendRawData(uint8_t *data, uint16_t dataLen)
+static void _intorobotSendRawData(uint8_t *data, uint16_t dataLen)
 {
     SDATAPOINT_DEBUG_D("send data:");
     SDATAPOINT_DEBUG_DUMP(data, dataLen);

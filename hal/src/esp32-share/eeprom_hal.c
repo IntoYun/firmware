@@ -56,10 +56,10 @@ void HAL_EEPROM_Init(void)
 uint8_t HAL_EEPROM_Read(uint32_t address)
 {
     if (address < 0 || (size_t)address >= size) {
-        return;
+        return 0xFF;
     }
     if (!eeprom_mem) {
-        return;
+        return 0xFF;
     }
     return eeprom_mem[address];
 }

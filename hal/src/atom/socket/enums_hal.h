@@ -39,8 +39,9 @@ typedef uint32_t MDM_IP;
                         (((uint32_t)(b))<<16) | \
                         (((uint32_t)(c))<< 8) | \
                         (((uint32_t)(d))<< 0))
-
+#ifndef MACSTR
 #define MACSTR           "%x:%x:%x:%x:%x:%x"
+#endif
 
 // ----------------------------------------------------------------
 // Sockets

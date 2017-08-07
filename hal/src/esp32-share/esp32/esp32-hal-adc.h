@@ -40,21 +40,21 @@ typedef enum {
  *
  * Note: compatibility with Arduino SAM
  */
-void _analogReadResolution(uint8_t bits);
+void __analogReadResolution(uint8_t bits);
 
 /*
  * Sets the sample bits and read resolution
  * Default is 12bit (0 - 4095)
  * Range is 9 - 12
  * */
-void _analogSetWidth(uint8_t bits);
+void __analogSetWidth(uint8_t bits);
 
 /*
  * Set number of cycles per sample
  * Default is 8 and seems to do well
  * Range is 1 - 255
  * */
-void _analogSetCycles(uint8_t cycles);
+void __analogSetCycles(uint8_t cycles);
 
 /*
  * Set number of samples in the range.
@@ -65,32 +65,32 @@ void _analogSetCycles(uint8_t cycles);
  * like the sensitivity has been multiplied
  * that many times
  * */
-void _analogSetSamples(uint8_t samples);
+void __analogSetSamples(uint8_t samples);
 
 /*
  * Set the divider for the ADC clock.
  * Default is 1
  * Range is 1 - 255
  * */
-void _analogSetClockDiv(uint8_t clockDiv);
+void __analogSetClockDiv(uint8_t clockDiv);
 
 /*
  * Set the attenuation for all channels
  * Default is 11db
  * */
-void _analogSetAttenuation(adc_attenuation_t attenuation);
+void __analogSetAttenuation(adc_attenuation_t attenuation);
 
 /*
  * Set the attenuation for particular pin
  * Default is 11db
  * */
-void _analogSetPinAttenuation(uint8_t pin, adc_attenuation_t attenuation);
+void __analogSetPinAttenuation(uint8_t pin, adc_attenuation_t attenuation);
 
 /*
  * Get value for HALL sensor (without LNA)
  * connected to pins 36(SVP) and 39(SVN)
  * */
-int _hallRead();
+int __hallRead();
 
 /*
  * Non-Blocking API (almost)
@@ -104,22 +104,22 @@ int _hallRead();
 /*
  * Attach pin to ADC (will also clear any other analog mode that could be on)
  * */
-bool _adcAttachPin(uint8_t pin);
+bool __adcAttachPin(uint8_t pin);
 
 /*
  * Start ADC conversion on attached pin's bus
  * */
-bool _adcStart(uint8_t pin);
+bool __adcStart(uint8_t pin);
 
 /*
  * Check if conversion on the pin's ADC bus is currently running
  * */
-bool _adcBusy(uint8_t pin);
+bool __adcBusy(uint8_t pin);
 
 /*
  * Get the result of the conversion (will wait if it have not finished)
  * */
-uint16_t _adcEnd(uint8_t pin);
+uint16_t __adcEnd(uint8_t pin);
 
 #ifdef __cplusplus
 }

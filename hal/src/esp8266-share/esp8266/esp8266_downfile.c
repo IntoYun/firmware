@@ -51,6 +51,7 @@ char hostname_tmp[128] = {0};
 char httppara_tmp[128] = {0};
 
 void downfile_rsp(void *arg);
+void downFile(char *hostname, char *httppara, char *md5para, void *check_cb);
 
 void down_default_app_cb(void){
     os_timer_disarm(&downfile_timer);
@@ -159,7 +160,7 @@ down_status_t esp8266_downOnlineApp(const char *host, const char *param, const c
 {
     filetype = ONLINE_APP_FILE;
     down_progress=0;
-    downFile(host, param, md5, downfile_rsp);
+    downFile((char *)host, (char *)param, (char *)md5, downfile_rsp);
     _downOnlineAppFile_status = DOWNSTATUS_DOWNING;
     return _downOnlineAppFile_status;
 }

@@ -187,7 +187,7 @@ uint32_t HAL_USART_Write_Data(HAL_USART_Serial serial, uint8_t data)
 
 uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 {
-    uartWriteBuf(usartMap[serial]->usart, (uint8_t *)data, 2);
+    uartWriteBuf(usartMap[serial]->usart, (uint8_t *)&data, 2);
     return 1;
 }
 

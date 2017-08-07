@@ -70,19 +70,19 @@ uint32_t HAL_UI_Mode_Button_Pressed(void)
 
 int HAL_UI_RGB_Get_Info(rgb_info_t *pinfo)
 {
-    memcpy(pinfo, &rgb_info, sizeof(rgb_info_t));
+    memcpy(pinfo, (uint8_t *)&rgb_info, sizeof(rgb_info_t));
     return 0;
 }
 
 int HAL_UI_RGB_Set_Info(rgb_info_t info)
 {
-    memcpy(&rgb_info, &info, sizeof(rgb_info_t));
+    memcpy((uint8_t *)&rgb_info, &info, sizeof(rgb_info_t));
     return 0;
 }
 
 void HAL_UI_RGB_Color(uint32_t color)
 {
-    memset(&rgb_info, 0, sizeof(rgb_info));
+    memset((uint8_t *)&rgb_info, 0, sizeof(rgb_info));
     rgb_info.rgb_mode = RGB_MODE_COLOR;
     rgb_info.rgb_color = color;
     Set_RGB_Color(color);
@@ -90,7 +90,7 @@ void HAL_UI_RGB_Color(uint32_t color)
 
 void HAL_UI_RGB_Blink(uint32_t color, uint16_t period)
 {
-    memset(&rgb_info, 0, sizeof(rgb_info));
+    memset((uint8_t *)&rgb_info, 0, sizeof(rgb_info));
     rgb_info.rgb_mode = RGB_MODE_BLINK;
     rgb_info.rgb_color = color;
     rgb_info.rgb_period = period>100 ? period >> 1 : 50;

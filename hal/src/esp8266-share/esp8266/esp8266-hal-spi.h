@@ -1,9 +1,9 @@
-/* 
+/*
   SPI.h - SPI library for esp8266
 
   Copyright (c) 2015 Hristo Gochkov. All rights reserved.
   This file is part of the esp8266 core for Arduino environment.
- 
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -47,7 +47,7 @@ bool spi_pins(int8_t sck, int8_t miso, int8_t mosi, int8_t ss);
 void spi_begin(int8_t sck, int8_t miso, int8_t mosi, int8_t ss);
 void spi_end();
 void spi_setHwCs(bool use);
-void spi_setBitOrder(uint8_t bitOrder);  
+void spi_setBitOrder(uint8_t bitOrder);
 void spi_setDataMode(uint8_t dataMode);
 void spi_setFrequency(uint32_t freq);
 void spi_setClockDivider(uint32_t clockDiv);
@@ -65,7 +65,6 @@ void spi_endTransaction(void);
 
 void spi_writeBytes_(uint8_t * data, uint8_t size);
 void spi_transferBytes_(uint8_t * out, uint8_t * in, uint8_t size);
-inline void spi_setDataBits(uint16_t bits);
 
 
 #endif

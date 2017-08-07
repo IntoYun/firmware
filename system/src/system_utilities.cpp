@@ -119,7 +119,7 @@ int system_get_params_int(system_params_t params_type, int &value) {
 int system_set_params_int(system_params_t params_type, int value) {
     switch(params_type) {
         case SYSTEM_PARAMS_SECURITY_MODE:
-            HAL_PARAMS_Set_System_at_mode(value);
+            HAL_PARAMS_Set_System_at_mode((AT_MODE_FLAG_TypeDef)value);
             HAL_PARAMS_Save_Params();
             return 0;
             break;
@@ -145,10 +145,6 @@ uint16_t system_get_params_array(system_params_t params_type, char *buffer, uint
         case SYSTEM_PARAMS_PRODUCT_BOARD_NAME:
             return system_get_board_name(buffer, len);
             break;
-        case SYSTEM_PARAMS_SECURITY_MODE:
-            *buffer = HAL_PARAMS_Get_System_at_mode();
-            return 1;
-            break;
         default:
             break;
     }
@@ -162,11 +158,6 @@ int system_set_params_array(system_params_t params_type, char *buffer, uint16_t 
             break;
         case SYSTEM_PARAMS_PRODUCT_BOARD_NAME:
             return system_set_board_name(buffer);
-            break;
-        case SYSTEM_PARAMS_SECURITY_MODE:
-            HAL_PARAMS_Set_System_at_mode(*buffer);
-            HAL_PARAMS_Save_Params();
-            return 0;
             break;
         default:
             break;

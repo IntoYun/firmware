@@ -22,6 +22,7 @@
 #include "soc/gpio_sig_map.h"
 #include "soc/io_mux_reg.h"
 #include "soc/rtc_io_reg.h"
+#include "rom/gpio.h"
 
 
 #define USER_GPIO_PIN          4

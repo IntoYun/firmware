@@ -54,10 +54,10 @@ struct __ApplicationProductType {
     }
 };
 
-#define PRODUCT_ID(x)                __ApplicationProductID __appProductID(stringify(x));
-#define PRODUCT_SECRET(x)            __ApplicationProductSecret __appProductSecret(stringify(x));
-#define PRODUCT_SOFTWARE_VERSION(x)  __ApplicationProductSoftwareVersion __appProductSoftwareVersion(stringify(x));
-#define PRODUCT_HARDWARE_VERSION(x)  __ApplicationProductHardwareVersion __appProductHardwareVersion(stringify(x));
+#define PRODUCT_ID(x)                __ApplicationProductID __appProductID((char *)stringify(x));
+#define PRODUCT_SECRET(x)            __ApplicationProductSecret __appProductSecret((char *)stringify(x));
+#define PRODUCT_SOFTWARE_VERSION(x)  __ApplicationProductSoftwareVersion __appProductSoftwareVersion((char *)stringify(x));
+#define PRODUCT_HARDWARE_VERSION(x)  __ApplicationProductHardwareVersion __appProductHardwareVersion((char *)stringify(x));
 #define PRODUCT_VERSION(x)           PRODUCT_SOFTWARE_VERSION(x);
 #define PRODUCT_TYPE(x)              __ApplicationProductType __appProductType(x);
 

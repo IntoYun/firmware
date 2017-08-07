@@ -91,7 +91,9 @@ typedef uint32_t MDM_IP;
                         (((uint32_t)(c))<< 8) | \
                         (((uint32_t)(d))<< 0))
 
+#ifndef MACSTR
 #define MACSTR           "%x:%x:%x:%x:%x:%x"
+#endif
 
 typedef struct {
     MDM_IP  IpAddr;             // byte 0 is MSB, byte 3 is LSB

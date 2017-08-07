@@ -182,7 +182,7 @@ static bool _device_register(void)
     md5.add((uint8_t *)payload.c_str(), payload.length());
     md5.calculate();
     system_get_product_id(buffer, sizeof(buffer));
-    return intorobot_device_register(buffer, md5.toString().c_str());
+    return intorobot_device_register(buffer, (char *)md5.toString().c_str());
 }
 
 void preprocess_cloud_connection(void)
@@ -376,7 +376,7 @@ void system_process_loop(void)
  * @brief This should block for a certain number of milliseconds and also execute system_process_loop
  */
 #ifndef configNO_LORAWAN
-static void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
+static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
 {
     HAL_Core_System_Yield();
     if (ms==0) return;
@@ -396,7 +396,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
     }
 }
 #else
-static void system_delay_pump(unsigned long ms, bool force_no_background_loop=false)
+static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
 {
     HAL_Core_System_Yield();
     if (ms==0) return;
@@ -442,7 +442,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop=fa
  * On a non threaded platform, or when called from the application thread, then
  * run the background loop so that application events are processed.
  */
-void system_delay_ms(unsigned long ms, bool force_no_background_loop=false)
+void system_delay_ms(unsigned long ms, bool force_no_background_loop)
 {
     // if not threading, or we are the application thread, then implement delay
     // as a background message pump
