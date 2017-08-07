@@ -62,31 +62,14 @@ void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
 
 static void LoRaSlaveSystemWakeup(void)
 {
-    BoardInitMcu( );
     SX1276BoardInit();
     LoRa.radioSetModem(MODEM_LORA);
 }
 
-void system_sleep_lora_slave(uint16_t pin, InterruptMode edgeTriggerMode)
+void system_sleep_lora_slave(void)
 {
-    switch(edgeTriggerMode)
-    {
-        case CHANGE:
-            pinMode(pin,INPUT);
-            break;
-        case RISING:
-            pinMode(pin,INPUT_PULLDOWN);
-            break;
-        case FALLING:
-            pinMode(pin,INPUT_PULLUP);
-            break;
-        default:
-            break;
-    }
-
-    attachInterrupt(pin,LoRaSlaveSystemWakeup,FALLING);
-
     SlaveModeRtcEnterLowPowerStopMode();
+    LoRaSlaveSystemWakeup();
 }
 
 #if 0

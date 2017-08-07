@@ -94,6 +94,7 @@ public:
     static void sleep(long seconds) { sleep(SLEEP_MODE_WLAN, seconds); }
     static void sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds=0);
     static void sleep(userLoRaWakeupCb userHandler, uint32_t seconds);
+    static void sleep(void);
 
     static String deviceID(void) { return intorobot_deviceID(); }
 
