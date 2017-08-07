@@ -929,3 +929,24 @@ void BoardInitMcu(void)
     USB_USART_Initial(115200);
 #endif
 }
+
+void SlaveModeRtcEnterLowPowerStopMode( void )
+{
+    BoardDeInitMcu( );
+
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+
+    // Enable Ultra low power mode
+    HAL_PWREx_EnableUltraLowPower( );
+
+    // Enable the fast wake up from Ultra low power mode
+    HAL_PWREx_EnableFastWakeUp( );
+
+    // Enter Stop Mode
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+
+    BoardInitMcu( );
+}

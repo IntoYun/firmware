@@ -104,6 +104,8 @@ void BoardDeInitMcu(void);
 //mcu休眠唤醒后处理
 void BoardInitMcu(void);
 
+void SlaveModeRtcEnterLowPowerStopMode( void );
+
 #ifdef __cplusplus
 }
 #endif

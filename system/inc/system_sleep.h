@@ -21,6 +21,7 @@
 #define SYSTEM_SLEEP_H
 
 #include <stdint.h>
+#include "interrupts_hal.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +38,15 @@ enum class SystemSleepNetwork
     Standby,
 };
 
+typedef void (*userLoRaWakeupCb)(void);
+
 /**
  * @param param A SystemSleepNetwork enum cast as an integer.
  */
 void system_sleep(IntoRobot_Sleep_TypeDef mode, long seconds, uint32_t param, void* reserved);
 void system_sleep_pin(uint16_t pin, uint16_t mode, long seconds, uint32_t param, void* reserved);
-
+void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds);
+void system_sleep_lora_slave(uint16_t pin, InterruptMode edgeTriggerMode);
 #ifdef __cplusplus
 }
 #endif

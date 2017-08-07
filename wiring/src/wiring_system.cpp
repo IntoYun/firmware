@@ -34,7 +34,15 @@ void SystemClass::sleep(IntoRobot_Sleep_TypeDef sleepMode, long seconds)
 
 void SystemClass::sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds)
 {
-    //system_sleep_pin(wakeUpPin, edgeTriggerMode, seconds, 0, NULL);
+    #ifndef configNO_LORAWAN
+    system_sleep_lora_slave(wakeUpPin,edgeTriggerMode);
+    #endif
+    // system_sleep_pin(wakeUpPin, edgeTriggerMode, seconds, 0, NULL);
+}
+
+void SystemClass::sleep(userLoRaWakeupCb userHandler, uint32_t seconds)
+{
+    system_sleep_lora(userHandler,seconds);
 }
 
 uint32_t SystemClass::freeMemory()

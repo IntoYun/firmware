@@ -17,6 +17,78 @@
   ******************************************************************************
 */
 
+#include "system_sleep.h"
+#include "wiring_ex_lorawan.h"
+#include "wiring.h"
+#include "wiring_interrupts.h"
+#include "rtc_hal_lora.h"
+
+static bool loraSystemSleepEnabled = false;
+static TimerEvent_t loraSystemSleepTimer;
+static userLoRaWakeupCb userLoRaSystemWakeupHandler;
+
+static void LoRaSystemWakeupCb(void)
+{
+    TimerStop( &loraSystemSleepTimer );
+    SX1276BoardInit();
+    LoRa.radioSetModem(MODEM_LORA);
+    if(userLoRaSystemWakeupHandler != NULL)
+    {
+        userLoRaSystemWakeupHandler();
+    }
+    loraSystemSleepEnabled = false;
+}
+
+static void LoRaSetSystemSleep(userLoRaWakeupCb userHandler, uint32_t timeout) //单位s
+{
+    userLoRaSystemWakeupHandler = userHandler;
+    TimerInit( &loraSystemSleepTimer, LoRaSystemWakeupCb);
+    TimerSetValue( &loraSystemSleepTimer, timeout*1000 );
+    // TimerStart(&loraSystemSleepTimer);
+}
+
+//主模式下
+void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
+{
+    if(!loraSystemSleepEnabled)
+    {
+        LoRaSetSystemSleep(userHandler,seconds);
+        LoRa.radioSetSleep();
+        loraSystemSleepEnabled = true;
+        DEBUG("lora into sleep");
+    }
+    TimerLowPowerHandler();
+}
+
+static void LoRaSlaveSystemWakeup(void)
+{
+    BoardInitMcu( );
+    SX1276BoardInit();
+    LoRa.radioSetModem(MODEM_LORA);
+}
+
+void system_sleep_lora_slave(uint16_t pin, InterruptMode edgeTriggerMode)
+{
+    switch(edgeTriggerMode)
+    {
+        case CHANGE:
+            pinMode(pin,INPUT);
+            break;
+        case RISING:
+            pinMode(pin,INPUT_PULLDOWN);
+            break;
+        case FALLING:
+            pinMode(pin,INPUT_PULLUP);
+            break;
+        default:
+            break;
+    }
+
+    attachInterrupt(pin,LoRaSlaveSystemWakeup,FALLING);
+
+    SlaveModeRtcEnterLowPowerStopMode();
+}
+
 #if 0
 
 #include "system_sleep.h"
