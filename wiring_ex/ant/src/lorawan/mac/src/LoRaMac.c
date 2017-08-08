@@ -3030,7 +3030,8 @@ static LoRaMacStatus_t ScheduleTx( void )
     if( IsLoRaMacNetworkJoined == false )
     {
         RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindowsParams[0].RxOffset;
-        RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindowsParams[1].RxOffset;
+        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindowsParams[1].RxOffset; */
+        RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //A类入网时间
         /* LORAMAC_DEBUG("rx1 window join delay = %d",RxWindow1Delay); */
         /* LORAMAC_DEBUG("rx2 window join delay = %d",RxWindow2Delay); */
     }
@@ -3381,6 +3382,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
     #if 1
     //debug 打印组包数据
+    /* LORAMAC_DEBUG("radio status = 0x%x",Radio.Read(0x01)); */
     LORAMAC_DEBUG("frame length = %d",LoRaMacBufferPktLen);
     LORAMAC_DEBUG_D("frame data:");
     LORAMAC_DEBUG_DUMP(LoRaMacBuffer,LoRaMacBufferPktLen);

@@ -182,6 +182,11 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     SLORAWAN_DEBUG("---------");
                     INTOROBOT_LORAWAN_JOINED = 1;
                     system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                    //设置为C类
+                    MibRequestConfirm_t mibReq;
+                    mibReq.Type = MIB_DEVICE_CLASS;
+                    mibReq.Param.Class = CLASS_C;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
                 }
             break;
 

@@ -289,9 +289,9 @@ void LoRaWanClass::macResume(void)
     mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
-    //设置为C类
+    //设置为A类
     mibReq.Type = MIB_DEVICE_CLASS;
-    mibReq.Param.Class = CLASS_C;
+    mibReq.Param.Class = CLASS_A;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
 }
