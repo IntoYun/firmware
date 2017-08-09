@@ -17,10 +17,14 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+
 #include "system_sleep.h"
-#include "wiring_ex_lorawan.h"
 #include "wiring.h"
 #include "wiring_interrupts.h"
+
+#ifndef configNO_LORAWAN
+#include "wiring_ex_lorawan.h"
 #include "rtc_hal_lora.h"
 
 static bool loraSystemSleepEnabled = false;
@@ -71,6 +75,7 @@ void system_sleep_lora_slave(void)
     SlaveModeRtcEnterLowPowerStopMode();
     LoRaSlaveSystemWakeup();
 }
+#endif
 
 #if 0
 

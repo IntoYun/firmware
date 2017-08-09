@@ -325,7 +325,7 @@ void lorawan_prepare_active(void)
                 STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
                 system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 
-                int32_t joinDelayms = randr(0,30000);
+                int32_t joinDelayms = randr(0,10000);
                 STASK_DEBUG("joinDelayms = %d",joinDelayms);
                 delay((uint32_t)joinDelayms);
                 LoRaWan.joinOTAA();
