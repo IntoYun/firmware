@@ -348,6 +348,17 @@ void manage_lorawan_connection(void)
         lorawan_prepare_active();
         INTOROBOT_CLOUD_CONNECT_PREPARED = 1;
     }
+
+    if(INTOROBOT_LORAWAN_JOINED == 0 && INTOROBOT_LORAWAN_PREPARE_ACTIVE == 0)
+    {
+        STASK_DEBUG("lorawan join again");
+        INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1;
+        int32_t joinDelayms = randr(0,30000);
+        STASK_DEBUG("joinDelayms = %d",joinDelayms);
+        delay((uint32_t)joinDelayms);
+        LoRaWan.joinOTAA(); //入网失败 重新激活
+    }
+
     if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
         intorobot_lorawan_send_terminal_info();
         INTOROBOT_LORAWAN_CONNECTED = 1;

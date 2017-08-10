@@ -57,6 +57,7 @@ volatile uint8_t INTOROBOT_CLOUD_CONNECTED = 0;          //平台连接状态 1�
 
 volatile uint8_t INTOROBOT_LORAWAN_JOINED = 0; //lorawan认证通过
 volatile uint8_t INTOROBOT_LORAWAN_CONNECTED = 0; //lorawan发送版本信息完毕
+volatile uint8_t INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1; //lorawan准备激活
 
 void os_getDevEui(uint8_t *buf)
 {
@@ -194,6 +195,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 SLORAWAN_DEBUG("--event join failed--");
                 // System.reset();
                 // LoRaWan.joinOTAA();
+                INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0; //激活失败
                 break;
 
             case LORAWAN_EVENT_TX_COMPLETE:
