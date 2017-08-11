@@ -290,9 +290,9 @@ void LoRaWanClass::macResume(void)
     LoRaMacMibSetRequestConfirm( &mibReq );
 
     //设置为A类
-    mibReq.Type = MIB_DEVICE_CLASS;
-    mibReq.Param.Class = CLASS_A;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+    // mibReq.Type = MIB_DEVICE_CLASS;
+    // mibReq.Param.Class = CLASS_A;
+    // LoRaMacMibSetRequestConfirm( &mibReq );
 
 }
 
