@@ -8,7 +8,7 @@
 #include "lorawan/mac/inc/LoRaMac.h"
 #include "lorawan/board/inc/utilities.h"
 
-#define LORAWAN_DEFAULT_DATARATE      DR_5
+#define LORAWAN_DEFAULT_DATARATE      DR_3
 #define LORAWAN_ADR_ON                1
 #define LORAWAN_PUBLIC_NETWORK        true
 #define LORAWAN_NETWORK_ID            ( uint32_t )0

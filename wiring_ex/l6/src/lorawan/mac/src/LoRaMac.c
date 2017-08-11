@@ -2081,7 +2081,7 @@ static bool SetNextChannel( TimerTime_t* time )
                         if( ( JOIN_CHANNELS & ( 1 << j ) ) == 0 )
                         {
                             continue;
-                        }
+                        }
                     }
 #endif
                     if( ( ( Channels[i + j].DrRange.Fields.Min <= LoRaMacParams.ChannelsDatarate ) &&
