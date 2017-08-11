@@ -241,7 +241,7 @@ void HAL_USART_End(HAL_USART_Serial serial)
     HAL_NVIC_DisableIRQ(usartMap[serial]->usart_int_n);
 
     // clear any received data
-    sdkReleaseQueue(usartMap[serial]->usart_rx_queue);
+    /* sdkReleaseQueue(usartMap[serial]->usart_rx_queue);//休眠唤醒后没有申请内存导致无法接收 注释此句 */
 
     // Undo any pin re-mapping done for this USART
     // ...
