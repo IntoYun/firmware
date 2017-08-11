@@ -716,6 +716,26 @@ void LoRaClass::radioSetMaxPayloadLength(uint8_t max)
     Radio.SetMaxPayloadLength(_modem,max);
 }
 
+void LoRaClass::radioSetFixLen(bool fixLen)
+{
+    _fixLen = fixLen;
+}
+
+void LoRaClass::radioSetFixPayloadLen(uint8_t payloadLen)
+{
+    _payloadLen = payloadLen;
+}
+
+void LoRaClass::radioSetFreqHopOn(bool enabled)
+{
+    _freqHopOn = enabled;
+}
+
+void LoRaClass::radioSetHopPeriod(uint16_t period)
+{
+    _hopPeriod = period;
+}
+
 //接收设置
 void LoRaClass::radioSetRxConfig(void)
 {
@@ -777,16 +797,6 @@ uint16_t LoRaClass::radioGetSymbTimeout(void)
     return _symbTimeout;
 }
 
-bool LoRaClass::radioGetCrcOn(void)
-{
-    return _crcOn;
-}
-
-uint16_t LoRaClass::radioGetPreambleLen(void)
-{
-    return _preambleLen;
-}
-
 bool LoRaClass::radioGetIqInverted(void)
 {
     return _iqInverted;
@@ -795,6 +805,16 @@ bool LoRaClass::radioGetIqInverted(void)
 bool LoRaClass::radioGetRxContinuous(void)
 {
     return _rxContinuous;
+}
+
+bool LoRaClass::radioGetCrcOn(void)
+{
+    return _crcOn;
+}
+
+uint16_t LoRaClass::radioGetPreambleLen(void)
+{
+    return _preambleLen;
 }
 
 //读取寄存器值
@@ -818,12 +838,12 @@ void LoRaClass::radioStartCad(void)
 //获取rssi
 int16_t LoRaClass::radioReadRssi(void)
 {
-    return LoRa._rssi;
+    return _rssi;
 }
 
 int8_t LoRaClass::radioReadSnr(void)
 {
-    return LoRa._snr;
+    return _snr;
 }
 
 #endif

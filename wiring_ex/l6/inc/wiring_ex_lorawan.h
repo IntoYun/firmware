@@ -196,6 +196,14 @@ class LoRaClass
     void radioSetRxContinuous(bool rxContinuous);
     //设置负载最大长度
     void radioSetMaxPayloadLength(uint8_t max);
+    //SF=6时包长度需固定
+    void radioSetFixLen(bool fixLen);
+    //SF=6时包长度需固定,设置包长度
+    void radioSetFixPayloadLen(uint8_t payloadLen);
+    //调频使能
+    void radioSetFreqHopOn(bool enabled);
+    //调频周期
+    void radioSetHopPeriod(uint16_t period);
     //接收设置
     void radioSetRxConfig(void);
     //发送设置
