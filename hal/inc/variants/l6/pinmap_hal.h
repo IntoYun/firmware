@@ -137,14 +137,13 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 
 //#define A6 36
 //#define A7 37
+// Uart pins
+#define TX  PA9
+#define RX  PA10
 
 // Uart pins
-#define TX  PA2
-#define RX  PA3
-
-// Uart pins
-#define TX1  PA9
-#define RX1  PA10
+#define TX1  PA2
+#define RX1  PA3
 
 // Uart pins
 #define TX2  PB10

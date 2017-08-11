@@ -85,17 +85,6 @@ static void OnLoRaRadioCadDone(bool channelActivityDetected)
     system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
 }
 
-static void SystemWakeupCb(void)
-{
-    TimerStop( &LoRaWan.systemWakeupTimer );
-    SX1276BoardInit();
-    LoRa.radioSetModem(MODEM_LORA);
-    if(LoRaWan.wakeupCb != NULL)
-    {
-        LoRaWan.wakeupCb();
-    }
-    LoRaWan._systemSleepEnabled = false;
-}
 //======loramac不运行 end ========
 
 //loramac运行回调函数
@@ -300,10 +289,10 @@ void LoRaWanClass::macResume(void)
     mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
-    //设置为C类
-    mibReq.Type = MIB_DEVICE_CLASS;
-    mibReq.Param.Class = CLASS_C;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+    //设置为A类
+    // mibReq.Type = MIB_DEVICE_CLASS;
+    // mibReq.Param.Class = CLASS_A;
+    // LoRaMacMibSetRequestConfirm( &mibReq );
 
 }
 
@@ -641,39 +630,7 @@ void LoRaWanClass::resetDownLinkCounter(void)
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
-//系统休眠
-void LoRaWanClass::systemSleep(loraWakeupCb userHandler, uint32_t timeout)
-{
-    if(!_systemSleepEnabled)
-    {
-        setSystemWakeup(userHandler,timeout);
-        LoRa.radioSetSleep();
-        _systemSleepEnabled = true;
-    }
-    TimerLowPowerHandler();
-}
-
-void LoRaWanClass::systemWakeupHandler(void)
-{
-    TimerStop( &systemWakeupTimer );
-
-    SX1276BoardInit();
-    if(wakeupCb != NULL)
-    {
-        wakeupCb();
-    }
-}
-
-typedef void (*FUNC)(void);
-void LoRaWanClass::setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout) //单位s
-{
-    wakeupCb = userHandler;
-    // TimerInit( &systemWakeupTimer, (FUNC)&LoRaWanClass::systemWakeupHandler);//TODO 此处回调无法运行
-    TimerInit( &systemWakeupTimer, SystemWakeupCb);
-    TimerSetValue( &systemWakeupTimer, timeout*1000 );
-    TimerStart( &systemWakeupTimer );
-}
-
+//P2P透传接口
 //sx1278休眠
 void LoRaClass::radioSetSleep(void)
 {
@@ -759,6 +716,26 @@ void LoRaClass::radioSetMaxPayloadLength(uint8_t max)
     Radio.SetMaxPayloadLength(_modem,max);
 }
 
+void LoRaClass::radioSetFixLen(bool fixLen)
+{
+    _fixLen = fixLen;
+}
+
+void LoRaClass::radioSetFixPayloadLen(uint8_t payloadLen)
+{
+    _payloadLen = payloadLen;
+}
+
+void LoRaClass::radioSetFreqHopOn(bool enabled)
+{
+    _freqHopOn = enabled;
+}
+
+void LoRaClass::radioSetHopPeriod(uint16_t period)
+{
+    _hopPeriod = period;
+}
+
 //接收设置
 void LoRaClass::radioSetRxConfig(void)
 {
@@ -820,16 +797,6 @@ uint16_t LoRaClass::radioGetSymbTimeout(void)
     return _symbTimeout;
 }
 
-bool LoRaClass::radioGetCrcOn(void)
-{
-    return _crcOn;
-}
-
-uint16_t LoRaClass::radioGetPreambleLen(void)
-{
-    return _preambleLen;
-}
-
 bool LoRaClass::radioGetIqInverted(void)
 {
     return _iqInverted;
@@ -838,6 +805,16 @@ bool LoRaClass::radioGetIqInverted(void)
 bool LoRaClass::radioGetRxContinuous(void)
 {
     return _rxContinuous;
+}
+
+bool LoRaClass::radioGetCrcOn(void)
+{
+    return _crcOn;
+}
+
+uint16_t LoRaClass::radioGetPreambleLen(void)
+{
+    return _preambleLen;
 }
 
 //读取寄存器值
@@ -861,12 +838,12 @@ void LoRaClass::radioStartCad(void)
 //获取rssi
 int16_t LoRaClass::radioReadRssi(void)
 {
-    return LoRa._rssi;
+    return _rssi;
 }
 
 int8_t LoRaClass::radioReadSnr(void)
 {
-    return LoRa._snr;
+    return _snr;
 }
 
 #endif

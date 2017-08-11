@@ -23,6 +23,8 @@ extern volatile uint8_t INTOROBOT_CLOUD_CONNECTED;          //平台连接状态
 
 extern volatile uint8_t INTOROBOT_LORAWAN_JOINED;
 extern volatile uint8_t INTOROBOT_LORAWAN_CONNECTED;
+extern volatile uint8_t INTOROBOT_LORAWAN_PREPARE_ACTIVE;
+
 
 extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
 extern volatile uint8_t INTOROBOT_WLAN_STARTED;

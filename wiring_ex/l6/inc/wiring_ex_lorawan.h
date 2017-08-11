@@ -8,7 +8,7 @@
 #include "lorawan/mac/inc/LoRaMac.h"
 #include "lorawan/board/inc/utilities.h"
 
-#define LORAWAN_DEFAULT_DATARATE      DR_5
+#define LORAWAN_DEFAULT_DATARATE      DR_3
 #define LORAWAN_ADR_ON                1
 #define LORAWAN_PUBLIC_NETWORK        true
 #define LORAWAN_NETWORK_ID            ( uint32_t )0
@@ -66,15 +66,10 @@ enum _coderate_t{
     CR4_8
 };
 
-typedef void (*loraWakeupCb)(void);
 
 class LoRaWanClass
 {
     public:
-    TimerEvent_t systemWakeupTimer;
-    loraWakeupCb wakeupCb = 0;
-    bool _systemSleepEnabled = false;
-
     //loramc
     lorawan_data_t macBuffer;
     lorawan_params_t macParams;
@@ -145,13 +140,6 @@ class LoRaWanClass
     //复位下行帧个数 即清0
     void  resetDownLinkCounter(void);
 
-    //休眠
-    void systemSleep(loraWakeupCb userHandler, uint32_t timeout);
-    //唤醒后处理 TODO暂不采用
-    void systemWakeupHandler(void);
-    //唤醒设置 userHanler为用户处理唤醒之后的外设和IO等
-    void setSystemWakeup(loraWakeupCb userHandler, uint32_t timeout); //单位s
-
     private:
 };
 
@@ -208,6 +196,14 @@ class LoRaClass
     void radioSetRxContinuous(bool rxContinuous);
     //设置负载最大长度
     void radioSetMaxPayloadLength(uint8_t max);
+    //SF=6时包长度需固定
+    void radioSetFixLen(bool fixLen);
+    //SF=6时包长度需固定,设置包长度
+    void radioSetFixPayloadLen(uint8_t payloadLen);
+    //调频使能
+    void radioSetFreqHopOn(bool enabled);
+    //调频周期
+    void radioSetHopPeriod(uint16_t period);
     //接收设置
     void radioSetRxConfig(void);
     //发送设置
