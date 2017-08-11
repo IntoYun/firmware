@@ -834,7 +834,7 @@ void intorobotSendDatapointAutomatic(void)
     //当数值发生变化
     if(intorobotPropertyChanged()) {
         buffer[index++] = BINARY_DATA_FORMAT;
-        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 0);
+        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
         sendFlag = true;
     } else {
         //发送时间间隔到
