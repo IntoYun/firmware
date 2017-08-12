@@ -95,6 +95,8 @@ class LoRaWanClass
     void setMacFixedSF(bool enabled);
     //OTAA入网激活
     void joinOTAA(void);
+    //开始入网
+    void joinStartOTAA(void);
     //ABP入网
     void joinABP(void);
 

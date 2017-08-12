@@ -83,6 +83,57 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
     }
 }
 
+void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
+{
+    switch(event)
+    {
+        case event_lorawan_status:
+
+            switch(param)
+            {
+                case ep_lorawan_joining:
+                    break;
+
+                case ep_lorawan_joined:
+                break;
+
+                case ep_lorawan_join_fail:
+                    LoRaWan.joinOTAA();
+                    break;
+
+                case ep_lorawan_tx_complete:
+                    break;
+
+                case ep_lorawan_rx_complete:
+                break;
+
+                case ep_lorawan_mlme_join:
+                    break;
+
+                case ep_lorawan_mlme_link_check:
+                    break;
+
+                case ep_lorawan_mcps_unconfirmed:
+                    break;
+
+                case ep_lorawan_mcps_confirmed:
+                    break;
+
+                case ep_lorawan_mcps_proprietary:
+                    break;
+
+                case ep_lorawan_mcps_multicast:
+                    break;
+                default:
+                    break;
+            }
+            break;
+
+            default:
+                break;
+    }
+}
+
 void setup()
 {
     // LoRaWan.setMacFixedFreq(false);
@@ -96,7 +147,9 @@ void setup()
     IntoRobot.defineDatapointNumber(DPID_NUMBER_RHEOSTAT, DP_PERMISSION_UP_DOWN, 0, 1000, 0, 0);            //速度
     IntoRobot.defineDatapointString(DPID_STRING_LCD_DISPLAY, DP_PERMISSION_UP_DOWN, 255, "oh yeah!");       //字符显示
     IntoRobot.defineDatapointBinary(DPID_BINARY_DATA, DP_PERMISSION_UP_DOWN, 255, "\x23\x32\x32\x43", 4);   //字符显示
+    System.on(event_lorawan_status, &lorawan_event_callback);
     System.on(event_cloud_data, &system_event_callback);
+    LoRaWan.joinOTAA();
 }
 
 void loop()

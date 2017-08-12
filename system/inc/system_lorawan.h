@@ -49,12 +49,12 @@ bool intorobot_lorawan_flag_connected(void);
 void intorobot_lorawan_send_terminal_info(void);
 void intorobot_lorawan_send_data(char* buffer, uint16_t len);
 void LoRaWanOnEvent(lorawan_event_t event);
-// void LoRaWanEventCallback(system_event_t event, int param, uint8_t *data, uint16_t datalen);
+void LoRaWanJoinEnable(bool enable);
+bool LoRaWanJoinIsEnabled(void);
 
 void os_getDevEui(uint8_t *buf);
 void os_getAppEui(uint8_t *buf);
 void os_getAppKey(uint8_t *buf);
-
 #ifdef __cplusplus
 }
 #endif

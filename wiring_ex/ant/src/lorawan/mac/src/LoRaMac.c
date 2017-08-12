@@ -2123,6 +2123,11 @@ static bool SetNextChannel( TimerTime_t* time )
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
+            /* LORAMAC_DEBUG("time = %d",*time); */
+            if(LoRaMacIsFixedDatarate())
+            {
+                *time += randr(0,2000);
+            }
             return true;
         }
         // Datarate not supported by any channel
@@ -3067,13 +3072,13 @@ static LoRaMacStatus_t ScheduleTx( void )
             dutyCycleTimeOff += randr(0,2000);
             LORAMAC_DEBUG("NodeAckRequested=false set dutyCycleTimeOff");
         }
-        #endif
 
         if(LoRaMacIsFixedDatarate())
         {
             dutyCycleTimeOff = 0;
             dutyCycleTimeOff += randr(0,2000); //设置重发随机时间
         }
+        #endif
         /* dutyCycleTimeOff += randr(0,2000); //设置重发随机时间 */
         /* LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff); */
 

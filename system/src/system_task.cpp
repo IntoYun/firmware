@@ -294,6 +294,7 @@ void LoraWAN_Setup(void)
 {
     STASK_DEBUG("LoRaWan_Setup");
     LoRaWan.macResume();
+    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
 
 void lorawan_prepare_active(void)
@@ -343,6 +344,7 @@ void lorawan_prepare_active(void)
 
 void manage_lorawan_connection(void)
 {
+    #if 0
     if(!INTOROBOT_CLOUD_CONNECT_PREPARED)
     {
         lorawan_prepare_active();
@@ -358,9 +360,23 @@ void manage_lorawan_connection(void)
         delay((uint32_t)joinDelayms);
         LoRaWan.joinOTAA(); //入网失败 重新激活
     }
+#endif
+
+    if(INTOROBOT_LORAWAN_JOINED == 0){
+        if(INTOROBOT_LORAWAN_PREPARE_ACTIVE == 1){
+            if(LoRaWanJoinIsEnabled())
+            {
+                INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0;
+                LoRaWanJoinEnable(false);
+                LoRaWan.joinStartOTAA();
+            }
+        }
+    }
 
     if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
-        intorobot_lorawan_send_terminal_info();
+        if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
+            intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
+        }
         INTOROBOT_LORAWAN_CONNECTED = 1;
     }
 }

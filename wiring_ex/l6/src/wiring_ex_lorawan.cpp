@@ -241,6 +241,7 @@ DeviceClass_t LoRaWanClass::getMacClassType(void)
 void LoRaWanClass::macPause(void)
 {
     System.disableFeature(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED);
+    LoRaWanJoinEnable(false);
     // Radio initialization
     // SX1276BoardInit();
     __disable_irq( );
@@ -321,6 +322,11 @@ void LoRaWanClass::setMacFixedSF(bool enabled)
 }
 
 void LoRaWanClass::joinOTAA(void)
+{
+    LoRaWanJoinEnable(true);
+}
+
+void LoRaWanClass::joinStartOTAA(void)
 {
     MlmeReq_t mlmeReq;
     uint8_t _devEui[8];

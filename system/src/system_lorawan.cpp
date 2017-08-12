@@ -58,6 +58,7 @@ volatile uint8_t INTOROBOT_CLOUD_CONNECTED = 0;          //平台连接状态 1�
 volatile uint8_t INTOROBOT_LORAWAN_JOINED = 0; //lorawan认证通过
 volatile uint8_t INTOROBOT_LORAWAN_CONNECTED = 0; //lorawan发送版本信息完毕
 volatile uint8_t INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1; //lorawan准备激活
+volatile bool INTOROBOT_LORAWAN_JOIN_ENABLE = false;
 
 void os_getDevEui(uint8_t *buf)
 {
@@ -78,6 +79,16 @@ void os_getAppKey(uint8_t *buf)
     char appkey[36]={0};
     HAL_PARAMS_Get_System_appkey(appkey, sizeof(appkey));
     string2hex(appkey, buf, 16, false);
+}
+
+void LoRaWanJoinEnable(bool enable)
+{
+    INTOROBOT_LORAWAN_JOIN_ENABLE = enable;
+}
+
+bool LoRaWanJoinIsEnabled(void)
+{
+    return INTOROBOT_LORAWAN_JOIN_ENABLE;
 }
 
 bool intorobot_lorawan_flag_connected(void)
@@ -147,8 +158,9 @@ void intorobot_lorawan_send_data(char* buffer, uint16_t len)
 
 void LoRaWanOnEvent(lorawan_event_t event)
 {
-    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED))
+    // if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED))
     {
+        //主从模式下都由内部存储参数
         switch(event)
         {
             case LORAWAN_EVENT_JOINING:
@@ -193,9 +205,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
             case LORAWAN_EVENT_JOIN_FAIL:
                 SLORAWAN_DEBUG("--event join failed--");
-                // System.reset();
-                // LoRaWan.joinOTAA();
-                INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0; //激活失败
+                INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1; //激活失败
                 break;
 
             case LORAWAN_EVENT_TX_COMPLETE:
@@ -205,26 +215,29 @@ void LoRaWanOnEvent(lorawan_event_t event)
             case LORAWAN_EVENT_RX_COMPLETE:
                 {
                     SLORAWAN_DEBUG("--event RX completed--");
-                    int len;
-                    uint8_t buffer[256];
-                    len = LoRaWan.receiveFrame(buffer);
+                    if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)) //数据点使能
+                    {
+                        int len;
+                        uint8_t buffer[256];
+                        len = LoRaWan.receiveFrame(buffer);
 
-                    #if 1
-                    SLORAWAN_DEBUG_D("lorawan receive data:");
-                    for(uint16_t i=0;i<len;i++)
-                    {
-                        SLORAWAN_DEBUG_D("0x%x ",buffer[i]);
-                    }
-                    SLORAWAN_DEBUG_D("\r\n");
-                    #endif
+                        #if 1
+                        SLORAWAN_DEBUG_D("lorawan receive data:");
+                        for(uint16_t i=0;i<len;i++)
+                        {
+                            SLORAWAN_DEBUG_D("0x%x ",buffer[i]);
+                        }
+                        SLORAWAN_DEBUG_D("\r\n");
+                        #endif
 
-                    if(len == -1)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        intorobotParseReceiveDatapoints(buffer,len);
+                        if(len == -1)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            intorobotParseReceiveDatapoints(buffer,len);
+                        }
                     }
                 }
                 break;
