@@ -91,6 +91,11 @@ bool LoRaWanJoinIsEnabled(void)
     return INTOROBOT_LORAWAN_JOIN_ENABLE;
 }
 
+uint8_t LoRaWanActiveStatus(void)
+{
+    return INTOROBOT_LORAWAN_JOINED;
+}
+
 bool intorobot_lorawan_flag_connected(void)
 {
     if (INTOROBOT_LORAWAN_JOINED && INTOROBOT_LORAWAN_CONNECTED) {

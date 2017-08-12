@@ -344,40 +344,43 @@ void lorawan_prepare_active(void)
 
 void manage_lorawan_connection(void)
 {
-    #if 0
-    if(!INTOROBOT_CLOUD_CONNECT_PREPARED)
+    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED))
     {
-        lorawan_prepare_active();
-        INTOROBOT_CLOUD_CONNECT_PREPARED = 1;
-    }
+#if 0
+        if(!INTOROBOT_CLOUD_CONNECT_PREPARED)
+        {
+            lorawan_prepare_active();
+            INTOROBOT_CLOUD_CONNECT_PREPARED = 1;
+        }
 
-    if(INTOROBOT_LORAWAN_JOINED == 0 && INTOROBOT_LORAWAN_PREPARE_ACTIVE == 0)
-    {
-        STASK_DEBUG("lorawan join again");
-        INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1;
-        int32_t joinDelayms = randr(0,30000);
-        STASK_DEBUG("joinDelayms = %d",joinDelayms);
-        delay((uint32_t)joinDelayms);
-        LoRaWan.joinOTAA(); //入网失败 重新激活
-    }
+        if(INTOROBOT_LORAWAN_JOINED == 0 && INTOROBOT_LORAWAN_PREPARE_ACTIVE == 0)
+        {
+            STASK_DEBUG("lorawan join again");
+            INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1;
+            int32_t joinDelayms = randr(0,30000);
+            STASK_DEBUG("joinDelayms = %d",joinDelayms);
+            delay((uint32_t)joinDelayms);
+            LoRaWan.joinOTAA(); //入网失败 重新激活
+        }
 #endif
 
-    if(INTOROBOT_LORAWAN_JOINED == 0){
-        if(INTOROBOT_LORAWAN_PREPARE_ACTIVE == 1){
-            if(LoRaWanJoinIsEnabled())
-            {
-                INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0;
-                LoRaWanJoinEnable(false);
-                LoRaWan.joinStartOTAA();
+        if(INTOROBOT_LORAWAN_JOINED == 0){
+            if(INTOROBOT_LORAWAN_PREPARE_ACTIVE == 1){
+                if(LoRaWanJoinIsEnabled())
+                {
+                    INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0;
+                    LoRaWanJoinEnable(false);
+                    LoRaWan.joinStartOTAA();
+                }
             }
         }
-    }
 
-    if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
-        if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
-            intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
+        if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
+            if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
+                intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
+            }
+            INTOROBOT_LORAWAN_CONNECTED = 1;
         }
-        INTOROBOT_LORAWAN_CONNECTED = 1;
     }
 }
 

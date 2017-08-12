@@ -30,6 +30,7 @@
 #include <math.h>
 #include "rtc_hal_lora.h"
 #include "service_debug.h"
+#include "ui_hal.h"
 
 RTC_HandleTypeDef RtcHandle;
 static bool rtcFailFlag = true;
@@ -928,4 +929,11 @@ void BoardInitMcu(void)
 #ifdef configHAL_USB_CDC_ENABLE
     USB_USART_Initial(115200);
 #endif
+    HAL_UI_Initial(); //初始化三色灯
+}
+
+
+void SlaveModeRtcEnterLowPowerStopMode(void)
+{
+    return;
 }

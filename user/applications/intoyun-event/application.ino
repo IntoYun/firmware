@@ -19,6 +19,16 @@ PRODUCT_VERSION(2)     //产品版本号
 
 #define LEDPIN    LED_BUILTIN    //例子灯
 
+static enum eDeviceState
+{
+    DEVICE_STATE_INIT,
+    DEVICE_STATE_JOIN,
+    DEVICE_STATE_SEND,
+    DEVICE_STATE_CYCLE,
+    DEVICE_STATE_SLEEP
+}deviceState;
+
+
 int LightMode;
 double Temperature;
 bool LightSwitch;
@@ -83,22 +93,42 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
     }
 }
 
+static void SystemWakeUpHandler(void)
+{
+    if(Serial1.isEnabled())
+    {
+        Serial1.end();
+    }
+    Serial1.begin(115200);
+    delay(10);
+    if(Serial.isEnabled())
+    {
+        Serial.end();
+    }
+    delay(10);
+    Serial.begin(115200);
+    delay(100);
+    Serial.println("mcuWakeup");
+    DEBUG("sync word = 0x%x",SX1276Read(0x39));
+}
+
+
+
 void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
 {
     switch(event)
     {
         case event_lorawan_status:
-
             switch(param)
             {
-                case ep_lorawan_joining:
-                    break;
-
                 case ep_lorawan_joined:
+                    deviceState = DEVICE_STATE_SEND;
+                    // System.sleep(SystemWakeUpHandler,10); //rtc闹钟唤醒
                 break;
 
                 case ep_lorawan_join_fail:
-                    LoRaWan.joinOTAA();
+                    deviceState = DEVICE_STATE_JOIN;
+                    // LoRaWan.joinOTAA();
                     break;
 
                 case ep_lorawan_tx_complete:
@@ -154,6 +184,21 @@ void setup()
 
 void loop()
 {
+    switch(deviceState)
+    {
+    case DEVICE_STATE_INIT:
+        break;
+    case DEVICE_STATE_JOIN:
+        break;
+    case DEVICE_STATE_SEND:
+        break;
+    case DEVICE_STATE_CYCLE:
+        break;
+    case DEVICE_STATE_SLEEP:
+        break;
+    default:
+        break;
+    }
 
     //温度上送
     if(Temperature > 100)
