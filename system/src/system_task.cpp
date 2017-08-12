@@ -324,7 +324,7 @@ void lorawan_prepare_active(void)
             case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
             {
                 STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
-                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+                // system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 
                 int32_t joinDelayms = randr(0,10000);
                 STASK_DEBUG("joinDelayms = %d",joinDelayms);
@@ -346,23 +346,11 @@ void manage_lorawan_connection(void)
 {
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED))
     {
-#if 0
         if(!INTOROBOT_CLOUD_CONNECT_PREPARED)
         {
             lorawan_prepare_active();
             INTOROBOT_CLOUD_CONNECT_PREPARED = 1;
         }
-
-        if(INTOROBOT_LORAWAN_JOINED == 0 && INTOROBOT_LORAWAN_PREPARE_ACTIVE == 0)
-        {
-            STASK_DEBUG("lorawan join again");
-            INTOROBOT_LORAWAN_PREPARE_ACTIVE = 1;
-            int32_t joinDelayms = randr(0,30000);
-            STASK_DEBUG("joinDelayms = %d",joinDelayms);
-            delay((uint32_t)joinDelayms);
-            LoRaWan.joinOTAA(); //入网失败 重新激活
-        }
-#endif
 
         if(INTOROBOT_LORAWAN_JOINED == 0){
             if(INTOROBOT_LORAWAN_PREPARE_ACTIVE == 1){
@@ -370,7 +358,7 @@ void manage_lorawan_connection(void)
                 {
                     INTOROBOT_LORAWAN_PREPARE_ACTIVE = 0;
                     LoRaWanJoinEnable(false);
-                    LoRaWan.joinStartOTAA();
+                    LoRaWanJoinOTAA();
                 }
             }
         }

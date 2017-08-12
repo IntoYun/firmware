@@ -96,6 +96,28 @@ uint8_t LoRaWanActiveStatus(void)
     return INTOROBOT_LORAWAN_JOINED;
 }
 
+void LoRaWanJoinOTAA(void)
+{
+    MlmeReq_t mlmeReq;
+    uint8_t _devEui[8];
+    uint8_t _appEui[8];
+
+    os_getDevEui(_devEui);
+    os_getAppEui(_appEui);
+    os_getAppKey(LoRaWan.macParams.appKey);
+
+    memcpyr(LoRaWan.macParams.devEui,_devEui,8);
+    memcpyr(LoRaWan.macParams.appEui,_appEui,8);
+
+    mlmeReq.Type = MLME_JOIN;
+    mlmeReq.Req.Join.DevEui = LoRaWan.macParams.devEui;
+    mlmeReq.Req.Join.AppEui = LoRaWan.macParams.appEui;
+    mlmeReq.Req.Join.AppKey = LoRaWan.macParams.appKey;
+    mlmeReq.Req.Join.NbTrials = LoRaWan._joinNbTrials;
+
+    LoRaMacMlmeRequest( &mlmeReq );
+}
+
 bool intorobot_lorawan_flag_connected(void)
 {
     if (INTOROBOT_LORAWAN_JOINED && INTOROBOT_LORAWAN_CONNECTED) {

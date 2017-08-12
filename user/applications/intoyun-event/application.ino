@@ -25,7 +25,8 @@ static enum eDeviceState
     DEVICE_STATE_JOIN,
     DEVICE_STATE_SEND,
     DEVICE_STATE_CYCLE,
-    DEVICE_STATE_SLEEP
+    DEVICE_STATE_SLEEP,
+    DEVICE_STATE_IDLE,
 }deviceState;
 
 
@@ -95,24 +96,23 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
 
 static void SystemWakeUpHandler(void)
 {
-    if(Serial1.isEnabled())
-    {
-        Serial1.end();
-    }
-    Serial1.begin(115200);
-    delay(10);
+    // if(Serial1.isEnabled())
+    // {
+    //     Serial1.end();
+    // }
+    // Serial1.begin(115200);
+    // delay(10);
     if(Serial.isEnabled())
     {
         Serial.end();
     }
-    delay(10);
+    // delay(10);
     Serial.begin(115200);
-    delay(100);
+    // delay(100);
     Serial.println("mcuWakeup");
     DEBUG("sync word = 0x%x",SX1276Read(0x39));
+    deviceState = DEVICE_STATE_CYCLE;
 }
-
-
 
 void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
 {
@@ -123,15 +123,14 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             {
                 case ep_lorawan_joined:
                     deviceState = DEVICE_STATE_SEND;
-                    // System.sleep(SystemWakeUpHandler,10); //rtc闹钟唤醒
                 break;
 
                 case ep_lorawan_join_fail:
                     deviceState = DEVICE_STATE_JOIN;
-                    // LoRaWan.joinOTAA();
                     break;
 
                 case ep_lorawan_tx_complete:
+                    deviceState = DEVICE_STATE_SLEEP;
                     break;
 
                 case ep_lorawan_rx_complete:
@@ -179,27 +178,50 @@ void setup()
     IntoRobot.defineDatapointBinary(DPID_BINARY_DATA, DP_PERMISSION_UP_DOWN, 255, "\x23\x32\x32\x43", 4);   //字符显示
     System.on(event_lorawan_status, &lorawan_event_callback);
     System.on(event_cloud_data, &system_event_callback);
-    LoRaWan.joinOTAA();
 }
 
 void loop()
 {
+    #if 0
     switch(deviceState)
     {
     case DEVICE_STATE_INIT:
-        break;
+            break;
     case DEVICE_STATE_JOIN:
+        // LoRaWan.joinOTAA();
+        // deviceState = DEVICE_STATE_SLEEP;
         break;
     case DEVICE_STATE_SEND:
-        break;
+        // break;
     case DEVICE_STATE_CYCLE:
+        //温度上送
+        if(Temperature > 100)
+        {Temperature = 0;}
+        else
+        {Temperature += 0.1;}
+        IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
+
+        //速度上送
+        if(Rheostat > 1000)
+        {Rheostat = 0;}
+        else
+        {Rheostat += 5;}
+        IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+
+        IntoRobot.sendDatapointAll();
+        deviceState = DEVICE_STATE_IDLE;
+        // delay(20000);
+
         break;
     case DEVICE_STATE_SLEEP:
+        System.sleep(SystemWakeUpHandler,20); //rtc闹钟唤醒
         break;
+    case DEVICE_STATE_IDLE:
+    break;
     default:
         break;
     }
-
+    #endif
     //温度上送
     if(Temperature > 100)
     {Temperature = 0;}
@@ -216,5 +238,7 @@ void loop()
 
     IntoRobot.sendDatapointAll();
     delay(20000);
+
+
 }
 

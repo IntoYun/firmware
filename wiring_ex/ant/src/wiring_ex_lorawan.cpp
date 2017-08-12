@@ -326,28 +326,6 @@ void LoRaWanClass::joinOTAA(void)
     LoRaWanJoinEnable(true);
 }
 
-void LoRaWanClass::joinStartOTAA(void)
-{
-    MlmeReq_t mlmeReq;
-    uint8_t _devEui[8];
-    uint8_t _appEui[8];
-
-    os_getDevEui(_devEui);
-    os_getAppEui(_appEui);
-    os_getAppKey(macParams.appKey);
-
-    memcpyr(macParams.devEui,_devEui,8);
-    memcpyr(macParams.appEui,_appEui,8);
-
-    mlmeReq.Type = MLME_JOIN;
-    mlmeReq.Req.Join.DevEui = macParams.devEui;
-    mlmeReq.Req.Join.AppEui = macParams.appEui;
-    mlmeReq.Req.Join.AppKey = macParams.appKey;
-    mlmeReq.Req.Join.NbTrials = _joinNbTrials;
-
-    LoRaMacMlmeRequest( &mlmeReq );
-}
-
 void LoRaWanClass::joinABP(void)
 {
     MibRequestConfirm_t mibReq;
