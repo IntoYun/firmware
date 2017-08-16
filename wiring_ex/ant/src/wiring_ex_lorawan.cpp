@@ -98,6 +98,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             {
                 // Check Datarate
                 // Check TxPower
+                DEBUG("mcpsConfirm");
                 LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
                 system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
                 break;
@@ -135,6 +136,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         case MCPS_UNCONFIRMED:
         {
+            DEBUG("mcpsIndication");
             LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
             system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
             break;
@@ -234,6 +236,10 @@ void LoRaWanClass::setMacClassType(DeviceClass_t classType)
 
 DeviceClass_t LoRaWanClass::getMacClassType(void)
 {
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_DEVICE_CLASS;
+    LoRaMacMibGetRequestConfirm( &mibReq );
+    _classType = mibReq.Param.Class;
     return _classType;
 }
 

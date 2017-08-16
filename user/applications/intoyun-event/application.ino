@@ -29,6 +29,9 @@ static enum eDeviceState
     DEVICE_STATE_IDLE,
 }deviceState;
 
+bool deviceJoined = false;
+uint32_t prevTime = 0;
+bool sleepEnable = false;
 
 int LightMode;
 double Temperature;
@@ -111,7 +114,16 @@ static void SystemWakeUpHandler(void)
     // delay(100);
     Serial.println("mcuWakeup");
     DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    deviceState = DEVICE_STATE_CYCLE;
+    DEBUG("radio status = 0x%x",SX1276Read(0x1));
+    // deviceState = DEVICE_STATE_IDLE;
+    if(deviceJoined)
+    {
+        deviceState = DEVICE_STATE_SEND;
+    }
+    else
+    {
+        deviceState = DEVICE_STATE_JOIN;
+    }
 }
 
 void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
@@ -122,18 +134,25 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             switch(param)
             {
                 case ep_lorawan_joined:
+                    DEBUG("lorawan joined ok");
                     deviceState = DEVICE_STATE_SEND;
+                    deviceJoined = true;
                 break;
 
                 case ep_lorawan_join_fail:
-                    deviceState = DEVICE_STATE_JOIN;
+                    DEBUG("lorawan joined fail");
+                    // deviceState = DEVICE_STATE_JOIN;
+                    deviceState = DEVICE_STATE_SLEEP;
+                    deviceJoined = false;
                     break;
 
                 case ep_lorawan_tx_complete:
-                    deviceState = DEVICE_STATE_SLEEP;
+                    DEBUG("lorawan tx complete");
+                    // deviceState = DEVICE_STATE_SLEEP;
                     break;
 
                 case ep_lorawan_rx_complete:
+                    DEBUG("lorawan rx complete");
                 break;
 
                 case ep_lorawan_mlme_join:
@@ -143,6 +162,17 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     break;
 
                 case ep_lorawan_mcps_unconfirmed:
+                    DEBUG("lorawan mcps unconfirmed");
+                    if(LoRaWan.getMacClassType() == 2)
+                    {
+                        DEBUG("class type = C");
+                        sleepEnable = true;
+                        prevTime = millis();
+                    }
+                    else
+                    {
+                        deviceState = DEVICE_STATE_SLEEP;
+                    }
                     break;
 
                 case ep_lorawan_mcps_confirmed:
@@ -178,22 +208,23 @@ void setup()
     IntoRobot.defineDatapointBinary(DPID_BINARY_DATA, DP_PERMISSION_UP_DOWN, 255, "\x23\x32\x32\x43", 4);   //字符显示
     System.on(event_lorawan_status, &lorawan_event_callback);
     System.on(event_cloud_data, &system_event_callback);
+    deviceState = DEVICE_STATE_IDLE;
 }
 
 void loop()
 {
-    #if 0
+    #if 1 
     switch(deviceState)
     {
     case DEVICE_STATE_INIT:
             break;
     case DEVICE_STATE_JOIN:
-        // LoRaWan.joinOTAA();
-        // deviceState = DEVICE_STATE_SLEEP;
+        LoRaWan.joinOTAA();
+        // LoRaWanJoinOTAA();
+        DEBUG("lorawan joinOTAA");
+        deviceState = DEVICE_STATE_IDLE;
         break;
     case DEVICE_STATE_SEND:
-        // break;
-    case DEVICE_STATE_CYCLE:
         //温度上送
         if(Temperature > 100)
         {Temperature = 0;}
@@ -211,17 +242,36 @@ void loop()
         IntoRobot.sendDatapointAll();
         deviceState = DEVICE_STATE_IDLE;
         // delay(20000);
-
         break;
+
+    case DEVICE_STATE_CYCLE:
+        break;
+
     case DEVICE_STATE_SLEEP:
         System.sleep(SystemWakeUpHandler,20); //rtc闹钟唤醒
+        // TimerLowPowerHandler();
         break;
+
     case DEVICE_STATE_IDLE:
     break;
     default:
         break;
     }
+
+    if(LoRaWan.getMacClassType() == 2)
+    {
+        if(sleepEnable)
+        {
+            if(millis() - prevTime >= 10000)
+            {
+                sleepEnable = false;
+                deviceState = DEVICE_STATE_SLEEP;
+            }
+        }
+    }
     #endif
+
+    #if  0 
     //温度上送
     if(Temperature > 100)
     {Temperature = 0;}
@@ -238,6 +288,7 @@ void loop()
 
     IntoRobot.sendDatapointAll();
     delay(20000);
+    #endif
 
 
 }
