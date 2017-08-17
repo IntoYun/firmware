@@ -21,9 +21,9 @@ extern volatile uint8_t INTOROBOT_CLOUD_SOCKETED;           //网络连接状态
 extern volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED;   //平台链接预处理状态 1已经处理
 extern volatile uint8_t INTOROBOT_CLOUD_CONNECTED;          //平台连接状态 1连接上了
 
-extern volatile uint8_t INTOROBOT_LORAWAN_JOINED;
-extern volatile uint8_t INTOROBOT_LORAWAN_CONNECTED;
-extern volatile uint8_t INTOROBOT_LORAWAN_PREPARE_ACTIVE;
+extern volatile bool INTOROBOT_LORAWAN_JOINED;
+extern volatile bool INTOROBOT_LORAWAN_CONNECTED;
+extern volatile bool INTOROBOT_LORAWAN_JOINING;
 
 
 extern volatile uint8_t INTOROBOT_WLAN_SLEEP;

@@ -16,33 +16,6 @@ static LoRaMacPrimitives_t LoRaMacPrimitives;
 static LoRaMacCallback_t LoRaMacCallbacks;
 static  RadioEvents_t loraRadioEvents;
 
-void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
-{
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
-
-    mibReq.Type = MIB_DEV_ADDR;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
-    {
-        devAddr = mibReq.Param.DevAddr;
-    }
-
-    mibReq.Type = MIB_NWK_SKEY;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
-    {
-        memcpy1(nwkSkey,mibReq.Param.NwkSKey,16);
-    }
-
-    mibReq.Type = MIB_APP_SKEY;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK)
-    {
-        memcpy1(appSkey,mibReq.Param.AppSKey,16);
-    }
-}
-
 //======loramac不运行========
 static void OnLoRaRadioTxDone(void)
 {
@@ -98,9 +71,9 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             {
                 // Check Datarate
                 // Check TxPower
-                DEBUG("mcpsConfirm");
-                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
-                system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
+                LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
+                LoRaWan._txPower = mcpsConfirm->TxPower;
+                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_unconfirmed);
                 break;
             }
             case MCPS_CONFIRMED:
@@ -109,14 +82,16 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check TxPower
                 // Check AckReceived
                 // Check NbTrials
-                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_CONFIRMED);
-                system_notify_event(event_lorawan_status,ep_lorawan_mcps_confirmed);
+                LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
+                LoRaWan._txPower = mcpsConfirm->TxPower;
+                LoRaWan._ackReceived = mcpsConfirm->AckReceived;
+                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed_ackreceived);
+                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed);
                 break;
             }
             case MCPS_PROPRIETARY:
             {
-                LoRaWanOnEvent(LORAWAN_EVENT_MCPS_PROPRIETARY);
-                system_notify_event(event_lorawan_status,ep_lorawan_mcps_proprietary);
+                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_proprietary);
                 break;
             }
             default:
@@ -132,37 +107,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         return;
     }
 
-    switch( mcpsIndication->McpsIndication )
-    {
-        case MCPS_UNCONFIRMED:
-        {
-            DEBUG("mcpsIndication");
-            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_UNCONFIRMED);
-            system_notify_event(event_lorawan_status,ep_lorawan_mcps_unconfirmed);
-            break;
-        }
-        case MCPS_CONFIRMED:
-        {
-            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_CONFIRMED);
-            system_notify_event(event_lorawan_status,ep_lorawan_mcps_confirmed);
-            break;
-        }
-        case MCPS_PROPRIETARY:
-        {
-            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_PROPRIETARY);
-            system_notify_event(event_lorawan_status,ep_lorawan_mcps_proprietary);
-            break;
-        }
-        case MCPS_MULTICAST:
-        {
-            LoRaWanOnEvent(LORAWAN_EVENT_MCPS_MULTICAST);
-            system_notify_event(event_lorawan_status,ep_lorawan_mcps_multicast);
-            break;
-        }
-        default:
-            break;
-    }
-
     // Check Multicast
     // Check Port
     // Check Datarate
@@ -172,6 +116,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     // Check Rssi
     // Check Snr
     // Check RxSlot
+    LoRaWan._downlinkDatarate = mcpsIndication->RxDatarate;
+    LoRaWan._macRssi = mcpsIndication->Rssi;
+    LoRaWan._macSnr = mcpsIndication->Snr;
+    LoRaWan._framePending = mcpsIndication->FramePending;
 
     if( mcpsIndication->RxData == true )
     {
@@ -180,11 +128,37 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         memcpy1(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
 
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
-        system_notify_event(event_lorawan_status,ep_lorawan_rx_complete);
+        system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_receive_data);
     }
     else
     {
         LoRaWan.macBuffer.available = false;
+    }
+
+    switch( mcpsIndication->McpsIndication )
+    {
+        case MCPS_UNCONFIRMED:
+        {
+            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_unconfirmed);
+            break;
+        }
+        case MCPS_CONFIRMED:
+        {
+            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_confirmed);
+            break;
+        }
+        case MCPS_PROPRIETARY:
+        {
+            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_proprietary);
+            break;
+        }
+        case MCPS_MULTICAST:
+        {
+            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_multicast);
+            break;
+        }
+        default:
+            break;
     }
 
 }
@@ -199,13 +173,13 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Status is OK, node has joined the network
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
-                system_notify_event(event_lorawan_status,ep_lorawan_joined);
+                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
             }
             else
             {
                 // Join was not successful. Try to join again
                 LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
-                system_notify_event(event_lorawan_status,ep_lorawan_join_fail);
+                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_fail);
             }
             break;
         }
@@ -215,8 +189,9 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Check DemodMargin
                 // Check NbGateways
-                LoRaWanOnEvent(LORAWAN_EVENT_MLME_LINK_CHECK);
-                system_notify_event(event_lorawan_status,ep_lorawan_mlme_link_check);
+                LoRaWan._demodMargin = mlmeConfirm->DemodMargin;
+                LoRaWan._nbGateways = mlmeConfirm->NbGateways;
+                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_link_check);
             }
             break;
         }
@@ -266,8 +241,6 @@ void LoRaWanClass::macPause(void)
     DEBUG("sync data = 0x%x",SX1276Read(0x39));
     DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
     DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
-    DEBUG("sx1278 mode = 0x%x",SX1276Read(0x1));
-
 }
 
 //恢复lorawan
@@ -295,12 +268,6 @@ void LoRaWanClass::macResume(void)
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
     LoRaMacMibSetRequestConfirm( &mibReq );
-
-    //设置为A类
-    // mibReq.Type = MIB_DEVICE_CLASS;
-    // mibReq.Param.Class = CLASS_A;
-    // LoRaMacMibSetRequestConfirm( &mibReq );
-
 }
 
 void LoRaWanClass::setMacFixedFreq(bool enabled)
@@ -476,8 +443,6 @@ bool LoRaWanClass::sendFrame(uint8_t *buffer,uint16_t len, bool IsTxConfirmed)//
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
 
-    // DEBUG("LoRaWan start send frame");
-    // DEBUG("LoRaWan data len = %d",len);
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
     // DEBUG("LoRaMac Status = %d",loramacStatus);
 
@@ -516,8 +481,6 @@ bool LoRaWanClass::sendFrame(uint8_t *buffer,uint16_t len, bool IsTxConfirmed)//
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
     {
         DEBUG("LoRaWan send frame OK!!!");
-        LoRaWanOnEvent(LORAWAN_EVENT_TX_COMPLETE);
-        system_notify_event(event_lorawan_status,ep_lorawan_tx_complete);
         return true;
     }
 
@@ -604,20 +567,44 @@ uint16_t LoRaWanClass::getDownLinkCounter(void)//获取下行帧个数
     }
 }
 
-void LoRaWanClass::resetUpLinkCounter(void)
+uint8_t LoRaWanClass::getSnr(void)
 {
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_UPLINK_COUNTER;
-    mibReq.Param.UpLinkCounter = 0;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+    return _macSnr;
 }
 
-void LoRaWanClass::resetDownLinkCounter(void)
+int16_t LoRaWanClass::getRssi(void)
 {
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_DOWNLINK_COUNTER;
-    mibReq.Param.DownLinkCounter = 0;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+    return _macRssi;
+}
+
+bool LoRaWanClass::getAckReceived(void)
+{
+    return _ackReceived;
+}
+
+uint8_t LoRaWanClass::getTxPower(void)
+{
+    return _txPower;
+}
+
+void LoRaWanClass::setFrameType(bool frameType)
+{
+    _frameType = frameType;
+}
+
+bool LoRaWanClass::getFrameType(void)
+{
+    return _frameType;
+}
+
+int8_t LoRaWanClass::getActiveStatus(void)
+{
+    return LoRaWanActiveStatus();
+}
+
+void LoRaWanClass::setDutyCycleOn(bool enable)
+{
+    LoRaMacTestSetDutyCycleOn(enable);
 }
 
 //P2P透传接口

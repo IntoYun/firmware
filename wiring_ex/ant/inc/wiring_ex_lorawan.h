@@ -6,6 +6,7 @@
 #include "lorawan/radio/inc/sx1276.h"
 #include "lorawan/board/inc/timer.h"
 #include "lorawan/mac/inc/LoRaMac.h"
+#include "lorawan/mac/inc/LoRaMacTest.h"
 #include "lorawan/board/inc/utilities.h"
 
 #define LORAWAN_DEFAULT_DATARATE      DR_3
@@ -73,12 +74,21 @@ class LoRaWanClass
     //loramc
     lorawan_data_t macBuffer;
     lorawan_params_t macParams;
-
     DeviceClass_t _classType = CLASS_C; //class 类型
     uint8_t _port = 2; //端口号
     bool _adrEnable = false; //ADR使能
-    uint8_t _confirmedFrameNbTrials = 8; //确认帧重发次数
+    uint8_t _confirmedFrameNbTrials = 3; //确认帧重发次数
     uint8_t _joinNbTrials = 3; //入网包重发次数
+    uint8_t _demodMargin = 0;
+    uint8_t _nbGateways = 0;
+    uint8_t _uplinkDatarate = 0; //上行速率
+    uint8_t _downlinkDatarate = 0; //下行速率
+    uint8_t _txPower = 0; //发射功率
+    bool _ackReceived = false; //是否收到ack
+    uint8_t _framePending = 0;
+    uint8_t _macSnr;
+    int16_t _macRssi;
+    bool _frameType = false; //帧类型 true确认帧
 
     public:
     //切换class 类型
@@ -127,7 +137,7 @@ class LoRaWanClass
     void setADR(bool enabled);
     //设置入网重发次数 默认最大48次
     void setJoinNbTrials(uint8_t trials);
-    //设置确认帧重发次数
+    //设置确认帧重发次数 1-8
     void setConfirmedFrameNbTrials(uint8_t trials);
     //设置无需确认帧重发次数 1-15
     void setUnconfirmedFrameNbTrials(uint8_t trials);
@@ -135,10 +145,21 @@ class LoRaWanClass
     uint16_t  getUpLinkCounter(void);
     //获取下行帧个数
     uint16_t  getDownLinkCounter(void);
-    //复位上行帧个数 即清0
-    void  resetUpLinkCounter(void);
-    //复位下行帧个数 即清0
-    void  resetDownLinkCounter(void);
+    //获取收到数据后的snr
+    uint8_t getSnr(void);
+    //获取收到数据后的rssi
+    int16_t getRssi(void);
+    //发送确认帧后是否收到了ack true收到
+    bool getAckReceived(void);
+    //获取发射功率
+    uint8_t getTxPower(void);
+    //设置帧类型 true确认帧 默认不确认
+    void setFrameType(bool frameType);
+    bool getFrameType(void);
+    //获取激活状态 1-激活 0-激活中 -1-激活失败
+    int8_t getActiveStatus(void);
+    //true使能占空比,false关闭
+    void setDutyCycleOn(bool enable);
 
     private:
 };
@@ -252,7 +273,6 @@ class LoRaClass
 extern LoRaWanClass LoRaWan;
 extern LoRaClass LoRa;
 
-void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey);
 bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 #endif /* WIRING_LORAWAN_H_ */

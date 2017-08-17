@@ -51,9 +51,8 @@ void intorobot_lorawan_send_data(char* buffer, uint16_t len);
 void LoRaWanOnEvent(lorawan_event_t event);
 void LoRaWanJoinEnable(bool enable);
 bool LoRaWanJoinIsEnabled(void);
-uint8_t LoRaWanActiveStatus(void);
+int8_t LoRaWanActiveStatus(void);
 void LoRaWanJoinOTAA(void);
-
 void os_getDevEui(uint8_t *buf);
 void os_getAppEui(uint8_t *buf);
 void os_getAppKey(uint8_t *buf);

@@ -24,12 +24,10 @@ static enum eDeviceState
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
     DEVICE_STATE_SEND,
-    DEVICE_STATE_CYCLE,
     DEVICE_STATE_SLEEP,
     DEVICE_STATE_IDLE,
 }deviceState;
 
-bool deviceJoined = false;
 uint32_t prevTime = 0;
 bool sleepEnable = false;
 
@@ -99,24 +97,14 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
 
 static void SystemWakeUpHandler(void)
 {
-    // if(Serial1.isEnabled())
-    // {
-    //     Serial1.end();
-    // }
-    // Serial1.begin(115200);
-    // delay(10);
     if(Serial.isEnabled())
     {
         Serial.end();
     }
-    // delay(10);
     Serial.begin(115200);
-    // delay(100);
     Serial.println("mcuWakeup");
     DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    DEBUG("radio status = 0x%x",SX1276Read(0x1));
-    // deviceState = DEVICE_STATE_IDLE;
-    if(deviceJoined)
+    if(LoRaWan.getActiveStatus() == 1)
     {
         deviceState = DEVICE_STATE_SEND;
     }
@@ -133,36 +121,29 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
         case event_lorawan_status:
             switch(param)
             {
-                case ep_lorawan_joined:
+                case ep_lorawan_mlmeconfirm_join_success: //入网成功
                     DEBUG("lorawan joined ok");
+                    LoRaWan.setDutyCycleOn(false); //关闭通道占空比
                     deviceState = DEVICE_STATE_SEND;
-                    deviceJoined = true;
                 break;
 
-                case ep_lorawan_join_fail:
+                case ep_lorawan_mlmeconfirm_join_fail: //入网失败
                     DEBUG("lorawan joined fail");
-                    // deviceState = DEVICE_STATE_JOIN;
                     deviceState = DEVICE_STATE_SLEEP;
-                    deviceJoined = false;
                     break;
 
-                case ep_lorawan_tx_complete:
-                    DEBUG("lorawan tx complete");
-                    // deviceState = DEVICE_STATE_SLEEP;
+                case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //确认帧收到ack
+                    if(LoRaWan.getAckReceived()){
+                        DEBUG("lorawan ack is reveived");
+                    }else{
+                        DEBUG("lorawan no receive ack");
+                    }
                     break;
 
-                case ep_lorawan_rx_complete:
-                    DEBUG("lorawan rx complete");
-                break;
-
-                case ep_lorawan_mlme_join:
-                    break;
-
-                case ep_lorawan_mlme_link_check:
-                    break;
-
-                case ep_lorawan_mcps_unconfirmed:
-                    DEBUG("lorawan mcps unconfirmed");
+                case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送完成
+                case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送完成
+                case ep_lorawan_mcpsindication_unconfirmed: //不确认型帧发送完成且在接收窗口内收到了数据
+                case ep_lorawan_mcpsindication_confirmed://确认型帧发送完成且在接收窗口内收到了数据
                     if(LoRaWan.getMacClassType() == 2)
                     {
                         DEBUG("class type = C");
@@ -175,14 +156,6 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     }
                     break;
 
-                case ep_lorawan_mcps_confirmed:
-                    break;
-
-                case ep_lorawan_mcps_proprietary:
-                    break;
-
-                case ep_lorawan_mcps_multicast:
-                    break;
                 default:
                     break;
             }
@@ -213,49 +186,45 @@ void setup()
 
 void loop()
 {
-    #if 1 
     switch(deviceState)
     {
-    case DEVICE_STATE_INIT:
+        case DEVICE_STATE_INIT:
+                break;
+
+        case DEVICE_STATE_JOIN:
+            DEBUG("lorawan joinOTAA");
+            LoRaWan.joinOTAA();
+            deviceState = DEVICE_STATE_IDLE;
             break;
-    case DEVICE_STATE_JOIN:
-        LoRaWan.joinOTAA();
-        // LoRaWanJoinOTAA();
-        DEBUG("lorawan joinOTAA");
-        deviceState = DEVICE_STATE_IDLE;
-        break;
-    case DEVICE_STATE_SEND:
-        //温度上送
-        if(Temperature > 100)
-        {Temperature = 0;}
-        else
-        {Temperature += 0.1;}
-        IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
 
-        //速度上送
-        if(Rheostat > 1000)
-        {Rheostat = 0;}
-        else
-        {Rheostat += 5;}
-        IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+        case DEVICE_STATE_SEND:
+            //温度上送
+            if(Temperature > 100){
+                Temperature = 0;
+            }else{
+                Temperature += 0.1;
+            }
+            IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
+            //速度上送
+            if(Rheostat > 1000){
+                Rheostat = 0;
+            }else{
+                Rheostat += 5;
+            }
+            IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+            IntoRobot.sendDatapointAll();
+            deviceState = DEVICE_STATE_IDLE;
+            break;
 
-        IntoRobot.sendDatapointAll();
-        deviceState = DEVICE_STATE_IDLE;
-        // delay(20000);
-        break;
+        case DEVICE_STATE_IDLE:
+            break;
 
-    case DEVICE_STATE_CYCLE:
-        break;
+        case DEVICE_STATE_SLEEP:
+            System.sleep(SystemWakeUpHandler,20);
+            break;
 
-    case DEVICE_STATE_SLEEP:
-        System.sleep(SystemWakeUpHandler,20); //rtc闹钟唤醒
-        // TimerLowPowerHandler();
-        break;
-
-    case DEVICE_STATE_IDLE:
-    break;
-    default:
-        break;
+        default:
+            break;
     }
 
     if(LoRaWan.getMacClassType() == 2)
@@ -269,27 +238,5 @@ void loop()
             }
         }
     }
-    #endif
-
-    #if  0 
-    //温度上送
-    if(Temperature > 100)
-    {Temperature = 0;}
-    else
-    {Temperature += 0.1;}
-    IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
-
-    //速度上送
-    if(Rheostat > 1000)
-    {Rheostat = 0;}
-    else
-    {Rheostat += 5;}
-    IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
-
-    IntoRobot.sendDatapointAll();
-    delay(20000);
-    #endif
-
-
 }
 
