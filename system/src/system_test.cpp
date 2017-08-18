@@ -28,7 +28,7 @@
 #include "rtc_hal.h"
 
 #if PLATFORM_ID == PLATFORM_ANT || PLATFORM_ID == PLATFORM_L6
-#include "wiring_ex_lorawan.h"
+#include "wiring_lorawan.h"
 #endif
 
 /*debug switch*/

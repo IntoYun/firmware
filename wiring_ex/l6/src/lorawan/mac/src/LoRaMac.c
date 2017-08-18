@@ -3079,7 +3079,6 @@ static LoRaMacStatus_t ScheduleTx( void )
             dutyCycleTimeOff += randr(0,2000); //设置重发随机时间
         }
         #endif
-
         /* dutyCycleTimeOff += randr(0,2000); //设置重发随机时间 */
         /* LORAMAC_DEBUG("dutyCycleTimeOff = %d",dutyCycleTimeOff); */
 

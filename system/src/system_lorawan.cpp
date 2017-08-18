@@ -55,6 +55,7 @@ volatile bool INTOROBOT_LORAWAN_JOINED = false; //lorawan激活通过
 volatile bool INTOROBOT_LORAWAN_CONNECTED = false; //lorawan发送版本信息完毕 已连接平台
 volatile bool INTOROBOT_LORAWAN_JOIN_ENABLE = false; //入网使能 true使能
 volatile bool INTOROBOT_LORAWAN_JOINING = false; //入网中
+volatile bool INTOROBOT_LORAWAN_FIRST_ACTIVE = false;
 
 void os_getDevEui(uint8_t *buf)
 {

@@ -231,7 +231,7 @@ void loop()
     {
         if(sleepEnable)
         {
-            if(millis() - prevTime >= 10000)
+            if(millis() - prevTime >= 20000)
             {
                 sleepEnable = false;
                 deviceState = DEVICE_STATE_SLEEP;

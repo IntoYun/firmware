@@ -975,35 +975,19 @@ static void SlaveMcuEnterStopMcu(void)
 
     // 允许/禁用 调试端口 少800uA
     HAL_DBGMCU_DisableDBGStopMode();
-
 }
 
 void SlaveModeRtcEnterLowPowerStopMode( void )
 {
     SlaveMcuEnterStopMcu();
-    /* Disable all used wakeup sources: WKUP pin */
-    /* HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1); */
-
-    /* Clear all related wakeup flags */
-    /* Clear PWR wake up Flag */
-    /* __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); */
-
     // Disable the Power Voltage Detector
     HAL_PWR_DisablePVD( );
-
     SET_BIT( PWR->CR, PWR_CR_CWUF );
-
     // Enable Ultra low power mode
     HAL_PWREx_EnableUltraLowPower( );
-
     // Enable the fast wake up from Ultra low power mode
     HAL_PWREx_EnableFastWakeUp( );
-
-    /* Enable WakeUp Pin PWR_WAKEUP_PIN1 connected to PA.00 */
-    /* HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1); */
-
     // Enter Stop Mode
     HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
-
     BoardInitMcu( );
 }

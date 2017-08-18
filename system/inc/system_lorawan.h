@@ -35,7 +35,7 @@
 #include <stdint.h>
 #include "static_assert.h"
 #include "wiring_string.h"
-#include "wiring_ex_lorawan.h"
+#include "wiring_lorawan.h"
 #include "system_event.h"
 
 #ifdef __cplusplus

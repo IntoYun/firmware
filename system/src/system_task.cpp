@@ -335,11 +335,16 @@ void LoraWAN_Setup(void)
     STASK_DEBUG("LoRaWan_Setup");
     LoRaWan.macResume();
     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
-    lorawan_prepare_active();
 }
 
 void manage_lorawan_connection(void)
 {
+    if(!INTOROBOT_LORAWAN_FIRST_ACTIVE)
+    {
+        INTOROBOT_LORAWAN_FIRST_ACTIVE = true;
+        lorawan_prepare_active();
+    }
+
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED))
     {
         if(!INTOROBOT_LORAWAN_JOINED){
