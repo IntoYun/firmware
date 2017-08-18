@@ -76,7 +76,25 @@ void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
     TimerLowPowerHandler();
 }
 
+static void LoRaSlaveSystemWakeup(void)
+{
+    SX1276BoardInit();
+    LoRa.radioSetModem(MODEM_LORA);
+    if(userLoRaSystemWakeupHandler != NULL)
+    {
+        userLoRaSystemWakeupHandler();
+    }
+}
 
+void system_sleep_lora_slave(userLoRaWakeupCb userHandler)
+{
+    userLoRaSystemWakeupHandler = userHandler;
+    LoRa.radioSetSleep();
+    SlaveModeRtcEnterLowPowerStopMode();
+    LoRaSlaveSystemWakeup();
+}
+
+#if 0
 static void LoRaSlaveSystemWakeup(void)
 {
     SX1276BoardInit();
@@ -89,6 +107,7 @@ void system_sleep_lora_slave(void)
     SlaveModeRtcEnterLowPowerStopMode();
     LoRaSlaveSystemWakeup();
 }
+#endif
 
 #endif
 

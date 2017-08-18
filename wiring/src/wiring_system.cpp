@@ -42,10 +42,10 @@ void SystemClass::sleep(userLoRaWakeupCb userHandler, uint32_t seconds)
     system_sleep_lora(userHandler,seconds);
 }
 
-void SystemClass::sleep(void)
+void SystemClass::sleep(userLoRaWakeupCb userHandler)
 {
 #ifndef configNO_LORAWAN
-    system_sleep_lora_slave();
+    system_sleep_lora_slave(userHandler);
 #endif
 }
 
