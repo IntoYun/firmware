@@ -220,7 +220,8 @@ void loop()
             break;
 
         case DEVICE_STATE_SLEEP:
-            System.sleep(SystemWakeUpHandler,20);
+            // System.sleep(SystemWakeUpHandler,20); //定时唤醒
+            System.sleep(SystemWakeUpHandler); //外部中断唤醒
             break;
 
         default:
