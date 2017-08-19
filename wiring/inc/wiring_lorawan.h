@@ -1,6 +1,8 @@
 #ifndef  WIRING_LORAWAN_H_
 #define  WIRING_LORAWAN_H_
 
+#ifndef configNO_LORAWAN
+
 #include "wiring_ex_lorawan.h"
 
 #define LORAWAN_DEFAULT_DATARATE      DR_3
@@ -269,5 +271,6 @@ extern LoRaClass LoRa;
 
 bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
+#endif
 #endif /* WIRING_LORAWAN_H_ */
 

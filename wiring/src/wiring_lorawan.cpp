@@ -822,7 +822,6 @@ int8_t LoRaClass::radioReadSnr(void)
     return _snr;
 }
 
-#endif
 
 //生产时板子测试代码
 #define RF_FREQUENCY        434665000 // Hz
@@ -1008,3 +1007,5 @@ void TestOnRxError( void )
     State = RX_ERROR;
     // DEBUG("rx error");
 }
+
+#endif

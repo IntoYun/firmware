@@ -314,7 +314,7 @@ void lorawan_prepare_active(void)
             case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
             {
                 STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
-                int32_t joinDelayms = randr(0,10000);
+                int32_t joinDelayms = randr(0,15000);
                 STASK_DEBUG("joinDelayms = %d",joinDelayms);
                 delay((uint32_t)joinDelayms);
                 LoRaWan.joinOTAA();

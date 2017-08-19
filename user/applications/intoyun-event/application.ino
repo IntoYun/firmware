@@ -50,13 +50,13 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
             switch(LightMode)
             {
                 case 0:
-                    Serial.printf("GREEN");
-                    break;
-                case 1:
                     Serial.printf("RED");
                     break;
-                case 2:
+                case 1:
                     Serial.printf("BLUE");
+                    break;
+                case 2:
+                    Serial.printf("YELLOW");
                     break;
                 default:
                     Serial.printf("Error");
@@ -186,6 +186,7 @@ void setup()
 
 void loop()
 {
+    #if 0
     switch(deviceState)
     {
         case DEVICE_STATE_INIT:
@@ -206,7 +207,7 @@ void loop()
             }
             IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
             //速度上送
-            if(Rheostat > 1000){
+            if(Rheostat >= 1000){
                 Rheostat = 0;
             }else{
                 Rheostat += 5;
@@ -220,8 +221,8 @@ void loop()
             break;
 
         case DEVICE_STATE_SLEEP:
+            deviceState = DEVICE_STATE_SEND;
             // System.sleep(SystemWakeUpHandler,20); //定时唤醒
-            System.sleep(SystemWakeUpHandler); //外部中断唤醒
             break;
 
         default:
@@ -232,12 +233,31 @@ void loop()
     {
         if(sleepEnable)
         {
-            if(millis() - prevTime >= 20000)
+            if(millis() - prevTime >= 120000)
             {
                 sleepEnable = false;
                 deviceState = DEVICE_STATE_SLEEP;
             }
         }
     }
+    #endif
+
+    //温度上送
+    if(Temperature > 100){
+        Temperature = 0;
+    }else{
+        Temperature += 0.1;
+    }
+    IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
+    //速度上送
+    if(Rheostat >= 1000){
+        Rheostat = 0;
+    }else{
+        Rheostat += 5;
+    }
+    IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+    IntoRobot.sendDatapointAll();
+    delay(120000);
+
 }
 
