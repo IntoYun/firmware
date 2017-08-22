@@ -165,7 +165,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         TimHandleTone.Instance = PIN_MAP[pin].timer_peripheral;
         if(PIN_MAP[pin].timer_peripheral == TIM2)
         {
-            TimHandleTone.Init.Period        = 0xFFFFFFFF; // 32 bit timer 
+            TimHandleTone.Init.Period        = 0xFFFFFFFF; // 32 bit timer
         }
         else
         {

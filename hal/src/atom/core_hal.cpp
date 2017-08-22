@@ -76,7 +76,6 @@ int main() {
     DEBUG_D("Bridge Connecting\r\n");
     Bridge.begin();
     DEBUG_D("Bridge Connected\r\n");
-
     app_setup_and_loop();
     return 0;
 }

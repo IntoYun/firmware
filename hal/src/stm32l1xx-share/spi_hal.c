@@ -30,7 +30,7 @@
 #define TOTAL_SPI 2
 
 typedef enum SPI_Num_Def {
-    SPI2_GROUP = 0,//user 
+    SPI2_GROUP = 0,//user
     SPI1_GROUP = 1 //sx1278 use
 } SPI_Num_Def;
 
@@ -527,4 +527,3 @@ void DMA1_Stream5_IRQHandler(void)
 }
 #endif
 #endif
-

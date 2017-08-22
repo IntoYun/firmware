@@ -51,26 +51,19 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     aJsonClass aJson;
 
 #if PLATFORM_ID == PLATFORM_ATOM
-
 #elif PLATFORM_ID == PLATFORM_NEUTRON
-
 #elif PLATFORM_ID == PLATFORM_NUT
-
 #elif PLATFORM_ID == PLATFORM_W67
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
 
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = 1; pinNumber <= TOTAL_DIGITAL_PINS; pinNumber++)
-        {
+        for(pinNumber = 1; pinNumber <= TOTAL_DIGITAL_PINS; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -84,24 +77,17 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
 
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = D0; pinNumber <= D6; pinNumber++)
-        {
+        for(pinNumber = D0; pinNumber <= D6; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-        for(pinNumber = A3; pinNumber <= A9; pinNumber++)
-        {
+        for(pinNumber = A3; pinNumber <= A9; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -111,29 +97,22 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     free(strPtr);
     aJson.deleteItem(root);
 
-
-
 #elif PLATFORM_ID == PLATFORM_W323
-
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     uint8_t pinNumber;
 
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
         pinMode(0,OUTPUT);
         pinMode(2,OUTPUT);
         digitalWrite(0,value);
         digitalWrite(2,value);
-        for(pinNumber = 4; pinNumber <= 35; pinNumber++)
-        {
+        for(pinNumber = 4; pinNumber <= 35; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -143,27 +122,20 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     free(strPtr);
     aJson.deleteItem(root);
 
-
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = D0; pinNumber <= D4; pinNumber++)
-        {
+        for(pinNumber = D0; pinNumber <= D4; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-        for(pinNumber = A0; pinNumber <= A5; pinNumber++)
-        {
+        for(pinNumber = A0; pinNumber <= A5; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -177,24 +149,17 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 #elif PLATFORM_ID == PLATFORM_L6
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = 0; pinNumber < 9; pinNumber++)
-        {
+        for(pinNumber = 0; pinNumber < 9; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-        for(pinNumber = 11; pinNumber < 19; pinNumber++)
-        {
+        for(pinNumber = 11; pinNumber < 19; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -206,30 +171,21 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     aJson.deleteItem(root);
 
 #elif PLATFORM_ID == PLATFORM_FOX
-
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(pin == 0xff)
-    {
+    if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = 0; pinNumber < 5; pinNumber++)
-        {
+        for(pinNumber = 0; pinNumber < 5; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
         pinMode(7,OUTPUT);
         digitalWrite(7,value);
-
-        for(pinNumber = 30; pinNumber < 37; pinNumber++)
-        {
+        for(pinNumber = 30; pinNumber < 37; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-
-    }
-    else
-    {
+    } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
     }
@@ -239,19 +195,14 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
     free(strPtr);
     aJson.deleteItem(root);
-
-
 #endif
 }
 
 void testAnalogRead(uint16_t pin, void* cookie)
 {
     aJsonClass aJson;
-
 #if PLATFORM_ID == PLATFORM_ATOM
-
 #elif PLATFORM_ID == PLATFORM_NEUTRON
-
 #elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
@@ -263,9 +214,7 @@ void testAnalogRead(uint16_t pin, void* cookie)
     aJson.deleteItem(root);
 
 #elif PLATFORM_ID == PLATFORM_FIG
-
 #elif PLATFORM_ID == PLATFORM_W323
-
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
@@ -277,7 +226,6 @@ void testAnalogRead(uint16_t pin, void* cookie)
     aJson.deleteItem(root);
 
 #elif PLATFORM_ID == PLATFORM_L6
-
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
@@ -288,7 +236,6 @@ void testAnalogRead(uint16_t pin, void* cookie)
     aJson.deleteItem(root);
 
 #elif PLATFORM_ID == PLATFORM_FOX
-
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
@@ -298,7 +245,6 @@ void testAnalogRead(uint16_t pin, void* cookie)
     free(strPtr);
     aJson.deleteItem(root);
 
-
 #endif
 }
 
@@ -306,9 +252,7 @@ void testSelfTest(void* cookie)
 {
     aJsonClass aJson;
 #if PLATFORM_ID == PLATFORM_ATOM
-
 #elif PLATFORM_ID == PLATFORM_NEUTRON
-
 #elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
@@ -319,18 +263,13 @@ void testSelfTest(void* cookie)
     free(strPtr);
 
 #elif PLATFORM_ID == PLATFORM_FIG
-
 #elif PLATFORM_ID == PLATFORM_W323
-
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus())
-    {
+    if(GetRTCSatus()) {
         aJson.addNumberToObject(root, "status", 200);
-    }
-    else
-    {
+    } else {
         aJson.addNumberToObject(root, "status", 201);
     }
     strPtr = aJson.print(root);
@@ -341,12 +280,9 @@ void testSelfTest(void* cookie)
 #elif PLATFORM_ID == PLATFORM_L6
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus())
-    {
+    if(GetRTCSatus()) {
         aJson.addNumberToObject(root, "status", 200);
-    }
-    else
-    {
+    } else {
         aJson.addNumberToObject(root, "status", 201);
     }
     strPtr = aJson.print(root);
@@ -357,12 +293,9 @@ void testSelfTest(void* cookie)
 #elif PLATFORM_ID == PLATFORM_FOX
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus())
-    {
+    if(GetRTCSatus()) {
         aJson.addNumberToObject(root, "status", 200);
-    }
-    else
-    {
+    } else {
         aJson.addNumberToObject(root, "status", 201);
     }
     strPtr = aJson.print(root);
@@ -370,19 +303,15 @@ void testSelfTest(void* cookie)
     free(strPtr);
     aJson.deleteItem(root);
 
-
-
 #endif
 }
 
 void testRfCheck(void* cookie)
 {
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
-
     ((DeviceConfig*)cookie)->dealGetWifiList();
 
 #elif (PLATFORM_ID == PLATFORM_ANT) || (PLATFORM_ID == PLATFORM_L6)
-
     aJsonClass aJson;
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
@@ -390,12 +319,9 @@ void testRfCheck(void* cookie)
     int8_t rssiVal = 0;
     int8_t txRssiVal = 0;
 
-    if(SX1278Test(snrVal,rssiVal,txRssiVal))
-    {
+    if(SX1278Test(snrVal,rssiVal,txRssiVal)) {
         aJson.addNumberToObject(root, "status", 200);
-    }
-    else
-    {
+    } else {
         aJson.addNumberToObject(root, "status", 201);
     }
 
@@ -423,7 +349,6 @@ void testRfCheck(void* cookie)
     ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
     free(strPtr);
     aJson.deleteItem(root);
-
 
 #endif
 }

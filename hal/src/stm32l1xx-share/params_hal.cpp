@@ -520,4 +520,3 @@ int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag) {
     intorobot_system_params.config_flag = flag;
     return 0;
 }
-

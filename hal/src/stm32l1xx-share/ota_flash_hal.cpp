@@ -72,4 +72,3 @@ uint8_t HAL_OTA_Get_Download_Progress()
 {
     return 0;
 }
-

@@ -57,7 +57,9 @@
 #define STASK_DEBUG_D(...)
 #endif
 
+#ifndef configNO_NETWORK
 using intorobot::Network;
+#endif
 
 volatile system_tick_t intorobot_loop_total_millis = 0;
 /**
@@ -209,8 +211,7 @@ void preprocess_cloud_connection(void)
                 default:                          //没有密钥信息
                     if(System.featureEnabled(SYSTEM_FEATURE_REGISTER_ENABLED)) {
                         // 注册设备
-                        if(_device_register())
-                        {
+                        if(_device_register()) {
                             HAL_Delay_Milliseconds(200);
                             if(System.featureEnabled(SYSTEM_FEATURE_ACTIVATE_ENABLED)) {
                                 // 激活设备
@@ -300,31 +301,29 @@ void lorawan_prepare_active(void)
             AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
             switch(at_mode)
             {
-            case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                STASK_DEBUG("AT_MODE_FLAG_ABP");
-            case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
-            {
-                STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE");
-                LoRaWan.joinABP();
-                INTOROBOT_LORAWAN_JOINED = true;
-                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-            }
-            break;
-
-            case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
-            {
-                STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
-                int32_t joinDelayms = randr(0,15000);
-                STASK_DEBUG("joinDelayms = %d",joinDelayms);
-                delay((uint32_t)joinDelayms);
-                LoRaWan.joinOTAA();
-            }
-            break;
-
-            default:                          //没有密钥信息
-                STASK_DEBUG("default");
-                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
-                break;
+                case AT_MODE_FLAG_ABP:            //已经灌好密钥
+                    STASK_DEBUG("AT_MODE_FLAG_ABP");
+                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
+                    {
+                        STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE");
+                        LoRaWan.joinABP();
+                        INTOROBOT_LORAWAN_JOINED = true;
+                        system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                    }
+                    break;
+                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
+                    {
+                        STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
+                        int32_t joinDelayms = randr(0,10000);
+                        STASK_DEBUG("joinDelayms = %d",joinDelayms);
+                        delay((uint32_t)joinDelayms);
+                        LoRaWan.joinOTAA();
+                    }
+                    break;
+                default:                          //没有密钥信息
+                    STASK_DEBUG("default");
+                    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+                    break;
             }
         }
     }
@@ -358,7 +357,7 @@ void manage_lorawan_connection(void)
         }
 
         if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
-            if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
+            if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)) {
                 intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
                 INTOROBOT_LORAWAN_CONNECTED = true;
             }
