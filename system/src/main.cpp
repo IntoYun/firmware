@@ -55,6 +55,7 @@
 #include "platforms.h"
 #include "system_lorawan.h"
 #include "system_datapoint.h"
+#include "malloc.h"
 
 using namespace intorobot;
 

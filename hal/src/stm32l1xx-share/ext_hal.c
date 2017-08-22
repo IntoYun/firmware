@@ -17,41 +17,14 @@
   ******************************************************************************
 */
 
-#ifndef PINMAP_IMPL_H
-#define PINMAP_IMPL_H
-
 #include "hw_config.h"
+#include "ext_hal.h"
 
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-typedef struct STM32_Pin_Info {
-    GPIO_TypeDef* gpio_peripheral;
-    pin_t gpio_pin;
-    uint8_t gpio_pin_source;
-    uint8_t adc_channel;
-    uint8_t dac_channel;
-    TIM_TypeDef* timer_peripheral;
-    uint16_t timer_ch;
-    PinMode pin_mode;
-    uint16_t timer_ccr;
-    int32_t user_property;
-} STM32_Pin_Info;
-
-
-STM32_Pin_Info* HAL_Pin_Map(void);
-
-extern void HAL_GPIO_Save_Pin_Mode(PinMode mode);
-extern PinMode HAL_GPIO_Recall_Pin_Mode();
-
-#define CHANNEL_NONE ((uint8_t)(0xFF))
-#define ADC_CHANNEL_NONE CHANNEL_NONE
-#define DAC_CHANNEL_NONE CHANNEL_NONE
-
-#ifdef	__cplusplus
+void disable_irq(void)
+{
+    __disable_irq();
 }
-#endif
-
-#endif	/* PINMAP_IMPL_H */
+void enable_irq(void)
+{
+    __enable_irq();
+}

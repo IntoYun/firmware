@@ -20,6 +20,10 @@
 #ifndef WIRING_CAN_H
 #define WIRING_CAN_H_
 
+#include "intorobot_config.h"
+
+#ifdef configWIRING_CAN_ENABLE
+
 #include "wiring.h"
 #include "can_hal.h"
 
@@ -48,5 +52,7 @@ public:
 
   HAL_CAN_Errors errorStatus();
 };
+
+#endif
 
 #endif

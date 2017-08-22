@@ -24,6 +24,7 @@
 #ifndef   AJSON_H_
 #define   AJSON_H_
 
+#include "intorobot_config.h"
 #include "wiring_print.h"
 #include "wiring_stream.h"
 #include "wiring_client.h"
@@ -81,9 +82,9 @@ class aJsonStream : public Print
 {
     public:
         aJsonStream(Stream *stream_): stream_obj(stream_), bucket(EOF) {}
-            /* Use this to check if more data is available, as aJsonStream
-            * can read some more data than really consumed and automatically
-            * skips separating whitespace if you use this method. */
+        /* Use this to check if more data is available, as aJsonStream
+        * can read some more data than really consumed and automatically
+        * skips separating whitespace if you use this method. */
         virtual bool available(void);
 
         int parseNumber(aJsonObject *item);
@@ -108,48 +109,51 @@ class aJsonStream : public Print
         int printObject(aJsonObject *item);
 
     protected:
-            /* Blocking load of character, returning EOF if the stream
-            * is exhausted. */
-            /* Base implementation just looks at bucket, returns EOF
-            * otherwise; descendats take care of the real reading. */
+        /* Blocking load of character, returning EOF if the stream
+        * is exhausted. */
+        /* Base implementation just looks at bucket, returns EOF
+        * otherwise; descendats take care of the real reading. */
         virtual int getch(void);
         virtual size_t readBytes(uint8_t *buffer, size_t len);
-            /* Return the character back to the front of the stream
-            * after loading it with getch(). Only returning a single
-            * character is supported. */
+        /* Return the character back to the front of the stream
+        * after loading it with getch(). Only returning a single
+        * character is supported. */
         virtual void ungetch(char ch);
 
         /* Inherited from class Print. */
         virtual size_t write(uint8_t ch);
 
-            /* stream attribute is used only from virtual functions,
-            * therefore an object inheriting aJsonStream may avoid
-            * using streams completely. */
+        /* stream attribute is used only from virtual functions,
+        * therefore an object inheriting aJsonStream may avoid
+        * using streams completely. */
         Stream *stream_obj;
-            /* Use this accessor for stream retrieval; some subclasses
-            * may use their own stream subclass. */
+        /* Use this accessor for stream retrieval; some subclasses
+        * may use their own stream subclass. */
         virtual inline Stream *stream(void) { return stream_obj; }
 
-            /* bucket is EOF by default. Otherwise, it is a character
-            * to be returned by next getch() - returned by a call
-            * to ungetch(). */
+        /* bucket is EOF by default. Otherwise, it is a character
+        * to be returned by next getch() - returned by a call
+        * to ungetch(). */
         int bucket;
 };
 
+#ifndef configNO_NETWORK
 /* JSON stream that consumes data from a connection (usually
  * Ethernet client) until the connection is closed. */
 class aJsonClientStream : public aJsonStream {
-public:
-	aJsonClientStream(Client *stream_)
-		: aJsonStream(NULL), client_obj(stream_)
-		{}
+    public:
+        aJsonClientStream(Client *stream_)
+            : aJsonStream(NULL), client_obj(stream_)
+        {}
 
-private:
-	virtual int getch(void);
+    private:
+        virtual int getch(void);
 
-	Client *client_obj;
-	virtual inline Client *stream() { return client_obj; }
+        Client *client_obj;
+        virtual inline Client *stream() { return client_obj; }
 };
+#endif
+
 /* JSON stream that is bound to input and output string buffer. This is
  * for internal usage by string-based aJsonClass methods. */
 /* TODO: Elastic output buffer support. */

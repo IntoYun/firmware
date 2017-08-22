@@ -45,7 +45,7 @@ bool RGBClass::off(void) {
 bool RGBClass::color(uint32_t rgb) {
     if(!_control)
     {return false;}
- 
+
     HAL_UI_RGB_Color(rgb);
     return true;
 }

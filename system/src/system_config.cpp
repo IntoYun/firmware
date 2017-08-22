@@ -56,8 +56,9 @@
 #endif
 
 #ifndef configNO_NETWORK
-using namespace intorobot;
+//using namespace intorobot;
 #endif
+using namespace intorobot;
 
 typedef size_t (*writeHandler)(const uint8_t *buf, size_t size);
 
@@ -144,10 +145,8 @@ int DeviceConfig::process(void)
         if (root == NULL)
         {break;}
         aJsonObject* command_Object = aJson.getObjectItem(root, "command");
-
         if (command_Object == NULL)
         {break;}
-
         DeviceConfigCmdType type = getMessageType(command_Object->valuestring);
         switch(type)
         {
@@ -227,7 +226,6 @@ int DeviceConfig::process(void)
         if(_isConfigSuccessful)
         {break;}
     }
-
     if(root!=NULL) {
         aJson.deleteItem(root);
     }
@@ -235,7 +233,7 @@ int DeviceConfig::process(void)
     if(_isConfigSuccessful) {
         return 0;
     } else {
-      return -1;
+        return 1;
     }
 }
 
@@ -677,6 +675,8 @@ void DeviceConfig::dealReboot(void)
 
 void DeviceConfig::dealTest(aJsonObject* value_object)
 {
+#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
+    sendComfirm(200);
     uint16_t pinNum;
     uint8_t pinLevel;
 
@@ -720,6 +720,7 @@ void DeviceConfig::dealTest(aJsonObject* value_object)
     } else if(strcmp(itemObject->valuestring,"sensorData") == 0) {
         testSensorData(this);
     }
+#endif
 }
 
 #ifdef configSETUP_USBSERIAL_ENABLE
@@ -906,8 +907,7 @@ void UdpDeviceConfig::sendComfirm(int status)
 
     aJson.addNumberToObject(root, "status", status);
     char* string = aJson.print(root);
-    for(int i=0; i < 10; i++) //may be not enough
-    {
+    for(int i=0; i < 10; i++) {
         write((unsigned char *)string, strlen(string));
         delay(100);
     }
@@ -1014,8 +1014,7 @@ void set_system_config_type(system_config_type_t config_type)
     system_config_initial_flag = 0;
     current_system_config_type = config_type;
 
-    switch(config_type)
-    {
+    switch(config_type) {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
             flag = CONFIG_FLAG_IMLINK_SERIAL;
             break;
@@ -1052,8 +1051,7 @@ system_config_type_t get_system_config_type(void)
 
 void system_config_initial(void)
 {
-    switch(get_system_config_type())
-    {
+    switch(get_system_config_type()) {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
 #ifdef configSETUP_UDP_ENABLE
             DeviceSetupImlink.init();
@@ -1143,8 +1141,7 @@ int system_config_process(void)
         system_config_initial_flag = 1;
     }
 
-    switch(get_system_config_type())
-    {
+    switch(get_system_config_type()) {
 #ifdef configSETUP_UDP_ENABLE
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
             result = DeviceSetupImlink.process();
@@ -1210,8 +1207,7 @@ int system_config_process(void)
 void system_config_setup(void)
 {
     if(System.featureEnabled(SYSTEM_FEATURE_CONFIG_SAVE_ENABLED)) {
-        switch(HAL_PARAMS_Get_System_config_flag())
-        {
+        switch(HAL_PARAMS_Get_System_config_flag()) {
             case CONFIG_FLAG_IMLINK_SERIAL:   //进入imlink+串口配置模式
                 set_system_config_type(SYSTEM_CONFIG_TYPE_IMLINK_SERIAL);
                 break;

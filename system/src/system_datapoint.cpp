@@ -41,8 +41,7 @@ static void debug_dump(uint8_t *buf, uint16_t len)
     int i = 0;
 
     if(len > 0) {
-        for(i = 0; i < len-1; i++)
-        {
+        for(i = 0; i < len-1; i++) {
             DEBUG_D("%02x:", buf[i]);
         }
         DEBUG_D("%02x\r\n", buf[i]);
@@ -62,8 +61,7 @@ int properties_count = 0;
 
 static int intorobotDiscoverProperty(const uint16_t dpID)
 {
-    for (int i = 0; i < properties_count; i++)
-    {
+    for (int i = 0; i < properties_count; i++) {
         if (properties[i]->dpID == dpID) {
             return i;
         }
@@ -76,8 +74,7 @@ static uint8_t intorobotGetPropertyPermissionUpCount(void)
 {
     uint8_t count = 0;
 
-    for (int i = 0; i < properties_count; i++)
-    {
+    for (int i = 0; i < properties_count; i++) {
         //系统默认dpID  不上传
         if (properties[i]->dpID > 0x3F00) {
             continue;
@@ -98,8 +95,7 @@ static uint8_t intorobotGetPropertyCount(void)
 
 static bool intorobotPropertyChanged(void)
 {
-    for (int i = 0; i < properties_count; i++)
-    {
+    for (int i = 0; i < properties_count; i++) {
         if (properties[i]->change) {
             return true;
         }
@@ -109,8 +105,7 @@ static bool intorobotPropertyChanged(void)
 
 static void intorobotPropertyChangeClear(void)
 {
-    for (int i = 0; i < properties_count; i++)
-    {
+    for (int i = 0; i < properties_count; i++) {
         if (properties[i]->change) {
             properties[i]->change = false;
         }
@@ -438,6 +433,17 @@ void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, co
     }
 }
 
+static double _pow(double base, int exponent)
+{
+    double result = 1.0;
+    int i = 0;
+
+    for (i = 0; i < exponent; i++) {
+        result *= base;
+    }
+    return result;
+}
+
 void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 {
     //dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
@@ -456,7 +462,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
     }
 
     while(index < len) {
-
         if(payload[index] & 0x80)  {      //数据点有2个字节
             dpID = ((payload[index] & 0x7F) << 8) | payload[index+1]; //去掉最高位
             index += 2;
@@ -469,7 +474,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
         if((i == -1) || (DP_PERMISSION_UP_ONLY == properties[i]->permission)) {
             return;
         }
-
         dataType = payload[index++];
         switch(dataType) {
             case DATA_TYPE_BOOL:
@@ -497,7 +501,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                         index += 4;
                     }
                     if(DATA_TYPE_NUM == properties[i]->dataType) {
-                        double valueDouble = (valueUint32 / pow(10, properties[i]->numberProperty.resolution)) + properties[i]->numberProperty.minValue;
+                        double valueDouble = (valueUint32 / _pow(10, properties[i]->numberProperty.resolution)) + properties[i]->numberProperty.minValue;
                         intorobotWriteDatapoint(dpID, String(valueDouble).c_str(), 0);
                     }
                     break;
@@ -555,7 +559,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                 break;
         }
     }
-
     bool dpReset = false;
     bool dpGetAllDatapoint = false;
     if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_RESET, dpReset)) {
@@ -591,7 +594,7 @@ static uint16_t intorobotFormSingleDatapoint(int property_index, uint8_t* buffer
             {
                 buffer[index++] = DATA_TYPE_NUM;
                 uint32_t value = (properties[property_index]->value.toDouble() - properties[property_index]->numberProperty.minValue) \
-                                 * pow(10, properties[property_index]->numberProperty.resolution);
+                                 * _pow(10, properties[property_index]->numberProperty.resolution);
                 if(value & 0xFFFF0000) {
                     buffer[index++] = 0x04;
                     buffer[index++] = (value >> 24) & 0xFF;
@@ -656,8 +659,7 @@ static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t
 {
     int32_t index = 0;
 
-    for (int i = 0; i < properties_count; i++)
-    {
+    for (int i = 0; i < properties_count; i++) {
         //只允许下发  不上传
         if (DP_PERMISSION_DOWN_ONLY == properties[i]->permission) {
             continue;
@@ -834,7 +836,7 @@ void intorobotSendDatapointAutomatic(void)
     //当数值发生变化
     if(intorobotPropertyChanged()) {
         buffer[index++] = BINARY_DATA_FORMAT;
-        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 0);
+        index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
         sendFlag = true;
     } else {
         //发送时间间隔到

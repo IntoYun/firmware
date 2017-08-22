@@ -20,6 +20,7 @@
 #include "wiring_can.h"
 #include "wiring_constants.h"
 
+#ifdef configWIRING_CAN_ENABLE
 // Constructors ////////////////////////////////////////////////////////////////
 
 CANChannel::CANChannel(HAL_CAN_Channel channel,
@@ -74,3 +75,5 @@ HAL_CAN_Errors CANChannel::errorStatus()
 {
     return HAL_CAN_Error_Status(_channel);
 }
+
+#endif

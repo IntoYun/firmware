@@ -104,18 +104,29 @@ time_t HAL_RTC_Get_UnixTime(void)
     return 0;
 }
 
+static int _pow(int base, int exponent)
+{
+    int result = 1;
+    int i = 0;
+
+    for (i = 0; i < exponent; i++) {
+        result *= base;
+    }
+    return result;
+}
+
 /*
  * @brief Direct transform dec data to hex data, for the Set_UnixTime function.
  *        This function not convert the data. Example: dec:16 -> hex:0x16
  * @param decData: The input decimal data
  * @retral The output hexadecimal data
  */
-static int dec2hex_direct(uint8_t decData)
+static int _dec2hex(uint8_t decData)
 {
     int hexData  = 0;
     uint8_t iCount   = 0;
-    while( (decData / 10) || (decData % 10) ){
-        hexData = hexData +  (decData % 10) * pow(16, iCount);
+    while( (decData / 10) || (decData % 10) ) {
+        hexData = hexData +  (decData % 10) * _pow(16, iCount);
         if (decData < 10) {
             break;
         }
@@ -134,9 +145,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
-    sdatestructure.Month   = dec2hex_direct(tmTemp->tm_mon + 1);
-    sdatestructure.Date    = dec2hex_direct(tmTemp->tm_mday);
+    sdatestructure.Year    = _dec2hex(tmTemp->tm_year + 1900 -2000);
+    sdatestructure.Month   = _dec2hex(tmTemp->tm_mon + 1);
+    sdatestructure.Date    = _dec2hex(tmTemp->tm_mday);
     sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
@@ -146,9 +157,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-2- Configure the Time #################################################*/
     /* Set Time: 00:00:00 */
-    stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
-    stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
-    stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
+    stimestructure.Hours          = _dec2hex(tmTemp->tm_hour);
+    stimestructure.Minutes        = _dec2hex(tmTemp->tm_min);
+    stimestructure.Seconds        = _dec2hex(tmTemp->tm_sec);
     stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
     stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
     stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -355,7 +366,6 @@ void HAL_RTC_Initial( void )
         //set rtc time base to 1s
         /* RtcHandle.Init.AsynchPrediv = 0x7f; */
         /* RtcHandle.Init.SynchPrediv = 0xff; */
-
 
         RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
         RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -955,7 +965,7 @@ static void SlaveMcuEnterStopMcu(void)
     HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 
     //从模式时PA0外部中断唤醒
-    HAL_Interrupts_Attach(PA0,NULL,NULL,FALLING,NULL);
+    HAL_Interrupts_Attach(PA2,NULL,NULL,FALLING,NULL);
 
     //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
     GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
@@ -975,35 +985,19 @@ static void SlaveMcuEnterStopMcu(void)
 
     // 允许/禁用 调试端口 少800uA
     HAL_DBGMCU_DisableDBGStopMode();
-
 }
 
 void SlaveModeRtcEnterLowPowerStopMode( void )
 {
     SlaveMcuEnterStopMcu();
-    /* Disable all used wakeup sources: WKUP pin */
-    /* HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1); */
-
-    /* Clear all related wakeup flags */
-    /* Clear PWR wake up Flag */
-    /* __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU); */
-
     // Disable the Power Voltage Detector
     HAL_PWR_DisablePVD( );
-
     SET_BIT( PWR->CR, PWR_CR_CWUF );
-
     // Enable Ultra low power mode
     HAL_PWREx_EnableUltraLowPower( );
-
     // Enable the fast wake up from Ultra low power mode
     HAL_PWREx_EnableFastWakeUp( );
-
-    /* Enable WakeUp Pin PWR_WAKEUP_PIN1 connected to PA.00 */
-    /* HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1); */
-
     // Enter Stop Mode
     HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
-
     BoardInitMcu( );
 }

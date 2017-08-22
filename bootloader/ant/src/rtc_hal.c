@@ -141,57 +141,9 @@ time_t HAL_RTC_Get_UnixTime(void)
     return t;
 }
 
-/*
- * @brief Direct transform dec data to hex data, for the Set_UnixTime function.
- *        This function not convert the data. Example: dec:16 -> hex:0x16
- * @param decData: The input decimal data
- * @retral The output hexadecimal data
- */
-static uint8_t dec2hex_direct(uint8_t decData)
-{
-    uint8_t hexData  = 0;
-    uint8_t iCount   = 0;
-    uint8_t leftData = 0;
-    while(leftData = decData % 10)
-    {
-        hexData = hexData +  leftData * pow(16, iCount);
-        decData = decData / 10;
-        iCount++;
-    }
-    return hexData;
-}
-
-
-
 void HAL_RTC_Set_UnixTime(time_t value)
 {
-    struct tm *tmTemp = gmtime( &value );
-    RTC_DateTypeDef sdatestructure;
-    RTC_TimeTypeDef stimestructure;
 
-    /*##-1- Configure the Date #################################################*/
-    /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
-    sdatestructure.Month   = dec2hex_direct(tmTemp->tm_mon + 1);
-    sdatestructure.Date    = dec2hex_direct(tmTemp->tm_mday);
-    sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
-
-    if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
-    {
-    }
-
-    /*##-2- Configure the Time #################################################*/
-    /* Set Time: 00:00:00 */
-    stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
-    stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
-    stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
-    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
-    stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
-    stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
-
-    if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
-    {
-    }
 }
 
 void HAL_RTC_Set_Alarm(uint32_t value)
@@ -201,30 +153,6 @@ void HAL_RTC_Set_Alarm(uint32_t value)
 
 void HAL_RTC_Set_UnixAlarm(time_t value)
 {
-    HAL_NVIC_DisableIRQ(RTC_Alarm_IRQn);
-    RTC_AlarmTypeDef salarmstructure;
-
-    time_t alarm_time = HAL_RTC_Get_UnixTime() + value;
-    struct tm *tmTemp = gmtime( &value );
-
-
-    /*##-- Configure the RTC Alarm peripheral #################################*/
-    /* Set Alam to 00:00:20
-       RTC Alarm Generation: Alarm on Hours, Minutes and Seconds */
-    salarmstructure.Alarm                = RTC_ALARM_A;
-    salarmstructure.AlarmDateWeekDay     = RTC_WEEKDAY_FRIDAY;
-    salarmstructure.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY;
-   // salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE;
-    salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    salarmstructure.AlarmTime.Hours      = dec2hex_direct(tmTemp->tm_hour);
-    salarmstructure.AlarmTime.Minutes    = dec2hex_direct(tmTemp->tm_min);
-    salarmstructure.AlarmTime.Seconds    = dec2hex_direct(tmTemp->tm_sec);
-   // salarmstructure.AlarmTime.SubSeconds = 0x00;
-
-    if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
-    {
-    }
 
 }
 

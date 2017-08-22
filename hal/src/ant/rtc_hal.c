@@ -30,6 +30,8 @@
 #include <math.h>
 #include "rtc_hal_lora.h"
 #include "service_debug.h"
+#include "interrupts_hal.h"
+#include "ui_hal.h"
 
 RTC_HandleTypeDef RtcHandle;
 static bool rtcFailFlag = true;
@@ -103,18 +105,29 @@ time_t HAL_RTC_Get_UnixTime(void)
     return 0;
 }
 
+static int _pow(int base, int exponent)
+{
+    int result = 1;
+    int i = 0;
+
+    for (i = 0; i < exponent; i++) {
+        result *= base;
+    }
+    return result;
+}
+
 /*
  * @brief Direct transform dec data to hex data, for the Set_UnixTime function.
  *        This function not convert the data. Example: dec:16 -> hex:0x16
  * @param decData: The input decimal data
  * @retral The output hexadecimal data
  */
-static int dec2hex_direct(uint8_t decData)
+static int _dec2hex(uint8_t decData)
 {
     int hexData  = 0;
     uint8_t iCount   = 0;
-    while( (decData / 10) || (decData % 10) ){
-        hexData = hexData +  (decData % 10) * pow(16, iCount);
+    while( (decData / 10) || (decData % 10) ) {
+        hexData = hexData +  (decData % 10) * _pow(16, iCount);
         if (decData < 10) {
             break;
         }
@@ -133,9 +146,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
-    sdatestructure.Month   = dec2hex_direct(tmTemp->tm_mon + 1);
-    sdatestructure.Date    = dec2hex_direct(tmTemp->tm_mday);
+    sdatestructure.Year    = _dec2hex(tmTemp->tm_year + 1900 -2000);
+    sdatestructure.Month   = _dec2hex(tmTemp->tm_mon + 1);
+    sdatestructure.Date    = _dec2hex(tmTemp->tm_mday);
     sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
@@ -145,9 +158,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-2- Configure the Time #################################################*/
     /* Set Time: 00:00:00 */
-    stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
-    stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
-    stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
+    stimestructure.Hours          = _dec2hex(tmTemp->tm_hour);
+    stimestructure.Minutes        = _dec2hex(tmTemp->tm_min);
+    stimestructure.Seconds        = _dec2hex(tmTemp->tm_sec);
     stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
     stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
     stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -354,7 +367,6 @@ void HAL_RTC_Initial( void )
         //set rtc time base to 1s
         /* RtcHandle.Init.AsynchPrediv = 0x7f; */
         /* RtcHandle.Init.SynchPrediv = 0xff; */
-
 
         RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
         RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
@@ -916,7 +928,6 @@ static void McuEnterStopMode(void)
     HAL_DBGMCU_DisableDBGStopMode();
 }
 
-
 void BoardDeInitMcu(void)
 {
     McuEnterStopMode();
@@ -928,4 +939,70 @@ void BoardInitMcu(void)
 #ifdef configHAL_USB_CDC_ENABLE
     USB_USART_Initial(115200);
 #endif
+    HAL_UI_Initial(); //初始化三色灯
 }
+
+static void SlaveMcuEnterStopMcu(void)
+{
+    DEBUG("mcu into stop");
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+
+    /* Enable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+
+    /* Configure all GPIO port pins in Analog Input mode (floating input trigger OFF) */
+    //无用IO需设为模拟输入
+    GPIO_InitStructure.Pin = GPIO_PIN_All;
+    GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
+
+    //从模式时A0外部中断唤醒
+    HAL_Interrupts_Attach(A0,NULL,NULL,FALLING,NULL);
+
+    //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
+    GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStructure.Mode = INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_Pin_Mode(SX1278_NSS,INPUT_PULLUP);
+
+#ifdef configHAL_USB_CDC_ENABLE
+    USB_USART_Initial(0);
+#endif
+    /* __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗 USB_USART_Initial(0)会运行此功能*/
+    __HAL_RCC_LSI_DISABLE();
+
+    //禁用比较器
+    __COMP_CLK_DISABLE();
+
+    // 允许/禁用 调试端口 少800uA
+    HAL_DBGMCU_DisableDBGStopMode();
+}
+
+void SlaveModeRtcEnterLowPowerStopMode( void )
+{
+    #if 0
+    SlaveMcuEnterStopMcu();
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+    // Enable Ultra low power mode
+    HAL_PWREx_EnableUltraLowPower( );
+    // Enable the fast wake up from Ultra low power mode
+    HAL_PWREx_EnableFastWakeUp( );
+    // Enter Stop Mode
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+    BoardInitMcu( );
+    #endif
+    return;
+}
+

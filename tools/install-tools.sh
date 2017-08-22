@@ -54,31 +54,31 @@ if [ $sysType = "Linux" ]; then
         cecho "--->install success " $blue
 
         cecho "--->install st-flash " $blue
-        wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/terminal/tools/stlink-1.2.0-linux64.tar.gz 2>/dev/null
         tar -zxf stlink-1.2.0-linux64.tar.gz
         mv stlink-1.2.0-linux64 ../stlink
         cecho "--->install success " $blue
 
         cecho "--->install esp8266 esptool " $blue
-        wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/terminal/tools/esptool-0.4.11-linux64.tar.gz 2>/dev/null
         tar -zxf esptool-0.4.11-linux64.tar.gz
         mv esptool-0.4.11-linux64 ../esp8266
         cecho "--->install success " $blue
 
         cecho "--->install esp32 esptool " $blue
-        wget http://www.intoyun.com/downloads/tools/esptool32-1.0.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/esptool32-1.0.0-linux64.tar.gz 2>/dev/null
         tar -zxf esptool32-1.0.0-linux64.tar.gz
         mv esptool32-1.0.0-linux64 ../esp32
         cecho "--->install success " $blue
 
         cecho "--->install dfu-util " $blue
-        wget http://www.intoyun.com/downloads/tools/dfu-util-0.9.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/dfu-util-0.9.0-linux64.tar.gz 2>/dev/null
         tar -zxf dfu-util-0.9.0-linux64.tar.gz
         mv dfu-util-0.9.0-linux64 ../dfu-util
         cecho "--->install success " $blue
 
         cecho "--->install upload-reset " $blue
-        wget http://www.intoyun.com/downloads/tools/upload-reset-1.0.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/upload-reset-1.0.0-linux64.tar.gz 2>/dev/null
         tar -zxf upload-reset-1.0.0-linux64.tar.gz
         mv 1.0.0 ../upload-reset
         cecho "--->install success " $blue
@@ -98,31 +98,31 @@ if [ $sysType = "Linux" ]; then
         cecho "--->install success " $blue
 
         cecho "--->install st-flash " $blue
-        wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/terminal/tools/stlink-1.2.0-linux64.tar.gz 2>/dev/null
         tar -zxf stlink-1.2.0-linux32.tar.gz
         mv stlink-1.2.0-linux32 ../stlink
         cecho "--->install success " $blue
 
         cecho "--->install esp8266 esptool " $blue
-        wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/terminal/tools/esptool-0.4.11-linux64.tar.gz 2>/dev/null
         tar -zxf esptool-0.4.11-linux64.tar.gz
         mv  esptool-0.4.11-linux64 ../esp8266
         cecho "--->install success " $blue
 
         cecho "--->install esp32 esptool " $blue
-        wget http://www.intoyun.com/downloads/tools/esptool32-1.0.0-linux32.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/esptool32-1.0.0-linux32.tar.gz 2>/dev/null
         tar -zxf esptool32-1.0.0-linux32.tar.gz
         mv esptool32-1.0.0-linux32 ../esp32
         cecho "--->install success " $blue
 
         cecho "--->install dfu-util " $blue
-        wget http://www.intoyun.com/downloads/tools/dfu-util-0.9.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/dfu-util-0.9.0-linux64.tar.gz 2>/dev/null
         tar -zxf dfu-util-0.9.0-linux64.tar.gz
         mv dfu-util-0.9.0-linux64 ../dfu-util
         cecho "--->install success " $blue
 
         cecho "--->install upload-reset " $blue
-        wget http://www.intoyun.com/downloads/tools/upload-reset-1.0.0-linux64.tar.gz 2>/dev/null
+        wget http://dl.intoyun.com/tools/upload-reset-1.0.0-linux64.tar.gz 2>/dev/null
         tar -zxf upload-reset-1.0.0-linux64.tar.gz
         mv 1.0.0 ../upload-reset
         cecho "--->install success " $blue
@@ -153,31 +153,31 @@ elif [ $sysType = "Darwin" ]; then
     cecho "--->install success " $yellow
 
     cecho "--->install st-flash " $blue
-    wget http://www.intoyun.com/downloads/terminal/tools/stlink-1.2.0-osx.tar.gz 2>/dev/null
+    wget http://dl.intoyun.com/terminal/tools/stlink-1.2.0-osx.tar.gz 2>/dev/null
     tar -zxf stlink-1.2.0-osx.tar.gz
     mv stlink-1.2.0-osx ../stlink
     cecho "--->install success " $yellow
 
     cecho "--->install esp8266 esptool " $blue
-    wget http://www.intoyun.com/downloads/terminal/tools/esptool-0.4.11-osx.tar.gz 2>/dev/null
+    wget http://dl.intoyun.com/terminal/tools/esptool-0.4.11-osx.tar.gz 2>/dev/null
     tar -zxf esptool-0.4.11-osx.tar.gz
     mv esptool-0.4.11-osx ../esp8266
     cecho "--->install success " $yellow
 
     cecho "--->install esp32 esptool " $blue
-    wget http://www.intoyun.com/downloads/tools/esptool32-1.0.0-osx.tar.gz 2>/dev/null
+    wget http://dl.intoyun.com/tools/esptool32-1.0.0-osx.tar.gz 2>/dev/null
     tar -zxf esptool32-1.0.0-osx.tar.gz
     mv esptool32-1.0.0-osx ../esp32
     cecho "--->install success " $yellow
 
     cecho "--->install dfu-util " $blue
-    wget http://www.intoyun.com/downloads/tools/dfu-util-0.9.0-osx.tar.gz 2>/dev/null
+    wget http://dl.intoyun.com/tools/dfu-util-0.9.0-osx.tar.gz 2>/dev/null
     tar -zxf dfu-util-0.9.0-osx.tar.gz
     mv dfu-util-0.9.0-osx ../dfu-util
     cecho "--->install success " $yellow
 
     cecho "--->install upload-reset " $blue
-    wget http://www.intoyun.com/downloads/tools/upload-reset-1.0.0-osx.tar.gz 2>/dev/null
+    wget http://dl.intoyun.com/tools/upload-reset-1.0.0-osx.tar.gz 2>/dev/null
     tar -zxf upload-reset-1.0.0-osx.tar.gz
     mv 1.0.0 ../upload-reset
     cecho "--->install success " $yellow

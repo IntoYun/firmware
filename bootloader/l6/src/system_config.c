@@ -43,7 +43,9 @@ void HAL_System_Config(void)
 {
     Set_System();
     HAL_RTC_Initial();
+#if defined(DEBUG_BUILD)
     usart_debug_initial(115200);
+#endif
 }
 
 system_tick_t millis(void)

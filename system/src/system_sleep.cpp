@@ -18,14 +18,14 @@
 */
 
 #include "intorobot_config.h"
-
 #include "system_sleep.h"
 #include "wiring.h"
 #include "wiring_interrupts.h"
+#include "system_rgbled.h"
 
 #ifndef configNO_LORAWAN
-#include "wiring_ex_lorawan.h"
-#include "rtc_hal_lora.h"
+#include "wiring_lorawan.h"
+#include "system_lorawan.h"
 
 static bool loraSystemSleepEnabled = false;
 static TimerEvent_t loraSystemSleepTimer;
@@ -41,6 +41,18 @@ static void LoRaSystemWakeupCb(void)
         userLoRaSystemWakeupHandler();
     }
     loraSystemSleepEnabled = false;
+
+#if PLATFORM_ID == PLATFORM_ANT
+    if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED)){
+        if(LoRaWanActiveStatus() == 1){
+            system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+        }else{
+            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+        }
+    }else{
+        system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+    }
+#endif
 }
 
 static void LoRaSetSystemSleep(userLoRaWakeupCb userHandler, uint32_t timeout) //单位s
@@ -59,10 +71,30 @@ void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
         LoRaSetSystemSleep(userHandler,seconds);
         LoRa.radioSetSleep();
         loraSystemSleepEnabled = true;
+        DEBUG("lorawan system sleep");
     }
     TimerLowPowerHandler();
 }
 
+static void LoRaSlaveSystemWakeup(void)
+{
+    SX1276BoardInit();
+    LoRa.radioSetModem(MODEM_LORA);
+    if(userLoRaSystemWakeupHandler != NULL)
+    {
+        userLoRaSystemWakeupHandler();
+    }
+}
+
+void system_sleep_lora_slave(userLoRaWakeupCb userHandler)
+{
+    userLoRaSystemWakeupHandler = userHandler;
+    LoRa.radioSetSleep();
+    SlaveModeRtcEnterLowPowerStopMode();
+    LoRaSlaveSystemWakeup();
+}
+
+#if 0
 static void LoRaSlaveSystemWakeup(void)
 {
     SX1276BoardInit();
@@ -75,6 +107,8 @@ void system_sleep_lora_slave(void)
     SlaveModeRtcEnterLowPowerStopMode();
     LoRaSlaveSystemWakeup();
 }
+#endif
+
 #endif
 
 #if 0

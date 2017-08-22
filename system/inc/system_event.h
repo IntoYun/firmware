@@ -92,17 +92,20 @@ enum SystemEventsParam {
     ep_lora_radio_cad_done             = 6,
 
     //lorawan
-    ep_lorawan_joining                 = 1,
-    ep_lorawan_joined                  = 2,
-    ep_lorawan_join_fail               = 3,
-    ep_lorawan_tx_complete             = 4,
-    ep_lorawan_rx_complete             = 5,
-    ep_lorawan_mlme_join               = 6,
-    ep_lorawan_mlme_link_check         = 7,
-    ep_lorawan_mcps_unconfirmed        = 8,
-    ep_lorawan_mcps_confirmed          = 9,
-    ep_lorawan_mcps_proprietary        = 10,
-    ep_lorawan_mcps_multicast          = 11,
+    ep_lorawan_mlmeconfirm_join_success = 1,
+    ep_lorawan_mlmeconfirm_join_fail    = 2,
+    ep_lorawan_mlmeconfirm_link_check   = 3,
+
+    ep_lorawan_mcpsconfirm_unconfirmed  = 4,
+    ep_lorawan_mcpsconfirm_confirmed    = 5,
+    ep_lorawan_mcpsconfirm_proprietary  = 6,
+    ep_lorawan_mcpsconfirm_confirmed_ackreceived = 7,
+
+    ep_lorawan_mcpsindication_unconfirmed= 8,
+    ep_lorawan_mcpsindication_confirmed= 9,
+    ep_lorawan_mcpsindication_proprietary = 10,
+    ep_lorawan_mcpsindication_multicast = 11,
+    ep_lorawan_mcpsindication_receive_data = 12,
 };
 
 /**

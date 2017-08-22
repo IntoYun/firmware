@@ -47,7 +47,9 @@ void HAL_System_Config(void)
     HAL_RTC_Initial();
     HAL_UI_Initial();
     HAL_UI_RGB_Color(RGB_COLOR_WHITE);
+#if defined(DEBUG_BUILD)
     usart_debug_initial(115200);
+#endif
 }
 
 system_tick_t millis(void)
