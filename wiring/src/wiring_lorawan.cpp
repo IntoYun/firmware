@@ -267,6 +267,9 @@ void LoRaWanClass::macResume(void)
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
     LoRaMacMibSetRequestConfirm( &mibReq );
+
+    // setRx2DefaultChannel(434665000, DR_3);
+    // setRx2Channel(434665000,DR_3);
 }
 
 void LoRaWanClass::setMacFixedFreq(bool enabled)
@@ -604,6 +607,38 @@ int8_t LoRaWanClass::getActiveStatus(void)
 void LoRaWanClass::setDutyCycleOn(bool enable)
 {
     LoRaMacTestSetDutyCycleOn(enable);
+}
+
+void LoRaWanClass::addChannel(uint8_t id, uint32_t freq)
+{
+    if(id < 3 || id > 15)
+    {
+        return;
+    }
+    ChannelParams_t channelParams = {freq, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+    LoRaMacChannelAdd(id,channelParams);
+}
+
+void LoRaWanClass::setRx2DefaultChannel(uint32_t freq, uint8_t datarate)
+{
+    if(datarate > DR_5){
+        return;
+    }
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
+    mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ freq,datarate };
+    LoRaMacMibSetRequestConfirm( &mibReq );
+}
+
+void LoRaWanClass::setRx2Channel(uint32_t freq, uint8_t datarate)
+{
+    if(datarate > DR_5){
+        return;
+    }
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_RX2_CHANNEL;
+    mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ freq,datarate };
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 //P2P透传接口

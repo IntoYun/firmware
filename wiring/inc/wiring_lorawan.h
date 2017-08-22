@@ -156,6 +156,12 @@ class LoRaWanClass
     int8_t getActiveStatus(void);
     //true使能占空比,false关闭
     void setDutyCycleOn(bool enable);
+    //增加通道 默认只有3个最多16个 起始id从3开始
+    void addChannel(uint8_t id, uint32_t freq);
+    //设置rx2默认参数datarate 范围0-5
+    void setRx2DefaultChannel(uint32_t freq, uint8_t datarate);
+    //设置rx2参数 datarate 范围0-5
+    void setRx2Channel(uint32_t freq, uint8_t datarate);
 
     private:
 };
