@@ -20,6 +20,10 @@
 #ifndef __WIRING_IPADDRESS_H
 #define __WIRING_IPADDRESS_H
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include <stdint.h>
 #include <string.h>
 #include "wiring_printable.h"
@@ -126,5 +130,7 @@ public:
 };
 
 extern const IPAddress INADDR_NONE;
+
+#endif
 
 #endif

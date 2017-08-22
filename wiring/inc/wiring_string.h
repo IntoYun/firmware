@@ -55,7 +55,9 @@ class String
     // fails, the string will be marked as invalid (i.e. "if (s)" will
     // be false).
     String(const char *cstr = "");
+    String(const char *cstr, unsigned int length);
     String(const String &str);
+    String(const __FlashStringHelper *pstr);
     String(const Printable& printable);
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
     String(String &&rval);
@@ -83,6 +85,7 @@ class String
     // marked as invalid ("if (s)" will be false).
     String & operator = (const String &rhs);
     String & operator = (const char *cstr);
+    String & operator = (const __FlashStringHelper *pstr);
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
     String & operator = (String &&rval);
     String & operator = (StringSumHelper &&rval);
@@ -97,6 +100,7 @@ class String
     // concatenation is considered unsucessful.
     unsigned char concat(const String &str);
     unsigned char concat(const char *cstr);
+    unsigned char concat(const __FlashStringHelper * str);
     unsigned char concat(char c);
     unsigned char concat(unsigned char c);
     unsigned char concat(short int num);
@@ -203,6 +207,7 @@ class String
 
     // copy and move
     String & copy(const char *cstr, unsigned int length);
+    String & copy(const __FlashStringHelper *pstr, unsigned int length);
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
     void move(String &rhs);
 #endif

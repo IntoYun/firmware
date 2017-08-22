@@ -66,5 +66,3 @@ typedef struct
 }hal_system_params_t;
 
 #endif /*SYSTEM_PARAMS_H_*/
-
-

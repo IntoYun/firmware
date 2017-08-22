@@ -44,7 +44,9 @@ void usart_debug_initial(uint32_t baud)
 void HAL_System_Config(void)
 {
     Set_System();
+#if defined(DEBUG_BUILD)
     usart_debug_initial(115200);
+#endif
     HAL_RTC_Initial();
     HAL_UI_Initial();
     USB_Cable_Initial();

@@ -20,6 +20,10 @@
 #ifndef WIRING_CLIENT_H_
 #define WIRING_CLIENT_H_
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "system_network.h"
 #include "wiring_print.h"
 #include "wiring_stream.h"
@@ -43,5 +47,7 @@ public:
   virtual uint8_t connected() = 0;
   virtual operator bool() = 0;
 };
+
+#endif
 
 #endif

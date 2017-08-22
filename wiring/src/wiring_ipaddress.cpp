@@ -17,6 +17,10 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring_ipaddress.h"
 #include "wiring_print.h"
 #include "string.h"
@@ -109,3 +113,5 @@ size_t IPAddress::printTo(Print& p) const
 }
 
 const IPAddress INADDR_NONE(0, 0, 0, 0);
+
+#endif

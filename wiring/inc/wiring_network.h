@@ -20,6 +20,10 @@
 #ifndef WIRING_NETWORK_H_
 #define WIRING_NETWORK_H_
 
+#include "intorobot_config.h"
+
+#ifndef configNO_NETWORK
+
 #include "wiring_ipaddress.h"
 
 namespace intorobot {
@@ -59,5 +63,7 @@ public:
 };
 
 }
+
+#endif
 
 #endif

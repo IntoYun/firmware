@@ -188,18 +188,29 @@ time_t HAL_RTC_Get_UnixTime(void)
     return t;
 }
 
+static int _pow(int base, int exponent)
+{
+    int result = 1;
+    int i = 0;
+
+    for (i = 0; i < exponent; i++) {
+        result *= base;
+    }
+    return result;
+}
+
 /*
  * @brief Direct transform dec data to hex data, for the Set_UnixTime function.
  *        This function not convert the data. Example: dec:16 -> hex:0x16
  * @param decData: The input decimal data
  * @retral The output hexadecimal data
  */
-static int dec2hex_direct(uint8_t decData)
+static int _dec2hex(uint8_t decData)
 {
     int hexData  = 0;
     uint8_t iCount   = 0;
-    while( (decData / 10) || (decData % 10) ){
-        hexData = hexData +  (decData % 10) * pow(16, iCount);
+    while( (decData / 10) || (decData % 10) ) {
+        hexData = hexData +  (decData % 10) * _pow(16, iCount);
         if (decData < 10) {
             break;
         }
@@ -222,9 +233,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-1- Configure the Date #################################################*/
     /* Set Date: Friday January 1st 2016 */
-    sdatestructure.Year    = dec2hex_direct(tmTemp->tm_year + 1900 -2000);
-    sdatestructure.Month   = dec2hex_direct(tmTemp->tm_mon + 1);
-    sdatestructure.Date    = dec2hex_direct(tmTemp->tm_mday);
+    sdatestructure.Year    = _dec2hex(tmTemp->tm_year + 1900 -2000);
+    sdatestructure.Month   = _dec2hex(tmTemp->tm_mon + 1);
+    sdatestructure.Date    = _dec2hex(tmTemp->tm_mday);
     sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
@@ -234,9 +245,9 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     /*##-2- Configure the Time #################################################*/
     /* Set Time: 00:00:00 */
-    stimestructure.Hours          = dec2hex_direct(tmTemp->tm_hour);
-    stimestructure.Minutes        = dec2hex_direct(tmTemp->tm_min);
-    stimestructure.Seconds        = dec2hex_direct(tmTemp->tm_sec);
+    stimestructure.Hours          = _dec2hex(tmTemp->tm_hour);
+    stimestructure.Minutes        = _dec2hex(tmTemp->tm_min);
+    stimestructure.Seconds        = _dec2hex(tmTemp->tm_sec);
     stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
     stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE ;
     stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -270,9 +281,9 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     salarmstructure.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY;
     salarmstructure.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_NONE;
     salarmstructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    salarmstructure.AlarmTime.Hours      = dec2hex_direct(tmTemp->tm_hour);
-    salarmstructure.AlarmTime.Minutes    = dec2hex_direct(tmTemp->tm_min);
-    salarmstructure.AlarmTime.Seconds    = dec2hex_direct(tmTemp->tm_sec);
+    salarmstructure.AlarmTime.Hours      = _dec2hex(tmTemp->tm_hour);
+    salarmstructure.AlarmTime.Minutes    = _dec2hex(tmTemp->tm_min);
+    salarmstructure.AlarmTime.Seconds    = _dec2hex(tmTemp->tm_sec);
     salarmstructure.AlarmTime.SubSeconds = 0x00;
 
     if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)

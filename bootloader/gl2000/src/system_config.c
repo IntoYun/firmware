@@ -120,7 +120,9 @@ void Cellular_Power_On(void)
 void HAL_System_Config(void)
 {
     Set_System();
+#if defined(DEBUG_BUILD)
     usart_debug_initial(115200);
+#endif
     HAL_UI_Initial();
     HAL_UI_RGB_Color(RGB_COLOR_RED);
     HAL_RTC_Initial();
