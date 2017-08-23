@@ -46,6 +46,7 @@ extern "C" {
 #include "hw_ticks.h"
 #include "flash_mal.h"
 #include "system_tick_hal.h"
+#include "stdlib_noniso.h"
 #if defined(HAS_SERIAL_FLASH)
 #include "spi_flash.h"
 #endif

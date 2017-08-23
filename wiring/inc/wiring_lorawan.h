@@ -10,7 +10,6 @@
 #include "board/inc/timer.h"
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
-#include "rtc_hal_lora.h"
 
 #define LORAWAN_DEFAULT_DATARATE      DR_3
 #define LORAWAN_ADR_ON                1

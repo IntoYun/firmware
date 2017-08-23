@@ -18,7 +18,7 @@ LDFLAGS += --specs=nano.specs --specs=nosys.specs -lc -lnosys
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=400
 LDFLAGS += -Wl,--start-group -lgcc -lc -Wl,--end-group
 
-USE_PRINTF_FLOAT ?= y
+USE_PRINTF_FLOAT = n
 ifeq ("$(USE_PRINTF_FLOAT)","y")
 LDFLAGS += -u _printf_float
 endif
