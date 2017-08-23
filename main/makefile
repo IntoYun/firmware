@@ -22,8 +22,8 @@ ifeq ("$(PLATFORM)","neutron-net")# neutron-net
 MAKE_DEPENDENCIES += platform subsys
 LIB_DEPS += $(PLATFORM_LIB_DEP) $(SUBSYS_LIB_DEP)
 else
-MAKE_DEPENDENCIES += user wiring wiring_ex hal system services platform
-LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(WIRING_EX_LIB_DEP) $(HAL_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(PLATFORM_LIB_DEP)
+MAKE_DEPENDENCIES += user wiring wiring_ex hal system services communication platform
+LIB_DEPS += $(USER_LIB_DEP) $(WIRING_LIB_DEP) $(WIRING_EX_LIB_DEP) $(HAL_LIB_DEP) $(SYSTEM_LIB_DEP) $(SERVICES_LIB_DEP) $(COMMUNICATION_LIB_DEP) $(PLATFORM_LIB_DEP)
 endif
 
 DEPENDENCIES = $(MAKE_DEPENDENCIES)

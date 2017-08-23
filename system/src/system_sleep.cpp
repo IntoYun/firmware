@@ -26,6 +26,7 @@
 #ifndef configNO_LORAWAN
 #include "wiring_lorawan.h"
 #include "system_lorawan.h"
+#include "rtc_hal_lora.h"
 
 static bool loraSystemSleepEnabled = false;
 static TimerEvent_t loraSystemSleepTimer;

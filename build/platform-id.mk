@@ -160,6 +160,7 @@ PLATFORM=ant
 PLATFORM_DEVICE=STM32L151xB
 PLATFORM_NAME=ant
 PLATFORM_MCU=STM32L1xx
+PLATFORM_COMM=lorawan
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot ant,  lora board, 128k flash, 16k sram
 PLATFORM_BOOT_ADDR = 0x08000000
@@ -214,6 +215,7 @@ PLATFORM=l6
 PLATFORM_DEVICE=STM32L151xB
 PLATFORM_NAME=l6
 PLATFORM_MCU=STM32L1xx
+PLATFORM_COMM=lorawan
 MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot l6, 128k flash, 16k sram
 PLATFORM_BOOT_ADDR=0x08000000
@@ -294,6 +296,10 @@ endif
 
 ifeq ("$(PLATFORM_MCU)","")
 $(error PLATFORM_MCU not defined. Check platform id $(PLATFORM_ID))
+endif
+
+ifeq ("$(PLATFORM_COMM)","")
+PLATFORM_COMM=mqtt
 endif
 
 # lower case version of the PLATFORM_DEVICE string for use in filenames

@@ -3,7 +3,13 @@
 
 #ifndef configNO_LORAWAN
 
-#include "wiring_ex_lorawan.h"
+#include "radio/inc/radio.h"
+#include "radio/inc/sx1276.h"
+#include "board/inc/sx1276-board.h"
+#include "board/inc/utilities.h"
+#include "board/inc/timer.h"
+#include "mac/inc/LoRaMac.h"
+#include "mac/inc/LoRaMacTest.h"
 
 #define LORAWAN_DEFAULT_DATARATE      DR_3
 #define LORAWAN_ADR_ON                1

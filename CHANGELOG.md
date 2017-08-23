@@ -1,3 +1,25 @@
+## v1.6.3-rc.1
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #99]](https://github.com/HITSZ-NRSL/firmware/pull/99) [ant/l6] 固定扩频因子修改为9。
+- [[PR #101]](https://github.com/HITSZ-NRSL/firmware/pull/101) [ant/l6] 精简ant和l6大小。
+
+
+### BUG FIXES(漏洞修复)
+- [[PR #98]](https://github.com/HITSZ-NRSL/firmware/pull/98) [all] 编译处理的framework在macos上loragateway项目无法启动。原因:boot/system参数结构体__attribute__((packed))参数。因为参数全局变量地址可能不是4字节对齐。导致flash read操作死机。
+- [[PR #99]](https://github.com/HITSZ-NRSL/firmware/pull/99) [ant/l6] lorawan主从模式增加休眠接口。
+- [[PR #99]](https://github.com/HITSZ-NRSL/firmware/pull/99) [ant/l6] 解决激活失败后不能重新入网bug。
+- [[PR #100]](https://github.com/HITSZ-NRSL/firmware/pull/100) [ant/l6] lorawan休眠唤醒后串口无法接收数据，原因是在Serial.end()将申请的数据缓冲区释放了。
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.6.2-rc.1
 
 

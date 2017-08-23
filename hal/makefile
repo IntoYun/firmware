@@ -17,6 +17,5 @@ endif
 
 -include $(HAL_MODULE_PATH)/src/$(PLATFORM_NAME)/tlm.mk
 
-
 include ../build/arm-tlm.mk
 

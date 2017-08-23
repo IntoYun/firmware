@@ -32,7 +32,10 @@
 #include "wiring_wifi.h"
 #include "wiring_cellular.h"
 #include "wiring_system.h"
-#include "system_mqttclient.h"
+#include "wiring_ticks.h"
+#include "wiring_random.h"
+#include "wiring_httpclient.h"
+#include "wiring_time.h"
 #include "system_cloud_def.h"
 #include "system_datapoint.h"
 #include "system_cloud.h"
@@ -41,13 +44,9 @@
 #include "system_threading.h"
 #include "system_update.h"
 #include "system_rgbled.h"
-#include "wiring_ticks.h"
-#include "wiring_random.h"
-#include "wiring_httpclient.h"
 #include "system_product.h"
 #include "system_update.h"
 #include "system_utilities.h"
-#include "wiring_time.h"
 #include "system_config.h"
 #include "ajson.h"
 
@@ -65,6 +64,8 @@
 using namespace intorobot;
 
 #ifndef configNO_CLOUD
+#include "mqttclient.h"
+
 volatile uint8_t INTOROBOT_CLOUD_SOCKETED = 0;           //网络连接状态 1连接 0断开
 volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED = 0;   //平台链接预处理状态 1已经处理
 volatile uint8_t INTOROBOT_CLOUD_CONNECTED = 0;          //平台连接状态 1连接上了
