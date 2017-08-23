@@ -123,6 +123,7 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             {
                 case ep_lorawan_mlmeconfirm_join_success: //入网成功
                     DEBUG("lorawan joined ok");
+                    LoRaWan.setMacClassType(CLASS_A);
                     LoRaWan.setDutyCycleOn(false); //关闭通道占空比
                     deviceState = DEVICE_STATE_SEND;
                 break;
@@ -186,7 +187,7 @@ void setup()
 
 void loop()
 {
-    #if 0
+    #if 1
     switch(deviceState)
     {
         case DEVICE_STATE_INIT:
@@ -221,8 +222,7 @@ void loop()
             break;
 
         case DEVICE_STATE_SLEEP:
-            deviceState = DEVICE_STATE_SEND;
-            // System.sleep(SystemWakeUpHandler,20); //定时唤醒
+            System.sleep(SystemWakeUpHandler,10); //定时唤醒
             break;
 
         default:
@@ -233,7 +233,7 @@ void loop()
     {
         if(sleepEnable)
         {
-            if(millis() - prevTime >= 120000)
+            if(millis() - prevTime >= 10000)
             {
                 sleepEnable = false;
                 deviceState = DEVICE_STATE_SLEEP;
@@ -242,6 +242,7 @@ void loop()
     }
     #endif
 
+    #if 0
     //温度上送
     if(Temperature > 100){
         Temperature = 0;
@@ -258,6 +259,7 @@ void loop()
     IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
     IntoRobot.sendDatapointAll();
     delay(120000);
+    #endif
 
 }
 
