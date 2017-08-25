@@ -123,7 +123,7 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             {
                 case ep_lorawan_mlmeconfirm_join_success: //入网成功
                     DEBUG("lorawan joined ok");
-                    LoRaWan.setMacClassType(CLASS_A);
+                    // LoRaWan.setMacClassType(CLASS_A);
                     LoRaWan.setDutyCycleOn(false); //关闭通道占空比
                     deviceState = DEVICE_STATE_SEND;
                 break;
@@ -133,18 +133,21 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     deviceState = DEVICE_STATE_SLEEP;
                     break;
 
-                case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //确认帧收到ack
+                case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
                     if(LoRaWan.getAckReceived()){
-                        DEBUG("lorawan ack is reveived");
+                        DEBUG("lorawan reveived ack");
                     }else{
-                        DEBUG("lorawan no receive ack");
+                        DEBUG("lorawan not received ack");
                     }
                     break;
 
-                case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送完成
-                case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送完成
-                case ep_lorawan_mcpsindication_unconfirmed: //不确认型帧发送完成且在接收窗口内收到了数据
-                case ep_lorawan_mcpsindication_confirmed://确认型帧发送完成且在接收窗口内收到了数据
+                case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送请求完成
+                case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送请求完成
+                case ep_lorawan_mcpsindication_unconfirmed: //服务器下发了无需确认帧
+                case ep_lorawan_mcpsindication_confirmed://服务器下发了确认帧
+                    sleepEnable = true;
+                    prevTime = millis();
+                    #if 0
                     if(LoRaWan.getMacClassType() == 2)
                     {
                         DEBUG("class type = C");
@@ -155,6 +158,7 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     {
                         deviceState = DEVICE_STATE_SLEEP;
                     }
+                    #endif
                     break;
 
                 default:
@@ -187,7 +191,7 @@ void setup()
 
 void loop()
 {
-    #if 1
+    #if 1 
     switch(deviceState)
     {
         case DEVICE_STATE_INIT:
@@ -229,20 +233,17 @@ void loop()
             break;
     }
 
-    if(LoRaWan.getMacClassType() == 2)
+    if(sleepEnable)
     {
-        if(sleepEnable)
+        if(millis() - prevTime >= 3000)
         {
-            if(millis() - prevTime >= 10000)
-            {
-                sleepEnable = false;
-                deviceState = DEVICE_STATE_SLEEP;
-            }
+            sleepEnable = false;
+            deviceState = DEVICE_STATE_SLEEP;
         }
     }
     #endif
 
-    #if 0
+    #if 0 
     //温度上送
     if(Temperature > 100){
         Temperature = 0;
@@ -258,7 +259,7 @@ void loop()
     }
     IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
     IntoRobot.sendDatapointAll();
-    delay(120000);
+    delay(10000);
     #endif
 
 }

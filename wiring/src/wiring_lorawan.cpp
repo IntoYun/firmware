@@ -143,6 +143,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         }
         case MCPS_CONFIRMED:
         {
+            LoRaWanOnEvent(LORAWAN_EVENT_MCPSINDICATION_CONFIRMED);
             system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_confirmed);
             break;
         }

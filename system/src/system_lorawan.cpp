@@ -149,6 +149,23 @@ void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
     }
 }
 
+//回复平台控制类型的数据点来通知服务器节点已收到
+//发送空的确认包
+void LoRaWanRespondServerConfirmedFrame(void)
+{
+    McpsReq_t mcpsReq;
+    mcpsReq.Type = MCPS_UNCONFIRMED;
+    mcpsReq.Req.Unconfirmed.fBuffer = NULL;
+    mcpsReq.Req.Unconfirmed.fBufferSize = 0;
+    mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+
+    if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
+    {
+        SLORAWAN_DEBUG("LoRaWan send empty frame status OK!!!");
+        // return true;
+    }
+}
+
 bool intorobot_lorawan_flag_connected(void)
 {
     if (INTOROBOT_LORAWAN_JOINED && INTOROBOT_LORAWAN_CONNECTED) {
@@ -286,6 +303,11 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--");
                 }
             }
+            break;
+
+        case LORAWAN_EVENT_MCPSINDICATION_CONFIRMED:
+            SLORAWAN_DEBUG("lorawan respond server ack");
+            LoRaWanRespondServerConfirmedFrame();
             break;
 
         default:
