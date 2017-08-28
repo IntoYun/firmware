@@ -317,7 +317,7 @@ void lorawan_prepare_active(void)
                         int32_t joinDelayms = randr(0,10000);
                         STASK_DEBUG("joinDelayms = %d",joinDelayms);
                         delay((uint32_t)joinDelayms);
-                        LoRaWan.joinOTAA();
+                        LoRaWan.joinOTAA(20000);
                     }
                     break;
                 default:                          //没有密钥信息

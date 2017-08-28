@@ -219,19 +219,19 @@ void intorobot_lorawan_send_terminal_info(void)
     }
     SLORAWAN_DEBUG_D("\r\n");
 
-    LoRaWan.sendUnconfirmedFrame(buffer,index);
+    LoRaWan.sendUnconfirmed(0, buffer, index, 0);
 }
 
-void intorobot_lorawan_send_data(char* buffer, uint16_t len)
+bool intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout)
 {
-    if(intorobot_lorawan_flag_connected())
-    {
-        if(LoRaWan.getFrameType()){
-            LoRaWan.sendConfirmedFrame(buffer,len);
-        }else{
-            LoRaWan.sendUnconfirmedFrame(buffer,len);
+    if(intorobot_lorawan_flag_connected()) {
+        if(confirmed) {
+            return LoRaWan.sendConfirmed(0, buffer, len, timeout);
+        } else {
+            return LoRaWan.sendUnconfirmed(0, buffer, len, 0);
         }
     }
+    return false;
 }
 
 void LoRaWanOnEvent(lorawan_event_t event)
@@ -282,9 +282,9 @@ void LoRaWanOnEvent(lorawan_event_t event)
             {
                 if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)) //数据点使能
                 {
-                    int len;
+                    int len, rssi;
                     uint8_t buffer[256];
-                    len = LoRaWan.receiveFrame(buffer);
+                    len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
 
                     #if 0
                     SLORAWAN_DEBUG_D("lorawan receive data:");

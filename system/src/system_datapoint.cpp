@@ -353,50 +353,10 @@ read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_
 }
 
 // type   0: 平台控制写数据   1：用户写数据
-void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8_t type )
+void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type )
 {
     int i = intorobotDiscoverProperty(dpID);
-
-    if (i == -1) {
-        // not found, nothing to do
-        return;
-    }
-
     String valueTemp;
-    if(DATA_TYPE_NUM == properties[i]->dataType) {
-        //根据分辨率  截取小数点位数。
-        if(String(value).toDouble() < properties[i]->numberProperty.minValue) {
-            valueTemp = String(properties[i]->numberProperty.minValue, properties[i]->numberProperty.resolution);
-        } else if(String(value).toDouble() > properties[i]->numberProperty.maxValue) {
-            valueTemp = String(properties[i]->numberProperty.maxValue, properties[i]->numberProperty.resolution);
-        } else {
-            valueTemp = String(String(value).toDouble(), properties[i]->numberProperty.resolution);
-        }
-    } else {
-        valueTemp = value;
-    }
-
-    if(!properties[i]->value.equals(valueTemp)) {  //数据不相等
-        properties[i]->change = true;
-        if(type) { //用户操作
-            properties[i]->readFlag = RESULT_DATAPOINT_OLD;
-        } else {
-            properties[i]->readFlag = RESULT_DATAPOINT_NEW;
-        }
-        properties[i]->value = valueTemp;
-    } else {
-        properties[i]->change = false;
-        if(type) { //用户操作
-            properties[i]->readFlag = RESULT_DATAPOINT_OLD;
-        } else {
-            properties[i]->readFlag = RESULT_DATAPOINT_NEW;
-        }
-    }
-}
-
-void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type )
-{
-    int i = intorobotDiscoverProperty(dpID);
 
     if (i == -1) {
         // not found, nothing to do
@@ -416,6 +376,7 @@ void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, co
             if(NULL != properties[i]->valueBinary.value) {
                 free(properties[i]->valueBinary.value);
             }
+
             properties[i]->valueBinary.value = (uint8_t *)malloc(len);
             if(NULL != properties[i]->valueBinary.value) {
                 memcpy(properties[i]->valueBinary.value, value, len);
@@ -427,6 +388,36 @@ void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, co
                 properties[i]->readFlag = RESULT_DATAPOINT_OLD;
             } else {
                 properties[i]->change = true;
+                properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+            }
+        }
+    } else {
+        if(DATA_TYPE_NUM == properties[i]->dataType) {
+            //根据分辨率  截取小数点位数。
+            if(String((char *)value).toDouble() < properties[i]->numberProperty.minValue) {
+                valueTemp = String(properties[i]->numberProperty.minValue, properties[i]->numberProperty.resolution);
+            } else if(String((char *)value).toDouble() > properties[i]->numberProperty.maxValue) {
+                valueTemp = String(properties[i]->numberProperty.maxValue, properties[i]->numberProperty.resolution);
+            } else {
+                valueTemp = String(String((char *)value).toDouble(), properties[i]->numberProperty.resolution);
+            }
+        } else {
+            valueTemp = (char *)value;
+        }
+
+        if(!properties[i]->value.equals(valueTemp)) {  //数据不相等
+            properties[i]->change = true;
+            if(type) { //用户操作
+                properties[i]->readFlag = RESULT_DATAPOINT_OLD;
+            } else {
+                properties[i]->readFlag = RESULT_DATAPOINT_NEW;
+            }
+            properties[i]->value = valueTemp;
+        } else {
+            properties[i]->change = false;
+            if(type) { //用户操作
+                properties[i]->readFlag = RESULT_DATAPOINT_OLD;
+            } else {
                 properties[i]->readFlag = RESULT_DATAPOINT_NEW;
             }
         }
@@ -481,7 +472,8 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                     index++;
                     bool valueBool = payload[index++];
                     if(DATA_TYPE_BOOL == properties[i]->dataType) {
-                        intorobotWriteDatapoint(dpID, String(valueBool).c_str(), 0);
+                        String valueString = String(valueBool);
+                        intorobotWriteDatapoint(dpID, valueString.c_str(), valueString.length(), 0);
                     }
                     break;
                 }
@@ -502,7 +494,8 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                     }
                     if(DATA_TYPE_NUM == properties[i]->dataType) {
                         double valueDouble = (valueUint32 / _pow(10, properties[i]->numberProperty.resolution)) + properties[i]->numberProperty.minValue;
-                        intorobotWriteDatapoint(dpID, String(valueDouble).c_str(), 0);
+                        String valueString = String(valueDouble);
+                        intorobotWriteDatapoint(dpID, valueString.c_str(), valueString.length(), 0);
                     }
                     break;
                 }
@@ -512,7 +505,8 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                     index++;
                     uint8_t valueUint8 = payload[index++];
                     if(DATA_TYPE_ENUM == properties[i]->dataType) {
-                        intorobotWriteDatapoint(dpID, String(valueUint8).c_str(), 0);
+                        String valueString = String(valueUint8);
+                        intorobotWriteDatapoint(dpID, valueString.c_str(), valueString.length(), 0);
                     }
                 }
                 break;
@@ -531,7 +525,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                         memset(str, 0, dataLength+1);
                         memcpy(str, &payload[index], dataLength);
                         if(DATA_TYPE_STRING == properties[i]->dataType) {
-                            intorobotWriteDatapoint(dpID, str, 0);
+                            intorobotWriteDatapoint(dpID, str, dataLength, 0);
                         }
                         free(str);
                     }
@@ -549,7 +543,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                         index+=1;
                     }
                     if(DATA_TYPE_BINARY == properties[i]->dataType) {
-                        intorobotWriteDatapointBinary(dpID, &payload[index], dataLength,0);
+                        intorobotWriteDatapoint(dpID, &payload[index], dataLength,0);
                     }
                     index += dataLength;
                 }
@@ -677,20 +671,20 @@ static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t
     return index;
 }
 
-static void _intorobotSendRawData(uint8_t *data, uint16_t dataLen)
+static bool _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout)
 {
     SDATAPOINT_DEBUG_D("send data:");
     SDATAPOINT_DEBUG_DUMP(data, dataLen);
 #ifndef configNO_CLOUD
-    intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
+    return intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
 #endif
 #ifndef configNO_LORAWAN
-    intorobot_lorawan_send_data(data, dataLen);
+    return intorobot_lorawan_send_data(data, dataLen, confirmed, timeout);
 #endif
 }
 
 //datepoint process
-void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value)
+bool intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
 {
     int i = intorobotDiscoverProperty(dpID);
 
@@ -699,7 +693,7 @@ void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value)
         return;
     }
 
-    intorobotWriteDatapoint(dpID, value, 1);
+    intorobotWriteDatapoint(dpID, value, len, 1);
 
     if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
         return;
@@ -730,93 +724,49 @@ void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value)
 
         buffer[index++] = BINARY_DATA_FORMAT;
         index += intorobotFormSingleDatapoint(i, buffer+index, sizeof(buffer)-1);
-        _intorobotSendRawData(buffer, index);
         properties[i]->runtime = current_millis;
+        return _intorobotSendRawData(buffer, index, confirmed, timeout);
     }
+    return false;
 }
 
-//datepoint process
-void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len)
-{
-    int i = intorobotDiscoverProperty(dpID);
-
-    if (i == -1) {
-        // not found, nothing to do
-        return;
-    }
-
-    //只允许下发
-    if ( DP_PERMISSION_DOWN_ONLY == properties[i]->permission ) {
-        SDATAPOINT_DEBUG("only permit cloud -> terminal %d", properties[i]->dpID);
-        return;
-    }
-
-    //数值未发生变化
-    if ( !(properties[i]->change) && (DP_POLICY_ON_CHANGE == properties[i]->policy) ) {
-        SDATAPOINT_DEBUG("No Changes for %d:%d", properties[i]->dpID, value);
-        return;
-    }
-
-    intorobotWriteDatapointBinary(dpID, value, len, 1);
-
-    if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
-        return;
-    }
-
-    //发送时间间隔到
-    system_tick_t current_millis = millis();
-    system_tick_t elapsed_millis = current_millis - properties[i]->runtime;
-    if (elapsed_millis < 0) {
-        elapsed_millis =  0xFFFFFFFF - properties[i]->runtime + current_millis;
-    }
-
-    if (elapsed_millis >= properties[i]->lapse) {
-        uint8_t buffer[512];
-        uint16_t index = 0;
-
-        buffer[index++] = BINARY_DATA_FORMAT;
-        index += intorobotFormSingleDatapoint(i, buffer+index, sizeof(buffer)-1);
-        _intorobotSendRawData(buffer, index);
-        properties[i]->runtime = current_millis;
-    }
-}
-
-void intorobotSendAllDatapoint(void)
+bool intorobotSendAllDatapoint(void)
 {
     uint8_t buffer[512];
     uint16_t index = 0;
 
     if(0 == intorobotGetPropertyPermissionUpCount()) {
-        return;
+        return false;
     }
 
     buffer[index++] = BINARY_DATA_FORMAT;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
-    _intorobotSendRawData(buffer, index);
     if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
         g_datapoint_control.runtime = millis();
         intorobotPropertyChangeClear();
+        return _intorobotSendRawData(buffer, index, false, 0);
     }
+    return false;
 }
 
-void intorobotSendAllDatapointManual(void)
+bool intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
 {
     uint8_t buffer[512];
     uint16_t index = 0;
 
     if(0 == intorobotGetPropertyPermissionUpCount()) {
-        return;
+        return false;
     }
 
     if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
-        return;
+        return false;
     }
 
     buffer[index++] = BINARY_DATA_FORMAT;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
-    _intorobotSendRawData(buffer, index);
     g_datapoint_control.runtime = millis();
     intorobotPropertyChangeClear();
+    return _intorobotSendRawData(buffer, index, confirmed, timeout);
 }
 
 void intorobotSendDatapointAutomatic(void)
@@ -855,7 +805,7 @@ void intorobotSendDatapointAutomatic(void)
     }
 
     if(sendFlag) {
-        _intorobotSendRawData(buffer, index);
+        _intorobotSendRawData(buffer, index, false, 0);
         g_datapoint_control.runtime = millis();
         intorobotPropertyChangeClear();
     }

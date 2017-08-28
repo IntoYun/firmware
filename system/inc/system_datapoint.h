@@ -129,12 +129,10 @@ read_datapoint_result_t intorobotReadDatapointStringChar(const uint16_t dpID, ch
 read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
 
 void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len);
-void intorobotWriteDatapoint(const uint16_t dpID, const char* value, const uint8_t type );
-void intorobotWriteDatapointBinary(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
-void intorobotSendSingleDatapoint(const uint16_t dpID, const char* value);
-void intorobotSendSingleDatapointBinary(const uint16_t dpID, const uint8_t *value, const uint16_t len);
-void intorobotSendAllDatapoint(void);
-void intorobotSendAllDatapointManual(void);
+void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
+bool intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout);
+bool intorobotSendAllDatapoint(void);
+bool intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout);
 void intorobotSendDatapointAutomatic(void);
 
 #ifdef __cplusplus
