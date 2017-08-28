@@ -21,18 +21,9 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
-#include "memory_hal.h"
+#include "flash_map.h"
+#include "flash_storage_impl.h"
 #include "intorobot_macros.h"
-#include "service_debug.h"
-
-
-#define FLASH_BOOT_PARAMS_START_ADDRESS              ((uint32_t)0x10000)
-#define FLASH_BOOT_PARAMS_END_ADDRESS                ((uint32_t)0x10FFF)
-
-#define FLASH_SYSTEM_PARAMS_START_ADDRESS            ((uint32_t)0x11000)
-#define FLASH_SYSTEM_PARAMS_END_ADDRESS              ((uint32_t)0x17FFF)
-
 
 hal_boot_params_t intorobot_boot_params;         //bootloader参数
 hal_system_params_t intorobot_system_params;     //设备参数
@@ -75,12 +66,13 @@ void save_boot_params(hal_boot_params_t *pboot_params);
  * */
 void read_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
+    InternalFlashStore flashStore;
 
     memset(pboot_params, 0, sizeof(hal_boot_params_t));
-    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS-FLASH_BOOT_PARAMS_START_ADDRESS)) {
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Read(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
+    flashStore.read(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 /*
@@ -88,12 +80,13 @@ void read_boot_params(hal_boot_params_t *pboot_params) {
  * */
 void save_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
+    InternalFlashStore flashStore;
 
-    if(len > (FLASH_BOOT_PARAMS_END_ADDRESS - FLASH_BOOT_PARAMS_START_ADDRESS)) {
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_BOOT_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Write(FLASH_BOOT_PARAMS_START_ADDRESS, (uint32_t *)pboot_params, len/4);
+    flashStore.erase(BOOT_PARAMS_START_ADDR, len);
+    flashStore.write(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 void save_system_params(hal_system_params_t *psystem_params);
@@ -102,12 +95,13 @@ void save_system_params(hal_system_params_t *psystem_params);
  * */
 void read_system_params(hal_system_params_t *psystem_params) {
     uint32_t len = sizeof(hal_system_params_t);
+    InternalFlashStore flashStore;
 
     memset(psystem_params, 0, sizeof(hal_system_params_t));
-    if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS-FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
+    if(len > (SYSTEM_PARAMS_END_ADDR - SYSTEM_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Read(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
+    flashStore.read(SYSTEM_PARAMS_START_ADDR, psystem_params, len);
 }
 
 /*
@@ -115,12 +109,13 @@ void read_system_params(hal_system_params_t *psystem_params) {
  * */
 void save_system_params(hal_system_params_t *psystem_params) {
     uint32_t len = sizeof(hal_system_params_t);
+    InternalFlashStore flashStore;
 
-    if(len > (FLASH_SYSTEM_PARAMS_END_ADDRESS - FLASH_SYSTEM_PARAMS_START_ADDRESS)) {
+    if(len > (SYSTEM_PARAMS_END_ADDR - SYSTEM_PARAMS_START_ADDR)) {
         return;
     }
-    HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_SYSTEM_PARAMS_START_ADDRESS));
-    HAL_FLASH_Interminal_Write(FLASH_SYSTEM_PARAMS_START_ADDRESS, (uint32_t *)psystem_params, len/4);
+    flashStore.erase(SYSTEM_PARAMS_START_ADDR, len);
+    flashStore.write(SYSTEM_PARAMS_START_ADDR, psystem_params, len);
 }
 
 /*

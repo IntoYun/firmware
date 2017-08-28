@@ -21,6 +21,7 @@
 #include "core_hal.h"
 #include "flash_mal.h"
 #include "flash_map.h"
+#include "flash_storage_impl.h"
 #include "params_hal.h"
 #include "ui_hal.h"
 
@@ -40,15 +41,16 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
     uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
     uint32_t saddr = src_addr;
     uint32_t daddr = dst_addr;
+    InternalFlashStore flashStore;
 
     while (left){
-        if (spi_flash_erase_sector(daddr/buffer_size) != ESP_OK) {
+        if (flashStore.eraseSector(daddr/buffer_size)){
             return false;
         }
-        if (spi_flash_read(saddr, (uint32_t*)buffer, buffer_size) != ESP_OK) {
+        if (flashStore.read(saddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
-        if (spi_flash_write(daddr, (uint32_t*)buffer, buffer_size) != ESP_OK) {
+        if (flashStore.write(daddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
         saddr += buffer_size;

@@ -26,6 +26,11 @@
 class InternalFlashStore
 {
 public:
+    int erase(unsigned address, unsigned size)
+    {
+        return !FLASH_EraseMemory(FLASH_INTERNAL, address, size);
+    }
+
     int eraseSector(unsigned address)
     {
         return !FLASH_EraseMemory(FLASH_INTERNAL, address, 1);

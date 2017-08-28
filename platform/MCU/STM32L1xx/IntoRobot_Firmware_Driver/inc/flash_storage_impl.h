@@ -26,14 +26,14 @@
 class InternalFlashStore
 {
 public:
-    int erasePage(unsigned address)
+    int erase(unsigned address, unsigned size)
     {
-        return !FLASH_EraseMemory(FLASH_INTERNAL, address, 1);
+        return !FLASH_EraseMemory(FLASH_INTERNAL, address, size);
     }
 
-    int erase(unsigned address, unsigned length)
+    int eraseSector(unsigned address)
     {
-        return !FLASH_EraseMemory(FLASH_INTERNAL, address, length);
+        return !FLASH_EraseMemory(FLASH_INTERNAL, address, 1);
     }
 
     int write(const unsigned offset, const void* data, const unsigned size)

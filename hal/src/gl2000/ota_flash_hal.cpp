@@ -26,7 +26,6 @@
 #include "parser.h"
 #include "flash_map.h"
 #include "params_hal.h"
-#include "memory_hal.h"
 #include "service_debug.h"
 
 static bool bootloader_requires_update(void)

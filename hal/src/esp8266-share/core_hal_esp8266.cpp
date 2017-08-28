@@ -33,11 +33,9 @@
 #include "delay_hal.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
-#include "memory_hal.h"
 #include "Schedule.h"
 #include "esp8266-hal-wifi.h"
 #include "flash_map.h"
-#include "memory_hal.h"
 #include "macaddr_hal.h"
 
 
@@ -189,7 +187,7 @@ void HAL_Core_Config(void)
 
     //Wiring pins default to inputs
     for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
-        //HAL_Pin_Mode(pin, INPUT);
+        HAL_Pin_Mode(pin, INPUT);
     }
 
     HAL_RTC_Initial();

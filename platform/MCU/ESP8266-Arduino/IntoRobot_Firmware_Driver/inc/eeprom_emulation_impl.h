@@ -16,69 +16,118 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#if 0
-#include "eeprom_emulation.h"
+
 #include "flash_storage_impl.h"
 
-constexpr uintptr_t EEPROM_SectorBase1 = 0x08008000;
-constexpr uintptr_t EEPROM_SectorBase2 = 0x0800C000;
+//EEPROM固定起始地址
+#define EEPROM_START_ADDRESS    0x00C000
 
-constexpr size_t EEPROM_SectorSize1 = 16*1024;
-constexpr size_t EEPROM_SectorSize2 = 16*1024;
-
-using FlashEEPROM = EEPROMEmulation<InternalFlashStore, EEPROM_SectorBase1, EEPROM_SectorSize1, EEPROM_SectorBase2, EEPROM_SectorSize2>;
-
-FlashEEPROM flashEEPROM;
-
+#define EEPROM_SIZE           SPI_FLASH_SEC_SIZE   //4096
 
 extern "C" {
 
+uint8_t* _data;
+size_t _size;
+bool _dirty;
+
 void HAL_EEPROM_Init(void)
 {
-  flashEEPROM.init();
+    size_t size = (EEPROM_SIZE + 3) & (~3);
+    InternalFlashStore flashStore;
+
+    if (_data) {
+        delete[] _data;
+    }
+
+    _data = new uint8_t[size];
+    _size = size;
+
+    flashStore.read(EEPROM_START_ADDRESS, (uint32_t*)_data, _size);
 }
 
-uint8_t HAL_EEPROM_Read(uint32_t index)
+uint8_t HAL_EEPROM_Read(uint32_t address)
 {
-  uint8_t value = 0xFF;
-  flashEEPROM.get(index, value);
-  return value;
+    if (address < 0 || (size_t)address >= _size)
+        return 0;
+    if(!_data)
+        return 0;
+
+    return _data[address];
 }
 
-void HAL_EEPROM_Write(uint32_t index, uint8_t data)
+void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
-  flashEEPROM.put(index, data);
+    if (address < 0 || (size_t)address >= _size)
+        return;
+    if(!_data)
+        return;
+
+    // Optimise _dirty. Only flagged if data written is different.
+    uint8_t* pData = &_data[address];
+    if (*pData != data) {
+        *pData = data;
+        _dirty = true;
+    }
 }
 
 size_t HAL_EEPROM_Length()
 {
-  return flashEEPROM.capacity();
+    return _size;
 }
 
-void HAL_EEPROM_Get(uint32_t index, void *data, size_t length)
+void HAL_EEPROM_Get(uint32_t address, void *data, size_t length)
 {
-    flashEEPROM.get(index, data, length);
+    if (address < 0 || address + length > _size)
+      return;
+
+    memcpy((uint8_t*)data, _data + address, length);
 }
 
-void HAL_EEPROM_Put(uint32_t index, const void *data, size_t length)
+void HAL_EEPROM_Put(uint32_t address, const void *data, size_t length)
 {
-    flashEEPROM.put(index, data, length);
+    if (address < 0 || address + length > _size)
+      return;
+
+    memcpy(_data + address, (const uint8_t*)data, length);
+    _dirty = true;
+}
+
+bool HAL_EEPROM_Commit(void)
+{
+    bool ret = false;
+    InternalFlashStore flashStore;
+
+    if (!_size)
+        return false;
+    if(!_dirty)
+        return true;
+    if(!_data)
+        return false;
+
+    if(0 == flashStore.erase(EEPROM_START_ADDRESS, _size)) {
+        if(0 == flashStore.write(EEPROM_START_ADDRESS, (uint32_t*)_data, _size)) {
+            _dirty = false;
+            ret = true;
+        }
+    }
+    return ret;
 }
 
 void HAL_EEPROM_Clear()
 {
-    flashEEPROM.clear();
+    InternalFlashStore flashStore;
+
+    flashStore.erase(EEPROM_START_ADDRESS, _size);
 }
 
 bool HAL_EEPROM_Has_Pending_Erase()
 {
-    return flashEEPROM.hasPendingErase();
+    return false;
 }
 
 void HAL_EEPROM_Perform_Pending_Erase()
 {
-    flashEEPROM.performPendingErase();
+
 }
 
 }
-#endif

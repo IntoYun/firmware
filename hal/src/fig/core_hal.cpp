@@ -20,14 +20,16 @@
 #include "core_hal.h"
 #include "intorobot_macros.h"
 #include "flash_map.h"
+#include "flash_storage_impl.h"
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
     char data[32];
     uint16_t templen;
+    InternalFlashStore flashStore;
 
     if (buffer!=NULL && len>0) {
-        spi_flash_read(SUBSYS_VERSION_ADDR, (uint32_t*) data, sizeof(data));
+        flashStore.read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
         if(!memcmp(data, "VERSION:", 8))
         {
             templen = MIN(strlen(&data[8]), len-1);

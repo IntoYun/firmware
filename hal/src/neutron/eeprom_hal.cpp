@@ -757,23 +757,23 @@ void HAL_EEPROM_Init(void)
     }
 }
 
-uint8_t HAL_EEPROM_Read(uint32_t index)
+uint8_t HAL_EEPROM_Read(uint32_t address)
 {
     uint16_t data;
 
-    if ((index < NB_OF_VAR) && (EE_ReadVariable(VirtAddVarTab[index], &data) == 0))
+    if ((address < NB_OF_VAR) && (EE_ReadVariable(VirtAddVarTab[address], &data) == 0))
     {
         return data;
     }
     return 0xFF;
 }
 
-void HAL_EEPROM_Write(uint32_t index, uint8_t data)
+void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
-    if (index < NB_OF_VAR)
+    if (address < NB_OF_VAR)
     {
         HAL_FLASH_Unlock();
-        EE_WriteVariable(VirtAddVarTab[index], data);
+        EE_WriteVariable(VirtAddVarTab[address], data);
         HAL_FLASH_Lock();
     }
 }
@@ -783,12 +783,17 @@ size_t HAL_EEPROM_Length()
     return NB_OF_VAR;
 }
 
-void HAL_EEPROM_Get(uint32_t index, void *data, size_t length)
+void HAL_EEPROM_Get(uint32_t address, void *data, size_t length)
 {
 }
 
-void HAL_EEPROM_Put(uint32_t index, const void *data, size_t length)
+void HAL_EEPROM_Put(uint32_t address, const void *data, size_t length)
 {
+}
+
+bool HAL_EEPROM_Commit(void)
+{
+    return true;
 }
 
 void HAL_EEPROM_Clear()
@@ -802,6 +807,6 @@ bool HAL_EEPROM_Has_Pending_Erase()
 
 void HAL_EEPROM_Perform_Pending_Erase()
 {
-}
 
+}
 

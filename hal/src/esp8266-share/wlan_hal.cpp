@@ -21,7 +21,7 @@
 #include "wlan_hal.h"
 #include "esp8266-hal-wifi.h"
 #include "flash_map.h"
-#include "memory_hal.h"
+#include "flash_storage_impl.h"
 #include "macaddr_hal.h"
 #include "delay_hal.h"
 #include "inet_hal.h"
@@ -423,8 +423,10 @@ int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
         memcpy(mac_addrs.apmac_addrs, apmacaddr, sizeof(mac_addrs.apmac_addrs));
 
         uint32_t len = sizeof(mac_addrs);
-        HAL_FLASH_Interminal_Erase(HAL_FLASH_Interminal_Get_Sector(FLASH_MAC_START_ADDR));
-        HAL_FLASH_Interminal_Write(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, len);
+        InternalFlashStore flashStore;
+
+        flashStore.eraseSector(FLASH_MAC_START_ADDR);
+        flashStore.write(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, len);
         return 0;
     }
     return -1;
@@ -460,7 +462,9 @@ int wlan_set_macaddr_from_flash(uint8_t *stamacaddr, uint8_t *apmacaddr)
 int wlan_set_macaddr_when_init(void)
 {
     mac_param_t mac_addrs;
-    HAL_FLASH_Interminal_Read(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, sizeof(mac_addrs));
+    InternalFlashStore flashStore;
+
+    flashStore.read(FLASH_MAC_START_ADDR, (uint32_t *)&mac_addrs, sizeof(mac_addrs));
     if (FLASH_MAC_HEADER == mac_addrs.header){
         esp8266_setMode(WIFI_AP_STA);
         wlan_set_macaddr_from_flash(mac_addrs.stamac_addrs, mac_addrs.apmac_addrs);
