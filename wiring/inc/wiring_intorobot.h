@@ -227,12 +227,12 @@ class IntoRobotDatepointClass {
             return intorobotSendSingleDatapoint(dpID, value, len, confirmed, timeout);
         }
         static bool sendDatapointAll(void) {
-            //return intorobotSendAllDatapointManual(false, 0);
-            return true;
+            return intorobotSendAllDatapointManual(false, 0);
+            // return true;
         }
         static bool sendDatapointAll(bool confirmed, uint16_t timeout) {
-            //return intorobotSendAllDatapointManual(confirmed, timeout);
-            return true;
+            return intorobotSendAllDatapointManual(confirmed, timeout);
+            // return true;
         }
 };
 

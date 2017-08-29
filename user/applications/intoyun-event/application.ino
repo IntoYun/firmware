@@ -104,12 +104,9 @@ static void SystemWakeUpHandler(void)
     Serial.begin(115200);
     Serial.println("mcuWakeup");
     DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    if(LoRaWan.getActiveStatus() == 1)
-    {
+    if(LoRaWan.connected()){
         deviceState = DEVICE_STATE_SEND;
-    }
-    else
-    {
+    }else{
         deviceState = DEVICE_STATE_JOIN;
     }
 }
@@ -124,7 +121,7 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                 case ep_lorawan_mlmeconfirm_join_success: //入网成功
                     DEBUG("lorawan joined ok");
                     // LoRaWan.setMacClassType(CLASS_A);
-                    LoRaWan.setDutyCycleOn(false); //关闭通道占空比
+                    // LoRaWan.setDutyCycleOn(false); //关闭通道占空比
                     deviceState = DEVICE_STATE_SEND;
                 break;
 
@@ -134,11 +131,11 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     break;
 
                 case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
-                    if(LoRaWan.getAckReceived()){
-                        DEBUG("lorawan reveived ack");
-                    }else{
-                        DEBUG("lorawan not received ack");
-                    }
+                    // if(LoRaWan.getAckReceived()){
+                    //     DEBUG("lorawan reveived ack");
+                    // }else{
+                    //     DEBUG("lorawan not received ack");
+                    // }
                     break;
 
                 case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送请求完成
@@ -186,12 +183,97 @@ void setup()
     IntoRobot.defineDatapointBinary(DPID_BINARY_DATA, DP_PERMISSION_UP_DOWN, 255, "\x23\x32\x32\x43", 4);   //字符显示
     System.on(event_lorawan_status, &lorawan_event_callback);
     System.on(event_cloud_data, &system_event_callback);
-    deviceState = DEVICE_STATE_IDLE;
+    LoRaWan.setDataRate(DR_3);
+    LoRaWan.setChannelDRRange(2,DR_3,DR_3);
+    LoRaWan.setRX2Parameters(434665000,DR_3);
+    LoRaWan.setChannelStatus(0,false);
+    LoRaWan.setChannelStatus(1,false);
+    deviceState = DEVICE_STATE_JOIN;
+    uint32_t delayMs = (uint32_t)random(0,10000);
+    DEBUG("delayMs = %d",delayMs);
+    delay(delayMs);
+    LoRaWan.connect(JOIN_OTAA,0);
 }
 
 void loop()
 {
-    #if 1 
+    #if  1  
+    switch(deviceState)
+    {
+    case DEVICE_STATE_JOIN:
+        LoRaWan.connect(JOIN_OTAA,0);
+        deviceState = DEVICE_STATE_IDLE;
+        break;
+
+    case DEVICE_STATE_SEND:
+        if(Temperature > 100){
+            Temperature = 0;
+        }else{
+            Temperature += 0.1;
+        }
+        IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
+        //速度上送
+        if(Rheostat >= 1000){
+            Rheostat = 0;
+        }else{
+            Rheostat += 5;
+        }
+        IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+        if(IntoRobot.sendDatapointAll(false,10)){
+            // DEBUG("sendDatapointAll ok");
+            deviceState = DEVICE_STATE_SLEEP;
+        }else{
+            // DEBUG("send confirm frame fail");
+        }
+        break;
+
+    case DEVICE_STATE_IDLE:
+        if(LoRaWan.connected()){
+            LoRaWan.setMacClassType(CLASS_A);
+            deviceState = DEVICE_STATE_SEND;
+        }else{
+            deviceState = DEVICE_STATE_JOIN;
+        }
+        break;
+
+    case DEVICE_STATE_SLEEP:
+        System.sleep(SystemWakeUpHandler,10); //定时唤醒
+        break;
+    default:
+        break;
+    }
+    #endif
+
+    #if 0 
+    if(LoRaWan.connected())
+    {
+        //温度上送
+        if(Temperature > 100){
+            Temperature = 0;
+        }else{
+            Temperature += 0.1;
+        }
+        IntoRobot.writeDatapoint(DPID_NUMBER_TEMPERATURE, Temperature);
+        //速度上送
+        if(Rheostat >= 1000){
+            Rheostat = 0;
+        }else{
+            Rheostat += 5;
+        }
+        IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
+        if(IntoRobot.sendDatapointAll(false,10))
+        {
+            DEBUG("sendDatapointAll ok");
+        }
+        else
+        {
+            DEBUG("send confirm frame fail");
+        }
+        delay(30000);
+    }
+    #endif
+
+    #if 0
     switch(deviceState)
     {
         case DEVICE_STATE_INIT:
@@ -199,7 +281,7 @@ void loop()
 
         case DEVICE_STATE_JOIN:
             DEBUG("lorawan joinOTAA");
-            LoRaWan.joinOTAA();
+            LoRaWan.joinOTAA(2);
             deviceState = DEVICE_STATE_IDLE;
             break;
 
@@ -226,7 +308,9 @@ void loop()
             break;
 
         case DEVICE_STATE_SLEEP:
-            System.sleep(SystemWakeUpHandler,10); //定时唤醒
+            delay(20000);
+            deviceState = DEVICE_STATE_SEND;
+            // System.sleep(SystemWakeUpHandler,10); //定时唤醒
             break;
 
         default:

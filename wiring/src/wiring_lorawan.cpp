@@ -18,11 +18,13 @@ static  RadioEvents_t loraRadioEvents;
 //======loramac不运行========
 static void OnLoRaRadioTxDone(void)
 {
+    LoRa._radioRunStatus = ep_lora_radio_tx_done;
     system_notify_event(event_lora_radio_status,ep_lora_radio_tx_done);
 }
 
 static void OnLoRaRadioTxTimeout(void)
 {
+    LoRa._radioRunStatus = ep_lora_radio_tx_timeout;
     system_notify_event(event_lora_radio_status,ep_lora_radio_tx_timeout);
 }
 
@@ -30,29 +32,34 @@ static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int
 {
     LoRa._rssi = rssi;
     LoRa._snr = snr;
+    LoRa._length = size;
+    LoRa._radioAvailable = true;
+    memcpy( LoRa._buffer, payload, LoRa._length);
+    LoRa._radioRunStatus = ep_lora_radio_rx_done;
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_done,payload,size);
 }
 
 static void OnLoRaRadioRxTimeout(void)
 {
+    LoRa._radioRunStatus = ep_lora_radio_rx_timeout;
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_timeout);
 }
 
 static void OnLoRaRadioRxError(void)
 {
+    LoRa._radioRunStatus = ep_lora_radio_rx_error;
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_error);
 }
 
 static void OnLoRaRadioCadDone(bool channelActivityDetected)
 {
     uint8_t cadDetected;
-    if(channelActivityDetected)
-    {
+    if(channelActivityDetected){
         cadDetected = 1;
-    }
-    else
-    {
+        LoRa._cadDetected = true;
+    }else{
         cadDetected = 0;
+        LoRa._cadDetected = false;
     }
     system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
 }
@@ -64,6 +71,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
 {
     if( mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
+        LoRaWan._macSendStatus = 1;
         switch( mcpsConfirm->McpsRequest )
         {
             case MCPS_UNCONFIRMED:
@@ -72,6 +80,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check TxPower
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
+                LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_unconfirmed;
                 system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_unconfirmed);
                 break;
             }
@@ -84,6 +93,10 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
                 LoRaWan._ackReceived = mcpsConfirm->AckReceived;
+                if(!LoRaWan._ackReceived){
+                    LoRaWan._macSendStatus = 2;
+                }
+                LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_confirmed;
                 system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed_ackreceived);
                 system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed);
                 break;
@@ -96,6 +109,10 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             default:
                 break;
         }
+    }
+    else
+    {
+        LoRaWan._macSendStatus = 2;
     }
 }
 
@@ -172,12 +189,14 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
+                LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
-                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
             }
             else
             {
                 // Join was not successful. Try to join again
+                LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_fail;
                 LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
                 system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_fail);
             }
@@ -203,18 +222,27 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 //lorawan 接口
 bool LoRaWanClass::connect(join_mode_t mode, uint16_t timeout)
 {
-    return true;
-
+    if(mode == JOIN_ABP){
+        return joinABP();
+    }else{
+        return joinOTAA(timeout);
+    }
 }
 
 void LoRaWanClass::disconnect(void)
 {
-
+    LoRaWanDisconnect();
+    LoRaMacAbortRun();
+    setMacClassType(CLASS_A);
 }
 
 bool LoRaWanClass::connected(void)
 {
-    return true;
+    if(LoRaWanActiveStatus() == 1){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 void LoRaWanClass::macPause(void)
@@ -259,77 +287,53 @@ void LoRaWanClass::macResume(void)
     MibRequestConfirm_t mibReq;
 
     mibReq.Type = MIB_ADR;
-    mibReq.Param.AdrEnable = false;
+    mibReq.Param.AdrEnable = _adrOn;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
     LoRaMacMibSetRequestConfirm( &mibReq );
-
-    // setRx2DefaultChannel(434665000, DR_3);
-    // setRx2Channel(434665000,DR_3);
 }
 
 bool LoRaWanClass::joinABP(void)
 {
-    MibRequestConfirm_t mibReq;
-
-    char devaddr[16] = {0}, nwkskey[36] = {0}, appskey[36] = {0};
-
-    HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
-    HAL_PARAMS_Get_System_nwkskey(nwkskey, sizeof(nwkskey));
-    HAL_PARAMS_Get_System_appskey(appskey, sizeof(appskey));
-    string2hex(devaddr, (uint8_t *)&macParams.devAddr, 4, true);
-    string2hex(nwkskey, macParams.nwkSkey, 16, false);
-    string2hex(appskey, macParams.appSkey, 16, false);
-
-#if 0
-    uint8_t i;
-    DEBUG("devAddr = 0x%x",macParams.devAddr);
-    DEBUG_D("nwkSkey =");
-    for( i=0;i<16;i++)
-    {
-        DEBUG_D("0x%x ",macParams.nwkSkey[i]);
-    }
-    DEBUG_D("\r\n");
-    DEBUG_D("appSkey =");
-    for( i=0;i<16;i++)
-    {
-        DEBUG_D("0x%x ",macParams.appSkey[i]);
-    }
-    DEBUG_D("\r\n");
-#endif
-
-    mibReq.Type = MIB_NET_ID;
-    mibReq.Param.NetID = LORAWAN_NETWORK_ID;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_DEV_ADDR;
-    mibReq.Param.DevAddr = macParams.devAddr;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_NWK_SKEY;
-    mibReq.Param.NwkSKey = macParams.nwkSkey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_APP_SKEY;
-    mibReq.Param.AppSKey = macParams.appSkey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_NETWORK_JOINED;
-    mibReq.Param.IsNetworkJoined = true;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+    return LoRaWanJoinABP();
 }
 
 bool LoRaWanClass::joinOTAA(uint16_t timeout)
 {
+    uint32_t _timeout = timeout;
     LoRaWanJoinEnable(true);
+
+    if(_timeout == 0){
+        return true;
+    }
+    if(_timeout < 180){
+        _timeout = 180;
+    }
+
+    _macRunStatus = 0;
+    uint32_t prevTime = millis();
+    while(1){
+        if(_macRunStatus == ep_lorawan_mlmeconfirm_join_success){
+            return true;
+        }else if(_macRunStatus == ep_lorawan_mlmeconfirm_join_fail){
+            return false;
+        }
+
+        if(millis() - prevTime >= _timeout * 1000){
+            disconnect();
+            return false;
+        }
+        intorobot_process();
+    }
 }
 
 bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
+    uint32_t _timeout = timeout;
 
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
@@ -339,7 +343,7 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
-        mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+        mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
         DEBUG("LoRaWan send confirmed frame");
         mcpsReq.Type = MCPS_CONFIRMED;
@@ -347,20 +351,45 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
         mcpsReq.Req.Confirmed.fBuffer = buffer;
         mcpsReq.Req.Confirmed.fBufferSize = len;
         mcpsReq.Req.Confirmed.NbTrials = _confirmedNbTrials;
-        mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+        mcpsReq.Req.Confirmed.Datarate = _macDatarate;
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        DEBUG("LoRaWan send frame OK!!!");
-        return true;
+        DEBUG("LoRaWan send confirm frame status OK!!!");
+        _macSendStatus = 0;
+        if(_timeout == 0){
+            return true;
+        }
+    }else{
+        return false;
     }
-    return false;
+
+    if(_timeout < 120){
+        _timeout = 120;
+    }
+    _macRunStatus = 0;
+    uint32_t prevTime = millis();
+    while(1){
+        if(_macRunStatus == ep_lorawan_mcpsconfirm_confirmed){
+            if(_ackReceived == true){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        if(millis() - prevTime >= _timeout * 1000){
+            return false;
+        }
+        intorobot_process();
+    }
 }
 
 bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
+    uint32_t _timeout = timeout;
 
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
@@ -370,74 +399,72 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
-        mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+        mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
         DEBUG("LoRaWan send unconfirmed frame");
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fPort = port;
         mcpsReq.Req.Unconfirmed.fBuffer = buffer;
         mcpsReq.Req.Unconfirmed.fBufferSize = len;
-        mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+        mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        DEBUG("LoRaWan send frame OK!!!");
-        return true;
+        DEBUG("LoRaWan send unnconfirm frame status OK!!!");
+        _macSendStatus = 0;
+        if(_timeout == 0){
+            return true;
+        }
+    }else{
+        return false;
     }
-    return false;
+
+    if(_timeout < 60){
+        _timeout = 60;
+    }
+
+    DEBUG("_timeout = %d",_timeout);
+    _macRunStatus = 0;
+    uint32_t prevTime = millis();
+    while(1){
+        if(_macRunStatus == ep_lorawan_mcpsconfirm_unconfirmed){
+            return true;
+        }
+
+        if(millis() - prevTime >= _timeout * 1000){
+            return false;
+        }
+        intorobot_process();
+    }
 }
 
 uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
 {
     if(macBuffer.available) {
         macBuffer.available = false; //数据已读取
+        *rssi = _macRssi;
         memcpy1(buffer, macBuffer.buffer, macBuffer.bufferSize);
         return macBuffer.bufferSize;
     }
     return 0;
 }
 
-void LoRaWanClass::setMacFixedFreq(bool enabled)
-{
-    if(enabled) {
-        System.enableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED);
-    } else {
-        System.disableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_FREQUENCY_ENABLED);
-    }
-}
-
-void LoRaWanClass::setMacFixedSF(bool enabled)
-{
-    if(enabled) {
-        System.enableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED);
-    } else {
-        System.disableFeature(SYSTEM_FEATURE_LORAMAC_FIXED_DATARATE_ENABLED);
-    }
-}
-
 void LoRaWanClass::setDeviceEUI(char *devEui)
 {
-    char deveui[24]={0};
-    memcpy1(macParams.devEui,devEui,8);
-    hex2string(macParams.devEui, 8, deveui, false);
-    HAL_PARAMS_Set_System_device_id(deveui);
+    HAL_PARAMS_Set_System_device_id(devEui);
     HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getDeviceEUI(char *devEui, uint16_t len)
 {
-    uint8_t _devEui[8];
-    os_getDevEui(_devEui);
-    memcpyr(macParams.devEui,_devEui,8);
-    memcpy1(devEui,macParams.devEui,8);
+    char deveui[24]={0};
+    HAL_PARAMS_Get_System_device_id(deveui, sizeof(deveui));
+    strncpy(devEui,deveui,len);
 }
 
 void LoRaWanClass::setDeviceAddr(char *devAddr)
 {
-    char devaddr[16] = "";
-    macParams.devAddr = devAddr;
-    hex2string((uint8_t *)&macParams.devAddr, 4, devaddr, true);
-    HAL_PARAMS_Set_System_devaddr(devaddr);
+    HAL_PARAMS_Set_System_devaddr(devAddr);
     HAL_PARAMS_Save_Params();
 }
 
@@ -445,33 +472,25 @@ void LoRaWanClass::getDeviceAddr(char *devAddr, uint16_t len)
 {
     char devaddr[16] = {0};
     HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
-    string2hex(devaddr, (uint8_t *)&macParams.devAddr, 4, true);
-    return macParams.devAddr;
+    strncpy(devAddr,devaddr,len);
 }
 
 void LoRaWanClass::setAppEUI(char *appEui)
 {
-    char appeui[24]={0};
-    memcpy1(macParams.appEui,appEui,8);
-    hex2string(macParams.appEui, 8, appeui, false);
-    HAL_PARAMS_Set_System_appeui(appeui);
+    HAL_PARAMS_Set_System_appeui(appEui);
     HAL_PARAMS_Save_Params();
 }
 
 void LoRaWanClass::getAppEUI(char *appEui, uint16_t len)
 {
-    uint8_t _appEui[8];
-    os_getAppEui(_appEui);
-    memcpyr(macParams.appEui,_appEui,8);
-    memcpy1(appEui,macParams.appEui,8);
+    char appeui[24]={0};
+    HAL_PARAMS_Get_System_appeui(appeui, sizeof(appeui));
+    strncpy(appEui,appeui,len);
 }
 
 void LoRaWanClass::setAppKey(char *appKey)
 {
-    char appkey[36]={0};
-    memcpy1(macParams.appKey,appKey,16);
-    hex2string(macParams.appKey, 16, appkey, false);
-    HAL_PARAMS_Set_System_appkey(appkey);
+    HAL_PARAMS_Set_System_appkey(appKey);
     HAL_PARAMS_Save_Params();
 }
 
@@ -513,22 +532,50 @@ DeviceClass_t LoRaWanClass::getMacClassType(void)
 
 void LoRaWanClass::setTxPower(uint8_t index)
 {
+    if(index > 5){
+        return;
+    }
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_CHANNELS_DEFAULT_TX_POWER;
+    mibReq.Param.ChannelsDefaultTxPower = index;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 
+    mibReq.Type = MIB_CHANNELS_TX_POWER;
+    mibReq.Param.ChannelsTxPower = index;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 uint8_t LoRaWanClass::getTxPower(void)
 {
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_CHANNELS_TX_POWER;
+    if(LoRaMacMibSetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
+        return;
+    }
+    _txPower = mibReq.Param.ChannelsTxPower;
     return _txPower;
 }
 
 void LoRaWanClass::setDataRate(uint8_t datarate)
 {
+    if(datarate > DR_5){
+        return;
+    }
+    _macDatarate = datarate;
 
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+    mibReq.Param.ChannelsDefaultDatarate = _macDatarate;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_CHANNELS_DATARATE;
+    mibReq.Param.ChannelsDatarate = _macDatarate;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 uint8_t LoRaWanClass::getDataRate(void)
 {
-
+    return _macDatarate;
 }
 
 void LoRaWanClass::setAdrOn(bool AdrOn)
@@ -547,32 +594,47 @@ bool LoRaWanClass::getAdrOn(void)
 
 uint8_t LoRaWanClass::getDutyCyclePrescaler(void)
 {
-
+    return;
 }
 
 void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
 {
-
+    if(channel < 3 || channel > 15){
+        return;
+    }
+    ChannelParams_t channelParams = {freq, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+    LoRaMacChannelAdd(channel,channelParams);
 }
 
-void LoRaWanClass::getChannelFreq(uint8_t channel)
+uint32_t LoRaWanClass::getChannelFreq(uint8_t channel)
 {
-
+    if(channel > 15){
+        return;
+    }
+    return LoRaMacGetChannelFreq(channel);
 }
 
 void LoRaWanClass::setChannelDutyCycle(uint8_t channel, uint16_t dcycle)
 {
-
+    return;
 }
 
 void LoRaWanClass::getChannelDutyCycle(uint8_t channel)
 {
-
+    return;
 }
 
 void LoRaWanClass::setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR)
 {
-
+    if(channel > 15 || maxDR > DR_5){
+        return;
+    }
+    if(minDR > maxDR){
+        return;
+    }
+    uint32_t tmpFreq = LoRaMacGetChannelFreq(channel);
+    ChannelParams_t channelParams = {tmpFreq, { ( ( maxDR << 4 ) | minDR ) }, 0};
+    LoRaMacChannelAdd(channel,channelParams);
 }
 
 uint8_t LoRaWanClass::getChannelDRRange(uint8_t channel)
@@ -582,12 +644,51 @@ uint8_t LoRaWanClass::getChannelDRRange(uint8_t channel)
 
 void LoRaWanClass::setChannelStatus(uint8_t channel, bool enable)
 {
+    if(channel > 15){
+        return;
+    }
 
+    MibRequestConfirm_t mibReq;
+    uint16_t channelMask = 0;
+    mibReq.Type = MIB_CHANNELS_MASK;
+    if(LoRaMacMibGetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
+        return;
+    }
+
+    channelMask = *mibReq.Param.ChannelsMask;
+    if(enable){
+        channelMask = channelMask | (1<<channel);
+    }else{
+        channelMask = channelMask & (~(1<<channel));
+    }
+
+    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+    mibReq.Param.ChannelsDefaultMask = &channelMask;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_CHANNELS_MASK;
+    mibReq.Param.ChannelsMask = &channelMask;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
-void LoRaWanClass::getChannelStatus(uint8_t channel)
+bool LoRaWanClass::getChannelStatus(uint8_t channel)
 {
+    if(channel > 15){
+        return;
+    }
 
+    MibRequestConfirm_t mibReq;
+    uint16_t channelMask = 0;
+    mibReq.Type = MIB_CHANNELS_MASK;
+    if(LoRaMacMibGetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
+        return;
+    }
+    channelMask = *mibReq.Param.ChannelsMask;
+    if(channelMask & (1<<channel)){
+        return true;
+    }else{
+        return false;
+    }
 }
 
 void LoRaWanClass::setConfirmedNbTrials(uint8_t trials)
@@ -629,7 +730,10 @@ uint8_t LoRaWanClass::getJoinNbTrials(void)
 
 void LoRaWanClass::setUpCounter(uint32_t counter)
 {
-
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_UPLINK_COUNTER;
+    mibReq.Param.UpLinkCounter = counter;
+    LoRaMacMibSetRequestConfirm(&mibReq);
 }
 
 uint32_t LoRaWanClass::getUpCounter(void)
@@ -646,7 +750,10 @@ uint32_t LoRaWanClass::getUpCounter(void)
 
 void LoRaWanClass::setDownCounter(uint32_t counter)
 {
-
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_DOWNLINK_COUNTER;
+    mibReq.Param.DownLinkCounter = counter;
+    LoRaMacMibSetRequestConfirm(&mibReq);
 }
 
 uint32_t LoRaWanClass::getDownCounter(void)
@@ -663,22 +770,35 @@ uint32_t LoRaWanClass::getDownCounter(void)
 
 uint8_t LoRaWanClass::setRX2Parameters(uint8_t datarate, uint32_t frequency)
 {
+    if(datarate > DR_5){
+        return 0;
+    }
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
+    mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ frequency,datarate };
+    LoRaMacMibSetRequestConfirm( &mibReq );
 
+    mibReq.Type = MIB_RX2_CHANNEL;
+    mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ frequency,datarate };
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 uint8_t LoRaWanClass::setRX1Delay(uint16_t delay)
 {
-
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_RECEIVE_DELAY_1;
+    mibReq.Param.ReceiveDelay1 = delay;
+    LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
 uint8_t LoRaWanClass::getMargin(void)
 {
-
+    return _demodMargin;
 }
 
 uint8_t LoRaWanClass::getGatewayNumber(void)
 {
-
+    return _nbGateways;
 }
 
 uint8_t LoRaWanClass::getSnr(void)
@@ -690,29 +810,65 @@ int LoRaWanClass::getRssi(void)
 {
     return _macRssi;
 }
+//发送状态查询 0-发送中 1-成功 2-失败
+uint8_t LoRaWanClass::sendStatus(void)
+{
+    return _macSendStatus;
+}
 
 //P2P透传接口
 bool LoRaClass::radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout)
 {
     Radio.SetTxConfig(_modem, _power, _fdev, _bandwidth, _datarate, _coderate, _preambleLen, _fixLenOn, _crcOn, _freqHopOn, _hopPeriod, _iqInverted, timeout);
     Radio.Send(buffer, length);
+    uint32_t _timeout = timeout;
+    if(_timeout == 0){
+        return true;
+    }
+
+    if(_timeout < 3000){
+        _timeout = 3000;
+    }
+
+    _radioRunStatus = 0;
+    uint32_t prevTime = millis();
+    while(1){
+        if(_radioRunStatus == ep_lora_radio_tx_done){
+            return true;
+        }
+        if(_radioRunStatus == ep_lora_radio_tx_timeout){
+            return false;
+        }
+
+        if(millis() - prevTime >= _timeout){
+            return false;
+        }
+        intorobot_process();
+    }
 }
 
-void LoRaClass::radioRx(uint32_t timeout)
+void LoRaClass::radioStartRx(uint32_t timeout)
 {
-    bool rxContinuous = false;
-
-    if(timeout) {
-        rxContinuous = true;
-    }
-    Radio.SetRxConfig(_modem, _bandwidth, _datarate, _coderate, _bandwidthAfc, _preambleLen, _symbTimeout, _fixLenOn, _payloadLen, _crcOn, _freqHopOn, _hopPeriod, _iqInverted, rxContinuous);
+    Radio.SetRxConfig(_modem, _bandwidth, _datarate, _coderate, _bandwidthAfc, _preambleLen, _symbTimeout, _fixLenOn, _payloadLen, _crcOn, _freqHopOn, _hopPeriod, _iqInverted, _rxContinuous);
     Radio.Rx(timeout);
 }
 
-uint16_t LoRaClass::radioRxBlock(uint8_t *buffer, uint16_t length, int *rssi, uint32_t timeout)
+uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
 {
-    radioRx(timeout);
-    return 0;
+    uint16_t size = 0;
+    if(_radioAvailable){
+        _radioAvailable = false;
+        if(length < _length){
+            size = length;
+        }else{
+            size = _length;
+        }
+        memcpy( buffer, _buffer, size);
+        *rssi = _rssi;
+        return _length;
+    }else{
+        return 0;
+    }
 }
 
 void LoRaClass::radioStartCad(void)
@@ -722,8 +878,7 @@ void LoRaClass::radioStartCad(void)
 
 bool LoRaClass::radioCad(void)
 {
-    radioStartCad();
-    return true;
+    return _cadDetected;
 }
 
 int16_t LoRaClass::radioReadRssi(void)
@@ -864,6 +1019,16 @@ bool LoRaClass::radioGetIqInverted(void)
     return _iqInverted;
 }
 
+void LoRaClass::radioSetRxContinuous(bool rxContinuous)
+{
+    _rxContinuous = rxContinuous;
+}
+
+bool LoRaClass::radioGetRxContinuous(void)
+{
+    return _rxContinuous;
+}
+
 //发送射频相关参数
 void LoRaClass::radioSetTxPower(uint8_t txPower)
 {
@@ -967,13 +1132,13 @@ int8_t TestSX1278Run(void)
     switch(State)
     {
         case TX_START:
-                LoRa.radioSend(Buffer, BufferSize, 5);
+                LoRa.radioSend(Buffer, BufferSize, 5000);
                 State = LOWPOWER;
                 return 0;
             break;
 
         case TX_DONE:
-                LoRa.radioRx(RX_TIMEOUT_VALUE);
+                LoRa.radioStartRx(RX_TIMEOUT_VALUE);
                 State = LOWPOWER;
                 return 1;
             break;

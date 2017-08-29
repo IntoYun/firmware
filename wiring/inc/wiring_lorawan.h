@@ -81,13 +81,13 @@ class LoRaWanClass
         bool getAdrOn(void);                                //获取ADR自适应速率开关
         uint8_t getDutyCyclePrescaler(void);              //获取占空比分频参数
         void setChannelFreq(uint8_t channel, uint32_t freq);                    //设置通道频率
-        void getChannelFreq(uint8_t channel);                                   //获取通道频率
+        uint32_t getChannelFreq(uint8_t channel);                                   //获取通道频率
         void setChannelDutyCycle(uint8_t channel, uint16_t dcycle);             //设置通道占空比
         void getChannelDutyCycle(uint8_t channel);                              //设置通道占空比
         void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);  //设置通道速率范围
         uint8_t getChannelDRRange(uint8_t channel);                             //获取通道速率
         void setChannelStatus(uint8_t channel, bool enable);                    //设置通道使能
-        void getChannelStatus(uint8_t channel);                                 //获取通道状态
+        bool getChannelStatus(uint8_t channel);                                 //获取通道状态
         void setConfirmedNbTrials(uint8_t trials);                              //设置带确认发送重发次数
         uint8_t getConfirmedNbTrials(void);                                     //获取带确认发送重发次数
         void setUnconfirmedNbTrials(uint8_t trials);                            //设置不带确认发送重发次数
@@ -104,6 +104,7 @@ class LoRaWanClass
         uint8_t getGatewayNumber(void);                                         //获取网关号
         uint8_t getSnr(void);                                                   //获取收到数据后的snr
         int getRssi(void);                                                      //获取收到数据后的rssi
+        uint8_t sendStatus(void);
 
     public:
         uint8_t _buffer[256];                 //接收缓冲区
@@ -124,15 +125,17 @@ class LoRaWanClass
         uint8_t _txPower = 0;                 //发射功率
         bool _ackReceived = false;            //是否收到ack
         uint8_t _framePending = 0;
-        bool _frameType = false;              //帧类型 true确认帧
+        uint8_t _macDatarate = DR_3;          //设置发送速率
+        uint8_t _macRunStatus = 0;            //mac运行状态 内部使用处理
+        uint8_t _macSendStatus = 0;           //发送状态
 };
 
 class LoRaClass
 {
     public:
         bool radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout);                    //lora射频发送数据
-        void radioRx(uint32_t timeout);                                                        //lora射频进入接收状态
-        uint16_t radioRxBlock(uint8_t *buffer, uint16_t length, int *rssi, uint32_t timeout);  //lora射频接收数据
+        void radioStartRx(uint32_t timeout);                                                        //lora射频进入接收状态
+        uint16_t radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi);  //lora射频接收数据
         void radioStartCad(void);                       //启动CAD
         bool radioCad(void);                            //完成CAD流程  true:CADDeteced false:CADDone
 
@@ -164,6 +167,8 @@ class LoRaClass
         uint8_t radioGetHopPeriod(void);                //获取跳频周期
         void radioSetIqInverted(bool iqInverted);       //设置iq翻转
         bool radioGetIqInverted(void);                  //获取Iq是否翻转
+        void radioSetRxContinuous(bool rxContinuous);
+        bool radioGetRxContinuous(void);
 
         //发送射频相关参数
         void radioSetTxPower(uint8_t txPower);          //设置发射功率
@@ -182,6 +187,9 @@ class LoRaClass
         uint16_t _length = 0;                //接收数据长度
         int8_t _snr;                         //接收完数据收snr值
         int16_t _rssi;                       //接收完数据收rssi值
+        uint8_t _radioRunStatus = 0;         //发送接收状态
+        bool _cadDetected = false;           //是否检测到cad
+        bool _radioAvailable = false;        //是否收到数据
 
     private:
         uint32_t _freq = 434000000;          //工作频率
@@ -199,6 +207,7 @@ class LoRaClass
         bool _freqHopOn = false;             //内部跳频 fsk无效,设为0 lora:1-on 0-off
         uint8_t _hopPeriod = 0;              //跳频周期 单位symbols fsk:0 lora: number of symbols
         bool _iqInverted = false;            //IQ位翻转 1:翻转 0:不翻转
+        bool _rxContinuous = true;           //连续模式
         int8_t _power = 20;                  //发射功率
         uint32_t _fdev = 0;                  //频率偏差　仅fsk有效 fsk:Hz lora:0
         uint32_t _txTimeout = 3000;          //发射超时时间 单位ms

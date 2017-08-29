@@ -51,6 +51,7 @@ using namespace intorobot;
 
 #ifndef configNO_LORAWAN
 
+volatile bool INTOROBOT_LORAWAN_SEND_INFO = false;
 volatile bool INTOROBOT_LORAWAN_JOINED = false; //lorawan激活通过
 volatile bool INTOROBOT_LORAWAN_CONNECTED = false; //lorawan发送版本信息完毕 已连接平台
 volatile bool INTOROBOT_LORAWAN_JOIN_ENABLE = false; //入网使能 true使能
@@ -90,7 +91,7 @@ bool LoRaWanJoinIsEnabled(void)
 
 int8_t LoRaWanActiveStatus(void)
 {
-    if(INTOROBOT_LORAWAN_JOINED){
+    if(INTOROBOT_LORAWAN_JOINED && INTOROBOT_LORAWAN_CONNECTED){
         return 1;
     }else{
         if(INTOROBOT_LORAWAN_JOINING){
@@ -98,6 +99,18 @@ int8_t LoRaWanActiveStatus(void)
         }
     }
     return -1;
+}
+
+void LoRaWanDisconnect(void)
+{
+    INTOROBOT_LORAWAN_JOINED = false;
+    INTOROBOT_LORAWAN_JOINING = false;
+    INTOROBOT_LORAWAN_JOIN_ENABLE = false;
+    INTOROBOT_LORAWAN_CONNECTED = false;
+    INTOROBOT_LORAWAN_SEND_INFO = false;
+    #if (PLATFORM_ID == PLATFORM_ANT)
+    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+    #endif
 }
 
 void LoRaWanJoinOTAA(void)
@@ -120,6 +133,63 @@ void LoRaWanJoinOTAA(void)
     mlmeReq.Req.Join.NbTrials = LoRaWan._joinNbTrials;
 
     LoRaMacMlmeRequest( &mlmeReq );
+}
+
+bool LoRaWanJoinABP(void)
+{
+    MibRequestConfirm_t mibReq;
+
+    char devaddr[16] = {0}, nwkskey[36] = {0}, appskey[36] = {0};
+
+    HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
+    HAL_PARAMS_Get_System_nwkskey(nwkskey, sizeof(nwkskey));
+    HAL_PARAMS_Get_System_appskey(appskey, sizeof(appskey));
+    string2hex(devaddr, (uint8_t *)&LoRaWan.macParams.devAddr, 4, true);
+    string2hex(nwkskey, LoRaWan.macParams.nwkSkey, 16, false);
+    string2hex(appskey, LoRaWan.macParams.appSkey, 16, false);
+
+#if 0
+    uint8_t i;
+    DEBUG("devAddr = 0x%x",LoRaWan.macParams.devAddr);
+    DEBUG_D("nwkSkey =");
+    for( i=0;i<16;i++)
+    {
+        DEBUG_D("0x%x ",LoRaWan.macParams.nwkSkey[i]);
+    }
+    DEBUG_D("\r\n");
+    DEBUG_D("appSkey =");
+    for( i=0;i<16;i++)
+    {
+        DEBUG_D("0x%x ",LoRaWan.macParams.appSkey[i]);
+    }
+    DEBUG_D("\r\n");
+#endif
+
+    mibReq.Type = MIB_NET_ID;
+    mibReq.Param.NetID = LORAWAN_NETWORK_ID;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_DEV_ADDR;
+    mibReq.Param.DevAddr = LoRaWan.macParams.devAddr;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_NWK_SKEY;
+    mibReq.Param.NwkSKey = LoRaWan.macParams.nwkSkey;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_APP_SKEY;
+    mibReq.Param.AppSKey = LoRaWan.macParams.appSkey;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_NETWORK_JOINED;
+    mibReq.Param.IsNetworkJoined = true;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+    INTOROBOT_LORAWAN_CONNECTED = false;
+    INTOROBOT_LORAWAN_JOINED = true;
+    #if (PLATFORM_ID == PLATFORM_ANT)
+    system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+    #endif
+    return true;
 }
 
 void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
@@ -219,16 +289,23 @@ void intorobot_lorawan_send_terminal_info(void)
     }
     SLORAWAN_DEBUG_D("\r\n");
 
-    LoRaWan.sendUnconfirmed(0, buffer, index, 0);
+    // LoRaWan.sendUnconfirmed(2, buffer, index, 10);
+    if(LoRaWan.sendConfirmed(2, buffer, index, 120)){
+        INTOROBOT_LORAWAN_CONNECTED = true;
+        system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+        DEBUG("termianal info send ok");
+    }else{
+        INTOROBOT_LORAWAN_SEND_INFO = false;
+    }
 }
 
 bool intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout)
 {
     if(intorobot_lorawan_flag_connected()) {
         if(confirmed) {
-            return LoRaWan.sendConfirmed(0, buffer, len, timeout);
+            return LoRaWan.sendConfirmed(2, buffer, len, timeout);
         } else {
-            return LoRaWan.sendUnconfirmed(0, buffer, len, 0);
+            return LoRaWan.sendUnconfirmed(2, buffer, len, timeout);
         }
     }
     return false;
@@ -265,10 +342,10 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 INTOROBOT_LORAWAN_JOINED = true;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
                 //设置为C类
-                MibRequestConfirm_t mibReq;
-                mibReq.Type = MIB_DEVICE_CLASS;
-                mibReq.Param.Class = CLASS_C;
-                LoRaMacMibSetRequestConfirm( &mibReq );
+                // MibRequestConfirm_t mibReq;
+                // mibReq.Type = MIB_DEVICE_CLASS;
+                // mibReq.Param.Class = CLASS_C;
+                // LoRaMacMibSetRequestConfirm( &mibReq );
                 SLORAWAN_DEBUG("--LoRaWanOnEvent joined--");
             }
             break;
@@ -295,7 +372,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     SLORAWAN_DEBUG_D("\r\n");
                     #endif
 
-                    if(len == -1){
+                    if(len == 0){
                         return;
                     }else{
                         intorobotParseReceiveDatapoints(buffer,len);
@@ -307,7 +384,9 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
         case LORAWAN_EVENT_MCPSINDICATION_CONFIRMED:
             SLORAWAN_DEBUG("lorawan respond server ack");
-            LoRaWanRespondServerConfirmedFrame();
+            if(LoRaWan.getMacClassType() == CLASS_C){
+                LoRaWanRespondServerConfirmedFrame();
+            }
             break;
 
         default:

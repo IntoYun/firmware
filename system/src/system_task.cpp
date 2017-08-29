@@ -338,12 +338,6 @@ void LoraWAN_Setup(void)
 
 void manage_lorawan_connection(void)
 {
-    if(!INTOROBOT_LORAWAN_FIRST_ACTIVE)
-    {
-        INTOROBOT_LORAWAN_FIRST_ACTIVE = true;
-        lorawan_prepare_active();
-    }
-
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED))
     {
         if(!INTOROBOT_LORAWAN_JOINED){
@@ -351,15 +345,17 @@ void manage_lorawan_connection(void)
                 if(LoRaWanJoinIsEnabled()){
                     INTOROBOT_LORAWAN_JOINING = true;
                     LoRaWanJoinEnable(false);
+                    DEBUG("lorawan start join");
                     LoRaWanJoinOTAA();
                 }
             }
         }
 
-        if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED) {
+        if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED && !INTOROBOT_LORAWAN_SEND_INFO) {
             if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)) {
                 intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
-                INTOROBOT_LORAWAN_CONNECTED = true;
+                INTOROBOT_LORAWAN_SEND_INFO = true;
+                // INTOROBOT_LORAWAN_CONNECTED = true;
             }
         }
     }

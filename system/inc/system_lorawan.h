@@ -53,6 +53,8 @@ void LoRaWanJoinEnable(bool enable);
 bool LoRaWanJoinIsEnabled(void);
 int8_t LoRaWanActiveStatus(void);
 void LoRaWanJoinOTAA(void);
+bool LoRaWanJoinABP(void);
+void LoRaWanDisconnect(void);
 void os_getDevEui(uint8_t *buf);
 void os_getAppEui(uint8_t *buf);
 void os_getAppKey(uint8_t *buf);

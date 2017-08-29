@@ -1889,6 +1889,9 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
 
 /*! \} defgroup LORAMAC */
 
+uint32_t LoRaMacGetChannelFreq(uint8_t id);
+
+void LoRaMacAbortRun(void);
 
 #ifdef __cplusplus
 }
