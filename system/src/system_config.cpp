@@ -528,19 +528,6 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
                 HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
                 flag = true;
             }
-        } else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
-            if (deviceIdObject != NULL && activationCodeObject != NULL) {
-                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-                flag = true;
-            }
-        } else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
-            if (deviceIdObject != NULL && activationCodeObject != NULL && accessTokenObject != NULL) {
-                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-                HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
-                flag = true;
-            }
         }
 #elif defined configWIRING_LORA_ENABLE
         aJsonObject *appeuiObject = aJson.getObjectItem(value_Object, "appeui");

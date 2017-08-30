@@ -200,24 +200,16 @@ void preprocess_cloud_connection(void)
             switch(at_mode)
             {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
                     break;
-                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
-                    if(System.featureEnabled(SYSTEM_FEATURE_ACTIVATE_ENABLED)) {
-                        // 激活设备成功
-                        intorobot_device_activate();
-                    }
+                case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
+                case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码 未激活
+                    HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
+                    HAL_PARAMS_Save_Params();
                     break;
                 default:                          //没有密钥信息
                     if(System.featureEnabled(SYSTEM_FEATURE_REGISTER_ENABLED)) {
                         // 注册设备
-                        if(_device_register()) {
-                            HAL_Delay_Milliseconds(200);
-                            if(System.featureEnabled(SYSTEM_FEATURE_ACTIVATE_ENABLED)) {
-                                // 激活设备
-                                intorobot_device_activate();
-                            }
-                        }
+                        _device_register();
                     }
                     break;
             }

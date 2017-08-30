@@ -48,6 +48,7 @@
 #include "system_update.h"
 #include "system_utilities.h"
 #include "system_config.h"
+#include "string_convert.h"
 #include "ajson.h"
 
 /*debug switch*/
@@ -65,11 +66,15 @@ using namespace intorobot;
 
 #ifndef configNO_CLOUD
 #include "mqttclient.h"
+#include "mqttcrypto.h"
 
 volatile uint8_t INTOROBOT_CLOUD_SOCKETED = 0;           //网络连接状态 1连接 0断开
 volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED = 0;   //平台链接预处理状态 1已经处理
 volatile uint8_t INTOROBOT_CLOUD_CONNECTED = 0;          //平台连接状态 1连接上了
 
+uint8_t g_mqtt_appskey[16] = {0};
+uint8_t g_mqtt_nwkskey[16] = {0};
+uint16_t g_up_seq_id = 0;
 
 struct CallBackList g_callback_list;  //回调结构体
 struct CloudDebugBuffer  g_debug_tx_buffer;
@@ -89,29 +94,40 @@ static void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len);
 
 void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
+    uint8_t *pdata = NULL;
+    uint16_t datalen = length-6; //去掉seq_id + mic
+    char device_id[38]={0};
+    uint8_t mic[4];
+    uint16_t down_seq_id;
+
     SCLOUD_DEBUG("mqtt callback!");
     SCLOUD_DEBUG("topic: %s", topic);
 
-    uint8_t *pdata = NULL;
+    pdata = (uint8_t *)malloc(datalen+1);
+    if(NULL == pdata) {
+        return;
+    }
+    memset(pdata, 0, datalen+1);
+
+    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+    MqttComputeMic( payload, length-4, g_mqtt_nwkskey, mic );
+    if(!memcmp(&payload[length-4], mic, 4)) {
+        down_seq_id = (payload[0] << 8) + payload[1];
+        MqttPayloadDecrypt( &payload[2], datalen, g_mqtt_appskey, 1, down_seq_id, device_id, pdata );
+    }
+
+    SCLOUD_DEBUG("data: %s", pdata);
     pCallBack pcallback=get_subscribe_callback(topic);
     if(pcallback!=NULL) {
-        pdata = (uint8_t *)malloc(length+1);
-        memset(pdata, 0, length+1);
-        memcpy(pdata, payload, length);
-        SCLOUD_DEBUG("data: %s", pdata);
-        pcallback(pdata,length);
-        free(pdata);
+        pcallback(pdata, datalen);
     }
 
     WidgetBaseClass *pwidgetbase=get_widget_subscribe_callback(topic);
     if(pwidgetbase!=NULL) {
-        pdata = (uint8_t *)malloc(length+1);
-        memset(pdata, 0, length+1);
-        memcpy(pdata, payload, length);
-        SCLOUD_DEBUG("data: %s", pdata);
-        pwidgetbase->widgetBaseCallBack(pdata,length);
-        free(pdata);
+        pwidgetbase->widgetBaseCallBack(pdata, datalen);
     }
+
+    free(pdata);
 }
 
 typedef enum {
@@ -818,9 +834,25 @@ void intorobot_cloud_init(void)
 bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic = "";
+    char device_id[38]={0};
+    uint8_t *pdata = malloc(plength + 16);
+    uint16_t dataIndex = 0;
+
+    if(NULL == pdata) {
+        return false;
+    }
+
+    pdata[dataIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
+    pdata[dataIndex++] = ( g_up_seq_id ) & 0xFF;
+
+    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
+    MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &pdata[dataIndex] );
+    dataIndex += plength;
+    MqttComputeMic( pdata, dataIndex, g_mqtt_nwkskey, &pdata[dataIndex] );
+    dataIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.publish(fulltopic.c_str(), payload, plength, retained));
+    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained));
 }
 
 bool intorobot_subscribe(topic_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
@@ -1173,11 +1205,12 @@ int intorobot_cloud_connect(void)
 
     g_mqtt_client.setServer(sv_domain, sv_port);
 
-    char device_id[38]={0}, activation_code[38]={0}, access_token[38]={0}, dw_domain[38]={0};
+    char device_id[38]={0}, access_token[38]={0}, dw_domain[38]={0};
+    uint8_t access_token_hex[16] = {0};
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
-    HAL_PARAMS_Get_System_activation_code(activation_code, sizeof(activation_code));
     HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
+    string2hex(access_token, access_token_hex, sizeof(access_token_hex), false);
 
     SCLOUD_DEBUG("---------terminal params--------");
     SCLOUD_DEBUG("mqtt domain     : %s", sv_domain);
@@ -1186,14 +1219,23 @@ int intorobot_cloud_connect(void)
     SCLOUD_DEBUG("at_mode         : %d", HAL_PARAMS_Get_System_at_mode());
     SCLOUD_DEBUG("zone            : %f", HAL_PARAMS_Get_System_zone());
     SCLOUD_DEBUG("device_id       : %s", device_id);
-    SCLOUD_DEBUG("activation_code : %s", activation_code);
     SCLOUD_DEBUG("access_token    : %s", access_token);
     SCLOUD_DEBUG("--------------------------------");
 
-    String fulltopic;
+    String fulltopic, payload;
     fill_mqtt_topic(fulltopic, TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
-    //client id change to device id. chenkaiyao 2016-01-17
-    if(g_mqtt_client.connect(device_id, access_token, device_id, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
+
+    int random_hex = random(INT_MIN, INT_MAX);
+    char random_string[16] = {0};
+    char cMac_hex[16] = {0}, cMac_string[33] = {0};
+    hex2string((uint8_t *)&random_hex, sizeof(random_hex), random_string, false);
+    MqttConnectComputeCmac( random_string, strlen(random_string), access_token_hex, cMac_hex );
+    hex2string(cMac_string, sizeof(cMac_string), cMac_hex, false);
+    payload = random_string;
+    payload += ':';
+    payload += cMac_string;
+    if(g_mqtt_client.connect(device_id, device_id, payload, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
+        MqttConnectComputeSKeys( access_token_hex, random_hex, g_mqtt_nwkskey, g_mqtt_appskey );
         SCLOUD_DEBUG("---------connect success--------");
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
@@ -1304,12 +1346,10 @@ static time_t get_ntp_time(void)
 #endif
 
     ntp_time_udp.begin(ntpServer, (int)123, 8888);
-    for (int i = 0 ; i < 4 ; i++)
-    {
+    for (int i = 0 ; i < 4 ; i++) {
         send_ntp_request_packet();
         uint32_t beginWait = millis();
-        while (millis() - beginWait < 2000)
-        {
+        while (millis() - beginWait < 2000) {
             HAL_Core_System_Yield();
             if (ntp_time_udp.parsePacket()) {
                 ntp_time_udp.read(packetBuffer, 48);
@@ -1331,6 +1371,7 @@ bool intorobot_sync_time(void)
     time_t utc_time = get_ntp_time();
     if(utc_time) {
         SCLOUD_DEBUG("device syncTime success! utc_time = %d",utc_time);
+        randomSeed(utc_time);
         Time.setTime(utc_time);
         return true;
     }
@@ -1382,102 +1423,20 @@ bool intorobot_device_register(char *prodcut_id, char *signature)
 
         //device_id  and activation_code
         aJsonObject *deviceIdObject = aJson.getObjectItem(root, "deviceId");
-        aJsonObject *activationCodeObject = aJson.getObjectItem(root, "activationCode");
-        if ( deviceIdObject != NULL && activationCodeObject != NULL) {
+        aJsonObject *accessTokenObject = aJson.getObjectItem(root, "token");
+        if ( deviceIdObject != NULL && accessTokenObject != NULL) {
             HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-            HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_INACTIVE);
+            HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
+            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
             HAL_PARAMS_Save_Params();
-            SCLOUD_DEBUG("device_id       : %s", deviceIdObject->valuestring);
-            SCLOUD_DEBUG("activation_code : %s", activationCodeObject->valuestring);
+            SCLOUD_DEBUG("device_id : %s", deviceIdObject->valuestring);
+            SCLOUD_DEBUG("token     : %s", accessTokenObject->valuestring);
             SCLOUD_DEBUG("device register success!");
             flag = true;
         }
         aJson.deleteItem(root);
     } else {
-      SCLOUD_DEBUG("device register failed!");
-    }
-
-    http.end();
-    if(flag) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool intorobot_device_activate(void)
-{
-    SCLOUD_DEBUG("---------device activate begin---------");
-
-    HTTPClient http;
-    aJsonClass aJson;
-    bool flag = false;
-
-    aJsonObject* root = aJson.createObject();
-    if (root == NULL)
-    {return false;}
-
-    //获取product id
-    char device_id[38]={0}, activation_code[38]={0};
-    HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-    HAL_PARAMS_Get_System_activation_code(activation_code, sizeof(activation_code));
-    aJson.addStringToObject(root, "deviceId", device_id);
-
-    //获取utc 时间戳
-    time_t utc_time = Time.now();
-    aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
-
-    //计算签名 signature = md5(timestamp + activation_code)
-    MD5Builder md5;
-    String payload = "";
-
-    payload += utc_time;
-    payload += activation_code;
-    md5.begin();
-    md5.add((uint8_t *)payload.c_str(), payload.length());
-    md5.calculate();
-    aJson.addStringToObject(root, "signature", md5.toString().c_str());
-    char* string = aJson.print(root);
-    payload = string;
-    free(string);
-    aJson.deleteItem(root);
-
-    //http domain
-    char http_domain[32]={0};
-    HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
-    if(0 == strlen(http_domain)) {
-        strcpy(http_domain, INTOROBOT_HTTP_DOMAIN);
-    }
-    //http port
-    int http_port=HAL_PARAMS_Get_System_http_port();
-    if(http_port <= 0) {
-        http_port=INTOROBOT_HTTP_PORT;
-    }
-
-    http.begin(http_domain, http_port, "/v1/device?act=reactivate");
-    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
-    int httpCode = http.POST(payload);
-    if(httpCode == HTTP_CODE_OK) {
-        payload = http.getString();
-
-        root = aJson.parse((char *)payload.c_str());
-        if (root == NULL)
-        {return false;}
-
-        //device_id  and activation_code
-        aJsonObject *accessTokenObject = aJson.getObjectItem(root, "token");
-        if ( accessTokenObject != NULL ) {
-            HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
-            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
-            HAL_PARAMS_Save_Params();
-            SCLOUD_DEBUG("access_token  : %s", accessTokenObject->valuestring);
-            SCLOUD_DEBUG("device activate success!");
-            flag = true;
-        }
-        aJson.deleteItem(root);
-    } else {
-      SCLOUD_DEBUG("device activate failed!");
+        SCLOUD_DEBUG("device register failed!");
     }
 
     http.end();

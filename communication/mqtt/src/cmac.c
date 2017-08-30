@@ -35,6 +35,7 @@
 //#include <sys/param.h>
 //#include <sys/systm.h>
 #include <stdint.h>
+#include "intorobot_macros.h"
 #include "aes.h"
 #include "cmac.h"
 
@@ -64,7 +65,7 @@ void AES_CMAC_Init(AES_CMAC_CTX *ctx)
 void AES_CMAC_SetKey(AES_CMAC_CTX *ctx, const uint8_t key[AES_CMAC_KEY_LENGTH])
 {
     //rijndael_set_key_enc_only(&ctx->rijndael, key, 128);
-    aes_set_key( key, AES_CMAC_KEY_LENGTH, &ctx->rijndael);
+    aes_set_key1( key, AES_CMAC_KEY_LENGTH, &ctx->rijndael);
 }
 
 void AES_CMAC_Update(AES_CMAC_CTX *ctx, const uint8_t *data, uint32_t len)
@@ -80,7 +81,7 @@ void AES_CMAC_Update(AES_CMAC_CTX *ctx, const uint8_t *data, uint32_t len)
             return;
         XOR(ctx->M_last, ctx->X);
         //rijndael_encrypt(&ctx->rijndael, ctx->X, ctx->X);
-        aes_encrypt( ctx->X, ctx->X, &ctx->rijndael);
+        aes_encrypt1( ctx->X, ctx->X, &ctx->rijndael);
         data += mlen;
         len -= mlen;
     }
@@ -90,7 +91,7 @@ void AES_CMAC_Update(AES_CMAC_CTX *ctx, const uint8_t *data, uint32_t len)
         //rijndael_encrypt(&ctx->rijndael, ctx->X, ctx->X);
 
         memcpy(in, &ctx->X[0], 16); //Bestela ez du ondo iten
-        aes_encrypt( in, in, &ctx->rijndael);
+        aes_encrypt1( in, in, &ctx->rijndael);
         memcpy(&ctx->X[0], in, 16);
 
         data += 16;
@@ -110,7 +111,7 @@ void AES_CMAC_Final(uint8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
 
     //rijndael_encrypt(&ctx->rijndael, K, K);
 
-    aes_encrypt( K, K, &ctx->rijndael);
+    aes_encrypt1( K, K, &ctx->rijndael);
 
     if (K[0] & 0x80) {
         LSHIFT(K, K);
@@ -142,6 +143,6 @@ void AES_CMAC_Final(uint8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
     //rijndael_encrypt(&ctx->rijndael, ctx->X, digest);
 
     memcpy(in, &ctx->X[0], 16); //Bestela ez du ondo iten
-    aes_encrypt(in, digest, &ctx->rijndael);
+    aes_encrypt1(in, digest, &ctx->rijndael);
     memset(K, 0, sizeof K);
 }

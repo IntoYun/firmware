@@ -38,7 +38,7 @@ extern "C" {
 #if 1
 #  define AES_ENC_PREKEYED  /* AES encryption with a precomputed key schedule  */
 #endif
-#if 1
+#if 0
 #  define AES_DEC_PREKEYED  /* AES decryption with a precomputed key schedule  */
 #endif
 #if 0
@@ -82,18 +82,18 @@ typedef struct
 
 #if defined( AES_ENC_PREKEYED ) || defined( AES_DEC_PREKEYED )
 
-return_type aes_set_key( const uint8_t key[],
+return_type aes_set_key1( const uint8_t key[],
                          length_type keylen,
                          aes_context ctx[1] );
 #endif
 
 #if defined( AES_ENC_PREKEYED )
 
-return_type aes_encrypt( const uint8_t in[N_BLOCK],
+return_type aes_encrypt1( const uint8_t in[N_BLOCK],
                          uint8_t out[N_BLOCK],
                          const aes_context ctx[1] );
 
-return_type aes_cbc_encrypt( const uint8_t *in,
+return_type aes_cbc_encrypt1( const uint8_t *in,
                          uint8_t *out,
                          int32_t n_block,
                          uint8_t iv[N_BLOCK],

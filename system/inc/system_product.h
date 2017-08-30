@@ -207,9 +207,6 @@ public:
             case SYSTEM_FEATURE_REGISTER_ENABLED:
                 return feature_register_enable;             //设备注册      0:关闭  1:打开
                 break;
-            case SYSTEM_FEATURE_ACTIVATE_ENABLED:
-                return feature_activater_enable;            //设备激活      0:关闭  1:打开
-                break;
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
                 return feature_loramac_run_enable;
                 break;
@@ -241,9 +238,6 @@ public:
                 break;
             case SYSTEM_FEATURE_REGISTER_ENABLED:
                 feature_register_enable = enabled;             //设备注册      0:关闭  1:打开
-                break;
-            case SYSTEM_FEATURE_ACTIVATE_ENABLED:
-                feature_activater_enable = enabled;            //设备激活      0:关闭  1:打开
                 break;
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
                 feature_loramac_run_enable = enabled;    //loramac是否自动激活   0:关闭  1:打开

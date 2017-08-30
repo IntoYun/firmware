@@ -23,16 +23,36 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*!
+ * Computes the mqtt connect cMac
+ *
+ * \param [IN]  buffer          - Data buffer
+ * \param [IN]  size            - Data buffer size
+ * \param [IN]  key             - AES key to be used
+ * \param [OUT] cMac            - Computed cMac
+ */
+void MqttConnectComputeCmac( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *cMac );
+
+/*!
+ * Computes the mqtt connect keys
+ *
+ * \param [IN]  key              - AES key to be used
+ * \param [IN]  random           - random
+ * \param [OUT] nwkSKey(16 byte) - Network session key
+ * \param [OUT] appSKey(16 byte) - Application session key
+ */
+void MqttConnectComputeSKeys( const uint8_t *key, const int random, uint8_t *nwkSKey, uint8_t *appSKey );
+
 /*!
  * Computes the mqtt frame MIC field
  *
  * \param [IN]  buffer          - Data buffer
  * \param [IN]  size            - Data buffer size
  * \param [IN]  key             - AES key to be used
- * \param [IN]  seqId           - sequence counter
- * \param [OUT] mic             - Computed MIC field
+ * \param [OUT] mic(4 byte)     - Computed MIC field
  */
-void MqttComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t seqId, uint32_t *mic );
+void MqttComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *mic );
 
 /*!
  * Computes the mqtt payload encryption
@@ -40,9 +60,12 @@ void MqttComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, u
  * \param [IN]  buffer          - Data buffer
  * \param [IN]  size            - Data buffer size
  * \param [IN]  key             - AES key to be used
+ * \param [IN]  dir             - Frame direction [0: uplink, 1: downlink]
+ * \param [IN]  seqId           - Frame sequence counter
+ * \param [IN]  device_id       - device_id(last 10byte)
  * \param [OUT] encBuffer       - Encrypted buffer
  */
-void MqttPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *encBuffer );
+void MqttPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t dir, uint16_t seqId, char *device_id, uint8_t *encBuffer );
 
 /*!
  * Computes the mqtt payload decryption
@@ -50,29 +73,12 @@ void MqttPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *ke
  * \param [IN]  buffer          - Data buffer
  * \param [IN]  size            - Data buffer size
  * \param [IN]  key             - AES key to be used
+ * \param [IN]  dir             - Frame direction [0: uplink, 1: downlink]
+ * \param [IN]  seqId           - Frame sequence counter
+ * \param [IN]  device_id       - device_id(last 12byte)
  * \param [OUT] decBuffer       - Decrypted buffer
  */
-void MqttPayloadDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer );
-
-/*!
- * Computes the mqtt connect MIC
- *
- * \param [IN]  buffer          - Data buffer
- * \param [IN]  size            - Data buffer size
- * \param [IN]  key             - AES key to be used
- * \param [OUT] mic             - Computed MIC field
- */
-void MqttConnectComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic );
-
-/*!
- * Computes the mqtt connect keys
- *
- * \param [IN]  key             - AES key to be used
- * \param [IN]  random          - random
- * \param [OUT] nwkSKey         - Network session key
- * \param [OUT] appSKey         - Application session key
- */
-void MqttConnectComputeSKeys( const uint8_t *key, const uint8_t *random, uint8_t *nwkSKey, uint8_t *appSKey );
+void MqttPayloadDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t dir, uint16_t seqId, char *device_id, uint8_t *encBuffer );
 
 #ifdef __cplusplus
 }
