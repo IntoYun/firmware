@@ -5,8 +5,8 @@
 //SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);
 SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
-PRODUCT_ID(y4NFFyDE9uq6H202)     //产品ID
-PRODUCT_SECRET(ab697b0dc1716d24cfc49b071668e766) //产品密钥
+PRODUCT_ID(9w2VE9QUwwUg02a2)     //产品ID
+PRODUCT_SECRET(934c45d05c1906fc2ccb963f7959fd50) //产品密钥
 PRODUCT_VERSION(2)     //产品版本号
 
 #define DPID_ENUM_LIGHT_MODE             1        //颜色模式
@@ -142,6 +142,7 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                 case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送请求完成
                 case ep_lorawan_mcpsindication_unconfirmed: //服务器下发了无需确认帧
                 case ep_lorawan_mcpsindication_confirmed://服务器下发了确认帧
+                    DEBUG("lorawan_mcpsIndication_mcpsConfirm");
                     sleepEnable = true;
                     prevTime = millis();
                     #if 0
@@ -191,13 +192,14 @@ void setup()
     deviceState = DEVICE_STATE_JOIN;
     uint32_t delayMs = (uint32_t)random(0,10000);
     DEBUG("delayMs = %d",delayMs);
-    delay(delayMs);
+    // delay(delayMs);
     LoRaWan.connect(JOIN_OTAA,0);
 }
 
+uint8_t cnt = 0;
 void loop()
 {
-    #if  1  
+    #if  1 
     switch(deviceState)
     {
     case DEVICE_STATE_JOIN:
@@ -219,25 +221,26 @@ void loop()
             Rheostat += 5;
         }
         IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
-        if(IntoRobot.sendDatapointAll(false,10)){
+        if(IntoRobot.sendDatapointAll(true,50)){
             // DEBUG("sendDatapointAll ok");
             deviceState = DEVICE_STATE_SLEEP;
         }else{
             // DEBUG("send confirm frame fail");
+            deviceState = DEVICE_STATE_SLEEP;
         }
         break;
 
     case DEVICE_STATE_IDLE:
         if(LoRaWan.connected()){
-            LoRaWan.setMacClassType(CLASS_A);
+            // LoRaWan.setMacClassType(CLASS_C);
             deviceState = DEVICE_STATE_SEND;
         }else{
-            deviceState = DEVICE_STATE_JOIN;
+            // deviceState = DEVICE_STATE_JOIN;
         }
         break;
 
     case DEVICE_STATE_SLEEP:
-        System.sleep(SystemWakeUpHandler,10); //定时唤醒
+        System.sleep(SystemWakeUpHandler,20); //定时唤醒
         break;
     default:
         break;

@@ -11,18 +11,6 @@
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
 
-#define LORAWAN_DEFAULT_DATARATE      DR_3
-#define LORAWAN_ADR_ON                1
-#define LORAWAN_PUBLIC_NETWORK        true
-#define LORAWAN_NETWORK_ID            ( uint32_t )0
-
-typedef enum event_t{
-    LORAWAN_EVENT_JOINED,                   //已入网
-    LORAWAN_EVENT_JOIN_FAIL,                //入网失败
-    LORAWAN_EVENT_RX_COMPLETE,              //接收完成
-    LORAWAN_EVENT_MCPSINDICATION_CONFIRMED, //收到服务器确认帧
-}lorawan_event_t;
-
 typedef struct {
     bool available;      //是否接收到数据 true有效
     uint16_t bufferSize; //接收的数据长度
@@ -44,23 +32,23 @@ typedef enum
     JOIN_OTAA,
 }join_mode_t;
 
+typedef enum
+{
+    PROTOCOL_LORAWAN = 0,
+    PROTOCOL_P2P,
+}protocol_mode_t;
+
+
 class LoRaWanClass
 {
     public:
         bool connect(join_mode_t mode, uint16_t timeout);
         void disconnect(void);
         bool connected(void);
-
-        void macPause(void);                                                                  //暂停loramac 切换至P2P模式
-        void macResume(void);                                                                 //恢复loramac
-        bool joinABP(void);                                                                   //ABP入网
-        bool joinOTAA(uint16_t timeout);                                                      //OTAA入网激活
+        void setProtocol(protocol_mode_t mode);
         bool sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
         bool sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                        //返回接收数据
-
-        void setMacFixedFreq(bool enabled);               //不固定频率
-        void setMacFixedSF(bool enabled);                 //不固定扩频因子
 
         void setDeviceEUI(char *devEui);                  //设置deviceeui
         void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
@@ -78,10 +66,10 @@ class LoRaWanClass
         void setDataRate(uint8_t datarate);               //设置速率
         uint8_t getDataRate(void);                        //获取速率
         void setAdrOn(bool adrOn);                        //使能ADR自适应速率 true使能 false不使能
-        bool getAdrOn(void);                                //获取ADR自适应速率开关
+        bool getAdrOn(void);                              //获取ADR自适应速率开关
         uint8_t getDutyCyclePrescaler(void);              //获取占空比分频参数
         void setChannelFreq(uint8_t channel, uint32_t freq);                    //设置通道频率
-        uint32_t getChannelFreq(uint8_t channel);                                   //获取通道频率
+        uint32_t getChannelFreq(uint8_t channel);                               //获取通道频率
         void setChannelDutyCycle(uint8_t channel, uint16_t dcycle);             //设置通道占空比
         void getChannelDutyCycle(uint8_t channel);                              //设置通道占空比
         void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);  //设置通道速率范围
@@ -125,9 +113,13 @@ class LoRaWanClass
         uint8_t _txPower = 0;                 //发射功率
         bool _ackReceived = false;            //是否收到ack
         uint8_t _framePending = 0;
-        uint8_t _macDatarate = DR_3;          //设置发送速率
+        uint8_t _macDatarate = DR_5;          //设置发送速率
         uint8_t _macRunStatus = 0;            //mac运行状态 内部使用处理
         uint8_t _macSendStatus = 0;           //发送状态
+
+    private:
+        bool joinABP(void);                   //ABP入网
+        bool joinOTAA(uint16_t timeout);      //OTAA入网激活
 };
 
 class LoRaClass
@@ -215,8 +207,6 @@ class LoRaClass
 
 extern LoRaWanClass LoRaWan;
 extern LoRaClass LoRa;
-
-bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 
 #endif
 #endif /* WIRING_LORAWAN_H_ */

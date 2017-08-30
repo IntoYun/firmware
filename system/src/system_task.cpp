@@ -306,7 +306,7 @@ void lorawan_prepare_active(void)
                 case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
                     {
                         STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE");
-                        LoRaWan.joinABP();
+                        // LoRaWan.joinABP();
                         INTOROBOT_LORAWAN_JOINED = true;
                         system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
                     }
@@ -317,7 +317,7 @@ void lorawan_prepare_active(void)
                         int32_t joinDelayms = randr(0,10000);
                         STASK_DEBUG("joinDelayms = %d",joinDelayms);
                         delay((uint32_t)joinDelayms);
-                        LoRaWan.joinOTAA(20000);
+                        // LoRaWan.joinOTAA(20000);
                     }
                     break;
                 default:                          //没有密钥信息
@@ -332,7 +332,7 @@ void lorawan_prepare_active(void)
 void LoraWAN_Setup(void)
 {
     STASK_DEBUG("LoRaWan_Setup");
-    LoRaWan.macResume();
+    LoRaWanResume();
     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
 
@@ -343,9 +343,9 @@ void manage_lorawan_connection(void)
         if(!INTOROBOT_LORAWAN_JOINED){
             if(!INTOROBOT_LORAWAN_JOINING){
                 if(LoRaWanJoinIsEnabled()){
+                    STASK_DEBUG("lorawan start join");
                     INTOROBOT_LORAWAN_JOINING = true;
                     LoRaWanJoinEnable(false);
-                    DEBUG("lorawan start join");
                     LoRaWanJoinOTAA();
                 }
             }
@@ -353,9 +353,8 @@ void manage_lorawan_connection(void)
 
         if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED && !INTOROBOT_LORAWAN_SEND_INFO) {
             if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)) {
-                intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
                 INTOROBOT_LORAWAN_SEND_INFO = true;
-                // INTOROBOT_LORAWAN_CONNECTED = true;
+                intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
             }
         }
     }
