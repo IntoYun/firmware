@@ -671,12 +671,13 @@ static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t
     return index;
 }
 
-static bool _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout)
+static int _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout)
 {
     SDATAPOINT_DEBUG_D("send data:");
     SDATAPOINT_DEBUG_DUMP(data, dataLen);
 #ifndef configNO_CLOUD
-    return intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
+    bool result = intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
+    return result ? 0 : -1;
 #endif
 #ifndef configNO_LORAWAN
     return intorobot_lorawan_send_data(data, dataLen, confirmed, timeout);
@@ -684,7 +685,7 @@ static bool _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirme
 }
 
 //datepoint process
-bool intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
+int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
 {
     int i = intorobotDiscoverProperty(dpID);
 
@@ -730,7 +731,7 @@ bool intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, con
     return false;
 }
 
-bool intorobotSendAllDatapoint(void)
+int intorobotSendAllDatapoint(void)
 {
     uint8_t buffer[512];
     uint16_t index = 0;
@@ -749,7 +750,7 @@ bool intorobotSendAllDatapoint(void)
     return false;
 }
 
-bool intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
+int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
 {
     uint8_t buffer[512];
     uint16_t index = 0;

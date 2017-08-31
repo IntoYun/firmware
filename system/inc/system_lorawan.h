@@ -55,7 +55,7 @@ int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
 bool intorobot_lorawan_flag_connected(void);
 void intorobot_lorawan_send_terminal_info(void);
-bool intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout);
+int intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout);
 void LoRaWanPause(void);
 void LoRaWanResume(void);
 void LoRaWanOnEvent(lorawan_event_t event);

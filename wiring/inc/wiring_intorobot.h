@@ -171,69 +171,67 @@ class IntoRobotDatepointClass {
         }
 
         // 发送数据点
-        static bool sendDatapoint(const uint16_t dpID, bool value) {
+        static int sendDatapoint(const uint16_t dpID, bool value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, bool value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, bool value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
 #ifdef INTOROBOT_ARCH_ARM
-        static bool sendDatapoint(const uint16_t dpID, int value) {
+        static int sendDatapoint(const uint16_t dpID, int value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, int value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, int value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
 #endif
-        static bool sendDatapoint(const uint16_t dpID, int32_t value) {
+        static int sendDatapoint(const uint16_t dpID, int32_t value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, int32_t value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, int32_t value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, uint32_t value) {
+        static int sendDatapoint(const uint16_t dpID, uint32_t value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, uint32_t value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, uint32_t value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, float value) {
+        static int sendDatapoint(const uint16_t dpID, float value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, float value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, float value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, double value) {
+        static int sendDatapoint(const uint16_t dpID, double value) {
             return sendDatapoint(dpID, String(value).c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, double value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, double value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, String(value).c_str(), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, String value) {
+        static int sendDatapoint(const uint16_t dpID, String value) {
             return sendDatapoint(dpID, value.c_str());
         }
-        static bool sendDatapoint(const uint16_t dpID, String value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, String value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, value.c_str(), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, const char *value) {
+        static int sendDatapoint(const uint16_t dpID, const char *value) {
             return sendDatapoint(dpID, (uint8_t *)value, strlen(value), false, 0);
         }
-        static bool sendDatapoint(const uint16_t dpID, const char *value, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, const char *value, bool confirmed, uint16_t timeout) {
             return sendDatapoint(dpID, (uint8_t *)value, strlen(value), confirmed, timeout);
         }
-        static bool sendDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len) {
-            return intorobotSendSingleDatapoint(dpID, value, len, false, 0);
+        static int sendDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len) {
+            return sendDatapoint(dpID, value, len, false, 0);
         }
-        static bool sendDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len, bool confirmed, uint16_t timeout) {
+        static int sendDatapoint(const uint16_t dpID, uint8_t *value, uint16_t len, bool confirmed, uint16_t timeout) {
             return intorobotSendSingleDatapoint(dpID, value, len, confirmed, timeout);
         }
-        static bool sendDatapointAll(void) {
-            return intorobotSendAllDatapointManual(false, 0);
-            // return true;
+        static int sendDatapointAll(void) {
+            return sendDatapointAll(false, 0);
         }
-        static bool sendDatapointAll(bool confirmed, uint16_t timeout) {
+        static int sendDatapointAll(bool confirmed, uint16_t timeout) {
             return intorobotSendAllDatapointManual(confirmed, timeout);
-            // return true;
         }
 };
 

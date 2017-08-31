@@ -567,7 +567,7 @@ void intorobot_lorawan_send_terminal_info(void)
     }
 }
 
-bool intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout)
+int intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout)
 {
     if(intorobot_lorawan_flag_connected()) {
         if(confirmed) {
