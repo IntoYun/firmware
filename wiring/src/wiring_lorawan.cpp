@@ -31,10 +31,8 @@ bool LoRaWanClass::joinABP(void)
 bool LoRaWanClass::joinOTAA(uint16_t timeout)
 {
     uint32_t _timeout = timeout;
-    DEBUG("aaaa");
     LoRaWanJoinEnable(true);
 
-    #if 0
     if(_timeout == 0){
         return true;
     }
@@ -57,7 +55,6 @@ bool LoRaWanClass::joinOTAA(uint16_t timeout)
         }
         intorobot_process();
     }
-    #endif
 }
 
 bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)

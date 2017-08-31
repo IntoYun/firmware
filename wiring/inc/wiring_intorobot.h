@@ -359,11 +359,10 @@ class IntoRobotClass: public IntoRobotDatepointClass {
         static bool disconnected(void) {
             return !connected();
         }
-        static void connect(join_mode_t mode, uint16_t timeout) {
+        static bool connect(join_mode_t mode, uint16_t timeout) {
             if(mode == JOIN_ABP){
                 return LoRaWan.joinABP();
             }else{
-                DEBUG("1111");
                 return LoRaWan.joinOTAA(timeout);
             }
         }

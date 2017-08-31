@@ -42,12 +42,11 @@ typedef enum
 class LoRaWanClass
 {
     public:
-        static bool joinABP(void);                   //ABP入网
-        static bool joinOTAA(uint16_t timeout);      //OTAA入网激活
+        bool joinABP(void);                   //ABP入网
+        bool joinOTAA(uint16_t timeout);      //OTAA入网激活
         bool sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
         bool sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                        //返回接收数据
-
         void setDeviceEUI(char *devEui);                  //设置deviceeui
         void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
         void setDeviceAddr(char *devAddr);                //设置device addr
