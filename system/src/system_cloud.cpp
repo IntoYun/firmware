@@ -57,9 +57,11 @@
 #ifdef SYSTEM_CLOUD_DEBUG
 #define SCLOUD_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SCLOUD_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SCLOUD_DEBUG_DUMP  DEBUG_DUMP
 #else
 #define SCLOUD_DEBUG(...)
 #define SCLOUD_DEBUG_D(...)
+#define SCLOUD_DEBUG_DUMP
 #endif
 
 using namespace intorobot;
@@ -103,6 +105,9 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
     SCLOUD_DEBUG("mqtt callback!");
     SCLOUD_DEBUG("topic: %s", topic);
 
+    SCLOUD_DEBUG("mqtt receive data:");
+    SCLOUD_DEBUG_DUMP(payload, length);
+
     pdata = (uint8_t *)malloc(datalen+1);
     if(NULL == pdata) {
         return;
@@ -116,7 +121,6 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
         MqttPayloadDecrypt( &payload[2], datalen, g_mqtt_appskey, 1, down_seq_id, device_id, pdata );
     }
 
-    SCLOUD_DEBUG("data: %s", pdata);
     pCallBack pcallback=get_subscribe_callback(topic);
     if(pcallback!=NULL) {
         pcallback(pdata, datalen);
@@ -842,6 +846,7 @@ bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payl
         return false;
     }
 
+    g_up_seq_id++;
     pdata[dataIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
     pdata[dataIndex++] = ( g_up_seq_id ) & 0xFF;
 
@@ -1225,18 +1230,29 @@ int intorobot_cloud_connect(void)
     String fulltopic, payload;
     fill_mqtt_topic(fulltopic, TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
 
-    int random_hex = random(INT_MIN, INT_MAX);
+    int random_hex = random(INT_MAX);
+    uint8_t ramdom_array[4];
     char random_string[16] = {0};
     char cMac_hex[16] = {0}, cMac_string[33] = {0};
-    hex2string((uint8_t *)&random_hex, sizeof(random_hex), random_string, false);
+
+    ramdom_array[0] = ( random_hex >> 24 ) & 0xFF;
+    ramdom_array[1] = ( random_hex >> 16 ) & 0xFF;
+    ramdom_array[2] = ( random_hex >> 8 ) & 0xFF;
+    ramdom_array[3] = ( random_hex ) & 0xFF;
+    hex2string(ramdom_array, sizeof(ramdom_array), random_string, false);
     MqttConnectComputeCmac( random_string, strlen(random_string), access_token_hex, cMac_hex );
-    hex2string(cMac_string, sizeof(cMac_string), cMac_hex, false);
+    hex2string(cMac_hex, 16, cMac_string, false);
     payload = random_string;
     payload += ':';
     payload += cMac_string;
+    SCLOUD_DEBUG("mqtt passwork ->  %s", payload.c_str());
     if(g_mqtt_client.connect(device_id, device_id, payload, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
         MqttConnectComputeSKeys( access_token_hex, random_hex, g_mqtt_nwkskey, g_mqtt_appskey );
         SCLOUD_DEBUG("---------connect success--------");
+        SCLOUD_DEBUG_D("appskey -> ");
+        SCLOUD_DEBUG_DUMP(g_mqtt_appskey, 16);
+        SCLOUD_DEBUG_D("nwkskey -> ");
+        SCLOUD_DEBUG_DUMP(g_mqtt_nwkskey, 16);
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
             char buffer[33]="";

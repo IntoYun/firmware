@@ -32,9 +32,11 @@
 #ifdef COMMUNICATION_MQTTCLIENT_DEBUG
 #define CMQTTCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define CMQTTCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define CMQTTCLIENT_DEBUG_DUMP  DEBUG_DUMP
 #else
 #define CMQTTCLIENT_DEBUG(...)
 #define CMQTTCLIENT_DEBUG_D(...)
+#define CMQTTCLIENT_DEBUG_DUMP
 #endif
 
 MqttClientClass::MqttClientClass() {
@@ -404,11 +406,13 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
         }
         if(write(header,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! published topic: %s, payload: %s ", topic, payload);
+            CMQTTCLIENT_DEBUG("OK! published topic: %s, payload -> ", topic);
+            CMQTTCLIENT_DEBUG_DUMP(payload, plength);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! publish topic: %s, payload: %s ", topic, payload);
+    CMQTTCLIENT_DEBUG("Error! publish topic: %s, payload -> ", topic);
+    CMQTTCLIENT_DEBUG_DUMP(payload, plength);
     return false;
 }
 

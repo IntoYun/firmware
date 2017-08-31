@@ -229,7 +229,7 @@ static inline char ascii_nibble(uint8_t nibble)
 {
     char hex_digit = nibble + 48;
     if (57 < hex_digit)
-        hex_digit += 7;
+        hex_digit += 39;
     return hex_digit;
 }
 

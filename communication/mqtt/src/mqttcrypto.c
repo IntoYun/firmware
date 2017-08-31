@@ -20,10 +20,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-
 #include "aes.h"
 #include "cmac.h"
-
 #include "mqttcrypto.h"
 #include "string_convert.h"
 
@@ -49,19 +47,22 @@ void MqttConnectComputeCmac( const uint8_t *buffer, uint16_t size, const uint8_t
 void MqttConnectComputeSKeys( const uint8_t *key, const int random, uint8_t *nwkSKey, uint8_t *appSKey )
 {
     uint8_t nonce[16];
+    uint8_t ramdom_array[4];
 
-    memset( AesContext.ksch, '\0', 240 );
-    aes_set_key1( key, 16, &AesContext );
+    ramdom_array[0] = ( random >> 24 ) & 0xFF;
+    ramdom_array[1] = ( random >> 16 ) & 0xFF;
+    ramdom_array[2] = ( random >> 8 ) & 0xFF;
+    ramdom_array[3] = ( random ) & 0xFF;
 
     memset( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x01;
-    hex2string((uint8_t *)&random, sizeof(random), (char *)&nonce[1], false);
-    aes_encrypt1( nonce, nwkSKey, &AesContext );
+    hex2string(ramdom_array, sizeof(ramdom_array), (char *)&nonce[1], false);
+    MqttConnectComputeCmac( nonce, 16, key, appSKey );
 
     memset( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x02;
-    hex2string((uint8_t *)&random, sizeof(random), (char *)&nonce[1], false);
-    aes_encrypt1( nonce, appSKey, &AesContext );
+    hex2string(ramdom_array, sizeof(ramdom_array), (char *)&nonce[1], false);
+    MqttConnectComputeCmac( nonce, 16, key, nwkSKey );
 }
 
 void MqttComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *mic )
