@@ -38,17 +38,18 @@ bool LightStatus;
 int Rheostat_tmp;
 int Rheostat;
 String LcdDisplay;
+uint8_t userBuffer[256];
 
 void system_event_callback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
 {
     Serial.printf("system_event_callback");
-    if((event == event_cloud_data) && (param == ep_cloud_data_datapoint)) {
-        // 颜色模式
-        if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_ENUM_LIGHT_MODE, LightMode))
-        {
-            Serial.printf("Read Light Mode: ");
-            switch(LightMode)
-            {
+    if((event == event_cloud_data)){
+        if(param == ep_cloud_data_datapoint){
+            // 颜色模式
+            if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_ENUM_LIGHT_MODE, LightMode)){
+                Serial.printf("Read Light Mode: ");
+                switch(LightMode)
+                {
                 case 0:
                     Serial.printf("RED");
                     break;
@@ -61,36 +62,36 @@ void system_event_callback(system_event_t event, int param, uint8_t *data, uint1
                 default:
                     Serial.printf("Error");
                     break;
+                }
+                Serial.printf("\r\n");
             }
-            Serial.printf("\r\n");
-        }
-        //灯泡控制
-        if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_BOOL_SWITCH, LightSwitch))
-        {
-            Serial.printf("switch: %d\r\n", LightSwitch);
-            if(true == LightSwitch)
-            {
-                digitalWrite(LEDPIN, LOW);     // 打开灯泡
-                IntoRobot.writeDatapoint(DPID_BOOL_LIGHT_STATUS, true);
+            //灯泡控制
+            if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_BOOL_SWITCH, LightSwitch)){
+                Serial.printf("switch: %d\r\n", LightSwitch);
+                if(true == LightSwitch)
+                {
+                    digitalWrite(LEDPIN, LOW);     // 打开灯泡
+                    IntoRobot.writeDatapoint(DPID_BOOL_LIGHT_STATUS, true);
+                }
+                else
+                {
+                    digitalWrite(LEDPIN, HIGH);    // 关闭灯泡
+                    IntoRobot.writeDatapoint(DPID_BOOL_LIGHT_STATUS, false);
+                }
             }
-            else
-            {
-                digitalWrite(LEDPIN, HIGH);    // 关闭灯泡
-                IntoRobot.writeDatapoint(DPID_BOOL_LIGHT_STATUS, false);
-            }
-        }
 
-        //速度控制
-        if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat_tmp))
-        {
-            Rheostat = Rheostat_tmp;
-            Serial.printf("Speed: %d\r\n", Rheostat);
-        }
+            //速度控制
+            if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat_tmp)){
+                Rheostat = Rheostat_tmp;
+                Serial.printf("Speed: %d\r\n", Rheostat);
+            }
 
-        //字符串显示
-        if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_STRING_LCD_DISPLAY, LcdDisplay))
-        {
-            Serial.printf("Lcd Display: %s\r\n", LcdDisplay.c_str());
+            //字符串显示
+            if (RESULT_DATAPOINT_NEW == IntoRobot.readDatapoint(DPID_STRING_LCD_DISPLAY, LcdDisplay)){
+                Serial.printf("Lcd Display: %s\r\n", LcdDisplay.c_str());
+            }
+        }else if(param == ep_cloud_data_custom){
+            memcpy( userBuffer, data, datalen );
         }
     }
 }
@@ -119,43 +120,20 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             switch(param)
             {
                 case ep_lorawan_mlmeconfirm_join_success: //入网成功
-                    DEBUG("lorawan joined ok");
-                    // LoRaWan.setMacClassType(CLASS_A);
-                    // LoRaWan.setDutyCycleOn(false); //关闭通道占空比
-                    deviceState = DEVICE_STATE_SEND;
-                break;
-
-                case ep_lorawan_mlmeconfirm_join_fail: //入网失败
-                    DEBUG("lorawan joined fail");
-                    deviceState = DEVICE_STATE_SLEEP;
+                    DEBUG("lorawan event joined ok");
                     break;
 
-                // case ep_lorawan_mcpsindication_receive_data:
-                //     break;
+                case ep_lorawan_mlmeconfirm_join_fail: //入网失败
+                    DEBUG("lorawan event joined fail");
+                    break;
 
-                // case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
-                //     break;
+                case ep_lorawan_send_success:
+                    DEBUG("lorawan event send success");
+                    break;
 
-                // case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送请求完成
-                // case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送请求完成
-                // case ep_lorawan_mcpsindication_unconfirmed: //服务器下发了无需确认帧
-                // case ep_lorawan_mcpsindication_confirmed://服务器下发了确认帧
-                //     DEBUG("lorawan_mcpsIndication_mcpsConfirm");
-                //     sleepEnable = true;
-                //     prevTime = millis();
-                    // #if 0
-                    if(LoRaWan.getMacClassType() == 2)
-                    {
-                        DEBUG("class type = C");
-                        sleepEnable = true;
-                        prevTime = millis();
-                    }
-                    else
-                    {
-                        deviceState = DEVICE_STATE_SLEEP;
-                    }
-                    // #endif
-                    // break;
+                case ep_lorawan_send_fail:
+                    DEBUG("lorawan event send fail");
+                    break;
 
                 default:
                     break;
@@ -188,7 +166,7 @@ void setup()
     deviceState = DEVICE_STATE_JOIN;
     uint32_t delayMs = (uint32_t)random(0,10000);
     DEBUG("delayMs = %d",delayMs);
-    // delay(delayMs);
+    delay(delayMs);
     IntoYun.connect(JOIN_OTAA,0);
 }
 
@@ -217,7 +195,7 @@ void loop()
             Rheostat += 5;
         }
         IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
-        if(IntoRobot.sendDatapointAll(false,50)){
+        if(IntoRobot.sendDatapointAll(false,50) == 0){
             DEBUG("send frame ok");
             deviceState = DEVICE_STATE_SLEEP;
         }else{
@@ -227,15 +205,15 @@ void loop()
         break;
 
     case DEVICE_STATE_IDLE:
-        if(IntoYun.connected()){
-            // LoRaWan.setMacClassType(CLASS_C);
+        if(IntoYun.connected() == 0){
+            LoRaWan.setMacClassType(CLASS_C);
             deviceState = DEVICE_STATE_SEND;
         }
         break;
 
     case DEVICE_STATE_SLEEP:
         if(LoRaWan.getMacClassType() == CLASS_C){
-            delay(30000);
+            delay(60000);
             deviceState = DEVICE_STATE_SEND;
         }else{
             System.sleep(SystemWakeUpHandler,20); //定时唤醒

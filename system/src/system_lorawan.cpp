@@ -552,7 +552,7 @@ void intorobot_lorawan_send_terminal_info(void)
     }
     SLORAWAN_DEBUG_D("\r\n");
 
-    if(LoRaWan.sendConfirmed(2, buffer, index, 120)){
+    if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
         INTOROBOT_LORAWAN_CONNECTED = true;
         system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
         DEBUG("termianal info send ok");

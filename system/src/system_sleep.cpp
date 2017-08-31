@@ -45,7 +45,7 @@ static void LoRaSystemWakeupCb(void)
 
 #if PLATFORM_ID == PLATFORM_ANT
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED)){
-        if(LoRaWanActiveStatus() == 1){
+        if(LoRaWanActiveStatus() == 0){
             system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
         }else{
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
