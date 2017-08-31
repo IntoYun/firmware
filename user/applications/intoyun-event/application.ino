@@ -104,7 +104,7 @@ static void SystemWakeUpHandler(void)
     Serial.begin(115200);
     Serial.println("mcuWakeup");
     DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    if(LoRaWan.connected()){
+    if(IntoYun.connected()){
         deviceState = DEVICE_STATE_SEND;
     }else{
         deviceState = DEVICE_STATE_JOIN;
@@ -186,7 +186,7 @@ void setup()
     uint32_t delayMs = (uint32_t)random(0,10000);
     DEBUG("delayMs = %d",delayMs);
     // delay(delayMs);
-    LoRaWan.connect(JOIN_OTAA,0);
+    IntoYun.connect(JOIN_OTAA,0);
 }
 
 uint8_t cnt = 0;
@@ -196,7 +196,7 @@ void loop()
     switch(deviceState)
     {
     case DEVICE_STATE_JOIN:
-        LoRaWan.connect(JOIN_OTAA,0);
+        // IntoYun.connect(JOIN_OTAA,0);
         deviceState = DEVICE_STATE_IDLE;
         break;
 
@@ -224,7 +224,7 @@ void loop()
         break;
 
     case DEVICE_STATE_IDLE:
-        if(LoRaWan.connected()){
+        if(IntoYun.connected()){
             // LoRaWan.setMacClassType(CLASS_C);
             deviceState = DEVICE_STATE_SEND;
         }

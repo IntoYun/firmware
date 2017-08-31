@@ -28,6 +28,7 @@
 #include "system_datapoint.h"
 #include "system_sleep.h"
 #include "wiring_system.h"
+#include "wiring_lorawan.h"
 #include "wiring_watchdog.h"
 #include "interrupts_hal.h"
 #include "string_convert.h"
@@ -349,15 +350,34 @@ class IntoRobotClass: public IntoRobotDatepointClass {
     public:
 
         static bool connected(void) {
-            return false;
+            if(LoRaWanActiveStatus() == 1){
+                return true;
+            }else{
+                return false;
+            }
         }
         static bool disconnected(void) {
             return !connected();
         }
         static void connect(join_mode_t mode, uint16_t timeout) {
-
+            if(mode == JOIN_ABP){
+                return LoRaWan.joinABP();
+            }else{
+                DEBUG("1111");
+                return LoRaWan.joinOTAA(timeout);
+            }
         }
         static void disconnect(void) {
+            LoRaWanDisconnect();
+            LoRaMacAbortRun();
+            LoRaWan.setMacClassType(CLASS_A);
+        }
+        static void setProtocol(protocol_mode_t mode){
+            if(mode == PROTOCOL_LORAWAN){
+                LoRaWanResume();
+            }else{
+                LoRaWanPause();
+            }
         }
         static void process(void) {
             //application_checkin();

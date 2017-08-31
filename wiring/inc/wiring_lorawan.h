@@ -42,10 +42,8 @@ typedef enum
 class LoRaWanClass
 {
     public:
-        bool connect(join_mode_t mode, uint16_t timeout);
-        void disconnect(void);
-        bool connected(void);
-        void setProtocol(protocol_mode_t mode);
+        static bool joinABP(void);                   //ABP入网
+        static bool joinOTAA(uint16_t timeout);      //OTAA入网激活
         bool sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
         bool sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                        //返回接收数据
@@ -118,8 +116,6 @@ class LoRaWanClass
         uint8_t _macSendStatus = 0;           //发送状态
 
     private:
-        bool joinABP(void);                   //ABP入网
-        bool joinOTAA(uint16_t timeout);      //OTAA入网激活
 };
 
 class LoRaClass

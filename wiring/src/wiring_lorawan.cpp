@@ -3,48 +3,26 @@
 #include "system_lorawan.h"
 #include "system_event.h"
 #include "wiring_system.h"
+#include "wiring_intorobot.h"
 #include "string_convert.h"
 #include "service_debug.h"
 
 #ifndef configNO_LORAWAN
 
+#define WIRING_LORAWAN_DEBUG
+
+#ifdef WIRING_LORAWAN_DEBUG
+#define WLORAWAN_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WLORAWAN_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define WLORAWAN_DEBUG(...)
+#define WLORAWAN_DEBUG_D(...)
+#endif
+
+
 LoRaWanClass LoRaWan;
 LoRaClass LoRa;
 //lorawan 接口
-bool LoRaWanClass::connect(join_mode_t mode, uint16_t timeout)
-{
-    if(mode == JOIN_ABP){
-        return joinABP();
-    }else{
-        return joinOTAA(timeout);
-    }
-}
-
-void LoRaWanClass::disconnect(void)
-{
-    LoRaWanDisconnect();
-    LoRaMacAbortRun();
-    setMacClassType(CLASS_A);
-}
-
-bool LoRaWanClass::connected(void)
-{
-    if(LoRaWanActiveStatus() == 1){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-void LoRaWanClass::setProtocol(protocol_mode_t mode)
-{
-    if(mode == PROTOCOL_LORAWAN){
-        LoRaWanResume();
-    }else{
-        LoRaWanPause();
-    }
-}
-
 bool LoRaWanClass::joinABP(void)
 {
     return LoRaWanJoinABP();
@@ -53,8 +31,10 @@ bool LoRaWanClass::joinABP(void)
 bool LoRaWanClass::joinOTAA(uint16_t timeout)
 {
     uint32_t _timeout = timeout;
+    DEBUG("aaaa");
     LoRaWanJoinEnable(true);
 
+    #if 0
     if(_timeout == 0){
         return true;
     }
@@ -72,11 +52,12 @@ bool LoRaWanClass::joinOTAA(uint16_t timeout)
         }
 
         if(millis() - prevTime >= _timeout * 1000){
-            disconnect();
+            IntoYun.disconnect();
             return false;
         }
         intorobot_process();
     }
+    #endif
 }
 
 bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
@@ -88,14 +69,14 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
     if(loramacStatus != LORAMAC_STATUS_OK) {
-        DEBUG("LoRaWan send empty frame");
+        WLORAWAN_DEBUG("LoRaWan send empty frame");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
         mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
-        // DEBUG("LoRaWan send confirmed frame");
+        // WLORAWAN_DEBUG("LoRaWan send confirmed frame");
         mcpsReq.Type = MCPS_CONFIRMED;
         mcpsReq.Req.Confirmed.fPort = port;
         mcpsReq.Req.Confirmed.fBuffer = buffer;
@@ -105,7 +86,7 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        DEBUG("LoRaWan send confirm frame status OK!!!");
+        WLORAWAN_DEBUG("LoRaWan send confirm frame status OK!!!");
         _macSendStatus = 0;
         if(_timeout == 0){
             return true;
@@ -145,14 +126,14 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
     if(loramacStatus != LORAMAC_STATUS_OK) {
-        DEBUG("LoRaWan send empty frame");
+        WLORAWAN_DEBUG("LoRaWan send empty frame");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
         mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
-        // DEBUG("LoRaWan send unconfirmed frame");
+        // WLORAWAN_DEBUG("LoRaWan send unconfirmed frame");
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fPort = port;
         mcpsReq.Req.Unconfirmed.fBuffer = buffer;
@@ -161,7 +142,7 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        DEBUG("LoRaWan send unnconfirm frame status OK!!!");
+        WLORAWAN_DEBUG("LoRaWan send unnconfirm frame status OK!!!");
         _macSendStatus = 0;
         if(_timeout == 0){
             return true;
