@@ -130,17 +130,20 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     deviceState = DEVICE_STATE_SLEEP;
                     break;
 
-                case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
+                case ep_lorawan_mcpsindication_receive_data:
                     break;
 
-                case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送请求完成
-                case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送请求完成
-                case ep_lorawan_mcpsindication_unconfirmed: //服务器下发了无需确认帧
-                case ep_lorawan_mcpsindication_confirmed://服务器下发了确认帧
-                    DEBUG("lorawan_mcpsIndication_mcpsConfirm");
-                    sleepEnable = true;
-                    prevTime = millis();
-                    #if 0
+                // case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
+                //     break;
+
+                // case ep_lorawan_mcpsconfirm_unconfirmed: //不确认型帧发送请求完成
+                // case ep_lorawan_mcpsconfirm_confirmed: //确认型帧发送请求完成
+                // case ep_lorawan_mcpsindication_unconfirmed: //服务器下发了无需确认帧
+                // case ep_lorawan_mcpsindication_confirmed://服务器下发了确认帧
+                //     DEBUG("lorawan_mcpsIndication_mcpsConfirm");
+                //     sleepEnable = true;
+                //     prevTime = millis();
+                    // #if 0
                     if(LoRaWan.getMacClassType() == 2)
                     {
                         DEBUG("class type = C");
@@ -151,8 +154,8 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     {
                         deviceState = DEVICE_STATE_SLEEP;
                     }
-                    #endif
-                    break;
+                    // #endif
+                    // break;
 
                 default:
                     break;
@@ -175,7 +178,7 @@ void setup()
     IntoRobot.defineDatapointNumber(DPID_NUMBER_RHEOSTAT, DP_PERMISSION_UP_DOWN, 0, 1000, 0, 0);            //速度
     IntoRobot.defineDatapointString(DPID_STRING_LCD_DISPLAY, DP_PERMISSION_UP_DOWN, 255, "oh yeah!");       //字符显示
     IntoRobot.defineDatapointBinary(DPID_BINARY_DATA, DP_PERMISSION_UP_DOWN, 255, "\x23\x32\x32\x43", 4);   //字符显示
-    // System.on(event_lorawan_status, &lorawan_event_callback);
+    System.on(event_lorawan_status, &lorawan_event_callback);
     System.on(event_cloud_data, &system_event_callback);
     LoRaWan.setDataRate(DR_3);
     LoRaWan.setChannelDRRange(2,DR_3,DR_3);

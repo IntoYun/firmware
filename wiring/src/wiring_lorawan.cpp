@@ -600,14 +600,24 @@ uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
     }
 }
 
-void LoRaClass::radioStartCad(void)
-{
-    Radio.StartCad();
-}
-
 bool LoRaClass::radioCad(void)
 {
-    return _cadDetected;
+    _radioRunStatus = 0;
+    uint32_t prevTime = millis();
+    Radio.StartCad();
+    while(1){
+        if(_radioRunStatus == ep_lora_radio_cad_done){
+            if(_cadDetected){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        if(millis() - prevTime >= 1000){
+            return false;
+        }
+        intorobot_process();
+    }
 }
 
 int16_t LoRaClass::radioReadRssi(void)

@@ -123,7 +123,6 @@ class LoRaClass
         bool radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout);                    //lora射频发送数据
         void radioStartRx(uint32_t timeout);                                                        //lora射频进入接收状态
         uint16_t radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi);  //lora射频接收数据
-        void radioStartCad(void);                       //启动CAD
         bool radioCad(void);                            //完成CAD流程  true:CADDeteced false:CADDone
 
         int16_t radioReadRssi(void);                    //获取rssi

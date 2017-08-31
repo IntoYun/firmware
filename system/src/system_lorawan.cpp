@@ -69,13 +69,13 @@ static  RadioEvents_t loraRadioEvents;
 static void OnLoRaRadioTxDone(void)
 {
     LoRa._radioRunStatus = ep_lora_radio_tx_done;
-    system_notify_event(event_lora_radio_status,ep_lora_radio_tx_done);
+    // system_notify_event(event_lora_radio_status,ep_lora_radio_tx_done);
 }
 
 static void OnLoRaRadioTxTimeout(void)
 {
     LoRa._radioRunStatus = ep_lora_radio_tx_timeout;
-    system_notify_event(event_lora_radio_status,ep_lora_radio_tx_timeout);
+    // system_notify_event(event_lora_radio_status,ep_lora_radio_tx_timeout);
 }
 
 static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
@@ -92,26 +92,24 @@ static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int
 static void OnLoRaRadioRxTimeout(void)
 {
     LoRa._radioRunStatus = ep_lora_radio_rx_timeout;
-    system_notify_event(event_lora_radio_status,ep_lora_radio_rx_timeout);
+    // system_notify_event(event_lora_radio_status,ep_lora_radio_rx_timeout);
 }
 
 static void OnLoRaRadioRxError(void)
 {
     LoRa._radioRunStatus = ep_lora_radio_rx_error;
-    system_notify_event(event_lora_radio_status,ep_lora_radio_rx_error);
+    // system_notify_event(event_lora_radio_status,ep_lora_radio_rx_error);
 }
 
 static void OnLoRaRadioCadDone(bool channelActivityDetected)
 {
-    uint8_t cadDetected;
     if(channelActivityDetected){
-        cadDetected = 1;
         LoRa._cadDetected = true;
     }else{
-        cadDetected = 0;
         LoRa._cadDetected = false;
     }
-    system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
+    LoRa._radioRunStatus = ep_lora_radio_cad_done;
+    // system_notify_event(event_lora_radio_status,ep_lora_radio_cad_done,&cadDetected,1);
 }
 
 //======loramac不运行 end ========
@@ -132,7 +130,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_unconfirmed;
-                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_unconfirmed);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_unconfirmed);
                 break;
             }
             case MCPS_CONFIRMED:
@@ -149,13 +147,13 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                     LoRaWan._macSendStatus = 2;
                 }
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_confirmed;
-                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed_ackreceived);
-                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed_ackreceived);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_confirmed);
                 break;
             }
             case MCPS_PROPRIETARY:
             {
-                system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_proprietary);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mcpsconfirm_proprietary);
                 break;
             }
             default:
@@ -212,24 +210,24 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         case MCPS_UNCONFIRMED:
         {
             // DEBUG("mcpsIndication->MCPS_UNCONFIRMED");
-            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_unconfirmed);
+            // system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_unconfirmed);
             break;
         }
         case MCPS_CONFIRMED:
         {
             // DEBUG("mcpsIndication->MCPS_CONFIRMED");
             LoRaWanOnEvent(LORAWAN_EVENT_MCPSINDICATION_CONFIRMED);
-            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_confirmed);
+            // system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_confirmed);
             break;
         }
         case MCPS_PROPRIETARY:
         {
-            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_proprietary);
+            // system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_proprietary);
             break;
         }
         case MCPS_MULTICAST:
         {
-            system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_multicast);
+            // system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_multicast);
             break;
         }
         default:
@@ -270,7 +268,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 // Check NbGateways
                 LoRaWan._demodMargin = mlmeConfirm->DemodMargin;
                 LoRaWan._nbGateways = mlmeConfirm->NbGateways;
-                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_link_check);
+                // system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_link_check);
             }
             break;
         }
