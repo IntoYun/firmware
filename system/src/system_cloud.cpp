@@ -1445,8 +1445,8 @@ bool intorobot_device_register(char *prodcut_id, char *signature)
             HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
             HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
             HAL_PARAMS_Save_Params();
-            SCLOUD_DEBUG("device_id : %s", deviceIdObject->valuestring);
-            SCLOUD_DEBUG("token     : %s", accessTokenObject->valuestring);
+            SCLOUD_DEBUG("device_id    : %s", deviceIdObject->valuestring);
+            SCLOUD_DEBUG("access_token : %s", accessTokenObject->valuestring);
             SCLOUD_DEBUG("device register success!");
             flag = true;
         }
