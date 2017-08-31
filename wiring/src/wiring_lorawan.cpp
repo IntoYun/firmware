@@ -175,7 +175,7 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
     if(macBuffer.available) {
         macBuffer.available = false; //数据已读取
         *rssi = _macRssi;
-        memcpy1(buffer, macBuffer.buffer, macBuffer.bufferSize);
+        memcpy(buffer, macBuffer.buffer, macBuffer.bufferSize);
         return macBuffer.bufferSize;
     }
     return 0;
@@ -229,7 +229,7 @@ void LoRaWanClass::setAppKey(char *appKey)
 void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
 {
     char nwkskey[36] = "";
-    memcpy1(macParams.nwkSkey,nwkSkey,16);
+    memcpy(macParams.nwkSkey,nwkSkey,16);
     hex2string(macParams.nwkSkey, 16, nwkskey, false);
     HAL_PARAMS_Set_System_nwkskey(nwkskey);
     HAL_PARAMS_Save_Params();
@@ -238,7 +238,7 @@ void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
 void LoRaWanClass::setAppSessionKey(uint8_t *appSkey)
 {
     char appskey[36] = "";
-    memcpy1(macParams.appSkey,appSkey,16);
+    memcpy(macParams.appSkey,appSkey,16);
     hex2string(macParams.appSkey, 16, appskey, false);
     HAL_PARAMS_Set_System_appskey(appskey);
     HAL_PARAMS_Save_Params();

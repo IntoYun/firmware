@@ -197,7 +197,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         LoRaWan.macBuffer.available = true;
         LoRaWan.macBuffer.bufferSize = mcpsIndication->BufferSize;
-        memcpy1(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
+        memcpy(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
 
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
         system_notify_event(event_lorawan_status,ep_lorawan_mcpsindication_receive_data);
@@ -479,14 +479,14 @@ void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
     status = LoRaMacMibGetRequestConfirm( &mibReq );
     if(status == LORAMAC_STATUS_OK)
     {
-        memcpy1(nwkSkey,mibReq.Param.NwkSKey,16);
+        memcpy(nwkSkey,mibReq.Param.NwkSKey,16);
     }
 
     mibReq.Type = MIB_APP_SKEY;
     status = LoRaMacMibGetRequestConfirm( &mibReq );
     if(status == LORAMAC_STATUS_OK)
     {
-        memcpy1(appSkey,mibReq.Param.AppSKey,16);
+        memcpy(appSkey,mibReq.Param.AppSKey,16);
     }
 }
 
