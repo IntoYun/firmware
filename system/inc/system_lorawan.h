@@ -61,7 +61,7 @@ void LoRaWanResume(void);
 void LoRaWanOnEvent(lorawan_event_t event);
 void LoRaWanJoinEnable(bool enable);
 bool LoRaWanJoinIsEnabled(void);
-int8_t LoRaWanActiveStatus(void);
+int  LoRaWanActiveStatus(void);
 void LoRaWanJoinOTAA(void);
 bool LoRaWanJoinABP(void);
 void LoRaWanDisconnect(void);

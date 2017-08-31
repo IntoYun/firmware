@@ -439,6 +439,9 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 {
     //dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
     //大端表示，如果最高位是1，则表示两个字节，否则是一个字节
+    if(len == 0){
+        return;
+    }
     int32_t index = 0;
     uint16_t dpID = 0;
     uint8_t dataType;

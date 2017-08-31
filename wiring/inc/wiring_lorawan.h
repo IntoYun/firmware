@@ -11,6 +11,10 @@
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
 
+#define LORAMAC_SEND_OK     (0)
+#define LORAMAC_SEND_FAIL   (-1)
+#define LORAMAC_SENDING     (1)
+
 typedef struct {
     bool available;      //是否接收到数据 true有效
     uint16_t bufferSize; //接收的数据长度
@@ -43,9 +47,9 @@ class LoRaWanClass
 {
     public:
         bool joinABP(void);                   //ABP入网
-        bool joinOTAA(uint16_t timeout);      //OTAA入网激活
-        bool sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
-        bool sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
+        int joinOTAA(uint16_t timeout);      //OTAA入网激活
+        int sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
+        int sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                        //返回接收数据
         void setDeviceEUI(char *devEui);                  //设置deviceeui
         void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
@@ -89,7 +93,7 @@ class LoRaWanClass
         uint8_t getGatewayNumber(void);                                         //获取网关号
         uint8_t getSnr(void);                                                   //获取收到数据后的snr
         int getRssi(void);                                                      //获取收到数据后的rssi
-        uint8_t sendStatus(void);
+        int8_t sendStatus(void);
 
     public:
         uint8_t _buffer[256];                 //接收缓冲区
@@ -112,7 +116,7 @@ class LoRaWanClass
         uint8_t _framePending = 0;
         uint8_t _macDatarate = DR_5;          //设置发送速率
         uint8_t _macRunStatus = 0;            //mac运行状态 内部使用处理
-        uint8_t _macSendStatus = 0;           //发送状态
+        int8_t _macSendStatus = 0;           //发送状态
 
     private:
 };
@@ -120,7 +124,7 @@ class LoRaWanClass
 class LoRaClass
 {
     public:
-        bool radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout);                    //lora射频发送数据
+        int radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout);                    //lora射频发送数据
         void radioStartRx(uint32_t timeout);                                                        //lora射频进入接收状态
         uint16_t radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi);  //lora射频接收数据
         bool radioCad(void);                            //完成CAD流程  true:CADDeteced false:CADDone
@@ -174,8 +178,8 @@ class LoRaClass
         int8_t _snr;                         //接收完数据收snr值
         int16_t _rssi;                       //接收完数据收rssi值
         uint8_t _radioRunStatus = 0;         //发送接收状态
-        bool _cadDetected = false;           //是否检测到cad
-        bool _radioAvailable = false;        //是否收到数据
+        bool _availableData = false;        //是否收到数据
+        int8_t _radioSendStatus = -1;
 
     private:
         uint32_t _freq = 434000000;          //工作频率
@@ -196,7 +200,7 @@ class LoRaClass
         bool _rxContinuous = true;           //连续模式
         int8_t _power = 20;                  //发射功率
         uint32_t _fdev = 0;                  //频率偏差　仅fsk有效 fsk:Hz lora:0
-        uint32_t _txTimeout = 3000;          //发射超时时间 单位ms
+        uint32_t _txTimeout = 30000;          //发射超时时间 单位ms
 };
 
 extern LoRaWanClass LoRaWan;

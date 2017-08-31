@@ -130,8 +130,8 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
                     deviceState = DEVICE_STATE_SLEEP;
                     break;
 
-                case ep_lorawan_mcpsindication_receive_data:
-                    break;
+                // case ep_lorawan_mcpsindication_receive_data:
+                //     break;
 
                 // case ep_lorawan_mcpsconfirm_confirmed_ackreceived: //收到服务器ACK
                 //     break;

@@ -28,13 +28,13 @@ bool LoRaWanClass::joinABP(void)
     return LoRaWanJoinABP();
 }
 
-bool LoRaWanClass::joinOTAA(uint16_t timeout)
+int LoRaWanClass::joinOTAA(uint16_t timeout)
 {
     uint32_t _timeout = timeout;
     LoRaWanJoinEnable(true);
 
     if(_timeout == 0){
-        return true;
+        return 1;
     }
     if(_timeout < 180){
         _timeout = 180;
@@ -44,20 +44,20 @@ bool LoRaWanClass::joinOTAA(uint16_t timeout)
     uint32_t prevTime = millis();
     while(1){
         if(_macRunStatus == ep_lorawan_mlmeconfirm_join_success){
-            return true;
+            return 0;
         }else if(_macRunStatus == ep_lorawan_mlmeconfirm_join_fail){
-            return false;
+            return -1;
         }
 
         if(millis() - prevTime >= _timeout * 1000){
             IntoYun.disconnect();
-            return false;
+            return -1;
         }
         intorobot_process();
     }
 }
 
-bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
+int LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
@@ -84,12 +84,13 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
         WLORAWAN_DEBUG("LoRaWan send confirm frame status OK!!!");
-        _macSendStatus = 0;
+        _macSendStatus = LORAMAC_SENDING;
         if(_timeout == 0){
-            return true;
+            return LORAMAC_SENDING;
         }
     }else{
-        return false;
+        _macSendStatus = LORAMAC_SEND_FAIL;
+        return LORAMAC_SEND_FAIL;
     }
 
     if(_timeout < 120){
@@ -100,21 +101,23 @@ bool LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, ui
     while(1){
         if(_macRunStatus == ep_lorawan_mcpsconfirm_confirmed){
             if(_ackReceived == true){
-                return true;
+                return LORAMAC_SEND_OK;
             }else{
-                return false;
+                _macSendStatus = LORAMAC_SEND_FAIL;
+                return LORAMAC_SEND_FAIL;
             }
         }
 
         if(millis() - prevTime >= _timeout * 1000){
             LoRaMacAbortRun();
-            return false;
+            _macSendStatus = LORAMAC_SEND_FAIL;
+            return LORAMAC_SEND_FAIL;
         }
         intorobot_process();
     }
 }
 
-bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
+int LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout)
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
@@ -140,12 +143,13 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
         WLORAWAN_DEBUG("LoRaWan send unnconfirm frame status OK!!!");
-        _macSendStatus = 0;
+        _macSendStatus = LORAMAC_SENDING;
         if(_timeout == 0){
-            return true;
+            return LORAMAC_SENDING;
         }
     }else{
-        return false;
+        _macSendStatus = LORAMAC_SEND_FAIL;
+        return LORAMAC_SEND_FAIL;
     }
 
     if(_timeout < 60){
@@ -156,12 +160,13 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
     uint32_t prevTime = millis();
     while(1){
         if(_macRunStatus == ep_lorawan_mcpsconfirm_unconfirmed){
-            return true;
+            return LORAMAC_SEND_OK;
         }
 
         if(millis() - prevTime >= _timeout * 1000){
             LoRaMacAbortRun();
-            return false;
+            _macSendStatus = LORAMAC_SEND_FAIL;
+            return LORAMAC_SEND_FAIL;
         }
         intorobot_process();
     }
@@ -539,38 +544,49 @@ int LoRaWanClass::getRssi(void)
 {
     return _macRssi;
 }
-//发送状态查询 0-发送中 1-成功 2-失败
-uint8_t LoRaWanClass::sendStatus(void)
+//发送状态查询 1-发送中 0-成功 -1失败
+int8_t LoRaWanClass::sendStatus(void)
 {
     return _macSendStatus;
 }
 
 //P2P透传接口
-bool LoRaClass::radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout)
+int LoRaClass::radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout)
 {
-    Radio.SetTxConfig(_modem, _power, _fdev, _bandwidth, _datarate, _coderate, _preambleLen, _fixLenOn, _crcOn, _freqHopOn, _hopPeriod, _iqInverted, timeout);
-    Radio.Send(buffer, length);
-    uint32_t _timeout = timeout;
-    if(_timeout == 0){
-        return true;
+    uint32_t _timeout = 0;
+    if(timeout == 0){
+        _timeout = _txTimeout;
+    }else{
+        _timeout = timeout;
     }
 
     if(_timeout < 3000){
         _timeout = 3000;
     }
 
+    Radio.SetTxConfig(_modem, _power, _fdev, _bandwidth, _datarate, _coderate, _preambleLen, _fixLenOn, _crcOn, _freqHopOn, _hopPeriod, _iqInverted, _timeout);
+    Radio.Send(buffer, length);
+
+    if(timeout == 0){
+        _radioSendStatus = 1;
+        return 1;
+    }
+
     _radioRunStatus = 0;
     uint32_t prevTime = millis();
     while(1){
         if(_radioRunStatus == ep_lora_radio_tx_done){
-            return true;
+            _radioSendStatus = 0;
+            return 0;
         }
         if(_radioRunStatus == ep_lora_radio_tx_timeout){
-            return false;
+            _radioSendStatus = -1;
+            return -1;
         }
 
         if(millis() - prevTime >= _timeout){
-            return false;
+            _radioSendStatus = -1;
+            return -1;
         }
         intorobot_process();
     }
@@ -585,8 +601,8 @@ void LoRaClass::radioStartRx(uint32_t timeout)
 uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
 {
     uint16_t size = 0;
-    if(_radioAvailable){
-        _radioAvailable = false;
+    if(_availableData){
+        _availableData = false;
         if(length < _length){
             size = length;
         }else{
@@ -606,12 +622,10 @@ bool LoRaClass::radioCad(void)
     uint32_t prevTime = millis();
     Radio.StartCad();
     while(1){
-        if(_radioRunStatus == ep_lora_radio_cad_done){
-            if(_cadDetected){
-                return true;
-            }else{
-                return false;
-            }
+        if(_radioRunStatus == ep_lora_radio_cad_detected){
+            return true;
+        }else if(_radioRunStatus == ep_lora_radio_cad_done){
+            return false;
         }
         if(millis() - prevTime >= 1000){
             return false;

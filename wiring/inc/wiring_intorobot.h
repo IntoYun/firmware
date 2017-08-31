@@ -347,17 +347,17 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 class IntoRobotClass: public IntoRobotDatepointClass {
     public:
 
-        static bool connected(void) {
-            if(LoRaWanActiveStatus() == 1){
+        static int connected(void) {
+            return LoRaWanActiveStatus();
+        }
+        static bool disconnected(void) {
+            if(LoRaWanActiveStatus() == -1){
                 return true;
             }else{
                 return false;
             }
         }
-        static bool disconnected(void) {
-            return !connected();
-        }
-        static bool connect(join_mode_t mode, uint16_t timeout) {
+        static int connect(join_mode_t mode, uint16_t timeout) {
             if(mode == JOIN_ABP){
                 return LoRaWan.joinABP();
             }else{

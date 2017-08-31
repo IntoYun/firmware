@@ -90,22 +90,15 @@ enum SystemEventsParam {
     ep_lora_radio_rx_timeout           = 4,
     ep_lora_radio_rx_error             = 5,
     ep_lora_radio_cad_done             = 6,
+    ep_lora_radio_cad_detected         = 7,
 
     //lorawan
     ep_lorawan_mlmeconfirm_join_success = 1,
     ep_lorawan_mlmeconfirm_join_fail    = 2,
-    ep_lorawan_mlmeconfirm_link_check   = 3,
-
-    ep_lorawan_mcpsconfirm_unconfirmed  = 4,
+    ep_lorawan_send_success             = 3,
+    ep_lorawan_send_fail                = 4,
     ep_lorawan_mcpsconfirm_confirmed    = 5,
-    ep_lorawan_mcpsconfirm_proprietary  = 6,
-    ep_lorawan_mcpsconfirm_confirmed_ackreceived = 7,
-
-    ep_lorawan_mcpsindication_unconfirmed= 8,
-    ep_lorawan_mcpsindication_confirmed= 9,
-    ep_lorawan_mcpsindication_proprietary = 10,
-    ep_lorawan_mcpsindication_multicast = 11,
-    ep_lorawan_mcpsindication_receive_data = 12,
+    ep_lorawan_mcpsconfirm_unconfirmed  = 6,
 };
 
 /**
