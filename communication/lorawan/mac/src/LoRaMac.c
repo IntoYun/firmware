@@ -40,19 +40,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #ifdef LORAWAN_MAC_DEBUG
 #define LORAMAC_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define LORAMAC_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-static void debug_dump(const char* buf, int len)
-{
-    int i = 0;
-
-    if(len > 0) {
-        for(i = 0; i < len-1; i++)
-        {
-            DEBUG_D("%02x:", buf[i]);
-        }
-        DEBUG_D("%02x\r\n", buf[i]);
-    }
-}
-#define LORAMAC_DEBUG_DUMP  debug_dump
+#define LORAMAC_DEBUG_DUMP DEBUG_DUMP
 #else
 #define LORAMAC_DEBUG(...)
 #define LORAMAC_DEBUG_D(...)
