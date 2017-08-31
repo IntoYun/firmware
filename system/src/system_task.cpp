@@ -184,7 +184,7 @@ static bool _device_register(void)
     md5.add((uint8_t *)payload.c_str(), payload.length());
     md5.calculate();
     system_get_product_id(buffer, sizeof(buffer));
-    return intorobot_device_register(buffer, (char *)md5.toString().c_str());
+    return intorobot_device_register(buffer, utc_time, (char *)md5.toString().c_str());
 }
 
 void preprocess_cloud_connection(void)

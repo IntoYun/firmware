@@ -326,8 +326,9 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
         static int available(void) {
             return intorobot_debug_info_available();
         }
-        static int deviceRegister(char *prodcut_id, char *signature) {
-            return intorobot_device_register(prodcut_id, signature);
+        static int deviceRegister(char *prodcut_id, size_t utc_time, char *signature)
+        {
+            return intorobot_device_register(prodcut_id, utc_time, signature);
         }
         static String deviceID(void) { return intorobot_deviceID(); }
 

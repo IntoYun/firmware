@@ -1395,7 +1395,7 @@ bool intorobot_sync_time(void)
     return false;
 }
 
-bool intorobot_device_register(char *prodcut_id, char *signature)
+bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature)
 {
     SCLOUD_DEBUG("---------device register begin---------");
 
@@ -1409,6 +1409,7 @@ bool intorobot_device_register(char *prodcut_id, char *signature)
 
     //获取product id
     aJson.addStringToObject(root, "productId", prodcut_id);
+    aJson.addStringToObject(root, "timestamp", String(utc_time).c_str());
     aJson.addStringToObject(root, "signature", signature);
     char* string = aJson.print(root);
     String payload = string;
