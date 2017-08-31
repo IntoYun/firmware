@@ -174,7 +174,6 @@ bool LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, 
         _timeout = 60;
     }
 
-    DEBUG("_timeout = %d",_timeout);
     _macRunStatus = 0;
     uint32_t prevTime = millis();
     while(1){

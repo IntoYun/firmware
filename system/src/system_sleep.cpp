@@ -67,6 +67,10 @@ static void LoRaSetSystemSleep(userLoRaWakeupCb userHandler, uint32_t timeout) /
 //主模式下
 void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
 {
+    if(LoRaWan.getMacClassType() == CLASS_C){
+        return;
+    }
+
     if(!loraSystemSleepEnabled)
     {
         LoRaSetSystemSleep(userHandler,seconds);
@@ -89,6 +93,10 @@ static void LoRaSlaveSystemWakeup(void)
 
 void system_sleep_lora_slave(userLoRaWakeupCb userHandler)
 {
+    if(LoRaWan.getMacClassType() == CLASS_C){
+        return;
+    }
+
     userLoRaSystemWakeupHandler = userHandler;
     LoRa.radioSetSleep();
     SlaveModeRtcEnterLowPowerStopMode();
