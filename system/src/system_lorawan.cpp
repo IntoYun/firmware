@@ -197,8 +197,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         LoRaWan.macBuffer.available = true;
         LoRaWan.macBuffer.bufferSize = mcpsIndication->BufferSize;
         memcpy(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
-
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
+        if(!System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)){
+            system_notify_event(event_cloud_data, ep_cloud_data_custom,LoRaWan.macBuffer.buffer,LoRaWan.macBuffer.bufferSize);
+        }
     }
     else
     {
@@ -614,11 +616,10 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
         case LORAWAN_EVENT_RX_COMPLETE:
             {
-                int len, rssi;
-                uint8_t buffer[256];
-
                 //数据点使能
-                if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)){ 
+                if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)){
+                    int len, rssi;
+                    uint8_t buffer[256];
                     len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
 
                     #if 0
@@ -632,8 +633,6 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
                     intorobotParseReceiveDatapoints(buffer,len);
                     SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--");
-                }else{
-                    system_notify_event(event_cloud_data, ep_cloud_data_custom,buffer,len);
                 }
             }
             break;
