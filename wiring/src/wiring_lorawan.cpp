@@ -579,7 +579,7 @@ int LoRaClass::radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout)
             _radioSendStatus = 0;
             return 0;
         }
-        if(_radioRunStatus == ep_lora_radio_tx_timeout){
+        if(_radioRunStatus == ep_lora_radio_tx_fail){
             _radioSendStatus = -1;
             return -1;
         }

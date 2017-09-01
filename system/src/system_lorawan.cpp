@@ -76,8 +76,8 @@ static void OnLoRaRadioTxDone(void)
 static void OnLoRaRadioTxTimeout(void)
 {
     LoRa._radioSendStatus = -1;
-    LoRa._radioRunStatus = ep_lora_radio_tx_timeout;
-    system_notify_event(event_lora_radio_status,ep_lora_radio_tx_timeout);
+    LoRa._radioRunStatus = ep_lora_radio_tx_fail;
+    system_notify_event(event_lora_radio_status,ep_lora_radio_tx_fail);
 }
 
 static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)

@@ -85,7 +85,7 @@ enum SystemEventsParam {
 
     //lorawan radio
     ep_lora_radio_tx_done              = 1,
-    ep_lora_radio_tx_timeout           = 2,
+    ep_lora_radio_tx_fail              = 2,
     ep_lora_radio_rx_done              = 3,
     ep_lora_radio_rx_timeout           = 4,
     ep_lora_radio_rx_error             = 5,
