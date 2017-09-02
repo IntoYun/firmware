@@ -517,12 +517,55 @@ uint8_t LoRaWanClass::setRX2Parameters(uint8_t datarate, uint32_t frequency)
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
+uint32_t LoRaWanClass::getRX2Freq(void)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+    Rx2ChannelParams_t rx2Params;
+    mibReq.Type = MIB_RX2_CHANNEL;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK){
+        rx2Params = mibReq.Param.Rx2Channel;
+        return rx2Params.Frequency;
+    }else{
+        return 0;
+    }
+}
+
+uint8_t LoRaWanClass::getRX2DataRate(void)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+    Rx2ChannelParams_t rx2Params;
+    mibReq.Type = MIB_RX2_CHANNEL;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK){
+        rx2Params = mibReq.Param.Rx2Channel;
+        return rx2Params.Datarate;
+    }else{
+        return 0;
+    }
+}
+
 uint8_t LoRaWanClass::setRX1Delay(uint16_t delay)
 {
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_RECEIVE_DELAY_1;
     mibReq.Param.ReceiveDelay1 = delay;
     LoRaMacMibSetRequestConfirm( &mibReq );
+}
+
+uint16_t LoRaWanClass::getRX1Delay(void)
+{
+    MibRequestConfirm_t mibReq;
+    LoRaMacStatus_t status;
+    mibReq.Type = MIB_RECEIVE_DELAY_1;
+    status = LoRaMacMibGetRequestConfirm( &mibReq );
+    if(status == LORAMAC_STATUS_OK){
+        return mibReq.Param.ReceiveDelay1;
+    }else{
+        return 0;
+    }
 }
 
 uint8_t LoRaWanClass::getMargin(void)

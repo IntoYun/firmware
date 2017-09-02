@@ -88,7 +88,10 @@ class LoRaWanClass
         void setDownCounter(uint32_t counter);                                  //设置下行计数器
         uint32_t getDownCounter(void);                                          //获取下行计数器
         uint8_t setRX2Parameters(uint8_t datarate, uint32_t frequency);         //设置窗口2 速率和频率
+        uint32_t getRX2Freq(void); //获取窗口2的频率
+        uint8_t getRX2DataRate(void); //获取窗口2的速率
         uint8_t setRX1Delay(uint16_t delay);                                    //设置窗口1 延时
+        uint16_t getRX1Delay(void); //获取窗口1打开延迟时间
         uint8_t getMargin(void);                                                //获取魔术字
         uint8_t getGatewayNumber(void);                                         //获取网关号
         uint8_t getSnr(void);                                                   //获取收到数据后的snr
