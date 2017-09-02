@@ -371,9 +371,14 @@ void LoRaWanClass::setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t max
     LoRaMacChannelAdd(channel,channelParams);
 }
 
-uint8_t LoRaWanClass::getChannelDRRange(uint8_t channel)
+bool LoRaWanClass::getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *maxDR)
 {
-
+    if(channel > 15){
+        return false;
+    }else{
+        LoRaMacGetChannelDRRang(channel,minDR,maxDR);
+        return true;
+    }
 }
 
 void LoRaWanClass::setChannelStatus(uint8_t channel, bool enable)
@@ -840,6 +845,11 @@ uint8_t LoRaClass::radioGetTxPower(void)
 void LoRaClass::radioSetFixPayloadLen(uint8_t payloadLen)
 {
     _payloadLen = payloadLen;
+}
+
+uint8_t LoRaClass::radioGetFixPayloadLen(void)
+{
+    return _payloadLen;
 }
 
 void LoRaClass::radioSetSymbTimeout(uint32_t symbTimeout)

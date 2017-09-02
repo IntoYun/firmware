@@ -74,7 +74,7 @@ class LoRaWanClass
         void setChannelDutyCycle(uint8_t channel, uint16_t dcycle);             //设置通道占空比
         void getChannelDutyCycle(uint8_t channel);                              //设置通道占空比
         void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);  //设置通道速率范围
-        uint8_t getChannelDRRange(uint8_t channel);                             //获取通道速率
+        bool getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *maxDR);                             //获取通道速率
         void setChannelStatus(uint8_t channel, bool enable);                    //设置通道使能
         bool getChannelStatus(uint8_t channel);                                 //获取通道状态
         void setConfirmedNbTrials(uint8_t trials);                              //设置带确认发送重发次数
@@ -169,6 +169,7 @@ class LoRaClass
 
         //接收射频相关参数
         void radioSetFixPayloadLen(uint8_t payloadLen); //SF=6时包长度需固定,设置包长度
+        uint8_t radioGetFixPayloadLen(void);//获取固定包长度
         void radioSetSymbTimeout(uint32_t symbTimeout); //设置前导码超时
         uint32_t radioGetSymbTimeout(void);             //获取前导码超时值
 

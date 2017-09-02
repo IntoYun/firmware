@@ -4663,6 +4663,15 @@ uint32_t LoRaMacGetChannelFreq(uint8_t id)
     return Channels[id].Frequency;
 }
 
+void LoRaMacGetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+{
+    if(id > 15){
+        return;
+    }
+    *minDR = (uint8_t)Channels[id].DrRange.Fields.Min;
+    *maxDR = (uint8_t)Channels[id].DrRange.Fields.Max;
+}
+
 void LoRaMacAbortRun(void)
 {
     TimerStop( &MacStateCheckTimer);
@@ -4672,5 +4681,5 @@ void LoRaMacAbortRun(void)
     TimerStop( &AckTimeoutTimer);
     LoRaMacFlags.Value = 0;
     LoRaMacState = LORAMAC_IDLE;
-    LORAMAC_DEBUG("loramac abort join");
+    LORAMAC_DEBUG("loramac abort run!!!");
 }
