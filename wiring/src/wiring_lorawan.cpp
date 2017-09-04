@@ -328,7 +328,7 @@ bool LoRaWanClass::getAdrOn(void)
 
 uint8_t LoRaWanClass::getDutyCyclePrescaler(void)
 {
-    return;
+    return 0;
 }
 
 void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
@@ -710,7 +710,7 @@ uint32_t LoRaClass::radioGetFreq(void)
 
 void LoRaClass::radioSetMaxPayloadLength(uint8_t maxPayloadLen)
 {
-    uint8_t _maxPayloadLen = maxPayloadLen;
+    _maxPayloadLen = maxPayloadLen;
     Radio.SetMaxPayloadLength(_modem, _maxPayloadLen);
 }
 

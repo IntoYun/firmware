@@ -243,10 +243,10 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
-                LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
                 if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
-                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+                    LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
+                    system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
                 }
             }
             else
@@ -556,6 +556,7 @@ void intorobot_lorawan_send_terminal_info(void)
 
     if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
         INTOROBOT_LORAWAN_CONNECTED = true;
+        LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
         system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
         DEBUG("termianal info send ok");
     }else{
