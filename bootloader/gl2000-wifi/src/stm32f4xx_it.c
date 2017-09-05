@@ -169,9 +169,9 @@ void OTG_FS_IRQHandler(void)
  * @param  None
  * @retval None
  */
-void USART1_IRQHandler(void)
+void USART2_IRQHandler(void)
 {
-    HAL_USART1_Esp8266_Handler(&UartHandleEsp8266);
+    HAL_USART2_Esp8266_Handler(&UartHandleEsp8266);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -26,13 +26,16 @@
 
 /*
  *  16+16k   bootloader
- *  16+16k   eeprom模拟区
+ *  16k      eeprom模拟区
+ *  16k      bootloader参数区
  *  64k      应用系统参数区
  *  128*3k   应用程序区
  */
 
 #define BOOTLOADER_START_ADDR            ((uint32_t)0x08000000)
 #define EEPROM_START_ADDR                ((uint32_t)0x08008000)
+#define BOOT_PARAMS_START_ADDR           ((uint32_t)0x0800C000)
+#define BOOT_PARAMS_END_ADDR             ((uint32_t)0x0800FFFF)
 #define SYSTEM_PARAMS_START_ADDR         ((uint32_t)0x08010000)
 #define SYSTEM_PARAMS_END_ADDR           ((uint32_t)0x0801FFFF)
 

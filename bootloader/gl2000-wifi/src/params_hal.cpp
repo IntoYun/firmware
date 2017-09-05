@@ -1,26 +1,33 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/params_hal.cpp"
+/**
+ ******************************************************************************
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-#else
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, either
+  version 3 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+  ******************************************************************************
+*/
 
 #include <string.h>
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
 #include "intorobot_macros.h"
-#include "service_debug.h"
-
-
-
-#define EEPROM_BOOT_PARAMS_MAX_SIZE                        (512)    //参数区大小
 
 hal_boot_params_t intorobot_boot_params;         //bootloader参数
 hal_system_params_t intorobot_system_params;     //设备参数
+
 
 /*初始化bootloader参数区*/
 void init_boot_params(hal_boot_params_t *pboot_params) {
@@ -38,19 +45,34 @@ void init_system_params(hal_system_params_t *psystem_params) {
 
 /*初始化系统参数区 保留密钥参数*/
 void init_fac_system_params(hal_system_params_t *psystem_params) {
-    uint8_t  at_mode;                  // 是否已经灌装密钥  0:未灌装 1:已经灌装
-    uint8_t  device_id[52]={0};        // 设备序列号
-    uint8_t  access_token[52]={0};     // 设备access_token
+    uint8_t  at_mode;
+    uint8_t  device_id[52]={0}, access_token[52]={0}, activation_code[52]={0};
 
-    at_mode = psystem_params->at_mode;
-    memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
-    memcpy(access_token, psystem_params->access_token, sizeof(psystem_params->access_token));
-
-    init_system_params(psystem_params);
-
-    psystem_params->at_mode = at_mode;
-    memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
-    memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
+    switch(psystem_params->at_mode)
+    {
+        case 1:      //Activation By Personalization  //已经灌好密钥
+            at_mode = psystem_params->at_mode;
+            memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
+            memcpy(access_token, psystem_params->access_token, sizeof(psystem_params->access_token));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = at_mode;
+            memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
+            memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
+            break;
+        case 2:      //Over-The-Air Activation //灌装激活码  未激活
+        case 3:      //灌装激活码 已激活
+            at_mode = psystem_params->at_mode;
+            memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
+            memcpy(activation_code, psystem_params->activation_code, sizeof(psystem_params->activation_code));
+            init_system_params(psystem_params);
+            psystem_params->at_mode = 2; //灌装激活码  未激活
+            memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
+            memcpy(psystem_params->activation_code, activation_code, sizeof(psystem_params->activation_code));
+            break;
+        default:     //没有密钥信息
+            init_system_params(psystem_params);
+            break;
+    }
 }
 
 void save_boot_params(hal_boot_params_t *pboot_params);
@@ -59,17 +81,13 @@ void save_boot_params(hal_boot_params_t *pboot_params);
  * */
 void read_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    InternalFlashStore flashStore;
 
-    memset(pboot, 0, len);
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    memset(pboot_params, 0, sizeof(hal_boot_params_t));
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        pboot[num] = HAL_EEPROM_Read(address+num);
-    }
+    flashStore.read(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 /*
@@ -77,16 +95,13 @@ void read_boot_params(hal_boot_params_t *pboot_params) {
  * */
 void save_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    InternalFlashStore flashStore;
 
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        HAL_EEPROM_Write(address+num, pboot[num]);
-    }
+    flashStore.eraseSector(BOOT_PARAMS_START_ADDR);
+    flashStore.write(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 void save_system_params(hal_system_params_t *psystem_params);
@@ -149,11 +164,6 @@ void HAL_PARAMS_Init_Boot_Params(void) {
 void HAL_PARAMS_Load_Boot_Params(void) {
     read_boot_params(&intorobot_boot_params);
     if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
-        //擦除eeprom区域 并初始化
-        InternalFlashStore flashStore;
-        flashStore.eraseSector(EEPROM_START_ADDR);
-        flashStore.eraseSector(EEPROM_START_ADDR + 0x4000);
-        HAL_EEPROM_Init();
         HAL_PARAMS_Init_Boot_Params();
     }
 }
@@ -221,4 +231,3 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     return 0;
 }
 
-#endif

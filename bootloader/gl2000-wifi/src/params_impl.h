@@ -1,9 +1,21 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/params_impl.h"
+/**
+ ******************************************************************************
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
-#else
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, either
+  version 3 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, see <http://www.gnu.org/licenses/>.
+  ******************************************************************************
+*/
 
 #ifndef PARAMS_IMPL_H_
 #define PARAMS_IMPL_H_
@@ -46,10 +58,13 @@ typedef struct
     char     dw_domain[52];        // 服务器下载域名
     float    zone;                 // 核心板所在时区。用于实时时钟。
 
-    uint8_t  reserved2[599];       // 参数预留区 每添加一个参数，预留区大小减1
+    char     activation_code[52];  // 设备激活码
+    char     http_domain[52];      // http服务器域名
+    int      http_port;            // http服务器端口
+
+    uint8_t  reserved2[491];       // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;
 }hal_system_params_t;
 
 #endif /*SYSTEM_PARAMS_H_*/
 
-#endif

@@ -37,7 +37,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BOOTLOADER_VERSION  1
-#define LIGHTTIME           400
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -46,7 +45,6 @@ uint32_t BUTTON_press_time=0;
 uint8_t USB_DFU_MODE          = 0;
 uint8_t ESP8266_UPDATE_MODE   = 0;
 uint8_t SERIAL_COM_MODE       = 0;
-uint8_t DEFAULT_FIRMWARE_MODE = 0;
 uint8_t OTA_FIRMWARE_MODE     = 0;
 uint8_t FACTORY_RESET_MODE    = 0;
 uint8_t START_APP_MODE        = 0;
@@ -86,48 +84,27 @@ int main(void)
     if(!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
     {
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
-#define TIMING_CELLULAR_UPDATE_MODE  3000   //celluar升级判断时间
-#define TIMING_DEFAULT_RESTORE_MODE  7000   //默认固件灯程序升级判断时间
-#define TIMING_SERIAL_COM_MODE       10000  //celluar串口转接判断时间
-#define TIMING_FACTORY_RESET_MODE    13000  //恢复出厂程序判断时间
-#define TIMING_NC                    20000  //无操作判断时间
+#define TIMING_ESP8266_UPDATE_MODE   3000   //esp8266升级判断时间
+#define TIMING_SERIAL_COM_MODE       5000   //esp8266串口转接判断时间
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
             BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
-            if( BUTTON_press_time > TIMING_NC )
-            {
-                FACTORY_RESET_MODE = 0;
-                NC_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_BLACK);
-            }
-            else if( BUTTON_press_time > TIMING_FACTORY_RESET_MODE )
-            {
-                SERIAL_COM_MODE = 0;
-                FACTORY_RESET_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_CYAN);
-            }
-            else if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
-            {
-                DEFAULT_FIRMWARE_MODE = 0;
-                SERIAL_COM_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_BLUE);
-            }
-            else if( BUTTON_press_time > TIMING_DEFAULT_RESTORE_MODE )
+            if( BUTTON_press_time > TIMING_SERIAL_COM_MODE )
             {
                 ESP8266_UPDATE_MODE = 0;
-                DEFAULT_FIRMWARE_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_GREEN);
+                SERIAL_COM_MODE = 1;
+                HAL_UI_UserLED_Control(1);
             }
             else if( BUTTON_press_time > TIMING_ESP8266_UPDATE_MODE )
             {
                 USB_DFU_MODE = 0;
                 ESP8266_UPDATE_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_RED);
+                HAL_UI_UserLED_Control(0);
             }
             else if( BUTTON_press_time > TIMING_DFU_DOWNLOAD_MODE )
             {
                 USB_DFU_MODE = 1;
-                HAL_UI_RGB_Color(RGB_COLOR_MAGENTA);
+                HAL_UI_UserLED_Control(1);
             }
         }
     }
@@ -137,9 +114,6 @@ int main(void)
         {
             case BOOT_FLAG_NORMAL:          //正常启动
                 START_APP_MODE = 1;
-                break;
-            case BOOT_FLAG_DEFAULT_RESTORE: //默认程序下载
-                DEFAULT_FIRMWARE_MODE = 1;
                 break;
             case BOOT_FLAG_SERIAL_COM:      //esp8266串口通讯
                 SERIAL_COM_MODE = 1;
@@ -177,12 +151,6 @@ int main(void)
         Enter_Serail_Com_Mode();
         SERIAL_COM_MODE=0;
     }
-    else if(DEFAULT_FIRMWARE_MODE)
-    {
-        BOOT_DEBUG("default firmware mode\r\n");
-        Enter_Default_RESTORE_Mode();
-        DEFAULT_FIRMWARE_MODE = 0;
-    }
     else if(ESP8266_UPDATE_MODE)
     {
         BOOT_DEBUG("esp8266 update\r\n");
@@ -201,7 +169,7 @@ int main(void)
     }
 
     BOOT_DEBUG("start app\r\n");
-    HAL_UI_RGB_Color(RGB_COLOR_BLACK); //防止进入应用程序初始化三色灯 导致闪灯
+    HAL_UI_UserLED_Control(0);
 
     start_app();
     return 0;
