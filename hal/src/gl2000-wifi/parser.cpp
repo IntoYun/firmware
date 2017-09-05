@@ -19,4 +19,4 @@
 
 #include "modem/inc/mdm_hal.h"
 
-MDMCellularSerial CellularMDM;
+MDMEsp8266Serial esp8266MDM;

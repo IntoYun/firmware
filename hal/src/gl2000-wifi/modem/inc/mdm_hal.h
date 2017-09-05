@@ -26,16 +26,25 @@
 #include <string.h>
 
 #include "pipe_hal.h"
-#include "cellular_serialpipe_hal.h"
+#include "esp8266serialpipe_hal.h"
 #include "pinmap_hal.h"
 #include "system_tick_hal.h"
 #include "enums_hal.h"
 
 /* Include for debug capabilty */
-//#define MDM_DEBUG
+//#define MODEM_DEBUG
+
+#define MDM_ESP8266_RESET_DELAY  4000
 
 #undef putc
 #undef getc
+
+
+extern "C"
+{
+    void init_modem_mutex(void);
+}
+
 
 /** basic modem parser class
 */
@@ -54,137 +63,70 @@ public:
     /* User to resume all operations */
     void resume(void);
 
-    /** Combined Init, checkNetStatus, join suitable for simple applications
-        \param simpin a optional pin of the SIM card
-        \param apn  the of the network provider e.g. "internet" or "apn.provider.com"
-        \param username is the user name text string for the authentication phase
-        \param password is the password text string for the authentication phase
-        \param auth is the authentication mode (CHAP,PAP,NONE or DETECT)
-        \return true if successful, false otherwise
-    */
-    bool connect(const char* simpin = NULL,
-            const char* apn = "CMNET", const char* username = NULL,
-            const char* password = NULL, Auth auth = AUTH_DETECT);
-
-    /**
-     * Used to issue a hardware reset of the modem
-     */
+    /* a hardware reset of the modem */
     void reset(void);
 
-    /**
-     * powerOn Initialize the modem and SIM card
-     * \param simpin a optional pin of the SIM card
-     * \return true if successful, false otherwise
-     */
-    bool powerOn(const char* simpin = NULL);
+    /* initial the modem */
+    bool init(void);
 
-    /** init (Attach) the MT to the GPRS service.
-        \param status an optional struture to with device information
-        \return true if successful, false otherwise
-    */
-    bool init(DevStatus* status = NULL);
+    /* get version of the modem */
+    bool getNetVersion(char *version);
 
-    /** get the current device status
-        \param strocture holding the device information.
-    */
-    void getDevStatus(DevStatus* dev) { memcpy(dev, &_dev, sizeof(DevStatus)); }
+    /* set wifi mode  sta ap  ap+sta */
+    bool setWifiMode(wifi_mode_t mode);
 
-    const DevStatus* getDevStatus() { return &_dev; }
+    /* Used to enable dhcp */
+    bool setWifiDHCP(wifi_mode_t mode, char enable);
 
-    /** register to the network
-        \param status an optional structure to with network information
-        \param timeout_ms -1 blocking, else non blocking timeout in ms
-        \return true if successful and connected to network, false otherwise
-    */
-    bool registerNet(NetStatus* status = NULL, system_tick_t timeout_ms = 300000);
+    /* Used to enable auto connection */
+    bool setAutoConn(char enable);
 
-    /** check if the network is available
-        \param status an optional structure to with network information
-        \return true if successful and connected to network, false otherwise
-    */
-    bool checkNetStatus(NetStatus* status = NULL);
+    /* start smart config */
+    bool startSmartconfig(smart_config_t type);
 
-    /** checks the signal strength
-        \param status an optional structure that will have current network information
-               and updated RSSI and QUAL values.
-        \return true if successful, false otherwise
-    */
-    bool getSignalStrength(NetStatus &status);
+    /* close smart config */
+    bool stopSmartconfig(void);
 
-    /** fetches the current data usage byte counts
-        \param data a required structure that will be populated with
-               current data usage values.
-        \return true if successful, false otherwise
-    */
-    bool getDataUsage(MDM_DataUsage &data);
+    /* get the smart config status*/
+    deal_status_t getSmartconfigStatus(void);
 
-    /** sets the cellular frequency bands used
-        \param bands a comma delimited constant char string of bands.
-        \return true if successful, false otherwise
-    */
-    bool setBandSelect(MDM_BandSelect &data);
+    /* get local IP and mac address*/
+    bool getAddress(wifi_addr_t *addr);
 
-    /** gets the cellular frequency bands curently used
-        \param data a required structure that will be populated with
-               current bands set for use.
-        \return true if successful, false otherwise
-    */
-    bool getBandSelect(MDM_BandSelect &data);
+    /* set the sta mac an ap mac */
+    bool setMacAddress(const char *staMac, const char *apMac);
 
-    /** gets the cellular frequency bands available to select
-        \param data a required structure that will be populated with
-               current bands available.
-        \return true if successful, false otherwise
-    */
-    bool getBandAvailable(MDM_BandSelect &data);
+    /* get the sta mac an ap mac */
+    bool getMacAddress(char *staMac, char *apMac);
 
-    /** Power off the MT, This function has to be called prior to
-        switching off the supply.
-        \return true if successfully, false otherwise
-    */
-    bool powerOff(void);
+    /* ap scan */
+    int apScan(wifi_ap_t* aps, size_t aps_count);
 
-    /** Setup the PDP context
-    */
-    bool pdp(const char* apn = "spark.telefonica.com");
-
-    // ----------------------------------------------------------------
-    // Data Connection (GPRS)
-    // ----------------------------------------------------------------
-
+    /* get wifi status */
     ip_status_t getIpStatus(void);
-    /** register (Attach) the MT to the GPRS service.
-        \param apn  the of the network provider e.g. "internet" or "apn.provider.com"
-        \param username is the user name text string for the authentication phase
-        \param password is the password text string for the authentication phase
-        \param auth is the authentication mode (CHAP,PAP,NONE or DETECT)
-        \return the ip that is assigned
-    */
-    MDM_IP join(const char* apn = "intorobot.telefonica.com", const char* username = NULL,
-                       const char* password = NULL, Auth auth = AUTH_DETECT);
 
-    /** deregister (detach) the MT from the GPRS service.
-        \return true if successful, false otherwise
-    */
-    bool disconnect(void);
+    /* drive */
+    void drive(void);
 
-    bool reconnect(void);
+    /* get wifi info */
+    bool getWifiInfo(wifi_info_t *wifiInfo);
 
-    /** Detach the MT from the GPRS service.
-        \return true if successful, false otherwise
-    */
-    bool detach(void);
+    /* join ap */
+    wifi_join_ap_t wifiJoinAp(const char *ssid, const char *password);
+
+    wifi_join_ap_t wifiJoinAp(const char *ssid, const char *password, const char *bssid);
 
     /** Translates a domain name to an IP address
         \param host the domain name to translate e.g. "u-blox.com"
         \return the IP if successful, 0 otherwise
     */
-    MDM_IP gethostbyname(const char* host);
+    MDM_IP getHostByName(const char* host);
 
-    /** get the current assigned IP address
-        \return the ip that is assigned
-    */
-    MDM_IP getIpAddress(void) { return _ip; }
+    /**
+     * Used to ping
+     */
+    bool ping(const char* host);
+    bool ping(const MDM_IP& ip);
 
     // ----------------------------------------------------------------
     // Sockets
@@ -213,13 +155,6 @@ public:
     */
     bool socketIsConnected(int socket);
 
-    /** Get the number of bytes pending for reading for this socket
-        \param socket the socket handle
-        \param timeout_ms -1 blocking, else non blocking timeout in ms
-        \return 0 if successful or SOCKET_ERROR on failure
-    */
-    bool socketSetBlocking(int socket, system_tick_t timeout_ms);
-
     /** Write socket data
         \param socket the socket handle
         \param buf the buffer to write
@@ -227,15 +162,6 @@ public:
         \return the size written or SOCKET_ERROR on failure
     */
     int socketSend(int socket, const char * buf, int len);
-
-    /** Write socket data to a IP
-        \param socket the socket handle
-        \param ip the ip to send to
-        \param port the port to send to
-        \param buf the buffer to write
-        \param len the size of the buffer to write
-        \return the size written or SOCKET_ERROR on failure
-    */
     int socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len);
 
     /** Get the number of bytes pending for reading for this socket
@@ -252,74 +178,50 @@ public:
     */
     int socketRecv(int socket, char* buf, int len);
 
-    /** Read from this socket
-        \param socket the socket handle
-        \param ip the ip of host where the data originates from
-        \param port the port where the data originates from
-        \param buf the buffer to read into
-        \param len the size of the buffer to read into
-        \return the number of bytes read or SOCKET_ERROR on failure
-    */
     int socketRecvFrom(int socket, MDM_IP* ip, int* port, char* buf, int len);
-
     /** Close a connectied socket (that was connected with #socketConnect)
         \param socket the socket handle
         \return true if successfully, false otherwise
     */
     bool socketClose(int socket);
 
-    /** Free the socket (that was allocated before by #socketSocket)
+    /** Free the socket (that was allocated before by #socketCreate)
         \param socket the socket handle
         \return true if successfully, false otherwise
     */
     bool socketFree(int socket);
 
-    // ----------------------------------------------------------------
-    // SMS Short Message Service
-    // ----------------------------------------------------------------
+    /**
+     * down online ota file
+     */
+    deal_status_t downOtaFile(const char *host, const char *param, const char * md5);
 
-    /** count the number of sms in the device and optionally return a
-        list with indexes from the storage locations in the device.
-        \param stat what type of messages you can use use
-                    "REC UNREAD", "REC READ", "STO UNSENT", "STO SENT", "ALL"
-        \param ix   list where to save the storage positions
-        \param num  number of elements in the list
-        \return the number of messages, this can be bigger than num, -1 on failure
-    */
-    int smsList(const char* stat = "ALL", int* ix = NULL, int num = 0);
+    /**
+     *  get the down online file status
+     */
+    deal_status_t getDownOtafileStatus(void);
 
-    /** Read a Message from a storage position
-        \param ix the storage position to read
-        \param num the originator address (~16 chars)
-        \param buf a buffer where to save the sm
-        \param len the length of the sm
-        \return true if successful, false otherwise
-    */
-    bool smsRead(int ix, char* num, char* buf, int len);
+    /**
+     * down the net file
+     */
+    deal_status_t downNetFile(const char *host, const char *param);
 
-    /** Send a message to a recipient
-        \param ix the storage position to delete
-        \return true if successful, false otherwise
-    */
-    bool smsDelete(int ix);
+    /**
+     * Update the net
+     */
+    bool updateNet(void);
 
-    /** Send a message to a recipient
-        \param num the phone number of the recipient
-        \param buf the content of the message to sent
-        \return true if successful, false otherwise
-    */
-    bool smsSend(const char* num, const char* buf);
+    /**
+     * get the status of downing net file
+     */
+    deal_status_t getDownNetfileStatus(void);
 
-    // ----------------------------------------------------------------
-    // USSD Unstructured Supplementary Service Data
-    // ----------------------------------------------------------------
+    /**
+     * get the progress of downing file
+     */
+    int getDownFileProgress(void);
 
-    /** Read a Message from a storage position
-        \param cmd the ussd command to send e.g "*#06#"
-        \param buf a buffer where to save the reply
-        \return true if successful, false otherwise
-    */
-    bool ussdCommand(const char* cmd, char* buf);
+    bool getBootloader(void);
 
     // ----------------------------------------------------------------
     // DEBUG/DUMP status to DEBUG output
@@ -330,14 +232,6 @@ public:
         \return true if successful, false not possible
     */
     bool setDebug(int level);
-
-    /** dump the device status to DEBUG output
-    */
-    void dumpDevStatus(DevStatus *status);
-
-    /** dump the network status to DEBUG output
-    */
-    void dumpNetStatus(NetStatus *status);
 
     /** dump the ip address to DEBUG output
     */
@@ -376,12 +270,6 @@ public:
     */
     typedef void (*_CELLULAR_SMS_CB)(void* data, int index);
 
-    /** Set the SMS received callback handler
-        \param callback function pointer for SMS received handler
-        \param void* for optional parameter
-    */
-    void setSMSreceivedHandler(_CELLULAR_SMS_CB cb = NULL, void* data = NULL);
-
     /** Write formated date to the physical interface (printf style)
         \param fmt the format string
         \param .. variable arguments to be formated
@@ -407,7 +295,7 @@ public:
     */
     int waitFinalResp(_CALLBACKPTR cb = NULL,
                       void* param = NULL,
-                      system_tick_t timeout_ms = 10000);
+                      system_tick_t timeout_ms = 5000);
 
     /** template version of #waitFinalResp when using callbacks,
         This template will allow the compiler to do type cheking but
@@ -418,7 +306,7 @@ public:
     template<class T>
     inline int waitFinalResp(int (*cb)(int type, const char* buf, int len, T* param),
                     T* param,
-                    system_tick_t timeout_ms = 10000)
+                    system_tick_t timeout_ms = 5000)
     {
         return waitFinalResp((_CALLBACKPTR)cb, (void*)param, timeout_ms);
     }
@@ -459,64 +347,33 @@ protected:
     */
     static int _parseFormated(Pipe<char>* pipe, int len, const char* fmt);
 
-    /** Helper: Send SMS received index to callback
-        \param index the index of the received SMS
-    */
-    void SMSreceived(int index);
 protected:
     // for rtos over riding by useing Rtos<MDMxx>
     //! override the lock in a rtos system
     virtual void lock(void)        { }
     //! override the unlock in a rtos system
     virtual void unlock(void)      { }
+
 protected:
     // parsing callbacks for different AT commands and their parameter arguments
     static int _cbString(int type, const char* buf, int len, char* str);
     static int _cbInt(int type, const char* buf, int len, int* val);
-    // device
-    static int _cbATI(int type, const char* buf, int len, Dev* dev);
-    static int _cbCPIN(int type, const char* buf, int len, Sim* sim);
-    static int _cbCCID(int type, const char* buf, int len, char* ccid);
-    // network
-    static int _cbUGCNTRD(int type, const char* buf, int len, MDM_DataUsage* data);
-    static int _cbBANDAVAIL(int type, const char* buf, int len, MDM_BandSelect* data);
-    static int _cbBANDSEL(int type, const char* buf, int len, MDM_BandSelect* data);
-    static int _cbCSQ(int type, const char* buf, int len, NetStatus* status);
-    static int _cbCOPS(int type, const char* buf, int len, NetStatus* status);
-    static int _cbCNUM(int type, const char* buf, int len, char* num);
-    static int _cbUACTIND(int type, const char* buf, int len, int* i);
-    static int _cbUDOPN(int type, const char* buf, int len, char* mccmnc);
-    // sockets
-    static int _cbIPSHUT(int type, const char* buf, int len, char *temp);
-    static int _cbSAPBR(int type, const char* buf, int len, int* act);
-    static int _cbCIFSR(int type, const char* buf, int len, MDM_IP* ip);
-    static int _cbCDNSGIP(int type, const char* buf, int len, MDM_IP* ip);
+    static int _cbGetNetVersion(int type, const char* buf, int len, char* str);
+    static int _cbGetAddress(int type, const char* buf, int len, wifi_addr_t* addr);
+    static int _cbGetStaMacAddress(int type, const char* buf, int len, char* str);
+    static int _cbGetApMacAddress(int type, const char* buf, int len, char* str);
+    static int _cbApScan(int type, const char* buf, int len, wifi_ap_t *aps);
     static int _cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result);
-    static int _cbSocketConnect(int type, const char* buf, int len, char *tmp);
-    static int _cbUSOCR(int type, const char* buf, int len, int* handle);
-    static int _cbUSOCTL(int type, const char* buf, int len, int* handle);
-    typedef struct { char* buf; int len; } USORDparam;
-    static int _cbUSORD(int type, const char* buf, int len, USORDparam* param);
-    typedef struct { char* buf; MDM_IP ip; int port; int len; } USORFparam;
-    static int _cbUSORF(int type, const char* buf, int len, USORFparam* param);
-    typedef struct { char* buf; char* num; } CMGRparam;
-    static int _cbCUSD(int type, const char* buf, int len, char* resp);
-    // sms
-    typedef struct { int* ix; int num; } CMGLparam;
-    static int _cbCMGL(int type, const char* buf, int len, CMGLparam* param);
-    static int _cbCMGR(int type, const char* buf, int len, CMGRparam* param);
-    // file
-    typedef struct { const char* filename; char* buf; int sz; int len; } URDFILEparam;
-    static int _cbUDELFILE(int type, const char* buf, int len, void*);
-    static int _cbURDFILE(int type, const char* buf, int len, URDFILEparam* param);
-    // variables
-    DevStatus   _dev; //!< collected device information
-    NetStatus   _net; //!< collected network information
-    MDM_IP       _ip;  //!< assigned ip address
-    MDM_DataUsage _data_usage; //!< collected data usage information
-    // Cellular callback to notify of new SMS
-    _CELLULAR_SMS_CB sms_cb;
-    void* sms_data;
+    static int _cbGetWifiInfo(int type, const char* buf, int len, wifi_info_t *wifiInfo);
+    static int _cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t* result);
+    static int _cbGetHostByName(int type, const char* buf, int len, MDM_IP* ip);
+    static int _cbDownOtaFile(int type, const char* buf, int len, deal_status_t* result);
+    static int _cbDownNetFile(int type, const char* buf, int len, deal_status_t* result);
+    static int _cbGetDownFileProgress(int type, const char* buf, int len, int* result);
+    static int _cbGetBootloaderPacketSize(int type, const char* buf, int len, uint32_t* result);
+    static int _cbGetBootloaderPacket(int type, const char* buf, int len, uint8_t* pdata);
+
+
     // management struture for sockets
     typedef struct {
         int handle;
@@ -533,20 +390,20 @@ protected:
     // LISA-U and SARA-G have 7 sockets
     SockCtrl _sockets[7];
     int _findSocket(int handle = MDM_SOCKET_ERROR/* = CREATE*/);
-    int _socketCloseHandleIfOpen(int socket);
-    int _socketCloseUnusedHandles(void);
-    int _socketSocket(int socket, IpProtocol ipproto, int port);
     bool _socketFree(int socket);
-    bool _powerOn(void);
-    void _setBandSelectString(MDM_BandSelect &data, char* bands, int index=0); // private helper to create bands strings
+
     static MDMParser* inst;
     bool _init;
-    bool _pwr;
-    bool _activated;
-    bool _attached;
-    bool _attached_urc;
+
+    deal_status_t _smartconfig_status;
+    deal_status_t _downotafile_status;
+    deal_status_t _downnetfile_status;
+
+    static int _aplisttotalcount;
+    static int _aplistindex;
+
     volatile bool _cancel_all_operations;
-#ifdef MDM_DEBUG
+#ifdef MODEM_DEBUG
     int _debugLevel;
     system_tick_t _debugTime;
     void _debugPrint(int level, const char* color, const char* format, ...);
@@ -558,16 +415,16 @@ protected:
 /** modem class which uses USART3
     as physical interface.
 */
-class MDMCellularSerial : public CellularSerialPipe, public MDMParser
+class MDMEsp8266Serial : public Esp8266SerialPipe, public MDMParser
 {
 public:
     /** Constructor
         \param rxSize the size of the serial rx buffer
         \param txSize the size of the serial tx buffer
     */
-    MDMCellularSerial( int rxSize = 2048, int txSize = 10 );
+    MDMEsp8266Serial( int rxSize = 2048, int txSize = 10 );
     //! Destructor
-    virtual ~MDMCellularSerial(void);
+    virtual ~MDMEsp8266Serial(void);
 
     /** Get a line from the physical interface.
         \param buf the buffer to store it
@@ -584,10 +441,6 @@ public:
         while (readable())
             getc();
     }
-
-    void pause();
-    void resume();
-
 protected:
     /** Write bytes to the physical interface.
         \param buf the buffer to write
@@ -597,7 +450,7 @@ protected:
     virtual int _send(const void* buf, int len);
 };
 
-/* Instance of MDMCellularSerial for use in HAL_USART3_Handler */
-extern MDMCellularSerial CellularMDM;
+/* Instance of MDMEsp8266Serial for use in HAL_USART3_Handler */
+extern MDMEsp8266Serial esp8266MDM;
 
 #endif

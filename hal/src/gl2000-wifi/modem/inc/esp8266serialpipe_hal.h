@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef CELLULAR_SERIAL_PIPE_HAL_H
-#define CELLULAR_SERIAL_PIPE_HAL_H
+#ifndef ESP8266_SERIAL_PIPE_HAL_H
+#define ESP8266_SERIAL_PIPE_HAL_H
 
 #include "pipe_hal.h"
 
@@ -28,18 +28,18 @@
 
 /** Buffered serial interface (rtos capable/interrupt driven)
 */
-class CellularSerialPipe
+class Esp8266SerialPipe
 {
 public:
     /** Constructor
         \param rxSize the size of the receiving buffer
         \param txSize the size of the transmitting buffer
     */
-    CellularSerialPipe(int rxSize = 256, int txSize = 256);
+    Esp8266SerialPipe(int rxSize = 256, int txSize = 256);
 
     /** Destructor
     */
-    virtual ~CellularSerialPipe(void);
+    virtual ~Esp8266SerialPipe(void);
 
     /** Initialization member function
     */
@@ -96,14 +96,6 @@ public:
     /** transmit interrupt routine
     */
     void txIrqBuf(void);
-
-    /** resumes paused receiver (hardware flow control)
-    */
-    void rxResume();
-
-    /** pauses receiver (deasserts RTS line - hardware flow control)
-    */
-    void rxPause();
 
 protected:
     //! start transmission helper

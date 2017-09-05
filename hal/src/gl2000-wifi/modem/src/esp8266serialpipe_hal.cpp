@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "cellular_serialpipe_hal.h"
+#include "esp8266serialpipe_hal.h"
 #include "hw_config.h"
 #include "usart_hal.h"
 #include "pinmap_impl.h"
@@ -30,76 +30,76 @@
 #endif
 
 
-UART_HandleTypeDef UartHandleCellular;
+UART_HandleTypeDef UartHandle_ESP8266;
 
-CellularSerialPipe::CellularSerialPipe(int rxSize, int txSize) :
+Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
     _pipeRx( rxSize ),
     _pipeTx( txSize )
 {
     HAL_NVIC_DisableIRQ(USART1_IRQn);
 }
 
-CellularSerialPipe::~CellularSerialPipe(void)
+Esp8266SerialPipe::~Esp8266SerialPipe(void)
 {
     // wait for transmission of outgoing data
-    __HAL_RCC_USART1_FORCE_RESET();
-    __HAL_RCC_USART1_RELEASE_RESET();
+    __HAL_RCC_USART2_FORCE_RESET();
+    __HAL_RCC_USART2_RELEASE_RESET();
 
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6);
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_7);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
 
     HAL_NVIC_DisableIRQ(USART1_IRQn);
 }
 
-void CellularSerialPipe::begin(unsigned int baud)
+void Esp8266SerialPipe::begin(unsigned int baud)
 {
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_USART1_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_USART2_CLK_ENABLE();
 
     GPIO_InitTypeDef  GPIO_InitStruct;
     /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = GPIO_PIN_6;
+    GPIO_InitStruct.Pin       = GPIO_PIN_2;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin = GPIO_PIN_7;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    UartHandleCellular.Instance          = USART1;
-    UartHandleCellular.Init.BaudRate     = baud;
-    UartHandleCellular.Init.WordLength   = UART_WORDLENGTH_8B;
-    UartHandleCellular.Init.StopBits     = UART_STOPBITS_1;
-    UartHandleCellular.Init.Parity       = UART_PARITY_NONE;
-    UartHandleCellular.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    UartHandleCellular.Init.Mode         = UART_MODE_TX_RX;
-    UartHandleCellular.Init.OverSampling = UART_OVERSAMPLING_16;
-    HAL_UART_DeInit(&UartHandleCellular);
-    HAL_UART_Init(&UartHandleCellular);
+    UartHandle_ESP8266.Instance          = USART2;
+    UartHandle_ESP8266.Init.BaudRate     = baud;
+    UartHandle_ESP8266.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandle_ESP8266.Init.StopBits     = UART_STOPBITS_1;
+    UartHandle_ESP8266.Init.Parity       = UART_PARITY_NONE;
+    UartHandle_ESP8266.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle_ESP8266.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle_ESP8266.Init.OverSampling = UART_OVERSAMPLING_16;
+    HAL_UART_DeInit(&UartHandle_ESP8266);
+    HAL_UART_Init(&UartHandle_ESP8266);
 
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(USART1_IRQn, USART1_IRQ_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(USART1_IRQn);
-    __HAL_UART_ENABLE_IT(&UartHandleCellular, UART_IT_RXNE);
+    HAL_NVIC_SetPriority(USART2_IRQn, USART1_IRQ_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
+    __HAL_UART_ENABLE_IT(&UartHandle_ESP8266, UART_IT_RXNE);
 }
 
 // tx channel
-int CellularSerialPipe::writeable(void)
+int Esp8266SerialPipe::writeable(void)
 {
     return 1;
 }
 
-int CellularSerialPipe::putc(int c)
+int Esp8266SerialPipe::putc(int c)
 {
     uint8_t data = c;
-    HAL_UART_Transmit(&UartHandleCellular, &data, 1, 1000);//1s  带操作系统待验证
+    HAL_UART_Transmit(&UartHandle_ESP8266, &data, 1, 1000);//1s  带操作系统待验证
     return c;
 }
 
-int CellularSerialPipe::put(const void* buffer, int length, bool blocking)
+int Esp8266SerialPipe::put(const void* buffer, int length, bool blocking)
 {
     int n;
     const char* ptr = (const char*)buffer;
@@ -112,54 +112,46 @@ int CellularSerialPipe::put(const void* buffer, int length, bool blocking)
 }
 
 // rx channel
-int CellularSerialPipe::readable(void)
+int Esp8266SerialPipe::readable(void)
 {
     return _pipeRx.readable();
 }
 
-int CellularSerialPipe::getc(void)
+int Esp8266SerialPipe::getc(void)
 {
     if (!_pipeRx.readable())
         return EOF;
     return _pipeRx.getc();
 }
 
-int CellularSerialPipe::get(void* buffer, int length, bool blocking)
+int Esp8266SerialPipe::get(void* buffer, int length, bool blocking)
 {
     return _pipeRx.get((char*)buffer,length,blocking);
 }
 
-void CellularSerialPipe::rxIrqBuf(void)
+void Esp8266SerialPipe::rxIrqBuf(void)
 {
-    uint8_t c = (uint16_t)(UartHandleCellular.Instance->DR & (uint16_t)0x00FF);
+    uint8_t c = (uint16_t)(UartHandle_ESP8266.Instance->DR & (uint16_t)0x00FF);
     if (_pipeRx.writeable())
         _pipeRx.putc(c);
     else
         /* overflow */;
 }
 
-void CellularSerialPipe::rxResume(void)
-{
-}
-
-void CellularSerialPipe::rxPause(void)
-{
-}
-
 extern "C"
 {
-    void HAL_USART1_Handler(UART_HandleTypeDef *huart)
+    void HAL_USART2_Handler(UART_HandleTypeDef *huart)
     {
         if((__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET)
                 && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET))
         {
-            CellularMDM.rxIrqBuf();
+            esp8266MDM.rxIrqBuf();
         }
     }
 
     // Serial1 interrupt handler
-    void USART1_IRQHandler(void)
+    void USART2_IRQHandler(void)
     {
-        HAL_USART1_Handler(&UartHandleCellular);
+        HAL_USART2_Handler(&UartHandle_ESP8266);
     }
 }

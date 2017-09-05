@@ -24,13 +24,12 @@
 #include "pinmap_impl.h"
 #include "sdkqueue.h"
 
-
-UART_HandleTypeDef UartHandle_A2A3;
-SDK_QUEUE Usart_Rx_Queue_A2A3;
+UART_HandleTypeDef UartHandle_SERIAL1;
+SDK_QUEUE Usart_Rx_Queue_SERIAL1;
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
-    USART_A2_A3 = 0,
+    USART_SERIAL1 = 0, //B6 B7
 } USART_Num_Def;
 
 /* Private macro -------------------------------------------------------------*/
@@ -71,7 +70,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
      * <usart enabled> used internally and does not appear below
      * <usart transmitting> used internally and does not appear below
      */
-    { USART2, GPIO_AF7_USART2, USART2_IRQn, TX, RX },                                // USART 2
+    { USART1, GPIO_AF7_USART1, USART1_IRQn, TX, RX },                                // USART 2
 };
 
 static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
@@ -82,9 +81,9 @@ static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] conta
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1) {
-        usartMap[serial] = &USART_MAP[USART_A2_A3];
-        usartMap[serial]->uart_handle = &UartHandle_A2A3;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_A2A3;
+        usartMap[serial] = &USART_MAP[USART_SERIAL1];
+        usartMap[serial]->uart_handle = &UartHandle_SERIAL1;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_SERIAL1;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
     }
 
@@ -181,8 +180,8 @@ void HAL_USART_End(HAL_USART_Serial serial)
     HAL_UART_DeInit(usartMap[serial]->uart_handle);
 
     if(HAL_USART_SERIAL1 == serial){
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
     }
 
     //Disable the NVIC for UART ##########################################*/
@@ -275,7 +274,7 @@ static void HAL_USART_Handler(HAL_USART_Serial serial)
 }
 
 // Serial2 interrupt handler
-void USART2_IRQHandler(void)
+void USART1_IRQHandler(void)
 {
     HAL_USART_Handler(HAL_USART_SERIAL1);
 }
