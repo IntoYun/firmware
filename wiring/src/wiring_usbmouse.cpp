@@ -17,10 +17,10 @@
   ******************************************************************************
 */
 
-#include "wiring_usbmouse.h"
-
+#include "intorobot_config.h"
 #ifdef configWIRING_USBMOUSE_ENABLE
 
+#include "wiring_usbmouse.h"
 //
 // Constructor
 //

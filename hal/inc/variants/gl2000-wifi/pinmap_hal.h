@@ -65,50 +65,46 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             40
+#define TOTAL_PINS             17
 #define FIRST_DIGITAL_PIN      0
-#define TOTAL_DIGITAL_PINS     9
+#define TOTAL_DIGITAL_PINS     17
 #define FIRST_ANALOG_PIN       30
-#define TOTAL_ANALOG_PINS      6
+#define TOTAL_ANALOG_PINS      0
 
-#define D0 0   //l7 DIO0
-#define D1 1   //l7 DIO1
-#define D2 2   //l7 DIO2
-#define D3 3   //l7 DIO3
-#define D4 4   //l7 DIO4
-#define D5 5   //l7 DIO5
-#define D6 6   //l7 RXTX
-#define D7 7   //l7 RSET
-#define D8 8   //gl2000 indicator led
-#define D9 9   //gl2000 mode pin
-
-#define A2 32
-#define A3 33
-#define A4 34
-#define A5 35
-#define A6 36
-#define A7 37
+#define D0  0   //L7 DIO0
+#define D1  1   //L7 DIO1
+#define D2  2   //L7 DIO2
+#define D3  3   //L7 DIO3
+#define D4  4   //L7 RXTX
+#define D5  5   //L7 RSET
+#define D6  6   //transceiver indicator led
+#define D7  7   //status indicator led
+#define D8  8   //mode pin
+#define D9  9   //ver0
+#define D10 10  //ver1
+#define D11 11
+#define D12 12
+#define D13 13
+#define D14 14
+#define D15 15
+#define D16 16
 
 // Uart pins
-#define TX A2
-#define RX A3
+#define TX D11
+#define RX D12
 
 // SPI pins
-#define SS   A4
-#define SCK  A5
-#define MISO A6
-#define MOSI A7
+#define SS   D13
+#define SCK  D14
+#define MISO D15
+#define MOSI D16
 
-// I2C pins
-#define SDA  D2
-#define SCL  D3
-
-#define LED_USER  D7
+#define LED_USER    D7
 #define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS        1
 #define TOTAL_SPIS          1
-#define TOTAL_I2CS          1
+#define TOTAL_I2CS          0
 
 #define LSBFIRST 0
 #define MSBFIRST 1

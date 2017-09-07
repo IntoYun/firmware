@@ -110,8 +110,8 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     }
 
     if(HAL_USART_SERIAL1 == serial){
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_USART2_CLK_ENABLE();
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        __HAL_RCC_USART1_CLK_ENABLE();
     }
 
 	STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -167,7 +167,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
     HAL_UART_Init(usartMap[serial]->uart_handle);
 
     //Configure the NVIC for UART
-    HAL_NVIC_SetPriority(usartMap[serial]->usart_int_n, USART2_IRQ_PRIORITY, 0);
+    HAL_NVIC_SetPriority(usartMap[serial]->usart_int_n, USART1_IRQ_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(usartMap[serial]->usart_int_n);
     __HAL_UART_ENABLE_IT(usartMap[serial]->uart_handle, UART_IT_RXNE);
 

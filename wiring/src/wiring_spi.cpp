@@ -16,6 +16,8 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
+#include "intorobot_config.h"
+#ifdef configWIRING_SPI_ENABLE
 
 #include "wiring_spi.h"
 #include "core_hal.h"
@@ -242,7 +244,6 @@ int32_t SPIClass::available()
 }
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_SPI_ENABLE
 SPIClass &__fetch_global_spi()
 {
     static SPIClass spi(HAL_SPI_INTERFACE1);

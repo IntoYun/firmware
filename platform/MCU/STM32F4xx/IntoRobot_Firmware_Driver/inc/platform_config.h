@@ -118,12 +118,12 @@
 #endif
 
 //NVIC Priorities based on NVIC_PriorityGroup_4
-#if PLATFORM_NEUTRON == PLATFORM_ID || PLATFORM_GL2000_WIFI == PLATFORM_ID
+#if PLATFORM_NEUTRON == PLATFORM_ID || PLATFORM_GL2000_GPRS == PLATFORM_ID
 #define USART1_IRQ_PRIORITY                 0       //modem(esp8266 sim800c)
 #define USART2_IRQ_PRIORITY                 7       //USART2 Interrupt
-#else
+#else //PLATFORM_FOX / PLATFORM_GL2000_WIFI
 #define USART1_IRQ_PRIORITY                 7       //USART1 Interrupt
-#define USART2_IRQ_PRIORITY                 0       //modem(sim800c) USART2 Interrupt
+#define USART2_IRQ_PRIORITY                 0       //modem(esp8266 sim800c) USART2 Interrupt
 #endif
 
 #ifdef USE_USB_OTG_FS

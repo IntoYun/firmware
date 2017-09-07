@@ -27,17 +27,5 @@
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
-    char temp[32];
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        if(esp8266MDM.getNetVersion(temp))
-        {
-            templen = MIN(strlen(temp), len-1);
-            memset(buffer, 0, len);
-            memcpy(buffer, temp, templen);
-            return templen;
-        }
-    }
     return 0;
 }

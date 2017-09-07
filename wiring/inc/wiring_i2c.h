@@ -20,9 +20,11 @@
 #ifndef WIRING_I2C_H_
 #define WIRING_I2C_H_
 
+#include "intorobot_config.h"
+#ifdef configWIRING_WIRE_ENABLE
+
 #include "wiring_stream.h"
 #include "i2c_hal.h"
-
 
 class TwoWire : public Stream
 {
@@ -73,7 +75,6 @@ class TwoWire : public Stream
 
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_WIRE_ENABLE
 #ifdef Wire
 #undef Wire
 #endif

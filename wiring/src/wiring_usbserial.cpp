@@ -17,10 +17,10 @@
   ******************************************************************************
 */
 
-#include "wiring_usbserial.h"
-
+#include "intorobot_config.h"
 #ifdef configWIRING_USBSERIAL_ENABLE
 
+#include "wiring_usbserial.h"
 
 //
 // Constructor

@@ -20,6 +20,9 @@
 #ifndef WIRING_SPI_H_
 #define WIRING_SPI_H_
 
+#include "intorobot_config.h"
+#ifdef configWIRING_SPI_ENABLE
+
 #include "wiring.h"
 #include "wiring_thread.h"
 #include "spi_hal.h"
@@ -230,7 +233,6 @@ class SPIClass {
 };
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_SPI_ENABLE
 #ifdef SPI
 #undef SPI
 #endif  // SPI1

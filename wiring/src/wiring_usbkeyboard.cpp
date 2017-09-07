@@ -17,9 +17,10 @@
   ******************************************************************************
 */
 
-#include "wiring_usbkeyboard.h"
-
+#include "intorobot_config.h"
 #ifdef configWIRING_USBKEYBOARD_ENABLE
+
+#include "wiring_usbkeyboard.h"
 
 #define SHIFT 0x80
 

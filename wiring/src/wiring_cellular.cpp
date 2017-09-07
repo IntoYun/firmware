@@ -17,10 +17,10 @@
  ******************************************************************************
  */
 
-#include "wiring_cellular.h"
-
+#include "intorobot_config.h"
 #ifdef configWIRING_CELLULAR_ENABLE
 
+#include "wiring_cellular.h"
 #include "cellular_internal.h"
 
 namespace intorobot {

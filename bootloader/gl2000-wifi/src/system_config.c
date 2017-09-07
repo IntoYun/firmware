@@ -49,7 +49,7 @@ void usart_debug_initial(uint32_t baud)
 
 void usart_esp8266_initial(uint32_t baud)
 {
-    HAL_NVIC_DisableIRQ(USART1_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
     sdkReleaseQueue(&USART_Esp8266_Queue);
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -130,6 +130,7 @@ void ESP8266_GPIO_Initial(void)
 
 void Esp8266_Reset(void)
 {
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
     HAL_Delay(200);
@@ -153,6 +154,18 @@ void HAL_System_Config(void)
 
 void Esp8266_Enter_UpdateMode(void)
 {
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+    sdkReleaseQueue(&USART_Esp8266_Queue);
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitTypeDef  GPIO_InitStruct;
+    GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
+    GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
     HAL_Delay(200);

@@ -44,7 +44,7 @@
 //#define configWIRING_USARTSERIAL5_ENABLE
 
 /* config wring wire */
-#define configWIRING_WIRE_ENABLE
+//#define configWIRING_WIRE_ENABLE
 //#define configWIRING_WIRE1_ENABLE
 //#define configWIRING_WIRE2_ENABLE
 

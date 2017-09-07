@@ -1,4 +1,6 @@
 #include "intorobot_config.h"
+#ifndef configNO_LORAWAN
+
 #include "wiring_lorawan.h"
 #include "system_lorawan.h"
 #include "system_event.h"
@@ -18,7 +20,6 @@
 #define WLORAWAN_DEBUG(...)
 #define WLORAWAN_DEBUG_D(...)
 #endif
-
 
 LoRaWanClass LoRaWan;
 LoRaClass LoRa;

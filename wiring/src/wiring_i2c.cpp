@@ -17,6 +17,9 @@
  ******************************************************************************
  */
 
+#include "intorobot_config.h"
+#ifdef configWIRING_WIRE_ENABLE
+
 #include "wiring_i2c.h"
 #include "i2c_hal.h"
 #include "wiring_thread.h"
@@ -236,7 +239,6 @@ void TwoWire::reset()
 }
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_WIRE_ENABLE
 TwoWire& __fetch_global_wire()
 {
     static TwoWire wire(HAL_I2C_INTERFACE1);
