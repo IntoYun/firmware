@@ -26,15 +26,14 @@ extern "C" {
 #define EEPROM_START_ADDRESS    ((uint32_t)0x08080000)
 
 /* EEPROM Emulation Size */
-#define EEPROM_SIZE             ((uint8_t)0x64)       /* 100 bytes (Max 255/0xFF bytes) */
+#define EEPROM_SIZE             4096
 
 
 static uint8_t EEPROM_ReadByte(uint32_t address)
 {
     uint32_t rAddress = EEPROM_START_ADDRESS+address;
     uint8_t  tmp = 0;
-    if(IS_FLASH_DATA_ADDRESS(rAddress))
-    {
+    if(IS_FLASH_DATA_ADDRESS(rAddress)) {
         HAL_FLASHEx_DATAEEPROM_Unlock();
         while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY));
         tmp = *(__IO uint8_t*)rAddress;
@@ -46,8 +45,7 @@ static uint8_t EEPROM_ReadByte(uint32_t address)
 static void EEPROM_WriteByte(uint32_t address, uint8_t dataVal)
 {
     uint32_t wAddress = EEPROM_START_ADDRESS+address;
-    if(IS_FLASH_DATA_ADDRESS(wAddress))
-    {
+    if(IS_FLASH_DATA_ADDRESS(wAddress)) {
         HAL_FLASHEx_DATAEEPROM_Unlock();
         while(HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEERASEDATA_BYTE,wAddress,dataVal) != HAL_OK);
         HAL_FLASHEx_DATAEEPROM_Lock();
@@ -56,24 +54,21 @@ static void EEPROM_WriteByte(uint32_t address, uint8_t dataVal)
 
 void HAL_EEPROM_Init(void)
 {
+
 }
 
-uint8_t HAL_EEPROM_Read(uint32_t index)
+uint8_t HAL_EEPROM_Read(uint32_t address)
 {
-    if (address < EEPROM_SIZE)
-    {
+    if (address < EEPROM_SIZE) {
        return EEPROM_ReadByte(address);
-    }
-    else
-    {
+    } else {
         return 0xFF;
     }
 }
 
-void HAL_EEPROM_Write(uint32_t index, uint8_t data)
+void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
-    if (address < EEPROM_SIZE)
-    {
+    if (address < EEPROM_SIZE) {
         EEPROM_WriteByte(address,data);
     }
 }
@@ -83,29 +78,38 @@ size_t HAL_EEPROM_Length()
    return EEPROM_SIZE;
 }
 
-void HAL_EEPROM_Get(uint32_t index, void *data, size_t length)
+void HAL_EEPROM_Get(uint32_t address, void *data, size_t length)
 {
-    uint8_t *p=(uint8_t *)data;
+    uint8_t *ptr = (uint8_t*)data;
 
-    for(int n=0; n < length; n++, index++)
-    {
-        p[n] = HAL_EEPROM_Read(index);
+    if (address < 0 || address + length > EEPROM_SIZE)
+        return;
+
+    for(int i = 0; i < length; i++) {
+        *(ptr+i) = EEPROM_ReadByte(address+i);
     }
 }
 
-void HAL_EEPROM_Put(uint32_t index, const void *data, size_t length)
+void HAL_EEPROM_Put(uint32_t address, const void *data, size_t length)
 {
-    uint8_t *p=(uint8_t *)data;
+    uint8_t *ptr = (uint8_t*)data;
 
-    for(int n=0; n < length; n++, index++)
-    {
-        HAL_EEPROM_Write(index, p[n]);
+    if (address < 0 || address + length > EEPROM_SIZE)
+        return;
+
+    for(int i = 0; i < length; i++) {
+        EEPROM_WriteByte(address+i, data+i);
     }
+}
+
+bool HAL_EEPROM_Commit(void)
+{
+    return true;
 }
 
 void HAL_EEPROM_Clear()
 {
-    flashEEPROM.clear();
+
 }
 
 bool HAL_EEPROM_Has_Pending_Erase()

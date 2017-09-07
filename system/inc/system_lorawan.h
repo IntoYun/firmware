@@ -42,20 +42,33 @@
 extern "C" {
 #endif
 
+typedef enum event_t{
+    LORAWAN_EVENT_JOINED,                   //已入网
+    LORAWAN_EVENT_JOIN_FAIL,                //入网失败
+    LORAWAN_EVENT_RX_COMPLETE,              //接收完成
+    LORAWAN_EVENT_MCPSINDICATION_CONFIRMED, //收到服务器确认帧
+}lorawan_event_t;
+
+
 size_t intorobot_debug_info_write(uint8_t byte);
 int intorobot_debug_info_read(void);
 int intorobot_debug_info_available(void);
 bool intorobot_lorawan_flag_connected(void);
 void intorobot_lorawan_send_terminal_info(void);
-void intorobot_lorawan_send_data(char* buffer, uint16_t len);
+int intorobot_lorawan_send_data(char* buffer, uint16_t len, bool confirmed, uint16_t timeout);
+void LoRaWanPause(void);
+void LoRaWanResume(void);
 void LoRaWanOnEvent(lorawan_event_t event);
 void LoRaWanJoinEnable(bool enable);
 bool LoRaWanJoinIsEnabled(void);
-int8_t LoRaWanActiveStatus(void);
+int  LoRaWanActiveStatus(void);
 void LoRaWanJoinOTAA(void);
+bool LoRaWanJoinABP(void);
+void LoRaWanDisconnect(void);
 void os_getDevEui(uint8_t *buf);
 void os_getAppEui(uint8_t *buf);
 void os_getAppKey(uint8_t *buf);
+
 #ifdef __cplusplus
 }
 #endif

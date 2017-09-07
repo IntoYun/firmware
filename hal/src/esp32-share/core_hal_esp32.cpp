@@ -42,7 +42,6 @@
 #include "params_hal.h"
 #include "bkpreg_hal.h"
 #include "flash_map.h"
-#include "memory_hal.h"
 #include "driver/timer.h"
 #include "esp_attr.h"
 #include "eeprom_hal.h"
@@ -103,11 +102,11 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
     for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
-        //HAL_Pin_Mode(pin, INPUT);
+        HAL_Pin_Mode(pin, INPUT);
     }
 
     for (pin_t pin = FIRST_ANALOG_PIN; pin <= FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
-        //HAL_Pin_Mode(pin, INPUT);
+        HAL_Pin_Mode(pin, INPUT);
     }
 
     HAL_RTC_Initial();
@@ -115,7 +114,6 @@ void HAL_Core_Config(void)
 
     HAL_IWDG_Initial();
     HAL_UI_Initial();
-    HAL_EEPROM_Init();
 
     esp32_setMode(WIFI_MODE_STA);    // wifi初始化
 }

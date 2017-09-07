@@ -27,7 +27,6 @@
 #include "hw_config.h"
 #include "flash_mal.h"
 #include <string.h>
-#include "service_debug.h"
 
 /* Private functions ---------------------------------------------------------*/
 static inline uint16_t InternalSectorToWriteProtect(uint32_t startAddress)
@@ -530,7 +529,7 @@ void FLASH_Erase(void)
 bool FLASH_Backup(uint32_t FLASH_Address)
 {
 #ifdef USE_SERIAL_FLASH
-    FLASH_CopyMemory(FLASH_INTERNAL, CORE_FW_ADDRESS, FLASH_SERIAL, FLASH_Address, FIRMWARE_IMAGE_SIZE, 0, 0);
+    return FLASH_CopyMemory(FLASH_INTERNAL, CORE_FW_ADDRESS, FLASH_SERIAL, FLASH_Address, FIRMWARE_IMAGE_SIZE, 0, 0);
 #else
     //Don't have enough space in Internal Flash to save a Backup copy of the firmware
 #endif
@@ -540,7 +539,7 @@ bool FLASH_Restore(uint32_t FLASH_Address)
 {
 #ifdef USE_SERIAL_FLASH
     //CRC verification Disabled by default
-    FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_INTERNAL, CORE_FW_ADDRESS, FIRMWARE_IMAGE_SIZE, 0, 0);
+    return FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_INTERNAL, CORE_FW_ADDRESS, FIRMWARE_IMAGE_SIZE, 0, 0);
 #else
     //commented below since FIRMWARE_IMAGE_SIZE != Actual factory firmware image size
     //FLASH_CopyMemory(FLASH_INTERNAL, FLASH_Address, FLASH_INTERNAL, USER_FIRMWARE_IMAGE_LOCATION, FIRMWARE_IMAGE_SIZE, true);
@@ -552,7 +551,7 @@ bool FLASH_Restore_Bootloader(uint32_t FLASH_Address)
 {
 #ifdef USE_SERIAL_FLASH
     //CRC verification Disabled by default
-    FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_INTERNAL, INTERNAL_FLASH_START, BOOTLOADER_IMAGE_SIZE, 0, 0);
+    return FLASH_CopyMemory(FLASH_SERIAL, FLASH_Address, FLASH_INTERNAL, INTERNAL_FLASH_START, BOOTLOADER_IMAGE_SIZE, 0, 0);
 #else
     //commented below since FIRMWARE_IMAGE_SIZE != Actual factory firmware image size
     //FLASH_CopyMemory(FLASH_INTERNAL, FLASH_Address, FLASH_INTERNAL, USER_FIRMWARE_IMAGE_LOCATION, FIRMWARE_IMAGE_SIZE, true);

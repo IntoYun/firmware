@@ -22,7 +22,7 @@
 #include "esp8266_downfile.h"
 #include "core_hal.h"
 #include "flash_map.h"
-#include "memory_hal.h"
+#include "flash_storage_impl.h"
 #include "params_hal.h"
 #include "ui_hal.h"
 
@@ -42,15 +42,16 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
     uint32_t left = ((size+buffer_size-1) & ~(buffer_size-1));
     uint32_t saddr = src_addr;
     uint32_t daddr = dst_addr;
+    InternalFlashStore flashStore;
 
     while (left){
-        if (HAL_FLASH_Interminal_Erase(daddr/buffer_size)){
+        if (flashStore.eraseSector(daddr/buffer_size)){
             return false;
         }
-        if (HAL_FLASH_Interminal_Read(saddr, (uint32_t*)buffer, buffer_size)){
+        if (flashStore.read(saddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
-        if (HAL_FLASH_Interminal_Write(daddr, (uint32_t*)buffer, buffer_size)){
+        if (flashStore.write(daddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
         saddr += buffer_size;

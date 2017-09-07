@@ -1,6 +1,12 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ * @file    eeprom_hal.c
+ * @author  Matthew McGowan
+ * @version V1.0.0
+ * @date    27-Sept-2014
+ * @brief
+ ******************************************************************************
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -14,29 +20,8 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
-  ******************************************************************************
-*/
+ ******************************************************************************
+ */
 
-/* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
-#include "core_hal.h"
-#include "flash_map.h"
-#include "intorobot_macros.h"
-#include "params_hal.h"
-
-
-uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
-{
-    char data[32] = "";
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        sprintf(data, "1.0.0.%d", HAL_PARAMS_Get_Boot_boot_version());
-        templen = MIN(strlen(data), len-1);
-        memset(buffer, 0, len);
-        memcpy(buffer, data, templen);
-        return templen;
-    }
-    return 0;
-}
-
+#include "eeprom_hal.h"
+#include "eeprom_emulation_impl.h"

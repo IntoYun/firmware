@@ -143,9 +143,6 @@ uint32_t BoardGetRandomSeed( void );
 
 void BoardGetUniqueId( uint8_t *id );
 
-bool LoRaMacIsFixedFrequency(void);
-
-bool LoRaMacIsFixedDatarate(void);
 
 #ifdef __cplusplus
 }

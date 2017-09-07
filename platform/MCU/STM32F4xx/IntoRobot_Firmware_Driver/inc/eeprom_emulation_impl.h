@@ -38,16 +38,16 @@ void HAL_EEPROM_Init(void)
   flashEEPROM.init();
 }
 
-uint8_t HAL_EEPROM_Read(uint32_t index)
+uint8_t HAL_EEPROM_Read(uint32_t address)
 {
   uint8_t value = 0xFF;
-  flashEEPROM.get(index, value);
+  flashEEPROM.get(address, value);
   return value;
 }
 
-void HAL_EEPROM_Write(uint32_t index, uint8_t data)
+void HAL_EEPROM_Write(uint32_t address, uint8_t data)
 {
-  flashEEPROM.put(index, data);
+  flashEEPROM.put(address, data);
 }
 
 size_t HAL_EEPROM_Length()
@@ -55,14 +55,19 @@ size_t HAL_EEPROM_Length()
   return flashEEPROM.capacity();
 }
 
-void HAL_EEPROM_Get(uint32_t index, void *data, size_t length)
+void HAL_EEPROM_Get(uint32_t address, void *data, size_t length)
 {
-    flashEEPROM.get(index, data, length);
+    flashEEPROM.get(address, data, length);
 }
 
-void HAL_EEPROM_Put(uint32_t index, const void *data, size_t length)
+void HAL_EEPROM_Put(uint32_t address, const void *data, size_t length)
 {
-    flashEEPROM.put(index, data, length);
+    flashEEPROM.put(address, data, length);
+}
+
+bool HAL_EEPROM_Commit(void)
+{
+    return true;
 }
 
 void HAL_EEPROM_Clear()

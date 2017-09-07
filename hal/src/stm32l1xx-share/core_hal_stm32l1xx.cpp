@@ -220,6 +220,8 @@ void HAL_Core_Enter_Safe_Mode(void* reserved)
 
 void HAL_Core_Enter_Bootloader(bool persist)
 {
+    HAL_Core_Write_Backup_Register(BKP_DR_01,0x7DEA);
+    HAL_Core_System_Reset();
 }
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)

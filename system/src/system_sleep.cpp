@@ -45,7 +45,7 @@ static void LoRaSystemWakeupCb(void)
 
 #if PLATFORM_ID == PLATFORM_ANT
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED)){
-        if(LoRaWanActiveStatus() == 1){
+        if(LoRaWanActiveStatus() == 0){
             system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
         }else{
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
@@ -67,6 +67,10 @@ static void LoRaSetSystemSleep(userLoRaWakeupCb userHandler, uint32_t timeout) /
 //主模式下
 void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
 {
+    if(LoRaWan.getMacClassType() == CLASS_C){
+        return;
+    }
+
     if(!loraSystemSleepEnabled)
     {
         LoRaSetSystemSleep(userHandler,seconds);
@@ -89,6 +93,10 @@ static void LoRaSlaveSystemWakeup(void)
 
 void system_sleep_lora_slave(userLoRaWakeupCb userHandler)
 {
+    if(LoRaWan.getMacClassType() == CLASS_C){
+        return;
+    }
+
     userLoRaSystemWakeupHandler = userHandler;
     LoRa.radioSetSleep();
     SlaveModeRtcEnterLowPowerStopMode();

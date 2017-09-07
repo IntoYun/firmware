@@ -42,19 +42,19 @@ extern "C" {
 
 /* Exported macros ------------------------------------------------------------*/
 
-//Bootloader firmware at the start of internal flash
-#define USB_DFU_ADDRESS             INTERNAL_FLASH_START
-//Main firmware begin address after 128KB (4 x 16K + 64K) from start of flash
-#define CORE_FW_ADDRESS             ((uint32_t)0x08020000)
-#define APP_START_MASK              ((uint32_t)0x2FFE0000)
+/* Serial Flash Start Address */
+#define SERIAL_FLASH_START        ((uint32_t)0x000000)
+/* Serial Flash End Address */
+#define SERIAL_FLASH_END          ((uint32_t)0x400000)
 
-#define USER_FIRMWARE_IMAGE_LOCATION CORE_FW_ADDRESS
-#define FIRMWARE_IMAGE_SIZE           0x60000      //384K (firmware size)
-#define BOOTLOADER_IMAGE_SIZE         0x8000       //32K  (bootloader size)
-
-uint32_t FLASH_PagesMask(uint32_t imageSize, uint32_t pageSize);
+/* Serial Flash page size */
+#define SERIAL_FLASH_SECTOR_SIZE    ((uint32_t)0x1000)      //4k Byte
 
 #include "flash_access.h"
+
+bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t length);
+bool FLASH_WriteMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t *data, uint32_t length);
+bool FLASH_ReadMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t *data, uint32_t length);
 
 #ifdef __cplusplus
 }

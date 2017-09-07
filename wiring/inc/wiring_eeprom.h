@@ -144,6 +144,11 @@ struct EEPROMClass{
         return t;
     }
 
+    bool commit()
+    {
+        return HAL_EEPROM_Commit();
+    }
+
     void clear()
     {
         HAL_EEPROM_Clear();

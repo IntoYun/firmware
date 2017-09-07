@@ -26,45 +26,20 @@
 class InternalFlashStore
 {
 public:
+    int erase(unsigned address, unsigned size)
+    {
+        return !FLASH_EraseMemory(FLASH_SERIAL, address, size);
+    }
+
     int eraseSector(unsigned address)
     {
-        return !FLASH_EraseMemory(FLASH_INTERNAL, address, 1);
+        return !FLASH_EraseMemory(FLASH_SERIAL, address, 1);
     }
 
     int write(const unsigned offset, const void* data, const unsigned size)
     {
-        const uint8_t* data_ptr = (const uint8_t*)data;
-        const uint8_t* end_ptr  = data_ptr+size;
-        unsigned destination = offset;
-
-        HAL_FLASH_Unlock();
-        while (data_ptr < end_ptr)
-        {
-            HAL_StatusTypeDef status = HAL_OK;
-            const int max_tries = 10;
-            int tries = 0;
-
-            if ( !(destination & 0x03) && (end_ptr - data_ptr >= 4))  // have a whole word to write
-            {
-                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, destination, *(const uint32_t*)data_ptr))) && (tries++ < max_tries));
-                destination += 4;
-                data_ptr += 4;
-            }
-            else if ( !(destination & 0x01) && (end_ptr - data_ptr >= 2))  // have a half word to write
-            {
-                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, destination, *(const uint16_t*)data_ptr))) && (tries++ < max_tries));
-                destination += 2;
-                data_ptr += 2;
-            }
-            else
-            {
-                while ((HAL_OK != (status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, destination, *data_ptr))) && (tries++ < max_tries));
-                destination++;
-                data_ptr++;
-            }
-        }
-        HAL_FLASH_Lock();
-        return (memcmp(dataAt(offset), data, size)) ? -1 : 0;
+        bool result = FLASH_WriteMemory(FLASH_SERIAL, offset, (uint32_t *)data, size);
+        return !result ? -1 : 0;
     }
 
     const uint8_t* dataAt(unsigned address)
@@ -74,8 +49,8 @@ public:
 
     int read(unsigned offset, void* data, unsigned size)
     {
-        memcpy(data, dataAt(offset), size);
-        return 0;
+        bool result = FLASH_ReadMemory(FLASH_SERIAL, offset, (uint32_t *)data, size);
+        return !result ? -1 : 0;
     }
 };
 

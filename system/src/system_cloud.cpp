@@ -1242,6 +1242,7 @@ int intorobot_cloud_handle(void)
 {
     bool reboot_flag = false, all_datapoint_flag = false;
     if(true == g_mqtt_client.loop()) {
+        /*
         //reboot
         if(RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(0xFF80, reboot_flag)) {
             intorobot_cloud_disconnect();
@@ -1252,7 +1253,7 @@ int intorobot_cloud_handle(void)
         if(RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(0xFF81, all_datapoint_flag)) {
             intorobotSendAllDatapointManual();
         }
-
+        */
         intorobotSendDatapointAutomatic();
 
         //发送IntoRobot.printf打印到平台

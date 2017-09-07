@@ -90,6 +90,7 @@ void log_direct_(const char* s);
 
 /* log print with (formatting arguments) without any extra info or \r\n */
 void log_print_direct_(int level, void* reserved, const char *msg, ...);
+void log_print_dump_(const uint8_t *buf, uint16_t len);
 
 /**
  * The debug output function.
@@ -120,6 +121,7 @@ extern void HAL_Delay_Microseconds(uint32_t delay);
 #define ERROR(fmt, ...)
 #define PANIC(code,fmt, ...) do {panic_(code, NULL, HAL_Delay_Microseconds);}while(0)
 #define DEBUG_D(fmt, ...)
+#define DEBUG_DUMP
 #else
 // Macros to use
 #define LOG(fmt, ...)    do { if ( __LOG_LEVEL_TEST(LOG_LEVEL)  )  {log_print_(LOG_LEVEL,__LINE__,__PRETTY_FUNCTION__,__FILE__,fmt, ##__VA_ARGS__);}}while(0)
@@ -130,6 +132,7 @@ extern void HAL_Delay_Microseconds(uint32_t delay);
 #define ERROR(fmt, ...)  do { if ( __LOG_LEVEL_TEST(ERROR_LEVEL) ) {log_print_(ERROR_LEVEL,__LINE__,__PRETTY_FUNCTION__,__FILE__,fmt,##__VA_ARGS__);}}while(0)
 #define PANIC(code,fmt, ...)  do { if ( __LOG_LEVEL_TEST(PANIC_LEVEL) ) {log_print_(PANIC_LEVEL,__LINE__,__PRETTY_FUNCTION__,__FILE__,fmt,##__VA_ARGS__);} panic_(code, NULL, HAL_Delay_Microseconds);}while(0)
 #define DEBUG_D(fmt, ...)  do { if ( __LOG_LEVEL_TEST(DEBUG_LEVEL))  {log_print_direct_(LOG_LEVEL, NULL, fmt,##__VA_ARGS__);}}while(0)
+#define DEBUG_DUMP log_print_dump_
 #endif
 #define INTOROBOT_ASSERT(predicate) do { if (!(predicate)) PANIC(AssertionFailure,"AssertionFailure "#predicate);} while(0);
 
