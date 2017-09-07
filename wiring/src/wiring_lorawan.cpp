@@ -9,8 +9,6 @@
 #include "string_convert.h"
 #include "service_debug.h"
 
-#ifndef configNO_LORAWAN
-
 #define WIRING_LORAWAN_DEBUG
 
 #ifdef WIRING_LORAWAN_DEBUG
