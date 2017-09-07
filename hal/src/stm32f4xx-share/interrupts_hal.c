@@ -87,13 +87,14 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
 
     __HAL_GPIO_EXTI_CLEAR_FLAG(gpio_pin);
     //Select the port source
-    if (gpio_port == GPIOA)
-    {
+    if (gpio_port == GPIOA) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
-    }
-    else if (gpio_port == GPIOB)
-    {
+    } else if (gpio_port == GPIOB) {
         __HAL_RCC_GPIOB_CLK_ENABLE();
+    } else if (gpio_port == GPIOC) {
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+    } else if (gpio_port == GPIOD) {
+        __HAL_RCC_GPIOD_CLK_ENABLE();
     }
 
     // Register the handler for the user function name
@@ -104,8 +105,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Pin = gpio_pin;
 
-    switch (mode)
-    {
+    switch (mode) {
         case CHANGE:
             //generate interrupt on rising or falling edge
             GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING_FALLING;
@@ -120,18 +120,25 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
             break;
     }
 
-    if (gpio_port == GPIOA )
-    {
+    if (gpio_port == GPIOA) {
         HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-    }
-    else if (gpio_port == GPIOB )
-    {
+    } else if (gpio_port == GPIOB ) {
         HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    } else if (gpio_port == GPIOC ) {
+        HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    } else if (gpio_port == GPIOD ) {
+        HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
     }
 
-    /* Enable and set EXTI line Interrupt to the lowest priority */
-    HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource], 13, 0); // 14 or 13, which one
-    HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );
+    if(NULL == config) {
+        /* Enable and set EXTI line Interrupt to the lowest priority */
+        HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource], 14, 0);
+        HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );
+    } else {
+        /* Enable and set EXTI line Interrupt to the lowest priority */
+        HAL_NVIC_SetPriority( GPIO_IRQn[GPIO_PinSource], config->IRQChannelPreemptionPriority, config->IRQChannelSubPriority);
+        HAL_NVIC_EnableIRQ( GPIO_IRQn[GPIO_PinSource] );
+    }
 }
 
 /*

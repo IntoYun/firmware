@@ -187,7 +187,7 @@ void HAL_Core_Config(void)
 
     //Wiring pins default to inputs
     for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
-        HAL_Pin_Mode(pin, INPUT);
+        //HAL_Pin_Mode(pin, INPUT);  //暂时不初始化 初始化会重设串口，导致无法打印调试信息  robin 2017-09-08
     }
 
     HAL_RTC_Initial();
