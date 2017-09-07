@@ -69,7 +69,7 @@ typedef struct aJsonObject
         char *valuestring; // The item's string, if type==aJson_String
         char valuebool; //the items value for true & false
         int valueint; // The item's number, if type==aJson_Number
-        unsigned valueuint; // The item's number, if type==aJson_Number
+        uint32_t valueuint; // The item's number, if type==aJson_Number
         double valuefloat; // The item's number, if type==aJson_Number
     };
 } aJsonObject;
@@ -211,7 +211,7 @@ class aJsonClass
 	    aJsonObject* createItem(bool b);
         aJsonObject* createItem(char b);
         aJsonObject* createItem(int num);
-        aJsonObject* createItem(unsigned num);
+        aJsonObject* createItem(uint32_t num);
         aJsonObject* createItem(double num);
         aJsonObject* createItem(const char *string);
         aJsonObject* createArray(void);
@@ -238,7 +238,7 @@ class aJsonClass
         void addNullToObject(aJsonObject* object, const char* name);
         void addBooleanToObject(aJsonObject* object, const char* name, bool b);
         void addNumberToObject(aJsonObject* object, const char* name, int n);
-        void addNumberToObject(aJsonObject* object, const char* name, unsigned n);
+        void addNumberToObject(aJsonObject* object, const char* name, uint32_t n);
         void addNumberToObject(aJsonObject* object, const char* name, double n);
         void addStringToObject(aJsonObject* object, const char* name,const char* s);
 

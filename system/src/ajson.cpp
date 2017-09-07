@@ -185,7 +185,7 @@ void aJsonClass::deleteItem(aJsonObject *c)
 // Parse the input text to generate a number, and populate the result into item.
 int aJsonStream::parseNumber(aJsonObject *item)
 {
-    unsigned i = 0;
+    uint32_t i = 0;
     int sign = 1;
 
     int in = this->getch();
@@ -933,12 +933,12 @@ aJsonObject *aJsonClass::createItem(int num)
     return item;
 }
 
-aJsonObject *aJsonClass::createItem(unsigned num)
+aJsonObject *aJsonClass::createItem(uint32_t num)
 {
     aJsonObject *item = newItem();
     if (item) {
         item->type = aJson_Uint;
-        item->valueuint = (unsigned)num;
+        item->valueuint = (uint32_t)num;
     }
     return item;
 }
@@ -1057,7 +1057,7 @@ void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, int n)
     addItemToObject(object, name, createItem(n));
 }
 
-void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, unsigned n)
+void aJsonClass::addNumberToObject(aJsonObject* object, const char* name, uint32_t n)
 {
     addItemToObject(object, name, createItem(n));
 }
