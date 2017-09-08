@@ -49,6 +49,16 @@ extern "C"
 
 /* Private define -----------------------------------------------------------*/
 /* Private macro ------------------------------------------------------------*/
+#define ESP8266_GPIO0_GPIO_PIN           GPIO_PIN_3
+#define ESP8266_GPIO0_GPIO_PORT          GPIOB
+#define ESP8266_EN_GPIO_PIN              GPIO_PIN_9
+#define ESP8266_EN_GPIO_PORT             GPIOA
+#define ESP8266_RST_GPIO_PIN             GPIO_PIN_10
+#define ESP8266_RST_GPIO_PORT            GPIOA
+#define SIM800C_PWR_EN_GPIO_PIN          GPIO_PIN_8
+#define SIM800C_PWR_EN_GPIO_PORT         GPIOB
+#define SIM800C_PWR_KEY_GPIO_PIN         GPIO_PIN_13
+#define SIM800C_PWR_KEY_GPIO_PORT        GPIOC
 
 #define PROFILE         "1"   //!< this is the psd profile used
 #define MAX_SIZE        2048  //!< max expected messages (used with RX)
@@ -451,23 +461,61 @@ void MDMParser::reset(void)
 
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    //sim800c PWK pin
+    //ESP8266_GPIO0
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = ESP8266_GPIO0_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_GPIO0_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_EN
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitStruct.Pin = ESP8266_EN_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_EN_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_RST  PA10
+    GPIO_InitStruct.Pin = ESP8266_RST_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_RST_GPIO_PORT, &GPIO_InitStruct);
+    //SIM800C PWK_KEY
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    GPIO_InitStruct.Pin = SIM800C_PWR_KEY_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);//高电平
+    HAL_GPIO_WritePin(SIM800C_PWR_KEY_GPIO_PORT, SIM800C_PWR_KEY_GPIO_PIN, GPIO_PIN_SET);//高电平
+    //SIM800C PWK_EN
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = SIM800C_PWR_EN_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(SIM800C_PWR_EN_GPIO_PORT, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);//低电平
+    //esp8266 暂停工作
+    HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
+    //sim800c 重新开机
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(1200);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);  //高电平
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_SET);
 }
 
 bool MDMParser::_powerOn(void)
 {
     LOCK();
+
+    //sim800c 重新开机
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_Delay(200);
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_SET);
 
     if (!_init) {
         MDM_INFO("[ CellularSerialPipe::begin ] = = = = = = = =");
@@ -509,8 +557,8 @@ bool MDMParser::_powerOn(void)
             i = 10;
             reset();
         }
-
     }
+
     if (i < 0) {
         MDM_ERROR("[ No Reply from Modem ]\r\n");
     }
@@ -677,9 +725,9 @@ bool MDMParser::powerOff(void)
             resume(); // make sure we can use the AT parser
         }
 
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);//低电平
-        HAL_Delay(1200);
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);  //高电平
+        //sim800c VBAT Power off
+        HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
+
         _pwr = false;
         // todo - add if these are automatically done on power down
         _activated = false;
@@ -2110,3 +2158,5 @@ void MDMCellularSerial::resume()
     LOCK();
     rxResume();
 }
+
+

@@ -21,13 +21,9 @@
 #include <stdio.h>
 #include "params_impl.h"
 #include "params_hal.h"
-#include "eeprom_hal.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
 #include "intorobot_macros.h"
-#include "service_debug.h"
-
-#define EEPROM_BOOT_PARAMS_MAX_SIZE                        (512)    //参数区大小
 
 hal_boot_params_t intorobot_boot_params;         //bootloader参数
 hal_system_params_t intorobot_system_params;     //设备参数
@@ -84,17 +80,13 @@ void save_boot_params(hal_boot_params_t *pboot_params);
  * */
 void read_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    InternalFlashStore flashStore;
 
-    memset(pboot, 0, len);
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    memset(pboot_params, 0, sizeof(hal_boot_params_t));
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        pboot[num] = HAL_EEPROM_Read(address+num);
-    }
+    flashStore.read(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 /*
@@ -102,16 +94,13 @@ void read_boot_params(hal_boot_params_t *pboot_params) {
  * */
 void save_boot_params(hal_boot_params_t *pboot_params) {
     uint32_t len = sizeof(hal_boot_params_t);
-    uint32_t address = HAL_EEPROM_Length() - EEPROM_BOOT_PARAMS_MAX_SIZE;
-    uint8_t *pboot = (uint8_t *)pboot_params;
+    InternalFlashStore flashStore;
 
-    if(len > EEPROM_BOOT_PARAMS_MAX_SIZE) {
+    if(len > (BOOT_PARAMS_END_ADDR - BOOT_PARAMS_START_ADDR)) {
         return;
     }
-
-    for (int num = 0; num<len; num++) {
-        HAL_EEPROM_Write(address+num, pboot[num]);
-    }
+    flashStore.eraseSector(BOOT_PARAMS_START_ADDR);
+    flashStore.write(BOOT_PARAMS_START_ADDR, pboot_params, len);
 }
 
 void save_system_params(hal_system_params_t *psystem_params);
@@ -174,11 +163,6 @@ void HAL_PARAMS_Init_Boot_Params(void) {
 void HAL_PARAMS_Load_Boot_Params(void) {
     read_boot_params(&intorobot_boot_params);
     if( BOOT_PARAMS_HEADER != intorobot_boot_params.header ) {
-        //擦除eeprom区域 并初始化
-        InternalFlashStore flashStore;
-        flashStore.eraseSector(EEPROM_START_ADDR);
-        flashStore.eraseSector(EEPROM_START_ADDR + 0x4000);
-        HAL_EEPROM_Init();
         HAL_PARAMS_Init_Boot_Params();
     }
 }
@@ -243,6 +227,54 @@ INITPARAM_FLAG_TypeDef HAL_PARAMS_Get_Boot_initparam_flag(void) {
  * */
 int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     intorobot_boot_params.initparam_flag = flag;
+    return 0;
+}
+/********************************************************************************
+ *  添加参数
+ ********************************************************************************/
+
+/*
+ * 读取ota文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_ota_app_size(void) {
+    return intorobot_boot_params.ota_app_size;
+}
+
+/*
+ * 保存ota文件大小
+ * */
+int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size) {
+    intorobot_boot_params.ota_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取默认应用文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_def_app_size(void) {
+    return intorobot_boot_params.def_app_size;
+}
+
+/*
+ * 保存默认应用文件大小
+ * */
+int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size) {
+    intorobot_boot_params.def_app_size = size;
+    return 0;
+}
+
+/*
+ * 读取升级boot文件大小
+ * */
+uint32_t HAL_PARAMS_Get_Boot_boot_size(void) {
+    return intorobot_boot_params.boot_size;
+}
+
+/*
+ * 保存升级boot文件大小
+ * */
+int HAL_PARAMS_Set_Boot_boot_size(uint32_t size) {
+    intorobot_boot_params.boot_size = size;
     return 0;
 }
 
@@ -411,21 +443,6 @@ int HAL_PARAMS_Set_System_dw_domain(const char* buffer) {
 }
 
 /*
- * 读取sv_select标志
- * */
-SV_SELECT_FLAG_TypeDef HAL_PARAMS_Get_System_sv_select(void) {
-    return (SV_SELECT_FLAG_TypeDef)intorobot_system_params.sv_select;
-}
-
-/*
- * 保存sv_select标志
- * */
-int HAL_PARAMS_Set_System_sv_select(SV_SELECT_FLAG_TypeDef flag) {
-    intorobot_system_params.sv_select = flag;
-    return 0;
-}
-
-/*
  * 读取固件库版本号
  * */
 uint16_t HAL_PARAMS_Get_System_fwlib_ver(char* buffer, uint16_t len) {
@@ -575,3 +592,4 @@ int HAL_PARAMS_Set_System_http_port(int port) {
     intorobot_system_params.http_port = port;
     return 0;
 }
+

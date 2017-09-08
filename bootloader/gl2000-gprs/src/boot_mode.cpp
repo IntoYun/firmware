@@ -143,11 +143,13 @@ void Enter_DFU_Mode(void)
 
 void Enter_Cellular_Update_Mode(void)
 {
-    HAL_UI_UserLED_Control(0);
-    USBD_CDC_Init();
-    while(1)
-    {}
-
+    HAL_UI_UserLED_Control(1);
+    Cellular_Enter_UpdateMode_Pre();
+    while (1) {
+        if (!HAL_UI_Mode_BUTTON_GetState(BUTTON1)) {
+            Cellular_Enter_UpdateMode();
+        }
+    }
 }
 
 void Enter_Flash_Test(void)

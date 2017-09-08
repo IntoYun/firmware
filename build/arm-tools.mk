@@ -41,9 +41,9 @@ LDFLAGS += -flto -fuse-linker-plugin
 endif
 
 
-#INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
-# INTOROBOT_SERIAL_DEV = /dev/cu.usbmodemFD1231
-INTOROBOT_SERIAL_DEV = /dev/ttyACM0
+INTOROBOT_SERIAL_DEV = /dev/cu.usbmodem1411
+#INTOROBOT_SERIAL_DEV = /dev/cu.usbmodemFD1231
+#INTOROBOT_SERIAL_DEV = /dev/ttyACM0
 
 
 

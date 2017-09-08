@@ -26,7 +26,7 @@
 //#define useDMASPI
 
 typedef enum SPI_Num_Def {
-    SPI1_A5_A6_A7 = 0,
+    SPI1_GROUP = 0,
 } SPI_Num_Def;
 
 typedef struct STM32_SPI_Info {
@@ -65,11 +65,11 @@ typedef struct STM32_SPI_Info {
 
 /*
  * SPI mapping
- * SPI1: NSS PA4 (A4); SCK PA5(A5); MISO PA6(A6); MOSI PA7(A7); AF5
+ * SPI1: NSS PA4 (D13); SCK PA5(D14); MISO PA6(D15); MOSI PA7(D16); AF5
  */
 STM32_SPI_Info SPI_MAP[TOTAL_SPI] =
 {
-    { SPI1, DMA_CHANNEL_3, DMA2_Stream5, DMA2_Stream0, DMA2_Stream5_IRQn, DMA2_Stream0_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7, GPIO_PIN_4,  GPIO_AF5_SPI1},
+    { SPI1, DMA_CHANNEL_3, DMA2_Stream5, DMA2_Stream0, DMA2_Stream5_IRQn, DMA2_Stream0_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7, GPIO_PIN_4, GPIO_AF5_SPI1},
 };
 static STM32_SPI_Info *spiMap[TOTAL_SPI];
 /* Private typedef -----------------------------------------------------------*/
@@ -215,7 +215,7 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
     if(spi == HAL_SPI_INTERFACE1)
     {
-        spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
+        spiMap[spi] = &SPI_MAP[SPI1_GROUP];
     }
     spiMap[spi]->SPI_Bit_Order_Set     = false;
     spiMap[spi]->SPI_Data_Mode_Set     = false;
@@ -459,7 +459,7 @@ int32_t HAL_SPI_DMA_Transfer_Status(HAL_SPI_Interface spi, HAL_SPI_TransferStatu
   */
 void DMA2_Stream0_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(spiMap[SPI1_A5_A6_A7]->SpiHandle.hdmarx);
+  HAL_DMA_IRQHandler(spiMap[SPI1_GROUP]->SpiHandle.hdmarx);
 }
 
 /**
@@ -469,7 +469,7 @@ void DMA2_Stream0_IRQHandler(void)
   */
 void DMA2_Stream5_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(spiMap[SPI1_A5_A6_A7]->SpiHandle.hdmatx);
+  HAL_DMA_IRQHandler(spiMap[SPI1_GROUP]->SpiHandle.hdmatx);
 }
 
 /**

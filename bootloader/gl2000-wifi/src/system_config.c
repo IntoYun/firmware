@@ -4,6 +4,16 @@
 #include "eeprom_hal.h"
 #include "boot_debug.h"
 
+
+#define ESP8266_GPIO0_GPIO_PIN          GPIO_PIN_3
+#define ESP8266_GPIO0_GPIO_PORT         GPIOB
+#define ESP8266_EN_GPIO_PIN             GPIO_PIN_9
+#define ESP8266_EN_GPIO_PORT            GPIOA
+#define ESP8266_RST_GPIO_PIN            GPIO_PIN_10
+#define ESP8266_RST_GPIO_PORT           GPIOA
+#define SIM800C_PWR_EN_GPIO_PIN         GPIO_PIN_8
+#define SIM800C_PWR_EN_GPIO_PORT        GPIOB
+
 #define ESP8266_USART_QUEUE_SIZE              1024
 
 UART_HandleTypeDef UartHandleDebug;
@@ -98,43 +108,45 @@ void HAL_USART2_Esp8266_Handler(UART_HandleTypeDef *huart)
 void ESP8266_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
-    //esp8266 gpio0  PB3
+
+    //ESP8266_GPIO0
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Pin = ESP8266_GPIO0_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    //ESP_EN  PA9
+    HAL_GPIO_Init(ESP8266_GPIO0_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_EN
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Pin = ESP8266_EN_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    //ESP_RST  PA10
-    GPIO_InitStruct.Pin = GPIO_PIN_10;
+    HAL_GPIO_Init(ESP8266_EN_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_RST
+    GPIO_InitStruct.Pin = ESP8266_RST_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    //sim800c VBAT 关闭sim800c电源
+    HAL_GPIO_Init(ESP8266_RST_GPIO_PORT, &GPIO_InitStruct);
+    //SIM800C PWR_EN 关闭SIM800C电源
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Pin = SIM800C_PWR_EN_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+    HAL_GPIO_Init(SIM800C_PWR_EN_GPIO_PORT, &GPIO_InitStruct);
+    //SIM800C 暂停工作
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
 }
 
 void Esp8266_Reset(void)
 {
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(200);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
 }
 
 void HAL_System_Config(void)
@@ -165,11 +177,11 @@ void Esp8266_Enter_UpdateMode(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(200);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
 }
 
 system_tick_t millis(void)
