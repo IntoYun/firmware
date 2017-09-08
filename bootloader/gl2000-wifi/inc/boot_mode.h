@@ -27,7 +27,6 @@ void start_app(void);
 void Enter_Default_RESTORE_Mode(void);
 void Enter_Serail_Com_Mode(void);
 void Enter_Factory_RESTORE_Mode(void);
-void Enter_Factory_ALL_RESTORE_Mode(void);
 void Enter_OTA_Update_Mode(void);
 void Enter_DFU_Mode(void);
 void Enter_ESP8266_Update_Mode(void);
