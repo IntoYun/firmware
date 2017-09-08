@@ -1,6 +1,3 @@
 [submodule "release"]
 	path = release
 	url = git@github.com:HITSZ-NRSL/release.git
-[submodule "project"]
-	path = project
-	url = git@github.com:HITSZ-NRSL/project.git
