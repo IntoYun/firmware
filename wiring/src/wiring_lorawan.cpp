@@ -84,6 +84,7 @@ int LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uin
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
         WLORAWAN_DEBUG("LoRaWan send confirm frame status OK!!!");
         _macSendStatus = LORAMAC_SENDING;
+        INTOROBOT_LORAWAN_RESP_SERVER_ACK = false;
         if(_timeout == 0){
             return LORAMAC_SENDING;
         }
@@ -143,6 +144,7 @@ int LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, u
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
         WLORAWAN_DEBUG("LoRaWan send unnconfirm frame status OK!!!");
         _macSendStatus = LORAMAC_SENDING;
+        INTOROBOT_LORAWAN_RESP_SERVER_ACK = false;
         if(_timeout == 0){
             return LORAMAC_SENDING;
         }

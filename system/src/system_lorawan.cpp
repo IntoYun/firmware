@@ -60,6 +60,7 @@ volatile bool INTOROBOT_LORAWAN_JOINED = false; //lorawan激活通过
 volatile bool INTOROBOT_LORAWAN_CONNECTED = false; //lorawan发送版本信息完毕 已连接平台
 volatile bool INTOROBOT_LORAWAN_JOIN_ENABLE = false; //入网使能 true使能
 volatile bool INTOROBOT_LORAWAN_JOINING = false; //入网中
+volatile bool INTOROBOT_LORAWAN_RESP_SERVER_ACK = false; //c类时回复服务器确认帧
 
 static LoRaMacPrimitives_t LoRaMacPrimitives;
 static LoRaMacCallback_t LoRaMacCallbacks;
@@ -130,7 +131,9 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_unconfirmed;
-                system_notify_event(event_lorawan_status,ep_lorawan_send_success);
+                if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK){
+                    system_notify_event(event_lorawan_status,ep_lorawan_send_success);
+                }
                 break;
             }
             case MCPS_CONFIRMED:
@@ -167,7 +170,9 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             LoRaWan._ackReceived = false;
         }
         LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-        system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
+        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK){
+            system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
+        }
     }
 }
 
@@ -641,6 +646,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
         case LORAWAN_EVENT_MCPSINDICATION_CONFIRMED:
             SLORAWAN_DEBUG("LoRaWanOnEvent Respond Server ACK");
             if(LoRaWan.getMacClassType() == CLASS_C){
+                INTOROBOT_LORAWAN_RESP_SERVER_ACK = true;
                 LoRaWanRespondServerConfirmedFrame();
             }
             break;
