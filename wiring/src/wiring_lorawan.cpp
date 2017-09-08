@@ -173,6 +173,12 @@ int LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, u
     }
 }
 
+//发送状态查询 1-发送中 0-成功 -1失败
+int8_t LoRaWanClass::sendStatus(void)
+{
+    return _macSendStatus;
+}
+
 uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
 {
     if(macBuffer.available) {
@@ -508,7 +514,7 @@ uint32_t LoRaWanClass::getDownCounter(void)
     }
 }
 
-uint8_t LoRaWanClass::setRX2Parameters(uint8_t datarate, uint32_t frequency)
+uint8_t LoRaWanClass::setRX2Params(uint8_t datarate, uint32_t frequency)
 {
     if(datarate > DR_5){
         return 0;
@@ -523,7 +529,7 @@ uint8_t LoRaWanClass::setRX2Parameters(uint8_t datarate, uint32_t frequency)
     LoRaMacMibSetRequestConfirm( &mibReq );
 }
 
-uint32_t LoRaWanClass::getRX2Freq(void)
+void LoRaWanClass::getRX2Params(uint8_t &datarate, uint32_t &frequency)
 {
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
@@ -532,24 +538,8 @@ uint32_t LoRaWanClass::getRX2Freq(void)
     status = LoRaMacMibGetRequestConfirm( &mibReq );
     if(status == LORAMAC_STATUS_OK){
         rx2Params = mibReq.Param.Rx2Channel;
-        return rx2Params.Frequency;
-    }else{
-        return 0;
-    }
-}
-
-uint8_t LoRaWanClass::getRX2DataRate(void)
-{
-    MibRequestConfirm_t mibReq;
-    LoRaMacStatus_t status;
-    Rx2ChannelParams_t rx2Params;
-    mibReq.Type = MIB_RX2_CHANNEL;
-    status = LoRaMacMibGetRequestConfirm( &mibReq );
-    if(status == LORAMAC_STATUS_OK){
-        rx2Params = mibReq.Param.Rx2Channel;
-        return rx2Params.Datarate;
-    }else{
-        return 0;
+        datarate = rx2Params.Datarate;
+        frequency = rx2Params.Frequency;
     }
 }
 
@@ -592,11 +582,6 @@ uint8_t LoRaWanClass::getSnr(void)
 int LoRaWanClass::getRssi(void)
 {
     return _macRssi;
-}
-//发送状态查询 1-发送中 0-成功 -1失败
-int8_t LoRaWanClass::sendStatus(void)
-{
-    return _macSendStatus;
 }
 
 //P2P透传接口
@@ -647,6 +632,11 @@ void LoRaClass::radioStartRx(uint32_t timeout)
     Radio.Rx(timeout);
 }
 
+int8_t LoRaClass::radioSendStatus(void)
+{
+    return _radioSendStatus;
+}
+
 uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
 {
     uint16_t size = 0;
@@ -683,12 +673,12 @@ bool LoRaClass::radioCad(void)
     }
 }
 
-int16_t LoRaClass::radioReadRssi(void)
+int16_t LoRaClass::radioGetRssi(void)
 {
     return _rssi;
 }
 
-int8_t LoRaClass::radioReadSnr(void)
+int8_t LoRaClass::radioGetSnr(void)
 {
     return _snr;
 }
@@ -865,12 +855,12 @@ uint32_t LoRaClass::radioGetSymbTimeout(void)
     return _symbTimeout;
 }
 
-uint8_t LoRaClass::radioRead(uint8_t addr)
+uint8_t LoRaClass::radioReadReg(uint8_t addr)
 {
     return Radio.Read(addr);
 }
 
-void LoRaClass::radioWrite(uint8_t addr, uint8_t data)
+void LoRaClass::radioWriteReg(uint8_t addr, uint8_t data)
 {
     Radio.Write(addr,data);
 }
