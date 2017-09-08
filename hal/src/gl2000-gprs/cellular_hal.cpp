@@ -10,6 +10,14 @@ static CellularCredentials cellularCredentials;
 static HAL_NET_Callbacks netCallbacks = { 0 };
 
 //=======net notify===========
+void HAL_NET_SetCallbacks(const HAL_NET_Callbacks* callbacks, void* reserved)
+{
+    netCallbacks.notify_connected = callbacks->notify_connected;
+    netCallbacks.notify_disconnected = callbacks->notify_disconnected;
+    netCallbacks.notify_dhcp = callbacks->notify_dhcp;
+    netCallbacks.notify_can_shutdown = callbacks->notify_can_shutdown;
+}
+
 void HAL_NET_notify_connected()
 {
     if (netCallbacks.notify_connected) {
@@ -36,6 +44,12 @@ void HAL_NET_notify_can_shutdown()
     if (netCallbacks.notify_can_shutdown) {
         netCallbacks.notify_can_shutdown();
     }
+}
+
+// Todo rename me, and allow the different connect, disconnect etc. timeouts be set by the HAL
+uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS)
+{
+    return 0;
 }
 
 cellular_result_t  cellular_on(void* reserved)
@@ -140,20 +154,6 @@ bool cellular_sim_ready(void* reserved)
 {
     const DevStatus* status = CellularMDM.getDevStatus();
     return status->sim == SIM_READY;
-}
-
-// Todo rename me, and allow the different connect, disconnect etc. timeouts be set by the HAL
-uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS)
-{
-    return 0;
-}
-
-void HAL_NET_SetCallbacks(const HAL_NET_Callbacks* callbacks, void* reserved)
-{
-    netCallbacks.notify_connected = callbacks->notify_connected;
-    netCallbacks.notify_disconnected = callbacks->notify_disconnected;
-    netCallbacks.notify_dhcp = callbacks->notify_dhcp;
-    netCallbacks.notify_can_shutdown = callbacks->notify_can_shutdown;
 }
 
 void cellular_cancel(bool cancel, bool calledFromISR, void*)
@@ -293,3 +293,4 @@ cellular_result_t cellular_resume(void* reserved)
     CellularMDM.resume();
     return 0;
 }
+

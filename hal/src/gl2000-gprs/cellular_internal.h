@@ -56,3 +56,4 @@ cellular_result_t cellular_band_available_get(MDM_BandSelect* bands, void* reser
 #endif
 
 #endif	/* CELLULAR_HAL_MDM_H */
+

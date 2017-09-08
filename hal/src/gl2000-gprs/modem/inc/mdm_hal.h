@@ -20,7 +20,7 @@
 #ifndef MDM_HAL_H
 #define MDM_HAL_H
 
-//#include <stdio.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>

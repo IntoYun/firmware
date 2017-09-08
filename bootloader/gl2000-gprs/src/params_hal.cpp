@@ -59,16 +59,6 @@ void init_fac_system_params(hal_system_params_t *psystem_params) {
             memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
             memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
             break;
-        case 2:      //Over-The-Air Activation //灌装激活码  未激活
-        case 3:      //灌装激活码 已激活
-            at_mode = psystem_params->at_mode;
-            memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
-            memcpy(activation_code, psystem_params->activation_code, sizeof(psystem_params->activation_code));
-            init_system_params(psystem_params);
-            psystem_params->at_mode = 2; //灌装激活码  未激活
-            memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
-            memcpy(psystem_params->activation_code, activation_code, sizeof(psystem_params->activation_code));
-            break;
         default:     //没有密钥信息
             init_system_params(psystem_params);
             break;

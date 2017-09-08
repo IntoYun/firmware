@@ -21,9 +21,7 @@
 #include "hw_config.h"
 #include "core_hal.h"
 #include "flash_map.h"
-#include "parser.h"
 #include "intorobot_macros.h"
-
 
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 {
