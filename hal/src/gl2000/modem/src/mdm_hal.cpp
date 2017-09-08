@@ -28,11 +28,19 @@
 #include "timer_hal.h"
 #include "delay_hal.h"
 #include "gpio_hal.h"
-#include "mdmapn_hal.h"
+#include "service_debug.h"
 #include "concurrent_hal.h"
 #include "net_hal.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
+
+#ifdef MODEM_DEBUG
+#define MDM_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
+#define MDM_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define MDM_DEBUG(...)
+#define MDM_DEBUG_D(...)
+#endif
 
 #ifdef putc
 #undef putc
@@ -49,8 +57,16 @@ extern "C"
 
 /* Private define -----------------------------------------------------------*/
 /* Private macro ------------------------------------------------------------*/
+#define ESP8266_GPIO0_GPIO_PIN          GPIO_PIN_3
+#define ESP8266_GPIO0_GPIO_PORT         GPIOB
+#define ESP8266_EN_GPIO_PIN             GPIO_PIN_9
+#define ESP8266_EN_GPIO_PORT            GPIOA
+#define ESP8266_RST_GPIO_PIN            GPIO_PIN_10
+#define ESP8266_RST_GPIO_PORT           GPIOA
+#define SIM800C_PWR_EN_GPIO_PIN         GPIO_PIN_8
+#define SIM800C_PWR_EN_GPIO_PORT        GPIOB
 
-#define PROFILE         "1"   //!< this is the psd profile used
+#define PROFILE         "0"   //!< this is the psd profile used
 #define MAX_SIZE        2048  //!< max expected messages (used with RX)
 #define USO_MAX_WRITE   1024  //!< maximum number of bytes to write to socket (used with TX)
 // num sockets
@@ -59,10 +75,6 @@ extern "C"
 #define ISSOCKET(s)     (((s) >= 0) && ((s) < NUMSOCKETS) && (_sockets[s].handle != MDM_SOCKET_ERROR))
 //! check for timeout
 #define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
-//! registration ok check helper
-#define REG_OK(r)       ((r == REG_HOME) || (r == REG_ROAMING))
-//! registration done check helper (no need to poll further)
-#define REG_DONE(r)     ((r == REG_HOME) || (r == REG_ROAMING) || (r == REG_DENIED))
 //! helper to make sure that lock unlock pair is always balanced
 #define LOCK()      __modem_lock()
 //! helper to make sure that lock unlock pair is always balanced
@@ -88,94 +100,35 @@ static void __modem_unlock(void)
         os_mutex_recursive_unlock(modem_mutex);
 }
 
-static volatile uint32_t gprs_timeout_start;
-static volatile uint32_t gprs_timeout_duration;
 
-inline void ARM_GPRS_TIMEOUT(uint32_t dur) {
-    gprs_timeout_start = HAL_Timer_Get_Milli_Seconds();
-    gprs_timeout_duration = dur;
-    DEBUG("GPRS WD Set %d",(dur));
-}
-inline bool IS_GPRS_TIMEOUT() {
-    return gprs_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-gprs_timeout_start)>gprs_timeout_duration);
-}
-
-inline void CLR_GPRS_TIMEOUT() {
-    gprs_timeout_duration = 0;
-    DEBUG("GPRS WD Cleared, was %d", gprs_timeout_duration);
-}
-
-#ifdef MDM_DEBUG
- #if 0 // colored terminal output using ANSI escape sequences
-  #define COL(c) "\033[" c
- #else
-  #define COL(c) ""
- #endif
- #define DEF COL("39m")
- #define BLA COL("30m")
- #define RED COL("31m")
- #define GRE COL("32m")
- #define YEL COL("33m")
- #define BLU COL("34m")
- #define MAG COL("35m")
- #define CYA COL("36m")
- #define WHY COL("37m")
-
-void dumpAtCmd(const char* buf, int len)
+static void dumpAtCmd(const char* buf, int len)
 {
-    DEBUG_D(" %3d \"", len);
+    MDM_DEBUG_D(" %3d \"", len);
     while (len --) {
         char ch = *buf++;
         if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if      (ch == '%')  DEBUG_D("%%");
-            else if (ch == '"')  DEBUG_D("\\\"");
-            else if (ch == '\\') DEBUG_D("\\\\");
+            if      (ch == '%')  MDM_DEBUG_D("%%");
+            else if (ch == '"')  MDM_DEBUG_D("\\\"");
+            else if (ch == '\\') MDM_DEBUG_D("\\\\");
             else DEBUG_D("%c", ch);
         } else {
-            if      (ch == '\a') DEBUG_D("\\a"); // BEL (0x07)
-            else if (ch == '\b') DEBUG_D("\\b"); // Backspace (0x08)
-            else if (ch == '\t') DEBUG_D("\\t"); // Horizontal Tab (0x09)
-            else if (ch == '\n') DEBUG_D("\\n"); // Linefeed (0x0A)
-            else if (ch == '\v') DEBUG_D("\\v"); // Vertical Tab (0x0B)
-            else if (ch == '\f') DEBUG_D("\\f"); // Formfeed (0x0C)
-            else if (ch == '\r') DEBUG_D("\\r"); // Carriage Return (0x0D)
-            else                 DEBUG_D("\\x%02x", (unsigned char)ch);
+            if      (ch == '\a') MDM_DEBUG_D("\\a"); // BEL (0x07)
+            else if (ch == '\b') MDM_DEBUG_D("\\b"); // Backspace (0x08)
+            else if (ch == '\t') MDM_DEBUG_D("\\t"); // Horizontal Tab (0x09)
+            else if (ch == '\n') MDM_DEBUG_D("\\n"); // Linefeed (0x0A)
+            else if (ch == '\v') MDM_DEBUG_D("\\v"); // Vertical Tab (0x0B)
+            else if (ch == '\f') MDM_DEBUG_D("\\f"); // Formfeed (0x0C)
+            else if (ch == '\r') MDM_DEBUG_D("\\r"); // Carriage Return (0x0D)
+            else                 MDM_DEBUG_D("\\x%02x", (unsigned char)ch);
         }
     }
     DEBUG_D("\"\r\n");
 }
-
-void MDMParser::_debugPrint(int level, const char* color, const char* format, ...)
-{
-    if (_debugLevel >= level)
-    {
-        va_list args;
-        va_start (args, format);
-        if (color) DEBUG_D(color);
-        DEBUG_D(format, args);
-        if (color) DEBUG_D(DEF);
-        va_end (args);
-        DEBUG_D("\r\n");
-    }
-}
-// Warning: Do not use these for anything other than constant char messages,
-// they will yield incorrect values for integers.  Use DEBUG_D() instead.
-#define MDM_ERROR(...)  do {_debugPrint(0, RED, __VA_ARGS__);}while(0)
-#define MDM_INFO(...)   do {_debugPrint(1, GRE, __VA_ARGS__);}while(0)
-#define MDM_TRACE(...)  do {_debugPrint(2, DEF, __VA_ARGS__);}while(0)
-#define MDM_TEST(...)   do {_debugPrint(3, CYA, __VA_ARGS__);}while(0)
-
-#else
-
-#define MDM_ERROR(...) // no tracing
-#define MDM_TEST(...)  // no tracing
-#define MDM_INFO(...)  // no tracing
-#define MDM_TRACE(...) // no tracing
-
-#endif
 /* Private variables --------------------------------------------------------*/
 
 MDMParser* MDMParser::inst;
+int MDMParser::_aplisttotalcount;
+int MDMParser::_aplistindex;
 
 /* Extern variables ---------------------------------------------------------*/
 
@@ -184,52 +137,41 @@ MDMParser* MDMParser::inst;
 MDMParser::MDMParser(void)
 {
     inst = this;
-    memset(&_dev, 0, sizeof(_dev));
-    memset(&_net, 0, sizeof(_net));
-    _net.lac = 0xFFFF;
-    _net.ci = 0xFFFFFFFF;
-    _ip        = NOIP;
+
+    _smartconfig_status = DEALSTATUS_IDLE;
+    _downotafile_status = DEALSTATUS_IDLE;
+    _downnetfile_status = DEALSTATUS_IDLE;
+
     _init      = false;
-    _pwr       = false;
-    _activated = false;
-    _attached  = false;
-    _attached_urc = false; // updated by GPRS detached/attached URC,
-                           // used to notify system of prolonged GPRS detach.
+
+    _aplisttotalcount = 0;
+    _aplistindex = 0;
+
     _cancel_all_operations = false;
-    sms_cb = NULL;
     memset(_sockets, 0, sizeof(_sockets));
     for (int socket = 0; socket < NUMSOCKETS; socket ++)
         _sockets[socket].handle = MDM_SOCKET_ERROR;
-#ifdef MDM_DEBUG
+#ifdef MODEM_DEBUG
     _debugLevel = 3;
     _debugTime = HAL_Timer_Get_Milli_Seconds();
 #endif
 }
 
 void MDMParser::cancel(void) {
-    MDM_INFO("\r\n[ Modem::cancel ] = = = = = = = = = = = = = = =");
+    MDM_DEBUG_D("\r\n[ Modem::cancel ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = true;
 }
 
 void MDMParser::resume(void) {
-    MDM_INFO("\r\n[ Modem::resume ] = = = = = = = = = = = = = = =");
+    MDM_DEBUG_D("\r\n[ Modem::resume ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = false;
-}
-
-void MDMParser::setSMSreceivedHandler(_CELLULAR_SMS_CB cb, void* data) {
-    sms_cb = cb;
-    sms_data = data;
-}
-
-void MDMParser::SMSreceived(int index) {
-    sms_cb(sms_data, index); // call the SMS callback with the index of the new SMS
 }
 
 int MDMParser::send(const char* buf, int len)
 {
-#ifdef MDM_DEBUG
+#ifdef MODEM_DEBUG
     if (_debugLevel >= 3) {
-        DEBUG_D("%10.3f AT send    ", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001);
+        MDM_DEBUG_D("[%010u]:AT send    ", HAL_Timer_Get_Milli_Seconds()-_debugTime);
         dumpAtCmd(buf,len);
     }
 #endif
@@ -257,20 +199,19 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Timer_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
-#ifdef MDM_DEBUG
+#ifdef MODEM_DEBUG
         if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
         {
             int len = LENGTH(ret);
             int type = TYPE(ret);
-            const char* s = (type == TYPE_UNKNOWN)? YEL "UNK" DEF :
-                            (type == TYPE_TEXT)   ? MAG "TXT" DEF :
-                            (type == TYPE_OK   )  ? GRE "OK " DEF :
-                            (type == TYPE_ERROR)  ? RED "ERR" DEF :
-                            (type == TYPE_ABORTED) ? RED "ABT" DEF :
-                            (type == TYPE_PLUS)   ? CYA " + " DEF :
-                            (type == TYPE_PROMPT) ? BLU " > " DEF :
-                                                        "..." ;
-            DEBUG_D("%10.3f AT read %s", (HAL_Timer_Get_Milli_Seconds()-_debugTime)*0.001, s);
+            const char* s = (type == TYPE_UNKNOWN)? "UNK":
+                (type == TYPE_OK   )  ? "OK ":
+                (type == TYPE_ERROR)  ? "ERR":
+                (type == TYPE_ABORTED) ? "ABT":
+                (type == TYPE_PLUS)   ? " + ":
+                (type == TYPE_PROMPT) ? " > ":
+                "..." ;
+            MDM_DEBUG_D("[%010u]:AT read %s", HAL_Timer_Get_Milli_Seconds()-_debugTime, s);
             dumpAtCmd(buf, len);
             (void)s;
         }
@@ -279,92 +220,61 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
         {
             int type = TYPE(ret);
             int sk, socket;
-            // handle unsolicited commands here
+            /*******************************************/
+            //handle unsolicited commands here
             if (type == TYPE_PLUS) {
-                const char* cmd = buf+3;
-                int a, b, c, d, r;
+                const char* cmd = buf+1;
+                int sz, p, a,b,c,d;
                 int n;
-                char *p;
-                char s[32];
+                char *s;
 
-                // SMS Command ---------------------------------
-                // +CNMI: <mem>,<index>
-                if (sscanf(cmd, "CMTI: \"%*[^\"]\",%d", &a) == 1) {
-                    DEBUG_D("New SMS at index %d\r\n", a);
-                    if (sms_cb) SMSreceived(a);
-                }
-                else if ((sscanf(cmd, "CIEV: 9,%d", &a) == 1)) {
-                    DEBUG_D("CIEV matched: 9,%d\r\n", a);
-                    // Wait until the system is attached before attempting to act on GPRS detach
-                    if (_attached) {
-                        _attached_urc = (a==2)?1:0;
-                        if (!_attached_urc) ARM_GPRS_TIMEOUT(15*1000); // If detached, set WDT
-                        else CLR_GPRS_TIMEOUT(); // else if re-attached clear WDT.
-                    }
                 // Socket Specific Command ---------------------------------
-                // +RECEIVE,<socket>,<length>:
-                } else if ((sscanf(cmd, "RECEIVE,%d,%d", &a, &b) == 2)) {
-                    socket = _findSocket(a);
-                    //DEBUG_D("Socket %d: handle %d has %d bytes pending!\r\n", socket, a, b);
+                // +IPD, <socket>,<length>,<remote IP>,<remote port>
+                if ((sscanf(cmd, "IPD,%d,%d," IPSTR ",%d", &sk, &sz, &a, &b, &c, &d, &p) == 7)) {
+                    socket = _findSocket(sk);
+                    MDM_DEBUG_D("Socket %d: handle %d has %d bytes pending!\r\n", socket, sk, sz);
                     if (socket != MDM_SOCKET_ERROR) {
-                        p = strchr(buf, ':');
-                        for(n=0; n < b; n++) {
+                        s = strchr(buf, ':');
+                        for(n=0; n < sz; n++) {
                             if (_sockets[socket].pipe->writeable()) {
-                                _sockets[socket].pipe->putc(p[n+3]);
+                                _sockets[socket].pipe->putc(s[n+1]);
                             }
                             else{
                                 break;
                             }
                         }
                         _sockets[socket].pending += n;
+                        _sockets[socket].remoteip = IPADR(a,b,c,d);
+                        _sockets[socket].remoteport = p;
                     }
+                    // down file ---------------------------------
+                    // IR_DOWNFILE:<result>
+                } else if ((sscanf(cmd, "IR_DOWNFILE:%d", &a) == 1)) {
+                    //AT设计的有问题   下载中返回结果后面多了一个ok. 特殊处理  去掉后面的Ok
+                    if(_downotafile_status == DEALSTATUS_DOING) {
+                        char temp[16];
+                        getLine(temp, strlen("\r\nOK\r\n"));
+                    }
+                    if(0 == a)
+                        _downotafile_status = DEALSTATUS_SUCCESS;
+                    else
+                        _downotafile_status = DEALSTATUS_FAIL;
+                    // IR_DOWNFILE:<result>
+                } else if ((sscanf(cmd, "IR_NETDOWN:%d", &a) == 1)) {
+                    //AT设计的有问题   下载中返回结果后面多了一个ok. 特殊处理  去掉后面的Ok
+                    if(_downnetfile_status == DEALSTATUS_DOING) {
+                        char temp[16];
+                        getLine(temp, strlen("\r\nOK\r\n"));
+                    }
+                    if(0 == a)
+                        _downnetfile_status = DEALSTATUS_SUCCESS;
+                    else
+                        _downnetfile_status = DEALSTATUS_FAIL;
                 }
-                // GSM/UMTS Specific -------------------------------------------
-                // +UUPSDD: <profile_id>
-                if (sscanf(cmd, "UUPSDD: %s", s) == 1) {
-                    DEBUG_D("UUPSDD: %s matched\r\n", PROFILE);
-                    if ( !strcmp(s, PROFILE) ) {
-                        _ip = NOIP;
-                        _attached = false;
-                        DEBUG("PDP context deactivated remotely!\r\n");
-                        // PDP context was remotely deactivated via URC,
-                        // Notify system of disconnect.
-                        HAL_NET_notify_dhcp(false);
-                    }
-                } else {
-                    // +CREG|CGREG: <n>,<stat>[,<lac>,<ci>[,AcT[,<rac>]]] // reply to AT+CREG|AT+CGREG
-                    // +CREG|CGREG: <stat>[,<lac>,<ci>[,AcT[,<rac>]]]     // URC
-                    b = (int)0xFFFF; c = (int)0xFFFFFFFF; d = -1;
-                    r = sscanf(cmd, "%s %*d,%d,\"%x\",\"%x\",%d",s,&a,&b,&c,&d);
-                    if (r <= 1)
-                        r = sscanf(cmd, "%s %d,\"%x\",\"%x\",%d",s,&a,&b,&c,&d);
-                    if (r >= 2) {
-                        Reg *reg = !strcmp(s, "CREG:")  ? &_net.csd :
-                                   !strcmp(s, "CGREG:") ? &_net.psd : NULL;
-                        if (reg) {
-                            // network status
-                            if      (a == 0) *reg = REG_NONE;     // 0: not registered, home network
-                            else if (a == 1) *reg = REG_HOME;     // 1: registered, home network
-                            else if (a == 2) *reg = REG_NONE;     // 2: not registered, but MT is currently searching a new operator to register to
-                            else if (a == 3) *reg = REG_DENIED;   // 3: registration denied
-                            else if (a == 4) *reg = REG_UNKNOWN;  // 4: unknown
-                            else if (a == 5) *reg = REG_ROAMING;  // 5: registered, roaming
-                            if ((r >= 3) && (b != (int)0xFFFF))      _net.lac = b; // location area code
-                            if ((r >= 4) && (c != (int)0xFFFFFFFF))  _net.ci  = c; // cell ID
-                            // access technology
-                            if (r >= 5) {
-                                if      (d == 0) _net.act = ACT_GSM;      // 0: GSM
-                                else if (d == 1) _net.act = ACT_GSM;      // 1: GSM COMPACT
-                                else if (d == 2) _net.act = ACT_UTRAN;    // 2: UTRAN
-                                else if (d == 3) _net.act = ACT_EDGE;     // 3: GSM with EDGE availability
-                                else if (d == 4) _net.act = ACT_UTRAN;    // 4: UTRAN with HSDPA availability
-                                else if (d == 5) _net.act = ACT_UTRAN;    // 5: UTRAN with HSUPA availability
-                                else if (d == 6) _net.act = ACT_UTRAN;    // 6: UTRAN with HSDPA and HSUPA availability
-                            }
-                        }
-                    }
-                }
-            } // end ==TYPE_PLUS
+            }
+            else if (type == TYPE_SMARTCONFIG) {
+                _smartconfig_status = DEALSTATUS_SUCCESS;
+            }
             else if (type == TYPE_CONNECTCLOSTED) {
                 if ((sscanf(buf, "%d", &sk) == 1)) {
                     socket = _findSocket(sk);
@@ -373,6 +283,16 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                     }
                 }
             }
+            else if (type == TYPE_CONNECT) {
+            }
+            else if (type == TYPE_DHCP) {
+                HAL_NET_notify_connected();
+                HAL_NET_notify_dhcp(true);
+            }
+            else if (type == TYPE_DISCONNECT) {
+                HAL_NET_notify_disconnected();
+            }
+            /*******************************************/
             if (cb) {
                 int len = LENGTH(ret);
                 int ret = cb(type, buf, len, param);
@@ -381,6 +301,8 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
             }
             if (type == TYPE_OK)
                 return RESP_OK;
+            if (type == TYPE_FAIL)
+                return RESP_FAIL;
             if (type == TYPE_ERROR)
                 return RESP_ERROR;
             if (type == TYPE_PROMPT)
@@ -390,8 +312,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
         }
         // relax a bit
         //HAL_Delay_Milliseconds(10);
-    }
-    while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
+    }while (!TIMEOUT(start, timeout_ms) && !_cancel_all_operations);
 
     return WAIT;
 }
@@ -415,93 +336,74 @@ int MDMParser::_cbInt(int type, const char* buf, int len, int* val)
 }
 
 // ----------------------------------------------------------------
-
-bool MDMParser::connect(
-            const char* simpin,
-            const char* apn, const char* username,
-            const char* password, Auth auth)
-{
-    bool ok = powerOn(simpin);
-    if (!ok)
-        return false;
-    ok = init();
-#ifdef MDM_DEBUG
-    if (_debugLevel >= 1) dumpDevStatus(&_dev);
-#endif
-    if (!ok)
-        return false;
-    ok = registerNet();
-#ifdef MDM_DEBUG
-    if (_debugLevel >= 1) dumpNetStatus(&_net);
-#endif
-    if (!ok)
-        return false;
-    MDM_IP ip = join(apn,username,password,auth);
-#ifdef MDM_DEBUG
-    if (_debugLevel >= 1) dumpIp(ip);
-#endif
-    if (ip == NOIP)
-        return false;
-    return true;
-}
-
 void MDMParser::reset(void)
 {
-    MDM_INFO("[ Modem reset ]");
+    MDM_DEBUG_D("[ Modem reset ]");
 
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    //sim800c PWK pin
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    GPIO_InitStruct.Pin = GPIO_PIN_13;
+    //ESP8266_GPIO0
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = ESP8266_GPIO0_GPIO_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);//高电平
+    HAL_GPIO_Init(ESP8266_GPIO0_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_EN
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitStruct.Pin = ESP8266_EN_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_EN_GPIO_PORT, &GPIO_InitStruct);
+    //ESP8266_RST
+    GPIO_InitStruct.Pin = ESP8266_RST_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_RST_GPIO_PORT, &GPIO_InitStruct);
+    //SIM800C PWR_EN 关闭SIM800C电源
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = SIM800C_PWR_EN_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(SIM800C_PWR_EN_GPIO_PORT, &GPIO_InitStruct);
+    //SIM800C 暂停工作
+    HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);//低电平
-    HAL_Delay(1200);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);  //高电平
+    HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
+    HAL_Delay(200);
+    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
 }
 
-bool MDMParser::_powerOn(void)
+bool MDMParser::init(void)
 {
+    init_modem_mutex();
     LOCK();
-
     if (!_init) {
-        MDM_INFO("[ CellularSerialPipe::begin ] = = = = = = = =");
-
-        /* Instantiate the USART3 hardware */
-        CellularMDM.begin(115200);
-
+        MDM_DEBUG_D("[ Esp8266 init ]");
+        esp8266MDM.begin(460800);
+        reset();
         /* Initialize only once */
         _init = true;
     }
 
-    MDM_INFO("\r\n[ Modem::powerOn ] = = = = = = = = = = = = = =");
     bool continue_cancel = false;
     bool retried_after_reset = false;
 
     int i = 10;
     while (i--) {
-        // purge any messages
-        purge();
-
-        // Save desire to cancel, but since we are already here
-        // trying to power up the modem when we received a cancel
-        // resume AT parser to ensure it's ready to receive
-        // power down commands.
         if (_cancel_all_operations) {
             continue_cancel = true;
             resume(); // make sure we can talk to the modem
         }
-
-        // check interface
-        sendFormated("AT\r\n");
+        // echo off
+        sendFormated("ATE0\r\n");
         int r = waitFinalResp(NULL,NULL,1000);
         if(RESP_OK == r) {
-            _pwr = true;
             break;
         }
         else if (i==0 && !retried_after_reset) {
@@ -509,10 +411,10 @@ bool MDMParser::_powerOn(void)
             i = 10;
             reset();
         }
-
     }
+
     if (i < 0) {
-        MDM_ERROR("[ No Reply from Modem ]\r\n");
+        MDM_DEBUG_D("[ No Reply from Modem ]\r\n");
     }
 
     if (continue_cancel) {
@@ -520,20 +422,20 @@ bool MDMParser::_powerOn(void)
         goto failure;
     }
 
-    // echo off
-    sendFormated("ATE0\r\n");
-    if(RESP_OK != waitFinalResp())
-        goto failure;
-    // enable verbose error messages
-    sendFormated("AT+CMEE=2\r\n");
-    if(RESP_OK != waitFinalResp())
-        goto failure;
-    // set baud rate
-    sendFormated("AT+IPR=115200\r\n");
+    // enable mulit connect
+    sendFormated("AT+CIPMUX=1\r\n");
     if (RESP_OK != waitFinalResp())
         goto failure;
-    // wait some time until baudrate is applied
-    HAL_Delay_Milliseconds(100); // SARA-G > 40ms
+
+    // enable AT+IPD dispay ip and port
+    sendFormated("AT+CIPDINFO=1\r\n");
+    if (RESP_OK != waitFinalResp())
+        goto failure;
+
+    // set station mode
+    sendFormated("AT+CWMODE_DEF=1\r\n");
+    if (RESP_OK != waitFinalResp())
+        goto failure;
 
     UNLOCK();
     return true;
@@ -542,665 +444,300 @@ failure:
     return false;
 }
 
-bool MDMParser::powerOn(const char* simpin)
+int MDMParser::_cbGetNetVersion(int type, const char* buf, int len, char* str)
 {
-    LOCK();
-    memset(&_dev, 0, sizeof(_dev));
-    bool retried_after_reset = false;
-
-    /* Power on the modem and perform basic initialization */
-    if (!_powerOn())
-        goto failure;
-
-    sendFormated("ATI\r\n");
-    if (RESP_OK != waitFinalResp(_cbATI, &_dev.dev))
-        goto failure;
-    if (_dev.dev == DEV_UNKNOWN)
-        goto failure;
-
-    // check the sim card
-    for (int i = 0; (i < 5) && (_dev.sim != SIM_READY) && !_cancel_all_operations; i++) {
-        sendFormated("AT+CPIN?\r\n");
-        int ret = waitFinalResp(_cbCPIN, &_dev.sim);
-        // having an error here is ok (sim may still be initializing)
-        if ((RESP_OK != ret) && (RESP_ERROR != ret)) {
-            goto failure;
-        }
-        else if (i==4 && (RESP_OK != ret) && !retried_after_reset) {
-            retried_after_reset = true; // only perform reset & retry sequence once
-            i = 0;
-            if(!powerOff())
-                reset();
-            /* Power on the modem and perform basic initialization again */
-            if (!_powerOn())
-                goto failure;
-        }
-        // Enter PIN if needed
-        if (_dev.sim == SIM_PIN) {
-            if (!simpin) {
-                MDM_ERROR("SIM PIN not available\r\n");
-                goto failure;
-            }
-            sendFormated("AT+CPIN=%s\r\n", simpin);
-            if (RESP_OK != waitFinalResp(_cbCPIN, &_dev.sim))
-                goto failure;
-        } else if (_dev.sim != SIM_READY) {
-            system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-            while ((HAL_Timer_Get_Milli_Seconds() - start < 1000UL) && !_cancel_all_operations); // just wait
-        }
-    }
-    if (_dev.sim != SIM_READY) {
-        if (_dev.sim == SIM_MISSING) {
-            MDM_ERROR("SIM not inserted\r\n");
-        }
-        goto failure;
-    }
-    UNLOCK();
-    return true;
-failure:
-    if (_cancel_all_operations) {
-        // fake out the has_credentials() function so we don't end up in listening mode
-        _dev.sim = SIM_READY;
-        // return true to prevent from entering Listening Mode
-        // UNLOCK();
-        // return true;
-    }
-    UNLOCK();
-    return false;
-}
-
-bool MDMParser::init(DevStatus* status)
-{
-    LOCK();
-    MDM_INFO("\r\n[ Modem::init ] = = = = = = = = = = = = = = =");
-
-    // Returns the product serial number, IMEI (International Mobile Equipment Identity)
-    sendFormated("AT+CGSN\r\n");
-    if (RESP_OK != waitFinalResp(_cbString, _dev.imei))
-        goto failure;
-
-    if (_dev.sim != SIM_READY) {
-        if (_dev.sim == SIM_MISSING)
-            MDM_ERROR("SIM not inserted\r\n");
-        goto failure;
-    }
-    // get the manufacturer
-    sendFormated("AT+CGMI\r\n");
-    if (RESP_OK != waitFinalResp(_cbString, _dev.manu))
-        goto failure;
-    // get the model identification
-    sendFormated("AT+CGMM\r\n");
-    if (RESP_OK != waitFinalResp(_cbString, _dev.model))
-        goto failure;
-    // get the version
-    sendFormated("AT+CGMR\r\n");
-    if (RESP_OK != waitFinalResp(_cbString, _dev.ver))
-        goto failure;
-    // Returns the ICCID (Integrated Circuit Card ID) of the SIM-card.
-    // ICCID is a serial number identifying the SIM.
-    sendFormated("AT+CCID\r\n");
-    if (RESP_OK != waitFinalResp(_cbCCID, _dev.ccid))
-        goto failure;
-    // Setup SMS in text mode
-    sendFormated("AT+CMGF=1\r\n");
-    if (RESP_OK != waitFinalResp())
-        goto failure;
-    // setup new message indication
-    /*
-    sendFormated("AT+CNMI=2,1\r\n");
-    if (RESP_OK != waitFinalResp())
-        goto failure;
-     */
-    // Request IMSI (International Mobile Subscriber Identification)
-    sendFormated("AT+CIMI\r\n");
-    if (RESP_OK != waitFinalResp(_cbString, _dev.imsi))
-        goto failure;
-    if (status)
-        memcpy(status, &_dev, sizeof(DevStatus));
-    UNLOCK();
-    return true;
-failure:
-    UNLOCK();
-
-    return false;
-}
-
-bool MDMParser::powerOff(void)
-{
-    LOCK();
-    bool ok = false;
-    bool continue_cancel = false;
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::powerOff ] = = = = = = = = = = = = = =");
-        if (_cancel_all_operations) {
-            continue_cancel = true;
-            resume(); // make sure we can use the AT parser
-        }
-
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);//低电平
-        HAL_Delay(1200);
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);  //高电平
-        _pwr = false;
-        // todo - add if these are automatically done on power down
-        _activated = false;
-        _attached = false;
-        ok = true;
-    }
-
-    if (continue_cancel) cancel();
-    UNLOCK();
-    return ok;
-}
-
-int MDMParser::_cbATI(int type, const char* buf, int len, Dev* dev)
-{
-    if ((type == TYPE_UNKNOWN) && dev) {
-        if (strstr(buf, "SIM800")) {
-            *dev = DEV_SIM800;
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbCPIN(int type, const char* buf, int len, Sim* sim)
-{
-    if (sim) {
-        if (type == TYPE_PLUS){
-            char s[16];
-            if (sscanf(buf, "\r\n+CPIN: %[^\r]\r\n", s) >= 1)
-                *sim = (0 == strcmp("READY", s)) ? SIM_READY : SIM_PIN;
-        } else if (type == TYPE_ERROR) {
-            if (strstr(buf, "+CME ERROR: SIM not inserted"))
-                *sim = SIM_MISSING;
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbCCID(int type, const char* buf, int len, char* ccid)
-{
-    if ((type == TYPE_PLUS) && ccid) {
-        if (sscanf(buf, "\r\n+CCID: %[^\r]\r\n", ccid) == 1) {
-            //DEBUG_D("Got CCID: %s\r\n", ccid);
-        }
-    }
-    return WAIT;
-}
-
-bool MDMParser::registerNet(NetStatus* status /*= NULL*/, system_tick_t timeout_ms /*= 180000*/)
-{
-    LOCK();
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::register ] = = = = = = = = = = = = = =");
-        // Check to see if we are already connected. If so don't issue these
-        // commands as they will knock us off the cellular network.
-        if (checkNetStatus() == false) {
-            // setup the GPRS network registration URC (Unsolicited Response Code)
-            // 0: (default value and factory-programmed value): network registration URC disabled
-            // 1: network registration URC enabled
-            // 2: network registration and location information URC enabled
-            sendFormated("AT+CGREG=2\r\n");
-            if (RESP_OK != waitFinalResp())
-                goto failure;
-            // setup the network registration URC (Unsolicited Response Code)
-            // 0: (default value and factory-programmed value): network registration URC disabled
-            // 1: network registration URC enabled
-            // 2: network registration and location information URC enabled
-            sendFormated("AT+CREG=2\r\n");
-            if (RESP_OK != waitFinalResp())
-                goto failure;
-            // Now check every 5 seconds for 5 minutes to see if we're connected to the tower (GSM and GPRS)
-            system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-            while (!checkNetStatus(status) && !TIMEOUT(start, timeout_ms) && !_cancel_all_operations) {
-                system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-                while ((HAL_Timer_Get_Milli_Seconds() - start < 5000UL) && !_cancel_all_operations); // just wait
-                //HAL_Delay_Milliseconds(15000);
-            }
-            if (_net.csd == REG_DENIED) MDM_ERROR("CSD Registration Denied\r\n");
-            if (_net.psd == REG_DENIED) MDM_ERROR("PSD Registration Denied\r\n");
-            // if (_net.csd == REG_DENIED || _net.psd == REG_DENIED) {
-            //     sendFormated("AT+CEER\r\n");
-            //     waitFinalResp();
-            // }
-        }
-        UNLOCK();
-        return REG_OK(_net.csd) && REG_OK(_net.psd);
-    }
-failure:
-    UNLOCK();
-    return false;
-}
-
-bool MDMParser::checkNetStatus(NetStatus* status /*= NULL*/)
-{
-    bool ok = false;
-    LOCK();
-    memset(&_net, 0, sizeof(_net));
-    _net.lac = 0xFFFF;
-    _net.ci = 0xFFFFFFFF;
-
-    // check registration
-    sendFormated("AT+CREG?\r\n");
-    waitFinalResp();     // don't fail as service could be not subscribed
-
-    // check PSD registration
-    sendFormated("AT+CGREG?\r\n");
-    waitFinalResp(); // don't fail as service could be not subscribed
-
-    if (REG_OK(_net.csd) || REG_OK(_net.psd))
-    {
-        sendFormated("AT+COPS?\r\n");
-        if (RESP_OK != waitFinalResp(_cbCOPS, &_net))
-            goto failure;
-#if 0
-        // get the MSISDNs related to this subscriber
-        sendFormated("AT+CNUM\r\n");
-        if (RESP_OK != waitFinalResp(_cbCNUM, _net.num))
-            goto failure;
-#endif
-
-        // get the signal strength indication
-        sendFormated("AT+CSQ\r\n");
-        if (RESP_OK != waitFinalResp(_cbCSQ, &_net))
-            goto failure;
-    }
-    if (status) {
-        memcpy(status, &_net, sizeof(NetStatus));
-    }
-    // don't return true until fully registered
-    ok = REG_OK(_net.csd) && REG_OK(_net.psd);
-    UNLOCK();
-    return ok;
-failure:
-    UNLOCK();
-    return false;
-}
-
-bool MDMParser::getSignalStrength(NetStatus &status)
-{
-    bool ok = false;
-    LOCK();
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::getSignalStrength ] = = = = = = = = = =");
-        sendFormated("AT+CSQ\r\n");
-        if (RESP_OK == waitFinalResp(_cbCSQ, &_net)) {
-            ok = true;
-            status.rssi = _net.rssi;
-            status.qual = _net.qual;
-        }
-    }
-    UNLOCK();
-    return ok;
-}
-
-bool MDMParser::getDataUsage(MDM_DataUsage &data)
-{
-    bool ok = false;
-    LOCK();
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::getDataUsage ] = = = = = = = = = =");
-        sendFormated("AT+UGCNTRD\r\n");
-        if (RESP_OK == waitFinalResp(_cbUGCNTRD, &_data_usage)) {
-            ok = true;
-            data.cid = _data_usage.cid;
-            data.tx_session = _data_usage.tx_session;
-            data.rx_session = _data_usage.rx_session;
-            data.tx_total = _data_usage.tx_total;
-            data.rx_total = _data_usage.rx_total;
-        }
-    }
-    UNLOCK();
-    return ok;
-}
-
-void MDMParser::_setBandSelectString(MDM_BandSelect &data, char* bands, int index /*= 0*/) {
-    char band[5];
-    for (int x=index; x<data.count; x++) {
-        sprintf(band, "%d", data.band[x]);
-        strcat(bands, band);
-        if ((x+1) < data.count) strcat(bands, ",");
-    }
-}
-
-bool MDMParser::setBandSelect(MDM_BandSelect &data)
-{
-    bool ok = false;
-    LOCK();
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::setBandSelect ] = = = = = = = = = =");
-
-        char bands_to_set[22] = "";
-        _setBandSelectString(data, bands_to_set, 0);
-        if (strcmp(bands_to_set,"") == 0)
-            goto failure;
-
-        // create default bands string
-        MDM_BandSelect band_avail;
-        if (!getBandAvailable(band_avail))
-            goto failure;
-
-        char band_defaults[22] = "";
-        if (band_avail.band[0] == BAND_DEFAULT)
-            _setBandSelectString(band_avail, band_defaults, 1);
-
-        // create selected bands string
-        MDM_BandSelect band_sel;
-        if (!getBandSelect(band_sel))
-            goto failure;
-
-        char bands_selected[22] = "";
-        _setBandSelectString(band_sel, bands_selected, 0);
-
-        if (strcmp(bands_to_set, "0") == 0) {
-            if (strcmp(bands_selected, band_defaults) == 0) {
-                ok = true;
-                goto success;
-            }
-        }
-
-        if (strcmp(bands_selected, bands_to_set) != 0) {
-            sendFormated("AT+UBANDSEL=%s\r\n", bands_to_set);
-            if (RESP_OK == waitFinalResp(NULL,NULL,40000)) {
-                ok = true;
-            }
-        }
-        else {
-            ok = true;
-        }
-    }
-success:
-    UNLOCK();
-    return ok;
-failure:
-    UNLOCK();
-    return false;
-}
-
-bool MDMParser::getBandSelect(MDM_BandSelect &data)
-{
-    bool ok = false;
-    LOCK();
-    if (_init && _pwr) {
-        MDM_BandSelect data_sel;
-        MDM_INFO("\r\n[ Modem::getBandSelect ] = = = = = = = = = =");
-        sendFormated("AT+UBANDSEL?\r\n");
-        if (RESP_OK == waitFinalResp(_cbBANDSEL, &data_sel)) {
-            ok = true;
-            memcpy(&data, &data_sel, sizeof(MDM_BandSelect));
-        }
-    }
-    UNLOCK();
-    return ok;
-}
-
-bool MDMParser::getBandAvailable(MDM_BandSelect &data)
-{
-    bool ok = false;
-    LOCK();
-    if (_init && _pwr) {
-        MDM_BandSelect data_avail;
-        MDM_INFO("\r\n[ Modem::getBandAvailable ] = = = = = = = = = =");
-        sendFormated("AT+UBANDSEL=?\r\n");
-        if (RESP_OK == waitFinalResp(_cbBANDAVAIL, &data_avail)) {
-            ok = true;
-            memcpy(&data, &data_avail, sizeof(MDM_BandSelect));
-        }
-    }
-    UNLOCK();
-    return ok;
-}
-
-int MDMParser::_cbUGCNTRD(int type, const char* buf, int len, MDM_DataUsage* data)
-{
-    if ((type == TYPE_PLUS) && data) {
-        int a,b,c,d,e;
-        // +UGCNTRD: 31,2704,1819,2724,1839\r\n
-        // +UGCNTRD: <cid>,<tx_sess_bytes>,<rx_sess_bytes>,<tx_total_bytes>,<rx_total_bytes>
-        if (sscanf(buf, "\r\n+UGCNTRD: %d,%d,%d,%d,%d\r\n", &a,&b,&c,&d,&e) == 5) {
-            data->cid = a;
-            data->tx_session = b;
-            data->rx_session = c;
-            data->tx_total = d;
-            data->rx_total = e;
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbBANDAVAIL(int type, const char* buf, int len, MDM_BandSelect* data)
-{
-    if ((type == TYPE_PLUS) && data) {
-        int c;
-        int b[5];
-        // \r\n+UBANDSEL: (0,850,900,1800,1900)\r\n
-        if ((c = sscanf(buf, "\r\n+UBANDSEL: (%d,%d,%d,%d,%d)\r\n", &b[0],&b[1],&b[2],&b[3],&b[4])) > 0) {
-            for (int i=0; i<c; i++) {
-                data->band[i] = (MDM_Band)b[i];
-            }
-            data->count = c;
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbBANDSEL(int type, const char* buf, int len, MDM_BandSelect* data)
-{
-    if ((type == TYPE_PLUS) && data) {
-        int c;
-        int b[4];
-        // \r\n+UBANDSEL: 850\r\n
-        // \r\n+UBANDSEL: 850,1900\r\n
-        if ((c = sscanf(buf, "\r\n+UBANDSEL: %d,%d,%d,%d\r\n", &b[0],&b[1],&b[2],&b[3])) > 0) {
-            for (int i=0; i<c; i++) {
-                data->band[i] = (MDM_Band)b[i];
-            }
-            data->count = c;
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbCOPS(int type, const char* buf, int len, NetStatus* status)
-{
-    if ((type == TYPE_PLUS) && status){
-        int act = 99;
-        // +COPS: <mode>[,<format>,<oper>[,<AcT>]]
-        if (sscanf(buf, "\r\n+COPS: %*d,%*d,\"%[^\"]\",%d",status->opr,&act) >= 1) {
-            if      (act == 0) status->act = ACT_GSM;      // 0: GSM,
-            else if (act == 2) status->act = ACT_UTRAN;    // 2: UTRAN
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbCNUM(int type, const char* buf, int len, char* num)
-{
-    if ((type == TYPE_PLUS) && num){
-        int a;
-        if ((sscanf(buf, "\r\n+CNUM: \"My Number\",\"%31[^\"]\",%d", num, &a) == 2) &&
-            ((a == 129) || (a == 145))) {
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbCSQ(int type, const char* buf, int len, NetStatus* status)
-{
-    if ((type == TYPE_PLUS) && status){
-        int a,b;
-        char _qual[] = { 49, 43, 37, 25, 19, 13, 7, 0 }; // see 3GPP TS 45.008 [20] subclause 8.2.4
-        // +CSQ: <rssi>,<qual>
-        if (sscanf(buf, "\r\n+CSQ: %d,%d",&a,&b) == 2) {
-            if (a != 99) { // 0: -115 1: -111 2: -110 ... 31: -52 dBm with 2 dBm steps
-                if(a == 0) {
-                    status->rssi = -115;
-                } if(a == 1) {
-                    status->rssi = -111;
-                } else {
-                    status->rssi = -114 + 2*a;
-                }
-            }
-            if ((b != 99) && (b < (int)sizeof(_qual))) status->qual = _qual[b];  //
-        }
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbUACTIND(int type, const char* buf, int len, int* i)
-{
-    if ((type == TYPE_PLUS) && i){
-        int a;
-        if (sscanf(buf, "\r\n+UACTIND: %d", &a) == 1) {
-            *i = a;
-        }
-    }
-    return WAIT;
-}
-
-// ----------------------------------------------------------------
-// setup the PDP context
-
-bool MDMParser::pdp(const char* apn)
-{
-    bool ok = true;
-    // bool is3G = _dev.dev == DEV_SARA_U260 || _dev.dev == DEV_SARA_U270;
-    LOCK();
-    if (_init && _pwr) {
-
-// todo - refactor
-// This is setting up an external PDP context, join() creates an internal one
-// which is ultimately the one that's used by the system. So no need for this.
-#if 0
-        MDM_INFO("Modem::pdp\r\n");
-
-        DEBUG_D("Define the PDP context 1 with PDP type \"IP\" and APN \"%s\"\r\n", apn);
-        sendFormated("AT+CGDCONT=1,\"IP\",\"%s\"\r\n", apn);
-        if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-            goto failure;
-
-        if (is3G) {
-            MDM_INFO("Define a QoS profile for PDP context 1");
-            /* with Traffic Class 3 (background),
-             * maximum bit rate 64 kb/s both for UL and for DL, no Delivery Order requirements,
-             * a maximum SDU size of 320 octets, an SDU error ratio of 10-4, a residual bit error
-             * ratio of 10-5, delivery of erroneous SDUs allowed and Traffic Handling Priority 3.
-             */
-            sendFormated("AT+CGEQREQ=1,3,64,64,,,0,320,\"1E4\",\"1E5\",1,,3\r\n");
-            if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-                goto failure;
-        }
-
-        MDM_INFO("Activate PDP context 1...");
-        sendFormated("AT+CGACT=1,1\r\n");
-        if (RESP_OK != waitFinalResp(NULL, NULL, 20000)) {
-            sendFormated("AT+CEER\r\n");
-            waitFinalResp();
-
-            MDM_INFO("Test PDP context 1 for non-zero IP address...");
-            sendFormated("AT+CGPADDR=1\r\n");
-            if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-
-            MDM_INFO("Read the PDP contexts’ parameters...");
-            sendFormated("AT+CGDCONT?\r\n");
-            // +CGPADDR: 1, "99.88.111.88"
-            if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-
-            if (is3G) {
-                MDM_INFO("Read the negotiated QoS profile for PDP context 1...");
-                sendFormated("AT+CGEQNEG=1\r\n");
-                goto failure;
-            }
-        }
-
-        MDM_INFO("Test PDP context 1 for non-zero IP address...");
-        sendFormated("AT+CGPADDR=1\r\n");
-        if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-            goto failure;
-
-        MDM_INFO("Read the PDP contexts’ parameters...");
-        sendFormated("AT+CGDCONT?\r\n");
-        // +CGPADDR: 1, "99.88.111.88"
-        if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-            goto failure;
-
-        if (is3G) {
-            MDM_INFO("Read the negotiated QoS profile for PDP context 1...");
-            sendFormated("AT+CGEQNEG=1\r\n");
-            if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
-                goto failure;
-        }
-
-        _activated = true; // PDP
-#endif
-        UNLOCK();
-        return ok;
-    }
-// failure:
-    UNLOCK();
-    return false;
-}
-
-// ----------------------------------------------------------------
-// internet connection
-int MDMParser::_cbIPSHUT(int type, const char* buf, int len, char *temp)
-{
-    if (type == TYPE_IPSHUT) {
-        return RESP_OK;
-    }
-    return WAIT;
-}
-
-int MDMParser::_cbSAPBR(int type, const char* buf, int len, int* act)
-{
-    if ((type == TYPE_PLUS) && act) {
-        if (sscanf(buf, "\r\n+UPSND: %*d,%d", act) == 1)
+    if (str && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+IR_GETVERSION:%s\r\n", str) == 1)
             /*nothing*/;
     }
     return WAIT;
 }
-int MDMParser::_cbCIFSR(int type, const char* buf, int len, MDM_IP* ip)
+
+bool MDMParser::getNetVersion(char *version)
 {
-    if ((type == TYPE_UNKNOWN) && ip) {
-        int a,b,c,d;
-        if (sscanf(buf, "\r\n" IPSTR "", &a,&b,&c,&d) == 4)
-            *ip = IPADR(a,b,c,d);
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        // get the net version
+        sendFormated("AT+IR_GETVERSION?\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetNetVersion, version)){
+            ok = true;
+        }
     }
-    return RESP_OK;
+    UNLOCK();
+    return ok;
+}
+
+/*
+ * 1: station  2:softAp  3:softAp + station
+ */
+bool MDMParser::setWifiMode(wifi_mode_t mode)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWMODE_DEF=%d\r\n", mode);
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::setWifiDHCP(wifi_mode_t mode, char enable)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWDHCP_DEF=%d,%d\r\n", mode ,enable);
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::setAutoConn(char enable)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWAUTOCONN=%d\r\n", enable);
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::startSmartconfig(smart_config_t type)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWSTARTSMART=%d\r\n",type);
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    _smartconfig_status = DEALSTATUS_DOING;
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::stopSmartconfig(void)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWSTOPSMART\r\n");
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    _smartconfig_status = DEALSTATUS_IDLE;
+    UNLOCK();
+    return ok;
+}
+
+deal_status_t MDMParser::getSmartconfigStatus(void)
+{
+    LOCK();
+    waitFinalResp(NULL,NULL,0); //必须调用这个才能处理数据
+    UNLOCK();
+    return _smartconfig_status;
+}
+
+int MDMParser::_cbGetAddress(int type, const char* buf, int len, wifi_addr_t* addr)
+{
+    if ((type == TYPE_PLUS) && addr) {
+        int a,b,c,d;
+        if (sscanf(buf, "+CIFSR:STAIP,\"" IPSTR "\"", &a,&b,&c,&d) == 4)
+            addr->IpAddr = IPADR(a,b,c,d);
+        uint8_t temp[6];
+        if (sscanf(buf, "+CIFSR:STAMAC,\"" MACSTR "\"", &temp[0],&temp[1],&temp[2],&temp[3],&temp[4],&temp[5]) == 6)
+            memcpy(addr->MacAddr, temp, 6);
+    }
+    return WAIT;
+}
+
+bool MDMParser::getAddress(wifi_addr_t *addr)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CIFSR\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetAddress, addr)) {
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::setMacAddress(const char *staMac, const char *apMac)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CWMODE_CUR=3\r\n");
+        if (RESP_OK != waitFinalResp())
+            goto failure;
+        // get the MSISDNs related to this subscriber
+        sendFormated("AT+CIPSTAMAC_DEF=\"%s\"\r\n", staMac);
+        if (RESP_OK != waitFinalResp())
+            goto failure;
+
+        // get the MSISDNs related to this subscriber
+        sendFormated("AT+CIPAPMAC_DEF=\"%s\"\r\n", apMac);
+        if (RESP_OK != waitFinalResp())
+            goto failure;
+
+        // get the MSISDNs related to this subscriber
+        sendFormated("AT+CWMODE_CUR=1\r\n");
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+failure:
+    UNLOCK();
+    return false;
+}
+
+int MDMParser::_cbGetStaMacAddress(int type, const char* buf, int len, char* str)
+{
+    if (str && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+CIPSTAMAC_DEF:%s\r\n", str) == 1)
+            /*nothing*/;
+    }
+    return WAIT;
+}
+
+int MDMParser::_cbGetApMacAddress(int type, const char* buf, int len, char* str)
+{
+    if (str && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+CIPAPMAC_DEF:%s\r\n", str) == 1)
+            /*nothing*/;
+    }
+    return WAIT;
+}
+
+bool MDMParser::getMacAddress(char *staMac, char *apMac)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        sendFormated("AT+CIPSTAMAC_DEF?\r\n");
+        if (RESP_OK != waitFinalResp(_cbGetStaMacAddress, staMac))
+            goto failure;
+
+        sendFormated("AT+CIPAPMAC_DEF?\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetApMacAddress, apMac)){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+failure:
+    UNLOCK();
+    return false;
+}
+
+int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
+{
+    char bssid_str[32] = "";
+    uint8_t bssid[6];
+    uint8_t security;
+    uint8_t channel;
+    int rssi;        // when scanning
+
+    if ((type == TYPE_PLUS) && aps) {
+        if(_aplistindex < _aplisttotalcount)
+        {
+            strtok((char *)buf, "(),\""); // Ignore +CWLAP:
+            aps[_aplistindex].security = atoi(strtok(NULL, "(),\""));
+            strncpy(aps[_aplistindex].ssid, strtok(NULL, "(),\""), 31);
+            aps[_aplistindex].ssid_len = strlen(aps[_aplistindex].ssid);
+            aps[_aplistindex].rssi = atoi(strtok(NULL, "(),\""));
+            strncpy(bssid_str, strtok(NULL, "(),\""), 31);
+            aps[_aplistindex].channel = atoi(strtok(NULL, "(),\""));
+            sscanf(bssid_str, "" MACSTR "", &bssid[0],&bssid[1],&bssid[2],&bssid[3],&bssid[4],&bssid[5]);
+            memcpy(aps[_aplistindex].bssid, bssid, 6);
+            _aplistindex++;
+        }
+        //以下这种方法不知道为什么获取ssid和rssi错误，后续需要查找原因。
+        /*
+           char ssid[32] = "";
+           char bssid_str[32] = "";
+           uint8_t bssid[6];
+           uint8_t security;
+           uint8_t channel;
+           int rssi;        // when scanning
+
+           if (sscanf(buf, "+CWLAP:(%d,\"%32[^\"]\",%d,\"" MACSTR "\",%d)", &security, ssid, &rssi, &bssid[0],\
+           &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &channel) == 10)
+           {
+           if(_aplistindex < _aplisttotalcount)
+           {
+           strcpy(aps[_aplistindex].ssid, ssid);
+           aps[_aplistindex].ssid_len = strlen(ssid);
+           memcpy(aps[_aplistindex].bssid, bssid, 6);
+           aps[_aplistindex].security = security;
+           aps[_aplistindex].channel = channel;
+           aps[_aplistindex].rssi = rssi;
+           DEBUG_D("aps[%d].ssid = %s \r\n", _aplistindex, ssid);
+           DEBUG_D("aps[%d].ssidLength = %d \r\n", _aplistindex, aps[_aplistindex].ssid_len);
+           DEBUG_D("aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x\r\n", _aplistindex, aps[_aplistindex].bssid[0],\
+           aps[_aplistindex].bssid[1],aps[_aplistindex].bssid[2],aps[_aplistindex].bssid[3],aps[_aplistindex].bssid[4],aps[_aplistindex].bssid[5]);
+           DEBUG_D("aps[%d].security = %d \r\n", _aplistindex, aps[_aplistindex].security);
+           DEBUG_D("aps[%d].channel = %d \r\n", _aplistindex, aps[_aplistindex].channel);
+           DEBUG_D("aps[%d].rssi = %d \r\n", _aplistindex, aps[_aplistindex].rssi);
+           _aplistindex++;
+           }
+           }
+           */
+    }
+    return WAIT;
+}
+
+int MDMParser::apScan(wifi_ap_t* aps, size_t aps_count)
+{
+    int result = AT_ERROR;
+    LOCK();
+
+    _aplisttotalcount  = aps_count;
+    _aplistindex = 0;
+
+    if (_init) {
+        sendFormated("AT+CWLAPOPT=1,31\r\n");
+        if (RESP_OK != waitFinalResp())
+            goto failure;
+
+        sendFormated("AT+CWLAP\r\n");
+        if (RESP_OK == waitFinalResp(_cbApScan, aps, 10000)){
+            result = _aplistindex;
+        }
+        DEBUG_D("result = %d \r\n", result);
+    }
+    UNLOCK();
+    return result;
+failure:
+    UNLOCK();
+    return AT_ERROR;
 }
 
 int MDMParser::_cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result)
 {
     int rst;
-    char tmp[32]="";
-
-    if ((type == TYPE_STATUS) && result) {
-        if (sscanf(buf, "\r\nSTATE: %[^\r]", tmp) == 1) {
-            if(strstr(tmp, "IP INITIAL")) {
-                *result = IPSTATUS_INITIAL;
-            }
-            else if(strstr(tmp, "IP START")) {
-                *result = IPSTATUS_START;
-            }
-            else if(strstr(tmp, "IP CONFIG")) {
-                *result = IPSTATUS_CONFIG;
-            }
-            else if(strstr(tmp, "IP GPRSACT")) {
-                *result = IPSTATUS_GPRSACT;
-            }
-            else if(strstr(tmp, "IP STATUS")) {
-                *result = IPSTATUS_STATUS;
-            }
-            else if(strstr(tmp, "IP PROCESSING")) {
-                *result = IPSTATUS_PROCESSING;
-            }
-            else if(strstr(tmp, "PDP DEACT")) {
-                *result = IPSTATUS_DEACT;
-            }
-            else {
-                *result = IPSTATUS_ATERROR;
-            }
+    if (result && (type == TYPE_OK)) {
+        if (sscanf(buf, "STATUS:%d", &rst) == 1) {
+            *result = (ip_status_t)rst;
         }
-        return RESP_OK;
     }
     return WAIT;
 }
@@ -1212,243 +749,102 @@ ip_status_t MDMParser::getIpStatus(void)
 
     if (_init) {
         sendFormated("AT+CIPSTATUS\r\n");
-        if (RESP_OK == waitFinalResp()){
-            if (RESP_OK == waitFinalResp(_cbGetIpStatus, &result)){
-            }
-            else {
-                result = IPSTATUS_ATERROR;
-            }
+        if (RESP_OK != waitFinalResp(_cbGetIpStatus, &result)){
+            result = IPSTATUS_ATERROR;
         }
     }
     UNLOCK();
     return result;
 }
 
-MDM_IP MDMParser::join(const char* apn /*= NULL*/, const char* username /*= NULL*/,
-                              const char* password /*= NULL*/, Auth auth /*= AUTH_DETECT*/)
+void MDMParser::drive(void)
 {
     LOCK();
-    if (_init && _pwr) {
-        MDM_INFO("\r\n[ Modem::join ] = = = = = = = = = = = = = = = =");
-        _ip = NOIP;
-        int a = 0;
-        bool force = false; // If we are already connected, don't force a reconnect.
-
-        /* Deactivates the PDP context assoc */
-        sendFormated("AT+CIPSHUT\r\n");
-        if (RESP_OK != waitFinalResp(_cbIPSHUT,NULL,65*1000))
-            goto failure;
-
-        /* start up multi-ip connection */
-        sendFormated("AT+CIPMUX=1\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-
-        /* Get Data from Network derect */
-        sendFormated("AT+CIPRXGET=0\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-
-        /* Add an IP Head at the Beginning of a Package Received */
-        sendFormated("AT+CIPHEAD=1\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-#if 0
-        // Check the if the bearer is opened (a=1)
-        sendFormated("AT+SAPBR=2," PROFILE "\r\n");
-        if (RESP_OK != waitFinalResp(_cbSAPBR, &a))
-            goto failure;
-
-        if (a == 1) {
-            _activated = true; // PDP activated
-            if (force) {
-                /* close GPRS context */
-                // deactivate the PSD profile if it is already activated
-                sendFormated("AT+SAPBR=0," PROFILE "\r\n");
-                if (RESP_OK != waitFinalResp(NULL,NULL,85*1000))
-                    goto failure;
-                a = 3;
-            }
-        }
-        if (a == 3) {
-            bool ok = false;
-            _activated = false; // PDP deactived
-
-            /* Type of Internet connection */
-            sendFormated("AT+SAPBR=3," PROFILE ",\"CONTYPE\",\"GPRS\"\r\n");
-            if (RESP_OK != waitFinalResp())
-                goto failure;
-
-            // try to lookup the apn settings from our local database by mccmnc
-            const char* config = NULL;
-            if (!apn && !username && !password)
-                config = apnconfig(_dev.imsi);
-
-            if (config) {
-                apn      = _APN_GET(config);
-                username = _APN_GET(config);
-                password = _APN_GET(config);
-                DEBUG_D("Testing APN Settings(\"%s\",\"%s\",\"%s\")\r\n", apn, username, password);
-            }
-
-            // Set up the APN
-            if (apn && *apn) {
-                sendFormated("AT+SAPBR=3," PROFILE ",\"APN\",\"%s\"\r\n", apn);
-                if (RESP_OK != waitFinalResp())
-                    goto failure;
-            }
-            if (username && *username) {
-                sendFormated("AT+SAPBR=3," PROFILE ",\"USER\",\"%s\"\r\n", username);
-                if (RESP_OK != waitFinalResp())
-                    goto failure;
-            }
-            if (password && *password) {
-                sendFormated("AT+SAPBR=3," PROFILE ",\"PWD\",\"%s\"\r\n", password);
-                if (RESP_OK != waitFinalResp())
-                    goto failure;
-            }
-
-            /* open GPRS context */
-            sendFormated("AT+SAPBR=1," PROFILE "\r\n");
-            if (RESP_OK != waitFinalResp(NULL,NULL,85*1000)) {
-                _activated = true; // PDP activated
-                ok = true;
-            }
-        }
-#endif
-#if 0
-        /* perform GPRS attach */
-        sendFormated("AT+CGATT=1\r\n");
-        if (RESP_OK != waitFinalResp(NULL,NULL,10*1000))
-            goto failure;
-#endif
-
-        /* Start Task */
-        sendFormated("AT+CSTT=\"CMNET\"\r\n");
-        if (RESP_OK != waitFinalResp())
-            goto failure;
-
-        /* Bring Up Wireless Connection with GPRS or CSD */
-        sendFormated("AT+CIICR\r\n");
-        if (RESP_OK != waitFinalResp(NULL,NULL,85*1000))
-            goto failure;
-
-        /* Get local IP address */
-        sendFormated("AT+CIFSR\r\n");
-        if (RESP_OK != waitFinalResp(_cbCIFSR, &_ip))
-            goto failure;
-
-        _activated = true; // PDP activated
-        _attached = true;
-        UNLOCK();
-        return _ip;
-    }
-failure:
+    waitFinalResp(NULL, NULL, 0);
     UNLOCK();
-    return NOIP;
 }
 
-bool MDMParser::reconnect(void)
+int MDMParser::_cbGetWifiInfo(int type, const char* buf, int len, wifi_info_t *wifiInfo)
 {
-    bool ok = false;
-    LOCK();
-    if (_activated) {
-        MDM_INFO("\r\n[ Modem::reconnect ] = = = = = = = = = = = = = =");
-        if (!_attached) {
-            //Get local IP address
-            sendFormated("AT+CIFSR\r\n");
-            if (RESP_OK != waitFinalResp(_cbCIFSR, &_ip)) {
-                ok = true;
-                _attached = true;
-            }
-        }
-    }
-    UNLOCK();
-    return ok;
-}
-
-// TODO - refactor disconnect() and detach()
-// disconnect() can be called before detach() but not vice versa or
-// disconnect() will ERROR because its PDP context will already be
-// deactivated.
-// _attached and _activated flags are currently associated inversely
-// to what's happening.  When refactoring, consider combining...
-bool MDMParser::disconnect(void)
-{
-    bool continue_cancel = false;
-    LOCK();
-    if (_attached) {
-        if (_cancel_all_operations) {
-            continue_cancel = true;
-            resume(); // make sure we can use the AT parser
-        }
-        MDM_INFO("\r\n[ Modem::disconnect ] = = = = = = = = = = = = =");
-        if (_ip != NOIP) {
-            /* Deactivates the PDP context assoc */
-            sendFormated("AT+CIPSHUT\r\n");
-            if (RESP_OK != waitFinalResp(_cbIPSHUT,NULL,65*1000))
-                goto failure;
-
-            /* perform GPRS attach */
-            sendFormated("AT+CGATT=0\r\n");
-            if (RESP_OK != waitFinalResp(NULL,NULL,10*1000))
-                goto failure;
-
-            _ip = NOIP;
-            _attached = false;
-            UNLOCK();
-            return true;
-        }
-    }
-failure:
-    UNLOCK();
-    return false;
-}
-
-bool MDMParser::detach(void)
-{
-    bool ok = false;
-    bool continue_cancel = false;
-    LOCK();
-    if (_activated) {
-        if (_cancel_all_operations) {
-            continue_cancel = true;
-            resume(); // make sure we can use the AT parser
-        }
-        MDM_INFO("\r\n[ Modem::detach ] = = = = = = = = = = = = = = =");
-        // if (_ip != NOIP) {  // if we disconnect() first we won't have an IP
-            /* Detach from the GPRS network and conserve network resources. */
-            /* Any active PDP context will also be deactivated. */
-            sendFormated("AT+CGATT=0\r\n");
-            if (RESP_OK != waitFinalResp(NULL,NULL,10*1000)) {
-                ok = true;
-                _activated = false;
-            }
-        // }
-    }
-    if (continue_cancel) cancel();
-    UNLOCK();
-    return ok;
-}
-
-int MDMParser::_cbCDNSGIP(int type, const char* buf, int len, MDM_IP* ip)
-{
-    if ((type == TYPE_PLUS) && ip) {
-        int r,a,b,c,d;
-        if (sscanf(buf, "\r\n+CDNSGIP: %d,\"%*[^\"]\", \"" IPSTR "\"\r\n", &r,&a,&b,&c,&d) == 5) {
-            if(r == 1) {
-                *ip = IPADR(a,b,c,d);
-                return RESP_OK;
-            }
-            else {
-                return RESP_ERROR;
-            }
-        }
+    int rst;
+    if (wifiInfo && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+CWJAP_DEF:\"%[^\"]\",\"" MACSTR "\",%d,%d\r\n", wifiInfo->ssid, \
+                    &wifiInfo->bssid[0],  &wifiInfo->bssid[1], &wifiInfo->bssid[2], &wifiInfo->bssid[3], &wifiInfo->bssid[4], &wifiInfo->bssid[5],\
+                    &wifiInfo->channel, &wifiInfo->rssi) == 9)
+            /*nothing*/;
     }
     return WAIT;
 }
 
-MDM_IP MDMParser::gethostbyname(const char* host)
+bool MDMParser::getWifiInfo(wifi_info_t *wifiInfo)
+{
+    bool ok = false;
+    LOCK();
+    if (_init) {
+        memset(wifiInfo, 0, sizeof(wifi_info_t));
+        sendFormated("AT+CWJAP_DEF?\r\n");
+        if (RESP_OK == waitFinalResp(_cbGetWifiInfo, wifiInfo)) {
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t* result)
+{
+    int rst;
+    if (result && (type == TYPE_PLUS)) {
+        if (sscanf(buf, "+CWJAP_DEF:%d\r\n", &rst) == 1) {
+            *result = (wifi_join_ap_t)rst;
+        }
+            /*nothing*/;
+    }
+    return WAIT;
+}
+
+wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
+{
+    wifi_join_ap_t result = JOINAP_CONNETFAIL;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\"\r\n", ssid, password);
+        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)) {
+            result = JOINAP_CONNETFAIL;
+        }
+    }
+    UNLOCK();
+    return result;
+}
+
+wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password, const char *bssid)
+{
+    wifi_join_ap_t result = JOINAP_CONNETFAIL;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\",\"%s\"\r\n", ssid, password, bssid);
+        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)){
+            result = JOINAP_CONNETFAIL;
+        }
+    }
+    UNLOCK();
+    return result;
+}
+
+int MDMParser::_cbGetHostByName(int type, const char* buf, int len, MDM_IP* ip)
+{
+    if ((type == TYPE_PLUS) && ip) {
+        int a,b,c,d;
+        if (sscanf(buf, "+CIPDOMAIN:" IPSTR "\r\n", &a,&b,&c,&d) == 4)
+            *ip = IPADR(a,b,c,d);
+    }
+    return WAIT;
+}
+
+
+MDM_IP MDMParser::getHostByName(const char* host)
 {
     MDM_IP ip = NOIP;
     int a,b,c,d;
@@ -1456,70 +852,79 @@ MDM_IP MDMParser::gethostbyname(const char* host)
         ip = IPADR(a,b,c,d);
     else {
         LOCK();
-        sendFormated("AT+CDNSGIP=\"%s\"\r\n", host);
-        if (RESP_OK == waitFinalResp()) {
-            if (RESP_OK != waitFinalResp(_cbCDNSGIP, &ip)) {
-                ip = NOIP;
-            }
-        }
+        sendFormated("AT+CIPDOMAIN=\"%s\"\r\n", host);
+        if (RESP_OK != waitFinalResp(_cbGetHostByName, &ip, 5000))
+            ip = NOIP;
         UNLOCK();
     }
     return ip;
 }
 
-// ----------------------------------------------------------------
-// sockets
+bool MDMParser::ping(const char* host)
+{
+    bool ok = false;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+PING=\"%s\"\r\n", host);
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
+
+bool MDMParser::ping(const MDM_IP& ip)
+{
+    bool ok = false;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+PING=\"" IPSTR "\"\r\n", IPNUM(ip));
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
+    }
+    UNLOCK();
+    return ok;
+}
 
 int MDMParser::socketCreate(IpProtocol ipproto, int port)
 {
     int socket;
-    LOCK();
 
-    if (!_attached) {
-        if (!reconnect()) {
-            socket = MDM_SOCKET_ERROR;
-        }
+    // find an free socket
+    socket = _findSocket(MDM_SOCKET_ERROR);
+    if (socket != MDM_SOCKET_ERROR) {
+        //MDM_DEBUG_D("Socket %d: handle %d was created", socket, socket);
+        _sockets[socket].handle     = socket;
+        _sockets[socket].ipproto    = ipproto;
+        _sockets[socket].localip    = port;
+        _sockets[socket].connected  = false;
+        _sockets[socket].pending    = 0;
+        _sockets[socket].open       = true;
+        _sockets[socket].pipe = new Pipe<char>(MAX_SIZE);
     }
-
-    if (_attached) {
-        //DEBUG_D("socketCreate(%s)", (ipproto?"UDP":"TCP"));
-        // find an free socket
-        socket = _findSocket(MDM_SOCKET_ERROR);
-        if (socket != MDM_SOCKET_ERROR) {
-            //DEBUG_D("Socket %d: handle %d was created", socket, socket);
-            _sockets[socket].handle     = socket;
-            _sockets[socket].ipproto    = ipproto;
-            _sockets[socket].localip    = port;
-            _sockets[socket].connected  = false;
-            _sockets[socket].pending    = 0;
-            _sockets[socket].open       = true;
-            _sockets[socket].pipe = new Pipe<char>(MAX_SIZE);
-
-            /*
-            if(_sockets[socket].ipproto)
-            sendFormated("AT+CLPORT=%d,\"UDP\",8888\r\n",_sockets[socket].handle);
-            else
-            sendFormated("AT+CLPORT=%d,\"TCP\",8888\r\n",_sockets[socket].handle);
-            waitFinalResp();
-
-            sendFormated("AT+CIPUDPMODE=%d,1\r\n",_sockets[socket].handle);
-            waitFinalResp();
-            */
-        }
-        //DEBUG_D("socketCreate(%s)", (ipproto?"UDP":"TCP"));
-    }
-    UNLOCK();
+    //MDM_DEBUG_D("socketCreate(%s)", (ipproto?"UDP":"TCP"));
     return socket;
 }
 
 bool MDMParser::socketConnect(int socket, const char * host, int port)
 {
-    MDM_IP ip = gethostbyname(host);
-    if (ip == NOIP)
-        return false;
-    //DEBUG_D("socketConnect(host: %s)\r\n", host);
-    // connect to socket
-    return socketConnect(socket, ip, port);
+    bool ok = false;
+    LOCK();
+    if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
+        //MDM_DEBUG_D("socketConnect(%d,port:%d)", socket,port);
+        if(_sockets[socket].ipproto)
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", host, port, _sockets[socket].localip, 2);
+        else
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d\r\n", _sockets[socket].handle, "TCP", host, port);
+        if (RESP_OK == waitFinalResp())
+            ok = _sockets[socket].connected = true;
+    }
+    UNLOCK();
+    return ok;
 }
 
 bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
@@ -1527,18 +932,13 @@ bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
     bool ok = false;
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        //DEBUG_D("socketConnect(%d,port:%d)", socket,port);
+        //MDM_DEBUG_D("socketConnect(%d,port:%d)", socket,port);
         if(_sockets[socket].ipproto)
-            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",\"%d\"\r\n", _sockets[socket].handle, "UDP", IPNUM(ip), port);
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", IPNUM(ip), port, _sockets[socket].localip, 2);
         else
-            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",\"%d\"\r\n", _sockets[socket].handle, "TCP", IPNUM(ip), port);
-        if (RESP_OK == waitFinalResp()) {
-            if (RESP_OK == waitFinalResp()) {
-                _sockets[socket].remoteip = ip;
-                _sockets[socket].remoteport = port;
-                ok = _sockets[socket].connected = true;
-            }
-        }
+            sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d\r\n", _sockets[socket].handle, "TCP", IPNUM(ip), port);
+        if (RESP_OK == waitFinalResp())
+            ok = _sockets[socket].connected = true;
     }
     UNLOCK();
     return ok;
@@ -1549,7 +949,7 @@ bool MDMParser::socketIsConnected(int socket)
     bool ok = false;
     LOCK();
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    //DEBUG_D("socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
+    //MDM_DEBUG_D("socketIsConnected(%d) %s", socket, ok?"yes":"no");
     UNLOCK();
     return ok;
 }
@@ -1561,8 +961,8 @@ bool MDMParser::socketClose(int socket)
     if (ISSOCKET(socket)
             && (_sockets[socket].connected || _sockets[socket].open))
     {
-        //DEBUG_D("socketClose(%d)", socket);
-        sendFormated("AT+CIPCLOSE=%d,1\r\n", _sockets[socket].handle);
+        //MDM_DEBUG_D("socketClose(%d)", socket);
+        sendFormated("AT+CIPCLOSE=%d\r\n", _sockets[socket].handle);
         if (RESP_ERROR == waitFinalResp()) {
         }
         // Assume RESP_OK in most situations, and assume closed
@@ -1582,7 +982,7 @@ bool MDMParser::_socketFree(int socket)
     LOCK();
     if ((socket >= 0) && (socket < NUMSOCKETS)) {
         if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
-            //DEBUG_D("socketFree(%d)",  socket);
+            //MDM_DEBUG_D("socketFree(%d)",  socket);
             _sockets[socket].handle     = MDM_SOCKET_ERROR;
             _sockets[socket].localip    = 0;
             _sockets[socket].connected  = false;
@@ -1606,7 +1006,7 @@ bool MDMParser::socketFree(int socket)
 
 int MDMParser::socketSend(int socket, const char * buf, int len)
 {
-    //DEBUG_D("socketSend(%d,%d)", socket,len);
+    //MDM_DEBUG_D("socketSend(%d,%d)", socket,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1617,10 +1017,11 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
             LOCK();
             if (ISSOCKET(socket)) {
                 sendFormated("AT+CIPSEND=%d,%d\r\n",_sockets[socket].handle,blk);
-                if (RESP_PROMPT == waitFinalResp()) {
-                    send(buf, blk);
-                    if (RESP_OK == waitFinalResp()) {
-                        ok = true;
+                if (RESP_OK == waitFinalResp()){
+                    if (RESP_PROMPT == waitFinalResp()) {
+                        send(buf, blk);
+                        if (RESP_OK == waitFinalResp())
+                            ok = true;
                     }
                 }
             }
@@ -1636,7 +1037,7 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
 
 int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    //DEBUG_D("socketSendTo(%d," IPSTR ",%d,%d)", socket,IPNUM(ip),port,len);
+    //MDM_DEBUG_D("socketSendTo(%d," IPSTR ",%d,,%d)", socket,IPNUM(ip),port,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1646,11 +1047,12 @@ int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, i
         {
             LOCK();
             if (ISSOCKET(socket)) {
-                sendFormated("AT+CIPSEND=%d,%d\r\n",_sockets[socket].handle, blk);
-                if (RESP_PROMPT == waitFinalResp()) {
-                    send(buf, blk);
-                    if (RESP_OK == waitFinalResp()) {
-                        ok = true;
+                sendFormated("AT+CIPSEND=%d,%d,\"" IPSTR "\",%d\r\n",_sockets[socket].handle, blk, IPNUM(ip),port);
+                if (RESP_OK == waitFinalResp()){
+                    if (RESP_PROMPT == waitFinalResp()) {
+                        send(buf, blk);
+                        if (RESP_OK == waitFinalResp())
+                            ok = true;
                     }
                 }
             }
@@ -1732,112 +1134,158 @@ int MDMParser::_findSocket(int handle) {
     return MDM_SOCKET_ERROR;
 }
 
-// ----------------------------------------------------------------
-
-int MDMParser::_cbCMGL(int type, const char* buf, int len, CMGLparam* param)
+int MDMParser::_cbDownOtaFile(int type, const char* buf, int len, deal_status_t* result)
 {
-    if ((type == TYPE_PLUS) && param && param->num) {
-        // +CMGL: <ix>,...
-        int ix;
-        if (sscanf(buf, "\r\n+CMGL: %d,", &ix) == 1)
-        {
-            *param->ix++ = ix;
-            param->num--;
+    int rst;
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_DOWNFILE:%d\r\n", &rst) == 1) {
+            *result = (deal_status_t)rst;
         }
     }
     return WAIT;
 }
 
-int MDMParser::smsList(const char* stat /*= "ALL"*/, int* ix /*=NULL*/, int num /*= 0*/) {
-    int ret = -1;
+deal_status_t MDMParser::downOtaFile(const char *host, const char *param, const char * md5)
+{
+    deal_status_t result = DEALSTATUS_FAIL;
+
     LOCK();
-    sendFormated("AT+CMGL=\"%s\"\r\n", stat);
-    CMGLparam param;
-    param.ix = ix;
-    param.num = num;
-    if (RESP_OK == waitFinalResp(_cbCMGL, &param))
-        ret = num - param.num;
+    _downotafile_status = DEALSTATUS_IDLE;
+    if (_init) {
+        sendFormated("AT+IR_DOWNFILE=\"%s\",\"%s\",\"%s\"\r\n", host, param, md5);
+        if (RESP_OK != waitFinalResp(_cbDownOtaFile, &result)){
+            result = DEALSTATUS_FAIL;
+        }
+    }
+    _downotafile_status = result;
     UNLOCK();
-    return ret;
+    return result;
 }
 
-bool MDMParser::smsSend(const char* num, const char* buf)
+/**
+ * Used to set ip mux connect
+ */
+deal_status_t MDMParser::getDownOtafileStatus(void)
+{
+    waitFinalResp(NULL, NULL, 0);
+    return _downotafile_status;
+}
+
+int MDMParser::_cbDownNetFile(int type, const char* buf, int len, deal_status_t* result)
+{
+    int rst;
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_NETDOWN:%d\r\n", &rst) == 1) {
+            *result = (deal_status_t)rst;
+        }
+    }
+    return WAIT;
+}
+
+/**
+ * Used to set ip mux connect
+ */
+deal_status_t MDMParser::downNetFile(const char *host, const char *param)
+{
+    deal_status_t result = DEALSTATUS_FAIL;
+    LOCK();
+    _downnetfile_status = DEALSTATUS_IDLE;
+    if (_init) {
+        sendFormated("AT+IR_NETDOWN=\"%s\",\"%s\"\r\n", host, param);
+        if (RESP_OK != waitFinalResp(_cbDownNetFile, &result)){
+            result = DEALSTATUS_FAIL;
+        }
+    }
+    _downnetfile_status = result;
+    UNLOCK();
+    return result;
+}
+
+/**
+ * Used to set ip mux connect
+ */
+bool MDMParser::updateNet(void)
 {
     bool ok = false;
     LOCK();
-    sendFormated("AT+CMGS=\"%s\"\r\n",num);
-    if (RESP_PROMPT == waitFinalResp(NULL,NULL,150*1000)) {
-        send(buf, strlen(buf));
-        const char ctrlZ = 0x1A;
-        send(&ctrlZ, sizeof(ctrlZ));
-        ok = (RESP_OK == waitFinalResp());
+
+    if (_init) {
+        sendFormated("AT+IR_NETUPDATE\r\n");
+        if (RESP_OK == waitFinalResp()){
+            ok = true;
+        }
     }
     UNLOCK();
     return ok;
 }
 
-bool MDMParser::smsDelete(int ix)
+/**
+ * Used to set ip mux connect
+ */
+deal_status_t MDMParser::getDownNetfileStatus(void)
 {
-    bool ok = false;
-    LOCK();
-    sendFormated("AT+CMGD=%d\r\n",ix);
-    ok = (RESP_OK == waitFinalResp());
-    UNLOCK();
-    return ok;
+    waitFinalResp(NULL, NULL, 0);
+    return _downnetfile_status;
 }
 
-int MDMParser::_cbCMGR(int type, const char* buf, int len, CMGRparam* param)
+int MDMParser::_cbGetDownFileProgress(int type, const char* buf, int len, int* result)
 {
-    if (param) {
-        if (type == TYPE_PLUS) {
-            if (sscanf(buf, "\r\n+CMGR: \"%*[^\"]\",\"%[^\"]", param->num) == 1) {
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_DOWNPROGRESS:%d\r\n", result) == 1)
+        /*nothing*/;
+    }
+    return WAIT;
+}
+
+/**
+ * Used to set ip mux connect
+ */
+int MDMParser::getDownFileProgress(void)
+{
+    int result = 0;
+    LOCK();
+
+    if (_init) {
+        sendFormated("AT+IR_DOWNPROGRESS?\r\n");
+        waitFinalResp(_cbGetDownFileProgress, &result);
+    }
+    UNLOCK();
+    return result;
+}
+
+int MDMParser::_cbGetBootloaderPacketSize(int type, const char* buf, int len, uint32_t* result)
+{
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_GETFILESIZE:%d\r\n", result) == 1)
+        /*nothing*/;
+    }
+    return WAIT;
+}
+
+int MDMParser::_cbGetBootloaderPacket(int type, const char* buf, int len, uint8_t* pdata)
+{
+    uint32_t size = 0;
+
+    if (type == TYPE_PLUS) {
+        if (sscanf(buf, "+IR_GETFILEPACKET,%d\r\n", &size) == 1) {
+            char *s = strchr(buf, ':');
+            for(int n=0; n < size; n++) {
+                memcpy(pdata, s+1, size);
             }
-        } else if ((type == TYPE_UNKNOWN) && (buf[len-2] == '\r') && (buf[len-1] == '\n')) {
-            memcpy(param->buf, buf, len-2);
-            param->buf[len-2] = '\0';
+            return RESP_OK;
         }
     }
-    return WAIT;
+    return RESP_ERROR;
 }
 
-bool MDMParser::smsRead(int ix, char* num, char* buf, int len)
+/**
+ * Used to get bootloader from esp8266
+ */
+#define PACKAGE_UNIT 1024  //1k
+bool MDMParser::getBootloader(void)
 {
-    bool ok = false;
-    LOCK();
-    CMGRparam param;
-    param.num = num;
-    param.buf = buf;
-    sendFormated("AT+CMGR=%d\r\n",ix);
-    ok = (RESP_OK == waitFinalResp(_cbCMGR, &param));
-    UNLOCK();
-    return ok;
+    return false;
 }
-
-// ----------------------------------------------------------------
-
-int MDMParser::_cbCUSD(int type, const char* buf, int len, char* resp)
-{
-    if ((type == TYPE_PLUS) && resp) {
-        // +USD: \"%*[^\"]\",\"%[^\"]\",,\"%*[^\"]\",%d,%d,%d,%d,\"*[^\"]\",%d,%d"..);
-        if (sscanf(buf, "\r\n+CUSD: %*d,\"%[^\"]\",%*d", resp) == 1) {
-            /*nothing*/
-        }
-    }
-    return WAIT;
-}
-
-bool MDMParser::ussdCommand(const char* cmd, char* buf)
-{
-    bool ok = false;
-    LOCK();
-    *buf = '\0';
-    // 2G/3G devices only
-    sendFormated("AT+CUSD=1,\"%s\"\r\n",cmd);
-    ok = (RESP_OK == waitFinalResp(_cbCUSD, buf));
-    UNLOCK();
-    return ok;
-}
-
 
 // ----------------------------------------------------------------
 bool MDMParser::setDebug(int level)
@@ -1852,63 +1300,10 @@ bool MDMParser::setDebug(int level)
     return false;
 }
 
-void MDMParser::dumpDevStatus(DevStatus* status)
-{
-    MDM_INFO("\r\n[ Modem::devStatus ] = = = = = = = = = = = = = =");
-    const char* txtDev[] = { "Unknown", "SARA-G350", "LISA-U200", "LISA-C200", "SARA-U260", "SARA-U270", "LEON-G200" };
-    if (status->dev < sizeof(txtDev)/sizeof(*txtDev) && (status->dev != DEV_UNKNOWN))
-        DEBUG_D("  Device:       %s\r\n", txtDev[status->dev]);
-    const char* txtLpm[] = { "Disabled", "Enabled", "Active" };
-    if (status->lpm < sizeof(txtLpm)/sizeof(*txtLpm))
-        DEBUG_D("  Power Save:   %s\r\n", txtLpm[status->lpm]);
-    const char* txtSim[] = { "Unknown", "Missing", "Pin", "Ready" };
-    if (status->sim < sizeof(txtSim)/sizeof(*txtSim) && (status->sim != SIM_UNKNOWN))
-        DEBUG_D("  SIM:          %s\r\n", txtSim[status->sim]);
-    if (*status->ccid)
-        DEBUG_D("  CCID:         %s\r\n", status->ccid);
-    if (*status->imei)
-        DEBUG_D("  IMEI:         %s\r\n", status->imei);
-    if (*status->imsi)
-        DEBUG_D("  IMSI:         %s\r\n", status->imsi);
-    if (*status->meid)
-        DEBUG_D("  MEID:         %s\r\n", status->meid); // LISA-C
-    if (*status->manu)
-        DEBUG_D("  Manufacturer: %s\r\n", status->manu);
-    if (*status->model)
-        DEBUG_D("  Model:        %s\r\n", status->model);
-    if (*status->ver)
-        DEBUG_D("  Version:      %s\r\n", status->ver);
-}
-
-void MDMParser::dumpNetStatus(NetStatus *status)
-{
-    MDM_INFO("\r\n[ Modem::netStatus ] = = = = = = = = = = = = = =");
-    const char* txtReg[] = { "Unknown", "Denied", "None", "Home", "Roaming" };
-    if (status->csd < sizeof(txtReg)/sizeof(*txtReg) && (status->csd != REG_UNKNOWN))
-        DEBUG_D("  CSD Registration:   %s\r\n", txtReg[status->csd]);
-    if (status->psd < sizeof(txtReg)/sizeof(*txtReg) && (status->psd != REG_UNKNOWN))
-        DEBUG_D("  PSD Registration:   %s\r\n", txtReg[status->psd]);
-    const char* txtAct[] = { "Unknown", "GSM", "Edge", "3G", "CDMA" };
-    if (status->act < sizeof(txtAct)/sizeof(*txtAct) && (status->act != ACT_UNKNOWN))
-        DEBUG_D("  Access Technology:  %s\r\n", txtAct[status->act]);
-    if (status->rssi)
-        DEBUG_D("  Signal Strength:    %d dBm\r\n", status->rssi);
-    if (status->qual)
-        DEBUG_D("  Signal Quality:     %d\r\n", status->qual);
-    if (*status->opr)
-        DEBUG_D("  Operator:           %s\r\n", status->opr);
-    if (status->lac != 0xFFFF)
-        DEBUG_D("  Location Area Code: %04X\r\n", status->lac);
-    if (status->ci != 0xFFFFFFFF)
-        DEBUG_D("  Cell ID:            %08X\r\n", status->ci);
-    if (*status->num)
-        DEBUG_D("  Phone Number:       %s\r\n", status->num);
-}
-
 void MDMParser::dumpIp(MDM_IP ip)
 {
     if (ip != NOIP) {
-        DEBUG_D("\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =\r\n", IPNUM(ip));
+        MDM_DEBUG_D("\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
     }
 }
 
@@ -2002,38 +1397,28 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
         static struct {
             const char* fmt;                              int type;
         } lutF[] = {
-            { "\r\n%d, CLOSED\r\n",                         TYPE_CONNECTCLOSTED  },
-            { "\r\n%d, CONNECT OK\r\n",                     TYPE_OK         },
-            { "\r\n%d, CONNECT FAIL\r\n",                   TYPE_ERROR      },
-            { "\r\n%d, ALREADY CONNECT\r\n",                TYPE_OK         },
-            { "\r\n%d, SEND OK\r\n",                        TYPE_OK         },
-            { "\r\n%d, SEND FAIL\r\n",                      TYPE_ERROR      },
-            { "\r\n%d, CLOSE OK\r\n",                       TYPE_OK         },
-            { "\r\n+RECEIVE,%d,%n:\r\n%c",                  TYPE_PLUS       },
+            { "%d,CLOSED\r\n",                       TYPE_CONNECTCLOSTED  },
+            // %d:表示正常数值   %n:表示数据长度   %c:表示数据
+            { "+IPD,%d,%n," IPSTR ",%d:%c",          TYPE_PLUS            },
+            { "+IR_GETFILEPACKET,%n:%c",             TYPE_PLUS            },
         };
         static struct {
             const char* sta;          const char* end;    int type;
         } lut[] = {
-            { "\r\nOK\r\n",             NULL,               TYPE_OK         },
-            { "\r\nERROR\r\n",          NULL,               TYPE_ERROR      },
-            { "\r\n+CME ERROR:",        "\r\n",             TYPE_ERROR      },
-            { "\r\n+CMS ERROR:",        "\r\n",             TYPE_ERROR      },
-            { "\r\n+CDNSGIP:",          "\r\n",             TYPE_PLUS       },
-            { "\r\nRING\r\n",           NULL,               TYPE_RING       },
-            { "\r\nCONNECT\r\n",        NULL,               TYPE_CONNECT    },
-            { "\r\nNO CARRIER\r\n",     NULL,               TYPE_NOCARRIER  },
-            { "\r\nNO DIALTONE\r\n",    NULL,               TYPE_NODIALTONE },
-            { "\r\nBUSY\r\n",           NULL,               TYPE_BUSY       },
-            { "\r\nNO ANSWER\r\n",      NULL,               TYPE_NOANSWER   },
-            { "\r\nSHUT OK\r\n",        NULL,               TYPE_IPSHUT     },
-            { "\r\n+",                  "\r\n",             TYPE_PLUS       },
-            { "\r\n@",                  NULL,               TYPE_PROMPT     }, // Sockets
-            { "\r\n>",                  NULL,               TYPE_PROMPT     }, // Sockets
-            { "\n>",                    NULL,               TYPE_PROMPT     }, // File
-            { "\r\nABORTED\r\n",        NULL,               TYPE_ABORTED    }, // Current command aborted
-            { "\r\nSTATE:",             "\r\n",             TYPE_STATUS     }, // ip status
-            { "\r\n\r\n",               "\r\n",             TYPE_DBLNEWLINE }, // Double CRLF detected
-            { "\r\n",                   "\r\n",             TYPE_UNKNOWN    }, // If all else fails, break up generic strings
+            { "\r\nOK\r\n",                          NULL,               TYPE_OK            },
+            { "\r\nERROR\r\n",                       NULL,               TYPE_ERROR         },
+            { "\r\nFAIL\r\n",                        NULL,               TYPE_FAIL          },
+            { "\r\nALREAY CONNECT\r\n",              NULL,               TYPE_CONNECT       },
+            { "UNLINK\r\n",                          NULL,               TYPE_UNLINK        },
+            { "WIFI CONNECTED\r\n",                  NULL,               TYPE_CONNECT       },
+            { "WIFI GOT IP\r\n",                     NULL,               TYPE_DHCP          },
+            { "WIFI DISCONNECT\r\n",                 NULL,               TYPE_DISCONNECT    },
+            { "\r\nbusy p...\r\n",                   NULL,               TYPE_BUSY          },
+            { "smartconfig connected wifi\r\n",      NULL,               TYPE_SMARTCONFIG   },
+            { "+",                                   "\r\n",             TYPE_PLUS          },
+            { "> ",                                  NULL,               TYPE_PROMPT        }, // Sockets
+            { "\r\nSEND OK\r\n",                     NULL,               TYPE_OK            }, // Sockets
+            { "STATUS:",                             "\r\nOK\r\n",       TYPE_OK            }, // Sockets
         };
         for (int i = 0; i < (int)(sizeof(lutF)/sizeof(*lutF)); i ++) {
             pipe->set(unkn);
@@ -2050,13 +1435,6 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
             int ln = _parseMatch(pipe, len, lut[i].sta, lut[i].end);
             if (ln == WAIT && fr)
                 return WAIT;
-
-            // Double CRLF detected, discard it.
-            // This resolves a case on G350 where "\r\n" is generated after +USORF response, but missing
-            // on U260/U270, which would otherwise generate "\r\n\r\nOK\r\n" which is not parseable.
-            if ((ln > 0) && (lut[i].type == TYPE_DBLNEWLINE) && (unkn == 0)) {
-                return TYPE_UNKNOWN | pipe->get(buf, 2);
-            }
             if ((ln != NOT_FOUND) && (unkn > 0))
                 return TYPE_UNKNOWN | pipe->get(buf, unkn);
             if (ln > 0)
@@ -2074,8 +1452,8 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
 // Electron Serial Implementation
 // ----------------------------------------------------------------
 
-MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/) :
-    CellularSerialPipe(rxSize, txSize)
+MDMEsp8266Serial::MDMEsp8266Serial(int rxSize /*= 256*/, int txSize /*= 256*/) :
+    Esp8266SerialPipe(rxSize, txSize)
 {
 #ifdef MODEM_DEBUG
     //_debugLevel = -1;
@@ -2084,29 +1462,18 @@ MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/)
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.
 }
 
-MDMCellularSerial::~MDMCellularSerial(void)
+MDMEsp8266Serial::~MDMEsp8266Serial(void)
 {
-    powerOff();
 }
 
-int MDMCellularSerial::_send(const void* buf, int len)
+int MDMEsp8266Serial::_send(const void* buf, int len)
 {
     return put((const char*)buf, len, true/*=blocking*/);
 }
 
-int MDMCellularSerial::getLine(char* buffer, int length)
+int MDMEsp8266Serial::getLine(char* buffer, int length)
 {
+    //_pipeRx.dump();
     return _getLine(&_pipeRx, buffer, length);
 }
 
-void MDMCellularSerial::pause()
-{
-    LOCK();
-    rxPause();
-}
-
-void MDMCellularSerial::resume()
-{
-    LOCK();
-    rxResume();
-}

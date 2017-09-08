@@ -74,7 +74,7 @@ extern "C" {
 #define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_FAC_ADDRESS + FIRMWARE_IMAGE_SIZE))
 /* External Flash memory address where OTA upgraded bootloader will be saved */
 #define EXTERNAL_FLASH_OTA_BOOTLOADER_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_OTA_ADDRESS + FIRMWARE_IMAGE_SIZE))
-#elif PLATFORM_GL2000_WIFI == PLATFORM_ID || PLATFORM_GL2000_GPRS == PLATFORM_ID
+#elif PLATFORM_GL2000 == PLATFORM_ID || PLATFORM_GL2100 == PLATFORM_ID
 /* External Flash memory address where OTA upgraded core firmware will be saved */
 #define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)0x00)
 /* External Flash memory address where OTA upgraded bootloader will be saved */

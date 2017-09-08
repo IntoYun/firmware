@@ -22,7 +22,7 @@
 #include "modem/inc/mdm_hal.h"
 
 
-extern MDMCellularSerial CellularMDM;
+extern MDMEsp8266Serial esp8266MDM;
 
 
 

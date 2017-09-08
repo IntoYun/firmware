@@ -38,8 +38,8 @@
 #define PLATFORM_L6                  868010
 
 //产品
-#define PLATFORM_GL2000_WIFI         188002
-#define PLATFORM_GL2000_GPRS         178003
+#define PLATFORM_GL2000              188002
+#define PLATFORM_GL2100              178003
 
 //其他
 #define PLATFORM_GCC                 208001
