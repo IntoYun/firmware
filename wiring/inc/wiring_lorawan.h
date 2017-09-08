@@ -1,6 +1,7 @@
 #ifndef  WIRING_LORAWAN_H_
 #define  WIRING_LORAWAN_H_
 
+#include "intorobot_config.h"
 #ifndef configNO_LORAWAN
 
 #include "radio/inc/radio.h"

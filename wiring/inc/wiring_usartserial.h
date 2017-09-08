@@ -21,6 +21,8 @@
 #define WIRING_USARTSERIAL_H_
 
 #include "intorobot_config.h"
+#ifdef configWIRING_USARTSERIAL_ENABLE
+
 #include "wiring_stream.h"
 #include "usart_hal.h"
 
@@ -93,7 +95,6 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 }
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_USARTSERIAL_ENABLE
 extern USARTSerial &__fetch_global_serial();
 #define Serial __fetch_global_serial()
 

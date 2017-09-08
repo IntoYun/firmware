@@ -102,11 +102,11 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
     for (pin_t pin = FIRST_DIGITAL_PIN; pin <= FIRST_DIGITAL_PIN + TOTAL_DIGITAL_PINS; pin++) {
-        HAL_Pin_Mode(pin, INPUT);
+        //HAL_Pin_Mode(pin, INPUT);
     }
 
     for (pin_t pin = FIRST_ANALOG_PIN; pin <= FIRST_ANALOG_PIN + TOTAL_ANALOG_PINS; pin++) {
-        HAL_Pin_Mode(pin, INPUT);
+        //HAL_Pin_Mode(pin, INPUT);
     }
 
     HAL_RTC_Initial();

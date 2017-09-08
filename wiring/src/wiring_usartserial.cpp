@@ -17,6 +17,9 @@
  ******************************************************************************
  */
 
+#include "intorobot_config.h"
+#ifdef configWIRING_USARTSERIAL_ENABLE
+
 #include "wiring_usartserial.h"
 #include "wiring_constants.h"
 
@@ -108,7 +111,6 @@ bool USARTSerial::isEnabled() {
 
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef configWIRING_USARTSERIAL_ENABLE
 USARTSerial &__fetch_global_serial()
 {
     static USARTSerial serial(HAL_USART_SERIAL1);

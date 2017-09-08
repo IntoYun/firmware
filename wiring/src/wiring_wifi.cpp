@@ -17,14 +17,15 @@
   ******************************************************************************
 */
 
+#include "intorobot_config.h"
+#ifdef configWIRING_WIFI_ENABLE
+
 #include "wiring_wifi.h"
 #include "wiring_ticks.h"
 #include "inet_hal.h"
 #include "system_task.h"
 #include "system_tick_hal.h"
 #include <string.h>
-
-#ifdef configWIRING_WIFI_ENABLE
 
 namespace intorobot {
 

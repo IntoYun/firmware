@@ -29,6 +29,7 @@
 
 #include "hw_config.h"
 #include "flash_device_hal.h"
+#include "platforms.h"
 
 /* Includes ------------------------------------------------------------------*/
 
@@ -66,12 +67,19 @@ extern "C" {
 #define BOOTLOADER_IMAGE_SIZE         0x8000       //32K  (bootloader size)
 
 #ifdef USE_SERIAL_FLASH
+#if PLATFORM_FOX == PLATFORM_ID
 /* External Flash memory address where Factory programmed core firmware is located */
 #define EXTERNAL_FLASH_FAC_ADDRESS  ((uint32_t)0x00)
 /* External Flash memory address where OTA upgraded core firmware will be saved */
 #define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_FAC_ADDRESS + FIRMWARE_IMAGE_SIZE))
 /* External Flash memory address where OTA upgraded bootloader will be saved */
 #define EXTERNAL_FLASH_OTA_BOOTLOADER_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_OTA_ADDRESS + FIRMWARE_IMAGE_SIZE))
+#elif PLATFORM_GL2000_WIFI == PLATFORM_ID || PLATFORM_GL2000_GPRS == PLATFORM_ID
+/* External Flash memory address where OTA upgraded core firmware will be saved */
+#define EXTERNAL_FLASH_OTA_ADDRESS  ((uint32_t)0x00)
+/* External Flash memory address where OTA upgraded bootloader will be saved */
+#define EXTERNAL_FLASH_OTA_BOOTLOADER_ADDRESS  ((uint32_t)(EXTERNAL_FLASH_OTA_ADDRESS + FIRMWARE_IMAGE_SIZE))
+#endif
 #endif
 
 #if FIRMWARE_IMAGE_SIZE > INTERNAL_FLASH_SIZE

@@ -3,7 +3,7 @@
  */
 
 //SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);
-//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
+SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
 #define LEDPIN    LED_BUILTIN    //例子灯
 
@@ -18,5 +18,6 @@ void loop()
     delay(1000);
     digitalWrite(LEDPIN, HIGH);
     delay(1000);
+    DEBUG("111");
 }
 

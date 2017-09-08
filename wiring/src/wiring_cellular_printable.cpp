@@ -17,11 +17,12 @@
  ******************************************************************************
  */
 
+#include "intorobot_config.h"
+#ifdef configWIRING_CELLULAR_ENABLE
+
 #include "wiring_cellular_printable.h"
 #include "wiring_print.h"
 #include "string.h"
-
-#ifdef configWIRING_CELLULAR_ENABLE
 
 size_t CellularSignal::printTo(Print& p) const
 {
