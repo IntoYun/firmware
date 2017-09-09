@@ -42,9 +42,9 @@ int LoRaWanClass::joinOTAA(uint16_t timeout)
     _macRunStatus = 0;
     uint32_t prevTime = millis();
     while(1){
-        if(_macRunStatus == ep_lorawan_mlmeconfirm_join_success){
+        if(_macRunStatus == ep_lorawan_join_success){
             return 0;
-        }else if(_macRunStatus == ep_lorawan_mlmeconfirm_join_fail){
+        }else if(_macRunStatus == ep_lorawan_join_fail){
             return -1;
         }
 

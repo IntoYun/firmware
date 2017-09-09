@@ -94,8 +94,8 @@ enum SystemEventsParam {
     ep_lora_radio_cad_detected         = 7,
 
     //lorawan
-    ep_lorawan_mlmeconfirm_join_success = 1,
-    ep_lorawan_mlmeconfirm_join_fail    = 2,
+    ep_lorawan_join_success             = 1,
+    ep_lorawan_join_fail                = 2,
     ep_lorawan_send_success             = 3,
     ep_lorawan_send_fail                = 4,
     ep_lorawan_mcpsconfirm_confirmed    = 5,

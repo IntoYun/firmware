@@ -246,16 +246,16 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 // Status is OK, node has joined the network
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
                 if(!System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)){
-                    LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
-                    system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+                    LoRaWan._macRunStatus = ep_lorawan_join_success;
+                    system_notify_event(event_lorawan_status,ep_lorawan_join_success);
                 }
             }
             else
             {
                 // Join was not successful. Try to join again
-                LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_fail;
+                LoRaWan._macRunStatus = ep_lorawan_join_fail;
                 LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
-                system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_fail);
+                system_notify_event(event_lorawan_status,ep_lorawan_join_fail);
             }
             break;
         }
@@ -549,8 +549,8 @@ void intorobot_lorawan_send_terminal_info(void)
 
         if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
             INTOROBOT_LORAWAN_CONNECTED = true;
-            LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
-            system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+            LoRaWan._macRunStatus = ep_lorawan_join_success;
+            system_notify_event(event_lorawan_status,ep_lorawan_join_success);
             DEBUG("termianal info send ok");
         }else{
             DEBUG("termianal info send fail");

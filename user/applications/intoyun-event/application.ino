@@ -119,11 +119,11 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
         case event_lorawan_status:
             switch(param)
             {
-                case ep_lorawan_mlmeconfirm_join_success: //入网成功
+                case ep_lorawan_join_success: //入网成功
                     DEBUG("lorawan event joined ok");
                     break;
 
-                case ep_lorawan_mlmeconfirm_join_fail: //入网失败
+                case ep_lorawan_join_fail: //入网失败
                     DEBUG("lorawan event joined fail");
                     break;
 
