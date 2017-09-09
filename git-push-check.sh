@@ -69,6 +69,9 @@ make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=blank
 cecho "---->gl2000" $yellow
 make $VERBOSE PLATFORM=gl2000 clean all COMPILE_LTO=n APP=blank
 
+cecho "---->gl2100" $yellow
+make $VERBOSE PLATFORM=gl2100 clean all COMPILE_LTO=n APP=blank
+
 cecho "------------------------------------------------------------" $yellow
 cecho "github push check success!!!" $yellow
 
