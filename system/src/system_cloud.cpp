@@ -734,10 +734,20 @@ finish:
     {aJson.deleteItem(root);}
 }
 
-void cloud_datapoint_receive_callback(uint8_t *payload, uint32_t len)
+void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("Ok! receive datapoint form cloud!");
-    intorobotParseReceiveDatapoints(payload, len);
+    SCLOUD_DEBUG("Ok! receive data form cloud!");
+    system_notify_event(event_cloud_data, ep_cloud_data_raw, payload, len);
+    switch(payload[0]) {
+        case DATA_PROTOCOL_DATAPOINT_BINARY:
+            intorobotParseReceiveDatapoints(&payload[1], len-1);
+            break;
+        case DATA_PROTOCOL_CUSTOM:
+            system_notify_event(event_cloud_data, ep_cloud_data_custom, &payload[1], len-1);
+            break;
+        default:
+            break;
+    }
 }
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
@@ -795,9 +805,9 @@ void intorobot_cloud_init(void)
 #endif
     }
     //数据点处理
-    if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)) {
+    if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
         // v2版本subscibe
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_datapoint_receive_callback, 0); //从平台获取数据通讯信息
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
 
         // 添加默认数据点
         intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
@@ -1187,7 +1197,7 @@ int intorobot_cloud_connect(void)
         SCLOUD_DEBUG("---------connect success--------");
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
-            char buffer[32]="";
+            char buffer[33]="";
 
             //intorobot 平台上送设备信息
             aJsonObject* root = aJson.createObject();

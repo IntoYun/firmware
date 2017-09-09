@@ -76,8 +76,9 @@ enum SystemEventsParam {
     ep_app_status_connected            = 2,
 
     // cloud data
-    ep_cloud_data_datapoint            = 1,
-    ep_cloud_data_custom               = 2,
+    ep_cloud_data_raw                  = 1,  //原始数据 事件
+    ep_cloud_data_datapoint            = 2,  //数据点数据协议处理 事件
+    ep_cloud_data_custom               = 3,  //自定义数据协议处理 事件
 
     // time change
     ep_time_changed_manually           = 1,

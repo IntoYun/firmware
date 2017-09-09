@@ -43,9 +43,11 @@
 #ifdef SYSTEM_LORAWAN_DEBUG
 #define SLORAWAN_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SLORAWAN_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SLORAWAN_DEBUG_DUMP DEBUG_DUMP
 #else
 #define SLORAWAN_DEBUG(...)
 #define SLORAWAN_DEBUG_D(...)
+#define SLORAWAN_DEBUG_DUMP
 #endif
 
 using namespace intorobot;
@@ -202,14 +204,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         LoRaWan.macBuffer.available = true;
         LoRaWan.macBuffer.bufferSize = mcpsIndication->BufferSize;
         memcpy(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
+        system_notify_event(event_cloud_data, ep_cloud_data_raw, LoRaWan.macBuffer.buffer,LoRaWan.macBuffer.bufferSize);
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
-        if(!System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)){
-            system_notify_event(event_cloud_data, ep_cloud_data_custom,LoRaWan.macBuffer.buffer,LoRaWan.macBuffer.bufferSize);
-        }
-    }
-    else
-    {
-        LoRaWan.macBuffer.available = false;
     }
 
     switch( mcpsIndication->McpsIndication )
@@ -420,20 +416,11 @@ bool LoRaWanJoinABP(void)
     string2hex(appskey, LoRaWan.macParams.appSkey, 16, false);
 
 #if 0
-    uint8_t i;
-    DEBUG("devAddr = 0x%x",LoRaWan.macParams.devAddr);
-    DEBUG_D("nwkSkey =");
-    for( i=0;i<16;i++)
-    {
-        DEBUG_D("0x%x ",LoRaWan.macParams.nwkSkey[i]);
-    }
-    DEBUG_D("\r\n");
-    DEBUG_D("appSkey =");
-    for( i=0;i<16;i++)
-    {
-        DEBUG_D("0x%x ",LoRaWan.macParams.appSkey[i]);
-    }
-    DEBUG_D("\r\n");
+    SLORAWAN_DEBUG("devAddr: 0x%x", LoRaWan.macParams.devAddr);
+    SLORAWAN_DEBUG("nwkSkey:");
+    SLORAWAN_DEBUG_DUMP(LoRaWan.macParams.nwkSkey, 16);
+    SLORAWAN_DEBUG("appSkey:");
+    SLORAWAN_DEBUG_DUMP(LoRaWan.macParams.appSkey, 16);
 #endif
 
     mibReq.Type = MIB_NET_ID;
@@ -457,9 +444,9 @@ bool LoRaWanJoinABP(void)
     LoRaMacMibSetRequestConfirm( &mibReq );
     INTOROBOT_LORAWAN_CONNECTED = false;
     INTOROBOT_LORAWAN_JOINED = true;
-    #if (PLATFORM_ID == PLATFORM_ANT)
+#if (PLATFORM_ID == PLATFORM_ANT)
     system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-    #endif
+#endif
     return true;
 }
 
@@ -523,7 +510,7 @@ void intorobot_lorawan_send_terminal_info(void)
         uint8_t buffer[256] = {0};
         char temp[32] = {0};
 
-        buffer[index++] = BINARY_DATA_FORMAT;
+        buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
         // product_id
         buffer[index++] = 0xFF;
         buffer[index++] = 0x01;
@@ -627,21 +614,23 @@ void LoRaWanOnEvent(lorawan_event_t event)
         case LORAWAN_EVENT_RX_COMPLETE:
             {
                 //数据点使能
-                if(System.featureEnabled(SYSTEM_FEATURE_DATAPOINT_ENABLED)){
+                if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)){
                     int len, rssi;
                     uint8_t buffer[256];
                     len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
 
-                    #if 0
-                    SLORAWAN_DEBUG_D("lorawan receive data:");
-                    for(uint16_t i=0;i<len;i++)
-                    {
-                        SLORAWAN_DEBUG_D("0x%x ",buffer[i]);
+                    //SLORAWAN_DEBUG_D("lorawan receive data:");
+                    //SLORAWAN_DEBUG_DUMP(buffer, len);
+                    switch(buffer[0]) {
+                        case DATA_PROTOCOL_DATAPOINT_BINARY:
+                            intorobotParseReceiveDatapoints(&buffer[1], len-1);
+                            break;
+                        case DATA_PROTOCOL_CUSTOM:
+                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[1], len-1);
+                            break;
+                        default:
+                            break;
                     }
-                    SLORAWAN_DEBUG_D("\r\n");
-                    #endif
-
-                    intorobotParseReceiveDatapoints(buffer,len);
                     SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--");
                 }
             }

@@ -63,10 +63,10 @@ typedef enum
     SYSTEM_FEATURE_CONFIG_SAVE_ENABLED,             //配置模式保存  0:关闭  1:打开
     SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED,     //自动配置处理  0:关闭  1:打开
     SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED,           //自动时间同步  0:关闭  1:打开
-    SYSTEM_FEATURE_DATAPOINT_ENABLED,               //数据点处理    0:关闭  1:打开
+    SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED,           //数据协议处理  0:关闭  1:打开
     SYSTEM_FEATURE_REGISTER_ENABLED,                //设备注册      0:关闭  1:打开
     SYSTEM_FEATURE_ACTIVATE_ENABLED,                //设备激活      0:关闭  1:打开
-    SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,             //loramac是否运行 0:
+    SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,             //LoRaWan运行   0:关闭  1:打开
     SYSTEM_FEATURE_MAX
 } system_feature_t;
 
@@ -87,7 +87,7 @@ public:
         feature_config_save_enable = true;          //配置模式保存  0:关闭  1:打开
         feature_auto_config_process_enable = true;  //自动配置处理  0:关闭  1:打开
         feature_auto_time_syn_enable = true;        //自动时间同步  0:关闭  1:打开
-        feature_datapoint_enable = true;            //数据点处理    0:关闭  1:打开
+        feature_data_protocol_enable = true;        //数据协议处理  0:关闭  1:打开
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_activater_enable = true;            //设备激活      0:关闭  1:打开
         feature_loramac_run_enable = true;
@@ -201,8 +201,8 @@ public:
             case SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED:
                 return feature_auto_time_syn_enable;        //自动时间同步  0:关闭  1:打开
                 break;
-            case SYSTEM_FEATURE_DATAPOINT_ENABLED:
-                return feature_datapoint_enable;            //数据点处理    0:关闭  1:打开
+            case SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED:
+                return feature_data_protocol_enable;        //数据协议处理    0:关闭  1:打开
                 break;
             case SYSTEM_FEATURE_REGISTER_ENABLED:
                 return feature_register_enable;             //设备注册      0:关闭  1:打开
@@ -237,8 +237,8 @@ public:
             case SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED:
                 feature_auto_time_syn_enable = enabled;        //自动时间同步  0:关闭  1:打开
                 break;
-            case SYSTEM_FEATURE_DATAPOINT_ENABLED:
-                feature_datapoint_enable = enabled;            //数据点处理    0:关闭  1:打开
+            case SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED:
+                feature_data_protocol_enable = enabled;        //数据协议处理    0:关闭  1:打开
                 break;
             case SYSTEM_FEATURE_REGISTER_ENABLED:
                 feature_register_enable = enabled;             //设备注册      0:关闭  1:打开
@@ -270,7 +270,7 @@ private:
     bool feature_config_save_enable;          //配置模式保存  0:关闭  1:打开
     bool feature_auto_config_process_enable;  //自动配置处理  0:关闭  1:打开
     bool feature_auto_time_syn_enable;        //自动时间同步  0:关闭  1:打开
-    bool feature_datapoint_enable;            //数据点处理    0:关闭  1:打开
+    bool feature_data_protocol_enable;        //数据协议处理  0:关闭  1:打开
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
     bool feature_activater_enable;            //设备激活      0:关闭  1:打开
     bool feature_loramac_run_enable;

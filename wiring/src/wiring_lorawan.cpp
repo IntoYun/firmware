@@ -865,5 +865,4 @@ void LoRaClass::radioWriteReg(uint8_t addr, uint8_t data)
     Radio.Write(addr,data);
 }
 
-
 #endif

@@ -27,9 +27,10 @@
 #include "static_assert.h"
 #include "wiring_string.h"
 
-// Permission
-#define JSON_DATA_FORMAT                          0x30
-#define BINARY_DATA_FORMAT                        0x31
+// data protocol
+#define DATA_PROTOCOL_DATAPOINT_JSON              0x30
+#define DATA_PROTOCOL_DATAPOINT_BINARY            0x31
+#define DATA_PROTOCOL_CUSTOM                      0x32
 
 #define PROPERTIES_MAX                            50
 
