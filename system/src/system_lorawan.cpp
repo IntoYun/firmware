@@ -249,7 +249,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Status is OK, node has joined the network
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
-                if(!System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)){
+                if(!System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)){
                     LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
                     system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
                 }
@@ -517,56 +517,60 @@ bool intorobot_lorawan_flag_connected(void)
 
 void intorobot_lorawan_send_terminal_info(void)
 {
-    SLORAWAN_DEBUG("---------lorawan send termianal info--------");
-    int32_t index = 0, len = 0;
-    uint8_t buffer[256] = {0};
-    char temp[32] = {0};
+    if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
+        SLORAWAN_DEBUG("---------lorawan send termianal info--------");
+        int32_t index = 0, len = 0;
+        uint8_t buffer[256] = {0};
+        char temp[32] = {0};
 
-    buffer[index++] = BINARY_DATA_FORMAT;
-    // product_id
-    buffer[index++] = 0xFF;
-    buffer[index++] = 0x01;
-    buffer[index++] = 0x03;
-    system_get_product_id(temp, sizeof(temp));
-    len = strlen(temp);
-    buffer[index++] = len;
-    memcpy(&buffer[index], temp, len);
-    index+=len;
+        buffer[index++] = BINARY_DATA_FORMAT;
+        // product_id
+        buffer[index++] = 0xFF;
+        buffer[index++] = 0x01;
+        buffer[index++] = 0x03;
+        system_get_product_id(temp, sizeof(temp));
+        len = strlen(temp);
+        buffer[index++] = len;
+        memcpy(&buffer[index], temp, len);
+        index+=len;
 
-    // productver
-    buffer[index++] = 0xFF;
-    buffer[index++] = 0x02;
-    buffer[index++] = 0x03;
-    system_get_product_software_version(temp, sizeof(temp));
-    len = strlen(temp);
-    buffer[index++] = len;
-    memcpy(&buffer[index], temp, len);
-    index+=len;
+        // productver
+        buffer[index++] = 0xFF;
+        buffer[index++] = 0x02;
+        buffer[index++] = 0x03;
+        system_get_product_software_version(temp, sizeof(temp));
+        len = strlen(temp);
+        buffer[index++] = len;
+        memcpy(&buffer[index], temp, len);
+        index+=len;
 
-    // board
-    buffer[index++] = 0xFF;
-    buffer[index++] = 0x03;
-    buffer[index++] = 0x03;
-    system_get_board_id(temp, sizeof(temp));
-    len = strlen(temp);
-    buffer[index++] = len;
-    memcpy(&buffer[index], temp, len);
-    index+=len;
+        // board
+        buffer[index++] = 0xFF;
+        buffer[index++] = 0x03;
+        buffer[index++] = 0x03;
+        system_get_board_id(temp, sizeof(temp));
+        len = strlen(temp);
+        buffer[index++] = len;
+        memcpy(&buffer[index], temp, len);
+        index+=len;
 
-    for(int i=0; i<index; i++)
-    {
-        SLORAWAN_DEBUG_D("%02x ", buffer[i]);
-    }
-    SLORAWAN_DEBUG_D("\r\n");
+        for(int i=0; i<index; i++)
+        {
+            SLORAWAN_DEBUG_D("%02x ", buffer[i]);
+        }
+        SLORAWAN_DEBUG_D("\r\n");
 
-    if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
-        INTOROBOT_LORAWAN_CONNECTED = true;
-        LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
-        system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
-        DEBUG("termianal info send ok");
+        if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
+            INTOROBOT_LORAWAN_CONNECTED = true;
+            LoRaWan._macRunStatus = ep_lorawan_mlmeconfirm_join_success;
+            system_notify_event(event_lorawan_status,ep_lorawan_mlmeconfirm_join_success);
+            DEBUG("termianal info send ok");
+        }else{
+            DEBUG("termianal info send fail");
+            INTOROBOT_LORAWAN_SEND_INFO = false;
+        }
     }else{
-        DEBUG("termianal info send fail");
-        INTOROBOT_LORAWAN_SEND_INFO = false;
+        INTOROBOT_LORAWAN_CONNECTED = true;
     }
 }
 
