@@ -151,9 +151,13 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_confirmed;
                 if(!LoRaWan._ackReceived){
                     LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-                    system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
+                    if(!INTOROBOT_LORAWAN_SEND_INFO){
+                        system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
+                    }
                 }else{
-                    system_notify_event(event_lorawan_status,ep_lorawan_send_success);
+                    if(!INTOROBOT_LORAWAN_SEND_INFO){
+                        system_notify_event(event_lorawan_status,ep_lorawan_send_success);
+                    }
                 }
                 break;
             }
@@ -549,6 +553,7 @@ void intorobot_lorawan_send_terminal_info(void)
 
         if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
             INTOROBOT_LORAWAN_CONNECTED = true;
+            INTOROBOT_LORAWAN_SEND_INFO = false;
             LoRaWan._macRunStatus = ep_lorawan_join_success;
             system_notify_event(event_lorawan_status,ep_lorawan_join_success);
             DEBUG("termianal info send ok");
