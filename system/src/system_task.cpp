@@ -295,7 +295,7 @@ void lorawan_prepare_active(void)
 {
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED))
     {
-        if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED))
+        if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED))
         {
             // AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
             AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_OTAA_INACTIVE;
@@ -352,10 +352,8 @@ void manage_lorawan_connection(void)
         }
 
         if(INTOROBOT_LORAWAN_JOINED && !INTOROBOT_LORAWAN_CONNECTED && !INTOROBOT_LORAWAN_SEND_INFO) {
-            if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_AUTO_ACTIVE_ENABLED)) {
-                INTOROBOT_LORAWAN_SEND_INFO = true;
-                intorobot_lorawan_send_terminal_info(); //主模式下发送产品信息
-            }
+            INTOROBOT_LORAWAN_SEND_INFO = true;
+            intorobot_lorawan_send_terminal_info(); //发送产品信息
         }
     }
 }

@@ -119,11 +119,11 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
         case event_lorawan_status:
             switch(param)
             {
-                case ep_lorawan_mlmeconfirm_join_success: //入网成功
+                case ep_lorawan_join_success: //入网成功
                     DEBUG("lorawan event joined ok");
                     break;
 
-                case ep_lorawan_mlmeconfirm_join_fail: //入网失败
+                case ep_lorawan_join_fail: //入网失败
                     DEBUG("lorawan event joined fail");
                     break;
 
@@ -160,7 +160,7 @@ void setup()
     System.on(event_cloud_data, &system_event_callback);
     LoRaWan.setDataRate(DR_3);
     LoRaWan.setChannelDRRange(2,DR_3,DR_3);
-    LoRaWan.setRX2Parameters(DR_3,434665000);
+    LoRaWan.setRX2Params(DR_3,434665000);
     LoRaWan.setChannelStatus(0,false);
     LoRaWan.setChannelStatus(1,false);
     deviceState = DEVICE_STATE_JOIN;

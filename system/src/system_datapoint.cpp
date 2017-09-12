@@ -36,18 +36,7 @@
 #ifdef SYSTEM_DATAPOINT_DEBUG
 #define SDATAPOINT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
 #define SDATAPOINT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-static void debug_dump(uint8_t *buf, uint16_t len)
-{
-    int i = 0;
-
-    if(len > 0) {
-        for(i = 0; i < len-1; i++) {
-            DEBUG_D("%02x:", buf[i]);
-        }
-        DEBUG_D("%02x\r\n", buf[i]);
-    }
-}
-#define SDATAPOINT_DEBUG_DUMP  debug_dump
+#define SDATAPOINT_DEBUG_DUMP DEBUG_DUMP
 #else
 #define SDATAPOINT_DEBUG(...)
 #define SDATAPOINT_DEBUG_D(...)
@@ -450,10 +439,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 
     SDATAPOINT_DEBUG("OK! Rev datapoint data <%d>: ", len);
     SDATAPOINT_DEBUG_DUMP(payload, len);
-    if(payload[index++] != BINARY_DATA_FORMAT) {
-        SDATAPOINT_DEBUG("Error! Not Binary data format");
-        return;
-    }
 
     while(index < len) {
         if(payload[index] & 0x80)  {      //数据点有2个字节
@@ -726,7 +711,7 @@ int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, cons
         uint8_t buffer[512];
         uint16_t index = 0;
 
-        buffer[index++] = BINARY_DATA_FORMAT;
+        buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
         index += intorobotFormSingleDatapoint(i, buffer+index, sizeof(buffer)-1);
         properties[i]->runtime = current_millis;
         return _intorobotSendRawData(buffer, index, confirmed, timeout);
@@ -743,7 +728,7 @@ int intorobotSendAllDatapoint(void)
         return false;
     }
 
-    buffer[index++] = BINARY_DATA_FORMAT;
+    buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
     if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
         g_datapoint_control.runtime = millis();
@@ -766,7 +751,7 @@ int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
         return false;
     }
 
-    buffer[index++] = BINARY_DATA_FORMAT;
+    buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
     g_datapoint_control.runtime = millis();
     intorobotPropertyChangeClear();
@@ -789,7 +774,7 @@ void intorobotSendDatapointAutomatic(void)
 
     //当数值发生变化
     if(intorobotPropertyChanged()) {
-        buffer[index++] = BINARY_DATA_FORMAT;
+        buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
         index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
         sendFlag = true;
     } else {
@@ -802,7 +787,7 @@ void intorobotSendDatapointAutomatic(void)
 
         //发送时间时间到
         if ( elapsed_millis >= DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL*1000 ) {
-            buffer[index++] = BINARY_DATA_FORMAT;
+            buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
             index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
             sendFlag = true;
         }

@@ -56,6 +56,7 @@
 #include "system_lorawan.h"
 #include "system_datapoint.h"
 #include "malloc.h"
+#include "wiring_time.h"
 
 using namespace intorobot;
 
@@ -248,6 +249,7 @@ void app_setup_and_loop_initial(bool *threaded)
     // load params
     load_system_fwlib_version();
     set_system_mode(DEFAULT);
+    Time.zone(HAL_PARAMS_Get_System_zone());
 
     DEBUG("---------------welcome from IntoRobot!-----------------");
 

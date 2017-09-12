@@ -408,7 +408,7 @@ void TestSX1278Init(void)
     LoRa.radioSetModem(MODEM_LORA);
     LoRa.radioSetIqInverted(RF_IQ_INVERTED);
 
-    sx1278Version = LoRa.radioRead(0x42);
+    sx1278Version = LoRa.radioReadReg(0x42);
     // DEBUG("sx1278 version = 0x%2x", sx1278Version);
     // DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
     // DEBUG("sync data = 0x%2x",LoRa.radioRead(0x39));

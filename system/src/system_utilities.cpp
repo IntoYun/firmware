@@ -139,6 +139,18 @@ int system_set_params_double(system_params_t params_type, double value) {
 
 uint16_t system_get_params_array(system_params_t params_type, char *buffer, uint16_t len) {
     switch(params_type) {
+        case SYSTEM_PARAMS_PRODUCT_ID:
+            return system_get_product_id(buffer, len);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_SECRET:
+            return system_get_product_secret(buffer, len);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_SOFTWARE_VERSION:
+            return system_get_product_software_version(buffer, len);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_HARDWARE_VERSION:
+            return system_get_product_hardware_version(buffer, len);
+            break;
         case SYSTEM_PARAMS_PRODUCT_BOARD_ID:
             return system_get_board_id(buffer, len);
             break;
@@ -153,6 +165,18 @@ uint16_t system_get_params_array(system_params_t params_type, char *buffer, uint
 
 int system_set_params_array(system_params_t params_type, char *buffer, uint16_t len) {
     switch(params_type) {
+        case SYSTEM_PARAMS_PRODUCT_ID:
+            return system_set_product_id(buffer);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_SECRET:
+            return system_set_product_secret(buffer);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_SOFTWARE_VERSION:
+            return system_set_product_software_version(buffer);
+            break;
+        case SYSTEM_PARAMS_PRODUCT_HARDWARE_VERSION:
+            return system_set_product_hardware_version(buffer);
+            break;
         case SYSTEM_PARAMS_PRODUCT_BOARD_ID:
             return system_set_board_id(buffer);
             break;
