@@ -389,6 +389,7 @@ class IntoRobotClass: public IntoRobotDatepointClass {
 IntoRobotClass& __fetch_global_intorobot();
 #define IntoRobot __fetch_global_intorobot()
 #define IntoYun __fetch_global_intorobot()
+#define Cloud __fetch_global_intorobot()
 
 #endif
 
