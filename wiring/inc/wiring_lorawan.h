@@ -89,14 +89,14 @@ class LoRaWanClass
         uint32_t getUpCounter(void);                                            //获取上行计数器
         void setDownCounter(uint32_t counter);                                  //设置下行计数器
         uint32_t getDownCounter(void);                                          //获取下行计数器
-        uint8_t setRX2Params(uint8_t datarate, uint32_t frequency);         //设置窗口2 速率和频率
+        void setRX2Params(uint8_t datarate, uint32_t frequency);         //设置窗口2 速率和频率
         void getRX2Params(uint8_t &datarate, uint32_t &frequency);         //设置窗口2 速率和频率
-        uint8_t setRX1Delay(uint16_t delay);                                    //设置窗口1 延时
+        void setRX1Delay(uint16_t delay);                                    //设置窗口1 延时
         uint16_t getRX1Delay(void); //获取窗口1打开延迟时间
         uint8_t getMargin(void);                                                //获取魔术字
         uint8_t getGatewayNumber(void);                                         //获取网关号
         uint8_t getSnr(void);                                                   //获取收到数据后的snr
-        int getRssi(void);                                                      //获取收到数据后的rssi
+        int16_t getRssi(void);                                                      //获取收到数据后的rssi
 
     public:
         uint8_t _buffer[256];                 //接收缓冲区
@@ -114,10 +114,10 @@ class LoRaWanClass
         uint8_t _nbGateways = 0;
         uint8_t _uplinkDatarate = 0;          //上行速率
         uint8_t _downlinkDatarate = 0;        //下行速率
-        uint8_t _txPower = 0;                 //发射功率
+        int8_t _txPower = 0;                 //发射功率
         bool _ackReceived = false;            //是否收到ack
         uint8_t _framePending = 0;
-        uint8_t _macDatarate = DR_5;          //设置发送速率
+        uint8_t _macDatarate = DR_3;          //设置发送速率
         uint8_t _macRunStatus = 0;            //mac运行状态 内部使用处理
         int8_t _macSendStatus = 0;           //发送状态
 
@@ -134,7 +134,7 @@ class LoRaClass
         bool radioCad(void);                            //完成CAD流程  true:CADDeteced false:CADDone
 
         int16_t radioGetRssi(void);                    //获取rssi
-        int8_t radioGetSnr(void);                      //获取snr
+        uint8_t radioGetSnr(void);                      //获取snr
 
         void radioSetSleep(void);                       //sx1278休眠
         void radioSetFreq(uint32_t freq);               //设置频率
@@ -165,14 +165,14 @@ class LoRaClass
         bool radioGetRxContinuous(void);
 
         //发送射频相关参数
-        void radioSetTxPower(uint8_t txPower);          //设置发射功率
-        uint8_t radioGetTxPower(void);                  //获取发射功率
+        void radioSetTxPower(int8_t txPower);          //设置发射功率
+        int8_t radioGetTxPower(void);                  //获取发射功率
 
         //接收射频相关参数
         void radioSetFixPayloadLen(uint8_t payloadLen); //SF=6时包长度需固定,设置包长度
         uint8_t radioGetFixPayloadLen(void);//获取固定包长度
-        void radioSetSymbTimeout(uint32_t symbTimeout); //设置前导码超时
-        uint32_t radioGetSymbTimeout(void);             //获取前导码超时值
+        void radioSetSymbTimeout(uint16_t symbTimeout); //设置前导码超时
+        uint16_t radioGetSymbTimeout(void);             //获取前导码超时值
 
         uint8_t radioReadReg(uint8_t addr);                //读取寄存器值
         void radioWriteReg(uint8_t addr, uint8_t data);    //写寄存器值
@@ -180,7 +180,7 @@ class LoRaClass
     public:
         uint8_t _buffer[256];                //接收缓冲区
         uint16_t _length = 0;                //接收数据长度
-        int8_t _snr;                         //接收完数据收snr值
+        uint8_t _snr;                         //接收完数据收snr值
         int16_t _rssi;                       //接收完数据收rssi值
         uint8_t _radioRunStatus = 0;         //发送接收状态
         bool _availableData = false;        //是否收到数据
@@ -190,8 +190,8 @@ class LoRaClass
         uint32_t _freq = 434000000;          //工作频率
         uint8_t _maxPayloadLen = 0x40;       //最大负载长度
         RadioModems_t _modem = MODEM_LORA;   //模式 MODEM_FSK:fsk   MODEM_LORA:lora
-        uint32_t _bandwidth  = 0;            //带宽fsk:2600-250000Hz lora:0-125KHz 1-250K 2-500K
-        uint32_t _datarate   = 7;            //速率fsk:600-300000　lora:扩频因子 6-12
+        uint8_t _bandwidth  = 0;            //带宽fsk:2600-250000Hz lora:0-125KHz 1-250K 2-500K
+        uint8_t _datarate   = 7;            //速率fsk:600-300000　lora:扩频因子 6-12
         uint8_t _coderate    = 1;            //纠错码率 fsk:0 lora: 1(4/5) 2(4/6) 3(4/7) 4(4/8) 仅lora用
         uint32_t _bandwidthAfc = 0;          //fsk:2600-250000 lora:0 仅fsk用
         uint16_t _preambleLen  = 8;          //前导码长度

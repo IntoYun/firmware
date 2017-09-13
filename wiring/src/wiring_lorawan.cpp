@@ -514,7 +514,7 @@ uint32_t LoRaWanClass::getDownCounter(void)
     }
 }
 
-uint8_t LoRaWanClass::setRX2Params(uint8_t datarate, uint32_t frequency)
+void LoRaWanClass::setRX2Params(uint8_t datarate, uint32_t frequency)
 {
     if(datarate > DR_5){
         return 0;
@@ -543,7 +543,7 @@ void LoRaWanClass::getRX2Params(uint8_t &datarate, uint32_t &frequency)
     }
 }
 
-uint8_t LoRaWanClass::setRX1Delay(uint16_t delay)
+void LoRaWanClass::setRX1Delay(uint16_t delay)
 {
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_RECEIVE_DELAY_1;
@@ -579,7 +579,7 @@ uint8_t LoRaWanClass::getSnr(void)
     return _macSnr;
 }
 
-int LoRaWanClass::getRssi(void)
+int16_t LoRaWanClass::getRssi(void)
 {
     return _macRssi;
 }
@@ -678,7 +678,7 @@ int16_t LoRaClass::radioGetRssi(void)
     return _rssi;
 }
 
-int8_t LoRaClass::radioGetSnr(void)
+uint8_t LoRaClass::radioGetSnr(void)
 {
     return _snr;
 }
@@ -822,12 +822,12 @@ bool LoRaClass::radioGetRxContinuous(void)
 }
 
 //发送射频相关参数
-void LoRaClass::radioSetTxPower(uint8_t txPower)
+void LoRaClass::radioSetTxPower(int8_t txPower)
 {
     _power = txPower;
 }
 
-uint8_t LoRaClass::radioGetTxPower(void)
+int8_t LoRaClass::radioGetTxPower(void)
 {
     return _power;
 }
@@ -843,14 +843,14 @@ uint8_t LoRaClass::radioGetFixPayloadLen(void)
     return _payloadLen;
 }
 
-void LoRaClass::radioSetSymbTimeout(uint32_t symbTimeout)
+void LoRaClass::radioSetSymbTimeout(uint16_t symbTimeout)
 {
     if(symbTimeout >= 4 && symbTimeout <= 1023) {
         _symbTimeout = symbTimeout;
     }
 }
 
-uint32_t LoRaClass::radioGetSymbTimeout(void)
+uint16_t LoRaClass::radioGetSymbTimeout(void)
 {
     return _symbTimeout;
 }
