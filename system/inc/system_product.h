@@ -213,7 +213,6 @@ public:
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
                 return feature_loramac_run_enable;
                 break;
-
             default:
                 break;
         }
@@ -249,7 +248,6 @@ public:
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
                 feature_loramac_run_enable = enabled;    //loramac是否自动激活   0:关闭  1:打开
                 break;
-
             default:
                 break;
         }
