@@ -45,28 +45,19 @@ void init_system_params(hal_system_params_t *psystem_params) {
 
 /*初始化系统参数区 保留密钥参数*/
 void init_fac_system_params(hal_system_params_t *psystem_params) {
-    uint8_t  at_mode;
-    uint8_t  device_id[52]={0}, access_token[52]={0}, activation_code[52]={0};
+    uint8_t  device_id[52]={0}, access_token[52]={0};
 
     switch(psystem_params->at_mode)
     {
-        case 1:      //Activation By Personalization  //已经灌好密钥
-            at_mode = psystem_params->at_mode;
+        case 1:      //已注入密钥
+        case 2:      //2，3为之前激活码的情况，统一转成已注入密钥
+        case 3:
             memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
             memcpy(access_token, psystem_params->access_token, sizeof(psystem_params->access_token));
             init_system_params(psystem_params);
-            psystem_params->at_mode = at_mode;
+            psystem_params->at_mode = 1;
             memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
             memcpy(psystem_params->access_token, access_token, sizeof(psystem_params->access_token));
-            break;
-        case 2:      //Over-The-Air Activation //灌装激活码  未激活
-        case 3:      //灌装激活码 已激活
-            memcpy(device_id, psystem_params->device_id, sizeof(psystem_params->device_id));
-            memcpy(activation_code, psystem_params->activation_code, sizeof(psystem_params->activation_code));
-            init_system_params(psystem_params);
-            psystem_params->at_mode = 2; //灌装激活码  未激活
-            memcpy(psystem_params->device_id, device_id, sizeof(psystem_params->device_id));
-            memcpy(psystem_params->activation_code, activation_code, sizeof(psystem_params->activation_code));
             break;
         default:     //没有密钥信息
             init_system_params(psystem_params);
@@ -529,37 +520,6 @@ CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void) {
 int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag) {
     intorobot_system_params.config_flag = flag;
     return 0;
-}
-
-/*添加激活码*/
-/*
- * 读取设备activation_code
- * */
-uint16_t HAL_PARAMS_Get_System_activation_code(char* buffer, uint16_t len) {
-    uint16_t templen;
-
-    if (buffer!=NULL && len>0) {
-        templen = MIN(strlen(intorobot_system_params.activation_code), len-1);
-        memset(buffer, 0, len);
-        memcpy(buffer, intorobot_system_params.activation_code, templen);
-        return templen;
-    }
-    return 0;
-}
-
-/*
- * 设置设备activation_code
- * */
-int HAL_PARAMS_Set_System_activation_code(const char* buffer) {
-    uint16_t templen;
-
-    if (buffer!=NULL) {
-        templen = MIN(sizeof(intorobot_system_params.activation_code)-1, strlen(buffer));
-        memset(intorobot_system_params.activation_code, 0, sizeof(intorobot_system_params.activation_code));
-        memcpy(intorobot_system_params.activation_code, buffer, templen);
-        return 0;
-    }
-    return -1;
 }
 
 /*

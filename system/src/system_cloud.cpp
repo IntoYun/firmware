@@ -1437,7 +1437,7 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
         if (root == NULL)
         {return false;}
 
-        //device_id  and activation_code
+        //device_id  and access_token
         aJsonObject *deviceIdObject = aJson.getObjectItem(root, "deviceId");
         aJsonObject *accessTokenObject = aJson.getObjectItem(root, "token");
         if ( deviceIdObject != NULL && accessTokenObject != NULL) {
