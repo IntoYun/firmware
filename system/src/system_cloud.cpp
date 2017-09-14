@@ -118,7 +118,11 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
     MqttComputeMic( payload, length-4, g_mqtt_nwkskey, mic );
     if(!memcmp(&payload[length-4], mic, 4)) {
         down_seq_id = (payload[0] << 8) + payload[1];
-        MqttPayloadDecrypt( &payload[2], datalen, g_mqtt_appskey, 1, down_seq_id, device_id, pdata );
+        if(System.featureEnabled(SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED)) {
+            MqttPayloadDecrypt( &payload[2], datalen, g_mqtt_appskey, 1, down_seq_id, device_id, pdata );
+        } else {
+            memcpy(pdata, &payload[2], datalen);
+        }
     }
 
     pCallBack pcallback=get_subscribe_callback(topic);
@@ -851,7 +855,11 @@ bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payl
     pdata[dataIndex++] = ( g_up_seq_id ) & 0xFF;
 
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
-    MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &pdata[dataIndex] );
+    if(System.featureEnabled(SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED)) {
+        MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &pdata[dataIndex] );
+    } else {
+        memcpy(&pdata[dataIndex], payload, plength);
+    }
     dataIndex += plength;
     MqttComputeMic( pdata, dataIndex, g_mqtt_nwkskey, &pdata[dataIndex] );
     dataIndex += 4;
@@ -1244,6 +1252,11 @@ int intorobot_cloud_connect(void)
     hex2string(cMac_hex, 16, cMac_string, false);
     payload = random_string;
     payload += ':';
+    if(System.featureEnabled(SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED)) {
+        payload += '1';
+    } else {
+        payload += '0';
+    }
     payload += cMac_string;
     SCLOUD_DEBUG("mqtt passwork ->  %s", payload.c_str());
     if(g_mqtt_client.connect(device_id, device_id, payload, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
@@ -1310,22 +1323,8 @@ int intorobot_cloud_handle(void)
 {
     bool reboot_flag = false, all_datapoint_flag = false;
     if(true == g_mqtt_client.loop()) {
-        /*
-        //reboot
-        if(RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(0xFF80, reboot_flag)) {
-            intorobot_cloud_disconnect();
-            delay(500);
-            HAL_Core_System_Reset();
-        }
-        //write all datepoint
-        if(RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(0xFF81, all_datapoint_flag)) {
-            intorobotSendAllDatapointManual();
-        }
-        */
         intorobotSendDatapointAutomatic();
-
-        //发送IntoRobot.printf打印到平台
-        mqtt_send_debug_info();
+        mqtt_send_debug_info(); //发送IntoRobot.printf打印到平台
         return 0;
     }
     return -1;
