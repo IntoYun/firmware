@@ -18,6 +18,5 @@ void loop()
     delay(1000);
     digitalWrite(LEDPIN, HIGH);
     delay(1000);
-    DEBUG("111");
 }
 
