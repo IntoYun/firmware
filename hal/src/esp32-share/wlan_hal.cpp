@@ -39,7 +39,7 @@ static volatile uint32_t wlan_timeout_duration;
 inline void WLAN_TIMEOUT(uint32_t dur) {
     wlan_timeout_start = HAL_Timer_Get_Milli_Seconds();
     wlan_timeout_duration = dur;
-    //DEBUG("WLAN WD Set %d",(dur));
+    //DEBUG("WLAN WD Set %d\r\n",(dur));
 }
 inline bool IS_WLAN_TIMEOUT() {
     return wlan_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-wlan_timeout_start)>wlan_timeout_duration);
@@ -47,7 +47,7 @@ inline bool IS_WLAN_TIMEOUT() {
 
 inline void CLR_WLAN_TIMEOUT() {
     wlan_timeout_duration = 0;
-    //DEBUG("WLAN WD Cleared, was %d", wlan_timeout_duration);
+    //DEBUG("WLAN WD Cleared, was %d\r\n", wlan_timeout_duration);
 }
 
 //=======net notify===========

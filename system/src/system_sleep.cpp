@@ -76,7 +76,7 @@ void system_sleep_lora(userLoRaWakeupCb userHandler, uint32_t seconds)
         LoRaSetSystemSleep(userHandler,seconds);
         LoRa.radioSetSleep();
         loraSystemSleepEnabled = true;
-        DEBUG("lorawan system sleep");
+        DEBUG("lorawan system sleep\r\n");
     }
     TimerLowPowerHandler();
 }

@@ -187,20 +187,20 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         if (HAL_TIM_OC_ConfigChannel(&TimHandleTone, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            DEBUG("TIM OC CconfigChannel Error");
+            DEBUG("TIM OC CconfigChannel Error\r\n");
         }
 
         /* Start channel */
         if (HAL_TIM_OC_Start_IT(&TimHandleTone, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             //Error_Handler();
-            DEBUG("TIM OC Start IT Error");
+            DEBUG("TIM OC Start IT Error\r\n");
         }
     }
     else
     {
         // Error
-        DEBUG("The Tone First Error");
+        DEBUG("The Tone First Error\r\n");
     }
 }
 

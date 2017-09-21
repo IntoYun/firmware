@@ -24,7 +24,6 @@
 
 #define INTOROBOT_SERVER_DOMAIN        "iot.intoyun.com"
 #define INTOROBOT_SERVER_PORT          1883
-#define INTOROBOT_SERVER_TLS_PORT      8883
 
 #define INTOROBOT_UPDATE_DOMAIN        "www.intoyun.com"
 

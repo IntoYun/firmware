@@ -68,7 +68,7 @@ static volatile uint32_t config_timeout_duration;
 inline void ARM_CONFIG_TIMEOUT(uint32_t dur) {
     config_timeout_start = HAL_Timer_Get_Milli_Seconds();
     config_timeout_duration = dur;
-    SCONFIG_DEBUG("CONFIG WD Set %d",(dur));
+    SCONFIG_DEBUG("CONFIG WD Set %d\r\n",(dur));
 }
 inline bool IS_CONFIG_TIMEOUT() {
     return config_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-config_timeout_start)>config_timeout_duration);
@@ -76,7 +76,7 @@ inline bool IS_CONFIG_TIMEOUT() {
 
 inline void CLR_CONFIG_TIMEOUT() {
     config_timeout_duration = 0;
-    SCONFIG_DEBUG("CONFIG WD Cleared, was %d", config_timeout_duration);
+    SCONFIG_DEBUG("CONFIG WD Cleared, was %d\r\n", config_timeout_duration);
 }
 
 DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
@@ -140,7 +140,7 @@ int DeviceConfig::process(void)
     {
         String tmp=readString();
 
-        SCONFIG_DEBUG("OK! Rev: %s", (char *)tmp.c_str());
+        SCONFIG_DEBUG("OK! Rev: %s\r\n", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL)
         {break;}

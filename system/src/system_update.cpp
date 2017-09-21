@@ -96,7 +96,7 @@ bool UpdaterClass::begin(size_t size, uint32_t startAddress, uint32_t maxSize) {
     StreamString error;
 
     if(_size > 0){
-        SUPDATE_DEBUG("[begin] already running");
+        SUPDATE_DEBUG("[begin] already running\r\n");
         return false;
     }
 
@@ -104,7 +104,7 @@ bool UpdaterClass::begin(size_t size, uint32_t startAddress, uint32_t maxSize) {
         _error = UPDATE_ERROR_SIZE;
         printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("error : (%s)", error.c_str());
+        SUPDATE_DEBUG("error : (%s)\r\n", error.c_str());
         return false;
     }
 
@@ -113,18 +113,18 @@ bool UpdaterClass::begin(size_t size, uint32_t startAddress, uint32_t maxSize) {
 
     if (startAddress) {
 
-        SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)", _startAddress, _startAddress);
-        SUPDATE_DEBUG("[begin] updateFileSize:      0x%08X (%d)", size, size);
+        SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)\r\n", _startAddress, _startAddress);
+        SUPDATE_DEBUG("[begin] updateFileSize:      0x%08X (%d)\r\n", size, size);
 
         if(size >= maxSize) {
             _error = UPDATE_ERROR_SPACE;
             printError(error);
             error.trim(); // remove line ending
-            SUPDATE_DEBUG("error : (%s)", error.c_str());
+            SUPDATE_DEBUG("error : (%s)\r\n", error.c_str());
             return false;
         }
     } else {
-        SUPDATE_DEBUG("[begin] startAddress = 0.");
+        SUPDATE_DEBUG("[begin] startAddress = 0.\r\n");
         return false;
     }
 
@@ -134,9 +134,9 @@ bool UpdaterClass::begin(size_t size, uint32_t startAddress, uint32_t maxSize) {
     _size = size;
     _buffer = new uint8_t[UPDATE_SECTOR_SIZE];
 
-    SUPDATE_DEBUG("[begin] _startAddress:       0x%08X (%d)", _startAddress, _startAddress);
-    SUPDATE_DEBUG("[begin] _currentAddress:     0x%08X (%d)", _currentAddress, _currentAddress);
-    SUPDATE_DEBUG("[begin] _size:               0x%08X (%d)", _size, _size);
+    SUPDATE_DEBUG("[begin] _startAddress:       0x%08X (%d)\r\n", _startAddress, _startAddress);
+    SUPDATE_DEBUG("[begin] _currentAddress:     0x%08X (%d)\r\n", _currentAddress, _currentAddress);
+    SUPDATE_DEBUG("[begin] _size:               0x%08X (%d)\r\n", _size, _size);
 
     _md5.begin();
     return true;
@@ -160,12 +160,12 @@ bool UpdaterClass::setSendProgressCb(progressCb Cb){
 
 bool UpdaterClass::end(bool evenIfRemaining){
     if(_size == 0){
-        SUPDATE_DEBUG("no update");
+        SUPDATE_DEBUG("no update\r\n");
         return false;
     }
 
     if(hasError() || (!isFinished() && !evenIfRemaining)){
-        SUPDATE_DEBUG("premature end: res:%u, pos:%u/%u", getError(), progress(), _size);
+        SUPDATE_DEBUG("premature end: res:%u, pos:%u/%u\r\n", getError(), progress(), _size);
         _reset();
         return false;
     }
@@ -181,15 +181,15 @@ bool UpdaterClass::end(bool evenIfRemaining){
     if(_target_md5.length()) {
         if(_target_md5 != _md5.toString()){
             _error = UPDATE_ERROR_MD5;
-            SUPDATE_DEBUG("MD5 Failed: expected:%s, calculated:%s", _target_md5.c_str(), _md5.toString().c_str());
+            SUPDATE_DEBUG("MD5 Failed: expected:%s, calculated:%s\r\n", _target_md5.c_str(), _md5.toString().c_str());
             _reset();
             return false;
         } else {
-            SUPDATE_DEBUG("MD5 Success: %s", _target_md5.c_str());
+            SUPDATE_DEBUG("MD5 Success: %s\r\n", _target_md5.c_str());
         }
     }
 
-    SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
+    SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X\r\n", _startAddress, _size);
 
     _reset();
     return true;
@@ -204,7 +204,7 @@ bool UpdaterClass::_writeBuffer(){
         _currentAddress = (_startAddress + _size);
         printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("error : (%s)", error.c_str());
+        SUPDATE_DEBUG("error : (%s)\r\n", error.c_str());
         return false;
     }
     _md5.add(_buffer, _bufferLen);
@@ -273,7 +273,7 @@ size_t UpdaterClass::writeStream(Stream &data) {
                 _currentAddress = (_startAddress + _size);
                 printError(error);
                 error.trim(); // remove line ending
-                SUPDATE_DEBUG("error : (%s)", error.c_str());
+                SUPDATE_DEBUG("error : (%s)\r\n", error.c_str());
                 _reset();
                 return written;
             }
@@ -290,7 +290,7 @@ size_t UpdaterClass::writeStream(Stream &data) {
             }
         }
         intorobot_cloud_handle();
-        SUPDATE_DEBUG("writeStream toRead = %d , _bufferLen = %d, written = %d", toRead, _bufferLen, written);
+        SUPDATE_DEBUG("writeStream toRead = %d , _bufferLen = %d, written = %d\r\n", toRead, _bufferLen, written);
     }
     return written;
 }
@@ -462,24 +462,24 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
     int len = http.getSize();
 
     if(code <= 0) {
-        SUPDATE_DEBUG("[httpUpdate] HTTP error: %s", http.errorToString(code).c_str());
+        SUPDATE_DEBUG("[httpUpdate] HTTP error: %s\r\n", http.errorToString(code).c_str());
         _lastError = code;
         http.end();
         return HTTP_UPDATE_FAILED;
     }
 
-    SUPDATE_DEBUG("[httpUpdate] Header read fin.");
-    SUPDATE_DEBUG("[httpUpdate] Server header:");
-    SUPDATE_DEBUG("[httpUpdate] - code: %d", code);
-    SUPDATE_DEBUG("[httpUpdate] - len: %d", len);
+    SUPDATE_DEBUG("[httpUpdate] Header read fin.\r\n");
+    SUPDATE_DEBUG("[httpUpdate] Server header:\r\n");
+    SUPDATE_DEBUG("[httpUpdate] - code: %d\r\n", code);
+    SUPDATE_DEBUG("[httpUpdate] - len: %d\r\n", len);
 
     if(http.hasHeader("X-Md5")) {
-        SUPDATE_DEBUG("[httpUpdate] - MD5: %s", http.header("X-Md5").c_str());
+        SUPDATE_DEBUG("[httpUpdate] - MD5: %s\r\n", http.header("X-Md5").c_str());
     }
 
     /*
     if(currentVersion && currentVersion[0] != 0x00) {
-        SUPDATE_DEBUG("[httpUpdate]  - current version: %s", currentVersion.c_str() );
+        SUPDATE_DEBUG("[httpUpdate]  - current version: %s\r\n", currentVersion.c_str() );
     }
     */
 
@@ -488,7 +488,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
             if(len > 0) {
                 bool startUpdate = true;
                 if(len > (int) HAL_OTA_FlashLength()) {
-                    SUPDATE_DEBUG("[httpUpdate] FreeSketchSpace to low (%d) needed: %d", HAL_OTA_FlashLength(), len);
+                    SUPDATE_DEBUG("[httpUpdate] FreeSketchSpace to low (%d) needed: %d\r\n", HAL_OTA_FlashLength(), len);
                     startUpdate = false;
                 }
 
@@ -503,21 +503,21 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
 
                     delay(100);
 
-                    SUPDATE_DEBUG("[httpUpdate] runUpdate flash...");
+                    SUPDATE_DEBUG("[httpUpdate] runUpdate flash...\r\n");
 
                     if(runUpdate(*tcp, len, http.header("X-Md5"))) {
                         ret = HTTP_UPDATE_OK;
-                        SUPDATE_DEBUG("[httpUpdate] Update ok");
+                        SUPDATE_DEBUG("[httpUpdate] Update ok\r\n");
                         http.end();
                     } else {
                         ret = HTTP_UPDATE_FAILED;
-                        SUPDATE_DEBUG("[httpUpdate] Update failed");
+                        SUPDATE_DEBUG("[httpUpdate] Update failed\r\n");
                     }
                 }
             } else {
                 _lastError = HTTP_UE_SERVER_NOT_REPORT_SIZE;
                 ret = HTTP_UPDATE_FAILED;
-                SUPDATE_DEBUG("[httpUpdate] Content-Length is 0 or not set by Server?!");
+                SUPDATE_DEBUG("[httpUpdate] Content-Length is 0 or not set by Server?!\r\n");
             }
             break;
         case HTTP_CODE_NOT_MODIFIED:
@@ -535,7 +535,7 @@ HTTPUpdateResult HTTPUpdate::handleUpdate(HTTPClient& http, const String& curren
         default:
             _lastError = HTTP_UE_SERVER_WRONG_HTTP_CODE;
             ret = HTTP_UPDATE_FAILED;
-            SUPDATE_DEBUG("[httpUpdate] HTTP Code is (%d)", code);
+            SUPDATE_DEBUG("[httpUpdate] HTTP Code is (%d)\r\n", code);
             break;
     }
 
@@ -558,7 +558,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.begin failed! (%s)", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.begin failed! (%s)\r\n", error.c_str());
         return false;
     }
 
@@ -569,7 +569,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5)
     if(md5.length()) {
         if(!Update.setMD5(md5.c_str())) {
             _lastError = HTTP_UE_SERVER_FAULTY_MD5;
-            SUPDATE_DEBUG("[httpUpdate] Update.setMD5 failed! (%s)", md5.c_str());
+            SUPDATE_DEBUG("[httpUpdate] Update.setMD5 failed! (%s)\r\n", md5.c_str());
             return false;
         }
     }
@@ -578,7 +578,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.writeStream failed! (%s)", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.writeStream failed! (%s)\r\n", error.c_str());
         return false;
     }
 
@@ -589,7 +589,7 @@ bool HTTPUpdate::runUpdate(Stream& in, uint32_t size, String md5)
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        SUPDATE_DEBUG("[httpUpdate] Update.end failed! (%s)", error.c_str());
+        SUPDATE_DEBUG("[httpUpdate] Update.end failed! (%s)\r\n", error.c_str());
         return false;
     }
 

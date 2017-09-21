@@ -84,7 +84,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
         HAL_InterruptExtraConfiguration* config)
 {
     /* DEBUG("Enter HAL_Interrupt_Attach...\r\n"); */
-    /* DEBUG("Pin: %d", pin); */
+    /* DEBUG("Pin: %d\r\n", pin); */
     uint8_t GPIO_PortSource = 0;    //variable to hold the port number
 
     //Map the pin to the appropriate port and pin on the STM32

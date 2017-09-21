@@ -19,13 +19,12 @@
 
 #include "wiring_cloud.h"
 
-//#ifndef configNO_CLOUD || configNO_LORAWAN
 #if (!defined configNO_CLOUD) || (!defined configNO_LORAWAN)
 
-IntoRobotClass& __fetch_global_intorobot()
+CloudClass& __fetch_global_cloud()
 {
-    static IntoRobotClass _intorobot;
-    return _intorobot;
+    static CloudClass _cloud;
+    return _cloud;
 }
 #endif
 

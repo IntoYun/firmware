@@ -65,14 +65,14 @@ int LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uin
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
     if(loramacStatus != LORAMAC_STATUS_OK) {
-        WLORAWAN_DEBUG("LoRaWan send empty frame");
+        WLORAWAN_DEBUG("LoRaWan send empty frame\r\n");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
         mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
-        // WLORAWAN_DEBUG("LoRaWan send confirmed frame");
+        // WLORAWAN_DEBUG("LoRaWan send confirmed frame\r\n");
         mcpsReq.Type = MCPS_CONFIRMED;
         mcpsReq.Req.Confirmed.fPort = port;
         mcpsReq.Req.Confirmed.fBuffer = buffer;
@@ -82,7 +82,7 @@ int LoRaWanClass::sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uin
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        WLORAWAN_DEBUG("LoRaWan send confirm frame status OK!!!");
+        WLORAWAN_DEBUG("LoRaWan send confirm frame status OK!!!\r\n");
         _macSendStatus = LORAMAC_SENDING;
         INTOROBOT_LORAWAN_RESP_SERVER_ACK = false;
         if(_timeout == 0){
@@ -126,14 +126,14 @@ int LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, u
     LoRaMacStatus_t loramacStatus = LoRaMacQueryTxPossible( len, &txInfo ) ;
 
     if(loramacStatus != LORAMAC_STATUS_OK) {
-        WLORAWAN_DEBUG("LoRaWan send empty frame");
+        WLORAWAN_DEBUG("LoRaWan send empty frame\r\n");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
         mcpsReq.Req.Unconfirmed.Datarate = _macDatarate;
     } else {
-        // WLORAWAN_DEBUG("LoRaWan send unconfirmed frame");
+        // WLORAWAN_DEBUG("LoRaWan send unconfirmed frame\r\n");
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fPort = port;
         mcpsReq.Req.Unconfirmed.fBuffer = buffer;
@@ -142,7 +142,7 @@ int LoRaWanClass::sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, u
     }
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        WLORAWAN_DEBUG("LoRaWan send unnconfirm frame status OK!!!");
+        WLORAWAN_DEBUG("LoRaWan send unnconfirm frame status OK!!!\r\n");
         _macSendStatus = LORAMAC_SENDING;
         INTOROBOT_LORAWAN_RESP_SERVER_ACK = false;
         if(_timeout == 0){

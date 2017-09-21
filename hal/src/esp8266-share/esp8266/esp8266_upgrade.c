@@ -50,7 +50,7 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
             break;
         }
 
-        DEBUG("%x %x\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+        DEBUG("%x %x\r\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
         /* earse sector, just earse when first enter this zone */
         if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
             uint16 lentmp = len;
@@ -61,7 +61,7 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
             }
             upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
             spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
-            DEBUG("%x\n",upgrade->fw_bin_sec_earse);
+            DEBUG("%x\r\n",upgrade->fw_bin_sec_earse);
         }
 
         if (spi_flash_write(upgrade->fw_bin_addr, (uint32 *)upgrade->buffer, len) != SPI_FLASH_RESULT_OK) {
@@ -119,7 +119,7 @@ void ICACHE_FLASH_ATTR system_upgrade_init(void)
         upgrade->fw_bin_sec_num = CACHE_DEFAULT_APP_SEC_NUM;
     }
 #endif
-    DEBUG("sec=%d  sec_num=%d", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
+    DEBUG("sec=%d  sec_num=%d\r\n", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
     upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
 }
 
@@ -185,7 +185,7 @@ void ICACHE_FLASH_ATTR LOCAL upgrade_deinit(void){
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn){
     struct upgrade_server_info *server;
 
-    DEBUG("upgrade_connect_timeout_cb\n");
+    DEBUG("upgrade_connect_timeout_cb\r\n");
     if (pespconn == NULL) {
         return;
     }
@@ -206,7 +206,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn
 
 //下载结果检查
 LOCAL void ICACHE_FLASH_ATTR upgrade_check(struct upgrade_server_info *server){
-    DEBUG("upgrade_check\n");
+    DEBUG("upgrade_check\r\n");
     if (server == NULL) {
         return;
     }
@@ -248,13 +248,13 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 
     //检查返回码
     if (totallength == 0){
-        DEBUG("httpdata:%s\n", pusrdata);
+        DEBUG("httpdata:%s\r\n", pusrdata);
         ptr = (char *)strstr(pusrdata, "HTTP/1.1 ");
         memset(returncode, 0, sizeof(returncode));
         memcpy(returncode, ptr+9, 3);
 
         if(strcmp(returncode ,"200")){ //下载失败
-            DEBUG("http download return code  error\n");
+            DEBUG("http download return code  error\r\n");
             upgrade_check(server);
             return;
         }
@@ -266,7 +266,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
         length -= ptr - pusrdata;
         length -= 4;
         totallength += length;
-        DEBUG("upgrade file download start.\n");
+        DEBUG("upgrade file download start.\r\n");
         MD5Init(&_ctx);
         MD5Update(&_ctx, ptr + 4, length);
         system_upgrade(ptr + 4, length);
@@ -293,7 +293,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 #endif
 
                 if(sumlength >= limit_size){
-                    DEBUG("sumlength failed\n");
+                    DEBUG("sumlength failed\r\n");
                     upgrade_check(server);
                     return;
                 }
@@ -307,26 +307,26 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
                         memset(server->md5, 0, sizeof(server->md5));
                         memcpy(server->md5, ptr, ptmp2 - ptr);
                     } else {
-                        DEBUG("X-Mdt failed\n");
+                        DEBUG("X-Mdt failed\r\n");
                         upgrade_check(server);
                         return;
                     }
                 }
             } else {
-                DEBUG("sumlength failed\n");
+                DEBUG("sumlength failed\r\n");
                 upgrade_check(server);
                 return;
             }
         } else {
             upgrade_check(server);
-            DEBUG("Content-Length: failed\n");
+            DEBUG("Content-Length: failed\r\n");
             return;
         }
     } else {
         if(totallength + length > sumlength)
             {length = sumlength - totallength;}
         totallength += length;
-        DEBUG("totallen = %d\n",totallength);
+        DEBUG("totallen = %d\r\n",totallength);
         MD5Update(&_ctx, pusrdata, length);
         system_upgrade(pusrdata, length);
     }
@@ -344,17 +344,17 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 #endif
 
     if ((totallength == sumlength)) {
-        DEBUG("upgrade file download finished.\n");
+        DEBUG("upgrade file download finished.\r\n");
         MD5Final(md5_calc, &_ctx);
         memset(output, 0, sizeof(output));
         for(i = 0; i < 16; i++)
         {
             sprintf(output + (i * 2), "%02x", md5_calc[i]);
         }
-        DEBUG("md5 = %s\n",output);
-        DEBUG("server->md5 = %s\n",server->md5);
+        DEBUG("md5 = %s\r\n",output);
+        DEBUG("server->md5 = %s\r\n",server->md5);
         if(!strcmp(server->md5,output)){
-            DEBUG("md5 check ok.\n");
+            DEBUG("md5 check ok.\r\n");
             system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
             if (ONLINE_APP_FILE == filetype) {
                 HAL_PARAMS_Set_Boot_ota_app_size(sumlength);
@@ -375,7 +375,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
             upgrade_check(server);
             return;
         }
-        DEBUG("md5 check error.\n");
+        DEBUG("md5 check error.\r\n");
         upgrade_check(server);
         return;
     }
@@ -398,14 +398,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
     struct espconn *pespconn = arg;
 
-    DEBUG("upgrade_connect_cb\n");
+    DEBUG("upgrade_connect_cb\r\n");
     os_timer_disarm(&upgrade_connect_timer);
 
     espconn_regist_disconcb(pespconn, upgrade_disconcb);
     espconn_regist_sentcb(pespconn, upgrade_datasent);
 
     if (pbuf != NULL) {
-        DEBUG("%s\n", pbuf);
+        DEBUG("%s\r\n", pbuf);
         espconn_sent(pespconn, pbuf, strlen(pbuf));
     }
 }
@@ -418,7 +418,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
  * Returns      : none
  *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect(struct upgrade_server_info *server){
-    DEBUG("upgrade_connect\n");
+    DEBUG("upgrade_connect\r\n");
 
     pbuf = server->url;
     espconn_regist_connectcb(upgrade_conn, upgrade_connect_cb);
@@ -446,7 +446,7 @@ bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
         return false;
     }
     if (server == NULL) {
-        DEBUG("server is NULL\n");
+        DEBUG("server is NULL\r\n");
         return false;
     }
     if (upgrade_conn == NULL) {

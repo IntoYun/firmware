@@ -112,7 +112,6 @@ void log_print_(int level, int line, const char *func, const char *file, const c
     {
         debug_output_("...");
     }
-    debug_output_("\r\n");
     va_end(args);
 
     UNLOCK();
@@ -141,7 +140,6 @@ void log_print_simple_(int level, int line, const char *file, const char *msg, .
     {
         debug_output_("...");
     }
-    debug_output_("\r\n");
     va_end(args);
 
     UNLOCK();

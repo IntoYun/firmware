@@ -117,7 +117,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
 
         if(HAL_ADC_Init(&ADC_HandleStruct) != HAL_OK)
         {
-            DEBUG("ADC Initialize Fial !!!");
+            DEBUG("ADC Initialize Fial !!!\r\n");
         }
 
         /* Configure ADC regular channel */
@@ -129,7 +129,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
 
         if(HAL_ADC_ConfigChannel(&ADC_HandleStruct, &ADC_ChannelConfStruct) != HAL_OK)
         {
-            DEBUG("ADC Config Channel Fail");
+            DEBUG("ADC Config Channel Fail\r\n");
         }
     }
 
@@ -138,7 +138,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
     /* Start the conversion process */
     if( HAL_ADC_Start_DMA(&ADC_HandleStruct, (uint32_t*)ADC_ConvertedValues, ADC_DMA_BUFFERSIZE) != HAL_OK)
     {
-        DEBUG("ADC DMA Transmission Fail !!!");
+        DEBUG("ADC DMA Transmission Fail !!!\r\n");
     }
 
     // FIXME: if not DEBUG line below, it will not work right.

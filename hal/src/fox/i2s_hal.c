@@ -182,7 +182,7 @@ void HAL_I2S_Initial(HAL_I2S_Interface i2s)
 {
     if(i2s == HAL_I2S_INTERFACE1)
     {
-        //DEBUG("HAL_I2S_Initial Select I2S1...");
+        //DEBUG("HAL_I2S_Initial Select I2S1...\r\n");
         i2sMap[i2s] = &I2S_MAP[I2S1_GROUP];
     }
     else
@@ -201,7 +201,7 @@ void HAL_I2S_Initial(HAL_I2S_Interface i2s)
 void HAL_I2S_Begin(HAL_I2S_Interface i2s, uint32_t audioFreq)
 {
     #if 0
-    //DEBUG("Enter HAL_I2S_Begin...");
+    //DEBUG("Enter HAL_I2S_Begin...\r\n");
     RCC_PeriphCLKInitTypeDef rcc_ex_clk_init_struct;
     HAL_RCCEx_GetPeriphCLKConfig(&rcc_ex_clk_init_struct);
     rcc_ex_clk_init_struct.PeriphClockSelection = RCC_PERIPHCLK_I2S;//RCC_I2SCLKSOURCE_PLLI2S;//RCC_PERIPHCLK_I2S;//I2S_CLOCK_PLL;//RCC_PERIPHCLK_I2S;//RCC_I2SCLKSOURCE_PLLI2S;// //;

@@ -409,9 +409,9 @@ void TestSX1278Init(void)
     LoRa.radioSetIqInverted(RF_IQ_INVERTED);
 
     sx1278Version = LoRa.radioReadReg(0x42);
-    // DEBUG("sx1278 version = 0x%2x", sx1278Version);
-    // DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
-    // DEBUG("sync data = 0x%2x",LoRa.radioRead(0x39));
+    // DEBUG("sx1278 version = 0x%2x\r\n", sx1278Version);
+    // DEBUG("sx1278 freq = %d\r\n",SX1276LoRaGetRFFrequency());
+    // DEBUG("sync data = 0x%2x\r\n",LoRa.radioRead(0x39));
 
     State = TX_START;
 }
@@ -474,8 +474,8 @@ bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
                         snr = SnrValue;
                         rssi = RssiValue;
                         txRssi = Buffer[1];
-                        // DEBUG("snr = %d",SnrValue);
-                        // DEBUG("rssi = %d",RssiValue);
+                        // DEBUG("snr = %d\r\n",SnrValue);
+                        // DEBUG("rssi = %d\r\n",RssiValue);
                         return true;
                     }
                     else
@@ -496,7 +496,7 @@ void TestOnTxDone( void )
 {
     LoRa.radioSetSleep();
     State = TX_DONE;
-    // DEBUG("tx done");
+    // DEBUG("tx done\r\n");
 }
 
 void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
@@ -508,7 +508,7 @@ void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 
     RssiValue = rssi;
     SnrValue = snr;
-    // DEBUG("rx done");
+    // DEBUG("rx done\r\n");
 
     #if 0
     DEBUG_D("rx data:");
@@ -527,21 +527,21 @@ void TestOnTxTimeout( void )
 {
     LoRa.radioSetSleep();
     State = TX_TIMEOUT;
-    // DEBUG("tx timeout");
+    // DEBUG("tx timeout\r\n");
 }
 
 void TestOnRxTimeout( void )
 {
     LoRa.radioSetSleep();
     State = RX_TIMEOUT;
-    // DEBUG("rx timeout");
+    // DEBUG("rx timeout\r\n");
 }
 
 void TestOnRxError( void )
 {
     LoRa.radioSetSleep();
     State = RX_ERROR;
-    // DEBUG("rx error");
+    // DEBUG("rx error\r\n");
 }
 #endif
 #endif

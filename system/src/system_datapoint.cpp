@@ -690,13 +690,13 @@ int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, cons
 
     //只允许下发
     if ( DP_PERMISSION_DOWN_ONLY == properties[i]->permission ) {
-        SDATAPOINT_DEBUG("only permit cloud -> terminal %d", properties[i]->dpID);
+        SDATAPOINT_DEBUG("only permit cloud -> terminal %d\r\n", properties[i]->dpID);
         return;
     }
 
     //数值未发生变化
     if ( !(properties[i]->change) && (DP_POLICY_ON_CHANGE == properties[i]->policy) ) {
-        SDATAPOINT_DEBUG("No Changes for %d:%d", properties[i]->dpID, value);
+        SDATAPOINT_DEBUG("No Changes for %d:%d\r\n", properties[i]->dpID, value);
         return;
     }
 
