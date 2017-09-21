@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_INTOROBOT_H_
-#define WIRING_INTOROBOT_H_
+#ifndef WIRING_CLOUD_H_
+#define WIRING_CLOUD_H_
 
 #include "intorobot_config.h"
 #include <stdio.h>

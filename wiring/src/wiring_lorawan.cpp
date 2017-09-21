@@ -5,7 +5,7 @@
 #include "system_lorawan.h"
 #include "system_event.h"
 #include "wiring_system.h"
-#include "wiring_intorobot.h"
+#include "wiring_cloud.h"
 #include "string_convert.h"
 #include "service_debug.h"
 

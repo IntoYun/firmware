@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "wiring_intorobot.h"
+#include "wiring_cloud.h"
 
 //#ifndef configNO_CLOUD || configNO_LORAWAN
 #if (!defined configNO_CLOUD) || (!defined configNO_LORAWAN)
