@@ -843,29 +843,29 @@ bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payl
 {
     String fulltopic = "";
     char device_id[38]={0};
-    uint8_t *pdata = malloc(plength + 16);
-    uint16_t dataIndex = 0;
+    uint8_t buffer[1024];
+    uint16_t bufferIndex = 0;
 
-    if(NULL == pdata) {
+    if((plength + 6) > sizeof(buffer)) {
         return false;
     }
 
     g_up_seq_id++;
-    pdata[dataIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
-    pdata[dataIndex++] = ( g_up_seq_id ) & 0xFF;
+    buffer[bufferIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
+    buffer[bufferIndex++] = ( g_up_seq_id ) & 0xFF;
 
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     if(System.featureEnabled(SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED)) {
-        MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &pdata[dataIndex] );
+        MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &buffer[bufferIndex] );
     } else {
-        memcpy(&pdata[dataIndex], payload, plength);
+        memcpy(&buffer[bufferIndex], payload, plength);
     }
-    dataIndex += plength;
-    MqttComputeMic( pdata, dataIndex, g_mqtt_nwkskey, &pdata[dataIndex] );
-    dataIndex += 4;
+    bufferIndex += plength;
+    MqttComputeMic( buffer, bufferIndex, g_mqtt_nwkskey, &buffer[bufferIndex] );
+    bufferIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained));
+    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.publish(fulltopic.c_str(), buffer, bufferIndex, retained));
 }
 
 bool intorobot_subscribe(topic_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
