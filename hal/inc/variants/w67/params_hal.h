@@ -122,8 +122,6 @@ int HAL_PARAMS_Set_System_subsys_ver(const char* buffer);
 
 CONFIG_FLAG_TypeDef HAL_PARAMS_Get_System_config_flag(void);
 int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag);
-uint16_t HAL_PARAMS_Get_System_activation_code(char* buffer, uint16_t len);
-int HAL_PARAMS_Set_System_activation_code(const char* buffer);
 
 uint16_t HAL_PARAMS_Get_System_http_domain(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_http_domain(const char* buffer);

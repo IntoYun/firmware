@@ -58,15 +58,16 @@ typedef enum
 
 typedef enum
 {
-    SYSTEM_FEATURE_SEND_INFO_ENABLED = 0,           //发送设备信息  0:关闭  1:打开
-    SYSTEM_FEATURE_OTA_UPDATE_ENABLED,              //OTA升级       0:关闭  1:打开
-    SYSTEM_FEATURE_CONFIG_SAVE_ENABLED,             //配置模式保存  0:关闭  1:打开
-    SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED,     //自动配置处理  0:关闭  1:打开
-    SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED,           //自动时间同步  0:关闭  1:打开
-    SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED,           //数据协议处理  0:关闭  1:打开
-    SYSTEM_FEATURE_REGISTER_ENABLED,                //设备注册      0:关闭  1:打开
-    SYSTEM_FEATURE_ACTIVATE_ENABLED,                //设备激活      0:关闭  1:打开
-    SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,             //LoRaWan运行   0:关闭  1:打开
+    SYSTEM_FEATURE_SEND_INFO_ENABLED = 0,
+    SYSTEM_FEATURE_OTA_UPDATE_ENABLED,
+    SYSTEM_FEATURE_CONFIG_SAVE_ENABLED,
+    SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED,
+    SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED,
+    SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED,
+    SYSTEM_FEATURE_REGISTER_ENABLED,
+    SYSTEM_FEATURE_ACTIVATE_ENABLED,
+    SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,
+    SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED,
     SYSTEM_FEATURE_MAX
 } system_feature_t;
 
@@ -90,7 +91,8 @@ public:
         feature_data_protocol_enable = true;        //数据协议处理  0:关闭  1:打开
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_activater_enable = true;            //设备激活      0:关闭  1:打开
-        feature_loramac_run_enable = true;
+        feature_loramac_run_enable = true;          //LoRaWan运行   0:关闭  1:打开
+        feature_cloud_data_encrypt_enable = true;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
     }
     ~IntoRobotProduct(){}
 
@@ -187,31 +189,31 @@ public:
     bool get_system_feature(system_feature_t feature) {
         switch(feature) {
             case SYSTEM_FEATURE_SEND_INFO_ENABLED:
-                return feature_send_info_enable;            //发送设备信息  0:关闭  1:打开
+                return feature_send_info_enable;
                 break;
             case SYSTEM_FEATURE_OTA_UPDATE_ENABLED:
-                return feature_ota_update_enable;           //OTA升级       0:关闭  1:打开
+                return feature_ota_update_enable;
                 break;
             case SYSTEM_FEATURE_CONFIG_SAVE_ENABLED:
-                return feature_config_save_enable;          //配置模式保存  0:关闭  1:打开
+                return feature_config_save_enable;
                 break;
             case SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED:
-                return feature_auto_config_process_enable;  //配置自动处理  0:关闭  1:打开
+                return feature_auto_config_process_enable;
                 break;
             case SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED:
-                return feature_auto_time_syn_enable;        //自动时间同步  0:关闭  1:打开
+                return feature_auto_time_syn_enable;
                 break;
             case SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED:
-                return feature_data_protocol_enable;        //数据协议处理    0:关闭  1:打开
+                return feature_data_protocol_enable;
                 break;
             case SYSTEM_FEATURE_REGISTER_ENABLED:
-                return feature_register_enable;             //设备注册      0:关闭  1:打开
-                break;
-            case SYSTEM_FEATURE_ACTIVATE_ENABLED:
-                return feature_activater_enable;            //设备激活      0:关闭  1:打开
+                return feature_register_enable;
                 break;
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
                 return feature_loramac_run_enable;
+                break;
+            case SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED:
+                return feature_cloud_data_encrypt_enable;
                 break;
             default:
                 break;
@@ -222,31 +224,31 @@ public:
     int set_system_feature(system_feature_t feature, bool enabled) {
         switch(feature) {
             case SYSTEM_FEATURE_SEND_INFO_ENABLED:
-                feature_send_info_enable = enabled;            //发送设备信息  0:关闭  1:打开
+                feature_send_info_enable = enabled;
                 break;
             case SYSTEM_FEATURE_OTA_UPDATE_ENABLED:
-                feature_ota_update_enable = enabled;           //OTA升级       0:关闭  1:打开
+                feature_ota_update_enable = enabled;
                 break;
             case SYSTEM_FEATURE_CONFIG_SAVE_ENABLED:
-                feature_config_save_enable = enabled;          //配置模式保存  0:关闭  1:打开
+                feature_config_save_enable = enabled;
                 break;
             case SYSTEM_FEATURE_AUTO_CONFIG_PROCESS_ENABLED:
-                feature_auto_config_process_enable = enabled;  //配置自动处理  0:关闭  1:打开
+                feature_auto_config_process_enable = enabled;
                 break;
             case SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED:
-                feature_auto_time_syn_enable = enabled;        //自动时间同步  0:关闭  1:打开
+                feature_auto_time_syn_enable = enabled;
                 break;
             case SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED:
-                feature_data_protocol_enable = enabled;        //数据协议处理    0:关闭  1:打开
+                feature_data_protocol_enable = enabled;
                 break;
             case SYSTEM_FEATURE_REGISTER_ENABLED:
-                feature_register_enable = enabled;             //设备注册      0:关闭  1:打开
-                break;
-            case SYSTEM_FEATURE_ACTIVATE_ENABLED:
-                feature_activater_enable = enabled;            //设备激活      0:关闭  1:打开
+                feature_register_enable = enabled;
                 break;
             case SYSTEM_FEATURE_LORAMAC_RUN_ENABLED:
-                feature_loramac_run_enable = enabled;    //loramac是否自动激活   0:关闭  1:打开
+                feature_loramac_run_enable = enabled;
+                break;
+            case SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED:
+                feature_cloud_data_encrypt_enable = enabled;
                 break;
             default:
                 break;
@@ -271,7 +273,8 @@ private:
     bool feature_data_protocol_enable;        //数据协议处理  0:关闭  1:打开
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
     bool feature_activater_enable;            //设备激活      0:关闭  1:打开
-    bool feature_loramac_run_enable;
+    bool feature_loramac_run_enable;          //loramac是否自动激活   0:关闭  1:打开
+    bool feature_cloud_data_encrypt_enable;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
 };
 
 extern IntoRobotProduct &system_product_instance(void);

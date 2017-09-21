@@ -212,14 +212,12 @@ int mac_str_to_bin( char *str, unsigned char *mac)
     int i;
     char *s, *e;
 
-    if ((mac == NULL) || (str == NULL))
-    {
+    if ((mac == NULL) || (str == NULL)) {
         return -1;
     }
 
     s = (char *) str;
-    for (i = 0; i < 6; ++i)
-    {
+    for (i = 0; i < 6; ++i) {
         mac[i] = s ? strtoul (s, &e, 16) : 0;
         if (s)
            s = (*e) ? e + 1 : e;
@@ -231,7 +229,7 @@ static inline char ascii_nibble(uint8_t nibble)
 {
     char hex_digit = nibble + 48;
     if (57 < hex_digit)
-        hex_digit += 7;
+        hex_digit += 39;
     return hex_digit;
 }
 
@@ -261,13 +259,11 @@ uint16_t string2hex(char *src, uint8_t *dest, uint16_t destlen, bool reverse)
     }
 
     if(false == reverse) {
-        for(index = 0, n = 0; (index < srclen)&&(n <= destlen); index += 2)
-        {
+        for(index = 0, n = 0; (index < srclen)&&(n <= destlen); index += 2) {
             dest[n++] = hex_nibble(src[index]) << 4 | hex_nibble(src[index+1]);
         }
     } else {
-        for(index = srclen-2, n = 0; (index >= 0)&&(n <= destlen); index -= 2)
-        {
+        for(index = srclen-2, n = 0; (index >= 0)&&(n <= destlen); index -= 2) {
             dest[n++] = hex_nibble(src[index]) << 4 | hex_nibble(src[index+1]);
         }
     }
@@ -280,14 +276,12 @@ char *hex2string(uint8_t *src, uint16_t srclen, char *dest, bool reverse)
 
     char* result = dest;
     if(false == reverse) {
-        for(index = 0, n = 0; index < srclen; index++)
-        {
+        for(index = 0, n = 0; index < srclen; index++) {
             dest[n++] = ascii_nibble(src[index] >> 4);
             dest[n++] = ascii_nibble(src[index] & 0xF);
         }
     } else {
-        for(index = srclen-1, n = 0; index >= 0; index--)
-        {
+        for(index = srclen-1, n = 0; index >= 0; index--) {
             dest[n++] = ascii_nibble(src[index] >> 4);
             dest[n++] = ascii_nibble(src[index] & 0xF);
         }

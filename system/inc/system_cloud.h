@@ -123,8 +123,7 @@ bool intorobot_cloud_flag_auto_connect();
 String intorobot_deviceID(void);
 void intorobot_process(void);
 bool intorobot_sync_time(void);
-bool intorobot_device_register(char *prodcut_id, char *signature);
-bool intorobot_device_activate(void);
+bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature);
 bool intorobot_get_version(String &body);
 void cloud_disconnect(bool closeSocket=true);
 

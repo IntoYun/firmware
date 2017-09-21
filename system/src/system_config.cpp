@@ -520,24 +520,10 @@ void DeviceConfig::dealSetSecurity(aJsonObject* value_Object)
     aJsonObject *atModeObject = aJson.getObjectItem(value_Object, "at_mode");
     if (atModeObject != NULL) {
 #if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
-        aJsonObject *activationCodeObject = aJson.getObjectItem(value_Object, "activation_code");
         aJsonObject *accessTokenObject = aJson.getObjectItem(value_Object, "access_token");
         if(AT_MODE_FLAG_ABP == atModeObject->valueint) {
             if (deviceIdObject != NULL && accessTokenObject != NULL) {
                 HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-                HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
-                flag = true;
-            }
-        } else if(AT_MODE_FLAG_OTAA_INACTIVE == atModeObject->valueint) {
-            if (deviceIdObject != NULL && activationCodeObject != NULL) {
-                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
-                flag = true;
-            }
-        } else if(AT_MODE_FLAG_OTAA_ACTIVE == atModeObject->valueint) {
-            if (deviceIdObject != NULL && activationCodeObject != NULL && accessTokenObject != NULL) {
-                HAL_PARAMS_Set_System_device_id(deviceIdObject->valuestring);
-                HAL_PARAMS_Set_System_activation_code(activationCodeObject->valuestring);
                 HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
                 flag = true;
             }
