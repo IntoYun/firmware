@@ -5,8 +5,6 @@
 #include "boot_debug.h"
 
 
-#define ESP8266_GPIO0_GPIO_PIN          GPIO_PIN_3
-#define ESP8266_GPIO0_GPIO_PORT         GPIOB
 #define ESP8266_EN_GPIO_PIN             GPIO_PIN_9
 #define ESP8266_EN_GPIO_PORT            GPIOA
 #define ESP8266_RST_GPIO_PIN            GPIO_PIN_10
@@ -109,13 +107,6 @@ void ESP8266_GPIO_Initial(void)
 {
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    //ESP8266_GPIO0
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitStruct.Pin = ESP8266_GPIO0_GPIO_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(ESP8266_GPIO0_GPIO_PORT, &GPIO_InitStruct);
     //ESP8266_EN
     __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitStruct.Pin = ESP8266_EN_GPIO_PIN;
@@ -143,7 +134,6 @@ void ESP8266_GPIO_Initial(void)
 void Esp8266_Reset(void)
 {
     HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(200);
     HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
@@ -166,22 +156,28 @@ void HAL_System_Config(void)
 
 void Esp8266_Enter_UpdateMode(void)
 {
+    GPIO_InitTypeDef  GPIO_InitStruct;
+
     HAL_NVIC_DisableIRQ(USART2_IRQn);
     sdkReleaseQueue(&USART_Esp8266_Queue);
 
+    //ESP8266_USART
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    GPIO_InitTypeDef  GPIO_InitStruct;
     GPIO_InitStruct.Pin       = GPIO_PIN_2 | GPIO_PIN_3;
     GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull      = GPIO_NOPULL;
     GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    //ESP8266_RST
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    GPIO_InitStruct.Pin       = ESP8266_RST_GPIO_PIN;
+    GPIO_InitStruct.Mode      = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(ESP8266_RST_GPIO_PORT, &GPIO_InitStruct);
+
     HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
-    HAL_Delay(200);
-    HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
 }
 
 system_tick_t millis(void)

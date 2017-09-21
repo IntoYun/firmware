@@ -171,6 +171,7 @@ int main(void)
     BOOT_DEBUG("start app\r\n");
     HAL_UI_UserLED_Control(0);
 
+    //Enter_Flash_Test();
     start_app();
     return 0;
 }

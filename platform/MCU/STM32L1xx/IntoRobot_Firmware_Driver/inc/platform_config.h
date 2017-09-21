@@ -42,53 +42,6 @@
 
 /* Exported macro ------------------------------------------------------------*/
 
-//LEDs
-#define LEDn                                4
-#define LED1_GPIO_AF_TIM                    0                       //User Led
-#define LED1_GPIO_PIN                       GPIO_Pin_13             //User Led
-#define LED1_GPIO_PIN_SOURCE                GPIO_PinSource13        //User Led
-#define LED1_GPIO_PORT                      GPIOA                   //User Led
-#define LED1_GPIO_CLK                       RCC_AHB1Periph_GPIOA    //User Led
-#define LED2_GPIO_AF_TIM                    GPIO_AF_TIM2            //BLUE Led
-#define LED2_GPIO_PIN                       GPIO_Pin_3              //BLUE Led
-#define LED2_GPIO_PIN_SOURCE                GPIO_PinSource3         //BLUE Led
-#define LED2_GPIO_PORT                      GPIOA                   //BLUE Led
-#define LED2_GPIO_CLK                       RCC_AHB1Periph_GPIOA    //BLUE Led
-#define LED3_GPIO_AF_TIM                    GPIO_AF_TIM2            //RED Led
-#define LED3_GPIO_PIN                       GPIO_Pin_1              //RED Led
-#define LED3_GPIO_PIN_SOURCE                GPIO_PinSource1         //RED Led
-#define LED3_GPIO_PORT                      GPIOA                   //RED Led
-#define LED3_GPIO_CLK                       RCC_AHB1Periph_GPIOA    //RED Led
-#define LED4_GPIO_AF_TIM                    GPIO_AF_TIM2            //GREEN Led
-#define LED4_GPIO_PIN                       GPIO_Pin_2              //GREEN Led
-#define LED4_GPIO_PIN_SOURCE                GPIO_PinSource2         //GREEN Led
-#define LED4_GPIO_PORT                      GPIOA                   //GREEN Led
-#define LED4_GPIO_CLK                       RCC_AHB1Periph_GPIOA    //GREEN Led
-#if   PLATFORM_TEACUP_PIGTAIL_DEV == PLATFORM_ID
-//On Pigtail board with BM-14, RGB lines are reversed
-#define RGB_LINES_REVERSED
-#endif
-
-//Push Buttons
-#define BUTTONn                             1
-#define BUTTON1_GPIO_PIN                    GPIO_Pin_7
-#define BUTTON1_GPIO_PORT                   GPIOC
-#define BUTTON1_GPIO_CLK                    RCC_AHB1Periph_GPIOC
-#define BUTTON1_GPIO_MODE                   GPIO_Mode_IN
-#define BUTTON1_GPIO_PUPD                   GPIO_PuPd_UP
-#define BUTTON1_PRESSED                     0x00
-#define BUTTON1_EXTI_LINE                   EXTI_Line7
-#define BUTTON1_EXTI_PORT_SOURCE            EXTI_PortSourceGPIOC
-#define BUTTON1_EXTI_PIN_SOURCE             EXTI_PinSource7
-#define BUTTON1_EXTI_IRQn                   EXTI9_5_IRQn
-#define BUTTON1_EXTI_IRQ_HANDLER            EXTI9_5_IRQHandler
-#define BUTTON1_EXTI_IRQ_PRIORITY           7
-#define BUTTON1_EXTI_IRQ_INDEX              39
-#define BUTTON1_EXTI_TRIGGER                EXTI_Trigger_Falling
-
-#define UI_TIMER_FREQUENCY                  100	/* 100Hz -> 10ms */
-#define BUTTON_DEBOUNCE_INTERVAL            1000 / UI_TIMER_FREQUENCY
-
 #if PLATFORM_GPRS == PLATFORM_ID
     #define HAS_SERIAL_FLASH
     #define USE_SERIAL_FLASH

@@ -57,8 +57,6 @@ extern "C"
 
 /* Private define -----------------------------------------------------------*/
 /* Private macro ------------------------------------------------------------*/
-#define ESP8266_GPIO0_GPIO_PIN          GPIO_PIN_3
-#define ESP8266_GPIO0_GPIO_PORT         GPIOB
 #define ESP8266_EN_GPIO_PIN             GPIO_PIN_9
 #define ESP8266_EN_GPIO_PORT            GPIOA
 #define ESP8266_RST_GPIO_PIN            GPIO_PIN_10
@@ -342,13 +340,6 @@ void MDMParser::reset(void)
 
     GPIO_InitTypeDef   GPIO_InitStruct;
 
-    //ESP8266_GPIO0
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitStruct.Pin = ESP8266_GPIO0_GPIO_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init(ESP8266_GPIO0_GPIO_PORT, &GPIO_InitStruct);
     //ESP8266_EN
     __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitStruct.Pin = ESP8266_EN_GPIO_PIN;
@@ -373,7 +364,6 @@ void MDMParser::reset(void)
     HAL_GPIO_WritePin(SIM800C_PWR_EN_GPIO_PORT, SIM800C_PWR_EN_GPIO_PIN, GPIO_PIN_RESET);
 
     HAL_GPIO_WritePin(ESP8266_EN_GPIO_PORT, ESP8266_EN_GPIO_PIN, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(ESP8266_GPIO0_GPIO_PORT, ESP8266_GPIO0_GPIO_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_RESET);
     HAL_Delay(200);
     HAL_GPIO_WritePin(ESP8266_RST_GPIO_PORT, ESP8266_RST_GPIO_PIN, GPIO_PIN_SET);
