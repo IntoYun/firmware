@@ -39,7 +39,7 @@
 #include "service_debug.h"
 #include "wiring_network.h"
 #include "wiring_constants.h"
-#include "wiring_intorobot.h"
+#include "wiring_cloud.h"
 #include "system_threading.h"
 #include "system_product.h"
 #include "system_lorawan.h"
