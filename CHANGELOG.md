@@ -1,3 +1,22 @@
+## v1.6.4-rc.1
+
+
+### FEATURES(功能)
+- [[PR #113]](https://github.com/HITSZ-NRSL/firmware/pull/113) 添加GL2000和GL2100设备类型
+- [[PR #114]](https://github.com/HITSZ-NRSL/firmware/pull/114) mqtt接入添加加密方式。去掉activation_code。
+
+
+### ENHANCEMENTS(优化)
+- [[PR #115]](https://github.com/HITSZ-NRSL/firmware/pull/115) 数据点定义去掉发送策略，简化用户接口。
+
+
+### BUG FIXES(漏洞修复)
+
+
+### INTERNAL(内部)
+
+
+
 ## v1.6.3-rc.1
 
 

@@ -44,6 +44,7 @@
 #endif
 
 volatile datapoint_control_t g_datapoint_control = {DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL, 0};
+int intorobotSendAllDatapoint(void);
 
 property_conf_t *properties[PROPERTIES_MAX];
 int properties_count = 0;
@@ -341,7 +342,7 @@ read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_
     return readResult;
 }
 
-// type   0: 平台控制写数据   1：用户写数据
+// type   0: 平台控制写缓冲区数据   1：用户写缓冲区数据
 void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type )
 {
     int i = intorobotDiscoverProperty(dpID);
@@ -354,11 +355,10 @@ void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const ui
 
     if(DATA_TYPE_BINARY == properties[i]->dataType) {
         if(memcmp(properties[i]->valueBinary.value, value, len)) {
+            properties[i]->change = true;
             if(type) { //用户操作
-                properties[i]->change = true;
                 properties[i]->readFlag = RESULT_DATAPOINT_OLD;
             } else {
-                properties[i]->change = true;
                 properties[i]->readFlag = RESULT_DATAPOINT_NEW;
             }
 
@@ -403,10 +403,11 @@ void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const ui
             }
             properties[i]->value = valueTemp;
         } else {
-            properties[i]->change = false;
             if(type) { //用户操作
+                properties[i]->change = false;
                 properties[i]->readFlag = RESULT_DATAPOINT_OLD;
             } else {
+                properties[i]->change = true;
                 properties[i]->readFlag = RESULT_DATAPOINT_NEW;
             }
         }
@@ -673,7 +674,7 @@ static int _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed
 }
 
 //datepoint process
-int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
+static int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
 {
     int i = intorobotDiscoverProperty(dpID);
 
@@ -719,7 +720,7 @@ int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, cons
     return false;
 }
 
-int intorobotSendAllDatapoint(void)
+static int intorobotSendAllDatapoint(void)
 {
     uint8_t buffer[512];
     uint16_t index = 0;
