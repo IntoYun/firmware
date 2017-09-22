@@ -152,7 +152,7 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetDate failed!");
+        DEBUG("RTC Set_UnixTime SetDate failed!\r\n");
     }
 
     /*##-2- Configure the Time #################################################*/
@@ -166,7 +166,7 @@ void HAL_RTC_Set_UnixTime(time_t value)
 
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetTime failed!");
+        DEBUG("RTC Set_UnixTime SetTime failed!\r\n");
     }
     #endif
 }
@@ -886,7 +886,7 @@ void RTC_Alarm_IRQ( void )
 
 static void McuEnterStopMode(void)
 {
-    DEBUG("mcu into stop");
+    DEBUG("mcu into stop\r\n");
     GPIO_InitTypeDef GPIO_InitStructure = {0};
 
     /* Enable GPIOs clock */
@@ -943,7 +943,7 @@ void BoardInitMcu(void)
 
 static void SlaveMcuEnterStopMcu(void)
 {
-    DEBUG("mcu into stop");
+    DEBUG("mcu into stop\r\n");
     GPIO_InitTypeDef GPIO_InitStructure = {0};
 
     /* Enable GPIOs clock */

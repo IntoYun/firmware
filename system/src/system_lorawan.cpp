@@ -129,7 +129,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             {
                 // Check Datarate
                 // Check TxPower
-                // DEBUG("mcpsConfirm->MCPS_UNCONFIRMED");
+                // DEBUG("mcpsConfirm->MCPS_UNCONFIRMED\r\n");
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_unconfirmed;
@@ -144,7 +144,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check TxPower
                 // Check AckReceived
                 // Check NbTrials
-                // DEBUG("mcpsConfirm->MCPS_CONFIRMED");
+                // DEBUG("mcpsConfirm->MCPS_CONFIRMED\r\n");
                 LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                 LoRaWan._txPower = mcpsConfirm->TxPower;
                 LoRaWan._ackReceived = mcpsConfirm->AckReceived;
@@ -216,12 +216,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         case MCPS_UNCONFIRMED:
         {
-            // DEBUG("mcpsIndication->MCPS_UNCONFIRMED");
+            // DEBUG("mcpsIndication->MCPS_UNCONFIRMED\r\n");
             break;
         }
         case MCPS_CONFIRMED:
         {
-            // DEBUG("mcpsIndication->MCPS_CONFIRMED");
+            // DEBUG("mcpsIndication->MCPS_CONFIRMED\r\n");
             LoRaWanOnEvent(LORAWAN_EVENT_MCPSINDICATION_CONFIRMED);
             break;
         }
@@ -352,10 +352,10 @@ void LoRaWanPause(void)
     enable_irq( );
     Radio.SetModem( MODEM_LORA );
 
-    DEBUG("lora radio init!!!");
-    DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
-    DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
+    DEBUG("lora radio init!!!\r\n");
+    DEBUG("sync word = 0x%x\r\n",SX1276Read(0x39));
+    DEBUG("sx1278 version = 0x%x\r\n", SX1276GetVersion());
+    DEBUG("sx1278 freq = %d\r\n",SX1276LoRaGetRFFrequency());
 }
 
 void LoRaWanResume(void)
@@ -368,10 +368,10 @@ void LoRaWanResume(void)
     LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
     LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
 
-    DEBUG("loramac init!!!");
-    DEBUG("sync word = 0x%x",SX1276Read(0x39));
-    DEBUG("sx1278 version = 0x%x", SX1276GetVersion());
-    DEBUG("sx1278 freq = %d",SX1276LoRaGetRFFrequency());
+    DEBUG("loramac init!!!\r\n");
+    DEBUG("sync word = 0x%x\r\n",SX1276Read(0x39));
+    DEBUG("sx1278 version = 0x%x\r\n", SX1276GetVersion());
+    DEBUG("sx1278 freq = %d\r\n",SX1276LoRaGetRFFrequency());
 
     MibRequestConfirm_t mibReq;
 
@@ -420,7 +420,7 @@ bool LoRaWanJoinABP(void)
     string2hex(appskey, LoRaWan.macParams.appSkey, 16, false);
 
 #if 0
-    SLORAWAN_DEBUG("devAddr: 0x%x", LoRaWan.macParams.devAddr);
+    SLORAWAN_DEBUG("devAddr: 0x%x\r\n", LoRaWan.macParams.devAddr);
     SLORAWAN_DEBUG("nwkSkey:");
     SLORAWAN_DEBUG_DUMP(LoRaWan.macParams.nwkSkey, 16);
     SLORAWAN_DEBUG("appSkey:");
@@ -493,7 +493,7 @@ void LoRaWanRespondServerConfirmedFrame(void)
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
     {
-        SLORAWAN_DEBUG("LoRaWan send empty frame status OK!!!");
+        SLORAWAN_DEBUG("LoRaWan send empty frame status OK!!!\r\n");
     }
 }
 
@@ -509,7 +509,7 @@ bool intorobot_lorawan_flag_connected(void)
 void intorobot_lorawan_send_terminal_info(void)
 {
     if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
-        SLORAWAN_DEBUG("---------lorawan send termianal info--------");
+        SLORAWAN_DEBUG("---------lorawan send termianal info--------\r\n");
         int32_t index = 0, len = 0;
         uint8_t buffer[256] = {0};
         char temp[32] = {0};
@@ -556,9 +556,9 @@ void intorobot_lorawan_send_terminal_info(void)
             INTOROBOT_LORAWAN_SEND_INFO = false;
             LoRaWan._macRunStatus = ep_lorawan_join_success;
             system_notify_event(event_lorawan_status,ep_lorawan_join_success);
-            DEBUG("termianal info send ok");
+            DEBUG("termianal info send ok\r\n");
         }else{
-            DEBUG("termianal info send fail");
+            DEBUG("termianal info send fail\r\n");
             INTOROBOT_LORAWAN_SEND_INFO = false;
         }
     }else{
@@ -602,18 +602,18 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
                 HAL_PARAMS_Save_Params();
 
-                SLORAWAN_DEBUG("devaddr: %s", devaddr);
-                SLORAWAN_DEBUG("nwkskey: %s", nwkskey);
-                SLORAWAN_DEBUG("appskey: %s", appskey);
+                SLORAWAN_DEBUG("devaddr: %s\r\n", devaddr);
+                SLORAWAN_DEBUG("nwkskey: %s\r\n", nwkskey);
+                SLORAWAN_DEBUG("appskey: %s\r\n", appskey);
                 INTOROBOT_LORAWAN_JOINED = true;
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-                SLORAWAN_DEBUG("--LoRaWanOnEvent joined--");
+                SLORAWAN_DEBUG("--LoRaWanOnEvent joined--\r\n");
             }
             break;
 
         case LORAWAN_EVENT_JOIN_FAIL:
             INTOROBOT_LORAWAN_JOINING = false;
-            SLORAWAN_DEBUG("--LoRaWanOnEvent join failed--");
+            SLORAWAN_DEBUG("--LoRaWanOnEvent join failed--\r\n");
             break;
 
         case LORAWAN_EVENT_RX_COMPLETE:
@@ -636,13 +636,13 @@ void LoRaWanOnEvent(lorawan_event_t event)
                         default:
                             break;
                     }
-                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--");
+                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--\r\n");
                 }
             }
             break;
 
         case LORAWAN_EVENT_MCPSINDICATION_CONFIRMED:
-            SLORAWAN_DEBUG("LoRaWanOnEvent Respond Server ACK");
+            SLORAWAN_DEBUG("LoRaWanOnEvent Respond Server ACK\r\n");
             if(LoRaWan.getMacClassType() == CLASS_C){
                 INTOROBOT_LORAWAN_RESP_SERVER_ACK = true;
                 LoRaWanRespondServerConfirmedFrame();

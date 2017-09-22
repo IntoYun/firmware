@@ -94,7 +94,7 @@ static volatile uint32_t gprs_timeout_duration;
 inline void ARM_GPRS_TIMEOUT(uint32_t dur) {
     gprs_timeout_start = HAL_Timer_Get_Milli_Seconds();
     gprs_timeout_duration = dur;
-    DEBUG("GPRS WD Set %d",(dur));
+    DEBUG("GPRS WD Set %d\r\n",(dur));
 }
 inline bool IS_GPRS_TIMEOUT() {
     return gprs_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-gprs_timeout_start)>gprs_timeout_duration);
@@ -102,7 +102,7 @@ inline bool IS_GPRS_TIMEOUT() {
 
 inline void CLR_GPRS_TIMEOUT() {
     gprs_timeout_duration = 0;
-    DEBUG("GPRS WD Cleared, was %d", gprs_timeout_duration);
+    DEBUG("GPRS WD Cleared, was %d\r\n", gprs_timeout_duration);
 }
 
 #ifdef MDM_DEBUG

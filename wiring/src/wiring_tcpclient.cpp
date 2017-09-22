@@ -69,7 +69,7 @@ int TCPClient::connect(const char* host, uint16_t port, network_interface_t nif)
             return connect(ip_addr, port, nif);
         }
         else{
-            WTCPCLIENT_DEBUG("tcp connect: unable to get IP for hostname");
+            WTCPCLIENT_DEBUG("tcp connect: unable to get IP for hostname\r\n");
         }
     }
     return rv;
@@ -101,11 +101,11 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
             _remoteIP = ip;
             if(connected)
             {
-                WTCPCLIENT_DEBUG("tcp connect success! create socket %d", _sock);
+                WTCPCLIENT_DEBUG("tcp connect success! create socket %d\r\n", _sock);
             }
             else
             {
-                WTCPCLIENT_DEBUG("tcp connect failed!");
+                WTCPCLIENT_DEBUG("tcp connect failed!\r\n");
                 stop();
             }
         }
@@ -146,7 +146,7 @@ int TCPClient::available()
             int ret = socket_receive(_sock, _buffer + _total , arraySize(_buffer)-_total, 0);
             if (ret > 0)
             {
-                WTCPCLIENT_DEBUG("tcp receive data %d", ret);
+                WTCPCLIENT_DEBUG("tcp receive data %d\r\n", ret);
                 if (_total == 0) _offset = 0;
                 _total += ret;
             }
@@ -193,7 +193,7 @@ void TCPClient::flush()
 
 void TCPClient::stop()
 {
-    WTCPCLIENT_DEBUG("tcp stop! close socket %d", _sock);
+    WTCPCLIENT_DEBUG("tcp stop! close socket %d\r\n", _sock);
     if (isOpen(_sock))
         socket_close(_sock);
     _sock = socket_handle_invalid();
@@ -210,7 +210,7 @@ uint8_t TCPClient::connected()
     {
         rv = available(); // Try CC3000
         if (!rv) {        // No more Data and CLOSE_WAIT
-            // DEBUG("caling Stop No more Data and in CLOSE_WAIT");
+            // DEBUG("caling Stop No more Data and in CLOSE_WAIT\r\n");
             stop();       // Close our side
         }
     }

@@ -157,7 +157,7 @@ public:
 
     void connect(bool listen_enabled=true) override
     {
-        SNETWORK_DEBUG("ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
+        SNETWORK_DEBUG("ready(): %d; connecting(): %d\r\n", (int)ready(), (int)connecting());
         if (!ready() && !connecting()) {
             bool was_sleeping = INTOROBOT_WLAN_SLEEP;
 
@@ -174,7 +174,7 @@ public:
                 }
             } else {
                 WLAN_CONNECTING = 1;
-                SNETWORK_DEBUG("ARM_WLAN_WD 1");
+                SNETWORK_DEBUG("ARM_WLAN_WD 1\r\n");
                 ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
                 system_notify_event(event_network_status, ep_network_status_connecting);
                 connect_finalize();
@@ -261,7 +261,7 @@ public:
          * from WICED on loss of internet and reconnect
          */
         if (!WLAN_DISCONNECT && !WLAN_DHCP) {
-            SNETWORK_DEBUG("ARM_WLAN_WD 2");
+            SNETWORK_DEBUG("ARM_WLAN_WD 2\r\n");
             ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
         }
         //system_notify_event(event_network_status, ep_network_status_connected);
@@ -274,7 +274,7 @@ public:
             //Breathe blue if established connection gets disconnected
             if (!WLAN_DISCONNECT) {
                 //if WiFi.disconnect called, do not enable wlan watchdog
-                SNETWORK_DEBUG("ARM_WLAN_WD 3");
+                SNETWORK_DEBUG("ARM_WLAN_WD 3\r\n");
                 ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
             }
         }
@@ -288,7 +288,7 @@ public:
     {
         WLAN_CONNECTING = 0;
         if (dhcp) {
-            SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success");
+            SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success\r\n");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
             update_config(true);
@@ -296,7 +296,7 @@ public:
         } else {
             config_clear();
             WLAN_DHCP = 0;
-            SNETWORK_DEBUG("DHCP fail, ARM_WLAN_WD 5");
+            SNETWORK_DEBUG("DHCP fail, ARM_WLAN_WD 5\r\n");
             ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
             system_notify_event(event_network_status, ep_network_status_disconnected);
         }

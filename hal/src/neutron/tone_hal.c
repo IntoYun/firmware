@@ -35,7 +35,7 @@ TIM_HandleTypeDef TimHandleTone;
  */
 void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
 {
-    DEBUG("Enter HAL_Tone_Start ...");
+    DEBUG("Enter HAL_Tone_Start ...\r\n");
     if(frequency < 20 || frequency > 20000)
     {
         return;//no tone for frequency outside of human audible range
@@ -53,7 +53,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         // else if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         {
-            DEBUG("Tone TIM2  Configuration...");
+            DEBUG("Tone TIM2  Configuration...\r\n");
             __HAL_RCC_TIM2_CLK_ENABLE();
 
             GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
@@ -87,7 +87,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
             else if(pin == A6)
                 PIN_MAP[D2].timer_ccr = 0;
 
-            DEBUG("Tone TIM3  Configuration...");
+            DEBUG("Tone TIM3  Configuration...\r\n");
             __HAL_RCC_TIM3_CLK_ENABLE();
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
@@ -110,7 +110,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM4) )
         {
-            DEBUG("Tone TIM4  Configuration...");
+            DEBUG("Tone TIM4  Configuration...\r\n");
             __HAL_RCC_TIM4_CLK_ENABLE();
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
@@ -132,7 +132,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM5) )
         {
-            DEBUG("Tone TIM5  Configuration...");
+            DEBUG("Tone TIM5  Configuration...\r\n");
             __HAL_RCC_TIM5_CLK_ENABLE();
 
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
@@ -166,8 +166,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         {
             timer_channel_toggle_count = 2 * frequency * duration / 1000; // Change to seconds.
         }
-        DEBUG("Tone TIM_Prescaler: %d", TIM_Prescaler);
-        DEBUG("Tone TIM_CCR: %d", TIM_CCR);
+        DEBUG("Tone TIM_Prescaler: %d\r\n", TIM_Prescaler);
+        DEBUG("Tone TIM_CCR: %d\r\n", TIM_CCR);
 
         PIN_MAP[pin].timer_ccr = TIM_CCR;
         PIN_MAP[pin].user_property = timer_channel_toggle_count;
@@ -191,20 +191,20 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         if (HAL_TIM_OC_ConfigChannel(&TimHandleTone, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            DEBUG("TIM OC CconfigChannel Error");
+            DEBUG("TIM OC CconfigChannel Error\r\n");
         }
 
         /* Start channel */
         if (HAL_TIM_OC_Start_IT(&TimHandleTone, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             //Error_Handler();
-            DEBUG("TIM OC Start IT Error");
+            DEBUG("TIM OC Start IT Error\r\n");
         }
     }
     else
     {
         // Error
-        DEBUG("The Tone First Error");
+        DEBUG("The Tone First Error\r\n");
     }
 }
 

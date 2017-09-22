@@ -69,7 +69,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
-        DEBUG("RCCEx_PeriphCLKConfig Error");
+        DEBUG("RCCEx_PeriphCLKConfig Error\r\n");
     }
     /*##-2- Enable RTC peripheral Clocks #######################################*/
     /* Enable RTC Clock */
@@ -77,7 +77,7 @@ void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
     /*##-3- Configure the NVIC for RTC Alarm ###################################*/
     HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 0x0F, 0);
     HAL_NVIC_EnableIRQ(RTC_Alarm_IRQn);
-    DEBUG("RCCEx_PeriphCLKConfig ok");
+    DEBUG("RCCEx_PeriphCLKConfig ok\r\n");
 }
 /**
  * @brief RTC MSP De-Initialization
@@ -153,10 +153,10 @@ void HAL_RTC_Initial(void)
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK)
     {
-        DEBUG("RTC Init Error!");
+        DEBUG("RTC Init Error!\r\n");
     }
     RTC_CalendarAlarmConfig();
-    /* DEBUG("rtc inintilaze"); */
+    /* DEBUG("rtc inintilaze\r\n"); */
 }
 
 time_t HAL_RTC_Get_UnixTime(void)
@@ -226,7 +226,7 @@ void HAL_RTC_Set_UnixTime(time_t value)
     sdatestructure.WeekDay = RTC_WEEKDAY_FRIDAY;
     if(HAL_RTC_SetDate(&RtcHandle,&sdatestructure,RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetDate failed!");
+        DEBUG("RTC Set_UnixTime SetDate failed!\r\n");
     }
 
     /*##-2- Configure the Time #################################################*/
@@ -236,7 +236,7 @@ void HAL_RTC_Set_UnixTime(time_t value)
     stimestructure.Seconds = _dec2hex(tmTemp->tm_sec);
     if (HAL_RTC_SetTime(&RtcHandle, &stimestructure, RTC_FORMAT_BCD) != HAL_OK)
     {
-        DEBUG("RTC Set_UnixTime SetTime failed!");
+        DEBUG("RTC Set_UnixTime SetTime failed!\r\n");
     }
 }
 
@@ -258,7 +258,7 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     if(HAL_RTC_SetAlarm_IT(&RtcHandle,&salarmstructure,RTC_FORMAT_BCD) != HAL_OK)
     {
         /* Initialization Error */
-        DEBUG("RTC CalendarAlarmConfig SetAlarm Error!");
+        DEBUG("RTC CalendarAlarmConfig SetAlarm Error!\r\n");
     }
 }
 

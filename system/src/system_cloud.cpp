@@ -102,8 +102,8 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
     uint8_t mic[4];
     uint16_t down_seq_id;
 
-    SCLOUD_DEBUG("mqtt callback!");
-    SCLOUD_DEBUG("topic: %s", topic);
+    SCLOUD_DEBUG("mqtt callback!\r\n");
+    SCLOUD_DEBUG("topic: %s\r\n", topic);
 
     SCLOUD_DEBUG("mqtt receive data:");
     SCLOUD_DEBUG_DUMP(payload, length);
@@ -226,7 +226,7 @@ void intorobot_send_subsys_progress(uint8_t progress)
 /***********************v1版本控制回调函数***********************/
 static void ota_update_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("v1 : online update!");
+    SCLOUD_DEBUG("v1 : online update!\r\n");
 
     uint32_t n;
     char flag=0;
@@ -286,12 +286,12 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
         t_httpUpdate_return ret = httpUpdate.update(url);
         switch(ret) {
             case HTTP_UPDATE_OK:
-                SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!");
+                SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
                 size = httpUpdate.size();
                 down_status = 0;
                 break;
             default:
-                SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!");
+                SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!\r\n");
                 down_status = 1;
                 break;
         }
@@ -344,7 +344,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
 
 static void subsys_update_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("v1 : subsys update!");
+    SCLOUD_DEBUG("v1 : subsys update!\r\n");
 
     uint32_t n;
     String s_payload="", domain="", param="";
@@ -405,7 +405,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
             t_httpUpdate_return ret = httpUpdate.update(url);
             if(HTTP_UPDATE_OK == ret) {
                 defAppSize = httpUpdate.size();
-                SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!");
+                SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
                 down_status = 0;
             }
         }
@@ -462,7 +462,7 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
 
 static void system_reboot_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("system reboot!");
+    SCLOUD_DEBUG("system reboot!\r\n");
     //system reset ready
     intorobot_publish(TOPIC_VERSION_V1, INTOROBOT_MQTT_RESPONSE_TOPIC, (uint8_t *)INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC, strlen(INTOROBOT_MQTT_RESPONSE_REBOOT_SUCC), 0, false);
     HAL_Core_System_Reset();
@@ -470,7 +470,7 @@ static void system_reboot_callback(uint8_t *payload, uint32_t len)
 
 static void system_debug_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("system debug recieve!");
+    SCLOUD_DEBUG("system debug recieve!\r\n");
     mqtt_receive_debug_info(payload, len);
 }
 
@@ -522,7 +522,7 @@ void intorobot_send_upgrade_progress(uint8_t progress)
 //在线编程升级
 static void intorobot_ota_upgrade(const char *token, const char *md5)
 {
-    SCLOUD_DEBUG("v2 :online upgrade!");
+    SCLOUD_DEBUG("v2 :online upgrade!\r\n");
 
     bool flag = false;
     String domain="", param="";
@@ -553,12 +553,12 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
     t_httpUpdate_return ret = httpUpdate.update(url);
     switch(ret) {
         case HTTP_UPDATE_OK:
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!");
+            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
             size = httpUpdate.size();
             flag = true;
             break;
         default:
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!");
+            SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!\r\n");
             break;
     }
 #else
@@ -603,7 +603,7 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
 // 子系统升级
 static void intorobot_subsys_upgrade(const char *version)
 {
-    SCLOUD_DEBUG("v2 :subsys_upgrade!");
+    SCLOUD_DEBUG("v2 :subsys_upgrade!\r\n");
 
     bool flag = false;
     String domain="", param="";
@@ -642,7 +642,7 @@ static void intorobot_subsys_upgrade(const char *version)
         t_httpUpdate_return ret = httpUpdate.update(url);
         if(HTTP_UPDATE_OK == ret) {
             defAppSize = httpUpdate.size();
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!");
+            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
             flag = true;
         }
     }
@@ -691,7 +691,7 @@ static void intorobot_firmware_upgrade(const char *version)
 
 void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("v2 :cloud_action_callback!");
+    SCLOUD_DEBUG("v2 :cloud_action_callback!\r\n");
 
     aJsonClass aJson;
     String s_payload;
@@ -716,14 +716,14 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
         if(strcmp(boardObject->valuestring + 3, board + 3)) {
             goto finish;
         }
-        SCLOUD_DEBUG("board: %s", boardObject->valuestring);
+        SCLOUD_DEBUG("board: %s\r\n", boardObject->valuestring);
     }
 
     cmdObject = aJson.getObjectItem(root, "cmd");
     if(cmdObject == NULL) {
         goto finish;
     } else {
-        SCLOUD_DEBUG("cmd: %s", cmdObject->valuestring);
+        SCLOUD_DEBUG("cmd: %s\r\n", cmdObject->valuestring);
         if(!strcmp("upgradeBin", cmdObject->valuestring)) {
             //在线编程升级
             dtokenObject = aJson.getObjectItem(root, "dwn_token");
@@ -760,7 +760,7 @@ finish:
 
 void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("Ok! receive data form cloud!");
+    SCLOUD_DEBUG("Ok! receive data form cloud!\r\n");
     system_notify_event(event_cloud_data, ep_cloud_data_raw, payload, len);
     switch(payload[0]) {
         case DATA_PROTOCOL_DATAPOINT_BINARY:
@@ -776,7 +776,7 @@ void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
 {
-    SCLOUD_DEBUG("system debug recieve!");
+    SCLOUD_DEBUG("system debug recieve!\r\n");
     mqtt_receive_debug_info(payload, len);
 }
 
@@ -1202,7 +1202,7 @@ void intorobot_cloud_disconnect(void)
 
 int intorobot_cloud_connect(void)
 {
-    SCLOUD_DEBUG("---------mqtt connect start--------");
+    SCLOUD_DEBUG("---------mqtt connect start--------\r\n");
     intorobot_cloud_disconnect();
     //mqtt server domain
     char sv_domain[32]={0};
@@ -1225,15 +1225,15 @@ int intorobot_cloud_connect(void)
     HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     string2hex(access_token, access_token_hex, sizeof(access_token_hex), false);
 
-    SCLOUD_DEBUG("---------terminal params--------");
-    SCLOUD_DEBUG("mqtt domain     : %s", sv_domain);
-    SCLOUD_DEBUG("mqtt port       : %d", sv_port);
-    SCLOUD_DEBUG("down domain     : %s", dw_domain);
-    SCLOUD_DEBUG("at_mode         : %d", HAL_PARAMS_Get_System_at_mode());
-    SCLOUD_DEBUG("zone            : %f", HAL_PARAMS_Get_System_zone());
-    SCLOUD_DEBUG("device_id       : %s", device_id);
-    SCLOUD_DEBUG("access_token    : %s", access_token);
-    SCLOUD_DEBUG("--------------------------------");
+    SCLOUD_DEBUG("---------terminal params--------\r\n");
+    SCLOUD_DEBUG("mqtt domain     : %s\r\n", sv_domain);
+    SCLOUD_DEBUG("mqtt port       : %d\r\n", sv_port);
+    SCLOUD_DEBUG("down domain     : %s\r\n", dw_domain);
+    SCLOUD_DEBUG("at_mode         : %d\r\n", HAL_PARAMS_Get_System_at_mode());
+    SCLOUD_DEBUG("zone            : %f\r\n", HAL_PARAMS_Get_System_zone());
+    SCLOUD_DEBUG("device_id       : %s\r\n", device_id);
+    SCLOUD_DEBUG("access_token    : %s\r\n", access_token);
+    SCLOUD_DEBUG("--------------------------------\r\n");
 
     String fulltopic, payload;
     fill_mqtt_topic(fulltopic, TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
@@ -1258,13 +1258,13 @@ int intorobot_cloud_connect(void)
         payload += '0';
     }
     payload += cMac_string;
-    SCLOUD_DEBUG("mqtt passwork ->  %s", payload.c_str());
+    SCLOUD_DEBUG("mqtt passwork ->  %s\r\n", payload.c_str());
     if(g_mqtt_client.connect(device_id, device_id, payload, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
         MqttConnectComputeSKeys( access_token_hex, random_hex, g_mqtt_nwkskey, g_mqtt_appskey );
-        SCLOUD_DEBUG("---------connect success--------");
-        SCLOUD_DEBUG_D("appskey -> ");
+        SCLOUD_DEBUG("---------connect success--------\r\n");
+        SCLOUD_DEBUG("appskey -> ");
         SCLOUD_DEBUG_DUMP(g_mqtt_appskey, 16);
-        SCLOUD_DEBUG_D("nwkskey -> ");
+        SCLOUD_DEBUG("nwkskey -> ");
         SCLOUD_DEBUG_DUMP(g_mqtt_nwkskey, 16);
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
@@ -1311,11 +1311,11 @@ int intorobot_cloud_connect(void)
             aJson.deleteItem(root);
         }
         //重新订阅
-        SCLOUD_DEBUG("---------mqtt resubscribe--------");
+        SCLOUD_DEBUG("---------mqtt resubscribe--------\r\n");
         resubscribe();
         return 0;
     }
-    SCLOUD_DEBUG("---------connect failed--------");
+    SCLOUD_DEBUG("---------connect failed--------\r\n");
     return -1;
 }
 
@@ -1382,21 +1382,21 @@ static time_t get_ntp_time(void)
 
 bool intorobot_sync_time(void)
 {
-    SCLOUD_DEBUG("---------device syncTime begin---------");
+    SCLOUD_DEBUG("---------device syncTime begin---------\r\n");
     time_t utc_time = get_ntp_time();
     if(utc_time) {
-        SCLOUD_DEBUG("device syncTime success! utc_time = %d",utc_time);
+        SCLOUD_DEBUG("device syncTime success! utc_time = %d\r\n",utc_time);
         randomSeed(utc_time);
         Time.setTime(utc_time);
         return true;
     }
-    SCLOUD_DEBUG("device syncTime failed!");
+    SCLOUD_DEBUG("device syncTime failed!\r\n");
     return false;
 }
 
 bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature)
 {
-    SCLOUD_DEBUG("---------device register begin---------");
+    SCLOUD_DEBUG("---------device register begin---------\r\n");
 
     HTTPClient http;
     aJsonClass aJson;
@@ -1445,14 +1445,14 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
             HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
             HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
             HAL_PARAMS_Save_Params();
-            SCLOUD_DEBUG("device_id    : %s", deviceIdObject->valuestring);
-            SCLOUD_DEBUG("access_token : %s", accessTokenObject->valuestring);
-            SCLOUD_DEBUG("device register success!");
+            SCLOUD_DEBUG("device_id    : %s\r\n", deviceIdObject->valuestring);
+            SCLOUD_DEBUG("access_token : %s\r\n", accessTokenObject->valuestring);
+            SCLOUD_DEBUG("device register success!\r\n");
             flag = true;
         }
         aJson.deleteItem(root);
     } else {
-        SCLOUD_DEBUG("device register failed!");
+        SCLOUD_DEBUG("device register failed!\r\n");
     }
 
     http.end();

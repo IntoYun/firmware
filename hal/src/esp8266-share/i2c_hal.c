@@ -238,7 +238,7 @@ unsigned char twi_readFrom(unsigned char address, unsigned char* buf, unsigned i
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
-    //DEBUG("Enter HAL_I2C_Initial...");
+    //DEBUG("Enter HAL_I2C_Initial...\r\n");
 }
 
 void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
@@ -252,7 +252,7 @@ void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 
 void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* reserved)
 {
-    //DEBUG("Enter HAL_I2C_Begin...");
+    //DEBUG("Enter HAL_I2C_Begin...\r\n");
     // only for default pin
     //if (i2c != HAL_I2C_INTERFACE1)
     EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -269,12 +269,12 @@ void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
 }
 uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop,void* reserved)
 {
-    //DEBUG("Enter HAL_I2C_Request_Data...");
+    //DEBUG("Enter HAL_I2C_Request_Data...\r\n");
     if(quantity > BUFFER_LENGTH){
         quantity = BUFFER_LENGTH;
     }
     uint32_t read = (twi_readFrom(address, rxBuffer, quantity, stop) == 0)?quantity:0;
-    //DEBUG("read: %d", read);
+    //DEBUG("read: %d\r\n", read);
     rxBufferIndex = 0;
     rxBufferLength = read;
     return read;
@@ -300,12 +300,12 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
 
 uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
 {
-    //DEBUG("Enter HAL_I2C_Write_Data...");
-    //DEBUG("data: %d", data);
+    //DEBUG("Enter HAL_I2C_Write_Data...\r\n");
+    //DEBUG("data: %d\r\n", data);
     if(transmitting){
         if(txBufferLength >= BUFFER_LENGTH){
             //setWriteError();
-            //DEBUG("HAL_I2C_Write_Data buffer length error");
+            //DEBUG("HAL_I2C_Write_Data buffer length error\r\n");
             return 0;
         }
         txBuffer[txBufferIndex] = data;

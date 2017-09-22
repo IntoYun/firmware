@@ -104,7 +104,7 @@ static void SystemWakeUpHandler(void)
     }
     Serial.begin(115200);
     Serial.println("mcuWakeup");
-    DEBUG("sync word = 0x%x",SX1276Read(0x39));
+    DEBUG("sync word = 0x%x\r\n",SX1276Read(0x39));
     if(IntoYun.connected()){
         deviceState = DEVICE_STATE_SEND;
     }else{
@@ -120,19 +120,19 @@ void lorawan_event_callback(system_event_t event, int param, uint8_t *data, uint
             switch(param)
             {
                 case ep_lorawan_join_success: //入网成功
-                    DEBUG("lorawan event joined ok");
+                    DEBUG("lorawan event joined ok\r\n");
                     break;
 
                 case ep_lorawan_join_fail: //入网失败
-                    DEBUG("lorawan event joined fail");
+                    DEBUG("lorawan event joined fail\r\n");
                     break;
 
                 case ep_lorawan_send_success:
-                    DEBUG("lorawan event send success");
+                    DEBUG("lorawan event send success\r\n");
                     break;
 
                 case ep_lorawan_send_fail:
-                    DEBUG("lorawan event send fail");
+                    DEBUG("lorawan event send fail\r\n");
                     break;
 
                 default:
@@ -165,7 +165,7 @@ void setup()
     LoRaWan.setChannelStatus(1,false);
     deviceState = DEVICE_STATE_JOIN;
     uint32_t delayMs = (uint32_t)random(0,10000);
-    DEBUG("delayMs = %d",delayMs);
+    DEBUG("delayMs = %d\r\n",delayMs);
     delay(delayMs);
     IntoYun.connect(JOIN_OTAA,0);
 }
@@ -196,10 +196,10 @@ void loop()
         }
         IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
         if(IntoRobot.sendDatapointAll(false,50) == 0){
-            DEBUG("send frame ok");
+            DEBUG("send frame ok\r\n");
             deviceState = DEVICE_STATE_SLEEP;
         }else{
-            DEBUG("send frame fail");
+            DEBUG("send frame fail\r\n");
             deviceState = DEVICE_STATE_SLEEP;
         }
         break;
@@ -243,11 +243,11 @@ void loop()
         IntoRobot.writeDatapoint(DPID_NUMBER_RHEOSTAT, Rheostat);
         if(IntoRobot.sendDatapointAll(false,10))
         {
-            DEBUG("sendDatapointAll ok");
+            DEBUG("sendDatapointAll ok\r\n");
         }
         else
         {
-            DEBUG("send confirm frame fail");
+            DEBUG("send confirm frame fail\r\n");
         }
         delay(30000);
     }
@@ -260,7 +260,7 @@ void loop()
                 break;
 
         case DEVICE_STATE_JOIN:
-            DEBUG("lorawan joinOTAA");
+            DEBUG("lorawan joinOTAA\r\n");
             LoRaWan.joinOTAA(2);
             deviceState = DEVICE_STATE_IDLE;
             break;

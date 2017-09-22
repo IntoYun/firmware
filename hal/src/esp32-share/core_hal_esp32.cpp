@@ -126,12 +126,12 @@ void HAL_Core_Load_params(void)
     // check if need init params
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥
     {
-        DEBUG("init params fac");
+        DEBUG("init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     }
     else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) //初始化所有参数
     {
-        DEBUG("init params all");
+        DEBUG("init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
     if(INITPARAM_FLAG_NORMAL != HAL_PARAMS_Get_Boot_initparam_flag()) //初始化参数 保留密钥

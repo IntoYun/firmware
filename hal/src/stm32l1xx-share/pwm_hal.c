@@ -119,7 +119,7 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
             }
             else if( (PIN_MAP[pin].gpio_peripheral == GPIOB) )
             {
-                //DEBUG("PWM TIM3 GPIOB CLK ENABLE and GPIO Init");
+                //DEBUG("PWM TIM3 GPIOB CLK ENABLE and GPIO Init\r\n");
                 __HAL_RCC_GPIOB_CLK_ENABLE();
                 HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
             }
@@ -186,7 +186,7 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
         if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK)
         {
             // Error
-            DEBUG("PWM Init Error!");
+            DEBUG("PWM Init Error!\r\n");
         }
 
         /*##-2- Configure the PWM channels #b########################################*/
@@ -200,20 +200,20 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
         if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            DEBUG("PWM Configuration Error!");
+            DEBUG("PWM Configuration Error!\r\n");
         }
 
         /* Start channel */
         if (HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* PWM Generation Error */
-            DEBUG("PWM Generation Error!");
+            DEBUG("PWM Generation Error!\r\n");
         }
     }
     else
     {
         // Error
-        DEBUG("PWM First Error!");
+        DEBUG("PWM First Error!\r\n");
     }
 }
 

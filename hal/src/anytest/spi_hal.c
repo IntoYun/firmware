@@ -94,7 +94,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 
     if(spiMap[spi]->SPI_Peripheral == SPI2)
     {
-        /* DEBUG("Select SPI2, and Enable Clock..."); */
+        /* DEBUG("Select SPI2, and Enable Clock...\r\n"); */
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_SPI2_CLK_ENABLE();
 #ifdef useDMASPI
@@ -104,7 +104,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     }
     else if (spiMap[spi]->SPI_Peripheral == SPI1)
     {
-        /* DEBUG("Select SPI1, and Enable Clock..."); */
+        /* DEBUG("Select SPI1, and Enable Clock...\r\n"); */
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
 #ifdef useDMASPI
@@ -116,7 +116,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     /* SPI SCK GPIO pin configuration  */
     GPIO_InitTypeDef  GPIO_InitStruct = {0};
     /* GPIO_InitStruct.Pin       = (spiMap[spi]->SPI_SCK_Pin) |(spiMap[spi]->SPI_MISO_Pin)| (spiMap[spi]->SPI_MOSI_Pin); */
-    /* DEBUG("gpiob = %x",GPIO_InitStruct.Pin); */
+    /* DEBUG("gpiob = %x\r\n",GPIO_InitStruct.Pin); */
     /* GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP; */
     /* GPIO_InitStruct.Pull      = GPIO_PULLUP; */
     /* GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH; */
@@ -126,7 +126,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     /* GPIO_InitStruct.Pin       = spiMap[spi]->SPI_MISO_Pin; */
     /* GPIO_InitStruct.Mode      = GPIO_MODE_AF_INPUT; */
     /* HAL_GPIO_Init( spiMap[spi]->SPI_MISO_Port, &GPIO_InitStruct); */
- 
+
     /* #if 0 */
     GPIO_InitStruct.Pin       = spiMap[spi]->SPI_SCK_Pin;
     GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
@@ -192,7 +192,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     //HAL_NVIC_SetPriority(spiMap[spi]->SPI_DMA_RX_IRQn, 7, 0);
     //HAL_NVIC_EnableIRQ(spiMap[spi]->SPI_DMA_RX_IRQn);
 #endif
-    //DEBUG("Leave HAL_SPI_GPIO_DMA_Init...");
+    //DEBUG("Leave HAL_SPI_GPIO_DMA_Init...\r\n");
 }
 
 /*
@@ -202,7 +202,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
  */
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
-    //DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...");
+    //DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...\r\n");
 
     /*##-1- Reset peripherals ##################################################*/
 
@@ -248,7 +248,7 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
     if(spi == HAL_SPI_INTERFACE1)
     {
         spiMap[spi] = &SPI_MAP[SPI2_B13_B14_B15];
-        /* DEBUG("Enter SPI2 HAL_SPI_Initial..."); */
+        /* DEBUG("Enter SPI2 HAL_SPI_Initial...\r\n"); */
     }
     else if(spi == HAL_SPI_INTERFACE2)
     {
@@ -276,7 +276,7 @@ void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
-    //DEBUG("Enter HAL_SPI_Begin_Ext...");
+    //DEBUG("Enter HAL_SPI_Begin_Ext...\r\n");
 
     if (pin == SPI_DEFAULT_SS)
         pin = spiMap[spi]->SPI_SS_Pin;
@@ -317,10 +317,10 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
     }
 
     if( HAL_SPI_Init(&spiMap[spi]->SpiHandle) != HAL_OK)
-        DEBUG("spi init error");
+        DEBUG("spi init error\r\n");
     __HAL_SPI_ENABLE(&spiMap[spi]->SpiHandle);
     spiMap[spi]->SPI_Enabled = true;
-    /* DEBUG("exit HAL_SPI_begin_ext"); */
+    /* DEBUG("exit HAL_SPI_begin_ext\r\n"); */
     //TODO slave mode
 
 }
@@ -332,7 +332,7 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
  */
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
-    //DEBUG("Enter HAL_SPI_End...");
+    //DEBUG("Enter HAL_SPI_End...\r\n");
     HAL_SPI_GPIO_DMA_DeInit(spi);
     spiMap[spi]->SPI_Enabled = false;
 }
@@ -356,7 +356,7 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 
     /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Bit_Order_Set = true;
-    /* DEBUG("Enter HAL_SPI_Set_Bit_Order..."); */
+    /* DEBUG("Enter HAL_SPI_Set_Bit_Order...\r\n"); */
 }
 
 /*
@@ -392,7 +392,7 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 
     /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Data_Mode_Set = true;
-    /* DEBUG("Leave HAL_SPI_Set_Data_Mode..."); */
+    /* DEBUG("Leave HAL_SPI_Set_Data_Mode...\r\n"); */
 }
 
 /*
@@ -407,7 +407,7 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
     /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Clock_Divider_Set = true;
 
-    /* DEBUG("Enter HAL_SPI_Set_Clock_Divider..."); */
+    /* DEBUG("Enter HAL_SPI_Set_Clock_Divider...\r\n"); */
 }
 
 /*
@@ -418,24 +418,24 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
  */
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
-    //DEBUG("Enter HAL_SPI_Send_Receive_Data...");
+    //DEBUG("Enter HAL_SPI_Send_Receive_Data...\r\n");
     if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE)
         return 0;
     uint8_t dataTrans = data;
     uint8_t rxDataTrans = 0;
-    //DEBUG("The Input Data: %d", dataTrans);
+    //DEBUG("The Input Data: %d\r\n", dataTrans);
 #ifdef useDMASPI
     HAL_SPI_TransmitReceive_DMA(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1);
 #else
     HAL_SPI_TransmitReceive(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1, 100);
-    /* DEBUG("SPI transmitted"); */
+    /* DEBUG("SPI transmitted\r\n"); */
 #endif
-    //DEBUG("After TransmitReceive...");
+    //DEBUG("After TransmitReceive...\r\n");
     //while (HAL_SPI_GetState(&spiMap[spi]->SpiHandle) != HAL_SPI_STATE_READY)
     //{}
     uint16_t rxData = rxDataTrans;
-    /*DEBUG("The Output Data: %d", rxData);*/
-    //DEBUG("Leave HAL_SPI_Send_Recevice_Data...");
+    /*DEBUG("The Output Data: %d\r\n", rxData);*/
+    //DEBUG("Leave HAL_SPI_Send_Recevice_Data...\r\n");
     return rxData;
 }
 
@@ -446,7 +446,7 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
  */
 bool HAL_SPI_Is_Enabled(HAL_SPI_Interface spi)
 {
-    //DEBUG("Enter HAL_SPI_Is_Enabled...");
+    //DEBUG("Enter HAL_SPI_Is_Enabled...\r\n");
     return spiMap[spi]->SPI_Enabled;
 }
 

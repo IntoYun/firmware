@@ -35,7 +35,7 @@
 #include <functional>
 #include "service_debug.h"
 
-class IntoRobotDatepointClass {
+class CloudDatepointClass {
     public:
         //数据点自动发送设置
         static void datapointControl(dp_transmit_mode_t mode) {
@@ -47,65 +47,38 @@ class IntoRobotDatepointClass {
 
         // 添加数据点
         static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission) {
-            defineDatapointBool(dpID, permission, false, DP_POLICY_NONE, 0);
+            defineDatapointBool(dpID, permission, false);
         }
         static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value) {
-            defineDatapointBool(dpID, permission, value, DP_POLICY_NONE, 0);
+            intorobotDefineDatapointBool(dpID, permission, value, DP_POLICY_NONE, 0);
         }
-        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy) {
-            defineDatapointBool(dpID, permission, value, policy, 0);
-        }
-        // lapse 单位为秒
-        static void defineDatapointBool(const uint16_t dpID, const dp_permission_t permission, const bool value, const dp_policy_t policy, const int lapse) {
-            intorobotDefineDatapointBool(dpID, permission, (bool)value, policy, lapse);
-        }
+
         static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution) {
-            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, minValue, DP_POLICY_NONE, 0);
+            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, minValue);
         }
         static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value) {
-            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, DP_POLICY_NONE, 0);
+            intorobotDefineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, DP_POLICY_NONE, 0);
         }
-        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy) {
-            defineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, 0);
-        }
-        static void defineDatapointNumber(const uint16_t dpID, const dp_permission_t permission, const double minValue, const double maxValue, const int resolution, const double value, const dp_policy_t policy, const int lapse) {
-            intorobotDefineDatapointNumber(dpID, permission, minValue, maxValue, resolution, value, policy, lapse);
-        }
+
         static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission) {
-            defineDatapointEnum(dpID, permission, 0, DP_POLICY_NONE, 0);
+            defineDatapointEnum(dpID, permission, 0);
         }
         static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value) {
-            defineDatapointEnum(dpID, permission, value, DP_POLICY_NONE, 0);
+            intorobotDefineDatapointEnum(dpID, permission, value, DP_POLICY_NONE, 0);
         }
-        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy) {
-            defineDatapointEnum(dpID, permission, value, policy, 0);
-        }
-        static void defineDatapointEnum(const uint16_t dpID, const dp_permission_t permission, const int value, const dp_policy_t policy, const int lapse) {
-            intorobotDefineDatapointEnum(dpID, permission, value, policy, lapse);
-        }
+
         static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen) {
-            defineDatapointString(dpID, permission, maxLen, "", DP_POLICY_NONE, 0);
+            defineDatapointString(dpID, permission, maxLen, "");
         }
         static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value) {
-            defineDatapointString(dpID, permission, maxLen, value, DP_POLICY_NONE, 0);
+            intorobotDefineDatapointString(dpID, permission, maxLen, value, DP_POLICY_NONE, 0);
         }
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy) {
-            defineDatapointString(dpID, permission, maxLen, value, policy, 0);
-        }
-        static void defineDatapointString(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const char *value, const dp_policy_t policy, const int lapse) {
-            intorobotDefineDatapointString(dpID, permission, maxLen, value, policy, lapse);
-        }
+
         static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen ) {
-            defineDatapointBinary(dpID, permission, maxLen, NULL, 0, DP_POLICY_NONE, 0);
+            defineDatapointBinary(dpID, permission, maxLen, NULL, 0);
         }
         static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len) {
-            defineDatapointBinary(dpID, permission, maxLen, value, len, DP_POLICY_NONE, 0);
-        }
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy) {
-            defineDatapointBinary(dpID, permission, maxLen, value, len, policy, 0);
-        }
-        static void defineDatapointBinary(const uint16_t dpID, const dp_permission_t permission, const uint16_t maxLen, const uint8_t *value, const uint16_t len, const dp_policy_t policy, const int lapse) {
-            intorobotDefineDatapointBinary(dpID, permission, maxLen, value, len, policy, lapse);
+            intorobotDefineDatapointBinary(dpID, permission, maxLen, value, len, DP_POLICY_NONE, 0);
         }
 
         // 读取数据点
@@ -236,7 +209,7 @@ class IntoRobotDatepointClass {
 };
 
 #ifndef configNO_CLOUD
-class IntoRobotClass: public IntoRobotDatepointClass, public Print{
+class CloudClass: public CloudDatepointClass, public Print{
     public:
         static bool publish(const char *topic, bool value) {
             return publish(topic, String(value).c_str());
@@ -342,7 +315,7 @@ class IntoRobotClass: public IntoRobotDatepointClass, public Print{
 #endif
 
 #ifndef configNO_LORAWAN
-class IntoRobotClass: public IntoRobotDatepointClass {
+class CloudClass: public CloudDatepointClass {
     public:
 
         static int connected(void) {
@@ -384,10 +357,10 @@ class IntoRobotClass: public IntoRobotDatepointClass {
 
 #if (!defined configNO_CLOUD) || (!defined configNO_LORAWAN)
 
-IntoRobotClass& __fetch_global_intorobot();
-#define IntoRobot __fetch_global_intorobot()
-#define IntoYun __fetch_global_intorobot()
-#define Cloud __fetch_global_intorobot()
+CloudClass& __fetch_global_cloud();
+#define IntoRobot __fetch_global_cloud()
+#define IntoYun __fetch_global_cloud()
+#define Cloud __fetch_global_cloud()
 
 #endif
 

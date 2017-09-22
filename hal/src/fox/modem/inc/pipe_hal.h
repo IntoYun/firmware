@@ -78,7 +78,6 @@ public:
             o = _inc(o);
         }
         strcat(temp1,"\n");
-        DEBUG_D(temp1);
     }
 
     // writing thread/context API

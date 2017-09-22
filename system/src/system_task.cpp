@@ -294,10 +294,10 @@ void lorawan_prepare_active(void)
             switch(at_mode)
             {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥
-                    STASK_DEBUG("AT_MODE_FLAG_ABP");
+                    STASK_DEBUG("AT_MODE_FLAG_ABP\r\n");
                 case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活
                     {
-                        STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE");
+                        STASK_DEBUG("AT_MODE_FLAG_OTAA_ACTIVE\r\n");
                         // LoRaWan.joinABP();
                         INTOROBOT_LORAWAN_JOINED = true;
                         system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
@@ -305,15 +305,15 @@ void lorawan_prepare_active(void)
                     break;
                 case AT_MODE_FLAG_OTAA_INACTIVE:  //灌装激活码  未激活
                     {
-                        STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE");
+                        STASK_DEBUG("AT_MODE_FLAG_OTAA_INACTIVE\r\n");
                         int32_t joinDelayms = randr(0,10000);
-                        STASK_DEBUG("joinDelayms = %d",joinDelayms);
+                        STASK_DEBUG("joinDelayms = %d\r\n",joinDelayms);
                         delay((uint32_t)joinDelayms);
                         // LoRaWan.joinOTAA(20000);
                     }
                     break;
                 default:                          //没有密钥信息
-                    STASK_DEBUG("default");
+                    STASK_DEBUG("default\r\n");
                     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
                     break;
             }
@@ -323,7 +323,7 @@ void lorawan_prepare_active(void)
 
 void LoraWAN_Setup(void)
 {
-    STASK_DEBUG("LoRaWan_Setup");
+    STASK_DEBUG("LoRaWan_Setup\r\n");
     LoRaWanResume();
     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
@@ -335,7 +335,7 @@ void manage_lorawan_connection(void)
         if(!INTOROBOT_LORAWAN_JOINED){
             if(!INTOROBOT_LORAWAN_JOINING){
                 if(LoRaWanJoinIsEnabled()){
-                    STASK_DEBUG("lorawan start join");
+                    STASK_DEBUG("lorawan start join\r\n");
                     INTOROBOT_LORAWAN_JOINING = true;
                     LoRaWanJoinEnable(false);
                     LoRaWanJoinOTAA();

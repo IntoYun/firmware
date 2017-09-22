@@ -251,7 +251,7 @@ void app_setup_and_loop_initial(bool *threaded)
     set_system_mode(DEFAULT);
     Time.zone(HAL_PARAMS_Get_System_zone());
 
-    DEBUG("---------------welcome from IntoRobot!-----------------");
+    DEBUG("---------------welcome from IntoRobot!-----------------\r\n");
 
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
 #ifdef configHAL_USB_CDC_ENABLE
@@ -263,18 +263,18 @@ void app_setup_and_loop_initial(bool *threaded)
     char buffer[33] = {0};
 
     if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
-        DEBUG("product_type = gateway");
+        DEBUG("product_type = gateway\r\n");
     } else {
-        DEBUG("product_type = note");
+        DEBUG("product_type = note\r\n");
     }
     system_get_product_software_version(buffer, sizeof(buffer));
-    DEBUG("product_software_version = %s", buffer);
+    DEBUG("product_software_version = %s\r\n", buffer);
     system_get_product_hardware_version(buffer, sizeof(buffer));
-    DEBUG("product_hardware_version = %s", buffer);
+    DEBUG("product_hardware_version = %s\r\n", buffer);
     system_get_product_id(buffer, sizeof(buffer));
-    DEBUG("product_id = %s", buffer);
+    DEBUG("product_id = %s\r\n", buffer);
     system_get_product_secret(buffer, sizeof(buffer));
-    DEBUG("product_secret = %s", buffer);
+    DEBUG("product_secret = %s\r\n", buffer);
 #endif
 
 #ifdef configSETUP_ENABLE

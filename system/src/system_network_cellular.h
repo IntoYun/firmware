@@ -125,11 +125,11 @@ public:
     bool has_credentials() override
     {
         bool rv = cellular_sim_ready(NULL);
-        SNETWORK_DEBUG("%s", (rv)?"Sim Ready":"Sim not inserted? Detecting...");
+        SNETWORK_DEBUG("%s", (rv)?"Sim Ready":"Sim not inserted? Detecting...\r\n");
         if (!rv) {
             cellular_on(NULL);
             rv = cellular_sim_ready(NULL);
-            SNETWORK_DEBUG("%s", (rv)?"Sim Ready":"Sim not inserted.");
+            SNETWORK_DEBUG("%s", (rv)?"Sim Ready":"Sim not inserted.\r\n");
         }
         return rv;
     }

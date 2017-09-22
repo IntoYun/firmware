@@ -528,11 +528,11 @@ boolean MqttClientClass::subscribe(const char* topic, uint8_t qos) {
         buffer[length++] = qos;
         if(write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! subscribe topic: %s", topic);
+            CMQTTCLIENT_DEBUG("OK! subscribe topic: %s\r\n", topic);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! subscribe topic: %s", topic);
+    CMQTTCLIENT_DEBUG("Error! subscribe topic: %s\r\n", topic);
     return false;
 }
 
@@ -552,16 +552,16 @@ boolean MqttClientClass::unsubscribe(const char* topic) {
         length = writeString(topic, buffer,length);
         if(write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! unsubscribe topic: %s", topic);
+            CMQTTCLIENT_DEBUG("OK! unsubscribe topic: %s\r\n", topic);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! unsubscribe topic: %s", topic);
+    CMQTTCLIENT_DEBUG("Error! unsubscribe topic: %s\r\n", topic);
     return false;
 }
 
 void MqttClientClass::disconnect() {
-    CMQTTCLIENT_DEBUG("mqttClient! disconnect");
+    CMQTTCLIENT_DEBUG("mqttClient! disconnect\r\n");
     buffer[0] = MQTTDISCONNECT;
     buffer[1] = 0;
     _client->write(buffer,2);

@@ -93,7 +93,7 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             sockaddr_t tSocketAddr;
             int connected = 0;
 
-            WUDP_DEBUG("udp begin success! create socket %d",_sock);
+            WUDP_DEBUG("udp begin success! create socket %d\r\n",_sock);
             flush();
             tSocketAddr.sa_family = AF_INET;
             tSocketAddr.sa_data[0] = (remotePort & 0xFF00) >> 8;
@@ -108,11 +108,11 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             HAL_NET_SetNetWatchDog(ot);
             if(connected)
             {
-                WUDP_DEBUG("upd connect success! create socket %d", _sock);
+                WUDP_DEBUG("upd connect success! create socket %d\r\n", _sock);
             }
             else
             {
-                WUDP_DEBUG("upd connect failed!");
+                WUDP_DEBUG("upd connect failed!\r\n");
                 stop();
             }
             _remoteIP = remoteIP;
@@ -122,7 +122,7 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             bound = true;
         }
         else {
-            WUDP_DEBUG("udp begin failed!");
+            WUDP_DEBUG("udp begin failed!\r\n");
             stop();
             bound = false;
         }
@@ -137,7 +137,7 @@ int UDP::available()
 
 void UDP::stop()
 {
-    WUDP_DEBUG("udp stop: close socket %d", _sock);
+    WUDP_DEBUG("udp stop: close socket %d\r\n", _sock);
     if (isOpen(_sock))
     {
         socket_close(_sock);
@@ -200,7 +200,7 @@ int UDP::sendPacket(const uint8_t* buffer, size_t buffer_size, IPAddress remoteI
     remoteSockAddr.sa_data[5] = remoteIP[3];
 
     int rv = socket_sendto(_sock, buffer, buffer_size, 0, &remoteSockAddr, sizeof(remoteSockAddr));
-    WUDP_DEBUG("udp sendPacket(buffer=%lx, size=%d)=%d",buffer, buffer_size, rv);
+    WUDP_DEBUG("udp sendPacket(buffer=%lx, size=%d)=%d\r\n",buffer, buffer_size, rv);
     return rv;
 }
 

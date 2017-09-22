@@ -98,7 +98,7 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     }
     else if(spiMap[spi]->SPI_Peripheral == SPI3)
     {
-        //DEBUG("Select SPI3, and Enable Clock...");
+        //DEBUG("Select SPI3, and Enable Clock...\r\n");
         __HAL_RCC_SPI3_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #ifdef useDMASPI
