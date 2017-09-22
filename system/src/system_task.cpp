@@ -237,7 +237,6 @@ void establish_cloud_connection(void)
                 INTOROBOT_CLOUD_CONNECTED = 0;
                 intorobot_cloud_disconnect();
                 cloud_connection_failed();
-                system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
             }
         }
     }

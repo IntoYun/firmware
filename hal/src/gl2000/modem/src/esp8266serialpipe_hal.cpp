@@ -36,7 +36,7 @@ Esp8266SerialPipe::Esp8266SerialPipe(int rxSize, int txSize) :
     _pipeRx( rxSize ),
     _pipeTx( txSize )
 {
-    HAL_NVIC_DisableIRQ(USART1_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
 }
 
 Esp8266SerialPipe::~Esp8266SerialPipe(void)
@@ -48,7 +48,7 @@ Esp8266SerialPipe::~Esp8266SerialPipe(void)
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_3);
 
-    HAL_NVIC_DisableIRQ(USART1_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
 }
 
 void Esp8266SerialPipe::begin(unsigned int baud)

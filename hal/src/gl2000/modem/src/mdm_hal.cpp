@@ -660,37 +660,6 @@ int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
             memcpy(aps[_aplistindex].bssid, bssid, 6);
             _aplistindex++;
         }
-        //以下这种方法不知道为什么获取ssid和rssi错误，后续需要查找原因。
-        /*
-           char ssid[32] = "";
-           char bssid_str[32] = "";
-           uint8_t bssid[6];
-           uint8_t security;
-           uint8_t channel;
-           int rssi;        // when scanning
-
-           if (sscanf(buf, "+CWLAP:(%d,\"%32[^\"]\",%d,\"" MACSTR "\",%d)", &security, ssid, &rssi, &bssid[0],\
-           &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &channel) == 10)
-           {
-           if(_aplistindex < _aplisttotalcount)
-           {
-           strcpy(aps[_aplistindex].ssid, ssid);
-           aps[_aplistindex].ssid_len = strlen(ssid);
-           memcpy(aps[_aplistindex].bssid, bssid, 6);
-           aps[_aplistindex].security = security;
-           aps[_aplistindex].channel = channel;
-           aps[_aplistindex].rssi = rssi;
-           DEBUG_D("aps[%d].ssid = %s \r\n", _aplistindex, ssid);
-           DEBUG_D("aps[%d].ssidLength = %d \r\n", _aplistindex, aps[_aplistindex].ssid_len);
-           DEBUG_D("aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x\r\n", _aplistindex, aps[_aplistindex].bssid[0],\
-           aps[_aplistindex].bssid[1],aps[_aplistindex].bssid[2],aps[_aplistindex].bssid[3],aps[_aplistindex].bssid[4],aps[_aplistindex].bssid[5]);
-           DEBUG_D("aps[%d].security = %d \r\n", _aplistindex, aps[_aplistindex].security);
-           DEBUG_D("aps[%d].channel = %d \r\n", _aplistindex, aps[_aplistindex].channel);
-           DEBUG_D("aps[%d].rssi = %d \r\n", _aplistindex, aps[_aplistindex].rssi);
-           _aplistindex++;
-           }
-           }
-           */
     }
     return WAIT;
 }
@@ -736,7 +705,6 @@ ip_status_t MDMParser::getIpStatus(void)
 {
     ip_status_t result = IPSTATUS_ATERROR;
     LOCK();
-
     if (_init) {
         sendFormated("AT+CIPSTATUS\r\n");
         if (RESP_OK != waitFinalResp(_cbGetIpStatus, &result)){
@@ -785,10 +753,9 @@ int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t*
 {
     int rst;
     if (result && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "+CWJAP_DEF:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "+CWJAP:%d\r\n", &rst) == 1) {
             *result = (wifi_join_ap_t)rst;
         }
-            /*nothing*/;
     }
     return WAIT;
 }
@@ -796,11 +763,11 @@ int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t*
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 {
     wifi_join_ap_t result = JOINAP_CONNETFAIL;
-    LOCK();
 
+    LOCK();
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\"\r\n", ssid, password);
-        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)) {
+        if (RESP_OK != waitFinalResp(_cbWifiJoinAp, &result, 10000)) {
             result = JOINAP_CONNETFAIL;
         }
     }
@@ -811,11 +778,11 @@ wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password, const char *bssid)
 {
     wifi_join_ap_t result = JOINAP_CONNETFAIL;
-    LOCK();
 
+    LOCK();
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\",\"%s\"\r\n", ssid, password, bssid);
-        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)){
+        if (RESP_OK != waitFinalResp(_cbWifiJoinAp, &result, 10000)){
             result = JOINAP_CONNETFAIL;
         }
     }

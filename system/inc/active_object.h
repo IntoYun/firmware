@@ -300,23 +300,23 @@ public:
         auto task = new AsyncTask<R>(work);
         if (task)
         {
-			Item message = task;
-			if (!put(message))
-				delete task;
+            Item message = task;
+            if (!put(message))
+                delete task;
         }
-	}
+    }
 
     template<typename R> Promise<R>* invoke_future(const std::function<R(void)>& work)
     {
         auto promise = new Promise<R>(work);
         if (promise)
         {
-			Item message = promise;
-			if (!put(message))
-			{
-				delete promise;
-				promise = nullptr;
-			}
+            Item message = promise;
+            if (!put(message))
+            {
+                delete promise;
+                promise = nullptr;
+            }
         }
         return promise;
     }
@@ -329,7 +329,7 @@ class ActiveObjectChannel : public ActiveObjectBase
 {
     cpp::channel<Item, queue_size> _channel;
 
-protected:
+    protected:
 
     virtual bool take(Item& item) override
     {
@@ -343,7 +343,7 @@ protected:
     }
 
 
-public:
+    public:
 
     ActiveObjectChannel(ActiveObjectConfiguration& config) : ActiveObjectBase(config) {}
 
@@ -362,7 +362,7 @@ class ActiveObjectQueue : public ActiveObjectBase
 {
     os_queue_t  queue;
 
-protected:
+    protected:
 
     virtual bool take(Item& result)
     {
@@ -371,7 +371,7 @@ protected:
 
     virtual bool put(Item& item)
     {
-    		return !os_queue_put(queue, &item, configuration.put_wait, nullptr);
+        return !os_queue_put(queue, &item, configuration.put_wait, nullptr);
     }
 
     void createQueue()
@@ -379,7 +379,7 @@ protected:
         os_queue_create(&queue, sizeof(Item), configuration.queue_size, nullptr);
     }
 
-public:
+    public:
 
     ActiveObjectQueue(const ActiveObjectConfiguration& config) : ActiveObjectBase(config), queue(NULL) {}
 
@@ -395,23 +395,23 @@ public:
  */
 class ActiveObjectCurrentThreadQueue : public ActiveObjectQueue
 {
-public:
-    ActiveObjectCurrentThreadQueue(const ActiveObjectConfiguration& config) : ActiveObjectQueue(config) {}
+    public:
+        ActiveObjectCurrentThreadQueue(const ActiveObjectConfiguration& config) : ActiveObjectQueue(config) {}
 
-    /**
-     * Start the message pump on this thread. This method does not return.
-     */
-    void start()
-    {
-        createQueue();
-        setCurrentThread();
-        run();
-    }
+        /**
+         * Start the message pump on this thread. This method does not return.
+         */
+        void start()
+        {
+            createQueue();
+            setCurrentThread();
+            run();
+        }
 
-    void process()
-    {
-        ActiveObjectQueue::process();
-    }
+        void process()
+        {
+            ActiveObjectQueue::process();
+        }
 };
 
 
@@ -422,15 +422,15 @@ public:
 class ActiveObjectThreadQueue : public ActiveObjectQueue
 {
 
-public:
+    public:
 
-    ActiveObjectThreadQueue(const ActiveObjectConfiguration& config) : ActiveObjectQueue(config) {}
+        ActiveObjectThreadQueue(const ActiveObjectConfiguration& config) : ActiveObjectQueue(config) {}
 
-    void start()
-    {
-        createQueue();
-        start_thread();
-    }
+        void start()
+        {
+            createQueue();
+            start_thread();
+        }
 
 };
 
@@ -443,24 +443,24 @@ public:
  * invoked from an event loop running in a regular thread.
  */
 class ISRTaskQueue {
-public:
-    typedef void(*TaskFunc)(void*);
+    public:
+        typedef void(*TaskFunc)(void*);
 
-    explicit ISRTaskQueue(size_t size);
-    ~ISRTaskQueue();
+        explicit ISRTaskQueue(size_t size);
+        ~ISRTaskQueue();
 
-    bool enqueue(TaskFunc func, void* data = nullptr); // Called from an ISR
-    bool process(); // Called from the primary thread
+        bool enqueue(TaskFunc func, void* data = nullptr); // Called from an ISR
+        bool process(); // Called from the primary thread
 
-private:
-    struct Task {
-        TaskFunc func;
-        void* data;
-        Task* next;
-    };
+    private:
+        struct Task {
+            TaskFunc func;
+            void* data;
+            Task* next;
+        };
 
-    Task* tasks_;
-    Task* availTask_; // Task pool
-    Task* firstTask_; // Task queue
-    Task* lastTask_;
+        Task* tasks_;
+        Task* availTask_; // Task pool
+        Task* firstTask_; // Task queue
+        Task* lastTask_;
 };
