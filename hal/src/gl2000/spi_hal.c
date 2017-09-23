@@ -19,10 +19,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "spi_hal.h"
-#include "stm32f4xx.h"
-#include "service_debug.h"
+#include "hw_config.h"
 
-#define TOTAL_SPI 2
+#define TOTAL_SPI 1
 //#define useDMASPI
 
 typedef enum SPI_Num_Def {

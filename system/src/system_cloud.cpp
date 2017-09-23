@@ -839,33 +839,40 @@ void intorobot_cloud_init(void)
     }
 }
 
-bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
+static bool _intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic = "";
     char device_id[38]={0};
-    uint8_t buffer[1024];
-    uint16_t bufferIndex = 0;
+    uint8_t *pdata = malloc(plength + 16);
+    uint16_t dataIndex = 0;
 
-    if((plength + 6) > sizeof(buffer)) {
+    if(NULL == pdata) {
         return false;
     }
 
     g_up_seq_id++;
-    buffer[bufferIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
-    buffer[bufferIndex++] = ( g_up_seq_id ) & 0xFF;
+    pdata[dataIndex++] = ( g_up_seq_id >> 8 ) & 0xFF;
+    pdata[dataIndex++] = ( g_up_seq_id ) & 0xFF;
 
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     if(System.featureEnabled(SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED)) {
-        MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &buffer[bufferIndex] );
+        MqttPayloadEncrypt( payload, plength, g_mqtt_appskey, 0, g_up_seq_id, device_id, &pdata[dataIndex] );
     } else {
-        memcpy(&buffer[bufferIndex], payload, plength);
+        memcpy(&pdata[dataIndex], payload, plength);
     }
-    bufferIndex += plength;
-    MqttComputeMic( buffer, bufferIndex, g_mqtt_nwkskey, &buffer[bufferIndex] );
-    bufferIndex += 4;
+    dataIndex += plength;
+    MqttComputeMic( pdata, dataIndex, g_mqtt_nwkskey, &pdata[dataIndex] );
+    dataIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.publish(fulltopic.c_str(), buffer, bufferIndex, retained));
+    bool result = g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained);
+    free(pdata);
+    return result;
+}
+
+bool intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
+{
+    SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(_intorobot_publish(version, topic, payload, plength, qos, retained));
 }
 
 bool intorobot_subscribe(topic_version_t version, const char* topic, const char *device_id, void (*callback)(uint8_t*, uint32_t), uint8_t qos)
@@ -1222,8 +1229,11 @@ int intorobot_cloud_connect(void)
     uint8_t access_token_hex[16] = {0};
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
-    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     string2hex(access_token, access_token_hex, sizeof(access_token_hex), false);
+    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
+    if(0 == strlen(dw_domain)) {
+        strcpy(dw_domain, INTOROBOT_UPDATE_DOMAIN);
+    }
 
     SCLOUD_DEBUG("---------terminal params--------\r\n");
     SCLOUD_DEBUG("mqtt domain     : %s\r\n", sv_domain);
