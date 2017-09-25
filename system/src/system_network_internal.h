@@ -291,7 +291,6 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success\r\n");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
-            update_config(true);
             system_notify_event(event_network_status, ep_network_status_connected);
         } else {
             config_clear();

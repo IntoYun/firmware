@@ -31,24 +31,6 @@
 
 static bool bootloader_requires_update(void)
 {
-    char subsys_ver[32] = {0}, temp[16] = {0};
-    char *ptr = NULL;
-    uint32_t boot_ver = 0, boot_ver1;
-
-    if(HAL_Core_Get_Subsys_Version(subsys_ver, sizeof(subsys_ver)))
-    {
-        uint32_t boot_ver = HAL_PARAMS_Get_Boot_boot_version();
-        if(boot_ver)
-        {
-            memset(temp, 0, sizeof(temp));
-            ptr = strrchr(subsys_ver, '.');
-            boot_ver1 = atoi(ptr+1);
-            if(boot_ver != boot_ver1)
-            {
-                return true;
-            }
-        }
-    }
     return false;
 }
 

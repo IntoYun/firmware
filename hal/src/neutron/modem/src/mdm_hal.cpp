@@ -724,7 +724,6 @@ ip_status_t MDMParser::getIpStatus(void)
 {
     ip_status_t result = IPSTATUS_ATERROR;
     LOCK();
-
     if (_init) {
         sendFormated("AT+CIPSTATUS\r\n");
         if (RESP_OK != waitFinalResp(_cbGetIpStatus, &result)){
@@ -773,10 +772,9 @@ int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t*
 {
     int rst;
     if (result && (type == TYPE_PLUS)) {
-        if (sscanf(buf, "+CWJAP_DEF:%d\r\n", &rst) == 1) {
+        if (sscanf(buf, "+CWJAP:%d\r\n", &rst) == 1) {
             *result = (wifi_join_ap_t)rst;
         }
-            /*nothing*/;
     }
     return WAIT;
 }
@@ -784,11 +782,11 @@ int MDMParser::_cbWifiJoinAp(int type, const char* buf, int len, wifi_join_ap_t*
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 {
     wifi_join_ap_t result = JOINAP_CONNETFAIL;
-    LOCK();
 
+    LOCK();
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\"\r\n", ssid, password);
-        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)) {
+        if (RESP_OK != waitFinalResp(_cbWifiJoinAp, &result, 10000)) {
             result = JOINAP_CONNETFAIL;
         }
     }
@@ -799,11 +797,11 @@ wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password)
 wifi_join_ap_t MDMParser::wifiJoinAp(const char *ssid, const char *password, const char *bssid)
 {
     wifi_join_ap_t result = JOINAP_CONNETFAIL;
-    LOCK();
 
+    LOCK();
     if (_init) {
         sendFormated("AT+CWJAP_DEF=\"%s\",\"%s\",\"%s\"\r\n", ssid, password, bssid);
-        if (WAIT == waitFinalResp(_cbWifiJoinAp, &result)){
+        if (RESP_OK != waitFinalResp(_cbWifiJoinAp, &result, 10000)){
             result = JOINAP_CONNETFAIL;
         }
     }
