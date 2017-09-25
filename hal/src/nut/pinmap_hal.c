@@ -66,7 +66,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
-EESP8266_Pin_Info __PIN_MAP[TOTAL_PINS] =
+const EESP8266_Pin_Info __PIN_MAP[TOTAL_PINS] =
 {
 /*
  * gpio_pin (0-16)

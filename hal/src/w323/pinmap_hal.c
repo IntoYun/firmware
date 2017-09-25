@@ -110,7 +110,7 @@
 
 
 /* Private typedef -----------------------------------------------------------*/
-ESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
+const ESP32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 {
 /*
  * gpio_pin (0-16)
