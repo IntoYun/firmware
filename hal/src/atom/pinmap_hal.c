@@ -44,7 +44,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 
-const STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
+STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 {
     /*
     * gpio_peripheral (GPIOA or GPIOB or GPIOC or GPIOD)
