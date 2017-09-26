@@ -31,7 +31,7 @@ typedef struct STM32_Pin_Info {
     GPIO_TypeDef* gpio_peripheral;
     pin_t gpio_pin;
     uint8_t gpio_pin_source;
-    uint8_t adc_channel;
+    uint32_t adc_channel;
     uint8_t dac_channel;
     TIM_TypeDef* timer_peripheral;
     uint16_t timer_ch;
