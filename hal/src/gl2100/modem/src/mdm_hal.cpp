@@ -584,7 +584,7 @@ bool MDMParser::powerOn(const char* simpin)
 {
     LOCK();
     memset(&_dev, 0, sizeof(_dev));
-    bool retried_after_reset = false;
+    bool retried_after_reset = true;  //设置成true, 没有必要多次检查
 
     /* Power on the modem and perform basic initialization */
     if (!_powerOn())
