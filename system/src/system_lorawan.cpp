@@ -87,9 +87,11 @@ static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int
 {
     LoRa._rssi = rssi;
     LoRa._snr = snr;
-    LoRa._length = size;
-    LoRa._availableData = true;
-    memcpy( LoRa._buffer, payload, LoRa._length);
+    LoRa._bufferSize = size;
+    LoRa._available = true;
+    free(LoRa._buffer);
+    LoRa._buffer = (uint8_t *)malloc(LoRa._bufferSize);
+    memcpy( LoRa._buffer, payload, LoRa._bufferSize);
     LoRa._radioRunStatus = ep_lora_radio_rx_done;
     system_notify_event(event_lora_radio_status,ep_lora_radio_rx_done,payload,size);
 }
@@ -176,7 +178,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             LoRaWan._ackReceived = false;
         }
         LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK){
+        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK && !INTOROBOT_LORAWAN_SEND_INFO){
             system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
         }
     }
@@ -205,10 +207,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     if( mcpsIndication->RxData == true )
     {
-        LoRaWan.macBuffer.available = true;
-        LoRaWan.macBuffer.bufferSize = mcpsIndication->BufferSize;
-        memcpy(LoRaWan.macBuffer.buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
-        system_notify_event(event_cloud_data, ep_cloud_data_raw, LoRaWan.macBuffer.buffer,LoRaWan.macBuffer.bufferSize);
+        LoRaWan._available = true;
+        LoRaWan._bufferSize = mcpsIndication->BufferSize;
+        free(LoRaWan._buffer);
+        LoRaWan._buffer = (uint8_t *)malloc(LoRaWan._bufferSize);
+        memcpy(LoRaWan._buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
+        system_notify_event(event_cloud_data, ep_cloud_data_raw, LoRaWan._buffer,LoRaWan._bufferSize);
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
     }
 

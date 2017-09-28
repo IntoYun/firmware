@@ -99,6 +99,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SX1278_DIO4     42
 #define SX1278_DIO5     43
 #define SX1278_RXTX     44
+#define SX1278_BATTERY_POWER    A4
 
 // Uart pins
 #define TX 8

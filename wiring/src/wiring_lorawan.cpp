@@ -7,6 +7,7 @@
 #include "wiring_system.h"
 #include "wiring_cloud.h"
 #include "string_convert.h"
+#include <stdlib.h>
 #include "service_debug.h"
 
 #define WIRING_LORAWAN_DEBUG
@@ -181,11 +182,12 @@ int8_t LoRaWanClass::sendStatus(void)
 
 uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
 {
-    if(macBuffer.available) {
-        macBuffer.available = false; //数据已读取
+    if(_available) {
+        _available = false; //数据已读取
         *rssi = _macRssi;
-        memcpy(buffer, macBuffer.buffer, macBuffer.bufferSize);
-        return macBuffer.bufferSize;
+        memcpy(buffer, _buffer, _bufferSize);
+        free(_buffer);
+        return _bufferSize;
     }
     return 0;
 }
@@ -333,9 +335,14 @@ bool LoRaWanClass::getAdrOn(void)
     return _adrOn;
 }
 
-uint8_t LoRaWanClass::getDutyCyclePrescaler(void)
+uint16_t LoRaWanClass::getDutyCyclePrescaler(void)
 {
-    return 0;
+    return LoRaMacGetDutyCycle();
+}
+
+void LoRaWanClass::setDutyCyclePrescaler(uint16_t dutyCycle)
+{
+    LoRaMacSetDutyCycle(dutyCycle);
 }
 
 void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
@@ -353,16 +360,6 @@ uint32_t LoRaWanClass::getChannelFreq(uint8_t channel)
         return;
     }
     return LoRaMacGetChannelFreq(channel);
-}
-
-void LoRaWanClass::setChannelDutyCycle(uint8_t channel, uint16_t dcycle)
-{
-    return;
-}
-
-void LoRaWanClass::getChannelDutyCycle(uint8_t channel)
-{
-    return;
 }
 
 void LoRaWanClass::setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR)
@@ -640,16 +637,17 @@ int8_t LoRaClass::radioSendStatus(void)
 uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
 {
     uint16_t size = 0;
-    if(_availableData){
-        _availableData = false;
-        if(length < _length){
+    if(_available){
+        _available = false;
+        if(length < _bufferSize){
             size = length;
         }else{
-            size = _length;
+            size = _bufferSize;
         }
         memcpy( buffer, _buffer, size);
         *rssi = _rssi;
-        return _length;
+        free(_buffer);
+        return _bufferSize;
     }else{
         return 0;
     }

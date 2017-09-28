@@ -134,6 +134,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SX1278_DIO4     27
 #define SX1278_DIO5     28
 #define SX1278_RXTX     29
+#define SX1278_BATTERY_POWER    PA5
 
 //#define A6 36
 //#define A7 37
