@@ -4680,3 +4680,16 @@ void LoRaMacAbortRun(void)
     LoRaMacState = LORAMAC_IDLE;
     LORAMAC_DEBUG("loramac abort run!!!\r\n");
 }
+
+void LoRaMacSetDutyCycle(uint16_t dutyCycle)
+{
+    if(dutyCycle < 65535){
+        Bands[0].DCycle = dutyCycle;
+    }
+}
+
+uint16_t LoRaMacGetDutyCycle(void)
+{
+    return Bands[0].DCycle;
+}
+

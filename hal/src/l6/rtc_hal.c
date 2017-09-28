@@ -965,7 +965,7 @@ static void SlaveMcuEnterStopMcu(void)
     HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
 
     //从模式时PA0外部中断唤醒
-    HAL_Interrupts_Attach(PA2,NULL,NULL,FALLING,NULL);
+    HAL_Interrupts_Attach(PA4,NULL,NULL,FALLING,NULL);
 
     //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
     GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;

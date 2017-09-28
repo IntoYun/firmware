@@ -2,6 +2,7 @@
 #define  WIRING_LORAWAN_H_
 
 #include "intorobot_config.h"
+#include <stdlib.h>
 #ifndef configNO_LORAWAN
 
 #include "radio/inc/radio.h"
@@ -15,12 +16,6 @@
 #define LORAMAC_SEND_OK     (0)
 #define LORAMAC_SEND_FAIL   (-1)
 #define LORAMAC_SENDING     (1)
-
-typedef struct {
-    bool available;      //是否接收到数据 true有效
-    uint16_t bufferSize; //接收的数据长度
-    uint8_t buffer[256]; //缓存大小
-}lorawan_data_t;
 
 typedef struct sLoRaWanParams{
     uint32_t devAddr;
@@ -70,11 +65,10 @@ class LoRaWanClass
         uint8_t getDataRate(void);                        //获取速率
         void setAdrOn(bool adrOn);                        //使能ADR自适应速率 true使能 false不使能
         bool getAdrOn(void);                              //获取ADR自适应速率开关
-        uint8_t getDutyCyclePrescaler(void);              //获取占空比分频参数
+        uint16_t getDutyCyclePrescaler(void);              //获取占空比分频参数
+        void setDutyCyclePrescaler(uint16_t dutyCycle);         //设置占空比分频参数
         void setChannelFreq(uint8_t channel, uint32_t freq);                    //设置通道频率
         uint32_t getChannelFreq(uint8_t channel);                               //获取通道频率
-        void setChannelDutyCycle(uint8_t channel, uint16_t dcycle);             //设置通道占空比
-        void getChannelDutyCycle(uint8_t channel);                              //设置通道占空比
         void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);  //设置通道速率范围
         bool getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *maxDR);                             //获取通道速率
         void setChannelStatus(uint8_t channel, bool enable);                    //设置通道使能
@@ -99,11 +93,11 @@ class LoRaWanClass
         int16_t getRssi(void);                                                      //获取收到数据后的rssi
 
     public:
-        uint8_t _buffer[256];                 //接收缓冲区
-        uint16_t _length = 0;                 //接收数据长度
+        uint8_t *_buffer = NULL;                 //接收缓冲区
+        uint16_t _bufferSize;
+        bool _available = false;
         uint8_t _macSnr;                      //接收完数据收snr值
         int16_t _macRssi;                     //接收完数据收rssi值
-        lorawan_data_t macBuffer;
         lorawan_params_t macParams;
         DeviceClass_t _classType = CLASS_C;   //class 类型
         bool _adrOn = false;                  //ADR使能
@@ -178,12 +172,12 @@ class LoRaClass
         void radioWriteReg(uint8_t addr, uint8_t data);    //写寄存器值
 
     public:
-        uint8_t _buffer[256];                //接收缓冲区
-        uint16_t _length = 0;                //接收数据长度
-        uint8_t _snr;                         //接收完数据收snr值
+        uint8_t *_buffer = NULL;                //接收缓冲区
+        uint16_t _bufferSize = 0;            //接收数据长度
+        bool _available = false;             //是否收到数据
+        uint8_t _snr;                        //接收完数据收snr值
         int16_t _rssi;                       //接收完数据收rssi值
         uint8_t _radioRunStatus = 0;         //发送接收状态
-        bool _availableData = false;        //是否收到数据
         int8_t _radioSendStatus = -1;
 
     private:

@@ -32,6 +32,25 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define   ID2        ( 0x1FF80054 )
 #define   ID3        ( 0x1FF80064 )
 
+#define FACTORY_POWER_SUPPLY                        3300 // mV
+
+/*!
+ * VREF calibration value
+ */
+#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF80078 )
+
+/*!
+ * ADC maximum value
+ */
+#define ADC_MAX_VALUE                               4095
+
+/*!
+ * Battery thresholds
+ */
+#define BATTERY_MAX_LEVEL                           4150 // mV
+#define BATTERY_MIN_LEVEL                           3200 // mV
+#define BATTERY_SHUTDOWN_LEVEL                      3100 // mV
+
 
 /*!
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
@@ -89,6 +108,7 @@ void SX1276IoInit( void )
     pinMode(SX1276.DIO3,INPUT_PULLUP);
     pinMode(SX1276.DIO4,INPUT_PULLUP);
     pinMode(SX1276.DIO5,INPUT_PULLUP);
+    pinMode(SX1278_BATTERY_POWER,AN_INPUT);
 }
 
 void SX1276IoDeInit( void )
@@ -279,8 +299,7 @@ void SX1276BoardInit(void)
 
 void DelayMs(uint32_t ms)
 {
-    // delay(ms);
-    HAL_Delay_Microseconds(ms);//因delay时需运行intorobot_process　会导致配置模式下无法运行1278驱动 故换成  HAL_Delay_Microseconds
+    HAL_Delay_Microseconds(ms);
 }
 
 uint8_t GetBoardPowerSource( void )
@@ -302,9 +321,55 @@ uint8_t GetBoardPowerSource( void )
     return BATTERY_POWER;
 }
 
+uint16_t BoardBatteryMeasureVolage( void )
+{
+    uint16_t vdd = 0;
+    uint16_t vref = VREFINT_CAL;
+    uint16_t vdiv = 0;
+    uint16_t batteryVoltage = 0;
+
+    vdiv = analogRead(SX1278_BATTERY_POWER);
+
+    vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
+    batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
+
+    //                                vDiv
+    // Divider bridge  VBAT <-> 470k -<--|-->- 470k <-> GND => vBat = 2 * vDiv
+    batteryVoltage = 2 * batteryVoltage;
+    return batteryVoltage;
+}
+
 uint8_t BoardGetBatteryLevel(void)
 {
-    return 200;
+    uint8_t batteryLevel = 0;
+    uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
+
+    BatteryVoltage = BoardBatteryMeasureVolage( );
+
+    if( GetBoardPowerSource( ) == USB_POWER )
+    {
+        batteryLevel = 0;
+    }
+    else
+    {
+        if( BatteryVoltage >= BATTERY_MAX_LEVEL )
+        {
+            batteryLevel = 254;
+        }
+        else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
+        {
+            batteryLevel = ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+        }
+        else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
+        {
+            batteryLevel = 1;
+        }
+        else
+        {
+            batteryLevel = 255;
+        }
+    }
+    return batteryLevel;
 }
 
 uint32_t BoardGetRandomSeed( void )
