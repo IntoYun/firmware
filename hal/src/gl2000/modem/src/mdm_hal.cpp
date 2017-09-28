@@ -375,7 +375,7 @@ bool MDMParser::init(void)
     LOCK();
     if (!_init) {
         MDM_DEBUG_D("[ Esp8266 init ]");
-        esp8266MDM.begin(460800);
+        esp8266MDM.begin(115200);
         reset();
         /* Initialize only once */
         _init = true;

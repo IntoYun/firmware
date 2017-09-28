@@ -148,7 +148,7 @@ void HAL_System_Config(void)
     HAL_UI_Initial();
     HAL_UI_UserLED_Control(0);
     HAL_RTC_Initial();
-    usart_esp8266_initial(460800);  //esp8266通讯 采取460800波特率
+    usart_esp8266_initial(115200);  //esp8266通讯 采取115200波特率
     ESP8266_GPIO_Initial();
     Esp8266_Reset();
     HAL_EEPROM_Init();   //初始化eeprom区
