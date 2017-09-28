@@ -178,7 +178,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             LoRaWan._ackReceived = false;
         }
         LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK){
+        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK && !INTOROBOT_LORAWAN_SEND_INFO){
             system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
         }
     }
