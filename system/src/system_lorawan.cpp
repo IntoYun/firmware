@@ -90,6 +90,7 @@ static void OnLoRaRadioRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int
     LoRa._bufferSize = size;
     LoRa._available = true;
     free(LoRa._buffer);
+    LoRa._buffer = NULL;
     LoRa._buffer = (uint8_t *)malloc(LoRa._bufferSize);
     memcpy( LoRa._buffer, payload, LoRa._bufferSize);
     LoRa._radioRunStatus = ep_lora_radio_rx_done;
@@ -210,6 +211,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         LoRaWan._available = true;
         LoRaWan._bufferSize = mcpsIndication->BufferSize;
         free(LoRaWan._buffer);
+        LoRaWan._buffer = NULL;
         LoRaWan._buffer = (uint8_t *)malloc(LoRaWan._bufferSize);
         memcpy(LoRaWan._buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
         system_notify_event(event_cloud_data, ep_cloud_data_raw, LoRaWan._buffer,LoRaWan._bufferSize);

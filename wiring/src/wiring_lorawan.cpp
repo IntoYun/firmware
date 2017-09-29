@@ -187,6 +187,7 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
         *rssi = _macRssi;
         memcpy(buffer, _buffer, _bufferSize);
         free(_buffer);
+        _buffer = NULL;
         return _bufferSize;
     }
     return 0;
@@ -647,6 +648,7 @@ uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
         memcpy( buffer, _buffer, size);
         *rssi = _rssi;
         free(_buffer);
+        _buffer = NULL;
         return _bufferSize;
     }else{
         return 0;
