@@ -182,12 +182,19 @@ int8_t LoRaWanClass::sendStatus(void)
 
 uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
 {
+    uint16_t size = 0;
     if(_available) {
         _available = false; //数据已读取
+        if(length < _bufferSize){
+            size = length;
+        }else{
+            size = _bufferSize;
+        }
         *rssi = _macRssi;
-        memcpy(buffer, _buffer, _bufferSize);
+        memcpy(buffer, _buffer, size);
         free(_buffer);
-        return _bufferSize;
+        _buffer = NULL;
+        return size;
     }
     return 0;
 }
@@ -644,10 +651,11 @@ uint16_t LoRaClass::radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi)
         }else{
             size = _bufferSize;
         }
-        memcpy( buffer, _buffer, size);
         *rssi = _rssi;
+        memcpy( buffer, _buffer, size);
         free(_buffer);
-        return _bufferSize;
+        _buffer = NULL;
+        return size;
     }else{
         return 0;
     }
