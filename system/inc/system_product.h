@@ -65,7 +65,6 @@ typedef enum
     SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED,
     SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED,
     SYSTEM_FEATURE_REGISTER_ENABLED,
-    SYSTEM_FEATURE_ACTIVATE_ENABLED,
     SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,
     SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED,
     SYSTEM_FEATURE_MAX
@@ -90,7 +89,6 @@ public:
         feature_auto_time_syn_enable = true;        //自动时间同步  0:关闭  1:打开
         feature_data_protocol_enable = true;        //数据协议处理  0:关闭  1:打开
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
-        feature_activater_enable = true;            //设备激活      0:关闭  1:打开
         feature_loramac_run_enable = true;          //LoRaWan运行   0:关闭  1:打开
         feature_cloud_data_encrypt_enable = true;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
     }
@@ -272,7 +270,6 @@ private:
     bool feature_auto_time_syn_enable;        //自动时间同步  0:关闭  1:打开
     bool feature_data_protocol_enable;        //数据协议处理  0:关闭  1:打开
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
-    bool feature_activater_enable;            //设备激活      0:关闭  1:打开
     bool feature_loramac_run_enable;          //loramac是否自动激活   0:关闭  1:打开
     bool feature_cloud_data_encrypt_enable;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
 };

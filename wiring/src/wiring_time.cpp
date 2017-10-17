@@ -272,12 +272,12 @@ void TimeClass::setTime(time_t t)
 /* return string representation for the given time */
 String TimeClass::timeStr(time_t t)
 {
-	t += time_zone_cache;
-	tm* calendar_time = localtime(&t);
-        char* ascstr = asctime(calendar_time);
-        int len = strlen(ascstr);
-        ascstr[len-1] = 0; // remove final newline
-	return String(ascstr);
+    t += time_zone_cache;
+    tm* calendar_time = localtime(&t);
+    char* ascstr = asctime(calendar_time);
+    int len = strlen(ascstr);
+    ascstr[len-1] = 0; // remove final newline
+    return String(ascstr);
 }
 
 String TimeClass::format(time_t t, const char* format_spec)

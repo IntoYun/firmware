@@ -120,8 +120,7 @@ void Network_Setup(void)
 
     network.setup();
 
-    // don't automatically connect when threaded since we want the thread to start asap
-    if(system_mode() == AUTOMATIC) {
+    if((system_mode() == AUTOMATIC) || (system_mode() == SEMI_AUTOMATIC)) {
         network.connect();
     }
 
@@ -142,19 +141,22 @@ void manage_network_connection()
     static bool was_connected = false;
     if (network.ready()) {
         if(!was_connected) {
-            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            was_connected = true;
             INTOROBOT_CLOUD_SOCKETED = 1;
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            manage_ip_config();
+            system_notify_event(event_network_status, ep_network_status_connected);
         }
-        was_connected = true;
     } else {
         if(was_connected) {
+            was_connected = false;
             INTOROBOT_CLOUD_SOCKETED = 0;
 #ifndef configNO_CLOUD
             INTOROBOT_CLOUD_CONNECTED = 0;
 #endif
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+            system_notify_event(event_network_status, ep_network_status_disconnected);
         }
-        was_connected = false;
     }
     network_connection_attempted();
 }
