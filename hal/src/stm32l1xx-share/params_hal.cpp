@@ -492,7 +492,7 @@ uint16_t HAL_PARAMS_Get_System_subsys_ver(char* buffer, uint16_t len) {
 }
 
 /*
- * 设置文件下载域名
+ * 设置文件系统版本号
  * */
 int HAL_PARAMS_Set_System_subsys_ver(const char* buffer) {
     uint16_t templen;
@@ -520,3 +520,4 @@ int HAL_PARAMS_Set_System_config_flag(CONFIG_FLAG_TypeDef flag) {
     intorobot_system_params.config_flag = flag;
     return 0;
 }
+

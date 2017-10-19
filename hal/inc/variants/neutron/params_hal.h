@@ -64,12 +64,6 @@ typedef enum
     AT_MODE_FLAG_OTAA_ACTIVE     = 3  //灌装激活码 已激活
 } AT_MODE_FLAG_TypeDef;
 
-typedef enum
-{
-    SV_SELECT_FLAG_DEFAULT       = 0, //使用默认参数
-    SV_SELECT_FLAG_CUSTOM        = 1 //使用自定义参数
-} SV_SELECT_FLAG_TypeDef;
-
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported macros -----------------------------------------------------------*/

@@ -252,7 +252,6 @@ void app_setup_and_loop_initial(bool *threaded)
     Time.zone(HAL_PARAMS_Get_System_zone());
 
     DEBUG("---------------welcome from IntoRobot!-----------------\r\n");
-
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
 #ifdef configHAL_USB_CDC_ENABLE
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
@@ -293,7 +292,7 @@ void app_setup_and_loop_initial(bool *threaded)
     CLOUD_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
     LORAWAN_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_MANUAL, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
 
-    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode()!=SAFE_MODE);
+    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode() != SAFE_MODE);
 #if PLATFORM_THREADING
     if (*threaded)
     {

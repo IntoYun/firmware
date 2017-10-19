@@ -30,11 +30,13 @@
 #define SYSTEM_UPDATE_DEBUG
 
 #ifdef SYSTEM_UPDATE_DEBUG
-#define SUPDATE_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SUPDATE_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SUPDATE_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SUPDATE_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SUPDATE_DEBUG(...)
 #define SUPDATE_DEBUG_D(...)
+#define SUPDATE_DEBUG_DUMP
 #endif
 
 #ifdef START_DFU_FLASHER_SERIAL_SPEED

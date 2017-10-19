@@ -32,11 +32,13 @@
 //#define WIRING_UDP_DEBUG
 
 #ifdef WIRING_UDP_DEBUG
-#define WUDP_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WUDP_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define WUDP_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define WUDP_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define WUDP_DEBUG(...)
 #define WUDP_DEBUG_D(...)
+#define WUDP_DEBUG_DUMP
 #endif
 
 using namespace intorobot;

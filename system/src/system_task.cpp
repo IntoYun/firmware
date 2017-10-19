@@ -50,11 +50,13 @@
 #define SYSTEM_TASK_DEBUG
 
 #ifdef SYSTEM_TASK_DEBUG
-#define STASK_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define STASK_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define STASK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define STASK_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define STASK_DEBUG(...)
 #define STASK_DEBUG_D(...)
+#define STASK_DEBUG_DUMP
 #endif
 
 #ifndef configNO_NETWORK
@@ -120,8 +122,7 @@ void Network_Setup(void)
 
     network.setup();
 
-    // don't automatically connect when threaded since we want the thread to start asap
-    if(system_mode() == AUTOMATIC) {
+    if((system_mode() == AUTOMATIC) || (system_mode() == SEMI_AUTOMATIC)) {
         network.connect();
     }
 
@@ -142,19 +143,22 @@ void manage_network_connection()
     static bool was_connected = false;
     if (network.ready()) {
         if(!was_connected) {
-            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            was_connected = true;
             INTOROBOT_CLOUD_SOCKETED = 1;
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+            manage_ip_config();
+            system_notify_event(event_network_status, ep_network_status_connected);
         }
-        was_connected = true;
     } else {
         if(was_connected) {
+            was_connected = false;
             INTOROBOT_CLOUD_SOCKETED = 0;
 #ifndef configNO_CLOUD
             INTOROBOT_CLOUD_CONNECTED = 0;
 #endif
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+            system_notify_event(event_network_status, ep_network_status_disconnected);
         }
-        was_connected = false;
     }
     network_connection_attempted();
 }
@@ -234,8 +238,7 @@ void establish_cloud_connection(void)
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
                 system_notify_event(event_cloud_status, ep_cloud_status_connected);
             } else {
-                INTOROBOT_CLOUD_CONNECTED = 0;
-                intorobot_cloud_disconnect();
+                cloud_disconnect();
                 cloud_connection_failed();
             }
         }
@@ -248,10 +251,7 @@ void handle_cloud_connection(void)
         if (INTOROBOT_CLOUD_CONNECTED) {
             int err = intorobot_cloud_handle();
             if (err) {
-                INTOROBOT_CLOUD_CONNECTED = 0;
-                intorobot_cloud_disconnect();
-                system_rgb_blink(RGB_COLOR_BLUE, 1000);
-                system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
+                cloud_disconnect();
             }
         }
     }
@@ -261,7 +261,7 @@ void manage_cloud_connection(void)
 {
     preprocess_cloud_connection();
     if (intorobot_cloud_flag_auto_connect() == 0) {
-        intorobot_cloud_disconnect();
+        cloud_disconnect();
     } else {
         // cloud connection is wanted
         establish_cloud_connection();
@@ -272,8 +272,10 @@ void manage_cloud_connection(void)
 void cloud_disconnect(bool closeSocket)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
-        system_notify_event(event_cloud_status, ep_cloud_status_disconnecting);
+        STASK_DEBUG("cloud_disconnect\r\n");
         INTOROBOT_CLOUD_CONNECTED = 0;
+        system_rgb_blink(RGB_COLOR_BLUE, 1000);
+        system_notify_event(event_cloud_status, ep_cloud_status_disconnecting);
         intorobot_cloud_disconnect();
         system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
     }

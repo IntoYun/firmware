@@ -50,14 +50,15 @@
 #include "system_config.h"
 #include "string_convert.h"
 #include "ajson.h"
+#include "intorobot_def.h"
 
 /*debug switch*/
 #define SYSTEM_CLOUD_DEBUG
 
 #ifdef SYSTEM_CLOUD_DEBUG
-#define SCLOUD_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SCLOUD_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SCLOUD_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-#define SCLOUD_DEBUG_DUMP  DEBUG_DUMP
+#define SCLOUD_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SCLOUD_DEBUG(...)
 #define SCLOUD_DEBUG_D(...)
@@ -98,7 +99,7 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
 {
     uint8_t *pdata = NULL;
     uint16_t datalen = length-6; //去掉seq_id + mic
-    char device_id[38]={0};
+    char device_id[38] = {0};
     uint8_t mic[4];
     uint16_t down_seq_id;
 
@@ -230,10 +231,10 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
 
     uint32_t n;
     char flag=0;
-    String s_payload="", domain="", param="";
+    String s_payload = "", domain = "", param = "";
     aJsonClass aJson;
 
-    for(n=0; n<len; n++)
+    for(n = 0; n < len; n++)
     {s_payload+=(char)payload[n];}
 
     led_state.save();
@@ -250,7 +251,7 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
     if(type_Object == NULL) {
         flag=1;
     } else {
-        char board[32]="";
+        char board[32] = "";
         system_get_board_id(board, sizeof(board));
         if(strcmp(type_Object->valuestring + 3, board + 3))
         {flag=2;}
@@ -266,14 +267,9 @@ static void ota_update_callback(uint8_t *payload, uint32_t len)
     }
 
     if(0==flag) {
-        char down_domain[36]={0};
+        char down_domain[36] = {0};
         HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
-        if (strlen(down_domain)) {
-            domain+=down_domain;
-        } else {
-            domain+=INTOROBOT_UPDATE_DOMAIN;
-        }
-
+        domain+=down_domain;
         param+=String(INTOROBOT_OTA_UPDATE_URL) + "?dwn_token=" + String(dtoken_Object->valuestring);
 
         uint32_t size = 0;
@@ -347,9 +343,9 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
     SCLOUD_DEBUG("v1 : subsys update!\r\n");
 
     uint32_t n;
-    String s_payload="", domain="", param="";
+    String s_payload = "", domain = "", param = "";
     aJsonClass aJson;
-    char flag=0,result=1;
+    char flag = 0,result = 1;
     bool board_type_error = false;
 
     for(n=0; n<len; n++)
@@ -376,14 +372,11 @@ static void subsys_update_callback(uint8_t *payload, uint32_t len)
     }
 
     if(0==flag) {
-        char down_domain[36]={0};
+        char down_domain[36] = {0};
         HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
-        if (strlen(down_domain)) {
-            domain+=down_domain;
-        } else {
-            domain+=INTOROBOT_UPDATE_DOMAIN;
-        }
-        char name[24]={0};
+        domain += down_domain;
+
+        char name[24] = {0};
         system_get_board_name(name, sizeof(name));
 
         param+="/downloads/" + String(name) + "/" + String(sys_Ver_Object->valuestring);
@@ -525,7 +518,7 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
     SCLOUD_DEBUG("v2 :online upgrade!\r\n");
 
     bool flag = false;
-    String domain="", param="";
+    String domain = "", param = "";
     uint8_t progress = 0;
 
     led_state.save();
@@ -535,12 +528,7 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
 
     char down_domain[36]={0};
     HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
-    if (strlen(down_domain)) {
-        domain+=down_domain;
-    } else {
-        domain+=INTOROBOT_UPDATE_DOMAIN;
-    }
-
+    domain+=down_domain;
     param += String(INTOROBOT_OTA_UPDATE_URL) + "?dwn_token=" + String(token);
 
     uint32_t size = 0;
@@ -606,7 +594,7 @@ static void intorobot_subsys_upgrade(const char *version)
     SCLOUD_DEBUG("v2 :subsys_upgrade!\r\n");
 
     bool flag = false;
-    String domain="", param="";
+    String domain = "", param = "";
     uint8_t progress = 0;
 
     led_state.save();
@@ -616,11 +604,8 @@ static void intorobot_subsys_upgrade(const char *version)
 
     char down_domain[36]={0};
     HAL_PARAMS_Get_System_dw_domain(down_domain, sizeof(down_domain));
-    if (strlen(down_domain)) {
-        domain+=down_domain;
-    } else {
-        domain+=INTOROBOT_UPDATE_DOMAIN;
-    }
+    domain+=down_domain;
+
     char name[24]={0};
     system_get_board_name(name, sizeof(name));
     param+="/downloads/" + String(name) + "/" + String(version);
@@ -695,7 +680,7 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
 
     aJsonClass aJson;
     String s_payload;
-    aJsonObject *root=NULL, *boardObject=NULL, *cmdObject=NULL, *dtokenObject=NULL, *versionObject=NULL;
+    aJsonObject *root = NULL, *boardObject = NULL, *cmdObject = NULL, *dtokenObject = NULL, *versionObject = NULL;
 
     for(int n=0; n < len; n++)
     {
@@ -782,7 +767,7 @@ void cloud_debug_callback(uint8_t *payload, uint32_t len)
 
 void fill_mqtt_topic(String &fulltopic, topic_version_t version, const char *topic, const char *device_id)
 {
-    String sdevice_id=intorobot_deviceID();
+    String sdevice_id = intorobot_deviceID();
 
     if( TOPIC_VERSION_V1 == version ) {
         if(device_id == NULL) {
@@ -808,12 +793,40 @@ void fill_mqtt_topic(String &fulltopic, topic_version_t version, const char *top
     fulltopic+=topic;
 }
 
+static void _cloud_params_init(void) {
+    char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
+
+    if(0 == HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain))) {
+        HAL_PARAMS_Set_System_sv_domain(INTOROBOT_SERVER_DOMAIN);
+    }
+    if(0 == HAL_PARAMS_Get_System_sv_port()) {
+        HAL_PARAMS_Set_System_sv_port(INTOROBOT_SERVER_PORT);
+    }
+    if(0 == HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain))) {
+        HAL_PARAMS_Set_System_http_domain(INTOROBOT_HTTP_DOMAIN);
+    }
+    if(0 == HAL_PARAMS_Get_System_http_port()) {
+        HAL_PARAMS_Set_System_http_port(INTOROBOT_HTTP_PORT);
+    }
+    if(0 == HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain))) {
+        HAL_PARAMS_Set_System_dw_domain(INTOROBOT_UPDATE_DOMAIN);
+    }
+}
+
 void intorobot_cloud_init(void)
 {
+    //对domain，port默认值处理发生变化，所以添加该函数初始化网络参数。
+    _cloud_params_init();
+    //mqtt server domain
+    char sv_domain[32] = {0};
+    HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
+    //mqtt server port
+    int sv_port=HAL_PARAMS_Get_System_sv_port();
+
     memset(&g_debug_tx_buffer,0,sizeof(g_debug_tx_buffer));
     memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
 
-    g_mqtt_client = MqttClientClass((char *)INTOROBOT_SERVER_DOMAIN, INTOROBOT_SERVER_PORT, mqtt_client_callback, g_mqtt_tcp_client);
+    g_mqtt_client = MqttClientClass(sv_domain, sv_port, mqtt_client_callback, g_mqtt_tcp_client);
     //ota 升级
     if(System.featureEnabled(SYSTEM_FEATURE_OTA_UPDATE_ENABLED)) {
 #if 1
@@ -824,25 +837,25 @@ void intorobot_cloud_init(void)
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_REBOOT_TOPIC, NULL, system_reboot_callback, 0);              //stm32重启
         intorobot_subscribe(TOPIC_VERSION_V1, INTOROBOT_MQTT_SUB_RECEIVE_DEBUG_TOPIC, NULL, system_debug_callback, 0);        //从平台获取调试信息
 #else
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);        //从平台获取系统控制信息
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);        //从平台获取调试信息
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);                   //从平台获取系统控制信息
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);                   //从平台获取调试信息
 #endif
     }
     //数据点处理
     if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
         // v2版本subscibe
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0);                 //从平台获取数据通讯信息
 
         // 添加默认数据点
-        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //reboot
-        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);      //get all datapoint
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);               //reboot
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);     //get all datapoint
     }
 }
 
 static bool _intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic = "";
-    char device_id[38]={0};
+    char device_id[38] = {0};
     uint8_t *pdata = malloc(plength + 16);
     uint16_t dataIndex = 0;
 
@@ -934,8 +947,8 @@ int intorobot_debug_info_available(void)
 
 static pCallBack get_subscribe_callback(char * fulltopic)
 {
-    char topictmp[128]={0};
-    char device_id[32]={0};
+    char topictmp[128] = {0};
+    char device_id[32] = {0};
 
     for (int i = 0 ; i < g_callback_list.total_callbacks; i++)
     {
@@ -1020,8 +1033,8 @@ static void add_subscribe_callback(topic_version_t version, char *topic, char *d
 
 static WidgetBaseClass *get_widget_subscribe_callback(char * fulltopic)
 {
-    char topictmp[128]={0};
-    char device_id[32]={0};
+    char topictmp[128] = {0};
+    char device_id[32] = {0};
 
     for (int i = 0 ; i < g_callback_list.total_wcallbacks; i++)
     {
@@ -1210,30 +1223,19 @@ void intorobot_cloud_disconnect(void)
 int intorobot_cloud_connect(void)
 {
     SCLOUD_DEBUG("---------mqtt connect start--------\r\n");
-    intorobot_cloud_disconnect();
     //mqtt server domain
-    char sv_domain[32]={0};
+    char sv_domain[32] = {0}, dw_domain[38] = {0};
     HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
-    if(0 == strlen(sv_domain)) {
-        strcpy(sv_domain, INTOROBOT_SERVER_DOMAIN);
-    }
+    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     //mqtt server port
-    int sv_port=HAL_PARAMS_Get_System_sv_port();
-    if(sv_port <= 0) {
-        sv_port=INTOROBOT_SERVER_PORT;
-    }
-
+    int sv_port = HAL_PARAMS_Get_System_sv_port();
     g_mqtt_client.setServer(sv_domain, sv_port);
 
-    char device_id[38]={0}, access_token[38]={0}, dw_domain[38]={0};
+    char device_id[38] = {0}, access_token[38] = {0};
     uint8_t access_token_hex[16] = {0};
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
     string2hex(access_token, access_token_hex, sizeof(access_token_hex), false);
-    HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
-    if(0 == strlen(dw_domain)) {
-        strcpy(dw_domain, INTOROBOT_UPDATE_DOMAIN);
-    }
 
     SCLOUD_DEBUG("---------terminal params--------\r\n");
     SCLOUD_DEBUG("mqtt domain     : %s\r\n", sv_domain);
@@ -1278,7 +1280,7 @@ int intorobot_cloud_connect(void)
         SCLOUD_DEBUG_DUMP(g_mqtt_nwkskey, 16);
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
-            char buffer[33]="";
+            char buffer[33] = {0};
 
             //intorobot 平台上送设备信息
             aJsonObject* root = aJson.createObject();
@@ -1426,16 +1428,10 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
     aJson.deleteItem(root);
 
     //http domain
-    char http_domain[32]={0};
+    char http_domain[32] = {0};
     HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
-    if(0 == strlen(http_domain)) {
-        strcpy(http_domain, INTOROBOT_HTTP_DOMAIN);
-    }
     //http port
-    int http_port=HAL_PARAMS_Get_System_http_port();
-    if(http_port <= 0) {
-        http_port=INTOROBOT_HTTP_PORT;
-    }
+    int http_port = HAL_PARAMS_Get_System_http_port();
 
     http.begin(http_domain, http_port, "/v1/device?act=register");
     http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
@@ -1482,7 +1478,7 @@ bool intorobot_get_version(String &body)
 
 String intorobot_deviceID(void)
 {
-    char device_id[32]={0};
+    char device_id[32] = {0};
 
     HAL_PARAMS_Get_System_device_id(device_id, sizeof(device_id));
     return device_id;

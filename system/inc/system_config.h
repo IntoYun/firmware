@@ -194,8 +194,8 @@ extern UdpDeviceConfig DeviceSetupImlink;
 
 typedef enum
 {
-  SYSTEM_CONFIG_MODE_AUTOMATIC = 0,
-  SYSTEM_CONFIG_MODE_MANUAL,
+    SYSTEM_CONFIG_MODE_AUTOMATIC = 0,
+    SYSTEM_CONFIG_MODE_MANUAL,
 } system_config_mode_t;
 
 typedef enum

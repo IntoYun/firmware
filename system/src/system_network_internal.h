@@ -34,11 +34,13 @@
 #define SYSTEM_NETWORK_DEBUG
 
 #ifdef SYSTEM_NETWORK_DEBUG
-#define SNETWORK_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SNETWORK_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SNETWORK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SNETWORK_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SNETWORK_DEBUG(...)
 #define SNETWORK_DEBUG_D(...)
+#define SNETWORK_DEBUG_DUMP
 #endif
 
 enum eWanTimings
@@ -281,7 +283,7 @@ public:
         WLAN_CONNECTED = 0;
         WLAN_CONNECTING = 0;
         WLAN_DHCP = 0;
-        system_notify_event(event_network_status, ep_network_status_disconnected);
+        //system_notify_event(event_network_status, ep_network_status_disconnected);
     }
 
     void notify_dhcp(bool dhcp)
@@ -291,13 +293,11 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success\r\n");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
-            system_notify_event(event_network_status, ep_network_status_connected);
         } else {
             config_clear();
             WLAN_DHCP = 0;
             SNETWORK_DEBUG("DHCP fail, ARM_WLAN_WD 5\r\n");
             ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
-            system_notify_event(event_network_status, ep_network_status_disconnected);
         }
     }
 

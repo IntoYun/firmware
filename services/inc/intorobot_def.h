@@ -21,13 +21,15 @@
 #define INTOROBOT_DEF_H_
 
 
+#define INTOROBOT_SERVER_DOMAIN        "iot.intoyun.com"
+#define INTOROBOT_SERVER_PORT          1883
 
-#define SDK_OK                       (1)
-#define SDK_EQU                      (0)
-#define SDK_ERR                      (-1)
-#define SDK_TIME_OUT                 (-2)
-#define SDK_PARA_ERR                 (-3)
+#define INTOROBOT_HTTP_DOMAIN          "www.intoyun.com"
+#define INTOROBOT_HTTP_PORT            80
 
+#define INTOROBOT_UPDATE_DOMAIN        "www.intoyun.com"
 
+#define INTOROBOT_TIME_ZONE            8
 
 #endif /* INTOROBOT_DEF_H_ */
+

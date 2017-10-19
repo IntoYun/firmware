@@ -13,11 +13,13 @@
 #define WIRING_LORAWAN_DEBUG
 
 #ifdef WIRING_LORAWAN_DEBUG
-#define WLORAWAN_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WLORAWAN_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define WLORAWAN_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define WLORAWAN_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define WLORAWAN_DEBUG(...)
 #define WLORAWAN_DEBUG_D(...)
+#define WLORAWAN_DEBUG_DUMP
 #endif
 
 LoRaWanClass LoRaWan;

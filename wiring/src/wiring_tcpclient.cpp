@@ -31,11 +31,13 @@
 //#define WIRING_TCPCLIENT_DEBUG
 
 #ifdef WIRING_TCPCLIENT_DEBUG
-#define WTCPCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WTCPCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define WTCPCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define WTCPCLIENT_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define WTCPCLIENT_DEBUG(...)
 #define WTCPCLIENT_DEBUG_D(...)
+#define WTCPCLIENT_DEBUG_DUMP
 #endif
 
 using namespace intorobot;

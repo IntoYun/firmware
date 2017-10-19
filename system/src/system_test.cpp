@@ -36,11 +36,13 @@ bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 #define SYSTEM_TEST_DEBUG
 
 #ifdef SYSTEM_TEST_DEBUG
-#define STEST_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define STEST_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define STEST_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define STEST_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define STEST_DEBUG(...)
 #define STEST_DEBUG_D(...)
+#define STEST_DEBUG_DUMP
 #endif
 
 #ifndef configNO_NETWORK
