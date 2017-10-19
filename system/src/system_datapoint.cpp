@@ -34,9 +34,9 @@
 #define SYSTEM_DATAPOINT_DEBUG
 
 #ifdef SYSTEM_DATAPOINT_DEBUG
-#define SDATAPOINT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SDATAPOINT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SDATAPOINT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-#define SDATAPOINT_DEBUG_DUMP DEBUG_DUMP
+#define SDATAPOINT_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SDATAPOINT_DEBUG(...)
 #define SDATAPOINT_DEBUG_D(...)

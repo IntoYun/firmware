@@ -49,13 +49,12 @@ typedef struct
     char     fwlib_ver[24];        // 固件库版本号
     char     subsys_ver[24];       // 子系统模块版本号
     uint8_t  reserve1[96];          // 版本号预留区 每添加一个版本号，预留区大小减1
-    uint8_t  config_flag;          // 是否进入配置模式  0:不进入  1:进入
+    uint8_t  config_flag;          // 是否进入配置模式           0:不进入  1:进入
     uint8_t  ota_flag;             // 是否上报在线升级成功状态   0:不上报  1:上报
-    uint8_t  reset_flag;           // 是否上报重启成功状态   0:不上报  1:上报
-    uint8_t  at_mode;              // 是否已经灌装密钥  0:未灌装 1:已经灌装
-    uint8_t  sv_select;            // 是否选择默认服务参数  0:使用 1:不使用
-    uint8_t  subsys_flag;          // 子系统升级标志  1:待升级  2:无需升级
-    uint8_t  reserve2[30];         // 状态预留区，没添加一个状态，预留区大小减1
+    uint8_t  reset_flag;           // 是否上报重启成功状态       0:不上报  1:上报
+    uint8_t  at_mode;              // 是否已经灌装密钥           0:未灌装  1:已经灌装
+    uint8_t  subsys_flag;          // 子系统升级标志             1:待升级  2:无需升级
+    uint8_t  reserve2[31];         // 状态预留区，没添加一个状态，预留区大小减1
     char     device_id[52];        // 设备序列号
     char     access_token[52];     // 设备access_token
     char     sv_domain[52];        // 服务器域名

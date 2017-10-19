@@ -64,12 +64,6 @@ typedef enum
     AT_MODE_FLAG_OTAA_ACTIVE     = 3  //灌装激活码 已激活
 } AT_MODE_FLAG_TypeDef;
 
-typedef enum
-{
-    SV_SELECT_FLAG_DEFAULT       = 0, //使用默认参数
-    SV_SELECT_FLAG_CUSTOM        = 1 //使用自定义参数
-} SV_SELECT_FLAG_TypeDef;
-
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported macros -----------------------------------------------------------*/
@@ -107,12 +101,6 @@ int HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_TypeDef flag);
 
 float HAL_PARAMS_Get_System_zone(void);
 int HAL_PARAMS_Set_System_zone(float zone);
-uint16_t HAL_PARAMS_Get_System_sv_domain(char* buffer, uint16_t len);
-int HAL_PARAMS_Set_System_sv_domain(const char* buffer);
-int HAL_PARAMS_Get_System_sv_port(void);
-int HAL_PARAMS_Set_System_sv_port(int port);
-uint16_t HAL_PARAMS_Get_System_dw_domain(char* buffer, uint16_t len);
-int HAL_PARAMS_Set_System_dw_domain(const char* buffer);
 
 uint16_t HAL_PARAMS_Get_System_fwlib_ver(char* buffer, uint16_t len);
 int HAL_PARAMS_Set_System_fwlib_ver(const char* buffer);

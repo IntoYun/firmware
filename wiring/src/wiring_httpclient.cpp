@@ -36,11 +36,13 @@
 //#define WIRING_HTTPCLIENT_DEBUG
 
 #ifdef WIRING_HTTPCLIENT_DEBUG
-#define WHTTPCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define WHTTPCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define WHTTPCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define WHTTPCLIENT_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define WHTTPCLIENT_DEBUG(...)
 #define WHTTPCLIENT_DEBUG_D(...)
+#define WHTTPCLIENT_DEBUG_DUMP
 #endif
 
 class TransportTraits

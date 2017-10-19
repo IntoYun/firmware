@@ -25,7 +25,7 @@
 #include "flash_map.h"
 #include "flash_storage_impl.h"
 #include "intorobot_macros.h"
-#include "service_debug.h"
+#include "intorobot_def.h"
 
 #define EEPROM_BOOT_PARAMS_MAX_SIZE                        (512)    //参数区大小
 
@@ -44,7 +44,12 @@ void init_system_params(hal_system_params_t *psystem_params) {
     memset((uint8_t *)psystem_params, 0, sizeof(hal_system_params_t));
     psystem_params->header = SYSTEM_PARAMS_HEADER;
     psystem_params->config_flag = 1;
-    psystem_params->zone = 8;
+    psystem_params->zone = INTOROBOT_TIME_ZONE;
+    strcpy(psystem_params->sv_domain, INTOROBOT_SERVER_DOMAIN);
+    psystem_params->sv_port = INTOROBOT_SERVER_PORT;
+    strcpy(psystem_params->http_domain, INTOROBOT_HTTP_DOMAIN);
+    psystem_params->http_port =  INTOROBOT_HTTP_PORT;
+    strcpy(psystem_params->dw_domain, INTOROBOT_UPDATE_DOMAIN);
 }
 
 /*初始化系统参数区 保留密钥参数*/

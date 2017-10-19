@@ -34,11 +34,13 @@
 #define SYSTEM_NETWORK_DEBUG
 
 #ifdef SYSTEM_NETWORK_DEBUG
-#define SNETWORK_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SNETWORK_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SNETWORK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SNETWORK_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SNETWORK_DEBUG(...)
 #define SNETWORK_DEBUG_D(...)
+#define SNETWORK_DEBUG_DUMP
 #endif
 
 enum eWanTimings

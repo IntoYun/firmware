@@ -316,9 +316,9 @@ class CloudClass: public CloudDatepointClass, public Print{
             HAL_PARAMS_Set_System_zone(zone);
             HAL_PARAMS_Set_System_sv_domain(serverDomain);
             HAL_PARAMS_Set_System_sv_port(serverPort);
-            HAL_PARAMS_Set_System_dw_domain(registerDomain);
-            HAL_PARAMS_Set_System_http_domain(registerPort);
-            HAL_PARAMS_Set_System_http_port(updateDomain);
+            HAL_PARAMS_Set_System_http_domain(registerDomain);
+            HAL_PARAMS_Set_System_http_port(registerPort);
+            HAL_PARAMS_Set_System_dw_domain(updateDomain);
             HAL_PARAMS_Save_Params();
             Time.zone(zone);
         }

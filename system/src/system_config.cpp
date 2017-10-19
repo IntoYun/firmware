@@ -48,11 +48,13 @@
 #define SYSTEM_CONFIG_DEBUG
 
 #ifdef SYSTEM_CONFIG_DEBUG
-#define SCONFIG_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define SCONFIG_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define SCONFIG_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define SCONFIG_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define SCONFIG_DEBUG(...)
 #define SCONFIG_DEBUG_D(...)
+#define SCONFIG_DEBUG_DUMP
 #endif
 
 #ifndef configNO_NETWORK
@@ -374,39 +376,17 @@ void DeviceConfig::dealGetInfo(void)
 #ifdef configWIRING_WIFI_ENABLE
     char domain[50] = {0};
     HAL_PARAMS_Get_System_sv_domain(domain, sizeof(domain));
-    if (strlen(domain)) {
-        aJson.addStringToObject(value_object, "sv_domain", domain);
-    } else {
-        aJson.addStringToObject(value_object, "sv_domain", INTOROBOT_SERVER_DOMAIN);
-    }
-
-    if (HAL_PARAMS_Get_System_sv_port() > 0) {
-        aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_System_sv_port());
-    } else {
-        aJson.addNumberToObject(value_object, "sv_port", INTOROBOT_SERVER_PORT);
-    }
+    aJson.addStringToObject(value_object, "sv_domain", domain);
+    aJson.addNumberToObject(value_object, "sv_port", HAL_PARAMS_Get_System_sv_port());
 
     memset(domain, 0, sizeof(domain));
     HAL_PARAMS_Get_System_http_domain(domain, sizeof(domain));
-    if (strlen(domain)) {
-        aJson.addStringToObject(value_object, "http_domain", domain);
-    } else {
-        aJson.addStringToObject(value_object, "http_domain", INTOROBOT_HTTP_DOMAIN);
-    }
-
-    if (HAL_PARAMS_Get_System_http_port() > 0) {
-        aJson.addNumberToObject(value_object, "http_port", HAL_PARAMS_Get_System_http_port());
-    } else {
-        aJson.addNumberToObject(value_object, "http_port", INTOROBOT_HTTP_PORT);
-    }
+    aJson.addStringToObject(value_object, "http_domain", domain);
+    aJson.addNumberToObject(value_object, "http_port", HAL_PARAMS_Get_System_http_port());
 
     memset(domain, 0, sizeof(domain));
     HAL_PARAMS_Get_System_dw_domain(domain, sizeof(domain));
-    if (strlen(domain)) {
-        aJson.addStringToObject(value_object, "dw_domain", domain);
-    } else {
-        aJson.addStringToObject(value_object, "dw_domain", INTOROBOT_UPDATE_DOMAIN);
-    }
+    aJson.addStringToObject(value_object, "dw_domain", domain);
 
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     char macStr[20] = {0};
