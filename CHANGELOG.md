@@ -1,3 +1,22 @@
+## v1.6.5
+
+
+### FEATURES(功能)
+
+
+### ENHANCEMENTS(优化)
+- [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 去除激活流程
+
+
+### BUG FIXES(漏洞修复)
+
+
+### INTERNAL(内部)
+- [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 优化subsys_version处理
+- [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 优化默认网络参数处理
+
+
+
 ## v1.6.4
 
 
