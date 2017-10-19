@@ -283,11 +283,13 @@ class CloudClass: public CloudDatepointClass, public Print{
         static bool disconnected(void) { return !connected(); }
         static void connect(void) {
             intorobot_cloud_flag_connect();
+            /*
             if (system_thread_get_state(nullptr)==intorobot::feature::DISABLED &&
                     SystemClass::mode() == SEMI_AUTOMATIC) {
                 // IntoRobot.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
                 waitUntil(connected);
             }
+            */
         }
         static void disconnect(void) { intorobot_cloud_flag_disconnect(); }
         static void process(void) {
