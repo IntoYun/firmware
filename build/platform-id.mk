@@ -1,22 +1,15 @@
 ifeq ($(included_productid_mk),)
 included_productid_mk := 1
 
-ifeq ($(COMMON_BUILD),)
-include ../build/subsys_version.mk
-else
-include $(COMMON_BUILD)/subsys_version.mk
-endif
-
 # defines
-# PLATFORM_NAME - a unique name for the platform, can be used to organise sources
-#                 by platform
-# PLATFORM_MCU  - an identifier for the MCU family
-# PLATFORM_NET  - the network subsystem
+# PLATFORM_NAME    - a unique name for the platform, can be used to organise sources by platform
+# PLATFORM_MCU     - an identifier for the MCU family
+# PLATFORM_NET     - the network subsystem
 # PLATFORM_DEVICE  - the specific device being targeted for platform builds
-# ARCH		- architecture (ARM/GCC)
-# PRODUCT_DESC  - text description of the product ID
+# ARCH             - architecture (ARM/GCC)
+# PRODUCT_DESC     - text description of the product ID
 # PLATFORM_DYNALIB_MODULES - if the device supports a modular build, the name
-#		- of the subdirectory containing
+#                          - of the subdirectory containing
 
 # Default USB Device Vendor ID for Intorobot Products
 USBD_VID_INTOROBOT=0x0483
@@ -107,6 +100,12 @@ ifndef PLATFORM_ID
 PLATFORM_ID=0
 endif
 
+ifeq ($(COMMON_BUILD),)
+include ../build/subsys_version/$(PLATFORM)/version.mk
+else
+include $(COMMON_BUILD)/subsys_version/$(PLATFORM)/version.mk
+endif
+
 # Determine which is the target device
 
 PLATFORM_ARCH=arm
@@ -133,7 +132,6 @@ PLATFORM_MCU=ESP8266-Arduino
 PRODUCT_DESC=IntoRobot nut, ESP8266, 4MB Flash
 PLATFORM_BOOT_ADDR=0x00000
 PLATFORM_APP_ADDR=0x14000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_NUT)
 endif
 
 ifeq ("$(PLATFORM_ID)","888004") #atom with bootloader
@@ -156,7 +154,6 @@ PLATFORM_MCU=ESP32-Arduino
 PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
 PLATFORM_BOOT_ADDR=0x1000
 PLATFORM_APP_ADDR=0x20000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_FIG)
 endif
 
 ifeq ("$(PLATFORM_ID)","868009") #ant
@@ -169,7 +166,6 @@ MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot ant,  lora board, 128k flash, 16k sram
 PLATFORM_BOOT_ADDR = 0x08000000
 PLATFORM_APP_ADDR = 0x08006000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_ANT)
 endif
 
 ifeq ("$(PLATFORM_ID)","878008") #fox
@@ -183,7 +179,6 @@ PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08020000
 #PLATFORM_APP_ADDR=0x09000000
 PLATFORM_THREADING=1
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_FOX)
 endif
 
 
@@ -199,7 +194,6 @@ PLATFORM_MCU=ESP8266-Arduino
 PRODUCT_DESC=IntoRobot w67, ESP8266, 4MB Flash
 PLATFORM_BOOT_ADDR=0x00000
 PLATFORM_APP_ADDR=0x14000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_W67)
 endif
 
 ifeq ("$(PLATFORM_ID)","888007") #w323
@@ -211,7 +205,6 @@ PLATFORM_MCU=ESP32-Arduino
 PRODUCT_DESC=IntoRobot w323, ESP32, 4MB Flash
 PLATFORM_BOOT_ADDR=0x1000
 PLATFORM_APP_ADDR=0x20000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_W323)
 endif
 
 ifeq ("$(PLATFORM_ID)","868010") #l6
@@ -224,7 +217,6 @@ MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot l6, 128k flash, 16k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08006000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_L6)
 endif
 # 此处新增模块
 
@@ -239,7 +231,6 @@ PRODUCT_DESC=GCC xcompile
 # explicitly exclude platform headers
 INTOROBOT_NO_PLATFORM=1
 PLATFORM_BOOTLOADER=0
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_GCC)
 endif
 
 ifeq ("$(PLATFORM_ID)","208002") #neutron-net
@@ -251,7 +242,6 @@ PLATFORM_MCU=ESP8266
 PRODUCT_DESC=ESP8266 4MB Flash
 PLATFORM_BOOT_ADDR=0x00000
 PLATFORM_APP_ADDR=0x8000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_NEUTRON)
 endif
 
 ifeq ("$(PLATFORM_ID)","208003") #anytest
@@ -263,7 +253,6 @@ MCU_CORE=cortex-m3
 PRODUCT_DESC=IntoRobot anytest, 128k flash, 20k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08007000
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_ANYTEST)
 endif
 
 ifeq ("$(PLATFORM_ID)","188002") #gl2000
@@ -276,7 +265,6 @@ PRODUCT_DESC=IntoYun LoRaWan GateWay WiFi, Internal flash 512k flash, 128k sram 
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08020000
 PLATFORM_THREADING=1
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_GL2000)
 endif
 
 ifeq ("$(PLATFORM_ID)","178003") #gl2100
@@ -289,7 +277,6 @@ PRODUCT_DESC=IntoYun LoRaWan GateWay GPRS, Internal flash 512k flash, 128k sram 
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08020000
 PLATFORM_THREADING=1
-SUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING_GL2100)
 endif
 
 # 此处新增其他
@@ -344,9 +331,7 @@ PLATFORM_THREADING ?= 0
 PLATFORM_BOOTLOADER ?= 1
 CDEFINES += -DPLATFORM_THREADING=$(PLATFORM_THREADING)
 CDEFINES += -DPLATFORM_ID=$(PLATFORM_ID) -DPLATFORM_NAME=$(PLATFORM_NAME)
-ifneq ("$(SUBSYS_VERSION_STRING)","")
 CDEFINES += -DSUBSYS_VERSION_STRING=$(SUBSYS_VERSION_STRING)
-endif
 
 
 MODULE_FUNCTION_NONE            :=0
