@@ -51,4 +51,3 @@ void IRAM_ATTR __dacWrite(uint8_t pin, uint8_t value)
     }
 }
 
-extern void dacWrite(uint8_t pin, uint8_t value) __attribute__ ((weak, alias("__dacWrite")));
