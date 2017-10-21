@@ -46,6 +46,7 @@ extern PinMode HAL_GPIO_Recall_Pin_Mode();
 #define ADC_CHANNEL_NONE CHANNEL_NONE
 #define DAC_CHANNEL_NONE CHANNEL_NONE
 
+
 #ifdef __cplusplus
 }
 #endif
