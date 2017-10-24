@@ -74,5 +74,5 @@ struct Serial1DebugOutput
 #endif
 #endif
 
-#endif	/* DEBUG_OUTPUT_HANDLER_H */
+#endif  /* DEBUG_OUTPUT_HANDLER_H */
 

@@ -39,15 +39,6 @@ typedef enum PinMode {
     INPUT_PULLUP,
     INPUT_PULLDOWN,
     //Used internally begin
-    OPEN_DRAIN,
-    OUTPUT_OPEN_DRAIN,
-    SPECIAL,
-    FUNCTION_1,
-    FUNCTION_2,
-    FUNCTION_3,
-    FUNCTION_4,
-    FUNCTION_5,
-    FUNCTION_6,
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
@@ -69,6 +60,7 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
 typedef struct EESP32_Pin_Info  EESP32_Pin_Info;
 
 EESP32_Pin_Info* HAL_Pin_Map(void);
+
 
 /* Exported macros -----------------------------------------------------------*/
 
@@ -111,17 +103,17 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define GPIO39         43
 
 // Serial pins
-#define TX  GPIO1
-#define RX  GPIO3
+#define TX    GPIO1
+#define RX    GPIO3
 
-#define TX1  GPIO17
-#define RX1  GPIO16
+#define TX1   GPIO17
+#define RX1   GPIO16
 
 // SPI pins
-#define SS   GPIO5  //D5
-#define SCK  GPIO18 //D2
-#define MISO GPIO19 //D0
-#define MOSI GPIO23 //D1
+#define SS    GPIO5  //D5
+#define SCK   GPIO18 //D2
+#define MISO  GPIO19 //D0
+#define MOSI  GPIO23 //D1
 
 // SPI1 pins
 #define SS1   GPIO26 //A4
@@ -130,8 +122,8 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define MOSI1 GPIO12 //A7
 
 // I2C pins
-#define SDA  GPIO18 //D0
-#define SCL  GPIO19 //D1
+#define SDA   GPIO18 //D0
+#define SCL   GPIO19 //D1
 
 // I2C_1 pins
 #define SDA1  GPIO25 //A2
@@ -141,16 +133,16 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
 
-#define LED_USER  GPIO4
-#define LED_BUILTIN LED_USER
+#define LED_USER     GPIO4
+#define LED_BUILTIN  LED_USER
 
-#define TOTAL_USARTS       2
-#define TOTAL_I2CS         2
-#define TOTAL_SPIS         2
+#define TOTAL_USARTS    2
+#define TOTAL_SPIS      2
+#define TOTAL_I2CS      2
 
-#define LSBFIRST 0
-#define MSBFIRST 1
 
+#define LSBFIRST        0
+#define MSBFIRST        1
 
 
 /*************************************************************/
@@ -158,7 +150,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define INTOROBOT_TEST_PIN_DIGITAL          GPIO19
 #define INTOROBOT_TEST_PIN_ADC              GPIO35
 #define INTOROBOT_TEST_PIN_DAC              GPIO25
-
 
 
 #ifdef __cplusplus

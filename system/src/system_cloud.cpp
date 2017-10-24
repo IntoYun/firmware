@@ -1342,68 +1342,49 @@ int intorobot_cloud_handle(void)
     return -1;
 }
 
-static UDP ntp_time_udp;
-/*Send the request packet to the NTP server.*/
-static void send_ntp_request_packet()
-{
-    uint8_t packetBuffer[48];
-
-    memset(packetBuffer, 0, sizeof(packetBuffer));
-    packetBuffer[0] = 0b11100011; // LI, Version, Mode
-    packetBuffer[1] = 0;          // Stratum, or type of clock
-    packetBuffer[2] = 6;          // Polling Interval
-    packetBuffer[3] = 0xEC;       // Peer Clock Precision
-    // 8 bytes of zero for Root Delay & Root Dispersion
-    packetBuffer[12]  = 49;
-    packetBuffer[13]  = 0x4E;
-    packetBuffer[14]  = 49;
-    packetBuffer[15]  = 52;
-    ntp_time_udp.beginPacket(); // NTP Server and Port
-    ntp_time_udp.write(packetBuffer, 48);
-    ntp_time_udp.endPacket();
-}
-
-static time_t get_ntp_time(void)
-{
-    uint8_t packetBuffer[48];
-#ifdef configWIRING_WIFI_ENABLE
-    IPAddress ntpServer = WiFi.resolve(NTP_TIMESERVER);
-#else
-    IPAddress ntpServer = Cellular.resolve(NTP_TIMESERVER);
-#endif
-
-    ntp_time_udp.begin(ntpServer, (int)123, 8888);
-    for (int i = 0 ; i < 4 ; i++) {
-        send_ntp_request_packet();
-        uint32_t beginWait = millis();
-        while (millis() - beginWait < 2000) {
-            HAL_Core_System_Yield();
-            if (ntp_time_udp.parsePacket()) {
-                ntp_time_udp.read(packetBuffer, 48);
-                unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-                unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-                unsigned long secSince1900 = highWord << 16 | lowWord;
-                ntp_time_udp.stop();
-                return secSince1900 - 2208988800UL;
-            }
-        }
-    }
-    ntp_time_udp.stop();
-    return 0;
-}
-
 bool intorobot_sync_time(void)
 {
     SCLOUD_DEBUG("---------device syncTime begin---------\r\n");
-    time_t utc_time = get_ntp_time();
-    if(utc_time) {
-        SCLOUD_DEBUG("device syncTime success! utc_time = %d\r\n",utc_time);
-        randomSeed(utc_time);
-        Time.setTime(utc_time);
-        return true;
+    time_t utc_time = 0;
+    bool flag = false;
+    HTTPClient http;
+    aJsonClass aJson;
+    String payload = "";
+
+    char http_domain[32] = {0};
+    HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
+    int http_port = HAL_PARAMS_Get_System_http_port();
+
+    http.begin(http_domain, http_port, "/v1/device?act=getts");
+    http.setUserAgent(F("User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36"));
+    int httpCode = http.POST(payload);
+    if(httpCode == HTTP_CODE_OK) {
+        payload = http.getString();
+        aJsonObject* root = aJson.parse((char *)payload.c_str());
+        if (root == NULL)
+        {return false;}
+
+        aJsonObject *tsObject = aJson.getObjectItem(root, "ts");
+        if (tsObject != NULL) {
+            if( tsObject->type == aJson_Int ) {
+                utc_time = tsObject->valueint;
+            } else if( tsObject->type == aJson_Uint ) {
+                utc_time = tsObject->valueuint;
+            }
+            SCLOUD_DEBUG("utc_time    : %d\r\n", utc_time);
+            randomSeed(utc_time);
+            Time.setTime(utc_time);
+            flag = true;
+        }
+        aJson.deleteItem(root);
     }
-    SCLOUD_DEBUG("device syncTime failed!\r\n");
-    return false;
+    http.end();
+    if(flag) {
+        return true;
+    } else {
+        SCLOUD_DEBUG("device syncTime failed!\r\n");
+        return false;
+    }
 }
 
 bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature)
@@ -1427,10 +1408,8 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
     free(string);
     aJson.deleteItem(root);
 
-    //http domain
     char http_domain[32] = {0};
     HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
-    //http port
     int http_port = HAL_PARAMS_Get_System_http_port();
 
     http.begin(http_domain, http_port, "/v1/device?act=register");
@@ -1438,7 +1417,6 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
         payload = http.getString();
-
         root = aJson.parse((char *)payload.c_str());
         if (root == NULL)
         {return false;}
@@ -1457,14 +1435,12 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
             flag = true;
         }
         aJson.deleteItem(root);
-    } else {
-        SCLOUD_DEBUG("device register failed!\r\n");
     }
-
     http.end();
     if(flag) {
         return true;
     } else {
+        SCLOUD_DEBUG("device register failed!\r\n");
         return false;
     }
 }

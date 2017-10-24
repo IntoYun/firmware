@@ -25,6 +25,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "dac_hal.h"
+#include "gpio_hal.h"
+#include "pinmap_impl.h"
+#include "esp32-hal-dac.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -40,10 +43,25 @@
 
 void HAL_DAC_Write(pin_t pin, uint16_t value)
 {
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    if (HAL_Get_Pin_Mode(pin) != AN_OUTPUT) {
+        HAL_Pin_Mode(pin, AN_OUTPUT);
+        HAL_DAC_Enable(pin, 1);
+    }
+    if(value > 255) {
+        value = 255;
+    }
+    __dacWrite(PIN_MAP[pin].gpio_pin, value);
 }
 
 uint8_t HAL_DAC_Is_Enabled(pin_t pin)
 {
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    if (HAL_Get_Pin_Mode(pin) == AN_OUTPUT) {
+        return 1;
+    }
     return 0;
 }
 
@@ -54,7 +72,7 @@ uint8_t HAL_DAC_Enable(pin_t pin, uint8_t state)
 
 uint8_t HAL_DAC_Get_Resolution(pin_t pin)
 {
-    return 0;
+    return 8;
 }
 
 void HAL_DAC_Set_Resolution(pin_t pin, uint8_t resolution)

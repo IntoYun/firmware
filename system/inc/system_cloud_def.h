@@ -22,8 +22,6 @@
 
 #define INTOROBOT_OTA_UPDATE_URL       "/v1/bin/"
 
-#define NTP_TIMESERVER                 "202.120.2.101"  //上海交通大学网络中心NTP服务器地址
-
 //=============================v1 版本topic===================================================
 //device version
 #define INTOROBOT_MQTT_VERSION_TOPIC                     "firmware/default/info/version"
