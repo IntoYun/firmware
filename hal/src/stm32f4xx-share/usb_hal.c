@@ -135,12 +135,23 @@ void USB_USART_Send_Data(uint8_t Data)
 {
     //TODO
     //osMutexWait(usb_mutex, osWaitForever);
+    volatile system_tick_t start_micros, current_micros, elapsed_micros;
 
+    start_micros = HAL_Timer_Get_Micro_Seconds();
     if (USBD_STATE_CONFIGURED == USBD_Device.dev_state) {
         USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
-        while(USBD_CDC_TransmitPacket(&USBD_Device)!=USBD_OK);//如果没有连接 将卡在这里
-        //USBD_CDC_TransmitPacket(&USBD_Device);
-        //HAL_Delay_Microseconds(1000);
+        while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK) {
+            current_micros = HAL_Timer_Get_Micro_Seconds();
+            elapsed_micros = current_micros - start_micros;
+
+            if (elapsed_micros < 0){
+                elapsed_micros =  0xFFFFFFFF - start_micros + current_micros;
+            }
+
+            if (elapsed_micros >= 2000) {  //2000us 超时
+                break;
+            }
+        }
     }
 
     //TODO
