@@ -284,10 +284,10 @@ class CloudClass: public CloudDatepointClass, public Print{
         static void connect(void) {
             intorobot_cloud_flag_connect();
             /*
-            if (system_thread_get_state(nullptr)==intorobot::feature::DISABLED &&
-                    SystemClass::mode() == SEMI_AUTOMATIC) {
-                // IntoRobot.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
-                waitUntil(connected);
+               if (system_thread_get_state(nullptr)==intorobot::feature::DISABLED &&
+               SystemClass::mode() == SEMI_AUTOMATIC) {
+            // IntoRobot.connect() should be blocking in SEMI_AUTOMATIC mode when threading is disabled
+            waitUntil(connected);
             }
             */
         }
@@ -307,7 +307,9 @@ class CloudClass: public CloudDatepointClass, public Print{
             return intorobot_device_register(prodcut_id, utc_time, signature);
         }
         static String deviceID(void) { return intorobot_deviceID(); }
-
+        static void keepAlive(uint16_t sec) {
+            intorobot_cloud_keepalive(sec);
+        }
         static void setJoinParams(char *deviceID, char *accessToken) {
             HAL_PARAMS_Set_System_device_id(deviceID);
             HAL_PARAMS_Set_System_access_token(accessToken);

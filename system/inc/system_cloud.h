@@ -108,6 +108,7 @@ bool intorobot_cloud_flag_connected(void);
 void intorobot_cloud_disconnect(void);
 int intorobot_cloud_connect(void);
 int intorobot_cloud_handle(void);
+void intorobot_cloud_keepalive(uint16_t sec);
 
 void intorobot_cloud_flag_connect(void);
 void intorobot_cloud_flag_disconnect(void);

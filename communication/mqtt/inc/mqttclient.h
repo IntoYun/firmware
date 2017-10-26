@@ -43,7 +43,11 @@
 
 // MQTT_KEEPALIVE : keepAlive interval in Seconds
 #ifndef MQTT_KEEPALIVE
+#ifdef configWIRING_CELLULAR_ENABLE
+#define MQTT_KEEPALIVE 10*60
+#else
 #define MQTT_KEEPALIVE 60
+#endif
 #endif
 
 // MQTT_SOCKET_TIMEOUT: socket timeout interval in Seconds
@@ -92,62 +96,65 @@
 
 class MqttClientClass {
 private:
-   Client* _client;
-   uint8_t buffer[MQTT_MAX_PACKET_SIZE];
-   uint16_t nextMsgId;
-   unsigned long lastOutActivity;
-   unsigned long lastInActivity;
-   bool pingOutstanding;
-   MQTT_CALLBACK_SIGNATURE;
-   uint16_t readPacket(uint8_t*);
-   boolean readByte(uint8_t * result);
-   boolean readByte(uint8_t * result, uint16_t * index);
-   boolean write(uint8_t header, uint8_t* buf, uint16_t length);
-   uint16_t writeString(const char* string, uint8_t* buf, uint16_t pos);
-   IPAddress ip;
-   const char* domain;
-   uint16_t port;
-   Stream* stream;
-   int _state;
+    Client* _client;
+    uint8_t buffer[MQTT_MAX_PACKET_SIZE];
+    uint16_t nextMsgId;
+    unsigned long lastOutActivity;
+    unsigned long lastInActivity;
+    bool pingOutstanding;
+    MQTT_CALLBACK_SIGNATURE;
+    uint16_t readPacket(uint8_t*);
+    boolean readByte(uint8_t * result);
+    boolean readByte(uint8_t * result, uint16_t * index);
+    boolean write(uint8_t header, uint8_t* buf, uint16_t length);
+    uint16_t writeString(const char* string, uint8_t* buf, uint16_t pos);
+    IPAddress ip;
+    const char* domain;
+    uint16_t port;
+    Stream* stream;
+    int _state;
+    uint16_t keepAlive;
+
 public:
-   MqttClientClass();
-   MqttClientClass(Client& client);
-   MqttClientClass(IPAddress, uint16_t, Client& client);
-   MqttClientClass(IPAddress, uint16_t, Client& client, Stream&);
-   MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   MqttClientClass(uint8_t *, uint16_t, Client& client);
-   MqttClientClass(uint8_t *, uint16_t, Client& client, Stream&);
-   MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
-   MqttClientClass(const char*, uint16_t, Client& client);
-   MqttClientClass(const char*, uint16_t, Client& client, Stream&);
-   MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
-   MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+    MqttClientClass();
+    MqttClientClass(Client& client);
+    MqttClientClass(IPAddress, uint16_t, Client& client);
+    MqttClientClass(IPAddress, uint16_t, Client& client, Stream&);
+    MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+    MqttClientClass(IPAddress, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+    MqttClientClass(uint8_t *, uint16_t, Client& client);
+    MqttClientClass(uint8_t *, uint16_t, Client& client, Stream&);
+    MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+    MqttClientClass(uint8_t *, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
+    MqttClientClass(const char*, uint16_t, Client& client);
+    MqttClientClass(const char*, uint16_t, Client& client, Stream&);
+    MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client);
+    MqttClientClass(const char*, uint16_t, MQTT_CALLBACK_SIGNATURE,Client& client, Stream&);
 
-   MqttClientClass& setServer(IPAddress ip, uint16_t port);
-   MqttClientClass& setServer(uint8_t * ip, uint16_t port);
-   MqttClientClass& setServer(const char * domain, uint16_t port);
-   MqttClientClass& setCallback(MQTT_CALLBACK_SIGNATURE);
-   MqttClientClass& setClient(Client& client);
-   MqttClientClass& setStream(Stream& stream);
+    MqttClientClass& setServer(IPAddress ip, uint16_t port);
+    MqttClientClass& setServer(uint8_t * ip, uint16_t port);
+    MqttClientClass& setServer(const char * domain, uint16_t port);
+    MqttClientClass& setCallback(MQTT_CALLBACK_SIGNATURE);
+    MqttClientClass& setClient(Client& client);
+    MqttClientClass& setStream(Stream& stream);
+    MqttClientClass& setKeepAlive(uint16_t sec);
 
-   boolean connect(const char* id);
-   boolean connect(const char* id, const char* user, const char* pass);
-   boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
-   boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
-   void disconnect();
-   boolean publish(const char* topic, const char* payload);
-   boolean publish(const char* topic, const char* payload, boolean retained);
-   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength);
-   boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
-   boolean publish_P(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
-   boolean subscribe(const char* topic);
-   boolean subscribe(const char* topic, uint8_t qos);
-   boolean unsubscribe(const char* topic);
-   boolean loop();
-   boolean connected();
-   int state();
+    boolean connect(const char* id);
+    boolean connect(const char* id, const char* user, const char* pass);
+    boolean connect(const char* id, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+    boolean connect(const char* id, const char* user, const char* pass, const char* willTopic, uint8_t willQos, boolean willRetain, const char* willMessage);
+    void disconnect();
+    boolean publish(const char* topic, const char* payload);
+    boolean publish(const char* topic, const char* payload, boolean retained);
+    boolean publish(const char* topic, const uint8_t * payload, unsigned int plength);
+    boolean publish(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
+    boolean publish_P(const char* topic, const uint8_t * payload, unsigned int plength, boolean retained);
+    boolean subscribe(const char* topic);
+    boolean subscribe(const char* topic, uint8_t qos);
+    boolean unsubscribe(const char* topic);
+    boolean loop();
+    boolean connected();
+    int state();
 };
 
 #endif
