@@ -30,9 +30,9 @@
 #define COMMUNICATION_MQTTCLIENT_DEBUG
 
 #ifdef COMMUNICATION_MQTTCLIENT_DEBUG
-#define CMQTTCLIENT_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define CMQTTCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
 #define CMQTTCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-#define CMQTTCLIENT_DEBUG_DUMP  DEBUG_DUMP
+#define CMQTTCLIENT_DEBUG_DUMP    DEBUG_DUMP
 #else
 #define CMQTTCLIENT_DEBUG(...)
 #define CMQTTCLIENT_DEBUG_D(...)
@@ -43,12 +43,14 @@ MqttClientClass::MqttClientClass() {
     this->_state = MQTT_DISCONNECTED;
     this->_client = NULL;
     this->stream = NULL;
+    setKeepAlive(MQTT_KEEPALIVE);
     setCallback(NULL);
 }
 
 MqttClientClass::MqttClientClass(Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 
@@ -56,6 +58,7 @@ MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, Client& client) 
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, Client& client, Stream& stream) {
@@ -63,12 +66,14 @@ MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, Client& client, 
     setServer(addr,port);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(addr, port);
     setCallback(callback);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
@@ -77,12 +82,14 @@ MqttClientClass::MqttClientClass(IPAddress addr, uint16_t port, MQTT_CALLBACK_SI
     setCallback(callback);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 
 MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, Client& client, Stream& stream) {
@@ -90,12 +97,14 @@ MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, Client& client, Str
     setServer(ip,port);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(ip, port);
     setCallback(callback);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
@@ -104,12 +113,14 @@ MqttClientClass::MqttClientClass(uint8_t *ip, uint16_t port, MQTT_CALLBACK_SIGNA
     setCallback(callback);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 
 MqttClientClass::MqttClientClass(const char* domain, uint16_t port, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(const char* domain, uint16_t port, Client& client, Stream& stream) {
@@ -117,12 +128,14 @@ MqttClientClass::MqttClientClass(const char* domain, uint16_t port, Client& clie
     setServer(domain,port);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 MqttClientClass::MqttClientClass(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client) {
     this->_state = MQTT_DISCONNECTED;
     setServer(domain,port);
     setCallback(callback);
     setClient(client);
+    setKeepAlive(MQTT_KEEPALIVE);
     this->stream = NULL;
 }
 MqttClientClass::MqttClientClass(const char* domain, uint16_t port, MQTT_CALLBACK_SIGNATURE, Client& client, Stream& stream) {
@@ -131,6 +144,7 @@ MqttClientClass::MqttClientClass(const char* domain, uint16_t port, MQTT_CALLBAC
     setCallback(callback);
     setClient(client);
     setStream(stream);
+    setKeepAlive(MQTT_KEEPALIVE);
 }
 
 boolean MqttClientClass::connect(const char *id) {
@@ -188,8 +202,8 @@ boolean MqttClientClass::connect(const char *id, const char *user, const char *p
 
             buffer[length++] = v;
 
-            buffer[length++] = ((MQTT_KEEPALIVE) >> 8);
-            buffer[length++] = ((MQTT_KEEPALIVE) & 0xFF);
+            buffer[length++] = ((this->keepAlive) >> 8);
+            buffer[length++] = ((this->keepAlive) & 0xFF);
             length = writeString(id,buffer,length);
             if (willTopic) {
                 length = writeString(willTopic,buffer,length);
@@ -315,7 +329,7 @@ uint16_t MqttClientClass::readPacket(uint8_t* lengthLength) {
 boolean MqttClientClass::loop() {
     if (connected()) {
         unsigned long t = millis();
-        if ((t - lastInActivity > MQTT_KEEPALIVE*1000UL) || (t - lastOutActivity > MQTT_KEEPALIVE*1000UL)) {
+        if ((t - lastInActivity > this->keepAlive*1000UL) || (t - lastOutActivity > this->keepAlive*1000UL)) {
             if (pingOutstanding) {
                 this->_state = MQTT_CONNECTION_TIMEOUT;
                 _client->stop();
@@ -631,6 +645,11 @@ MqttClientClass& MqttClientClass::setClient(Client& client){
 
 MqttClientClass& MqttClientClass::setStream(Stream& stream){
     this->stream = &stream;
+    return *this;
+}
+
+MqttClientClass& MqttClientClass::setKeepAlive(uint16_t sec){
+    this->keepAlive = sec;
     return *this;
 }
 

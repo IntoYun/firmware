@@ -2,18 +2,26 @@
 
 
 ### FEATURES(功能)
+- [[PR #128]](https://github.com/HITSZ-NRSL/firmware/pull/128) Cloud 添加keepAlive接口
 
 
 ### ENHANCEMENTS(优化)
 - [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 去除激活流程
-
+- [[PR #127]](https://github.com/HITSZ-NRSL/firmware/pull/127) 获取时间戳采取http方式
+- [[PR #127]](https://github.com/HITSZ-NRSL/firmware/pull/127) Cloud.connect() 不采取死等方式。否则从模式连接网络时，将堵死，无法接受AT指令。
+- [[PR #128]](https://github.com/HITSZ-NRSL/firmware/pull/128) mqtt设备未注册，默认不连接平台
+- [[PR #128]](https://github.com/HITSZ-NRSL/firmware/pull/128) mqtt 数据包大小从512 修改成 768
 
 ### BUG FIXES(漏洞修复)
+- [[PR #127]](https://github.com/HITSZ-NRSL/firmware/pull/127) usb_hal发送数据添加超时处理。修正USB未打开串口，usb发送数据卡死的问题。
+- [[PR #127]](https://github.com/HITSZ-NRSL/firmware/pull/127) 修正w323串口无法收发问题。
+- [[PR #127]](https://github.com/HITSZ-NRSL/firmware/pull/127) esp32 添加 dac功能
 
 
 ### INTERNAL(内部)
 - [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 优化subsys_version处理
 - [[PR #126]](https://github.com/HITSZ-NRSL/firmware/pull/126) 优化默认网络参数处理
+- [[PR #128]](https://github.com/HITSZ-NRSL/firmware/pull/128) 调整neutron子系统版本号
 
 
 

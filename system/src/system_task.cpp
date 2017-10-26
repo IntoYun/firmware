@@ -199,6 +199,7 @@ void preprocess_cloud_connection(void)
                 // 同步时间
                 intorobot_sync_time();
             }
+
             AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
             //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
             switch(at_mode)
@@ -227,6 +228,10 @@ void establish_cloud_connection(void)
 {
     if (INTOROBOT_CLOUD_SOCKETED) {
         if (!INTOROBOT_CLOUD_CONNECTED) {
+            // 设备未注册
+            if (AT_MODE_FLAG_ABP != HAL_PARAMS_Get_System_at_mode())
+                return;
+
             if (in_cloud_backoff_period())
                 return;
 

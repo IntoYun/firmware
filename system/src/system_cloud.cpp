@@ -83,6 +83,8 @@ struct CallBackList g_callback_list;  //回调结构体
 struct CloudDebugBuffer  g_debug_tx_buffer;
 struct CloudDebugBuffer  g_debug_rx_buffer;
 
+uint16_t g_keepAlive = 0;
+
 TCPClient g_mqtt_tcp_client;
 MqttClientClass g_mqtt_client;
 RGBLEDState led_state;
@@ -1230,6 +1232,9 @@ int intorobot_cloud_connect(void)
     //mqtt server port
     int sv_port = HAL_PARAMS_Get_System_sv_port();
     g_mqtt_client.setServer(sv_domain, sv_port);
+    if(g_keepAlive) {
+        g_mqtt_client.setKeepAlive(g_keepAlive);
+    }
 
     char device_id[38] = {0}, access_token[38] = {0};
     uint8_t access_token_hex[16] = {0};
@@ -1340,6 +1345,11 @@ int intorobot_cloud_handle(void)
         return 0;
     }
     return -1;
+}
+
+void intorobot_cloud_keepalive(uint16_t sec)
+{
+    g_keepAlive = sec;
 }
 
 bool intorobot_sync_time(void)
