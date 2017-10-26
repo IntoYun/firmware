@@ -32,17 +32,6 @@ extern "C" {
 
 #if defined( USE_BAND_433 )
 
-#define LORAMAC_TX_FIXED_FREQUENCY    433575000
-#define LORAMAC_TX_FIXED_DATARATE     DR_3
-
-#define LORAMAC_RX1_FIXED_FREQUENCY    433575000
-#define LORAMAC_RX1_FIXED_DATARATE     DR_3
-
-#define LORAMAC_RX2_FIXED_FREQUENCY    434665000
-#define LORAMAC_RX2_FIXED_DATARATE     DR_3
-
-#define LORAMAC_FIXED_BANDWIDTH    0
-
 /*!
  * LoRaMac maximum number of channels
  */
@@ -71,8 +60,7 @@ extern "C" {
 /*!
  * Default datarate used by the node
  */
-// #define LORAMAC_DEFAULT_DATARATE                    DR_0
-#define LORAMAC_DEFAULT_DATARATE                    DR_3
+#define LORAMAC_DEFAULT_DATARATE                    DR_0
 
 /*!
  * Minimal Rx1 receive datarate offset
@@ -149,10 +137,6 @@ extern "C" {
 #define LC1                { 433175000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC2                { 433375000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-//先固定频率进行调试
-// #define LC1                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-// #define LC2                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-// #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac channels which are allowed for the join procedure

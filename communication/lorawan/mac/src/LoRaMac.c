@@ -3354,7 +3354,6 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     McpsConfirm.UpLinkFrequency = channel.Frequency;
 
     Radio.SetChannel( channel.Frequency );
-    /* LORAMAC_DEBUG("loramac tx frequency = %d\r\n",channel.Frequency); */
 
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     if( LoRaMacParams.ChannelsDatarate == DR_7 )
@@ -3372,8 +3371,9 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     }
     else
     { // Normal LoRa channel
-        #if  0
+        #if 1
         LORAMAC_DEBUG("loramac normal channel send\r\n");
+        LORAMAC_DEBUG("loramac tx frequency = %d\r\n",channel.Frequency);
         LORAMAC_DEBUG("tx power=%d\r\n",txPower);
         LORAMAC_DEBUG("datarate=%d\r\n",datarate);
         #endif
@@ -4053,6 +4053,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_RECEIVE_DELAY_1:
         {
             LoRaMacParams.ReceiveDelay1 = mibSet->Param.ReceiveDelay1;
+            LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1+1e3;
             break;
         }
         case MIB_RECEIVE_DELAY_2:

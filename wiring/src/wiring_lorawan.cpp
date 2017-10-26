@@ -404,16 +404,19 @@ void LoRaWanClass::setChannelStatus(uint8_t channel, bool enable)
     uint16_t channelMask = 0;
     mibReq.Type = MIB_CHANNELS_MASK;
     if(LoRaMacMibGetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
+        WLORAWAN_DEBUG("get channelMask fail\r\n");
         return;
     }
 
     channelMask = *mibReq.Param.ChannelsMask;
+    WLORAWAN_DEBUG("channelMask1=%d\r\n",channelMask);
     if(enable){
         channelMask = channelMask | (1<<channel);
     }else{
         channelMask = channelMask & (~(1<<channel));
     }
 
+    WLORAWAN_DEBUG("channelMask2=%d\r\n",channelMask);
     mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
     mibReq.Param.ChannelsDefaultMask = &channelMask;
     LoRaMacMibSetRequestConfirm( &mibReq );
