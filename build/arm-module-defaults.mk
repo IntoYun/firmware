@@ -47,12 +47,7 @@ CFLAGS += -MD -MP -MF $@.d
 LDFLAGS += $(LIBS_EXT)
 LDFLAGS += $(patsubst %,-L%,$(LIB_DIRS))
 
-WHOLE_ARCHIVE=y
-ifeq ($(WHOLE_ARCHIVE),y)
-LDFLAGS += -Wl,--whole-archive $(patsubst %,-l%,$(LIBS)) -Wl,--no-whole-archive
-else
-LDFLAGS += $(patsubst %,-l%,$(LIBS))
-endif
+LDFLAGS += -Wl,--start-group $(patsubst %,-l%,$(LIBS)) -Wl,--end-group
 
 ifeq (y,$(MODULAR_FIRMWARE))
 MODULAR_EXT = -m

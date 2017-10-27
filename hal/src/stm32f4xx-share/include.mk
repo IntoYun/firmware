@@ -15,9 +15,9 @@ ifneq (,$(HAL_LINK))
 
 LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_app.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm/$(PLATFORM_NAME)
+LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 LINKER_DEPS += $(NEWLIB_TWEAK_SPECS)
 LDFLAGS += --specs=nano.specs --specs=$(NEWLIB_TWEAK_SPECS)
-LDFLAGS += -Wl,--defsym,__STACKSIZE__=1400
 
 # support for external linker file
 
@@ -29,6 +29,8 @@ endif
 
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 LDFLAGS += -u uxTopUsedPriority
+
+LIBS += gcc c nosys
 #
 # assembler startup script
 ASRC_STARTUP += $(COMMON_BUILD)/startup/arm/$(PLATFORM_NAME)/startup_$(PLATFORM_DEVICE_LC).S
