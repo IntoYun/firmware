@@ -35,6 +35,7 @@
 #include "core_hal.h"
 #include "system_user.h"
 #include "system_config.h"
+#include "wiring_time.h"
 
 #ifdef INTOROBOT_PLATFORM
 #define SYSTEM_HW_TICKS 1
@@ -49,181 +50,174 @@
 class Stream;
 
 class SystemClass {
-public:
+    public:
 
-    SystemClass(System_Mode_TypeDef mode = DEFAULT) {
-        set_system_mode(mode);
-    }
+        SystemClass(System_Mode_TypeDef mode = DEFAULT) {
+            set_system_mode(mode);
+        }
 
-    static System_Mode_TypeDef mode(void) {
-        return system_mode();
-    }
+        static System_Mode_TypeDef mode(void) {
+            return system_mode();
+        }
 
-    static bool firmwareUpdate(Stream *serialObj) {
-        //return system_firmwareUpdate(serialObj);
-        return true;
-    }
+        static bool firmwareUpdate(Stream *serialObj) {
+            //return system_firmwareUpdate(serialObj);
+            return true;
+        }
 
-    static void factoryReset(void);
-    static void dfu(bool persist=false);
-    static void reset(void);
+        static void factoryReset(void);
+        static void dfu(bool persist=false);
+        static void reset(void);
 
-    static void enterSafeMode(void) {
-        HAL_Core_Enter_Safe_Mode(NULL);
-    }
+        static void enterSafeMode(void) {
+            HAL_Core_Enter_Safe_Mode(NULL);
+        }
 
 #if SYSTEM_HW_TICKS
-    static inline uint32_t ticksPerMicrosecond()
-    {
-        return SYSTEM_US_TICKS;
-    }
-
-    static inline uint32_t ticks()
-    {
-        return SYSTEM_TICK_COUNTER;
-    }
-
-    static inline void ticksDelay(uint32_t duration)
-    {
-        uint32_t start = ticks();
-        while ((ticks()-start)<duration) {}
-    }
-#endif
-
-    static void sleep(IntoRobot_Sleep_TypeDef sleepMode, long seconds=0);
-    static void sleep(long seconds) { sleep(SLEEP_MODE_WLAN, seconds); }
-    static void sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds=0);
-    static void sleep(userLoRaWakeupCb userHandler, uint32_t seconds);
-    static void sleep(userLoRaWakeupCb userHandler);
-
-    static String deviceID(void) { return intorobot_deviceID(); }
-
-    static uint16_t buttonPushed(uint8_t button=0) {
-        return system_button_pushed_duration(button, NULL);
-    }
-
-    //system event
-    static bool on(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
-        return !system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), nullptr);
-    }
-
-    static bool on(system_event_t events, void(*handler)(system_event_t event, int param)) {
-        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
-    }
-
-    static bool on(system_event_t events, void(*handler)(system_event_t event)) {
-        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
-    }
-
-    static bool on(system_event_t events, void(*handler)()) {
-        return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
-    }
-
-    static void off(void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
-        system_unsubscribe_event(event_all, handler, nullptr);
-    }
-
-    static void off(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
-        system_unsubscribe_event(events, handler, nullptr);
-    }
-
-    static uint32_t freeMemory();
-
-    template<typename Condition, typename While> static bool waitConditionWhile(Condition _condition, While _while) {
-        while (_while() && !_condition()) {
-            intorobot_process();
+        static inline uint32_t ticksPerMicrosecond() {
+            return SYSTEM_US_TICKS;
         }
-        return _condition();
-    }
-
-    template<typename Condition> static bool waitCondition(Condition _condition) {
-        return waitConditionWhile(_condition, []{ return true; });
-    }
-
-    template<typename Condition> static bool waitCondition(Condition _condition, system_tick_t timeout) {
-        const system_tick_t start = millis();
-        return waitConditionWhile(_condition, [=]{ return (millis()-start)<timeout; });
-    }
-
-    bool get(system_params_t params_type, int &value)
-    {
-        return system_get_params_int(params_type, value) >= 0;
-    }
-
-    bool get(system_params_t params_type, double &value)
-    {
-        return system_get_params_double(params_type, value) >= 0;
-    }
-
-    uint16_t get(system_params_t params_type, const void *data, uint16_t length)
-    {
-        return system_get_params_array(params_type, (char *)data, length);
-    }
-
-    bool set(system_params_t params_type, int value)
-    {
-        return system_set_params_int(params_type, value) >= 0;
-    }
-
-    bool set(system_params_t params_type, double value)
-    {
-        return system_set_params_double(params_type, value) >= 0;
-    }
-
-    bool set(system_params_t params_type, const char *data)
-    {
-        return set(params_type, data, strlen(data));
-    }
-
-    bool set(system_params_t params_type, const void *data, uint16_t length)
-    {
-        return system_set_params_array(params_type, (char *)data, length) >= 0;
-    }
-
-    inline bool featureEnabled(system_feature_t feature)
-    {
-        return system_product_instance().get_system_feature(feature);
-    }
-
-    inline int enableFeature(system_feature_t feature)
-    {
-        return system_product_instance().set_system_feature(feature, true);
-    }
-
-    inline int disableFeature(system_feature_t feature)
-    {
-        return system_product_instance().set_system_feature(feature, false);
-    }
-
-#ifdef configSETUP_ENABLE
-    void configEnterMode(system_config_type_t config_type)
-    {
-        set_system_config_type(config_type);
-    }
-
-    void configExit(void)
-    {
-        set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
-    }
-
-    system_config_type_t configCurrentMode(void)
-    {
-        return get_system_config_type();
-    }
-
-    void configProcess(void)
-    {
-        system_config_process();
-    }
+        static inline uint32_t ticks() {
+            return SYSTEM_TICK_COUNTER;
+        }
+        static inline void ticksDelay(uint32_t duration) {
+            uint32_t start = ticks();
+            while ((ticks()-start)<duration) {}
+        }
 #endif
 
-    String version(void)
-    {
-        char version[32] = {0};
+        static void sleep(IntoRobot_Sleep_TypeDef sleepMode, long seconds=0);
+        static void sleep(long seconds) { sleep(SLEEP_MODE_WLAN, seconds); }
+        static void sleep(uint16_t wakeUpPin, InterruptMode edgeTriggerMode, long seconds=0);
+        static void sleep(userLoRaWakeupCb userHandler, uint32_t seconds);
+        static void sleep(userLoRaWakeupCb userHandler);
 
-        system_get_firmlib_version(version, sizeof(version));
-        return String(version);
-    }
+        static String deviceID(void) { return intorobot_deviceID(); }
+        static uint16_t buttonPushed(uint8_t button=0) {
+            return system_button_pushed_duration(button, NULL);
+        }
+        //system event
+        static bool on(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
+            return !system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), nullptr);
+        }
+        static bool on(system_event_t events, void(*handler)(system_event_t event, int param)) {
+            return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
+        }
+        static bool on(system_event_t events, void(*handler)(system_event_t event)) {
+            return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
+        }
+        static bool on(system_event_t events, void(*handler)()) {
+            return system_subscribe_event(events, reinterpret_cast<system_event_handler_t*>(handler), NULL);
+        }
+        static void off(void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
+            system_unsubscribe_event(event_all, handler, nullptr);
+        }
+        static void off(system_event_t events, void(*handler)(system_event_t event, int param, uint8_t *data, uint16_t datalen)) {
+            system_unsubscribe_event(events, handler, nullptr);
+        }
+        static uint32_t freeMemory();
+        template<typename Condition, typename While> static bool waitConditionWhile(Condition _condition, While _while) {
+            while (_while() && !_condition()) {
+                intorobot_process();
+            }
+            return _condition();
+        }
+        template<typename Condition> static bool waitCondition(Condition _condition) {
+            return waitConditionWhile(_condition, []{ return true; });
+        }
+        template<typename Condition> static bool waitCondition(Condition _condition, system_tick_t timeout) {
+            const system_tick_t start = millis();
+            return waitConditionWhile(_condition, [=]{ return (millis()-start)<timeout; });
+        }
+        bool get(system_params_t params_type, int &value) {
+            return system_get_params_int(params_type, value) >= 0;
+        }
+        bool get(system_params_t params_type, double &value) {
+            return system_get_params_double(params_type, value) >= 0;
+        }
+        uint16_t get(system_params_t params_type, const void *data, uint16_t length) {
+            return system_get_params_array(params_type, (char *)data, length);
+        }
+        bool set(system_params_t params_type, int value) {
+            return system_set_params_int(params_type, value) >= 0;
+        }
+        bool set(system_params_t params_type, double value) {
+            return system_set_params_double(params_type, value) >= 0;
+        }
+        bool set(system_params_t params_type, const char *data) {
+            return set(params_type, data, strlen(data));
+        }
+        bool set(system_params_t params_type, const void *data, uint16_t length) {
+            return system_set_params_array(params_type, (char *)data, length) >= 0;
+        }
+        inline bool featureEnabled(system_feature_t feature) {
+            return system_product_instance().get_system_feature(feature);
+        }
+        inline int enableFeature(system_feature_t feature) {
+            return system_product_instance().set_system_feature(feature, true);
+        }
+        inline int disableFeature(system_feature_t feature) {
+            return system_product_instance().set_system_feature(feature, false);
+        }
+#ifdef configSETUP_ENABLE
+        void configEnterMode(system_config_type_t config_type) {
+            set_system_config_type(config_type);
+        }
+        void configExit(void) {
+            set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
+        }
+        system_config_type_t configCurrentMode(void) {
+            return get_system_config_type();
+        }
+        void configProcess(void) {
+            system_config_process();
+        }
+#endif
+        String version(void) {
+            char version[32] = {0};
+
+            system_get_firmlib_version(version, sizeof(version));
+            return String(version);
+        }
+#ifndef configNO_CLOUD
+        bool deviceRegister(char *prodcut_id, size_t utc_time, char *signature) {
+            return intorobot_device_register(prodcut_id, utc_time, signature);
+        }
+        void setJoinParams(char *deviceID, char *accessToken) {
+            HAL_PARAMS_Set_System_device_id(deviceID);
+            HAL_PARAMS_Set_System_access_token(accessToken);
+            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
+            HAL_PARAMS_Save_Params();
+        }
+        void setBasicParams(float zone, char *serverDomain, int serverPort, char *registerDomain, int registerPort, char *updateDomain) {
+            HAL_PARAMS_Set_System_zone(zone);
+            HAL_PARAMS_Set_System_sv_domain(serverDomain);
+            HAL_PARAMS_Set_System_sv_port(serverPort);
+            HAL_PARAMS_Set_System_http_domain(registerDomain);
+            HAL_PARAMS_Set_System_http_port(registerPort);
+            HAL_PARAMS_Set_System_dw_domain(updateDomain);
+            HAL_PARAMS_Save_Params();
+            Time.zone(zone);
+        }
+        float getTimeZone(void) {
+            return HAL_PARAMS_Get_System_zone();
+        }
+        uint16_t getServerDomain(char *domain, uint16_t len) {
+            return HAL_PARAMS_Get_System_sv_domain(domain, len);
+        }
+        int getServerPort(void) {
+            return HAL_PARAMS_Get_System_sv_port();
+        }
+        uint16_t getRegisterDomain(char *domain, uint16_t len) {
+            return HAL_PARAMS_Get_System_http_domain(domain, len);
+        }
+        int getRegisterPort(void) {
+            return HAL_PARAMS_Get_System_http_port();
+        }
+        uint16_t getUpdateDomain(char *domain, uint16_t len) {
+            return HAL_PARAMS_Get_System_dw_domain(domain, len);
+        }
+#endif
 };
 
 extern SystemClass System;

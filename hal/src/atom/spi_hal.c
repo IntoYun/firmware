@@ -24,9 +24,8 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hw_config.h"
 #include "spi_hal.h"
-#include "stm32f1xx.h"
-#include "service_debug.h"
 
 #define TOTAL_SPI 2
 
@@ -92,13 +91,10 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock SCK MISO MOSI clock and SPI clock and DMA clock */
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
+    if (spiMap[spi]->SPI_Peripheral == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
+    } else if(spiMap[spi]->SPI_Peripheral == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
     }
@@ -124,13 +120,10 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
     /*##-1- Reset peripherals ##################################################*/
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
+    if (spiMap[spi]->SPI_Peripheral == SPI1) {
         __HAL_RCC_SPI1_FORCE_RESET();
         __HAL_RCC_SPI1_RELEASE_RESET();
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
+    } else if(spiMap[spi]->SPI_Peripheral == SPI2) {
         __HAL_RCC_SPI2_FORCE_RESET();
         __HAL_RCC_SPI2_RELEASE_RESET();
     }
@@ -151,12 +144,9 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    if(spi == HAL_SPI_INTERFACE1)
-    {
+    if(spi == HAL_SPI_INTERFACE1) {
         spiMap[spi] = &SPI_MAP[SPI1_A5_A6_A7];
-    }
-    else if(spi == HAL_SPI_INTERFACE2)
-    {
+    } else if(spi == HAL_SPI_INTERFACE2) {
         spiMap[spi] = &SPI_MAP[SPI2_D3_D4_D5];
     }
     spiMap[spi]->SPI_Bit_Order_Set     = false;
@@ -175,20 +165,23 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     // Default to Master mode
-    HAL_SPI_Begin_Ext(spi, SPI_MODE_MASTER, pin, NULL);
+    HAL_SPI_Begin_Ext(spi, SPI_MASTER, pin, NULL);
 }
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
-    if (pin == SPI_DEFAULT_SS)
+    if (pin == SPI_DEFAULT_SS) {
         pin = spiMap[spi]->SPI_SS_Pin;
+    }
 
     HAL_SPI_GPIO_DMA_Init(spi);
-
     /* SPI configuration */
     spiMap[spi]->SpiHandle.Instance            = spiMap[spi]->SPI_Peripheral;
-
-    spiMap[spi]->SpiHandle.Init.Mode           = SPI_MODE_MASTER;
+    if(SPI_MASTER == mode) {
+        spiMap[spi]->SpiHandle.Init.Mode       = SPI_MODE_MASTER;
+    } else {
+        spiMap[spi]->SpiHandle.Init.Mode       = SPI_MODE_SLAVE;
+    }
     spiMap[spi]->SpiHandle.Init.Direction      = SPI_DIRECTION_2LINES;
     spiMap[spi]->SpiHandle.Init.DataSize       = SPI_DATASIZE_8BIT;
     spiMap[spi]->SpiHandle.Init.NSS            = SPI_NSS_SOFT;
@@ -196,19 +189,14 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
     spiMap[spi]->SpiHandle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
     spiMap[spi]->SpiHandle.Init.CRCPolynomial  = 7;
 
-    if(spiMap[spi]->SPI_Data_Mode_Set != true)
-    {
+    if(spiMap[spi]->SPI_Data_Mode_Set != true) {
         //Default: SPI_MODE3
         HAL_SPI_Set_Data_Mode(spi, SPI_MODE3);
     }
-
-    if(spiMap[spi]->SPI_Clock_Divider_Set != true)
-    {
+    if(spiMap[spi]->SPI_Clock_Divider_Set != true) {
         HAL_SPI_Set_Clock_Divider(spi, SPI_BAUDRATEPRESCALER_16);
     }
-
-    if(spiMap[spi]->SPI_Bit_Order_Set != true)
-    {
+    if(spiMap[spi]->SPI_Bit_Order_Set != true) {
         //Default: MSBFIRST
         HAL_SPI_Set_Bit_Order(spi, SPI_FIRSTBIT_MSB);
     }
@@ -236,15 +224,11 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
-    if(order == LSBFIRST)
-    {
+    if(order == LSBFIRST) {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_LSB;
-    }
-    else
-    {
+    } else {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
     }
-
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
@@ -256,29 +240,24 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
  */
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 {
-    switch(mode)
-    {
+    switch(mode) {
         case SPI_MODE0:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_1EDGE;
             break;
-
         case SPI_MODE1:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_2EDGE;
             break;
-
         case SPI_MODE2:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_HIGH;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_1EDGE;
             break;
-
         case SPI_MODE3:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_HIGH;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_2EDGE;
             break;
     }
-
     spiMap[spi]->SPI_Data_Mode_Set = true;
 }
 
@@ -302,13 +281,13 @@ void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
  */
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
-    if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE)
+    if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE) {
         return 0;
+    }
     uint8_t dataTrans = data;
     uint8_t rxDataTrans = 0;
     HAL_SPI_TransmitReceive(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1, 5);
-    uint16_t rxData = rxDataTrans;
-    return rxData;
+    return rxDataTrans;
 }
 
 /*

@@ -27,7 +27,7 @@
 /* Exported types ------------------------------------------------------------*/
 typedef enum
 {
-  I2C_MODE_MASTER = 0, I2C_MODE_SLAVE = 1
+  I2C_MASTER = 0, I2C_SLAVE = 1
 } I2C_Mode;
 
 /* Exported types ------------------------------------------------------------*/

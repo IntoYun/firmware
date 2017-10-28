@@ -299,7 +299,7 @@ void SX1276BoardInit(void)
 
 void DelayMs(uint32_t ms)
 {
-    HAL_Delay_Microseconds(ms);
+    HAL_Delay_Milliseconds(ms);
 }
 
 uint8_t GetBoardPowerSource( void )

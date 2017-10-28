@@ -31,12 +31,9 @@ typedef enum HAL_SPI_Interface {
     HAL_SPI_INTERFACE3 = 2
 } HAL_SPI_Interface;
 
-#undef SPI_MODE_MASTER
-#undef SPI_MODE_SLAVE
-
 typedef enum
 {
-    SPI_MODE_MASTER = 0, SPI_MODE_SLAVE = 1
+    SPI_MASTER = 0, SPI_SLAVE = 1
 } SPI_Mode;
 
 typedef void (*HAL_SPI_DMA_UserCallback)(void);

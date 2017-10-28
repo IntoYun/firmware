@@ -20,7 +20,7 @@ LDFLAGS += -u _printf_float
 endif
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
-LIBS += gcc c nosys
+LIBS += gcc c
 
 # assembler startup script
 ASRC_STARTUP += $(COMMON_BUILD)/startup/arm/$(PLATFORM_NAME)/startup_$(PLATFORM_DEVICE_LC).S

@@ -54,12 +54,12 @@ void TwoWire::stretchClock(bool stretch)
 
 void TwoWire::begin(void)
 {
-    HAL_I2C_Begin(_i2c, I2C_MODE_MASTER, 0x00, NULL);
+    HAL_I2C_Begin(_i2c, I2C_MASTER, 0x00, NULL);
 }
 
 void TwoWire::begin(uint8_t address)
 {
-    HAL_I2C_Begin(_i2c, I2C_MODE_SLAVE, address, NULL);
+    HAL_I2C_Begin(_i2c, I2C_SLAVE, address, NULL);
 }
 
 void TwoWire::begin(int address)

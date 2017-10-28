@@ -34,7 +34,6 @@
 #include "string_convert.h"
 #include <functional>
 #include "service_debug.h"
-#include "wiring_time.h"
 
 class CloudDatepointClass {
     public:
@@ -302,47 +301,9 @@ class CloudClass: public CloudDatepointClass, public Print{
         static int available(void) {
             return intorobot_debug_info_available();
         }
-        static bool deviceRegister(char *prodcut_id, size_t utc_time, char *signature)
-        {
-            return intorobot_device_register(prodcut_id, utc_time, signature);
-        }
         static String deviceID(void) { return intorobot_deviceID(); }
         static void keepAlive(uint16_t sec) {
             intorobot_cloud_keepalive(sec);
-        }
-        static void setJoinParams(char *deviceID, char *accessToken) {
-            HAL_PARAMS_Set_System_device_id(deviceID);
-            HAL_PARAMS_Set_System_access_token(accessToken);
-            HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
-            HAL_PARAMS_Save_Params();
-        }
-        static void setBasicParams(float zone, char *serverDomain, uint16_t serverPort, char *registerDomain, uint16_t registerPort, char *updateDomain) {
-            HAL_PARAMS_Set_System_zone(zone);
-            HAL_PARAMS_Set_System_sv_domain(serverDomain);
-            HAL_PARAMS_Set_System_sv_port(serverPort);
-            HAL_PARAMS_Set_System_http_domain(registerDomain);
-            HAL_PARAMS_Set_System_http_port(registerPort);
-            HAL_PARAMS_Set_System_dw_domain(updateDomain);
-            HAL_PARAMS_Save_Params();
-            Time.zone(zone);
-        }
-        static float timeZone(void) {
-            return HAL_PARAMS_Get_System_zone();
-        }
-        static void serverDomain(char *domain, uint16_t len) {
-            HAL_PARAMS_Get_System_sv_domain(domain, len);
-        }
-        static uint16_t serverPort(void) {
-            return HAL_PARAMS_Get_System_sv_port();
-        }
-        static void registerDomain(char *domain, uint16_t len) {
-            HAL_PARAMS_Get_System_http_domain(domain, len);
-        }
-        static uint16_t registerPort(void) {
-            return HAL_PARAMS_Get_System_http_port();
-        }
-        static void updateDomain(char *domain, uint16_t len) {
-            HAL_PARAMS_Get_System_dw_domain(domain, len);
         }
 
     private:
