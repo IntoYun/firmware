@@ -24,8 +24,8 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "spi_hal.h"
 #include "hw_config.h"
+#include "spi_hal.h"
 
 #define TOTAL_SPI 2
 
@@ -87,25 +87,19 @@ static STM32_SPI_Info *spiMap[TOTAL_SPI];
  */
 void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 {
-    /* DEBUG("Enter HAL_SPI_GPIO_DMA_Init...\r\n"); */
     GPIO_InitTypeDef  GPIO_InitStruct;
 
     /*##-1- Enable peripherals and GPIO Clocks #################################*/
     /* Enable GPIO TX/RX clock SCK MISO MOSI clock and SPI clock and DMA clock */
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
-        /* DEBUG("Select SPI1, and Enable Clock...\r\n"); */
+    if (spiMap[spi]->SPI_Peripheral == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
-        /* #ifdef useDMASPI */
-        /*         // DMA2 clock */
-        /*         __HAL_RCC_DMA1_CLK_ENABLE(); */
-        /* #endif */
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
-        /* DEBUG("Select SPI2, and Enable Clock...\r\n"); */
+#ifdef useDMASPI
+        //DMA2 clock
+        __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
+    } else if(spiMap[spi]->SPI_Peripheral == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
 #ifdef useDMASPI
@@ -120,26 +114,20 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     GPIO_InitStruct.Pull      = GPIO_NOPULL;//GPIO_PULLUP;
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = spiMap[spi]->SPI_AF_Mapping;
-
     HAL_GPIO_Init( spiMap[spi]->SPI_SCK_Port, &GPIO_InitStruct);
-
     /* SPI MISO GPIO pin configuration  */
     GPIO_InitStruct.Pin = spiMap[spi]->SPI_MISO_Pin;
     GPIO_InitStruct.Alternate = spiMap[spi]->SPI_AF_Mapping;
-
     HAL_GPIO_Init( spiMap[spi]->SPI_MISO_Port, &GPIO_InitStruct);
-
     /* SPI MOSI GPIO pin configuration  */
     GPIO_InitStruct.Pin = spiMap[spi]->SPI_MOSI_Pin;
     GPIO_InitStruct.Alternate = spiMap[spi]->SPI_AF_Mapping;
-
     HAL_GPIO_Init( spiMap[spi]->SPI_MOSI_Port, &GPIO_InitStruct);
 
 #ifdef useDMASPI
     /*##-3- Configure the DMA streams ##########################################*/
     /* Configure the DMA handler for Transmission process */
     spiMap[spi]->hdma_tx.Instance                 = spiMap[spi]->SPI_TX_DMA_Stream;
-
     spiMap[spi]->hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
     spiMap[spi]->hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
     spiMap[spi]->hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
@@ -147,7 +135,6 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     spiMap[spi]->hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
     spiMap[spi]->hdma_tx.Init.Mode                = DMA_NORMAL;
     spiMap[spi]->hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-
     HAL_DMA_Init(&spiMap[spi]->hdma_tx);
 
     /* Associate the initialized DMA handle to the the SPI handle */
@@ -155,7 +142,6 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
 
     /* Configure the DMA handler for Transmission process */
     spiMap[spi]->hdma_rx.Instance                 = spiMap[spi]->SPI_RX_DMA_Stream;
-
     spiMap[spi]->hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
     spiMap[spi]->hdma_rx.Init.PeriphInc           = DMA_PINC_ENABLE;
     spiMap[spi]->hdma_rx.Init.MemInc              = DMA_MINC_DISABLE;
@@ -163,7 +149,6 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     spiMap[spi]->hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
     spiMap[spi]->hdma_rx.Init.Mode                = DMA_NORMAL;
     spiMap[spi]->hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-
     HAL_DMA_Init(&spiMap[spi]->hdma_rx);
 
     /* Associate the initialized DMA handle to the the SPI handle */
@@ -178,7 +163,6 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
     //HAL_NVIC_SetPriority(spiMap[spi]->SPI_DMA_RX_IRQn, 7, 0);
     //HAL_NVIC_EnableIRQ(spiMap[spi]->SPI_DMA_RX_IRQn);
 #endif
-    /* DEBUG("Leave HAL_SPI_GPIO_DMA_Init...\r\n"); */
 }
 
 /*
@@ -188,16 +172,11 @@ void HAL_SPI_GPIO_DMA_Init(HAL_SPI_Interface spi)
  */
 void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
 {
-    /* DEBUG("Enter HAL_SPI_GPIO_DMA_DeInit...\r\n"); */
-
     /*##-1- Reset peripherals ##################################################*/
-    if (spiMap[spi]->SPI_Peripheral == SPI1)
-    {
+    if (spiMap[spi]->SPI_Peripheral == SPI1) {
         __HAL_RCC_SPI1_FORCE_RESET();
         __HAL_RCC_SPI1_RELEASE_RESET();
-    }
-    else if(spiMap[spi]->SPI_Peripheral == SPI2)
-    {
+    } else if(spiMap[spi]->SPI_Peripheral == SPI2) {
         __HAL_RCC_SPI2_FORCE_RESET();
         __HAL_RCC_SPI2_RELEASE_RESET();
     }
@@ -230,13 +209,9 @@ void HAL_SPI_GPIO_DMA_DeInit(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {
-    /* DEBUG("Enter HAL_SPI_Initial...\r\n"); */
-    if(spi == HAL_SPI_INTERFACE1)
-    {
+    if(spi == HAL_SPI_INTERFACE1) {
         spiMap[spi] = &SPI_MAP[SPI2_GROUP];
-    }
-    else if(spi == HAL_SPI_INTERFACE2)
-    {
+    } else if(spi == HAL_SPI_INTERFACE2) {
         spiMap[spi] = &SPI_MAP[SPI1_GROUP];
     }
     spiMap[spi]->SPI_Bit_Order_Set     = false;
@@ -244,7 +219,6 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
     spiMap[spi]->SPI_Clock_Divider_Set = false;
     spiMap[spi]->SPI_Enabled           = false;
     spiMap[spi]->SpiHandle.Init.Mode   = SPI_MODE_MASTER;
-
 }
 
 /*
@@ -256,54 +230,44 @@ void HAL_SPI_Initial(HAL_SPI_Interface spi)
 void HAL_SPI_Begin(HAL_SPI_Interface spi, uint16_t pin)
 {
     // Default to Master mode
-    HAL_SPI_Begin_Ext(spi, SPI_MODE_MASTER, pin, NULL);
+    HAL_SPI_Begin_Ext(spi, SPI_MASTER, pin, NULL);
 }
 
 void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void* reserved)
 {
-    /* DEBUG("Enter HAL_SPI_Begin_Ext...\r\n"); */
-
-    if (pin == SPI_DEFAULT_SS)
+    if (pin == SPI_DEFAULT_SS) {
         pin = spiMap[spi]->SPI_SS_Pin;
+    }
 
     HAL_SPI_GPIO_DMA_Init(spi);
-
     /* SPI configuration */
     spiMap[spi]->SpiHandle.Instance            = spiMap[spi]->SPI_Peripheral;
-
-    spiMap[spi]->SpiHandle.Init.Mode           = SPI_MODE_MASTER;
+    if(SPI_MASTER == mode) {
+        spiMap[spi]->SpiHandle.Init.Mode       = SPI_MODE_MASTER;
+    } else {
+        spiMap[spi]->SpiHandle.Init.Mode       = SPI_MODE_SLAVE;
+    }
     spiMap[spi]->SpiHandle.Init.Direction      = SPI_DIRECTION_2LINES;
     spiMap[spi]->SpiHandle.Init.DataSize       = SPI_DATASIZE_8BIT; // SPI_DATASIZE_8BIT; // SPI_DATASIZE_16BIT
-    //spiMap[spi]->SpiHandle.Init.CLKPolarity    =  ;
-    //spiMap[spi]->SpiHandle.Init.CLKPhase       =  ;
     spiMap[spi]->SpiHandle.Init.NSS            = SPI_NSS_SOFT;
-    //spiMap[spi]->SpiHandle.Init.BaudRatePrescaler       =  ;
-    // spiMap[spi]->SpiHandle.Init.FirstBit      =  ;
     spiMap[spi]->SpiHandle.Init.TIMode         = SPI_TIMODE_DISABLE;
     spiMap[spi]->SpiHandle.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
     spiMap[spi]->SpiHandle.Init.CRCPolynomial  = 7;
 
-    if(spiMap[spi]->SPI_Data_Mode_Set != true)
-    {
+    if(spiMap[spi]->SPI_Data_Mode_Set != true) {
         //Default: SPI_MODE3
         HAL_SPI_Set_Data_Mode(spi, SPI_MODE3);
     }
-
-    if(spiMap[spi]->SPI_Clock_Divider_Set != true)
-    {
+    if(spiMap[spi]->SPI_Clock_Divider_Set != true) {
         HAL_SPI_Set_Clock_Divider(spi, SPI_BAUDRATEPRESCALER_16);
     }
-    if(spiMap[spi]->SPI_Bit_Order_Set != true)
-    {
+    if(spiMap[spi]->SPI_Bit_Order_Set != true) {
         //Default: MSBFIRST
         HAL_SPI_Set_Bit_Order(spi, SPI_FIRSTBIT_MSB);
     }
-
     HAL_SPI_Init(&spiMap[spi]->SpiHandle);
     spiMap[spi]->SPI_Enabled = true;
-    /* DEBUG("exit HAL_SPI_begin_ext\r\n"); */
     //TODO slave mode
-
 }
 
 /*
@@ -313,7 +277,6 @@ void HAL_SPI_Begin_Ext(HAL_SPI_Interface spi, SPI_Mode mode, uint16_t pin, void*
  */
 void HAL_SPI_End(HAL_SPI_Interface spi)
 {
-    //DEBUG("Enter HAL_SPI_End...\r\n");
     HAL_SPI_GPIO_DMA_DeInit(spi);
     spiMap[spi]->SPI_Enabled = false;
 }
@@ -326,17 +289,11 @@ void HAL_SPI_End(HAL_SPI_Interface spi)
  */
 void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
 {
-    //DEBUG("Enter HAL_SPI_Set_Bit_Order...\r\n");
-    if(order == LSBFIRST)
-    {
+    if(order == LSBFIRST) {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_LSB;
-    }
-    else
-    {
+    } else {
         spiMap[spi]->SpiHandle.Init.FirstBit = SPI_FIRSTBIT_MSB;
     }
-
-    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Bit_Order_Set = true;
 }
 
@@ -348,33 +305,25 @@ void HAL_SPI_Set_Bit_Order(HAL_SPI_Interface spi, uint8_t order)
  */
 void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
 {
-    //DEBUG("Enter HAL_SPI_Set_Data_Mode...\r\n");
-    switch(mode)
-    {
+    switch(mode) {
         case SPI_MODE0:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_1EDGE;
             break;
-
         case SPI_MODE1:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_2EDGE;
             break;
-
         case SPI_MODE2:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_HIGH;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_1EDGE;
             break;
-
         case SPI_MODE3:
             spiMap[spi]->SpiHandle.Init.CLKPolarity = SPI_POLARITY_HIGH;
             spiMap[spi]->SpiHandle.Init.CLKPhase   = SPI_PHASE_2EDGE;
             break;
     }
-
-    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Data_Mode_Set = true;
-    //DEBUG("Leave HAL_SPI_Set_Data_Mode...\r\n");
 }
 
 /*
@@ -385,18 +334,14 @@ void HAL_SPI_Set_Data_Mode(HAL_SPI_Interface spi, uint8_t mode)
  */
 void HAL_SPI_Set_Clock_Divider(HAL_SPI_Interface spi, uint8_t rate)
 {
-    //DEBUG("Enter HAL_SPI_Set_Clock_Divider...\r\n");
     spiMap[spi]->SpiHandle.Init.BaudRatePrescaler = rate;
-    /* HAL_SPI_Init(&spiMap[spi]->SpiHandle); */
     spiMap[spi]->SPI_Clock_Divider_Set = true;
-
 }
 
 int32_t HAL_SPI_Set_Settings(HAL_SPI_Interface spi, uint8_t set_default, uint8_t clockdiv, uint8_t order, uint8_t mode, void* reserved)
 {
-    /*
-    if (!set_default)
-    {
+#if 0
+    if (!set_default) {
         HAL_SPI_Set_Clock_Divider_Impl(spi, clockdiv);
         HAL_SPI_Set_Bit_Order_Impl(spi, order);
         HAL_SPI_Set_Data_Mode_Impl(spi, mode);
@@ -414,7 +359,7 @@ int32_t HAL_SPI_Set_Settings(HAL_SPI_Interface spi, uint8_t set_default, uint8_t
         SPI_Init(spiMap[spi].SPI_Peripheral, &spiState[spi].SPI_InitStructure);
         SPI_Cmd(spiMap[spi].SPI_Peripheral, ENABLE);
     }
-*/
+#endif
     return 0;
 }
 
@@ -426,25 +371,18 @@ int32_t HAL_SPI_Set_Settings(HAL_SPI_Interface spi, uint8_t set_default, uint8_t
  */
 uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
 {
-    /* DEBUG("Enter HAL_SPI_Send_Receive_Data...\r\n"); */
-    if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE)
-        return 0;
     uint8_t dataTrans = data;
     uint8_t rxDataTrans = 0;
-    //DEBUG("The Input Data: %d\r\n", dataTrans);
-    //DEBUG("Before TransmitReceive...\r\n");
+
+    if (spiMap[spi]->SpiHandle.Init.Mode == SPI_MODE_SLAVE) {
+        return 0;
+    }
 #ifdef useDMASPI
     HAL_SPI_TransmitReceive_DMA(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1);
 #else
     HAL_SPI_TransmitReceive(&spiMap[spi]->SpiHandle, &dataTrans, &rxDataTrans, 1, 5);
 #endif
-    //DEBUG("After TransmitReceive...\r\n");
-    //while (HAL_SPI_GetState(&spiMap[spi]->SpiHandle) != HAL_SPI_STATE_READY)
-    //{}
-    uint16_t rxData = rxDataTrans;
-    /*DEBUG("The Output Data: %d\r\n", rxData);*/
-    /* DEBUG("Leave HAL_SPI_Send_Recevice_Data...\r\n"); */
-    return rxData;
+    return rxDataTrans;
 }
 
 /*
@@ -454,7 +392,6 @@ uint16_t HAL_SPI_Send_Receive_Data(HAL_SPI_Interface spi, uint16_t data)
  */
 bool HAL_SPI_Is_Enabled(HAL_SPI_Interface spi)
 {
-    //DEBUG("Enter HAL_SPI_Is_Enabled...\r\n");
     return spiMap[spi]->SPI_Enabled;
 }
 
@@ -527,3 +464,4 @@ void DMA1_Stream5_IRQHandler(void)
 }
 #endif
 #endif
+

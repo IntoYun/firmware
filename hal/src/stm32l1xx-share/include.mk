@@ -11,15 +11,16 @@ ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
 
 LDFLAGS += -Tlinker_$(PLATFORM_DEVICE_LC)_app.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/arm/$(PLATFORM_NAME)
-LDFLAGS += --specs=nano.specs --specs=nosys.specs -lc -lnosys
 LDFLAGS += -Wl,--defsym,__STACKSIZE__=400
-LDFLAGS += -Wl,--start-group -lgcc -lc -Wl,--end-group
+LDFLAGS += --specs=nano.specs --specs=nosys.specs
 
 USE_PRINTF_FLOAT = n
 ifeq ("$(USE_PRINTF_FLOAT)","y")
 LDFLAGS += -u _printf_float
 endif
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
+
+LIBS += gcc c
 
 # assembler startup script
 ASRC_STARTUP += $(COMMON_BUILD)/startup/arm/$(PLATFORM_NAME)/startup_$(PLATFORM_DEVICE_LC).S

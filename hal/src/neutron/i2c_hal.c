@@ -112,20 +112,16 @@ void HAL_I2C_GPIO_DeInit(HAL_I2C_Interface i2c)
 {
     // XXX: Change
     /*##-1- Reset peripherals ##################################################*/
-    if (i2cMap[i2c]->I2C_Peripheral == I2C1)
-    {
+    if (i2cMap[i2c]->I2C_Peripheral == I2C1) {
         __HAL_RCC_I2C1_FORCE_RESET();
         __HAL_RCC_I2C1_RELEASE_RESET();
-    }
-    else if (i2cMap[i2c]->I2C_Peripheral == I2C3)
-    {
+    } else if (i2cMap[i2c]->I2C_Peripheral == I2C3) {
         __HAL_RCC_I2C3_FORCE_RESET();
         __HAL_RCC_I2C3_RELEASE_RESET();
     }
     /*##-2- Disable peripherals and GPIO Clocks ################################*/
     HAL_GPIO_DeInit(i2cMap[i2c]->I2C_SDA_Port, i2cMap[i2c]->I2C_SDA_Pin);
     HAL_GPIO_DeInit(i2cMap[i2c]->I2C_SCL_Port, i2cMap[i2c]->I2C_SCL_Pin);
-
     /*##-3- Disable the NVIC for I2C ###########################################*/
     HAL_NVIC_DisableIRQ(i2cMap[i2c]->I2C_ER_IRQn);
     HAL_NVIC_DisableIRQ(i2cMap[i2c]->I2C_EV_IRQn);
@@ -140,18 +136,11 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
 {
     GPIO_InitTypeDef  GPIO_InitStruct;
 
-    // XXX: Change
-    /* I2C1, PB9, PB8  for sensors*/
-    /* I2C3, PB4, PA8  for usrs*/
-
     /*##-1- Enable GPIO Clocks #################################################*/
     /* Enable GPIO TX/RX clock */
-    if (i2cMap[i2c]->I2C_Peripheral == I2C1)
-    {
+    if (i2cMap[i2c]->I2C_Peripheral == I2C1) {
         __HAL_RCC_GPIOB_CLK_ENABLE();
-    }
-    else if (i2cMap[i2c]->I2C_Peripheral == I2C3)
-    {
+    } else if (i2cMap[i2c]->I2C_Peripheral == I2C3) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
     }
@@ -172,12 +161,9 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
 
     /*##-3- Enable I2C peripherals Clock #######################################*/
     /* Enable I2C clock */
-     if (i2cMap[i2c]->I2C_Peripheral == I2C1)
-    {
+    if (i2cMap[i2c]->I2C_Peripheral == I2C1) {
         __HAL_RCC_I2C1_CLK_ENABLE();
-    }
-    else if (i2cMap[i2c]->I2C_Peripheral == I2C3)
-    {
+    } else if (i2cMap[i2c]->I2C_Peripheral == I2C3) {
         __HAL_RCC_I2C3_CLK_ENABLE();
     }
 
@@ -190,7 +176,6 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
     i2cMap[i2c]->I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     i2cMap[i2c]->I2CHandle.Init.OwnAddress1     = i2cMap[i2c]->I2C_Ownaddress1;//0x00;
     i2cMap[i2c]->I2CHandle.Init.OwnAddress2     = 0x00;
-
     HAL_I2C_Init(&(i2cMap[i2c]->I2CHandle));
 }
 
@@ -217,13 +202,10 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
  */
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
-  if(i2c == HAL_I2C_INTERFACE1) // for users
-    {
-      i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1_USER];
-    }
-  else if(i2c == HAL_I2C_INTERFACE2)// for sensors
-    {
-      i2cMap[i2c] = &I2C_MAP[I2C1_SDA_SCL_SENSOR];
+    if(i2c == HAL_I2C_INTERFACE1) {
+        i2cMap[i2c] = &I2C_MAP[I2C3_D2_D1_USER];
+    } else if(i2c == HAL_I2C_INTERFACE2) {
+        i2cMap[i2c] = &I2C_MAP[I2C1_SDA_SCL_SENSOR];
     }
 
     i2cMap[i2c]->I2C_ClockSpeed       = CLOCK_SPEED_400KHZ;
@@ -259,16 +241,17 @@ void HAL_I2C_Set_Speed(HAL_I2C_Interface i2c, uint32_t speed, void* reserved)
  */
 void HAL_I2C_Stretch_Clock(HAL_I2C_Interface i2c, bool stretch, void* reserved)
 {
-    // TODO: to be check
-//    if(stretch == true)
-//    {
-//        I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, ENABLE);
-//    }
-//    else
-//    {
-//        I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, DISABLE);
-//    }
-//    i2cMap[i2c]->clkStretchingEnabled = stretch;
+#if 0
+    if(stretch == true)
+    {
+        I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, ENABLE);
+    }
+    else
+    {
+        I2C_StretchClockCmd(i2cMap[i2c]->I2C_Peripheral, DISABLE);
+    }
+    i2cMap[i2c]->clkStretchingEnabled = stretch;
+#endif
 }
 
 /*
@@ -282,7 +265,6 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
 {
     i2cMap[i2c]->mode = mode;
     i2cMap[i2c]->I2C_Ownaddress1 = address<<1;
-
     HAL_I2C_GPIO_Init(i2c);
     i2cMap[i2c]->I2C_Enabled = true;
 }
@@ -294,8 +276,7 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
  */
 void HAL_I2C_End(HAL_I2C_Interface i2c,void* reserved)
 {
-    if(i2cMap[i2c]->I2C_Enabled != false)
-    {
+    if(i2cMap[i2c]->I2C_Enabled != false) {
         HAL_I2C_GPIO_DeInit(i2c);
         i2cMap[i2c]->I2C_Enabled = false;
     }
@@ -314,20 +295,16 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
     uint8_t bytesRead = 0;
     int state;
     // clamp to buffer length
-    if(quantity > BUFFER_LENGTH)
-    {
+    if(quantity > BUFFER_LENGTH) {
         quantity = BUFFER_LENGTH;
     }
     address = address << 1;
     startTime = HAL_Timer_Get_Micro_Seconds();
-    while(HAL_I2C_Master_Receive(&(i2cMap[i2c]->I2CHandle), address, i2cMap[i2c]->rxBuffer, quantity, 100) != HAL_OK)
-    {
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - startTime))
-        {
+    while(HAL_I2C_Master_Receive(&(i2cMap[i2c]->I2CHandle), address, i2cMap[i2c]->rxBuffer, quantity, 100) != HAL_OK) {
+        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - startTime)) {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
             i2cMap[i2c]->prevEnding = I2C_ENDING_STOP;
-            // debug
             return 0;
         }
     }
@@ -365,10 +342,8 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
 {
     uint32_t startTime;
     startTime = HAL_Timer_Get_Micro_Seconds();
-    while(HAL_I2C_Master_Transmit( &(i2cMap[i2c]->I2CHandle), (uint16_t)i2cMap[i2c]->txAddress, &i2cMap[i2c]->txBuffer[0], i2cMap[i2c]->txBufferLength, 100) != HAL_OK)
-    {
-        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - startTime))
-        {
+    while(HAL_I2C_Master_Transmit( &(i2cMap[i2c]->I2CHandle), (uint16_t)i2cMap[i2c]->txAddress, &i2cMap[i2c]->txBuffer[0], i2cMap[i2c]->txBufferLength, 100) != HAL_OK) {
+        if(EVENT_TIMEOUT < (HAL_Timer_Get_Micro_Seconds() - startTime)) {
             /* SW Reset the I2C Peripheral */
             HAL_I2C_SoftwareReset(i2c);
             i2cMap[i2c]->prevEnding = I2C_ENDING_START;
@@ -378,7 +353,6 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
     // reset tx buffer iterator vars
     i2cMap[i2c]->txBufferIndex = 0;
     i2cMap[i2c]->txBufferLength = 0;
-
     // indicate that we are done transmitting
     i2cMap[i2c]->transmitting = 0;
     return 0;
@@ -392,12 +366,10 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop,void* reser
  */
 uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data,void* reserved)
 {
-    if(i2cMap[i2c]->transmitting)
-    {
+    if(i2cMap[i2c]->transmitting) {
         // in master/slave transmitter mode
         // don't bother if buffer is full
-        if(i2cMap[i2c]->txBufferLength >= BUFFER_LENGTH)
-        {
+        if(i2cMap[i2c]->txBufferLength >= BUFFER_LENGTH) {
             return 1;
         }
         // put byte in tx buffer
@@ -429,8 +401,7 @@ int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int value = -1;
     // get each successive byte on each call
-    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength)
-    {
+    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength) {
         value = i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex++];
     }
     return value;
@@ -445,8 +416,7 @@ int32_t HAL_I2C_Read_Data(HAL_I2C_Interface i2c,void* reserved)
 int32_t HAL_I2C_Peek_Data(HAL_I2C_Interface i2c,void* reserved)
 {
     int value = -1;
-    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength)
-    {
+    if(i2cMap[i2c]->rxBufferIndex < i2cMap[i2c]->rxBufferLength) {
         value = i2cMap[i2c]->rxBuffer[i2cMap[i2c]->rxBufferIndex];
     }
     return value;
