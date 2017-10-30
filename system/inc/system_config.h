@@ -78,7 +78,7 @@ public:
 
     DeviceConfigCmdType getMessageType(char *s);
 
-    int process(void);
+    bool process(void);
 
     void dealHello(void);
     void dealCheckWifi(void);
@@ -213,7 +213,7 @@ extern volatile uint8_t g_intorobot_system_config;    //配置状态
 
 void set_system_config_type(system_config_type_t config_type);
 system_config_type_t get_system_config_type();
-int  system_config_process(void);
+bool system_config_process(void);
 void system_config_setup(void);
 void manage_system_config();
 

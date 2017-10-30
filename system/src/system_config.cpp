@@ -132,7 +132,7 @@ DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
     }
 }
 
-int DeviceConfig::process(void)
+bool DeviceConfig::process(void)
 {
     aJsonObject *root=NULL;
     aJsonObject* value_Object;
@@ -233,9 +233,9 @@ int DeviceConfig::process(void)
     }
 
     if(_isConfigSuccessful) {
-        return 0;
+        return true;
     } else {
-        return 1;
+        return false;
     }
 }
 
@@ -1087,9 +1087,8 @@ void system_config_finish(void)
     LORAWAN_FN(LoraWAN_Setup(), (void)0);
 }
 
-int system_config_process(void)
+bool system_config_process(void)
 {
-    int result = -1;
     system_config_type_t config_type = get_system_config_type();
     static system_config_type_t system_config_type = SYSTEM_CONFIG_TYPE_NONE;
 
@@ -1098,7 +1097,7 @@ int system_config_process(void)
             system_config_finish();
         }
         system_config_type = config_type;
-        return 0;
+        return false;
     }
     system_config_type = config_type;
 
@@ -1108,65 +1107,75 @@ int system_config_process(void)
     }
 
     switch(get_system_config_type()) {
-#ifdef configSETUP_UDP_ENABLE
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
-            result = DeviceSetupImlink.process();
+#ifdef configSETUP_UDP_ENABLE
+            if(DeviceSetupImlink.process()) {
+                goto success;
+            }
+#endif
 #ifdef configSETUP_USBSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsbSerial.process();
+            if(DeviceSetupUsbSerial.process()) {
+                goto success;
             }
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsartSerial.process();
+            if(DeviceSetupUsartSerial.process()) {
+                goto success;
             }
 #endif
             break;
-#endif
-#ifdef configSETUP_TCP_ENABLE
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
-            result = DeviceSetupAp.process();
+#ifdef configSETUP_TCP_ENABLE
+            if(DeviceSetupAp.process()) {
+                goto success;
+            }
+#endif
 #ifdef configSETUP_USBSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsbSerial.process();
+            if(DeviceSetupUsbSerial.process()) {
+                goto success;
             }
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsartSerial.process();
+            if(DeviceSetupUsartSerial.process()) {
+                goto success;
             }
 #endif
             break;
-#endif
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
 #ifdef configSETUP_USBSERIAL_ENABLE
-            result = DeviceSetupUsbSerial.process();
+            if(DeviceSetupUsbSerial.process()) {
+                goto success;
+            }
 #endif
 #ifdef configSETUP_USARTSERIAL_ENABLE
-            if(result) {
-                result = DeviceSetupUsartSerial.process();
+            if(DeviceSetupUsartSerial.process()) {
+                goto success;
             }
 #endif
             break;
-#ifdef configSETUP_UDP_ENABLE
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-            result = DeviceSetupImlink.process();
-            break;
+#ifdef configSETUP_UDP_ENABLE
+            if(DeviceSetupImlink.process()) {
+                goto success;
+            }
 #endif
-#ifdef configSETUP_TCP_ENABLE
+            break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
-            result = DeviceSetupAp.process();
-            break;
+#ifdef configSETUP_TCP_ENABLE
+            if(DeviceSetupAp.process()) {
+                goto success;
+            }
 #endif
+            break;
         default:
             break;
     }
-    if(!result) {
-        system_config_finish();
-        system_config_type = SYSTEM_CONFIG_TYPE_NONE;
-        set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
-    }
-    return result;
+    return false;
+success:
+    system_config_finish();
+    system_config_type = SYSTEM_CONFIG_TYPE_NONE;
+    set_system_config_type(SYSTEM_CONFIG_TYPE_NONE);
+    return true;
 }
 
 // These are internal methods
@@ -1204,9 +1213,8 @@ void manage_system_config(void)
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
             CLOUD_FN(cloud_disconnect(), (void)0);
             system_rgb_blink(RGB_COLOR_RED, 1000);
-            while(1)
-            {
-                if(0 == system_config_process())
+            while(1) {
+                if(system_config_process())
                 {break;}
                 HAL_Core_System_Yield();
             }
