@@ -108,14 +108,15 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 
     if(pin == 0xff) {
         uint8_t pinNumber;
-        pinMode(0,OUTPUT);
-        pinMode(2,OUTPUT);
-        digitalWrite(0,value);
-        digitalWrite(2,value);
-        for(pinNumber = 4; pinNumber <= 35; pinNumber++) {
+        for(pinNumber = 2; pinNumber <= 9; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
+        for(pinNumber = 30; pinNumber <= 41; pinNumber++) {
+            pinMode(pinNumber,OUTPUT);
+            digitalWrite(pinNumber,value);
+        }
+
     } else {
         pinMode(pin,OUTPUT);
         digitalWrite(pin,value);
@@ -209,7 +210,7 @@ void testAnalogRead(uint16_t pin, void* cookie)
     ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM
 #elif PLATFORM_ID == PLATFORM_NEUTRON
-#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
+#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
@@ -219,8 +220,6 @@ void testAnalogRead(uint16_t pin, void* cookie)
     free(strPtr);
     aJson.deleteItem(root);
 
-#elif PLATFORM_ID == PLATFORM_FIG
-#elif PLATFORM_ID == PLATFORM_W323
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
@@ -261,7 +260,7 @@ void testSelfTest(void* cookie)
     ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM
 #elif PLATFORM_ID == PLATFORM_NEUTRON
-#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
+#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
@@ -270,8 +269,6 @@ void testSelfTest(void* cookie)
     aJson.deleteItem(root);
     free(strPtr);
 
-#elif PLATFORM_ID == PLATFORM_FIG
-#elif PLATFORM_ID == PLATFORM_W323
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;

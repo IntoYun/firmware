@@ -67,7 +67,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS           44
+#define TOTAL_PINS           46
 #define FIRST_DIGITAL_PIN    0
 #define TOTAL_DIGITAL_PINS   10
 #define FIRST_ANALOG_PIN     30
@@ -97,10 +97,12 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define GPIO25         37
 #define GPIO26         38
 #define GPIO27         39
-#define GPIO34         40
-#define GPIO35         41
-#define GPIO36         42
-#define GPIO39         43
+#define GPIO32         40
+#define GPIO33         41
+#define GPIO34         42
+#define GPIO35         43
+#define GPIO36         44
+#define GPIO39         45
 
 // Serial pins
 #define TX    GPIO1
