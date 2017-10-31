@@ -86,16 +86,17 @@ public:
     void dealGetWifiList(void);
     void dealGetInfo(void);
 
-    void dealSendWifiInfo(aJsonObject* value_Object);
-    void dealSetNetworkCredentials(aJsonObject* value_Object);
-    void dealSendDeviceInfo(aJsonObject* value_Object);
-    void dealSetSecurity(aJsonObject* value_Object);
-    void dealSetInfo(aJsonObject* value_Object);
+    void dealSendWifiInfo(aJsonObject* root);
+    void dealSetNetworkCredentials(aJsonObject* root);
+    void dealSendDeviceInfo(aJsonObject* root);
+    void dealSetSecurity(aJsonObject* root);
+    void dealSetInfo(aJsonObject* root);
 
     void dealRestartNetwork(void);
     void dealReset(void);
     void dealReboot(void);
-    void dealTest(aJsonObject* value_Object);
+    void dealExit(void);
+    void dealTest(aJsonObject* root);
 };
 
 #ifdef configSETUP_USBSERIAL_ENABLE

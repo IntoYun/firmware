@@ -53,6 +53,7 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 {
     aJsonClass aJson;
 
+    ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM
 #elif PLATFORM_ID == PLATFORM_NEUTRON
 #elif PLATFORM_ID == PLATFORM_NUT
@@ -204,6 +205,8 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 void testAnalogRead(uint16_t pin, void* cookie)
 {
     aJsonClass aJson;
+
+    ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM
 #elif PLATFORM_ID == PLATFORM_NEUTRON
 #elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
@@ -254,6 +257,8 @@ void testAnalogRead(uint16_t pin, void* cookie)
 void testSelfTest(void* cookie)
 {
     aJsonClass aJson;
+
+    ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM
 #elif PLATFORM_ID == PLATFORM_NEUTRON
 #elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT
@@ -311,6 +316,7 @@ void testSelfTest(void* cookie)
 
 void testRfCheck(void* cookie)
 {
+    ((DeviceConfig*)cookie)->sendComfirm(200);
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
     ((DeviceConfig*)cookie)->dealGetWifiList();
 
@@ -358,6 +364,7 @@ void testRfCheck(void* cookie)
 
 void testSensorData(void* cookie)
 {
+    ((DeviceConfig*)cookie)->sendComfirm(200);
 }
 
 #if PLATFORM_ID == PLATFORM_ANT || PLATFORM_ID == PLATFORM_L6

@@ -23,7 +23,7 @@
 #include "pinmap_impl.h"
 #include <string.h>
 
-#define SERIAL_QUEUE_SIZE  256
+#define SERIAL_QUEUE_SIZE  128
 
 UART_HandleTypeDef UartHandle_SERIAL1;    // USART1 (PA10)-RX (PA9)-TX
 UART_HandleTypeDef UartHandle_SERIAL2;    // USART2 (PA3)-RX  (PA2)-TX

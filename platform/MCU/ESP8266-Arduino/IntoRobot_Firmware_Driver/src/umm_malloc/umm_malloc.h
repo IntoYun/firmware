@@ -17,15 +17,15 @@ extern "C" {
 #endif
 
 typedef struct UMM_HEAP_INFO_t {
-  unsigned short int totalEntries;
-  unsigned short int usedEntries;
-  unsigned short int freeEntries;
+    unsigned short int totalEntries;
+    unsigned short int usedEntries;
+    unsigned short int freeEntries;
 
-  unsigned short int totalBlocks;
-  unsigned short int usedBlocks;
-  unsigned short int freeBlocks;
+    unsigned short int totalBlocks;
+    unsigned short int usedBlocks;
+    unsigned short int freeBlocks;
 
-  unsigned short int maxFreeContiguousBlocks;
+    unsigned short int maxFreeContiguousBlocks;
 }
 UMM_HEAP_INFO;
 
