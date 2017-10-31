@@ -566,6 +566,7 @@ void intorobot_lorawan_send_terminal_info(void)
             INTOROBOT_LORAWAN_SEND_INFO = false;
             LoRaWan._macRunStatus = ep_lorawan_join_success;
             system_notify_event(event_lorawan_status,ep_lorawan_join_success);
+            system_rgb_blink(RGB_COLOR_WHITE, 2000);//白灯闪烁
             DEBUG("termianal info send ok\r\n");
         }else{
             DEBUG("termianal info send fail\r\n");
@@ -616,7 +617,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 SLORAWAN_DEBUG("nwkskey: %s\r\n", nwkskey);
                 SLORAWAN_DEBUG("appskey: %s\r\n", appskey);
                 INTOROBOT_LORAWAN_JOINED = true;
-                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                system_rgb_blink(RGB_COLOR_BLUE, 1000); //蓝灯闪烁
                 SLORAWAN_DEBUG("--LoRaWanOnEvent joined--\r\n");
             }
             break;

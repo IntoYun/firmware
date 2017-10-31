@@ -3006,8 +3006,8 @@ static LoRaMacStatus_t ScheduleTx( void )
 
         RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //固定 RX1接收窗口打开时间
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //固定 RX2接收窗口打开时间
-        /* LORAMAC_DEBUG("rx1 window delay = %d\r\n",RxWindow1Delay); */
-        /* LORAMAC_DEBUG("rx2 window delay = %d\r\n",RxWindow2Delay); */
+        LORAMAC_DEBUG("rx1 window delay = %d\r\n",RxWindow1Delay);
+        LORAMAC_DEBUG("rx2 window delay = %d\r\n",RxWindow2Delay);
     }
 
     /* LORAMAC_DEBUG("dutyCycleTimeOff = %d\r\n",dutyCycleTimeOff); */
