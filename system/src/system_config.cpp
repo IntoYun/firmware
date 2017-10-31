@@ -671,7 +671,7 @@ void DeviceConfig::dealTest(aJsonObject* root)
         testDigitalWrite(pinNum,pinLevel,this);
     } else if(strcmp(itemObject->valuestring,"analogRead") == 0) {
         aJsonObject* pinObject = aJson.getObjectItem(value_Object,"pin");
-        if(pinObject != NULL) {return;}
+        if(pinObject == NULL) {return;}
         pinNum = pinObject->valueint;
         aJson.deleteItem(root);
         testAnalogRead(pinNum,this);
