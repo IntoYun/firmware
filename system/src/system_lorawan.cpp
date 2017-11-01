@@ -35,7 +35,7 @@
 #include "system_utilities.h"
 #include "string_convert.h"
 #include "wiring_system.h"
-#include "wiring_ext.h"
+#include "wiring_interrupts.h"
 
 /*debug switch*/
 #define SYSTEM_LORAWAN_DEBUG
@@ -350,7 +350,7 @@ void LoRaWanPause(void)
     LoRaWanJoinEnable(false);
     // Radio initialization
     // SX1276BoardInit();
-    disable_irq( );
+    noInterrupts();
     SX1276IoIrqDeInit();
     loraRadioEvents.TxDone = OnLoRaRadioTxDone;
     loraRadioEvents.RxDone = OnLoRaRadioRxDone;
@@ -359,7 +359,7 @@ void LoRaWanPause(void)
     loraRadioEvents.RxError = OnLoRaRadioRxError;
     loraRadioEvents.CadDone = OnLoRaRadioCadDone;
     Radio.Init( &loraRadioEvents );
-    enable_irq( );
+    interrupts();
     Radio.SetModem( MODEM_LORA );
 
     DEBUG("lora radio init!!!\r\n");
