@@ -33,14 +33,14 @@
  * Definitions
  ******************************************************************************/
 // aJson Types:
-#define aJson_NULL 0
+#define aJson_NULL    0
 #define aJson_Boolean 1
-#define aJson_Int 2
-#define aJson_Float 3
-#define aJson_String 4
-#define aJson_Array 5
-#define aJson_Object 6
-#define aJson_Uint 7
+#define aJson_Int     2
+#define aJson_Float   3
+#define aJson_String  4
+#define aJson_Array   5
+#define aJson_Object  6
+#define aJson_Uint    7
 
 #define aJson_IsReference 128
 
@@ -50,7 +50,7 @@
 
 //#if defined (STM32L151xB) || defined (STM32F103xB)
 #if defined (STM32L151xB)
-#define PRINT_BUFFER_LEN 512   //改小， 如果内存不够，容易申请失败
+#define PRINT_BUFFER_LEN 256   //改小， 如果内存不够，容易申请失败
 #else
 #define PRINT_BUFFER_LEN 1536
 #endif

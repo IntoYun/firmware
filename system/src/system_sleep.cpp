@@ -47,6 +47,8 @@ static void LoRaSystemWakeupCb(void)
     if(System.featureEnabled(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED)){
         if(LoRaWanActiveStatus() == 0){
             system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+        }else if(INTOROBOT_LORAWAN_JOINED){
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
         }else{
             system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }

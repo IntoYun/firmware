@@ -35,8 +35,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define USER_RX_BUFFER_SIZE  128
-#define USB_RX_QUEUE_SIZE    512
+#define USER_RX_BUFFER_SIZE  65    //FS 接受缓冲区默认最大64
+#define USB_RX_QUEUE_SIZE    256
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/

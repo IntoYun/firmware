@@ -27,7 +27,6 @@
 #include <malloc.h>
 /* Define abort() */
 #include <stdlib.h>
-#include "service_debug.h"
 
 
 extern "C" {
@@ -54,7 +53,7 @@ static void call_constructors(unsigned long *start, unsigned long *end)
 extern "C" {
     void CallConstructors(void)
     {
-       call_constructors(&link_constructors_location, &link_constructors_end);
+        call_constructors(&link_constructors_location, &link_constructors_end);
     }
 
     void *__dso_handle = NULL;
@@ -86,7 +85,7 @@ extern "C" {
     caddr_t _sbrk(int incr)
     {
         char* prev_heap;
-        //DEBUG_D("sbrk_heap_top=%x  link_heap_location_end=%x ",sbrk_heap_top, &link_heap_location_end);
+
         if (sbrk_heap_top + incr > &link_heap_location_end)
         {
             volatile struct mallinfo mi = mallinfo();
@@ -97,6 +96,12 @@ extern "C" {
         prev_heap = sbrk_heap_top;
         sbrk_heap_top += incr;
         return (caddr_t) prev_heap;
+    }
+
+    uint32_t freeheap()
+    {
+        struct mallinfo info = mallinfo();
+        return &link_heap_location_end - sbrk_heap_top + info.fordblks;
     }
 
     /*

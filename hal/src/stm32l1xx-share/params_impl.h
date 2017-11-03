@@ -60,7 +60,7 @@ typedef struct
 
     float    zone;                 // 核心板所在时区。用于实时时钟。
 
-    uint8_t  reserve[651];         // 参数预留区 每添加一个参数，预留区大小减1
+    uint8_t  reserve[51];          // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;
 }hal_system_params_t;
 

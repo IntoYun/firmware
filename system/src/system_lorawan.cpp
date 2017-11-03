@@ -35,7 +35,7 @@
 #include "system_utilities.h"
 #include "string_convert.h"
 #include "wiring_system.h"
-#include "wiring_ext.h"
+#include "wiring_interrupts.h"
 
 /*debug switch*/
 #define SYSTEM_LORAWAN_DEBUG
@@ -350,7 +350,7 @@ void LoRaWanPause(void)
     LoRaWanJoinEnable(false);
     // Radio initialization
     // SX1276BoardInit();
-    disable_irq( );
+    noInterrupts();
     SX1276IoIrqDeInit();
     loraRadioEvents.TxDone = OnLoRaRadioTxDone;
     loraRadioEvents.RxDone = OnLoRaRadioRxDone;
@@ -359,7 +359,7 @@ void LoRaWanPause(void)
     loraRadioEvents.RxError = OnLoRaRadioRxError;
     loraRadioEvents.CadDone = OnLoRaRadioCadDone;
     Radio.Init( &loraRadioEvents );
-    enable_irq( );
+    interrupts();
     Radio.SetModem( MODEM_LORA );
 
     DEBUG("lora radio init!!!\r\n");
@@ -566,6 +566,7 @@ void intorobot_lorawan_send_terminal_info(void)
             INTOROBOT_LORAWAN_SEND_INFO = false;
             LoRaWan._macRunStatus = ep_lorawan_join_success;
             system_notify_event(event_lorawan_status,ep_lorawan_join_success);
+            system_rgb_blink(RGB_COLOR_WHITE, 2000);//白灯闪烁
             DEBUG("termianal info send ok\r\n");
         }else{
             DEBUG("termianal info send fail\r\n");
@@ -616,7 +617,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 SLORAWAN_DEBUG("nwkskey: %s\r\n", nwkskey);
                 SLORAWAN_DEBUG("appskey: %s\r\n", appskey);
                 INTOROBOT_LORAWAN_JOINED = true;
-                system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                system_rgb_blink(RGB_COLOR_BLUE, 1000); //蓝灯闪烁
                 SLORAWAN_DEBUG("--LoRaWanOnEvent joined--\r\n");
             }
             break;

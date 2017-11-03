@@ -5,7 +5,7 @@
 TARGET_HAL_STM32F1XX_SHARE_PATH = $(TARGET_HAL_PATH)/src/stm32f1xx-share
 
 INCLUDE_DIRS += $(TARGET_HAL_STM32F1XX_SHARE_PATH)
-#include $(TARGET_HAL_PATH)/src/stm32/include.mk
+include $(TARGET_HAL_PATH)/src/stm32/include.mk
 
 HAL_LINK ?= $(findstring hal,$(MAKE_DEPENDENCIES))
 

@@ -258,14 +258,12 @@ void HAL_Core_System_Yield(void)
 {
 }
 
+extern "C" {
+uint32_t freeheap();
+}
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
-    extern unsigned char _eheap[];
-    extern unsigned char *sbrk_heap_top;
-
-    struct mallinfo heapinfo = mallinfo();
-    info->freeheap = _eheap-sbrk_heap_top + heapinfo.fordblks;
-
+    info->freeheap = freeheap();
     return 0;
 }
 

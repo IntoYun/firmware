@@ -78,7 +78,7 @@ public:
 
     DeviceConfigCmdType getMessageType(char *s);
 
-    int process(void);
+    bool process(void);
 
     void dealHello(void);
     void dealCheckWifi(void);
@@ -86,16 +86,17 @@ public:
     void dealGetWifiList(void);
     void dealGetInfo(void);
 
-    void dealSendWifiInfo(aJsonObject* value_Object);
-    void dealSetNetworkCredentials(aJsonObject* value_Object);
-    void dealSendDeviceInfo(aJsonObject* value_Object);
-    void dealSetSecurity(aJsonObject* value_Object);
-    void dealSetInfo(aJsonObject* value_Object);
+    void dealSendWifiInfo(aJsonObject* root);
+    void dealSetNetworkCredentials(aJsonObject* root);
+    void dealSendDeviceInfo(aJsonObject* root);
+    void dealSetSecurity(aJsonObject* root);
+    void dealSetInfo(aJsonObject* root);
 
     void dealRestartNetwork(void);
     void dealReset(void);
     void dealReboot(void);
-    void dealTest(aJsonObject* value_Object);
+    void dealExit(void);
+    void dealTest(aJsonObject* root);
 };
 
 #ifdef configSETUP_USBSERIAL_ENABLE
@@ -213,7 +214,7 @@ extern volatile uint8_t g_intorobot_system_config;    //配置状态
 
 void set_system_config_type(system_config_type_t config_type);
 system_config_type_t get_system_config_type();
-int  system_config_process(void);
+bool system_config_process(void);
 void system_config_setup(void);
 void manage_system_config();
 

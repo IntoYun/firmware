@@ -253,11 +253,14 @@ void HAL_Core_System_Yield(void)
 
 }
 
+extern "C" {
+uint32_t freeheap();
+}
 uint32_t HAL_Core_Runtime_Info(runtime_info_t* info, void* reserved)
 {
+    info->freeheap = freeheap();
     return 0;
 }
-
 
 /*******************************************************************************
  * Function Name  : SysTick_Handler
