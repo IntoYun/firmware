@@ -86,6 +86,10 @@ volatile uint32_t BUTTON_press_time;
 
 extern "C" void HAL_SysTick_Handler(void)
 {
+    if(NULL != _sysTickHandler) {
+        _sysTickHandler();
+    }
+
 #ifndef configNO_SETUPBUTTON_UI
 
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG
@@ -208,8 +212,7 @@ static void load_system_fwlib_version(void)
 
     system_get_firmlib_version(fw_ver1, sizeof(fw_ver1));
     HAL_PARAMS_Get_System_fwlib_ver(fw_ver2, sizeof(fw_ver2));
-    if(strcmp(fw_ver1, fw_ver2))
-    {
+    if(strcmp(fw_ver1, fw_ver2)) {
         HAL_PARAMS_Set_System_fwlib_ver(fw_ver1);
         HAL_PARAMS_Save_Params();
     }
@@ -279,8 +282,7 @@ void app_setup_and_loop_initial(bool *threaded)
 #ifdef configSETUP_ENABLE
     system_config_setup();
     //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
-    if( SYSTEM_CONFIG_TYPE_NONE == get_system_config_type() )
-    {
+    if(SYSTEM_CONFIG_TYPE_NONE == get_system_config_type()) {
         NEWORK_FN(Network_Setup(), (void)0);
         LORAWAN_FN(LoraWAN_Setup(), (void)0);
     }
@@ -294,13 +296,10 @@ void app_setup_and_loop_initial(bool *threaded)
 
     *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode() != SAFE_MODE);
 #if PLATFORM_THREADING
-    if (*threaded)
-    {
+    if (*threaded) {
         SystemThread.start();
         ApplicationThread.start();
-    }
-    else
-    {
+    } else {
         SystemThread.setCurrentThread();
         ApplicationThread.setCurrentThread();
     }

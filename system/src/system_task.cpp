@@ -63,6 +63,7 @@
 using intorobot::Network;
 #endif
 
+sysTick_handler _sysTickHandler = NULL;
 volatile system_tick_t intorobot_loop_total_millis = 0;
 /**
  * Time in millis of the last cloud connection attempt.
@@ -454,3 +455,9 @@ void system_delay_ms(unsigned long ms, bool force_no_background_loop)
         HAL_Delay_Milliseconds(ms);
     }
 }
+
+void SetSysTickHandler(sysTick_handler handler)
+{
+    _sysTickHandler = handler;
+}
+
