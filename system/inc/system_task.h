@@ -10,6 +10,10 @@
 extern "C" {
 #endif
 
+typedef void(*sysTick_handler)(void);
+
+extern sysTick_handler _sysTickHandler; //system tick 回调
+
 void system_process_loop(void);
 void ui_process_loop(void);
 
@@ -44,6 +48,8 @@ unsigned backoff_period(unsigned connection_attempts);
 void* system_internal(int item, void* reserved);
 
 void system_delay_ms(unsigned long ms, bool force_no_background_loop);
+
+void SetSysTickHandler(sysTick_handler handler);
 
 #define INTOROBOT_LOOP_DELAY_MILLIS                 1000    //1sec
 

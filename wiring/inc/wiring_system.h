@@ -35,6 +35,7 @@
 #include "core_hal.h"
 #include "system_user.h"
 #include "system_config.h"
+#include "system_task.h"
 #include "wiring_time.h"
 
 #ifdef INTOROBOT_PLATFORM
@@ -71,6 +72,10 @@ class SystemClass {
 
         static void enterSafeMode(void) {
             HAL_Core_Enter_Safe_Mode(NULL);
+        }
+
+        static void onSysTick(void(*handler)(void)) {
+            SetSysTickHandler(handler);
         }
 
 #if SYSTEM_HW_TICKS
