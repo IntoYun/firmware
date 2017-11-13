@@ -970,7 +970,6 @@ TcpDeviceConfig DeviceSetupAp;
 UdpDeviceConfig DeviceSetupImlink;
 #endif
 
-static system_config_mode_t current_system_config_mode = SYSTEM_CONFIG_MODE_AUTOMATIC;  //配置模式处理方式
 static system_config_type_t current_system_config_type = SYSTEM_CONFIG_TYPE_NONE;       //配置类型
 static uint8_t system_config_initial_flag = 0;
 volatile uint8_t g_intorobot_system_config = 0;    //默认不是配置状态

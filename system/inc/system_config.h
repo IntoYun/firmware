@@ -195,16 +195,10 @@ extern UdpDeviceConfig DeviceSetupImlink;
 
 typedef enum
 {
-    SYSTEM_CONFIG_MODE_AUTOMATIC = 0,
-    SYSTEM_CONFIG_MODE_MANUAL,
-} system_config_mode_t;
-
-typedef enum
-{
     SYSTEM_CONFIG_TYPE_NONE = 0,       //非配置模式
-    SYSTEM_CONFIG_TYPE_IMLINK_SERIAL,  //进入串口配置模式
+    SYSTEM_CONFIG_TYPE_IMLINK_SERIAL,  //进入imlink+串口配置模式
     SYSTEM_CONFIG_TYPE_AP_SERIAL,      //进入ap+串口配置模式
-    SYSTEM_CONFIG_TYPE_SERIAL,         //串口配置模式
+    SYSTEM_CONFIG_TYPE_SERIAL,         //进入串口配置模式
     SYSTEM_CONFIG_TYPE_IMLINK,         //进入imlink配置模式
     SYSTEM_CONFIG_TYPE_AP              //进入ap配置模式
 }system_config_type_t;
