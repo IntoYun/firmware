@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "intorobot_macros.h"
+#include "platforms.h"
 
 #ifndef DEFAULT_PRODUCT_SOFTWARE_VERSION
 #define DEFAULT_PRODUCT_SOFTWARE_VERSION
@@ -84,7 +85,11 @@ public:
 
         feature_send_info_enable = true;            //发送设备信息  0:关闭  1:打开
         feature_ota_update_enable = true;           //OTA升级       0:关闭  1:打开
+#if PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_W323 || PLATFORM_ID == PLATFORM_L6
+        feature_config_save_enable = false;         //配置模式保存  0:关闭  1:打开
+#else
         feature_config_save_enable = true;          //配置模式保存  0:关闭  1:打开
+#endif
         feature_auto_config_process_enable = true;  //自动配置处理  0:关闭  1:打开
         feature_auto_time_syn_enable = true;        //自动时间同步  0:关闭  1:打开
         feature_data_protocol_enable = true;        //数据协议处理  0:关闭  1:打开
