@@ -126,7 +126,7 @@ bool DeviceConfig::process(void)
     while(available()) {
         String tmp=readString();
 
-        SCONFIG_DEBUG("OK! Rev: %s\r\n", (char *)tmp.c_str());
+        //SCONFIG_DEBUG("OK! Rev: %s\r\n", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL) {break;}
 
