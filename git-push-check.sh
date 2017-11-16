@@ -26,7 +26,7 @@ blue='\033[0;34m'
 
 
 cecho "github push check begin!!!" $yellow
-cecho "------------------------创客核心板-------------------------" $yellow
+cecho "------------------------开发板-------------------------" $yellow
 cecho "---->neutron" $yellow
 make $VERBOSE PLATFORM=neutron clean all COMPILE_LTO=n APP=smartLight-default
 
@@ -45,7 +45,16 @@ make $VERBOSE PLATFORM=ant clean all COMPILE_LTO=n APP=blink
 cecho "---->fox" $yellow
 make $VERBOSE PLATFORM=fox clean all COMPILE_LTO=n APP=smartLight-default
 
-cecho "------------------------商业模块-------------------------" $yellow
+cecho "---->gl2000" $yellow
+make $VERBOSE PLATFORM=gl2000 clean all COMPILE_LTO=n APP=blank
+
+cecho "---->gl2100" $yellow
+make $VERBOSE PLATFORM=gl2100 clean all COMPILE_LTO=n APP=blank
+
+cecho "---->anytest" $yellow
+make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=blank
+
+cecho "------------------------模组-------------------------" $yellow
 cecho "---->w67" $yellow
 make $VERBOSE PLATFORM=w67 clean all COMPILE_LTO=n APP=smartLight-module
 
@@ -57,20 +66,11 @@ make $VERBOSE PLATFORM=l6 clean all COMPILE_LTO=n APP=blink
 cecho "------------------------------------------------------------" $yellow
 
 cecho "------------------------其他-------------------------" $yellow
-cecho "---->gcc" $yellow
+#cecho "---->gcc" $yellow
 #make $VERBOSE PLATFORM=gcc clean all COMPILE_LTO=n
 
 cecho "---->neutron-net" $yellow
 make $VERBOSE PLATFORM=neutron-net clean all COMPILE_LTO=n
-
-cecho "---->anytest" $yellow
-make $VERBOSE PLATFORM=anytest clean all COMPILE_LTO=n APP=blank
-
-cecho "---->gl2000" $yellow
-make $VERBOSE PLATFORM=gl2000 clean all COMPILE_LTO=n APP=blank
-
-cecho "---->gl2100" $yellow
-make $VERBOSE PLATFORM=gl2100 clean all COMPILE_LTO=n APP=blank
 
 cecho "------------------------------------------------------------" $yellow
 cecho "github push check success!!!" $yellow
