@@ -29,7 +29,7 @@
 
 #if PLATFORM_ID == PLATFORM_ANT || PLATFORM_ID == PLATFORM_L6
 #include "wiring_lorawan.h"
-bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi);
+bool TestSX1278Process(int8_t &snr, int8_t &rssi, int8_t &txRssi);
 #endif
 
 /*debug switch*/
@@ -321,7 +321,7 @@ void testRfCheck(void* cookie)
     int8_t rssiVal = 0;
     int8_t txRssiVal = 0;
 
-    if(SX1278Test(snrVal,rssiVal,txRssiVal)) {
+    if(TestSX1278Process(snrVal,rssiVal,txRssiVal)) {
         aJson.addNumberToObject(root, "status", 200);
     } else {
         aJson.addNumberToObject(root, "status", 201);
@@ -361,189 +361,129 @@ void testSensorData(void* cookie)
 }
 
 #if PLATFORM_ID == PLATFORM_ANT || PLATFORM_ID == PLATFORM_L6
+
 //ant l6生产时板子测试代码
-#define RF_FREQUENCY        434665000 // Hz
-#define RF_IQ_INVERTED      true
-#define RX_TIMEOUT_VALUE    2000
-#define BUFFER_SIZE         8 // Define the payload size here
+#define RF_FREQUENCY    434775000
+#define BUFFER_SIZE     8
 
 typedef enum
 {
-    LOWPOWER,
+    IDLE,
+    TX_START,
     RX_DONE,
     RX_TIMEOUT,
     RX_ERROR,
     TX_DONE,
     TX_TIMEOUT,
-    TX_START,
-}States_t;
+}run_state_t;
 
-static uint16_t BufferSize = BUFFER_SIZE;
-static int8_t Buffer[BUFFER_SIZE] = {11,20,30,40,50,60,70,80};
-static States_t State = LOWPOWER;
-static int8_t RssiValue = 0;
-static int8_t SnrValue = 0;
+static int8_t buffer[BUFFER_SIZE] = {11,2,3,4,5,6,7,8};
+static run_state_t runState = TX_START;
 static uint8_t sx1278Version = 0;
-static RadioEvents_t testRadioEvents;
 
-static void TestOnTxDone( void );
-static void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
-static void TestOnTxTimeout( void );
-static void TestOnRxTimeout( void );
-static void TestOnRxError( void );
-static void TestSX1278Init(void);
-static int8_t TestSX1278Run(void);
-
-void TestSX1278Init(void)
+static void TestLoRaRadioEventCallback(system_event_t event, int param, uint8_t *data, uint16_t datalen)
 {
-    SX1276BoardInit();
+    if(event == event_lora_radio_status)
+    {
+        switch(param)
+        {
+        case ep_lora_radio_tx_done:
+            LoRa.radioSetSleep();
+            runState = TX_DONE;
+            break;
 
-    // Radio initialization
-    testRadioEvents.TxDone = TestOnTxDone;
-    testRadioEvents.RxDone = TestOnRxDone;
-    testRadioEvents.TxTimeout = TestOnTxTimeout;
-    testRadioEvents.RxTimeout = TestOnRxTimeout;
-    testRadioEvents.RxError = TestOnRxError;
-    Radio.Init( &testRadioEvents );
+        case ep_lora_radio_tx_fail:
+            LoRa.radioSetSleep();
+            runState = TX_TIMEOUT;
+            break;
 
-    LoRa.radioSetFreq(RF_FREQUENCY);
-    LoRa.radioSetModem(MODEM_LORA);
-    LoRa.radioSetIqInverted(RF_IQ_INVERTED);
+        case ep_lora_radio_rx_done:
+            LoRa.radioSetSleep();
+            runState = RX_DONE;
+            memcpy( buffer, data, datalen );
+            #if  0
+            DEBUG("rx done\r\n");
+            Serial.printf("datalen = %d\r\n",datalen);
+            for(uint8_t i=0; i<datalen;i++)
+            {
+                Serial.printf("%d ",buffer[i]);
+            }
+            Serial.print("\r\n");
+            Serial.printf("rssi = %d\r\n",LoRa.radioGetRssi());
+            #endif
+            break;
 
-    sx1278Version = LoRa.radioReadReg(0x42);
-    // DEBUG("sx1278 version = 0x%2x\r\n", sx1278Version);
-    // DEBUG("sx1278 freq = %d\r\n",SX1276LoRaGetRFFrequency());
-    // DEBUG("sync data = 0x%2x\r\n",LoRa.radioRead(0x39));
+        case ep_lora_radio_rx_timeout:
+            LoRa.radioSetSleep();
+            runState = RX_TIMEOUT;
+            break;
 
-    State = TX_START;
+        case ep_lora_radio_rx_error:
+            LoRa.radioSetSleep();
+            runState = RX_ERROR;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
-
-int8_t TestSX1278Run(void)
+void TestSX1278Init()
 {
-    switch(State)
-    {
+    SX1276BoardInit();
+    Cloud.setProtocol(PROTOCOL_P2P);
+    System.on(event_lora_radio_status, &TestLoRaRadioEventCallback);
+    LoRa.radioSetFreq(RF_FREQUENCY);
+    LoRa.radioSetIqInverted(true);
+    sx1278Version = LoRa.radioReadReg(0x42);
+}
+
+bool TestSX1278Process(int8_t &snr, int8_t &rssi, int8_t &txRssi)
+{
+    TestSX1278Init();
+    if(sx1278Version != 0x12){
+        return false;
+    }
+    while(1){
+        switch(runState){
         case TX_START:
-                LoRa.radioSend(Buffer, BufferSize, 5000);
-                State = LOWPOWER;
-                return 0;
+            runState = IDLE;
+            LoRa.radioSend(buffer, BUFFER_SIZE, 3000);
             break;
 
         case TX_DONE:
-                LoRa.radioStartRx(RX_TIMEOUT_VALUE);
-                State = LOWPOWER;
-                return 1;
+            runState = IDLE;
+            LoRa.radioStartRx(2000);
             break;
 
         case RX_DONE:
-            return 2;
+            runState = TX_START;
+            if(buffer[0] == 22){
+                snr = LoRa.radioGetSnr();
+                rssi = LoRa.radioGetRssi();
+                txRssi = buffer[1];
+                // DEBUG("snr = %d\r\n",snr);
+                // DEBUG("rssi = %d\r\n",rssi);
+                // DEBUG("txRssi = %d\r\n",txRssi);
+                return true;
+            }else{
+                return false;
+            }
             break;
 
-        case LOWPOWER:
+        case TX_TIMEOUT:
+        case RX_TIMEOUT:
+        case RX_ERROR:
+            return false;
             break;
-
-         case TX_TIMEOUT:
-         case RX_TIMEOUT:
-         case RX_ERROR:
-             return -1;
-             break;
-
+        case IDLE:
+            break;
         default:
             break;
-    }
-}
-
-bool SX1278Test(int8_t &snr, int8_t &rssi, int8_t &txRssi)
-{
-    TestSX1278Init();
-    if(sx1278Version != 18)
-    {
-        return false;
-    }
-    else
-    {
-        while(1)
-        {
-            switch(TestSX1278Run())
-            {
-                case 0:
-                case 1:
-                    break;
-
-                case 2:
-                    if(Buffer[0] == 22)
-                    {
-                        snr = SnrValue;
-                        rssi = RssiValue;
-                        txRssi = Buffer[1];
-                        // DEBUG("snr = %d\r\n",SnrValue);
-                        // DEBUG("rssi = %d\r\n",RssiValue);
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                    break;
-
-                default:
-                    return false; // tx or rx timeout
-                    break;
-            }
         }
+
+        intorobot_process();
     }
-}
-
-void TestOnTxDone( void )
-{
-    LoRa.radioSetSleep();
-    State = TX_DONE;
-    // DEBUG("tx done\r\n");
-}
-
-void TestOnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
-{
-    LoRa.radioSetSleep();
-    BufferSize = size;
-    memcpy( Buffer, payload, BufferSize );
-    State = RX_DONE;
-
-    RssiValue = rssi;
-    SnrValue = snr;
-    // DEBUG("rx done\r\n");
-
-    #if 0
-    DEBUG_D("rx data:");
-    for(uint8_t i=0; i<BufferSize; i++)
-    {
-        if(Buffer[i] != 0)
-        {
-            DEBUG_D("%d ",Buffer[i]);
-        }
-    }
-    DEBUG_D("\r\n");
-    #endif
-}
-
-void TestOnTxTimeout( void )
-{
-    LoRa.radioSetSleep();
-    State = TX_TIMEOUT;
-    // DEBUG("tx timeout\r\n");
-}
-
-void TestOnRxTimeout( void )
-{
-    LoRa.radioSetSleep();
-    State = RX_TIMEOUT;
-    // DEBUG("rx timeout\r\n");
-}
-
-void TestOnRxError( void )
-{
-    LoRa.radioSetSleep();
-    State = RX_ERROR;
-    // DEBUG("rx error\r\n");
 }
 #endif
 #endif
