@@ -101,15 +101,20 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SX1278_RXTX     44
 #define SX1278_BATTERY_POWER    A4
 
-// Uart pins
-#define TX 8
-#define RX 9
+// Serial pins
+#define TXD  8
+#define RXD  9
 
-#define TX1 A0
-#define RX1 A1
+#define TX   TXD
+#define RX   RXD
 
-#define TX2 D0
-#define RX2 D1
+// Serial1 pins
+#define TX1  A0
+#define RX1  A1
+
+// Serial2 pins
+#define TX2  D0
+#define RX2  D1
 
 #define SS   D5
 #define SCK  D2

@@ -105,9 +105,13 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define GPIO39         45
 
 // Serial pins
-#define TX    GPIO1
-#define RX    GPIO3
+#define TXD  GPIO1
+#define RXD  GPIO3
 
+#define TX   TXD
+#define RX   RXD
+
+// Serial1 pin
 #define TX1   GPIO17
 #define RX1   GPIO16
 

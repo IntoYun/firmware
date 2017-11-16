@@ -116,12 +116,14 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A14 44
 #define A15 45
 
+// Serial pins
+#define TXD  A7
+#define RXD  A8
 
-//uart pin
-#define TX  A7
-#define RX  A8
+#define TX   TXD
+#define RX   RXD
 
-//uart1 pin
+// Serial1 pins
 #define TX1 D23
 #define RX1 D22
 

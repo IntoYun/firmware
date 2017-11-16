@@ -89,12 +89,15 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A6 36
 #define A7 37
 
-// Uart pins
+// Serial pins
 #define CTS A0
 #define RTS A1
 
-#define TX A2
-#define RX A3
+#define TXD  A2
+#define RXD  A3
+
+#define TX   TXD
+#define RX   RXD
 
 // SPI pins
 #define SS   A4

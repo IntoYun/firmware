@@ -99,16 +99,15 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 
 #define ADC    30
 
+// Serial pin
 #define TXD  GPIO1
 #define RXD  GPIO3
 
-// Serial pin
 #define TX   TXD
 #define RX   RXD
 
 // Serial1 pin
 #define TX1  GPIO2
-
 
 // SPI pins
 #define SS   GPIO15
