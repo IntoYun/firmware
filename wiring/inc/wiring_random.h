@@ -26,10 +26,5 @@ void randomSeed(unsigned int seed);
 int random(int max);
 int random(int min, int max);
 
-uint16_t makeWord(uint16_t w);
-unsigned int makeWord(unsigned char h, unsigned char l);
-
-#define word(...) makeWord(__VA_ARGS__)
-
 #endif	/* WIRING_RANDOM_H */
 
