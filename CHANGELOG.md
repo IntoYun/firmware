@@ -1,5 +1,20 @@
-## v1.6.5
+## v1.6.6
 
+### FEATURES(功能)
+- [[PR #132]](https://github.com/HITSZ-NRSL/firmware/pull/132) 添加System.onSysTick()函数
+
+### ENHANCEMENTS(优化)
+- [[PR #132]](https://github.com/HITSZ-NRSL/firmware/pull/132) 去掉mqtt v1版本topic，支持在线烧录显示进度
+- [[PR #133]](https://github.com/HITSZ-NRSL/firmware/pull/133) 模组 配置状态默认不保存，上电退出配置模式
+- [[PR #135]](https://github.com/HITSZ-NRSL/firmware/pull/135) 添加RXD TXD宏定义
+- [[PR #136]](https://github.com/HITSZ-NRSL/firmware/pull/136) 兼容arduino
+
+### BUG FIXES(漏洞修复)
+
+### INTERNAL(内部)
+
+
+## v1.6.5
 
 ### FEATURES(功能)
 - [[PR #128]](https://github.com/HITSZ-NRSL/firmware/pull/128) Cloud 添加keepAlive接口
