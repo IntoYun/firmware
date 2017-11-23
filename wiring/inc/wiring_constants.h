@@ -30,20 +30,8 @@ enum PinState {
     HIGH = 1
 };
 
-#define ON      0x1
-#define OFF     0x0
-
-#define PI 3.1415926535897932384626433832795
-#define HALF_PI 1.5707963267948966192313216916398
-#define TWO_PI 6.283185307179586476925286766559
-#define DEG_TO_RAD 0.017453292519943295769236907684886
-#define RAD_TO_DEG 57.295779513082320876798154814105
-#define EULER 2.718281828459045235360287471352
-
-// undefine stdlib's abs if encountered
-#ifdef abs
-#undef abs
-#endif
+#if !defined(INTOROBOT_WIRING_ARDUINO_COMPATIBILTY) || !INTOROBOT_WIRING_ARDUINO_COMPATIBILTY
+#define INTOROBOT_WIRING_ARDUINO_TEMPLATES 1
 
 template <typename T, typename U>
 static inline
@@ -62,33 +50,18 @@ T constrain (T amt, U low, V high) { return ((amt)<(low)?(low):((amt)>(high)?(hi
 template <typename T>
 static inline
 T round (T x) { return ((x)>=0?(long)((x)+0.5):(long)((x)-0.5)); }
-
-#define abs(x) ((x)>0?(x):-(x))
-#define radians(deg) ((deg)*DEG_TO_RAD)
-#define degrees(rad) ((rad)*RAD_TO_DEG)
-#define sq(x) ((x)*(x))
-
-#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
-#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
-#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
-
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
-
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
-#define bit(b) (1UL << (b))
+#else
+#define INTOROBOT_WIRING_ARDUINO_TEMPLATES 0
+#endif // #ifndef INTOROBOT_WIRING_ARDUINO_COMPATIBILTY
 
 typedef bool boolean;
 typedef uint8_t byte;
 
 #ifndef FALSE
-#define FALSE     (0x00)
+#define FALSE					(0x00)
 #endif
 #ifndef TRUE
-#define TRUE      (!FALSE)
+#define TRUE					(!FALSE)
 #endif
 
 #endif

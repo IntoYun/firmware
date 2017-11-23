@@ -26,6 +26,10 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
+#ifndef INTOROBOT_WIRING_ARDUINO_COMPATIBILTY
+#define INTOROBOT_WIRING_ARDUINO_COMPATIBILTY 0
+#endif
+
 #include "stdio.h"
 #include "system_utilities.h"
 
@@ -81,4 +85,5 @@
 
 using namespace intorobot;
 
+#include "wiring_arduino.h"
 #endif /* APPLICATION_H_ */
