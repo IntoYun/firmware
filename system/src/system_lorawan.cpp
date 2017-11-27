@@ -376,7 +376,7 @@ void LoRaWanResume(void)
     LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
     LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
     LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
+    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU433);
 
     DEBUG("loramac init!!!\r\n");
     DEBUG("sync word = 0x%x\r\n",SX1276Read(0x39));

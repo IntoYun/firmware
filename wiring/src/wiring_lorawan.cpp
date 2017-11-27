@@ -359,8 +359,8 @@ void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
     if(channel < 3 || channel > 15){
         return;
     }
-    ChannelParams_t channelParams = {freq, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
-    LoRaMacChannelAdd(channel,channelParams);
+    // ChannelParams_t channelParams = {freq, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+    // LoRaMacChannelAdd(channel,channelParams);
 }
 
 uint32_t LoRaWanClass::getChannelFreq(uint8_t channel)
@@ -380,8 +380,8 @@ void LoRaWanClass::setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t max
         return;
     }
     uint32_t tmpFreq = LoRaMacGetChannelFreq(channel);
-    ChannelParams_t channelParams = {tmpFreq, { ( ( maxDR << 4 ) | minDR ) }, 0};
-    LoRaMacChannelAdd(channel,channelParams);
+    // ChannelParams_t channelParams = {tmpFreq, { ( ( maxDR << 4 ) | minDR ) }, 0};
+    // LoRaMacChannelAdd(channel,channelParams);
 }
 
 bool LoRaWanClass::getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *maxDR)

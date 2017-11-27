@@ -12,6 +12,7 @@
 #include "board/inc/timer.h"
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
+#include "mac/src/region/Region.h"
 
 #define LORAMAC_SEND_OK     (0)
 #define LORAMAC_SEND_FAIL   (-1)
