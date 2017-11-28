@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include "stringbuffer.h"
-#include "ajson.h"
+#include "wiring_ajson.h"
 #include "wiring.h"
 #include "service_debug.h"
 

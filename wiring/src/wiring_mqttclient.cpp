@@ -24,7 +24,7 @@
 #include "wiring_constants.h"
 #include "wiring_arduino.h"
 #include "wiring.h"
-#include "mqttclient.h"
+#include "wiring_mqttclient.h"
 
 /*debug switch*/
 #define COMMUNICATION_MQTTCLIENT_DEBUG
@@ -658,3 +658,4 @@ int MqttClientClass::state() {
 }
 
 #endif
+

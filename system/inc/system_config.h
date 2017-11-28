@@ -34,7 +34,7 @@
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"
 #include "wiring_udp.h"
-#include "ajson.h"
+#include "wiring_ajson.h"
 
 //设备配置指令
 typedef enum{

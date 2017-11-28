@@ -21,8 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-#ifndef   AJSON_H_
-#define   AJSON_H_
+#ifndef WIRING_AJSON_H_
+#define WIRING_AJSON_H_
 
 #include "intorobot_config.h"
 #include "wiring_print.h"
@@ -264,5 +264,5 @@ bool jsonGetValue(uint8_t *payload, const char *string, unsigned long &ret_ulong
 bool jsonGetValue(uint8_t *payload, const char *string, float &ret_float);
 bool jsonGetValue(uint8_t *payload, const char *string, double &ret_double);
 
-#endif /*AJSON_H_*/
+#endif /*WIRING_AJSON_H_*/
 

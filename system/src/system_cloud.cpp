@@ -49,7 +49,7 @@
 #include "system_utilities.h"
 #include "system_config.h"
 #include "string_convert.h"
-#include "ajson.h"
+#include "wiring_ajson.h"
 #include "intorobot_def.h"
 
 /*debug switch*/
@@ -68,7 +68,7 @@
 using namespace intorobot;
 
 #ifndef configNO_CLOUD
-#include "mqttclient.h"
+#include "wiring_mqttclient.h"
 #include "mqttcrypto.h"
 
 volatile uint8_t INTOROBOT_CLOUD_SOCKETED = 0;           //网络连接状态 1连接 0断开
