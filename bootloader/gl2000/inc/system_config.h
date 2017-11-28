@@ -21,7 +21,6 @@
 extern "C" {
 #endif
 
-
 void usart_esp8266_initial(uint32_t baud);
 void Esp8266_Reset(void);
 void Esp8266_Enter_UpdateMode(void);
