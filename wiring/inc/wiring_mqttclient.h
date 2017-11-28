@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef  _MQTTCLIENT_H_
-#define  _MQTTCLIENT_H_
+#ifndef WIRING_MQTTCLIENT_H_
+#define WIRING_MQTTCLIENT_H_
 
 #include "intorobot_config.h"
 
@@ -160,3 +160,4 @@ public:
 #endif
 
 #endif
+
