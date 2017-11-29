@@ -2,8 +2,9 @@
 IntoRobot 固件源代码工程, 支持intorobot创客模块和IntoRobot商业模组。
 
 ```
-创客核心板（包括三色灯、按键、usb接口等）：atom, neutron, nut, ant, fig, fox等。
-商业模组（单纯模组，不包括其他附属器件）：w6, w7, w32, w33, l6等。
+开发板（包括三色灯、按键、usb接口等）：atom, neutron, nut, ant, fig, fox等。
+网关 (lora 网关) : gl1000, gl2000, gl2100
+模组（单纯模组，不包括其他附属器件）：w6, w7, w32, w33, l6等。
 ```
 ## 快速开始
 ### 通过git下载仓库代码
@@ -44,7 +45,7 @@ make PLATFORM=l6 clean all APP=blink
 
 其中，*PLATFORM=product_name*也可以替换成*PLATFORM_ID=product_id*.产品的名称和ID的关系如下表（详情请参见build/platform-id.mk）：
 
-| 创客核心板   | PLATFORM_ID |
+| 开发板       | PLATFORM_ID |
 |--------------|:-----------:|
 | neutron      | 888002      |
 | nut          | 888003      |
@@ -53,11 +54,17 @@ make PLATFORM=l6 clean all APP=blink
 | ant          | 868009      |
 | fox          | 878008      |
 
-| 商业模块     | PLATFORM_ID |
+| 模组         | PLATFORM_ID |
 |--------------|:-----------:|
 | w67          | 888006      |
 | w323         | 888007      |
 | l6           | 868010      |
+
+| 网关         | PLATFORM_ID |
+|--------------|:-----------:|
+| gl1000       | 188001      |
+| gl2000       | 188002      |
+| gl2100       | 178003      |
 
 | 其他产品     | PLATFORM_ID |
 |--------------|:-----------:|
@@ -114,6 +121,7 @@ DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的�
 |---:|:---|
 | **bootloader** | 各个产品的bootloader代码 |
 | **build**      | 编译目录，里面包括编译的主要makefile，以及链接文件，编译的目标文件 |
+| **communication** | 通讯协议部分 |
 | **docs**       | 一些相关的文档 |
 | **hal**        | 硬件描述层接口 |
 | **main**       | 编译烧录各个固件的上层文件夹 |
@@ -143,6 +151,10 @@ xtensa-esp32-xxx.mk实现esp32相关的编译，包括fig, w323等。
 linker存放链接文件，startup包含启动文件。
 
 编译的的目标文件会放在target目录里面的相应模块名称和PLATFORM_ID文件夹中。
+
+### communication
+
+通讯部分。
 
 ### docs
 
