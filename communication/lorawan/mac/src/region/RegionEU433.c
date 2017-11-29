@@ -117,7 +117,8 @@ static bool VerifyTxFreq( uint32_t freq )
         return false;
     }
 
-    if( ( freq < 433175000 ) || ( freq > 434665000 ) )
+    /* if( ( freq < 433175000 ) || ( freq > 434665000 ) ) */
+    if( ( freq < 137000000 ) || ( freq > 525000000 ) )
     {
         return false;
     }
@@ -143,7 +144,8 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                 {
                     if( ( EU433_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
                     {
-                        continue;
+                        //lz-modfiy 去掉让所有通道都可以入网
+                        /* continue; */
                     }
                 }
                 if( RegionCommonValueInRange( datarate, channels[i + j].DrRange.Fields.Min,
@@ -1079,7 +1081,7 @@ uint32_t RegionEU433GetChannelFreq(uint8_t id)
     return Channels[id].Frequency;
 }
 
-void RegoionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+void RegionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
 {
     *minDR = (uint8_t)Channels[id].DrRange.Fields.Min;
     *maxDR = (uint8_t)Channels[id].DrRange.Fields.Max;
@@ -1087,10 +1089,10 @@ void RegoionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
 
 void RegionEU433SetDutyCycle(uint16_t dutyCycle)
 {
-    Bands[EU433_MAX_NB_BANDS].DCycle = dutyCycle;
+    Bands[0].DCycle = dutyCycle;
 }
 
 uint16_t RegionEU433GetDutyCycle(void)
 {
-    return Bands[EU433_MAX_NB_BANDS].DCycle;
+    return Bands[0].DCycle;
 }

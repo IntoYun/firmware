@@ -1991,8 +1991,8 @@ static LoRaMacStatus_t ScheduleTx( void )
     if( IsLoRaMacNetworkJoined == false )
     {
         RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindow1Config.WindowOffset;
-        RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindow2Config.WindowOffset;
-        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //A类入网时间 */
+        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindow2Config.WindowOffset; */
+        RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //A类入网时间
         LORAMAC_DEBUG("rx1 window join delay = %d\r\n",RxWindow1Delay);
         LORAMAC_DEBUG("rx2 window join delay = %d\r\n",RxWindow2Delay);
     }
@@ -2002,10 +2002,10 @@ static LoRaMacStatus_t ScheduleTx( void )
         {
             return LORAMAC_STATUS_LENGTH_ERROR;
         }
-        RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindow1Config.WindowOffset;
-        RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset;
-        /* RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //固定 RX1接收窗口打开时间 */
-        /* RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //固定 RX2接收窗口打开时间 */
+        /* RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindow1Config.WindowOffset; */
+        /* RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset; */
+        RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //固定 RX1接收窗口打开时间
+        RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //固定 RX2接收窗口打开时间
         LORAMAC_DEBUG("rx1 window delay = %d\r\n",RxWindow1Delay);
         LORAMAC_DEBUG("rx2 window delay = %d\r\n",RxWindow2Delay);
     }
