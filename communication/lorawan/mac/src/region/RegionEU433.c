@@ -1081,7 +1081,7 @@ uint32_t RegionEU433GetChannelFreq(uint8_t id)
     return Channels[id].Frequency;
 }
 
-void RegionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+void RegionEU433GetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
 {
     *minDR = (uint8_t)Channels[id].DrRange.Fields.Min;
     *maxDR = (uint8_t)Channels[id].DrRange.Fields.Max;

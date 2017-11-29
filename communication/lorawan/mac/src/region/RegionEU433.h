@@ -468,7 +468,7 @@ uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
 //获取通道频率
 uint32_t RegionEU433GetChannelFreq(uint8_t id);
 //获取通道速率
-void RegionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
+void RegionEU433GetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
 //设置发射占空比
 void RegionEU433SetDutyCycle(uint16_t dutyCycle);
 //获取发射占空比

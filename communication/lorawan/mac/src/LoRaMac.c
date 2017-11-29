@@ -3430,12 +3430,12 @@ uint32_t LoRaMacGetChannelFreq(uint8_t id)
     return RegionGetChannelFreq(LoRaMacRegion, id);
 }
 
-void LoRaMacGetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+void LoRaMacGetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
 {
     if(id > 15){
         return;
     }
-    RegionGetChannelDRRang(LoRaMacRegion, id, minDR, maxDR);
+    RegionGetChannelDRRange(LoRaMacRegion, id, minDR, maxDR);
 }
 
 void LoRaMacSetDutyCycle(uint16_t dutyCycle)

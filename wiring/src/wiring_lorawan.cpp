@@ -389,7 +389,7 @@ bool LoRaWanClass::getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *ma
     if(channel > 15){
         return false;
     }else{
-        LoRaMacGetChannelDRRang(channel,minDR,maxDR);
+        LoRaMacGetChannelDRRange(channel,minDR,maxDR);
         return true;
     }
 }

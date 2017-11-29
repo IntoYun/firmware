@@ -1968,7 +1968,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
 extern LoRaMacParams_t LoRaMacParams;
 void LoRaMacAbortRun(void);
 uint32_t LoRaMacGetChannelFreq(uint8_t id);
-void LoRaMacGetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
+void LoRaMacGetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
 void LoRaMacSetDutyCycle(uint16_t dutyCycle);
 uint16_t LoRaMacGetDutyCycle(void);
 

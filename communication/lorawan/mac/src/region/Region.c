@@ -269,7 +269,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU433_APPLY_DR_OFFSET( )                   EU433_CASE { return RegionEU433ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 //lz-modify
 #define EU433_GET_CHANNEL_FREQ( )                  EU433_CASE {return RegionEU433GetChannelFreq( id );}
-#define EU433_GET_CHANNEL_DRRANG( )                EU433_CASE { RegionEU433GetChannelDRRang( id, minDR, maxDR ); break;}
+#define EU433_GET_CHANNEL_DRRANGE( )               EU433_CASE { RegionEU433GetChannelDRRange( id, minDR, maxDR ); break;}
 #define EU433_SET_DUTYCYCLE( )                     EU433_CASE { RegionEU433SetDutyCycle( dutyCycle); break;}
 #define EU433_GET_DUTYCYCLE( )                     EU433_CASE { return RegionEU433GetDutyCycle( );}
 #else
@@ -1059,11 +1059,11 @@ uint32_t RegionGetChannelFreq(LoRaMacRegion_t region, uint8_t id)
     }
 }
 
-void RegionGetChannelDRRang(LoRaMacRegion_t region, uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+void RegionGetChannelDRRange(LoRaMacRegion_t region, uint8_t id, uint8_t *minDR, uint8_t *maxDR)
 {
     switch( region )
     {
-        EU433_GET_CHANNEL_DRRANG( );
+        EU433_GET_CHANNEL_DRRANGE( );
     default:
     {
         return;
