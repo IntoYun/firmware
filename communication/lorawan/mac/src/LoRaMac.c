@@ -694,6 +694,7 @@ static void OnRadioTxDone( void )
         McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
         ChannelsNbRepCounter++;
     }
+    LORAMAC_DEBUG("loramac radio tx done\r\n");
 }
 
 static void PrepareRxDoneAbort( void )
@@ -711,10 +712,12 @@ static void PrepareRxDoneAbort( void )
     // Trig OnMacCheckTimerEvent call as soon as possible
     TimerSetValue( &MacStateCheckTimer, 1 );
     TimerStart( &MacStateCheckTimer );
+    LORAMAC_DEBUG("loramac radio rx done abort\r\n");
 }
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
+    LORAMAC_DEBUG("loramac radio rx done\r\n");
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
     ApplyCFListParams_t applyCFList;
@@ -1965,6 +1968,7 @@ static LoRaMacStatus_t ScheduleTx( void )
     // Select channel
     while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff ) == false )
     {
+        LORAMAC_DEBUG("ScheduleTx Select channel\r\n");
         // Set the default datarate
         LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
         // Update datarate in the function parameters
@@ -1988,6 +1992,9 @@ static LoRaMacStatus_t ScheduleTx( void )
     {
         RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindow1Config.WindowOffset;
         RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindow2Config.WindowOffset;
+        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //A类入网时间 */
+        LORAMAC_DEBUG("rx1 window join delay = %d\r\n",RxWindow1Delay);
+        LORAMAC_DEBUG("rx2 window join delay = %d\r\n",RxWindow2Delay);
     }
     else
     {
@@ -1997,6 +2004,10 @@ static LoRaMacStatus_t ScheduleTx( void )
         }
         RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindow1Config.WindowOffset;
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset;
+        /* RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //固定 RX1接收窗口打开时间 */
+        /* RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //固定 RX2接收窗口打开时间 */
+        LORAMAC_DEBUG("rx1 window delay = %d\r\n",RxWindow1Delay);
+        LORAMAC_DEBUG("rx2 window delay = %d\r\n",RxWindow2Delay);
     }
 
     // Schedule transmission of frame
@@ -2246,6 +2257,12 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             return LORAMAC_STATUS_SERVICE_UNKNOWN;
     }
 
+    #if 1
+    //debug 打印组包数据
+    LORAMAC_DEBUG("frame length = %d\r\n",LoRaMacBufferPktLen);
+    LORAMAC_DEBUG("frame data:");
+    LORAMAC_DEBUG_DUMP(LoRaMacBuffer,LoRaMacBufferPktLen);
+    #endif
     return LORAMAC_STATUS_OK;
 }
 
@@ -2913,6 +2930,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_RECEIVE_DELAY_1:
         {
             LoRaMacParams.ReceiveDelay1 = mibSet->Param.ReceiveDelay1;
+            LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1+1000;
             break;
         }
         case MIB_RECEIVE_DELAY_2:
@@ -3191,6 +3209,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacAppKey = mlmeRequest->Req.Join.AppKey;
             MaxJoinRequestTrials = mlmeRequest->Req.Join.NbTrials;
 
+            #if 1
+            //debug
+            LORAMAC_DEBUG("LoRaMacDevEui:");
+            LORAMAC_DEBUG_DUMP(LoRaMacDevEui,8);
+
+            LORAMAC_DEBUG("LoRaMacAppEui:");
+            LORAMAC_DEBUG_DUMP(LoRaMacAppEui,8);
+
+            LORAMAC_DEBUG("LoRaMacAppKey:");
+            LORAMAC_DEBUG_DUMP(LoRaMacAppKey,16);
+            #endif
+
             // Reset variable JoinRequestTrials
             JoinRequestTrials = 0;
 
@@ -3382,21 +3412,7 @@ void LoRaMacTestSetChannel( uint8_t channel )
     Channel = channel;
 }
 
-//lz modify
-uint32_t LoRaMacGetChannelFreq(uint8_t id)
-{
-    /* return Channels[id].Frequency; */
-}
-
-void LoRaMacGetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
-{
-    if(id > 15){
-        return;
-    }
-    /* *minDR = (uint8_t)Channels[id].DrRange.Fields.Min; */
-    /* *maxDR = (uint8_t)Channels[id].DrRange.Fields.Max; */
-}
-
+//lz-modify
 void LoRaMacAbortRun(void)
 {
     TimerStop( &MacStateCheckTimer);
@@ -3409,14 +3425,27 @@ void LoRaMacAbortRun(void)
     LORAMAC_DEBUG("loramac abort run!!!\r\n");
 }
 
+uint32_t LoRaMacGetChannelFreq(uint8_t id)
+{
+    return RegionGetChannelFreq(LoRaMacRegion, id);
+}
+
+void LoRaMacGetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+{
+    if(id > 15){
+        return;
+    }
+    RegionGetChannelDRRang(LoRaMacRegion, id, minDR, maxDR);
+}
+
 void LoRaMacSetDutyCycle(uint16_t dutyCycle)
 {
     if(dutyCycle < 65535){
-        /* Bands[0].DCycle = dutyCycle; */
+        RegionSetDutyCycle(LoRaMacRegion, dutyCycle);
     }
 }
 
 uint16_t LoRaMacGetDutyCycle(void)
 {
-    /* return Bands[0].DCycle; */
+    return RegionGetDutyCycle(LoRaMacRegion);
 }

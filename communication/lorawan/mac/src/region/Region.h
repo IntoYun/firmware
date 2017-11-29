@@ -1490,4 +1490,14 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
 
 /*! \} defgroup REGION */
 
+//lz-modfiy
+//获取通道频率
+uint32_t RegionGetChannelFreq(LoRaMacRegion_t region, uint8_t id);
+//获取通道速率
+void RegionGetChannelDRRang(LoRaMacRegion_t region, uint8_t id, uint8_t *minDR, uint8_t *maxDR);
+//设置发射占空比
+void RegionSetDutyCycle(LoRaMacRegion_t region, uint16_t dutyCycle);
+//获取发射占空比
+uint16_t RegionGetDutyCycle(LoRaMacRegion_t region);
+
 #endif // __REGION_H__

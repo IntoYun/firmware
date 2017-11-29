@@ -29,6 +29,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 // Regional includes
 #include "Region.h"
 
+#define REGION_EU433
 
 
 // Setup regions
@@ -266,6 +267,11 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU433_CHANNEL_REMOVE( )                    EU433_CASE { return RegionEU433ChannelsRemove( channelRemove ); }
 #define EU433_SET_CONTINUOUS_WAVE( )               EU433_CASE { RegionEU433SetContinuousWave( continuousWave ); break; }
 #define EU433_APPLY_DR_OFFSET( )                   EU433_CASE { return RegionEU433ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+//lz-modify
+#define EU433_GET_CHANNEL_FREQ( )                  EU433_CASE {return RegionEU433GetChannelFreq( id );}
+#define EU433_GET_CHANNEL_DRRANG( )                EU433_CASE { RegionEU433GetChannelDRRang( id, minDR, maxDR ); break;}
+#define EU433_SET_DUTYCYCLE( )                     EU433_CASE { RegionEU433SetDutyCycle( dutyCycle); break;}
+#define EU433_GET_DUTYCYCLE( )                     EU433_CASE { return RegionEU433GetDutyCycle( );}
 #else
 #define EU433_IS_ACTIVE( )
 #define EU433_GET_PHY_PARAM( )
@@ -290,6 +296,10 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU433_CHANNEL_REMOVE( )
 #define EU433_SET_CONTINUOUS_WAVE( )
 #define EU433_APPLY_DR_OFFSET( )
+#define EU433_GET_CHANNEL_FREQ( )
+#define EU433_GET_CHANNEL_DRRANG( )
+#define EU433_SET_DUTYCYCLE( )
+#define EU433_GET_DUTYCYCLE( )
 #endif
 
 #ifdef REGION_EU868
@@ -1033,5 +1043,55 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
         {
             return dr;
         }
+    }
+}
+
+//lz-modfiy
+uint32_t RegionGetChannelFreq(LoRaMacRegion_t region, uint8_t id)
+{
+    switch( region )
+    {
+        EU433_GET_CHANNEL_FREQ( );
+    default:
+    {
+        return 0;
+    }
+    }
+}
+
+void RegionGetChannelDRRang(LoRaMacRegion_t region, uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+{
+    switch( region )
+    {
+        EU433_GET_CHANNEL_DRRANG( );
+    default:
+    {
+        return;
+    }
+    }
+
+}
+
+void RegionSetDutyCycle(LoRaMacRegion_t region, uint16_t dutyCycle)
+{
+    switch( region )
+    {
+        EU433_SET_DUTYCYCLE( );
+    default:
+    {
+        return;
+    }
+    }
+}
+
+uint16_t RegionGetDutyCycle(LoRaMacRegion_t region)
+{
+    switch( region )
+    {
+        EU433_GET_DUTYCYCLE( );
+    default:
+    {
+        return;
+    }
     }
 }

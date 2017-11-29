@@ -108,7 +108,8 @@
 /*!
  * Default Max EIRP
  */
-#define EU433_DEFAULT_MAX_EIRP                      12.15f
+// #define EU433_DEFAULT_MAX_EIRP                      12.15f
+#define EU433_DEFAULT_MAX_EIRP                      22.15f
 
 /*!
  * Default antenna gain
@@ -462,5 +463,15 @@ void RegionEU433SetContinuousWave( ContinuousWaveParams_t* continuousWave );
 uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
 
 /*! \} defgroup REGIONEU433 */
+
+//lz-modfiy
+//获取通道频率
+uint32_t RegionEU433GetChannelFreq(uint8_t id);
+//获取通道速率
+void RegionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
+//设置发射占空比
+void RegionEU433SetDutyCycle(uint16_t dutyCycle);
+//获取发射占空比
+uint16_t RegionEU433GetDutyCycle(void);
 
 #endif // __REGION_EU433_H__

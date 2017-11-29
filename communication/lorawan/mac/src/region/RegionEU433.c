@@ -29,6 +29,18 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "Region.h"
 #include "RegionCommon.h"
 #include "RegionEU433.h"
+#include "service_debug.h"
+
+#define REGION_EU433_DEBUG
+#ifdef  REGION_EU433_DEBUG
+#define REGION_EU433_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define REGION_EU433_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define REGION_EU433_DEBUG_DUMP DEBUG_DUMP
+#else
+#define REGION_EU433_DEBUG(...)
+#define REGION_EU433_DEBUG_D(...)
+#define REGION_EU433_DEBUG_DUMP
+#endif
 
 // Definitions
 #define CHANNELS_MASK_SIZE              1
@@ -137,7 +149,9 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                 if( RegionCommonValueInRange( datarate, channels[i + j].DrRange.Fields.Min,
                                               channels[i + j].DrRange.Fields.Max ) == false )
                 { // Check if the current channel selection supports the given datarate
-                    continue;
+                    //lz-modfiy
+                    /* continue; */
+                    LoRaMacParams.ChannelsDatarate = Channels[i + j].DrRange.Fields.Min;
                 }
                 if( bands[channels[i + j].Band].TimeOff > 0 )
                 { // Check if the band is available for transmission
@@ -557,6 +571,12 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     Radio.SetChannel( frequency );
 
+    #if 0
+    REGION_EU433_DEBUG("rx freq=%d\r\n",frequency);
+    REGION_EU433_DEBUG("bandwidth = %d\r\n",rxConfig->Bandwidth);
+    REGION_EU433_DEBUG("datarate = %d\r\n",phyDr);
+    REGION_EU433_DEBUG("rxContinuous = %d\r\n",rxConfig->RxContinuous);
+    #endif
     // Radio configuration
     if( dr == DR_7 )
     {
@@ -597,13 +617,22 @@ bool RegionEU433TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
+    #if 1
+    REGION_EU433_DEBUG("loramac tx frequency = %d\r\n",Channels[txConfig->Channel].Frequency);
+    REGION_EU433_DEBUG("tx power=%d\r\n",phyTxPower);
+    REGION_EU433_DEBUG("bandwidth=%d\r\n",bandwidth);
+    REGION_EU433_DEBUG("datarate=%d\r\n",phyDr);
+    #endif
+
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
+        REGION_EU433_DEBUG("loramac fsk-mode tx\r\n");
         modem = MODEM_FSK;
         Radio.SetTxConfig( modem, phyTxPower, 25000, bandwidth, phyDr * 1000, 0, 5, false, true, 0, 0, false, 3000 );
     }
     else
     {
+        REGION_EU433_DEBUG("loramac lora-mode tx\r\n");
         modem = MODEM_LORA;
         Radio.SetTxConfig( modem, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
     }
@@ -921,6 +950,8 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
+            //lz-modfiy
+            *time += randr(0,2000);
             return true;
         }
         // Datarate not supported by any channel, restore defaults
@@ -962,17 +993,17 @@ LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd )
         // Validate the datarate range for min: must be DR_0
         if( channelAdd->NewChannel->DrRange.Fields.Min > DR_0 )
         {
-            drInvalid = true;
+            /* drInvalid = true; */
         }
         // Validate the datarate range for max: must be DR_5 <= Max <= TX_MAX_DATARATE
         if( RegionCommonValueInRange( channelAdd->NewChannel->DrRange.Fields.Max, DR_5, EU433_TX_MAX_DATARATE ) == false )
         {
-            drInvalid = true;
+            /* drInvalid = true; */
         }
         // We are not allowed to change the frequency
         if( channelAdd->NewChannel->Frequency != Channels[id].Frequency )
         {
-            freqInvalid = true;
+            /* freqInvalid = true; */
         }
     }
 
@@ -1041,4 +1072,25 @@ uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
         datarate = DR_0;
     }
     return datarate;
+}
+
+uint32_t RegionEU433GetChannelFreq(uint8_t id)
+{
+    return Channels[id].Frequency;
+}
+
+void RegoionEU433GetChannelDRRang(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+{
+    *minDR = (uint8_t)Channels[id].DrRange.Fields.Min;
+    *maxDR = (uint8_t)Channels[id].DrRange.Fields.Max;
+}
+
+void RegionEU433SetDutyCycle(uint16_t dutyCycle)
+{
+    Bands[EU433_MAX_NB_BANDS].DCycle = dutyCycle;
+}
+
+uint16_t RegionEU433GetDutyCycle(void)
+{
+    return Bands[EU433_MAX_NB_BANDS].DCycle;
 }
