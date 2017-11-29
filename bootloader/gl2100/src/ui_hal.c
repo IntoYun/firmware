@@ -5,6 +5,9 @@
 #define USER_LED_GPIO_PIN          GPIO_PIN_8
 #define USER_LED_GPIO_PORT         GPIOA
 
+#define TR_LED_GPIO_PIN            GPIO_PIN_4
+#define TR_LED_GPIO_PORT           GPIOB
+
 #define MODE_BOTTON_GPIO_PIN       GPIO_PIN_15
 #define MODE_BOTTON_GPIO_PORT      GPIOA
 
@@ -23,6 +26,12 @@ void HAL_UI_Initial(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
     HAL_GPIO_Init(USER_LED_GPIO_PORT, &GPIO_InitStruct);
     HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_SET);
+
+    //收发指示灯初始化
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = TR_LED_GPIO_PIN;
+    HAL_GPIO_Init(TR_LED_GPIO_PORT, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(TR_LED_GPIO_PORT, TR_LED_GPIO_PIN, GPIO_PIN_SET);
 
     //侧边配置按键管脚初始化
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -73,6 +82,15 @@ void HAL_UI_UserLED_Control(uint8_t value)
         HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_RESET);
     } else {
         HAL_GPIO_WritePin(USER_LED_GPIO_PORT, USER_LED_GPIO_PIN, GPIO_PIN_SET);
+    }
+}
+
+void HAL_UI_TrLED_Control(uint8_t value)
+{
+    if(value) {
+        HAL_GPIO_WritePin(TR_LED_GPIO_PORT, TR_LED_GPIO_PIN, GPIO_PIN_RESET);
+    } else {
+        HAL_GPIO_WritePin(TR_LED_GPIO_PORT, TR_LED_GPIO_PIN, GPIO_PIN_SET);
     }
 }
 

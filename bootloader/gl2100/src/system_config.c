@@ -1,7 +1,6 @@
 #include "hw_config.h"
 #include "rtc_hal.h"
 #include "ui_hal.h"
-#include "eeprom_hal.h"
 #include "boot_debug.h"
 
 
@@ -187,12 +186,16 @@ void HAL_System_Config(void)
     usart_cellular_initial(115200);  //通讯采取115200波特率
     Cellular_GPIO_Initial();
     Cellular_Power_On();
-    HAL_EEPROM_Init();  //初始化eeprom区
 }
 
 system_tick_t millis(void)
 {
-    return HAL_GetTick();
+    return HAL_Timer_Get_Milli_Seconds();
+}
+
+unsigned long micros(void)
+{
+    return HAL_Timer_Get_Micro_Seconds();
 }
 
 void delay(uint32_t ms)
@@ -207,3 +210,4 @@ void System_Reset(void)
 {
     NVIC_SystemReset();
 }
+

@@ -54,7 +54,7 @@ typedef struct
     uint8_t  reset_flag;           // 是否上报重启成功状态   0:不上报  1:上报
     uint8_t  at_mode;              // 是否已经灌装密钥  0:未灌装 1:已经灌装
     uint8_t  sv_select;            // 是否选择默认服务参数  0:使用 1:不使用
-    uint8_t  reserver2[31];       // 版本号预留区 每添加一个版本号，预留区大小减1
+    uint8_t  reserve2[31];       // 版本号预留区 每添加一个版本号，预留区大小减1
     char     device_id[52];        // 设备序列号
     char     access_token[52];     // 设备access_token
     char     sv_domain[52];        // 服务器域名

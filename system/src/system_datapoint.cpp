@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "ajson.h"
+#include "wiring_ajson.h"
 #include "wiring.h"
 #include "wiring_string.h"
 #include "system_cloud_def.h"

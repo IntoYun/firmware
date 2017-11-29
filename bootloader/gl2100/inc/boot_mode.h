@@ -28,9 +28,10 @@ void Enter_Default_RESTORE_Mode(void);
 void Enter_Serail_Com_Mode(void);
 void Enter_Factory_RESTORE_Mode(void);
 void Enter_OTA_Update_Mode(void);
-void Enter_Cellular_Update_Mode(void);
 void Enter_DFU_Mode(void);
+void Enter_Cellular_Update_Mode(void);
 void Enter_Flash_Test(void);
+void Enter_Self_Check(void);
 
 #ifdef __cplusplus
 }

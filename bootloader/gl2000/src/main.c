@@ -36,7 +36,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define BOOTLOADER_VERSION  1
+//#define BOOTLOADER_VERSION  1
+#define BOOTLOADER_VERSION  2   //添加硬件自检
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -171,7 +172,7 @@ int main(void)
     BOOT_DEBUG("start app\r\n");
     HAL_UI_UserLED_Control(0);
 
-    //Enter_Flash_Test();
+    Enter_Self_Check();
     start_app();
     return 0;
 }

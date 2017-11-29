@@ -28,6 +28,7 @@
 #define __SPI_FLASH_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +42,7 @@ void sFLASH_WriteBuffer(const uint8_t *pBuffer, uint32_t WriteAddr, uint32_t Num
 void sFLASH_ReadBuffer(uint8_t *pBuffer, uint32_t ReadAddr, uint32_t NumByteToRead);
 uint32_t sFLASH_ReadID(void);
 
+bool sFLASH_SelfCheck(void);
 /* Flash Self Test Routine */
 int sFLASH_SelfTest(void);
 
@@ -49,3 +51,4 @@ int sFLASH_SelfTest(void);
 #endif /* __cplusplus */
 
 #endif /* __SPI_FLASH_H */
+

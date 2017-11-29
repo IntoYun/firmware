@@ -21,7 +21,7 @@
 #ifdef configSETUP_ENABLE
 
 #include "system_test.h"
-#include "ajson.h"
+#include "wiring_ajson.h"
 #include "wiring.h"
 #include "system_config.h"
 #include "platforms.h"
