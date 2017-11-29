@@ -1,3 +1,18 @@
+## v1.6.7
+
+### FEATURES(功能)
+- [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) 添加部分头文件，兼容arduino库
+- [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) 向用户提供mqtt接口和json接口
+
+### ENHANCEMENTS(优化)
+- [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) gl2000/gl2100 bootloader添加硬件自检程序
+
+### BUG FIXES(漏洞修复)
+- [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) gl2000、gl2100 pwm_hal.c完善hal层接口，防止编译出错。
+
+### INTERNAL(内部)
+
+
 ## v1.6.6
 
 ### FEATURES(功能)
