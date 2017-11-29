@@ -230,7 +230,7 @@ void Enter_Self_Check(void)
             if(count++ > 1) {
                 switch(flag) {
                     case 1:
-                        error_output("ESP8266 check fail!!!\r\n");
+                        error_output("sim800c check fail!!!\r\n");
                         break;
                     case 2:
                         error_output("sx1278 check fail!!!\r\n");
