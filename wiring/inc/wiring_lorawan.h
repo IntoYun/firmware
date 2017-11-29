@@ -13,7 +13,6 @@
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
 #include "mac/src/region/Region.h"
-#include "mac/src/region/RegionEU433.h"
 
 #define LORAMAC_SEND_OK     (0)
 #define LORAMAC_SEND_FAIL   (-1)
