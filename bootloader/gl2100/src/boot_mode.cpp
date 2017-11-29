@@ -4,6 +4,8 @@
 #include "ui_hal.h"
 #include "flash_map.h"
 #include "system_config.h"
+#include "cellular_comm.h"
+#include "sx1278_comm.h"
 #include "boot_debug.h"
 
 #define UPDATE_BLINK_PERIOD 100
@@ -168,3 +170,80 @@ void Enter_Flash_Test(void)
         delay(1000);
     }
 }
+
+static void USB_USART_Send_Data(uint8_t Data)
+{
+    volatile system_tick_t start_micros, current_micros, elapsed_micros;
+
+    start_micros = micros();
+    if (USBD_STATE_CONFIGURED == USBD_Device.dev_state) {
+        USBD_CDC_SetTxBuffer(&USBD_Device, &Data, 1);
+        while(USBD_CDC_TransmitPacket(&USBD_Device) != USBD_OK) {
+            current_micros = micros();
+            elapsed_micros = current_micros - start_micros;
+
+            if (elapsed_micros < 0){
+                elapsed_micros =  0xFFFFFFFF - start_micros + current_micros;
+            }
+
+            if (elapsed_micros >= 2000) {  //2000us 超时
+                break;
+            }
+        }
+    }
+}
+
+void error_output(const char* msg)
+{
+    while(*msg) {
+        USB_USART_Send_Data((uint8_t)(*msg));
+        msg++;
+    }
+}
+
+void Enter_Self_Check(void)
+{
+    BOOT_DEBUG("Enter_Self_Check\r\n");
+    int count = 0, flag = 0;
+
+    if(!Cellular_SelfCheck()) {
+        flag = 1;
+    }
+
+    if(!flag && !SX1278_SelfCheck()) {
+        flag = 2;
+    }
+
+    if(!flag && !sFLASH_SelfCheck()) {
+        flag = 3;
+    }
+
+    if(flag) {
+        USBD_CDC_Init();
+        while(1) {
+            HAL_UI_TrLED_Control(0);
+            HAL_UI_UserLED_Control(0);
+            delay(400);
+            HAL_UI_TrLED_Control(1);
+            HAL_UI_UserLED_Control(1);
+            delay(400);
+            if(count++ > 1) {
+                switch(flag) {
+                    case 1:
+                        error_output("ESP8266 check fail!!!\r\n");
+                        break;
+                    case 2:
+                        error_output("sx1278 check fail!!!\r\n");
+                        break;
+                    case 3:
+                        error_output("spi flash check fail!!!\r\n");
+                        break;
+                    default:
+                        break;
+                }
+                count = 0;
+            }
+        }
+    }
+}
+

@@ -36,7 +36,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define BOOTLOADER_VERSION  1
+#define BOOTLOADER_VERSION  2
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -85,7 +85,7 @@ int main(void)
     {
 #define TIMING_DFU_DOWNLOAD_MODE     1000   //dfu 下载模式
 #define TIMING_CELLULAR_UPDATE_MODE  3000   //celluar升级判断时间
-#define TIMING_SERIAL_COM_MODE       5000  //celluar串口转接判断时间
+#define TIMING_SERIAL_COM_MODE       5000   //celluar串口转接判断时间
         while (!HAL_UI_Mode_BUTTON_GetState(BUTTON1))
         {
             BUTTON_press_time = HAL_UI_Mode_Button_Pressed();
@@ -171,7 +171,7 @@ int main(void)
     BOOT_DEBUG("start app\r\n");
     HAL_UI_UserLED_Control(0);
 
-    Enter_Flash_Test();
+    Enter_Self_Check();
     start_app();
     return 0;
 }

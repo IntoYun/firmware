@@ -491,6 +491,19 @@ static void sFLASH_WaitForWriteEnd(void)
     sFLASH_CS_HIGH();
 }
 
+bool sFLASH_SelfCheck(void)
+{
+    uint32_t FlashID = 0;
+
+    sFLASH_Init();
+    FlashID = sFLASH_ReadID();
+    //DEBUG("FlashID = 0x%x\r\n", FlashID);
+    if(0 == FlashID) {
+        return false;
+    }
+    return true;
+}
+
 int sFLASH_SelfTest(void)
 {
     uint32_t FLASH_TestAddress = 0x000000;

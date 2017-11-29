@@ -143,6 +143,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
     HAL_IncTick();
+    System1MsTick();
     HAL_SYSTICK_IRQHandler();
     HAL_UI_SysTick_Handler();
 }
