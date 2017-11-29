@@ -491,6 +491,19 @@ static void sFLASH_WaitForWriteEnd(void)
     sFLASH_CS_HIGH();
 }
 
+bool sFLASH_SelfCheck(void)
+{
+    uint32_t FlashID = 0;
+
+    sFLASH_Init();
+    FlashID = sFLASH_ReadID();
+    //DEBUG("FlashID = 0x%x\r\n", FlashID);
+    if(0 == FlashID) {
+        return false;
+    }
+    return true;
+}
+
 int sFLASH_SelfTest(void)
 {
     uint32_t FLASH_TestAddress = 0x000000;
@@ -503,10 +516,11 @@ int sFLASH_SelfTest(void)
     int TestStatus = -1;
 
     /* Get SPI Flash ID */
-    FlashID = sFLASH_ReadID();
+    //FlashID = sFLASH_ReadID();
 
     /* Check the SPI Flash ID */
-    if((FlashID == sFLASH_MX25L8006E_ID) || (FlashID == sFLASH_PN25F16_ID))
+    //if((FlashID == sFLASH_MX25L8006E_ID) || (FlashID == sFLASH_PN25F16_ID))
+    if(1)
     {
         /* Perform a write in the Flash followed by a read of the written data */
         /* Erase SPI FLASH Sector to write on */

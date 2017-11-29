@@ -48,6 +48,10 @@
 #define sFLASH_PROGRAM_PAGESIZE         0x100       /* 256 bytes */
 
 #define sFLASH_MX25L8006E_ID            0xC22014    /* JEDEC Read-ID Data */
+#define sFLASH_PN25F16_ID               0x0E4015    /* JEDEC Read-ID Data */
+
+/* Private variables ---------------------------------------------------------*/
+SPI_HandleTypeDef SpiHandle;
 
 /* Local function forward declarations ---------------------------------------*/
 static void sFLASH_WritePage(const uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite);
@@ -55,6 +59,93 @@ static void sFLASH_WriteEnable(void);
 static void sFLASH_WriteDisable(void);
 static void sFLASH_WaitForWriteEnd(void);
 static uint8_t sFLASH_SendByte(uint8_t byte);
+
+static void sFLASH_SPI_DeInit(void);
+static void sFLASH_SPI_Init(void);
+static void sFLASH_CS_LOW(void);
+static void sFLASH_CS_HIGH(void);
+
+/**
+ * @brief  DeInitializes the peripherals used by the SPI FLASH driver.
+ * @param  None
+ * @retval None
+ */
+static void sFLASH_SPI_DeInit(void)
+{
+    __HAL_RCC_SPI2_FORCE_RESET();
+    __HAL_RCC_SPI2_RELEASE_RESET();
+
+    HAL_GPIO_DeInit(sFLASH_SPI_SCK_GPIO_PORT, sFLASH_SPI_SCK_GPIO_PIN);
+    HAL_GPIO_DeInit(sFLASH_SPI_MISO_GPIO_PORT, sFLASH_SPI_MISO_GPIO_PIN);
+    HAL_GPIO_DeInit(sFLASH_SPI_MOSI_GPIO_PORT, sFLASH_SPI_MOSI_GPIO_PIN);
+    HAL_GPIO_DeInit(sFLASH_SPI_CS_GPIO_PORT, sFLASH_SPI_CS_GPIO_PIN);
+}
+
+/**
+ * @brief  Initializes the peripherals used by the SPI FLASH driver.
+ * @param  None
+ * @retval None
+ */
+static void sFLASH_SPI_Init(void)
+{
+    GPIO_InitTypeDef  GPIO_InitStruct;
+
+    __HAL_RCC_SPI2_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin       = sFLASH_SPI_SCK_GPIO_PIN;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = sFLASH_SPI_SCK_AF;
+    HAL_GPIO_Init(sFLASH_SPI_SCK_GPIO_PORT, &GPIO_InitStruct);
+
+    /* SPI MISO GPIO pin configuration  */
+    GPIO_InitStruct.Pin = sFLASH_SPI_MISO_GPIO_PIN;
+    GPIO_InitStruct.Alternate = sFLASH_SPI_MISO_AF;
+    HAL_GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &GPIO_InitStruct);
+
+    /* SPI MOSI GPIO pin configuration  */
+    GPIO_InitStruct.Pin = sFLASH_SPI_MOSI_GPIO_PIN;
+    GPIO_InitStruct.Alternate = sFLASH_SPI_MOSI_AF;
+    HAL_GPIO_Init(sFLASH_SPI_MOSI_GPIO_PORT, &GPIO_InitStruct);
+
+    /* SPI CS GPIO pin configuration  */
+    GPIO_InitStruct.Pin = sFLASH_SPI_CS_GPIO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(sFLASH_SPI_CS_GPIO_PORT, &GPIO_InitStruct);
+
+    /* Deselect the FLASH: Chip Select high */
+    sFLASH_CS_HIGH();
+
+    SpiHandle.Instance               = sFLASH_SPI;
+    SpiHandle.Init.BaudRatePrescaler = sFLASH_SPI_BAUDRATE_PRESCALER;
+    SpiHandle.Init.Direction         = SPI_DIRECTION_2LINES;
+    SpiHandle.Init.CLKPhase          = SPI_PHASE_1EDGE;
+    SpiHandle.Init.CLKPolarity       = SPI_POLARITY_LOW;
+    SpiHandle.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    SpiHandle.Init.CRCPolynomial     = 7;
+    SpiHandle.Init.DataSize          = SPI_DATASIZE_8BIT;
+    SpiHandle.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    SpiHandle.Init.NSS               = SPI_NSS_SOFT;
+    SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLE;
+    SpiHandle.Init.Mode              = SPI_MODE_MASTER;
+    HAL_SPI_Init(&SpiHandle);
+}
+
+/* Select sFLASH: Chip Select pin low */
+static void sFLASH_CS_LOW(void)
+{
+    HAL_GPIO_WritePin(sFLASH_SPI_CS_GPIO_PORT, sFLASH_SPI_CS_GPIO_PIN, GPIO_PIN_RESET);
+}
+
+/* Deselect sFLASH: Chip Select pin high */
+static void sFLASH_CS_HIGH(void)
+{
+    HAL_GPIO_WritePin(sFLASH_SPI_CS_GPIO_PORT, sFLASH_SPI_CS_GPIO_PIN, GPIO_PIN_SET);
+}
 
 /**
  * @brief Initializes SPI Flash
@@ -331,17 +422,10 @@ uint32_t sFLASH_ReadID(void)
  */
 static uint8_t sFLASH_SendByte(uint8_t byte)
 {
-    /* Loop while DR register in not empty */
-    while (SPI_I2S_GetFlagStatus(sFLASH_SPI, SPI_I2S_FLAG_TXE) == RESET);
+    uint8_t c;
 
-    /* Send byte through the SPI peripheral */
-    SPI_I2S_SendData(sFLASH_SPI, byte);
-
-    /* Wait to receive a byte */
-    while (SPI_I2S_GetFlagStatus(sFLASH_SPI, SPI_I2S_FLAG_RXNE) == RESET);
-
-    /* Return the byte read from the SPI bus */
-    return SPI_I2S_ReceiveData(sFLASH_SPI);
+    HAL_SPI_TransmitReceive(&SpiHandle, &byte, &c, 1, 2000);
+    return c;
 }
 
 /**
@@ -407,6 +491,19 @@ static void sFLASH_WaitForWriteEnd(void)
     sFLASH_CS_HIGH();
 }
 
+bool sFLASH_SelfCheck(void)
+{
+    uint32_t FlashID = 0;
+
+    sFLASH_Init();
+    FlashID = sFLASH_ReadID();
+    //DEBUG("FlashID = 0x%x\r\n", FlashID);
+    if(0 == FlashID) {
+        return false;
+    }
+    return true;
+}
+
 int sFLASH_SelfTest(void)
 {
     uint32_t FLASH_TestAddress = 0x000000;
@@ -419,10 +516,11 @@ int sFLASH_SelfTest(void)
     int TestStatus = -1;
 
     /* Get SPI Flash ID */
-    FlashID = sFLASH_ReadID();
+    //FlashID = sFLASH_ReadID();
 
     /* Check the SPI Flash ID */
-    if(FlashID == sFLASH_MX25L8006E_ID)
+    //if((FlashID == sFLASH_MX25L8006E_ID) || (FlashID == sFLASH_PN25F16_ID))
+    if(1)
     {
         /* Perform a write in the Flash followed by a read of the written data */
         /* Erase SPI FLASH Sector to write on */

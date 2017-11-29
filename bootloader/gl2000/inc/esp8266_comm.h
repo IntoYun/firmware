@@ -15,7 +15,7 @@ extern "C" {
 #define RESPONSE_READY         "READY!"
 
 // Basic AT Commands //
-#define ESP8266_TEST           ""// Test AT startup
+#define ESP8266_TEST           ""   // Test AT startup
 #define ESP8266_ECHO_ENABLE    "E1" // AT commands echo
 #define ESP8266_ECHO_DISABLE   "E0" // AT commands echo
 
@@ -36,7 +36,7 @@ typedef enum
     ESP8266_CMD_EXECUTE
 } Esp8266_Cmd_TypeDef;
 
-void ESP8266_Init(void);
+
 bool ESP8266_SelfCheck(void);
 
 #ifdef __cplusplus

@@ -26,6 +26,7 @@ void Esp8266_Reset(void);
 void Esp8266_Enter_UpdateMode(void);
 void HAL_System_Config(void);
 system_tick_t millis(void);
+unsigned long micros(void);
 void delay(uint32_t ms);
 void System_Reset(void);
 
