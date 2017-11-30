@@ -2010,6 +2010,7 @@ static LoRaMacStatus_t ScheduleTx( void )
         LORAMAC_DEBUG("rx2 window delay = %d\r\n",RxWindow2Delay);
     }
 
+    LORAMAC_DEBUG("dutyCycleTimeOff=%d\r\n",dutyCycleTimeOff);
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
     {
