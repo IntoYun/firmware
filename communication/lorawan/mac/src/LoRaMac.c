@@ -2481,6 +2481,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Random seed initialization
     srand1( Radio.Random( ) );
+    //lz-modfiy增加系统随机种子
+    srand(Radio.Random( ));
 
     PublicNetwork = true;
     Radio.SetPublicNetwork( PublicNetwork );
