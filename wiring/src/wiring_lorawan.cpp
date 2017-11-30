@@ -330,7 +330,7 @@ void LoRaWanClass::setDutyCyclePrescaler(uint16_t dutyCycle)
 
 void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
 {
-    if(channel > 15){
+    if((channel > 15) || (freq > 525000000) || (freq < 137000000)){
         return;
     }
     ChannelParams_t   channelParams = {freq, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
@@ -675,6 +675,9 @@ void LoRaClass::radioSetSleep(void)
 
 void LoRaClass::radioSetFreq(uint32_t freq)
 {
+    if((freq > 525000000) || (freq < 137000000)){
+        return;
+    }
     _freq = freq;
     Radio.SetChannel(_freq);
 }
