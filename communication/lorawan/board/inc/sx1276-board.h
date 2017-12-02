@@ -143,7 +143,7 @@ uint32_t BoardGetRandomSeed( void );
 
 void BoardGetUniqueId( uint8_t *id );
 
-bool UseStandardLoRaWanProtocol(void);
+bool UseLoRaWanStandardProtocol(void);
 
 #ifdef __cplusplus
 }

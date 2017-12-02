@@ -201,6 +201,28 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
     return 0;
 }
 
+void LoRaWanClass::setProtocol(lorawan_protocol_t type)
+{
+    switch(type){
+    case LORAWAN_STANDARD:
+        System.disableFeature(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED);   //关闭datapoint数据处理
+        System.disableFeature(SYSTEM_FEATURE_SEND_INFO_ENABLED);       //关闭产品信息上送
+        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
+        break;
+
+    case LORAWAN_STANDARD_EXTEND:
+        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
+        break;
+
+    case LORAWAN_NONSTANDARD_EXTEND:
+        System.disableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //不运行标准协议
+        break;
+
+    default:
+        break;
+    }
+}
+
 void LoRaWanClass::setOTAAParams(char *devEUI, char *appEUI, char *appKey)
 {
     HAL_PARAMS_Set_System_device_id(devEUI);

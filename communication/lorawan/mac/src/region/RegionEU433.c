@@ -146,7 +146,7 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                     if( ( EU433_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
                     {
                         //lz-modify 去掉让所有通道都可以入网
-                        if(UseStandardLoRaWanProtocol())
+                        if(UseLoRaWanStandardProtocol())
                         {
                             REGION_EU433_DEBUG("region eu433 use default channel join\r\n");
                             continue;
@@ -158,7 +158,7 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                                               channels[i + j].DrRange.Fields.Max ) == false )
                 { // Check if the current channel selection supports the given datarate
                     //lz-modify
-                    if(UseStandardLoRaWanProtocol())
+                    if(UseLoRaWanStandardProtocol())
                     {
                         REGION_EU433_DEBUG("region eu433 datarate is not supported\r\n");
                         continue;
@@ -953,7 +953,7 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         // We found a valid channel
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
         //lz-modify add
-        if(!UseStandardLoRaWanProtocol())
+        if(!UseLoRaWanStandardProtocol())
         {
             REGION_EU433_DEBUG("region eu433 select datarate\r\n");
             LoRaMacParams.ChannelsDatarate = randr( Channels[*channel].DrRange.Fields.Min, Channels[*channel].DrRange.Fields.Max );
@@ -970,7 +970,7 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
             //lz-modify add
-            if(!UseStandardLoRaWanProtocol())
+            if(!UseLoRaWanStandardProtocol())
             {
                 *time += randr(0,2000);
             }

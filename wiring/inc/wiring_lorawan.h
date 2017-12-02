@@ -39,6 +39,12 @@ typedef enum
     PROTOCOL_P2P,
 }protocol_mode_t;
 
+typedef enum
+{
+    LORAWAN_STANDARD = 0,           //符合官方标准LoRaWan协议
+    LORAWAN_STANDARD_EXTEND,        //符合官方标准LoRaWan协议，添加IntoYun平台特性。
+    LORAWAN_NONSTANDARD_EXTEND      //修正官方标准LoRaWan协议，添加IntoYun平台特性。
+}lorawan_protocol_t;
 
 class LoRaWanClass
 {
@@ -49,6 +55,7 @@ class LoRaWanClass
         int sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         int8_t sendStatus(void);
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                       //返回接收数据
+        void setProtocol(lorawan_protocol_t type);
         void setOTAAParams(char *devEui, char *appEui, char *appKey);   //设置OTAA入网参数
         void setABPParams(char *devAddr, char *nwkSkey, char *appSkey); //设置ABP入网参数
         void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
