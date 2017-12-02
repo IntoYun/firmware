@@ -22,6 +22,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdint.h>
 #include <math.h>
 
+#include "sx1276-board.h"
 #include "LoRaMac.h"
 
 #include "utilities.h"
@@ -144,16 +145,25 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                 {
                     if( ( EU433_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
                     {
-                        //lz-modfiy 去掉让所有通道都可以入网
-                        /* continue; */
+                        //lz-modify 去掉让所有通道都可以入网
+                        if(UseStandardLoRaWanProtocol())
+                        {
+                            REGION_EU433_DEBUG("region eu433 use default channel join\r\n");
+                            continue;
+                        }
+                        //end===
                     }
                 }
                 if( RegionCommonValueInRange( datarate, channels[i + j].DrRange.Fields.Min,
                                               channels[i + j].DrRange.Fields.Max ) == false )
                 { // Check if the current channel selection supports the given datarate
-                    //lz-modfiy
-                    /* continue; */
-                    LoRaMacParams.ChannelsDatarate = Channels[i + j].DrRange.Fields.Min;
+                    //lz-modify
+                    if(UseStandardLoRaWanProtocol())
+                    {
+                        REGION_EU433_DEBUG("region eu433 datarate is not supported\r\n");
+                        continue;
+                    }
+                    //end===
                 }
                 if( bands[channels[i + j].Band].TimeOff > 0 )
                 { // Check if the band is available for transmission
@@ -573,7 +583,7 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     Radio.SetChannel( frequency );
 
-    #if 0
+    #if  0 
     REGION_EU433_DEBUG("rx freq=%d\r\n",frequency);
     REGION_EU433_DEBUG("bandwidth = %d\r\n",rxConfig->Bandwidth);
     REGION_EU433_DEBUG("datarate = %d\r\n",phyDr);
@@ -942,6 +952,13 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
     {
         // We found a valid channel
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+        //lz-modify add
+        if(!UseStandardLoRaWanProtocol())
+        {
+            REGION_EU433_DEBUG("region eu433 select datarate\r\n");
+            LoRaMacParams.ChannelsDatarate = randr( Channels[*channel].DrRange.Fields.Min, Channels[*channel].DrRange.Fields.Max );
+        }
+        //======
 
         *time = 0;
         return true;
@@ -952,8 +969,12 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            //lz-modfiy
-            *time += randr(0,2000);
+            //lz-modify add
+            if(!UseStandardLoRaWanProtocol())
+            {
+                *time += randr(0,2000);
+            }
+            //====
             return true;
         }
         // Datarate not supported by any channel, restore defaults
@@ -1076,6 +1097,7 @@ uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
     return datarate;
 }
 
+//lz-modify add
 uint32_t RegionEU433GetChannelFreq(uint8_t id)
 {
     return Channels[id].Frequency;
@@ -1096,3 +1118,4 @@ uint16_t RegionEU433GetDutyCycle(void)
 {
     return Bands[0].DCycle;
 }
+//end=====

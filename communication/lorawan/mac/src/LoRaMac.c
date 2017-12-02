@@ -2482,8 +2482,9 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Random seed initialization
     srand1( Radio.Random( ) );
-    //lz-modfiy增加系统随机种子
+    //lz-modify增加系统随机种子
     srand(Radio.Random( ));
+    //====
 
     PublicNetwork = true;
     Radio.SetPublicNetwork( PublicNetwork );
@@ -3415,7 +3416,7 @@ void LoRaMacTestSetChannel( uint8_t channel )
     Channel = channel;
 }
 
-//lz-modify
+//lz-modify add
 void LoRaMacAbortRun(void)
 {
     TimerStop( &MacStateCheckTimer);
@@ -3452,3 +3453,9 @@ uint16_t LoRaMacGetDutyCycle(void)
 {
     return RegionGetDutyCycle(LoRaMacRegion);
 }
+
+uint8_t LoRaMacGetLastTxChannel(void)
+{
+    return LastTxChannel;
+}
+//=====

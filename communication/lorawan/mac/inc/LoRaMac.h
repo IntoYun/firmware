@@ -1966,11 +1966,19 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
 /*! \} defgroup LORAMAC */
 //lz-modfiy
 extern LoRaMacParams_t LoRaMacParams;
+//中止运行
 void LoRaMacAbortRun(void);
+//获取通道频率
 uint32_t LoRaMacGetChannelFreq(uint8_t id);
+//获取通道频率
 void LoRaMacGetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR);
+//设置发射占空比
 void LoRaMacSetDutyCycle(uint16_t dutyCycle);
+//获取发射占空比值
 uint16_t LoRaMacGetDutyCycle(void);
+//获取最后一次发射通道ID
+uint8_t LoRaMacGetLastTxChannel(void);
+
 
 #ifdef __cplusplus
 }
