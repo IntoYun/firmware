@@ -36,10 +36,10 @@ typedef enum
  */
 typedef enum
 {
-    RF_IDLE = 0,
-    RF_RX_RUNNING,
-    RF_TX_RUNNING,
-    RF_CAD,
+    RF_IDLE = 0,   //!< The radio is idle
+    RF_RX_RUNNING, //!< The radio is in reception state
+    RF_TX_RUNNING, //!< The radio is in transmission state
+    RF_CAD,        //!< The radio is doing channel activity detection
 }RadioState_t;
 
 /*!
@@ -119,15 +119,16 @@ struct Radio_s
      */
     void    ( *SetChannel )( uint32_t freq );
     /*!
-     * \brief Sets the channels configuration
+     * \brief Checks if the channel is free for the given time
      *
      * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * \param [IN] freq       Channel RF frequency
      * \param [IN] rssiThresh RSSI threshold
+     * \param [IN] maxCarrierSenseTime Max time while the RSSI is measured
      *
      * \retval isFree         [true: Channel is free, false: Channel is not free]
      */
-    bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
+    bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime );
     /*!
      * \brief Generates a 32 bits random value based on the RSSI readings
      *
@@ -166,10 +167,10 @@ struct Radio_s
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
      * \param [IN] payloadLen   Sets payload length when fixed length is used
      * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
-     * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
+     * \param [IN] freqHopOn    Enables disables the intra-packet frequency hopping
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: OFF, 1: ON]
-     * \param [IN] HopPeriod    Number of symbols between each hop
+     * \param [IN] hopPeriod    Number of symbols between each hop
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: Number of symbols
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -183,7 +184,7 @@ struct Radio_s
                               uint32_t bandwidthAfc, uint16_t preambleLen,
                               uint16_t symbTimeout, bool fixLen,
                               uint8_t payloadLen,
-                              bool crcOn, bool FreqHopOn, uint8_t HopPeriod,
+                              bool crcOn, bool freqHopOn, uint8_t hopPeriod,
                               bool iqInverted, bool rxContinuous );
     /*!
      * \brief Sets the transmission parameters
@@ -209,10 +210,10 @@ struct Radio_s
      *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
      * \param [IN] crcOn        Enables disables the CRC [0: OFF, 1: ON]
-     * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
+     * \param [IN] freqHopOn    Enables disables the intra-packet frequency hopping
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: OFF, 1: ON]
-     * \param [IN] HopPeriod    Number of symbols between each hop
+     * \param [IN] hopPeriod    Number of symbols between each hop
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: Number of symbols
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -223,8 +224,8 @@ struct Radio_s
     void    ( *SetTxConfig )( RadioModems_t modem, int8_t power, uint32_t fdev,
                               uint32_t bandwidth, uint32_t datarate,
                               uint8_t coderate, uint16_t preambleLen,
-                              bool fixLen, bool crcOn, bool FreqHopOn,
-                              uint8_t HopPeriod, bool iqInverted, uint32_t timeout );
+                              bool fixLen, bool crcOn, bool freqHopOn,
+                              uint8_t hopPeriod, bool iqInverted, uint32_t timeout );
     /*!
      * \brief Checks if the given RF frequency is supported by the hardware
      *

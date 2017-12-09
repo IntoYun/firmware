@@ -12,6 +12,7 @@
 #include "board/inc/timer.h"
 #include "mac/inc/LoRaMac.h"
 #include "mac/inc/LoRaMacTest.h"
+#include "mac/src/region/Region.h"
 
 #define LORAMAC_SEND_OK     (0)
 #define LORAMAC_SEND_FAIL   (-1)
@@ -38,6 +39,12 @@ typedef enum
     PROTOCOL_P2P,
 }protocol_mode_t;
 
+typedef enum
+{
+    LORAWAN_STANDARD = 0,           //符合官方标准LoRaWan协议
+    LORAWAN_STANDARD_EXTEND,        //符合官方标准LoRaWan协议，添加IntoYun平台特性。
+    LORAWAN_NONSTANDARD_EXTEND      //修正官方标准LoRaWan协议，添加IntoYun平台特性。
+}lorawan_protocol_t;
 
 class LoRaWanClass
 {
@@ -48,15 +55,12 @@ class LoRaWanClass
         int sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
         int8_t sendStatus(void);
         uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                       //返回接收数据
-        void setDeviceEUI(char *devEui);                  //设置deviceeui
+        void setProtocol(lorawan_protocol_t type);
+        void setOTAAParams(char *devEui, char *appEui, char *appKey);   //设置OTAA入网参数
+        void setABPParams(char *devAddr, char *nwkSkey, char *appSkey); //设置ABP入网参数
         void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
-        void setDeviceAddr(char *devAddr);                //设置device addr
         void getDeviceAddr(char *devAddr, uint16_t len);  //获取device addr
-        void setAppEUI(char *appEui);                     //设置appeui
         void getAppEUI(char *appEui, uint16_t len);       //获取appeui
-        void setAppKey(char *appKey);                     //设置appkey
-        void setNwkSessionKey(uint8_t *nwkSkey);          //设置nwkSkey
-        void setAppSessionKey(uint8_t *appSkey);          //设置appSkey
         void setMacClassType(DeviceClass_t classType);    //切换class 类型
         DeviceClass_t getMacClassType(void);              //获取class类型
         void setTxPower(uint8_t index);                   //设置发射功率

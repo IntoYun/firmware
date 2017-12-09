@@ -3,6 +3,12 @@
 ### FEATURES(功能)
 - [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) 添加部分头文件，兼容arduino库
 - [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) 向用户提供mqtt接口和json接口
+- [[PR #146]](https://github.com/HITSZ-NRSL/firmware/pull/146) LoRaWan移植官方v4.4.0版本
+- [[PR #146]](https://github.com/HITSZ-NRSL/firmware/pull/146) LoRaWan默认3个通道的频率和速率都可以修改
+- [[PR #146]](https://github.com/HITSZ-NRSL/firmware/pull/146) LoRa频率设置范围修改为137-515MHz
+- [[PR #146]](https://github.com/HITSZ-NRSL/firmware/pull/146) LoRa休眠时去掉内部rtc计数，调用休眠接口直接进入休眠
+- [[PR #146]](https://github.com/HITSZ-NRSL/firmware/pull/146) stm32l1xx增加IO快速读写接口适用公共库
+
 
 ### ENHANCEMENTS(优化)
 - [[PR #142]](https://github.com/HITSZ-NRSL/firmware/pull/142) gl2000/gl2100 bootloader添加硬件自检程序

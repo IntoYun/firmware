@@ -201,23 +201,49 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
     return 0;
 }
 
-void LoRaWanClass::setDeviceEUI(char *devEui)
+void LoRaWanClass::setProtocol(lorawan_protocol_t type)
 {
-    HAL_PARAMS_Set_System_device_id(devEui);
+    switch(type){
+    case LORAWAN_STANDARD:
+        System.disableFeature(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED);   //关闭datapoint数据处理
+        System.disableFeature(SYSTEM_FEATURE_SEND_INFO_ENABLED);       //关闭产品信息上送
+        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
+        break;
+
+    case LORAWAN_STANDARD_EXTEND:
+        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
+        break;
+
+    case LORAWAN_NONSTANDARD_EXTEND:
+        System.disableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //不运行标准协议
+        break;
+
+    default:
+        break;
+    }
+}
+
+void LoRaWanClass::setOTAAParams(char *devEUI, char *appEUI, char *appKey)
+{
+    HAL_PARAMS_Set_System_device_id(devEUI);
+    HAL_PARAMS_Set_System_appeui(appEUI);
+    HAL_PARAMS_Set_System_appkey(appKey);
     HAL_PARAMS_Save_Params();
 }
 
-void LoRaWanClass::getDeviceEUI(char *devEui, uint16_t len)
+void LoRaWanClass::setABPParams(char *devAddr, char *nwkSKey, char *appSKey)
+{
+    HAL_PARAMS_Set_System_devaddr(devAddr);
+    HAL_PARAMS_Set_System_nwkskey(nwkSKey);
+    HAL_PARAMS_Set_System_appskey(appSKey);
+    HAL_PARAMS_Save_Params();
+}
+
+void LoRaWanClass::getDeviceEUI(char *devEUI, uint16_t len)
 {
     char deveui[24]={0};
     HAL_PARAMS_Get_System_device_id(deveui, sizeof(deveui));
-    strncpy(devEui,deveui,len);
-}
-
-void LoRaWanClass::setDeviceAddr(char *devAddr)
-{
-    HAL_PARAMS_Set_System_devaddr(devAddr);
-    HAL_PARAMS_Save_Params();
+    strncpy(devEUI,deveui,len);
 }
 
 void LoRaWanClass::getDeviceAddr(char *devAddr, uint16_t len)
@@ -227,41 +253,11 @@ void LoRaWanClass::getDeviceAddr(char *devAddr, uint16_t len)
     strncpy(devAddr,devaddr,len);
 }
 
-void LoRaWanClass::setAppEUI(char *appEui)
-{
-    HAL_PARAMS_Set_System_appeui(appEui);
-    HAL_PARAMS_Save_Params();
-}
-
-void LoRaWanClass::getAppEUI(char *appEui, uint16_t len)
+void LoRaWanClass::getAppEUI(char *appEUI, uint16_t len)
 {
     char appeui[24]={0};
     HAL_PARAMS_Get_System_appeui(appeui, sizeof(appeui));
-    strncpy(appEui,appeui,len);
-}
-
-void LoRaWanClass::setAppKey(char *appKey)
-{
-    HAL_PARAMS_Set_System_appkey(appKey);
-    HAL_PARAMS_Save_Params();
-}
-
-void LoRaWanClass::setNwkSessionKey(uint8_t *nwkSkey)
-{
-    char nwkskey[36] = "";
-    memcpy(macParams.nwkSkey,nwkSkey,16);
-    hex2string(macParams.nwkSkey, 16, nwkskey, false);
-    HAL_PARAMS_Set_System_nwkskey(nwkskey);
-    HAL_PARAMS_Save_Params();
-}
-
-void LoRaWanClass::setAppSessionKey(uint8_t *appSkey)
-{
-    char appskey[36] = "";
-    memcpy(macParams.appSkey,appSkey,16);
-    hex2string(macParams.appSkey, 16, appskey, false);
-    HAL_PARAMS_Set_System_appskey(appskey);
-    HAL_PARAMS_Save_Params();
+    strncpy(appEUI,appeui,len);
 }
 
 void LoRaWanClass::setMacClassType(DeviceClass_t classType)
@@ -356,10 +352,10 @@ void LoRaWanClass::setDutyCyclePrescaler(uint16_t dutyCycle)
 
 void LoRaWanClass::setChannelFreq(uint8_t channel, uint32_t freq)
 {
-    if(channel < 3 || channel > 15){
+    if((channel > 15) || (freq > 525000000) || (freq < 137000000)){
         return;
     }
-    ChannelParams_t channelParams = {freq, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+    ChannelParams_t   channelParams = {freq, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
     LoRaMacChannelAdd(channel,channelParams);
 }
 
@@ -380,7 +376,7 @@ void LoRaWanClass::setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t max
         return;
     }
     uint32_t tmpFreq = LoRaMacGetChannelFreq(channel);
-    ChannelParams_t channelParams = {tmpFreq, { ( ( maxDR << 4 ) | minDR ) }, 0};
+    ChannelParams_t channelParams = {tmpFreq, 0, { ( ( maxDR << 4 ) | minDR ) }, 0};
     LoRaMacChannelAdd(channel,channelParams);
 }
 
@@ -389,7 +385,7 @@ bool LoRaWanClass::getChannelDRRange(uint8_t channel, uint8_t *minDR,uint8_t *ma
     if(channel > 15){
         return false;
     }else{
-        LoRaMacGetChannelDRRang(channel,minDR,maxDR);
+        LoRaMacGetChannelDRRange(channel,minDR,maxDR);
         return true;
     }
 }
@@ -701,6 +697,9 @@ void LoRaClass::radioSetSleep(void)
 
 void LoRaClass::radioSetFreq(uint32_t freq)
 {
+    if((freq > 525000000) || (freq < 137000000)){
+        return;
+    }
     _freq = freq;
     Radio.SetChannel(_freq);
 }

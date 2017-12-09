@@ -388,3 +388,8 @@ void BoardGetUniqueId( uint8_t *id )
     id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
+
+bool UseLoRaWanStandardProtocol(void)
+{
+    return System.featureEnabled(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED);
+}

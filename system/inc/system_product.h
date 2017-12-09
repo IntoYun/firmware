@@ -68,6 +68,7 @@ typedef enum
     SYSTEM_FEATURE_REGISTER_ENABLED,
     SYSTEM_FEATURE_LORAMAC_RUN_ENABLED,
     SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED,
+    SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED,
     SYSTEM_FEATURE_MAX
 } system_feature_t;
 
@@ -96,6 +97,7 @@ public:
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_loramac_run_enable = true;          //LoRaWan运行   0:关闭  1:打开
         feature_cloud_data_encrypt_enable = true;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
+        feature_standard_lorawan_enable = false;    //标准LoRaWan运行0关闭1打开
     }
     ~IntoRobotProduct(){}
 
@@ -218,6 +220,9 @@ public:
             case SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED:
                 return feature_cloud_data_encrypt_enable;
                 break;
+            case SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED:
+                return feature_standard_lorawan_enable;
+                break;
             default:
                 break;
         }
@@ -253,6 +258,9 @@ public:
             case SYSTEM_FEATURE_CLOUD_DATA_ENCRYPT_ENABLED:
                 feature_cloud_data_encrypt_enable = enabled;
                 break;
+            case SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED:
+                feature_standard_lorawan_enable = enabled;
+                break;
             default:
                 break;
         }
@@ -277,6 +285,7 @@ private:
     bool feature_register_enable;             //设备注册      0:关闭  1:打开
     bool feature_loramac_run_enable;          //loramac是否自动激活   0:关闭  1:打开
     bool feature_cloud_data_encrypt_enable;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
+    bool feature_standard_lorawan_enable;     //标准LoRaWan运行0关闭1打开
 };
 
 extern IntoRobotProduct &system_product_instance(void);

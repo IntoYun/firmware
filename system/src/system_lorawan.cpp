@@ -258,6 +258,22 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
+                if(!System.featureEnabled(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED)){
+                    uint16_t channelMask = 0;
+                    uint8_t lastChannel = LoRaMacGetLastTxChannel();
+                    channelMask = 1 << lastChannel;
+
+                    MibRequestConfirm_t mibReq;
+                    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+                    mibReq.Param.ChannelsDefaultMask = &channelMask;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_CHANNELS_MASK;
+                    mibReq.Param.ChannelsMask = &channelMask;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+                    SLORAWAN_DEBUG("lorawan close other channel\r\n");
+                }
+
                 LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
                 if(!System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)){
                     LoRaWan._macRunStatus = ep_lorawan_join_success;
@@ -376,7 +392,7 @@ void LoRaWanResume(void)
     LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
     LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
     LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
+    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU433);
 
     DEBUG("loramac init!!!\r\n");
     DEBUG("sync word = 0x%x\r\n",SX1276Read(0x39));
@@ -561,7 +577,7 @@ void intorobot_lorawan_send_terminal_info(void)
         }
         SLORAWAN_DEBUG_D("\r\n");
 
-        if(LoRaWan.sendConfirmed(2, buffer, index, 120) == 0){
+        if(LoRaWan.sendConfirmed(2, buffer, index, 150) == 0){
             INTOROBOT_LORAWAN_CONNECTED = true;
             INTOROBOT_LORAWAN_SEND_INFO = false;
             LoRaWan._macRunStatus = ep_lorawan_join_success;
