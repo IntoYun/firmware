@@ -406,18 +406,20 @@ void TimerLowPowerHandler( void )
 {
     if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
     {
+        /*
         if( HasLoopedThroughMain < 5 )
         {
             HasLoopedThroughMain++;
         }
         else
         {
+        */
             HasLoopedThroughMain = 0;
             if( GetBoardPowerSource( ) == BATTERY_POWER )
             {
                 RtcEnterLowPowerStopMode( );
             }
-        }
+        //}
     }
 }
 
