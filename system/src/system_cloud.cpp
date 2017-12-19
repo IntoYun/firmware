@@ -960,23 +960,6 @@ int intorobot_cloud_connect(void)
             aJsonClass aJson;
             char buffer[33] = {0};
 
-            //intorobot 平台上送设备信息
-            aJsonObject* root = aJson.createObject();
-            if (root == NULL) {
-                return -1;
-            }
-            system_get_board_id(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "board", buffer);
-            HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "fw_ver", buffer);
-            HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "sys_ver", buffer);
-            char* string = aJson.print(root);
-            intorobot_publish(TOPIC_VERSION_V1, INTOROBOT_MQTT_VERSION_TOPIC, (uint8_t*)string, strlen(string), 0, true);
-            free(string);
-            aJson.deleteItem(root);
-
-            //intoYun 平台上送设备信息
             root = aJson.createObject();
             if (root == NULL) {
                 return -1;
@@ -985,15 +968,14 @@ int intorobot_cloud_connect(void)
             aJson.addStringToObject(root, "board", buffer);
             system_get_product_id(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "productId", buffer);
-            aJson.addStringToObject(root, "productMode", "master");
+            aJson.addStringToObject(root, "mode", "master");
             system_get_product_software_version(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "productVer", buffer);
+            aJson.addStringToObject(root, "swVer", buffer);
             system_get_product_hardware_version(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "productHwVer", buffer);
+            aJson.addStringToObject(root, "hwVer", buffer);
             HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "libVer", buffer);
             HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "subsysVer", buffer);
             aJson.addBooleanToObject(root, "online", true);
             string = aJson.print(root);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);
