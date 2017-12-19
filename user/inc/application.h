@@ -72,7 +72,7 @@
 #include "wiring_ext.h"
 #include "wiring_system.h"
 #include "wiring_ajson.h"
-//#include "wiring_audio.h"
+#include "wiring_mqttclient.h"
 #include "fast_pin.h"
 #include "string_convert.h"
 #include "debug_output_handler.h"

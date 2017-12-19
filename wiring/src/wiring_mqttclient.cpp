@@ -24,19 +24,19 @@
 #include "wiring_constants.h"
 #include "wiring_arduino.h"
 #include "wiring.h"
-#include "mqttclient.h"
+#include "wiring_mqttclient.h"
 
 /*debug switch*/
-#define COMMUNICATION_MQTTCLIENT_DEBUG
+#define WIRING_MQTTCLIENT_DEBUG
 
-#ifdef COMMUNICATION_MQTTCLIENT_DEBUG
-#define CMQTTCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
-#define CMQTTCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-#define CMQTTCLIENT_DEBUG_DUMP    DEBUG_DUMP
+#ifdef WIRING_MQTTCLIENT_DEBUG
+#define WMQTTCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
+#define WMQTTCLIENT_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#define WMQTTCLIENT_DEBUG_DUMP    DEBUG_DUMP
 #else
-#define CMQTTCLIENT_DEBUG(...)
-#define CMQTTCLIENT_DEBUG_D(...)
-#define CMQTTCLIENT_DEBUG_DUMP
+#define WMQTTCLIENT_DEBUG(...)
+#define WMQTTCLIENT_DEBUG_D(...)
+#define WMQTTCLIENT_DEBUG_DUMP
 #endif
 
 MqttClientClass::MqttClientClass() {
@@ -420,13 +420,13 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
         }
         if(write(header,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! published topic: %s, payload -> ", topic);
-            CMQTTCLIENT_DEBUG_DUMP(payload, plength);
+            WMQTTCLIENT_DEBUG("OK! published topic: %s, payload -> ", topic);
+            WMQTTCLIENT_DEBUG_DUMP(payload, plength);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! publish topic: %s, payload -> ", topic);
-    CMQTTCLIENT_DEBUG_DUMP(payload, plength);
+    WMQTTCLIENT_DEBUG("Error! publish topic: %s, payload -> ", topic);
+    WMQTTCLIENT_DEBUG_DUMP(payload, plength);
     return false;
 }
 
@@ -542,11 +542,11 @@ boolean MqttClientClass::subscribe(const char* topic, uint8_t qos) {
         buffer[length++] = qos;
         if(write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! subscribe topic: %s\r\n", topic);
+            WMQTTCLIENT_DEBUG("OK! subscribe topic: %s\r\n", topic);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! subscribe topic: %s\r\n", topic);
+    WMQTTCLIENT_DEBUG("Error! subscribe topic: %s\r\n", topic);
     return false;
 }
 
@@ -566,16 +566,16 @@ boolean MqttClientClass::unsubscribe(const char* topic) {
         length = writeString(topic, buffer,length);
         if(write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            CMQTTCLIENT_DEBUG("OK! unsubscribe topic: %s\r\n", topic);
+            WMQTTCLIENT_DEBUG("OK! unsubscribe topic: %s\r\n", topic);
             return true;
         }
     }
-    CMQTTCLIENT_DEBUG("Error! unsubscribe topic: %s\r\n", topic);
+    WMQTTCLIENT_DEBUG("Error! unsubscribe topic: %s\r\n", topic);
     return false;
 }
 
 void MqttClientClass::disconnect() {
-    CMQTTCLIENT_DEBUG("mqttClient! disconnect\r\n");
+    WMQTTCLIENT_DEBUG("mqttClient! disconnect\r\n");
     buffer[0] = MQTTDISCONNECT;
     buffer[1] = 0;
     _client->write(buffer,2);
