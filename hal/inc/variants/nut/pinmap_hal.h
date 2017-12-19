@@ -95,14 +95,16 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 #define D7 7
 
 // Serial pins
-#define TXD  8
-#define RXD  9
+#define TX    8
+#define RX    9
 
-#define TX   TXD
-#define RX   RXD
+#define TXD   TX
+#define RXD   RX
 
 // Serial1 pin
-#define TX1  D0
+#define TX1   D0
+
+#define TXD1  TX1
 
 #define A0 30
 

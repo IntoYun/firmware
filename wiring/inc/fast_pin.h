@@ -48,17 +48,15 @@ inline int32_t pinReadFast(pin_t _pin)
 
 inline void digitalWriteFast(pin_t pin, uint8_t value)
 {
-    if (value)
+    if (value) {
         pinSetFast(pin);
-    else
+    } else {
         pinResetFast(pin);
+    }
 }
 
 #ifdef	__cplusplus
 }
 #endif
-
-
-
 
 #endif	/* FAST_PIN_H */

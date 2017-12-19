@@ -81,7 +81,7 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 
 #define TOTAL_PINS              31
 #define FIRST_DIGITAL_PIN       0
-#define TOTAL_DIGITAL_PINS      10
+#define TOTAL_DIGITAL_PINS      11
 #define FIRST_ANALOG_PIN        30
 #define TOTAL_ANALOG_PINS       1
 
@@ -100,14 +100,16 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 #define ADC    30
 
 // Serial pin
-#define TXD  GPIO1
-#define RXD  GPIO3
+#define TX   GPIO1
+#define RX   GPIO3
 
-#define TX   TXD
-#define RX   RXD
+#define TXD  TX
+#define RXD  RX
 
 // Serial1 pin
 #define TX1  GPIO2
+
+#define TXD1  TX1
 
 // SPI pins
 #define SS   GPIO15

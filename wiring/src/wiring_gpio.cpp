@@ -224,7 +224,7 @@ void analogWrite(pin_t pin, uint16_t value, uint16_t pwm_frequency)
     }
 }
 
-uint8_t analogWriteResolution(pin_t pin, uint8_t value)
+uint8_t analogWriteResolution(pin_t pin, uint8_t resolution)
 {
     // Safety check
     if (!pinAvailable(pin))
@@ -234,15 +234,14 @@ uint8_t analogWriteResolution(pin_t pin, uint8_t value)
 
     if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC)
     {
-        HAL_DAC_Set_Resolution(pin, value);
+        HAL_DAC_Set_Resolution(pin, resolution);
         return HAL_DAC_Get_Resolution(pin);
     }
     else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
     {
-        HAL_PWM_Set_Resolution(pin, value);
+        HAL_PWM_Set_Resolution(pin, resolution);
         return HAL_PWM_Get_Resolution(pin);
     }
-
 
     return 0;
 }
@@ -313,13 +312,23 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
  * @returns uint32_t pulse width in microseconds up to 3 seconds,
  *          returns 0 on 3 second timeout error, or invalid pin.
  */
-uint32_t pulseIn(pin_t pin, uint16_t value) {
-
+uint32_t pulseIn(pin_t pin, uint16_t value, uint32_t timeout)
+{
     // NO SAFETY CHECKS!!! WILD WILD WEST!!!
-
-    return HAL_Pulse_In(pin, value);
+    return HAL_Pulse_In(pin, value, timeout);
 }
 
-void setDACBufferred(pin_t pin, uint8_t state) {
+/*
+ * @brief   blocking call to measure a high or low pulse
+ * @returns uint32_t pulse width in microseconds up to 3 seconds,
+ *          returns 0 on 3 second timeout error, or invalid pin.
+ */
+uint32_t pulseInLong(pin_t pin, uint16_t value, uint32_t timeout)
+{
+    return pulseIn(pin, value, timeout);
+}
+
+void setDACBufferred(pin_t pin, uint8_t state)
+{
     HAL_DAC_Enable_Buffer(pin, state);
 }

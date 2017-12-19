@@ -44,10 +44,7 @@ extern "C" {
        @param txQueueSize how many message to buffer before transmit
 
 *******************************************************************************/
-void HAL_CAN_Init(HAL_CAN_Channel channel,
-                  uint16_t rxQueueSize,
-                  uint16_t txQueueSize,
-                  void *reserved)
+void HAL_CAN_Init(HAL_CAN_Channel channel, uint16_t rxQueueSize, uint16_t txQueueSize, void *reserved)
 {
 }
 
@@ -57,14 +54,11 @@ void HAL_CAN_Init(HAL_CAN_Channel channel,
 
    Parameters:
        @param channel CAN Channel (CAN1, CAN2, etc)
-       @param baud The baud rate of the CAN bus 
+       @param baud The baud rate of the CAN bus
        @param flags Configuration flags for the CAN channel
 
 *******************************************************************************/
-void HAL_CAN_Begin(HAL_CAN_Channel channel,
-                   uint32_t        baud,
-                   uint32_t        flags,
-                   void *reserved)
+void HAL_CAN_Begin(HAL_CAN_Channel channel, uint32_t baud, uint32_t flags, void *reserved)
 {
 }
 
@@ -76,8 +70,7 @@ void HAL_CAN_Begin(HAL_CAN_Channel channel,
        @param channel CAN Channel (CAN1, CAN2, etc)
 
 *******************************************************************************/
-void HAL_CAN_End(HAL_CAN_Channel channel,
-                 void *reserved)
+void HAL_CAN_End(HAL_CAN_Channel channel, void *reserved)
 {
 }
 
@@ -91,9 +84,7 @@ void HAL_CAN_End(HAL_CAN_Channel channel,
        @return true if enqueued, false if queue is full
 
 *******************************************************************************/
-bool HAL_CAN_Transmit(HAL_CAN_Channel     channel,
-                      const CANMessage *message,
-                      void *reserved)
+bool HAL_CAN_Transmit(HAL_CAN_Channel channel, const CANMessage *message, void *reserved)
 {
     return false;
 }
@@ -108,9 +99,7 @@ bool HAL_CAN_Transmit(HAL_CAN_Channel     channel,
        @return true if message was received, false if queue is empty
 
 *******************************************************************************/
-bool HAL_CAN_Receive(HAL_CAN_Channel channel,
-                     CANMessage *message,
-                     void *reserved)
+bool HAL_CAN_Receive(HAL_CAN_Channel channel, CANMessage *message, void *reserved)
 {
     return false;
 }
@@ -124,8 +113,7 @@ bool HAL_CAN_Receive(HAL_CAN_Channel channel,
        @return count of messages
 
 *******************************************************************************/
-uint8_t HAL_CAN_Available_Messages(HAL_CAN_Channel channel,
-                                   void *reserved)
+uint8_t HAL_CAN_Available_Messages(HAL_CAN_Channel channel, void *reserved)
 {
     return 0;
 }
@@ -142,11 +130,7 @@ uint8_t HAL_CAN_Available_Messages(HAL_CAN_Channel channel,
        @return true if filter added, false if too many filters already
 
 *******************************************************************************/
-bool HAL_CAN_Add_Filter(HAL_CAN_Channel channel,
-                        uint32_t id,
-                        uint32_t mask,
-                        HAL_CAN_Filters type,
-                        void *reserved)
+bool HAL_CAN_Add_Filter(HAL_CAN_Channel channel, uint32_t id, uint32_t mask, HAL_CAN_Filters type, void *reserved)
 {
     return false;
 }
@@ -159,8 +143,7 @@ bool HAL_CAN_Add_Filter(HAL_CAN_Channel channel,
        @param channel CAN Channel (CAN1, CAN2, etc)
 
 *******************************************************************************/
-void HAL_CAN_Clear_Filters(HAL_CAN_Channel channel,
-                           void *reserved)
+void HAL_CAN_Clear_Filters(HAL_CAN_Channel channel, void *reserved)
 {
 }
 

@@ -29,10 +29,12 @@ extern "C" {
 #include <stdbool.h>
 #include <limits.h>
 
+extern uint32_t xthal_get_ccount();
+
 typedef uint32_t system_tick_t;
 
 #define SYSTEM_US_TICKS         ( F_CPU / 1000000L )    //cycles per microsecond
-#define SYSTEM_TICK_COUNTER     10
+#define SYSTEM_TICK_COUNTER     xthal_get_ccount()
 
 
 void SysTick_Enable();

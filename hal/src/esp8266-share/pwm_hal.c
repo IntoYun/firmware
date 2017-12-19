@@ -97,32 +97,29 @@ uint16_t HAL_PWM_Get_AnalogValue(uint16_t pin)
 
 uint32_t HAL_PWM_Get_Frequency_Ext(uint16_t pin)
 {
-    return 0;
+    return __analogWriteGetFreq(pin);
 }
 
 uint32_t HAL_PWM_Get_AnalogValue_Ext(uint16_t pin)
 {
-    return 0;
+    return __analogWriteGetValue(pin);
 }
 
 uint32_t HAL_PWM_Get_Max_Frequency(uint16_t pin)
 {
-    return 0;
-}
-
-void HAL_PWM_UpdateDutyCycle(uint16_t pin, uint16_t value)
-{
-}
-
-void HAL_PWM_UpdateDutyCycle_Ext(uint16_t pin, uint32_t value)
-{
+    return 65535;
 }
 
 uint8_t HAL_PWM_Get_Resolution(uint16_t pin)
 {
-    return 0;
+    int i = 0;
+    uint32_t range = __analogWriteGetRange();
+
+    for(i = 0; range >> 1; i++ );
+    return i;
 }
 
 void HAL_PWM_Set_Resolution(uint16_t pin, uint8_t resolution)
 {
+    __analogWriteRange(2 << resolution);
 }

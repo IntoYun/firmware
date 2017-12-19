@@ -39,10 +39,12 @@ typedef enum PinMode {
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -90,14 +92,14 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A7 37
 
 // Serial pins
-#define CTS A0
-#define RTS A1
+#define CTS  A0
+#define RTS  A1
 
-#define TXD  A2
-#define RXD  A3
+#define TX   A2
+#define RX   A3
 
-#define TX   TXD
-#define RX   RXD
+#define TXD  TX
+#define RXD  RX
 
 // SPI pins
 #define SS   A4

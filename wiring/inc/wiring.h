@@ -75,7 +75,6 @@ uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
 
 void serialReadLine(Stream *serialObj, char *dst, int max_len, system_tick_t timeout);
 
-uint32_t pulseIn(pin_t pin, uint16_t value);
 uint32_t timerGetId(void);
 bool timerIsEnd(uint32_t timerID, uint32_t time);
 
@@ -83,8 +82,13 @@ bool timerIsEnd(uint32_t timerID, uint32_t time);
 }
 #endif
 
+uint32_t pulseIn(pin_t pin, uint16_t value, uint32_t timeout = 1000000L);
+uint32_t pulseInLong(pin_t pin, uint16_t value, uint32_t timeout = 1000000L);
 void analogWrite(uint16_t pin, uint16_t value);
 void analogWrite(uint16_t pin, uint16_t value, uint16_t pwm_frequency);
-uint8_t analogWriteResolution(pin_t pin, uint8_t value);
+uint8_t analogWriteResolution(pin_t pin, uint8_t resolution);
 uint8_t analogWriteResolution(pin_t pin);
+uint32_t analogWriteMaxFrequency(pin_t pin);
+void setDACBufferred(pin_t pin, uint8_t state);
+
 #endif /* __WIRING_H_ */

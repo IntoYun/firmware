@@ -20,7 +20,7 @@
 #include "wiring_tone.h"
 #include "tone_hal.h"
 
-void tone(uint8_t pin, unsigned int frequency, unsigned long duration)
+void tone(uint8_t pin, uint32_t frequency, uint32_t duration)
 {
     if (pinAvailable(pin) && HAL_Validate_Pin_Function(pin, PF_TIMER)==PF_TIMER) {
         HAL_Tone_Start(pin, frequency, duration);

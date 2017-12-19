@@ -136,14 +136,35 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     return __digitalRead(gpio_pin);
 }
 
+#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+
+#define WAIT_FOR_PIN_STATE(value) \
+    while (HAL_pinReadFast(pin) != (value)) { \
+        if (SYSTEM_TICK_COUNTER - start_cycle_count > timeout_cycles) { \
+            return 0; \
+        } \
+    }
+
 /*
  * @brief   blocking call to measure a high or low pulse
  * @returns uint32_t pulse width in microseconds up to 3 seconds,
  *          returns 0 on 3 second timeout error, or invalid pin.
  */
-uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
+uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 {
-    return 0;
+    const uint32_t max_timeout_us = clockCyclesToMicroseconds(UINT_MAX);
+    if (timeout > max_timeout_us) {
+        timeout = max_timeout_us;
+    }
+    const uint32_t timeout_cycles = microsecondsToClockCycles(timeout);
+    const uint32_t start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    WAIT_FOR_PIN_STATE(value);
+    const uint32_t pulse_start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
 void HAL_pinSetFast(pin_t pin)

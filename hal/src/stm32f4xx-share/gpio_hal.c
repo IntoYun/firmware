@@ -91,7 +91,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     }
     else if (gpio_port == GPIOD)
     {
-        __HAL_RCC_GPIOD_CLK_ENABLE();
+        __HAL_RCC_GPIOH_CLK_ENABLE();
     }
 
     GPIO_InitStructure.Pin = gpio_pin;
@@ -150,8 +150,8 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         default:
             break;
     }
-
     HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
+    HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_RESET);
 }
 
 /*
@@ -176,6 +176,7 @@ PinMode HAL_GPIO_Recall_Pin_Mode()
 void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
     //If the pin is used by analogWrite, we need to change the mode
     if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL)
     {
@@ -242,47 +243,35 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
 }
 
+#define clockCyclesPerMicrosecond() SYSTEM_US_TICKS
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+
+#define WAIT_FOR_PIN_STATE(value) \
+    while (HAL_pinReadFast(pin) != (value)) { \
+        if (SYSTEM_TICK_COUNTER - start_cycle_count > timeout_cycles) { \
+            return 0; \
+        } \
+    }
+
 /*
  * @brief   blocking call to measure a high or low pulse
  * @returns uint32_t pulse width in microseconds up to 3 seconds,
  *          returns 0 on 3 second timeout error, or invalid pin.
  */
-uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
+uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 {
-    STM32_Pin_Info* SOLO_PIN_MAP = HAL_Pin_Map();
-    #define pinReadFast(_pin) ((SOLO_PIN_MAP[_pin].gpio_peripheral->IDR & SOLO_PIN_MAP[_pin].gpio_pin) == 0 ? 0 : 1)
-
-    volatile uint32_t timeoutStart = SYSTEM_TICK_COUNTER; // total 3 seconds for entire function!
-
-    /* If already on the value we want to measure, wait for the next one.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
-            return 0;
-        }
+    const uint32_t max_timeout_us = clockCyclesToMicroseconds(UINT_MAX);
+    if (timeout > max_timeout_us) {
+        timeout = max_timeout_us;
     }
-
-    /* Wait until the start of the pulse.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    while (pinReadFast(pin) != value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
-            return 0;
-        }
-    }
-
-    /* Wait until this value changes, this will be our elapsed pulse width.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    volatile uint32_t pulseStart = SYSTEM_TICK_COUNTER;
-    while (pinReadFast(pin) == value) {
-        if (SYSTEM_TICK_COUNTER - timeoutStart > 360000000UL) {
-            return 0;
-        }
-    }
-
-    return (SYSTEM_TICK_COUNTER - pulseStart)/SYSTEM_US_TICKS;
+    const uint32_t timeout_cycles = microsecondsToClockCycles(timeout);
+    const uint32_t start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    WAIT_FOR_PIN_STATE(value);
+    const uint32_t pulse_start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
 void HAL_pinSetFast(pin_t pin)

@@ -180,45 +180,37 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     return __digitalRead(gpio_pin);
 }
 
+#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+
+#define WAIT_FOR_PIN_STATE(value) \
+    while (HAL_pinReadFast(pin) != (value)) { \
+        if (SYSTEM_TICK_COUNTER - start_cycle_count > timeout_cycles) { \
+            return 0; \
+        } \
+        optimistic_yield(5000); \
+    }
+
 /*
  * @brief   blocking call to measure a high or low pulse
  * @returns uint32_t pulse width in microseconds up to 3 seconds,
  *          returns 0 on 3 second timeout error, or invalid pin.
+ * max timeout is 27 seconds at 160MHz clock and 54 seconds at 80MHz clock
  */
-uint32_t HAL_Pulse_In(pin_t pin, uint16_t value)
+uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 {
-    // FIXME: SYTME_TICK_COUNTER change to system_get_time which return the micro seconds
-    volatile uint32_t timeoutStart = system_get_time(); // total 3 seconds for entire function!
-
-    /* If already on the value we want to measure, wait for the next one.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    while (HAL_pinReadFast(pin) == value) {
-        if (sytem_get_time() - timeoutStart > 3000000UL) {
-            return 0;
-        }
+    const uint32_t max_timeout_us = clockCyclesToMicroseconds(UINT_MAX);
+    if (timeout > max_timeout_us) {
+        timeout = max_timeout_us;
     }
-
-    /* Wait until the start of the pulse.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    while (HAL_pinReadFast(pin) != value) {
-        if (system_get_time() - timeoutStart > 3000000UL) {
-            return 0;
-        }
-    }
-
-    /* Wait until this value changes, this will be our elapsed pulse width.
-     * Time out after 3 seconds so we don't block the background tasks
-     */
-    volatile uint32_t pulseStart = system_get_time();
-    while (HAL_pinReadFast(pin) == value) {
-        if (system_get_time()- timeoutStart > 3000000UL) {
-            return 0;
-        }
-    }
-
-    return (system_get_time() - pulseStart);
+    const uint32_t timeout_cycles = microsecondsToClockCycles(timeout);
+    const uint32_t start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    WAIT_FOR_PIN_STATE(value);
+    const uint32_t pulse_start_cycle_count = SYSTEM_TICK_COUNTER;
+    WAIT_FOR_PIN_STATE(!value);
+    return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
 void HAL_pinSetFast(pin_t pin)
