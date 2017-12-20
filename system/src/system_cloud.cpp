@@ -960,7 +960,7 @@ int intorobot_cloud_connect(void)
             aJsonClass aJson;
             char buffer[33] = {0};
 
-            root = aJson.createObject();
+            aJsonObject *root = aJson.createObject();
             if (root == NULL) {
                 return -1;
             }
@@ -977,7 +977,7 @@ int intorobot_cloud_connect(void)
             aJson.addStringToObject(root, "libVer", buffer);
             HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
             aJson.addBooleanToObject(root, "online", true);
-            string = aJson.print(root);
+            char *string = aJson.print(root);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);
             free(string);
             aJson.deleteItem(root);

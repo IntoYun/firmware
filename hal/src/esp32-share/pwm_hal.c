@@ -116,7 +116,6 @@ void HAL_PWM_Set_Resolution(uint16_t pin, uint8_t resolution)
     }
 }
 
-
 uint8_t HAL_PWM_Get_Resolution(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
@@ -139,3 +138,4 @@ uint8_t HAL_PWM_Get_Resolution(uint16_t pin)
         return PWM_State[3].resolution;
     }
 }
+

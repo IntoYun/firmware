@@ -88,13 +88,11 @@ int32_t HAL_ADC_Read(uint16_t pin)
         HAL_Pin_Mode(pin, AN_INPUT);
     }
 
-    // FIXME: Not matter ADC DMA init only one time, or everytime init, it works.
-    //if (adcInitFirstTime == true)
-    //{
-    //    HAL_ADC_DMA_Init();
-    //    adcInitFirstTime = false;
-    //}
-    HAL_ADC_DMA_Init();
+    if (adcInitFirstTime == true)
+    {
+        HAL_ADC_DMA_Init();
+        adcInitFirstTime = false;
+    }
 
     if (adcChannelConfigured != PIN_MAP[pin].adc_channel)
     {

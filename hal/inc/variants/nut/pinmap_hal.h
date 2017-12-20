@@ -41,16 +41,6 @@ typedef enum PinMode {
     INPUT_PULLUP,
     INPUT_PULLDOWN,     // PULLDOWN only possible for pin16
     //Used internally begin
-    OUTPUT_OPEN_DRAIN,
-    WAKEUP_PULLUP,
-    WAKEUP_PULLDOWN,
-    SPECIAL,            //defaults to the usable BUSes uart0rx/tx uart1tx and hspi
-    FUNCTION_0,
-    FUNCTION_1,
-    FUNCTION_2,
-    FUNCTION_3,
-    FUNCTION_4,
-
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input

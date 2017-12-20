@@ -96,3 +96,4 @@ STM32_Pin_Info __PIN_MAP[TOTAL_PINS] =
 STM32_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;
 }
+

@@ -31,7 +31,6 @@
 /* Private macro ------------------------------------------------------------*/
 
 /* Private variables --------------------------------------------------------*/
-PinMode digitalPinModeSaved = PIN_MODE_NONE;
 
 /* Extern variables ---------------------------------------------------------*/
 
@@ -153,17 +152,43 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 /*
  * @brief Saves a pin mode to be recalled later.
  */
-void HAL_GPIO_Save_Pin_Mode(PinMode mode)
+void HAL_GPIO_Save_Pin_Mode(uint16_t pin)
 {
-    digitalPinModeSaved = mode;
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    uint32_t uprop = (uint32_t)PIN_MAP[pin].user_property;
+    uprop = (uprop & 0xFFFF) | (((uint32_t)PIN_MAP[pin].pin_mode & 0xFF) << 16) | (0xAA << 24);
+    PIN_MAP[pin].user_property = (int32_t)uprop;
 }
 
 /*
  * @brief Recalls a saved pin mode.
  */
-PinMode HAL_GPIO_Recall_Pin_Mode()
+PinMode HAL_GPIO_Recall_Pin_Mode(uint16_t pin)
 {
-    return digitalPinModeSaved;
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    uint32_t uprop = (uint32_t)PIN_MAP[pin].user_property;
+    if ((uprop & 0xFF000000) != 0xAA000000)
+        return PIN_MODE_NONE;
+    PinMode pm = (PinMode)((uprop & 0x00FF0000) >> 16);
+
+    // Safety check
+    switch(pm)
+    {
+        case INPUT:
+        case OUTPUT:
+        case INPUT_PULLUP:
+        case INPUT_PULLDOWN:
+        case AF_OUTPUT_PUSHPULL:
+        case AF_OUTPUT_DRAIN:
+        case AN_INPUT:
+        case AN_OUTPUT:
+        break;
+
+        default:
+        pm = PIN_MODE_NONE;
+        break;
+    }
+    return pm;
 }
 
 /*
@@ -202,7 +227,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     if(PIN_MAP[pin].pin_mode == AN_INPUT)
     {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
+        PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
         if(pm == PIN_MODE_NONE)
         {
             return 0;
@@ -215,7 +240,7 @@ int32_t HAL_GPIO_Read(uint16_t pin)
     }
     else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
     {
-        PinMode pm = HAL_GPIO_Recall_Pin_Mode();
+        PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
         if(pm == PIN_MODE_NONE)
         {
             return 0;
@@ -256,9 +281,8 @@ int32_t HAL_GPIO_Read(uint16_t pin)
  */
 uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 {
-    const uint32_t max_timeout_us = clockCyclesToMicroseconds(UINT_MAX);
-    if (timeout > max_timeout_us) {
-        timeout = max_timeout_us;
+    if (timeout > 3000000UL) {
+        timeout = 3000000UL;
     }
     const uint32_t timeout_cycles = microsecondsToClockCycles(timeout);
     const uint32_t start_cycle_count = SYSTEM_TICK_COUNTER;

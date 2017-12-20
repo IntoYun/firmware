@@ -57,14 +57,14 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
 /*
  * @brief Saves a pin mode to be recalled later.
  */
-void HAL_GPIO_Save_Pin_Mode(PinMode mode)
+void HAL_GPIO_Save_Pin_Mode(uint16_t pin)
 {
 }
 
 /*
  * @brief Recalls a saved pin mode.
  */
-PinMode HAL_GPIO_Recall_Pin_Mode()
+PinMode HAL_GPIO_Recall_Pin_Mode(uint16_t pin)
 {
     return PIN_MODE_NONE;
 }

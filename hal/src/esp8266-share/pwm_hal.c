@@ -123,3 +123,4 @@ void HAL_PWM_Set_Resolution(uint16_t pin, uint8_t resolution)
 {
     __analogWriteRange(2 << resolution);
 }
+
