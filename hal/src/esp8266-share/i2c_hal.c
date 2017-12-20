@@ -89,13 +89,13 @@ void twi_setClock(unsigned int freq){
 void twi_init(unsigned char sda, unsigned char scl){
     twi_sda = sda;
     twi_scl = scl;
-    /* __pinMode(twi_sda, INPUT_PULLUP); */
+    /* __pinMode(twi_sda, ESP8266_INPUT_PULLUP); */
     GPF(twi_sda) = GPFFS(GPFFS_GPIO(twi_sda));//Set mode to GPIO
     GPEC = (1 << twi_sda); //Disable
     GPC(twi_sda) = (GPC(twi_sda) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
     GPF(twi_sda) |= (1 << GPFPU);  // Enable  Pullup
 
-    /* __pinMode(twi_scl, INPUT_PULLUP); */
+    /* __pinMode(twi_scl, ESP8266_INPUT_PULLUP); */
     GPF(twi_scl) = GPFFS(GPFFS_GPIO(twi_scl));//Set mode to GPIO
     GPEC = (1 << twi_scl); //Disable
     GPC(twi_scl) = (GPC(twi_scl) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
@@ -106,12 +106,12 @@ void twi_init(unsigned char sda, unsigned char scl){
 }
 
 void twi_stop(void){
-    /* __pinMode(twi_sda, INPUT); */
+    /* __pinMode(twi_sda, ESP8266_INPUT); */
     GPF(twi_sda) = GPFFS(GPFFS_GPIO(twi_sda));//Set mode to GPIO
     GPEC = (1 << twi_sda); //Disable
     GPC(twi_sda) = (GPC(twi_sda) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)
 
-    /* __pinMode(twi_scl, INPUT); */
+    /* __pinMode(twi_scl, ESP8266_INPUT); */
     GPF(twi_scl) = GPFFS(GPFFS_GPIO(twi_scl));//Set mode to GPIO
     GPEC = (1 << twi_scl); //Disable
     GPC(twi_scl) = (GPC(twi_scl) & (0xF << GPCI)) | (1 << GPCD); //SOURCE(GPIO) | DRIVER(OPEN_DRAIN) | INT_TYPE(UNCHANGED) | WAKEUP_ENABLE(DISABLED)

@@ -167,7 +167,8 @@ void log_print_direct_(int level, void* reserved, const char *msg, ...)
 
 }
 
-void log_direct_(const char* s) {
+void log_direct_(const char* s)
+{
     LOCK();
 
     if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
@@ -180,9 +181,13 @@ void log_direct_(const char* s) {
 
 void log_print_dump_(const uint8_t *buf, uint16_t len)
 {
+    LOCK();
+
+    if (LOG_LEVEL<log_level_at_run_time || !debug_output_)
+        return;
+
     int i = 0;
     char buffer[8];
-
     if(len > 0) {
         for(i = 0; i < len-1; i++) {
             sprintf(buffer, "%02x:", buf[i]);
@@ -191,6 +196,8 @@ void log_print_dump_(const uint8_t *buf, uint16_t len)
         sprintf(buffer, "%02x\r\n", buf[i]);
         debug_output_(buffer);
     }
+
+    UNLOCK();
 }
 
 int log_level_active(LoggerOutputLevel level, void* reserved)

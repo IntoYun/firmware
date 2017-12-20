@@ -40,10 +40,12 @@ typedef enum PinMode {
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -66,117 +68,97 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             31
+#define TOTAL_PINS             51
 #define FIRST_DIGITAL_PIN      0
-#define TOTAL_DIGITAL_PINS     24
-#define FIRST_ANALOG_PIN       9
-#define TOTAL_ANALOG_PINS      6
+#define TOTAL_DIGITAL_PINS     9
+#define FIRST_ANALOG_PIN       30
+#define TOTAL_ANALOG_PINS      12
 
-#define D0 0
-#define D1 1
-#define D2 2
-#define D3 3
-#define D4 4
-#define D5 5
-#define D6 6
-#define D7 7
-#define D8 8
-#define D9 9
-#define D10 10
-#define D11 11
-#define D12 12
-#define D13 13
-#define D14 14
-#define D15 15
-#define D16 16
-#define D17 17
-#define D18 18
-#define D19 19
-#define D20 20
+#define PA9   0
+#define PA10  1
+#define PA11  2
+#define PA12  3
+#define PA13  4
+#define PA14  5
+#define PB2   6
+#define PB10  7
+#define PB11  8
 
-#define A0  9
-#define A1  10
-#define A2  11
-#define A3  12
-#define A4  13
-#define A5  14
-
-#define PB2  D0
-#define PB10 D1
-#define PB11 D2
-#define PB12 D3
-#define PB13 D4
-#define PB14 D5
-#define PB15 D6
-
-#define PA0 D7
-#define PA1 D8
-#define PA2 D9
-#define PA3 D10
-#define PA4 D11
-#define PA5 D12
-#define PA6 D13
-#define PA7 D14
-#define PA9 D15
-#define PA10 D16
-#define PA11 D17
-#define PA12 D18
-#define PA13 D19
-#define PA14 D20
+#define PA0   30
+#define PA1   31
+#define PA2   32
+#define PA3   33
+#define PA4   34
+#define PA5   35
+#define PA6   36
+#define PA7   37
+#define PB12  38
+#define PB13  39
+#define PB14  40
+#define PB15  41
 
 // lora pins
-#define SX1278_RESET    21
-#define SX1278_NSS      22
-#define SX1278_DIO0     23
-#define SX1278_DIO1     24
-#define SX1278_DIO2     25
-#define SX1278_DIO3     26
-#define SX1278_DIO4     27
-#define SX1278_DIO5     28
-#define SX1278_RXTX     29
+#define SX1278_RESET    42
+#define SX1278_NSS      43
+#define SX1278_DIO0     44
+#define SX1278_DIO1     45
+#define SX1278_DIO2     46
+#define SX1278_DIO3     47
+#define SX1278_DIO4     48
+#define SX1278_DIO5     49
+#define SX1278_RXTX     50
 #define SX1278_BATTERY_POWER    PA5
 
 // Serial pins
-#define TXD  PA9
-#define RXD  PA10
+#define TX    PA9
+#define RX    PA10
 
-#define TX   TXD
-#define RX   RXD
+#define TXD   TX
+#define RXD   RX
 
 // Serial1 pins
-#define TX1  PA2
-#define RX1  PA3
+#define TX1   PA2
+#define RX1   PA3
+
+#define TXD1  TX1
+#define RXD1  RX1
 
 // Serial2 pins
-#define TX2  PB10
-#define RX2  PB11
+#define TX2   PB10
+#define RX2   PB11
 
-//SPI pin
-#define SS   PB12
-#define SCK  PB13
-#define MISO PB14
-#define MOSI PB15
+#define TXD2  TX2
+#define RXD2  RX2
+
+//SPI pins
+#define SS    PB12
+#define SCK   PB13
+#define MISO  PB14
+#define MOSI  PB15
 
 // I2C pins
-#define SDA  PB10
-#define SCL  PB11
+#define SDA   PB10
+#define SCL   PB11
 
-#define LED_USER  D7
-#define LED_BUILTIN LED_USER
+// DAC pins
+#define DAC   PA4
+#define DAC1  PA5
+
+#define LED_USER        PA14
+#define LED_BUILTIN     LED_USER
 
 #define TOTAL_USARTS    3
 #define TOTAL_SPIS      1
 #define TOTAL_I2CS      1
 
-#define LSBFIRST 0
-#define MSBFIRST 1
+#define LSBFIRST        0
+#define MSBFIRST        1
 
 
 /*************************************************************/
 /*defined for firmware test only, not for users*/
-#define INTOROBOT_TEST_PIN_DIGITAL          D0
-#define INTOROBOT_TEST_PIN_ADC              A0
-
+#define INTOROBOT_TEST_PIN_DIGITAL          PB2
+#define INTOROBOT_TEST_PIN_ADC              PA2
 
 
 #ifdef __cplusplus

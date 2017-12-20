@@ -70,9 +70,9 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define TOTAL_PINS           41
 #define FIRST_DIGITAL_PIN    0
-#define TOTAL_DIGITAL_PINS   8
+#define TOTAL_DIGITAL_PINS   10
 #define FIRST_ANALOG_PIN     30
-#define TOTAL_ANALOG_PINS    11
+#define TOTAL_ANALOG_PINS    10
 
 #define D0  0
 #define D1  1
@@ -97,15 +97,18 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define LIGHT_SENSOR_UC 40
 
 // Serial pins
-#define TXD  8
-#define RXD  9
+#define TX  8
+#define RX  9
 
-#define TX   TXD
-#define RX   RXD
+#define TXD   TX
+#define RXD   RX
 
 // Serial1 pin
-#define TX1  D3
-#define RX1  D4
+#define TX1   D3
+#define RX1   D4
+
+#define TXD1  TX1
+#define RXD1  RX1
 
 // SPI pins
 #define SS   D5

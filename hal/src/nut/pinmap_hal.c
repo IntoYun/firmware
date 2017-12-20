@@ -74,41 +74,43 @@ EESP8266_Pin_Info __PIN_MAP[TOTAL_PINS] =
  * timer_peripheral (TIM1 - TIM5, or NONE)
  * timer_ch (1-3, or NONE)
  * pin_mode (NONE by default, can be set to OUTPUT, INPUT, or other types)
+ * user_property (0 by default, user variable storage)
  */
 
-/* D0            - 00 */ { GPIO2, GPIO_PinSource2, NONE, TIM1, PIN_MODE_NONE },
-/* D1            - 01 */ { GPIO4, GPIO_PinSource4, NONE, TIM1, PIN_MODE_NONE },
-/* D2            - 02 */ { GPIO14, GPIO_PinSource14, NONE, TIM1, PIN_MODE_NONE },
-/* D3            - 03 */ { GPIO12, GPIO_PinSource12, NONE, TIM1, PIN_MODE_NONE },
-/* D4            - 04 */ { GPIO13, GPIO_PinSource13, NONE, TIM1, PIN_MODE_NONE },
-/* D5            - 05 */ { GPIO15, GPIO_PinSource15, NONE, TIM1, PIN_MODE_NONE },
-/* D6            - 06 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
-/* D7            - 07 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE },
-/* TX            - 08 */ { GPIO1, GPIO_PinSource1, NONE, TIM1, PIN_MODE_NONE },
-/* RX            - 09 */ { GPIO3, GPIO_PinSource3, NONE, TIM1, PIN_MODE_NONE },
-/* NOT USED      - 10 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 11 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 12 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 13 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 14 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 15 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 16 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 17 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 18 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 19 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 20 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 21 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 22 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 23 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 24 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 25 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 26 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 27 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 28 */ { NONE, NONE, NONE, NONE, NONE },
-/* NOT USED      - 29 */ { NONE, NONE, NONE, NONE, NONE },
-/* A0            - 30 */ { GPIO17, NONE, ADC_Channel_0, NONE, NONE }
+/* D0            - 00 */ { GPIO2, GPIO_PinSource2, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D1            - 01 */ { GPIO4, GPIO_PinSource4, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D2            - 02 */ { GPIO14, GPIO_PinSource14, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D3            - 03 */ { GPIO12, GPIO_PinSource12, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D4            - 04 */ { GPIO13, GPIO_PinSource13, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D5            - 05 */ { GPIO15, GPIO_PinSource15, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D6            - 06 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* D7            - 07 */ { GPIO16, GPIO_PinSource16, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* TX            - 08 */ { GPIO1, GPIO_PinSource1, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* RX            - 09 */ { GPIO3, GPIO_PinSource3, NONE, TIM1, PIN_MODE_NONE, 0 },
+/* NOT USED      - 10 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 11 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 12 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 13 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 14 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 15 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 16 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 17 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 18 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 19 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 20 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 21 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 22 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 23 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 24 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 25 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 26 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 27 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 28 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* NOT USED      - 29 */ { NONE, NONE, NONE, NONE, NONE, 0 },
+/* A0            - 30 */ { GPIO17, NONE, ADC_Channel_0, NONE, NONE, 0 }
 };
 
 EESP8266_Pin_Info* HAL_Pin_Map() {
     return __PIN_MAP;
 }
+

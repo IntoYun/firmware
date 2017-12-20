@@ -40,7 +40,9 @@ void ICACHE_RAM_ATTR pwm_stop_pin(uint8_t pin);
 extern void __analogWrite(uint8_t pin, int value);
 extern void __analogWriteFreq(uint32_t freq);
 extern void __analogWriteRange(uint32_t range);
-
+extern uint32_t __analogWriteGetFreq(void);
+extern uint16_t __analogWriteGetValue(uint8_t pin);
+extern uint32_t __analogWriteGetRange(void);
 
 #ifdef __cplusplus
 }

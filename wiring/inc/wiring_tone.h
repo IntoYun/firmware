@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-void tone(uint8_t pin, unsigned int frequency, unsigned long duration = 0);
+void tone(uint8_t pin, uint32_t frequency, uint32_t duration = 0);
 void noTone(uint8_t pin);
 
 #ifdef __cplusplus

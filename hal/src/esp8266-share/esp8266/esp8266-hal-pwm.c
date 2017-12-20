@@ -219,3 +219,18 @@ extern void __analogWriteRange(uint32_t range)
     pwm_range = range;
     prep_pwm_steps();
 }
+
+extern uint32_t __analogWriteGetFreq(void)
+{
+    return pwm_freq;
+}
+
+extern uint16_t __analogWriteGetValue(uint8_t pin)
+{
+    return pwm_values[pin];
+}
+
+extern uint32_t __analogWriteGetRange(void)
+{
+    return pwm_range;
+}

@@ -252,14 +252,6 @@ uint32_t HAL_PWM_Get_Max_Frequency(uint16_t pin)
     return 0;
 }
 
-void HAL_PWM_UpdateDutyCycle(uint16_t pin, uint16_t value)
-{
-}
-
-void HAL_PWM_UpdateDutyCycle_Ext(uint16_t pin, uint32_t value)
-{
-}
-
 uint8_t HAL_PWM_Get_Resolution(uint16_t pin)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();

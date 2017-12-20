@@ -71,7 +71,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define FIRST_DIGITAL_PIN    0
 #define TOTAL_DIGITAL_PINS   10
 #define FIRST_ANALOG_PIN     30
-#define TOTAL_ANALOG_PINS    14
+#define TOTAL_ANALOG_PINS    16
 
 
 // digital pin
@@ -105,15 +105,18 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define GPIO39         45
 
 // Serial pins
-#define TXD  GPIO1
-#define RXD  GPIO3
+#define TX    GPIO1
+#define RX    GPIO3
 
-#define TX   TXD
-#define RX   RXD
+#define TXD   TX
+#define RXD   RX
 
 // Serial1 pin
 #define TX1   GPIO17
 #define RX1   GPIO16
+
+#define TXD1  TX1
+#define RXD1  RX1
 
 // SPI pins
 #define SS    GPIO5  //D5

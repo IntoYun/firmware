@@ -40,10 +40,12 @@ typedef enum PinMode {
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -66,9 +68,9 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             49
+#define TOTAL_PINS             45
 #define FIRST_DIGITAL_PIN      0
-#define TOTAL_DIGITAL_PINS     8
+#define TOTAL_DIGITAL_PINS     10
 #define FIRST_ANALOG_PIN       30
 #define TOTAL_ANALOG_PINS      6
 
@@ -102,20 +104,27 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SX1278_BATTERY_POWER    A4
 
 // Serial pins
-#define TXD  8
-#define RXD  9
+#define TX     8
+#define RX     9
 
-#define TX   TXD
-#define RX   RXD
+#define TXD    TX
+#define RXD    RX
 
 // Serial1 pins
-#define TX1  A0
-#define RX1  A1
+#define TX1    A0
+#define RX1    A1
+
+#define TXD1   TX1
+#define RXD1   RX1
 
 // Serial2 pins
-#define TX2  D0
-#define RX2  D1
+#define TX2    D0
+#define RX2    D1
 
+#define TXD2   TX2
+#define RXD2   RX2
+
+//SPI pins
 #define SS   D5
 #define SCK  D2
 #define MISO D3
@@ -125,7 +134,11 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA  D1
 #define SCL  D0
 
-#define LED_USER  D7
+// DAC pins
+#define DAC1 A5
+#define DAC2 A4
+
+#define LED_USER    D7
 #define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS    3

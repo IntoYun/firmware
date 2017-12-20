@@ -47,15 +47,21 @@ void HAL_ADC_Set_Sample_Time(uint8_t ADC_SampleTime)
  * Should return a 16-bit value, 0-65536 (0 = LOW, 65536 = HIGH)
  * Note: ADC is 12-bit. Currently it returns 0-4096
  */
-int32_t HAL_ADC_Read(uint16_t pins)
+int32_t HAL_ADC_Read(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t pin = PIN_MAP[pins].gpio_pin;
 
-    if(!__adcAttachPin(pin) || !__adcStart(pin)){
+    if (PIN_MAP[pin].pin_mode != AN_INPUT)
+    {
+        HAL_GPIO_Save_Pin_Mode(pin);
+        HAL_Pin_Mode(pin, AN_INPUT);
+    }
+
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    if(!__adcAttachPin(gpio_pin) || !__adcStart(gpio_pin)){
         return 0;
     }
-    return __adcEnd(pin);
+    return __adcEnd(gpio_pin);
 }
 
 /*
@@ -65,3 +71,4 @@ void HAL_ADC_DMA_Init()
 {
 
 }
+

@@ -39,10 +39,12 @@ typedef enum PinMode {
     OUTPUT,
     INPUT_PULLUP,
     INPUT_PULLDOWN,
+    //Used internally begin
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -65,7 +67,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             47
+#define TOTAL_PINS             46
 #define FIRST_DIGITAL_PIN      0
 #define TOTAL_DIGITAL_PINS     26
 #define FIRST_ANALOG_PIN       30
@@ -117,31 +119,36 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A15 45
 
 // Serial pins
-#define TXD  A7
-#define RXD  A8
+#define TX    A7
+#define RX    A8
 
-#define TX   TXD
-#define RX   RXD
+#define TXD   TX
+#define RXD   RX
 
 // Serial1 pins
-#define TX1 D23
-#define RX1 D22
+#define TX1   D23
+#define RX1   D22
 
-//uart2 pin
-#define TX2 D13
-#define RX2 D12
+#define TXD1  TX1
+#define RXD1  RX1
+
+// Serial2 pin
+#define TX2   D13
+#define RX2   D12
+
+#define TXD2  TX2
+#define RXD2  RX2
 
 // SPI pins
-#define SS   D21
-#define SCK  D20
-#define MISO D19
-#define MOSI D18
+#define SS    D21
+#define SCK   D20
+#define MISO  D19
+#define MOSI  D18
 
 #define SS1    A9
 #define SCK1   A10
 #define MISO1  A11
 #define MOSI1  A12
-
 
 // I2C pins
 #define SDA  D2
@@ -154,7 +161,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define LED_USER  D7
+#define LED_USER    D7
 #define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS    3

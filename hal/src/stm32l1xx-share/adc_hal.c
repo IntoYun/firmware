@@ -84,8 +84,6 @@ int32_t HAL_ADC_Read(uint16_t pin)
         HAL_Pin_Mode(pin, AN_INPUT);
     }
 
-    // FIXME: Not matter ADC DMA init only one time, or everytime init, it works.
-
     if(adcInitFirstTime)
     {
         __HAL_RCC_ADC1_CLK_ENABLE();

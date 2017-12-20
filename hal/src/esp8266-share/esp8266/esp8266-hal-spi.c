@@ -1,30 +1,28 @@
-/* 
- SPI.cpp - SPI library for esp8266
+/*
+   SPI.cpp - SPI library for esp8266
 
- Copyright (c) 2015 Hristo Gochkov. All rights reserved.
- This file is part of the esp8266 core for Arduino environment.
- 
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
+   Copyright (c) 2015 Hristo Gochkov. All rights reserved.
+   This file is part of the esp8266 core for Arduino environment.
 
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
- You should have received a copy of the GNU Lesser General Public
- License along with this library; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+   */
 
 #include "pinmap_hal.h"
-#include "pinmap_impl.h"
 #include "esp8266_peri.h"
 #include "esp8266-hal-spi.h"
 #include "esp8266-hal-gpio.h"
-#include "service_debug.h"
 
 #define SPI_PINS_HSPI			0 // Normal HSPI mode (MISO = GPIO12, MOSI = GPIO13, SCLK = GPIO14);
 #define SPI_PINS_HSPI_OVERLAP	1 // HSPI Overllaped in spi0 pins (MISO = SD0, MOSI = SDD1, SCLK = CLK);
@@ -33,14 +31,14 @@
 
 
 typedef union {
-        uint32_t regValue;
-        struct {
-                unsigned regL :6;
-                unsigned regH :6;
-                unsigned regN :6;
-                unsigned regPre :13;
-                unsigned regEQU :1;
-        };
+    uint32_t regValue;
+    struct {
+        unsigned regL :6;
+        unsigned regH :6;
+        unsigned regN :6;
+        unsigned regPre :13;
+        unsigned regEQU :1;
+    };
 } spiClk_t;
 
 static bool useHwCs;
@@ -60,13 +58,13 @@ void spi_selectSet(void)
 bool spi_pins(int8_t sck, int8_t miso, int8_t mosi, int8_t ss)
 {
     if (sck == 6 &&
-        miso == 7 &&
-        mosi == 8 &&
-        ss == 0) {
+            miso == 7 &&
+            mosi == 8 &&
+            ss == 0) {
         pinSet = SPI_PINS_HSPI_OVERLAP;
     } else if (sck == 14 &&
-	           miso == 12 &&
-               mosi == 13) {
+            miso == 12 &&
+            mosi == 13) {
         pinSet = SPI_PINS_HSPI;
     } else {
         return false;
@@ -98,7 +96,7 @@ void spi_begin(int8_t sck, int8_t miso, int8_t mosi, int8_t ss)
                 __pinMode(miso_pin, ESP8266_SPECIAL); ///< GPIO12
                 __pinMode(mosi_pin, ESP8266_SPECIAL); ///< GPIO13
             }
-        break;
+            break;
     }
 
     SPI1C = 0;
@@ -110,52 +108,52 @@ void spi_begin(int8_t sck, int8_t miso, int8_t mosi, int8_t ss)
 
 void spi_end() {
     switch (pinSet) {
-    case SPI_PINS_HSPI:
-        __pinMode(sck_pin, INPUT);
-        __pinMode(miso_pin, INPUT);
-        __pinMode(mosi_pin, INPUT);
-        if (useHwCs) {
-            __pinMode(ss_pin, INPUT);
-        }
-        break;
-    case SPI_PINS_HSPI_OVERLAP:
-        IOSWAP &= ~(1 << IOSWAP2CS);
-        if (useHwCs) {
-            SPI1P |= SPIPCS1DIS | SPIPCS0DIS | SPIPCS2DIS;
-            __pinMode(SPI_OVERLAP_SS, INPUT);
-        }
-        break;
+        case SPI_PINS_HSPI:
+            __pinMode(sck_pin, ESP8266_INPUT);
+            __pinMode(miso_pin, ESP8266_INPUT);
+            __pinMode(mosi_pin, ESP8266_INPUT);
+            if (useHwCs) {
+                __pinMode(ss_pin, ESP8266_INPUT);
+            }
+            break;
+        case SPI_PINS_HSPI_OVERLAP:
+            IOSWAP &= ~(1 << IOSWAP2CS);
+            if (useHwCs) {
+                SPI1P |= SPIPCS1DIS | SPIPCS0DIS | SPIPCS2DIS;
+                __pinMode(SPI_OVERLAP_SS, ESP8266_INPUT);
+            }
+            break;
     }
 }
 
 void spi_setHwCs(bool use) {
     switch (pinSet) {
-    case SPI_PINS_HSPI:
-        if (use) {
-            __pinMode(ss_pin, SPECIAL); ///< GPIO15
-            SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
-    } else {
-            if (useHwCs) {
-                __pinMode(ss_pin, INPUT);
-            SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
+        case SPI_PINS_HSPI:
+            if (use) {
+                __pinMode(ss_pin, ESP8266_SPECIAL); ///< GPIO15
+                SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
+            } else {
+                if (useHwCs) {
+                    __pinMode(ss_pin, ESP8266_INPUT);
+                    SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
+                }
             }
-        }
-        break;
-    case SPI_PINS_HSPI_OVERLAP:
-        if (use) {
-            __pinMode(SPI_OVERLAP_SS, FUNCTION_1); // GPI0 to SPICS2 mode
-            SPI1P &= ~SPIPCS2DIS;
-            SPI1P |= SPIPCS1DIS | SPIPCS0DIS;
-            SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
-        }
-        else {
-            if (useHwCs) {
-                __pinMode(SPI_OVERLAP_SS, INPUT);
-                SPI1P |= SPIPCS1DIS | SPIPCS0DIS | SPIPCS2DIS;
-                SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
+            break;
+        case SPI_PINS_HSPI_OVERLAP:
+            if (use) {
+                __pinMode(SPI_OVERLAP_SS, ESP8266_FUNCTION_1); // GPI0 to SPICS2 mode
+                SPI1P &= ~SPIPCS2DIS;
+                SPI1P |= SPIPCS1DIS | SPIPCS0DIS;
+                SPI1U |= (SPIUCSSETUP | SPIUCSHOLD);
             }
-        }
-        break;
+            else {
+                if (useHwCs) {
+                    __pinMode(SPI_OVERLAP_SS, ESP8266_INPUT);
+                    SPI1P |= SPIPCS1DIS | SPIPCS0DIS | SPIPCS2DIS;
+                    SPI1U &= ~(SPIUCSSETUP | SPIUCSHOLD);
+                }
+            }
+            break;
     }
 
     useHwCs = use;
@@ -168,11 +166,11 @@ void spi_endTransaction() {
 void spi_setDataMode(uint8_t dataMode) {
 
     /**
-     SPI_MODE0 0x00 - CPOL: 0  CPHA: 0
-     SPI_MODE1 0x01 - CPOL: 0  CPHA: 1
-     SPI_MODE2 0x10 - CPOL: 1  CPHA: 0
-     SPI_MODE3 0x11 - CPOL: 1  CPHA: 1
-     */
+      SPI_MODE0 0x00 - CPOL: 0  CPHA: 0
+      SPI_MODE1 0x01 - CPOL: 0  CPHA: 1
+      SPI_MODE2 0x10 - CPOL: 1  CPHA: 0
+      SPI_MODE3 0x11 - CPOL: 1  CPHA: 1
+      */
 
     bool CPOL = (dataMode & 0x10); ///< CPOL (Clock Polarity)
     bool CPHA = (dataMode & 0x01); ///< CPHA (Clock Phase)
@@ -189,7 +187,6 @@ void spi_setDataMode(uint8_t dataMode) {
         SPI1P &= ~(1<<29);
         //todo test whether it is correct to set CPOL like this.
     }
-
 }
 
 void spi_setBitOrder(uint8_t bitOrder) {
@@ -284,12 +281,9 @@ void spi_setFrequency(uint32_t freq) {
         calN++;
     }
 
-    // os_printf("[0x%08X][%d]\t EQU: %d\t Pre: %d\t N: %d\t H: %d\t L: %d\t - Real Frequency: %d\n", bestReg.regValue, freq, bestReg.regEQU, bestReg.regPre, bestReg.regN, bestReg.regH, bestReg.regL, ClkRegToFreq(&bestReg));
-
     spi_setClockDivider(bestReg.regValue);
     lastSetRegister = SPI1CLK;
     lastSetFrequency = freq;
-
 }
 
 void spi_setClockDivider(uint32_t clockDiv) {
@@ -319,11 +313,11 @@ uint8_t spi_transfer(uint8_t data) {
 
 uint16_t spi_transfer16(uint16_t data) {
     union {
-            uint16_t val;
-            struct {
-                    uint8_t lsb;
-                    uint8_t msb;
-            };
+        uint16_t val;
+        struct {
+            uint8_t lsb;
+            uint8_t msb;
+        };
     } in, out;
     in.val = data;
 
@@ -380,8 +374,8 @@ void spi_write32Msb(uint32_t data, bool msb) {
     spi_setDataBits(32);
     if(msb) {
         union {
-                uint32_t l;
-                uint8_t b[4];
+            uint32_t l;
+            uint8_t b[4];
         } data_;
         data_.l = data;
         // MSBFIRST Byte first
@@ -392,7 +386,7 @@ void spi_write32Msb(uint32_t data, bool msb) {
         SPI1W0 = data;
         SPI1CMD |= SPIBUSY;
     }
-    while(SPI1CMD & SPIBUSY) {}	
+    while(SPI1CMD & SPIBUSY) {}
 }
 
 /**
@@ -569,3 +563,4 @@ void spi_transferBytes_(uint8_t * out, uint8_t * in, uint8_t size) {
         }
     }
 }
+
