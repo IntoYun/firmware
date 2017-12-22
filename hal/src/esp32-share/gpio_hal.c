@@ -230,16 +230,19 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 
 void HAL_pinSetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, 1);
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    __digitalWrite(PIN_MAP[pin].gpio_pin, 1);
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, 0);
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    __digitalWrite(PIN_MAP[pin].gpio_pin, 0);
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
-    return HAL_GPIO_Read(pin);
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    return __digitalRead(PIN_MAP[pin].gpio_pin);
 }
 
