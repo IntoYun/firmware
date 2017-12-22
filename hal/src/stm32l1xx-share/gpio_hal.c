@@ -296,17 +296,17 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
 void HAL_pinSetFast(pin_t pin)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_SET);
+    PIN_MAP[pin].gpio_peripheral->BSRR = (uint32_t)PIN_MAP[pin].gpio_pin;
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_RESET);
+    PIN_MAP[pin].gpio_peripheral->BSRR = (uint32_t)PIN_MAP[pin].gpio_pin << 16;
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
+    return (((PIN_MAP[pin].gpio_peripheral->IDR & (uint32_t)PIN_MAP[pin].gpio_pin) == 0) ? 0 : 1);
 }
