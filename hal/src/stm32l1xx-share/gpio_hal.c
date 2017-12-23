@@ -293,6 +293,24 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
     return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
+void HAL_pinModeFast(pin_t pin, PinMode mode)
+{
+    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    uint8_t gpio_source = PIN_MAP[pin].gpio_pin_source;
+    uint32_t temp = gpio_port->MODER;
+
+    CLEAR_BIT(temp, (uint32_t)gpio_pin << gpio_source);
+    CLEAR_BIT(temp, (uint32_t)gpio_pin << (gpio_source+1));
+    if(mode == OUTPUT)
+    {
+        SET_BIT(temp, (uint32_t)gpio_pin << gpio_source);
+    }
+    gpio_port->MODER = temp;
+}
+
+
 void HAL_pinSetFast(pin_t pin)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();

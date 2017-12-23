@@ -250,6 +250,12 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
     return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
+
+void HAL_pinModeFast(pin_t pin, PinMode mode)
+{
+    HAL_Pin_Mode(pin, mode);
+}
+
 void HAL_pinSetFast(pin_t pin)
 {
     EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();

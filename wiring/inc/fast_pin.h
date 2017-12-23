@@ -31,6 +31,11 @@ inline void pinSetFast(pin_t _pin) __attribute__((always_inline));
 inline void pinResetFast(pin_t _pin) __attribute__((always_inline));
 inline int32_t pinReadFast(pin_t _pin) __attribute__((always_inline));
 
+inline void pinModeFast(pin_t pin, PinMode mode)
+{
+    HAL_pinModeFast(pin, mode);
+}
+
 inline void pinSetFast(pin_t _pin)
 {
     HAL_pinSetFast(_pin);
