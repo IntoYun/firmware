@@ -126,7 +126,7 @@ void intorobot_process(void);
 bool intorobot_sync_time(void);
 bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature);
 bool intorobot_get_version(String &body);
-void cloud_disconnect(bool closeSocket=true);
+void cloud_disconnect(bool controlRGB=true);
 
 
 #endif	/* SYSTEM_CLOUD_H_ */

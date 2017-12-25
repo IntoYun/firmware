@@ -275,12 +275,14 @@ void manage_cloud_connection(void)
     }
 }
 
-void cloud_disconnect(bool closeSocket)
+void cloud_disconnect(bool controlRGB)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
         STASK_DEBUG("cloud_disconnect\r\n");
         INTOROBOT_CLOUD_CONNECTED = 0;
-        system_rgb_blink(RGB_COLOR_BLUE, 1000);
+        if(controlRGB) {
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);
+        }
         system_notify_event(event_cloud_status, ep_cloud_status_disconnecting);
         intorobot_cloud_disconnect();
         system_notify_event(event_cloud_status, ep_cloud_status_disconnected);
