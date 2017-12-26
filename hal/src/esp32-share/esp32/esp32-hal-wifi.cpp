@@ -24,8 +24,8 @@
 
 #include <string.h>
 #include "timer_hal.h"
-#include "service_debug.h"
 #include "delay_hal.h"
+#include "service_debug.h"
 
 extern "C" {
 #include "lwip/dns.h"
@@ -56,6 +56,15 @@ inline void CLR_WIFI_TIMEOUT() {
     //DEBUG("esp32 WIFI WD Cleared, was %d\r\n", esp32_wifi_timeout_duration);
 }
 
+#if CONFIG_FREERTOS_UNICORE
+#define ARDUINO_RUNNING_CORE 0
+#else
+#define ARDUINO_RUNNING_CORE 1
+#endif
+
+static xQueueHandle _network_event_queue;
+static TaskHandle_t _network_event_task_handle = NULL;
+
 static esp_err_t _eventCallback(void *arg, system_event_t *event)
 {
     if(event->event_id == SYSTEM_EVENT_SCAN_DONE) {
@@ -70,6 +79,8 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         else if(reason == WIFI_REASON_AUTH_FAIL || reason == WIFI_REASON_ASSOC_FAIL) {
         }
         else if(reason == WIFI_REASON_BEACON_TIMEOUT || reason == WIFI_REASON_HANDSHAKE_TIMEOUT) {
+        }
+        else if(reason == WIFI_REASON_AUTH_EXPIRE) {
         }
         else {
         }
@@ -94,11 +105,55 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
     return ESP_OK;
 }
 
+static void _network_event_task(void * arg){
+    system_event_t *event = NULL;
+    for (;;) {
+        if(xQueueReceive(_network_event_queue, &event, 0) == pdTRUE){
+            _eventCallback(NULL, event);
+        } else {
+            vTaskDelay(1);
+        }
+    }
+    vTaskDelete(NULL);
+    _network_event_task_handle = NULL;
+}
+
+static esp_err_t _network_event_cb(void *arg, system_event_t *event){
+    if (xQueueSend(_network_event_queue, &event, portMAX_DELAY) != pdPASS) {
+        return ESP_FAIL;
+    }
+    return ESP_OK;
+}
+
+static void _start_network_event_task(){
+    if(!_network_event_queue){
+        _network_event_queue = xQueueCreate(32, sizeof(system_event_t *));
+        if(!_network_event_queue){
+            return;
+        }
+    }
+    if(!_network_event_task_handle){
+        xTaskCreatePinnedToCore(_network_event_task, "network_event", 4096, NULL, 2, &_network_event_task_handle, ARDUINO_RUNNING_CORE);
+        if(!_network_event_task_handle){
+            return;
+        }
+    }
+    esp_event_loop_init(&_network_event_cb, NULL);
+}
+
+void tcpipInit(){
+    static bool initialized = false;
+    if(!initialized){
+        initialized = true;
+        _start_network_event_task();
+        tcpip_adapter_init();
+    }
+}
+
 static bool wifiLowLevelInit(){
     static bool lowLevelInitDone = false;
     if(!lowLevelInitDone){
-        tcpip_adapter_init();
-        esp_event_loop_init(&_eventCallback, NULL);
+        tcpipInit();
         wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
         esp_err_t err = esp_wifi_init(&cfg);
         if(err){
@@ -113,7 +168,7 @@ static bool wifiLowLevelInit(){
 
 static bool wifiLowLevelDeinit(){
     //deinit not working yet!
-    esp_wifi_deinit();
+    //esp_wifi_deinit();
     return true;
 }
 
@@ -150,8 +205,7 @@ static bool espWiFiStop() {
 
 void esp32_setScanDoneCb(ScanDoneCb cb)
 {
-    if (cb != NULL)
-    {
+    if (cb != NULL) {
         _scanDoneCb = cb;
     }
 }

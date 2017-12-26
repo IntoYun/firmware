@@ -175,15 +175,15 @@ bool copy_raw(const uint32_t src_addr, const uint32_t dst_addr, const uint32_t s
 
     while (left){
         RGB_Color_Toggle();
-        if (SPIEraseSector(daddr/buffer_size)){
+        if (ESP_OK != spi_flash_erase_sector(daddr/buffer_size)){
             return false;
         }
         RGB_Color_Toggle();
-        if (SPIRead(saddr, (uint32_t*)buffer, buffer_size)){
+        if (ESP_OK != spi_flash_read(saddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
         RGB_Color_Toggle();
-        if (SPIWrite(daddr, (uint32_t*)buffer, buffer_size)){
+        if (ESP_OK != spi_flash_write(daddr, (uint32_t*)buffer, buffer_size)){
             return false;
         }
         saddr += buffer_size;

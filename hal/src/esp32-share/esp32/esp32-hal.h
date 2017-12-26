@@ -38,11 +38,6 @@ extern "C" {
 #define F_CPU (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000U)
 #endif
 
-//forward declaration from freertos/portmacro.h
-void vPortYield(void);
-void yield(void);
-#define optimistic_yield(u)
-
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 #define NOP() asm volatile ("nop")
 
@@ -51,19 +46,6 @@ void yield(void);
 #include "esp32-hal-dac.h"
 #include "esp32-hal-adc.h"
 #include "esp_system.h"
-
-uint32_t micros();
-uint32_t millis();
-void delay(uint32_t);
-void delayMicroseconds(uint32_t us);
-
-#if !CONFIG_ESP32_PHY_AUTO_INIT
-void arduino_phy_init();
-#endif
-
-#if !CONFIG_AUTOSTART_ARDUINO
-void initArduino();
-#endif
 
 #ifdef __cplusplus
 }

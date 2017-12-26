@@ -36,6 +36,7 @@
 #include "platform_config.h"
 #include "hw_ticks.h"
 #include "stdlib_noniso.h"
+#include "sdkconfig.h"
 #include "service_debug.h"
 
 #ifdef __cplusplus

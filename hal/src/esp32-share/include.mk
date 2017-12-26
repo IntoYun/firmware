@@ -11,7 +11,7 @@ INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/esp32
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))
 
-LDFLAGS += -Tesp32_out.ld -Tesp32.common.ld -Tesp32.rom.ld -Tesp32.peripherals.ld
+LDFLAGS += -Tesp32_out.ld -Tesp32.common.ld -Tesp32.rom.ld -Tesp32.peripherals.ld -Tesp32.rom.spiram_incompatible_fns.ld
 LDFLAGS += -L$(COMMON_BUILD)/linker/esp32/$(PLATFORM_NAME)
 
 USE_PRINTF_FLOAT = n
@@ -21,7 +21,7 @@ endif
 
 LDFLAGS += -Wl,-Map,$(TARGET_BASE).map
 
-LDFLAGS += -nostdlib -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority
-LIBS += gcc stdc++ app_update bootloader_support bt btdm_app c c_nano coap coexist core cxx driver esp32 ethernet expat fatfs freertos halhal json log lwip m mbedtls mdns micro-ecc net80211 newlib nghttp nvs_flash openssl phy pp rtc rtc_clk sdmmc smartconfig spi_flash tcpip_adapter ulp vfs wpa wpa2 wpa_supplicant wps xtensa-debug-module
+LDFLAGS += -nostdlib -u ld_include_panic_highint_hdl -u call_user_start_cpu0 -Wl,--gc-sections -Wl,-static -Wl,--undefined=uxTopUsedPriority -u __cxa_guard_dummy -u __cxx_fatal_exception
+LIBS += gcc openssl btdm_app fatfs wps coexist wear_levelling halhal newlib driver bootloader_support pp smartconfig jsmn wpa ethernet phy app_trace console ulp wpa_supplicant freertos bt micro-ecc cxx xtensa-debug-module mdns vfs soc core sdmmc coap tcpip_adapter c_nano rtc spi_flash wpa2 esp32 app_update nghttp spiffs espnow nvs_flash esp_adc_cal log expat m c heap mbedtls lwip net80211 pthread json stdc++
 
 endif

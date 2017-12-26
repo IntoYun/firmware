@@ -2,6 +2,7 @@
 #include "rtc.h"
 #include "sdkconfig.h"
 #include "esp_image_format.h"
+#include "rom/cache.h"
 #include "rom/spi_flash.h"
 #include "soc/rtc_cntl_reg.h"
 #include "soc/timer_group_reg.h"
@@ -22,8 +23,7 @@
  */
 void SystemClock_Config(void)
 {
-    rtc_set_cpu_freq(CPU_XTAL);
-    rtc_set_cpu_freq(CPU_80M);
+    bootloader_clock_configure();
 }
 /**
  * @brief  This function handles SysTick Handler.
@@ -56,16 +56,16 @@ static void uart_console_configure(void)
  * @param  96M
  * @retval None
  */
-static void Update_flash_config(void)
+static void update_flash_config(void)
 {
     esp_image_header_t fhdr;
     uint32_t size;
 
-    if(esp_image_load_header(APP_ADDR, true, &fhdr) != ESP_OK) {
+    if (bootloader_flash_read(APP_ADDR, &fhdr, sizeof(esp_image_header_t), true) != ESP_OK) {
         return;
     }
-    SPIUnlock();
 
+    esp_rom_spiflash_unlock();
     switch(fhdr.spi_size) {
         case ESP_IMAGE_FLASH_SIZE_1MB:
             size = 1;
@@ -87,7 +87,7 @@ static void Update_flash_config(void)
     }
     Cache_Read_Disable( 0 );
     // Set flash chip size
-    SPIParamCfg(g_rom_flashchip.deviceId, size * 0x100000, 0x10000, 0x1000, 0x100, 0xffff);
+    esp_rom_spiflash_config_param(g_rom_flashchip.device_id, size * 0x100000, 0x10000, 0x1000, 0x100, 0xffff);
     // TODO: set mode
     // TODO: set frequency
     Cache_Flush(0);
@@ -188,7 +188,7 @@ void Set_System(void)
     REG_CLR_BIT( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_FLASHBOOT_MOD_EN );
     REG_CLR_BIT( TIMG_WDTCONFIG0_REG(0), TIMG_WDT_FLASHBOOT_MOD_EN );
     bootloader_random_enable();
-    Update_flash_config();
+    update_flash_config();
     load_partition_table();
     bootloader_random_disable();
 
@@ -212,4 +212,9 @@ void System_Reset(void)
 int rtc_printf(void)
 {
     return 0;
+}
+
+void __assert_func(const char *file, int line, const char *func, const char *expr)
+{
+    while(1) {}
 }

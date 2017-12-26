@@ -14,6 +14,7 @@
 #include "boot_debug.h"
 
 #include "esp_attr.h"
+#include "rom/cache.h"
 #include "soc/dport_reg.h"
 #include "soc/cpu.h"
 
@@ -47,9 +48,9 @@ void IRAM_ATTR call_start_cpu0()
     Cache_Flush(0);
     Cache_Flush(1);
     mmu_init(0);
-    REG_SET_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
+    DPORT_REG_SET_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
     mmu_init(1);
-    REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
+    DPORT_REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
     /* (above steps probably unnecessary for most serial bootloader
        usage, all that's absolutely needed is that we unmask DROM0
        cache on the following two lines - normal ROM boot exits with
@@ -60,8 +61,8 @@ void IRAM_ATTR call_start_cpu0()
        The lines which manipulate DPORT_APP_CACHE_MMU_IA_CLR bit are
        necessary to work around a hardware bug.
     */
-    REG_CLR_BIT(DPORT_PRO_CACHE_CTRL1_REG, DPORT_PRO_CACHE_MASK_DROM0);
-    REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MASK_DROM0);
+    DPORT_REG_CLR_BIT(DPORT_PRO_CACHE_CTRL1_REG, DPORT_PRO_CACHE_MASK_DROM0);
+    DPORT_REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MASK_DROM0);
 
     main();
 }

@@ -53,7 +53,7 @@
 #include "intorobot_def.h"
 
 /*debug switch*/
-#define SYSTEM_CLOUD_DEBUG
+//#define SYSTEM_CLOUD_DEBUG
 
 #ifdef SYSTEM_CLOUD_DEBUG
 #define SCLOUD_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
@@ -477,56 +477,6 @@ void fill_mqtt_topic(String &fulltopic, topic_version_t version, const char *top
     fulltopic+=topic;
 }
 
-static void _cloud_params_init(void) {
-    char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
-
-    if(0 == HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain))) {
-        HAL_PARAMS_Set_System_sv_domain(INTOROBOT_SERVER_DOMAIN);
-    }
-    if(0 == HAL_PARAMS_Get_System_sv_port()) {
-        HAL_PARAMS_Set_System_sv_port(INTOROBOT_SERVER_PORT);
-    }
-    if(0 == HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain))) {
-        HAL_PARAMS_Set_System_http_domain(INTOROBOT_HTTP_DOMAIN);
-    }
-    if(0 == HAL_PARAMS_Get_System_http_port()) {
-        HAL_PARAMS_Set_System_http_port(INTOROBOT_HTTP_PORT);
-    }
-    if(0 == HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain))) {
-        HAL_PARAMS_Set_System_dw_domain(INTOROBOT_UPDATE_DOMAIN);
-    }
-}
-
-void intorobot_cloud_init(void)
-{
-    //对domain，port默认值处理发生变化，所以添加该函数初始化网络参数。
-    _cloud_params_init();
-    //mqtt server domain
-    char sv_domain[32] = {0};
-    HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
-    //mqtt server port
-    int sv_port=HAL_PARAMS_Get_System_sv_port();
-
-    memset(&g_debug_tx_buffer,0,sizeof(g_debug_tx_buffer));
-    memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
-
-    g_mqtt_client = MqttClientClass(sv_domain, sv_port, mqtt_client_callback, g_mqtt_tcp_client);
-    //ota 升级
-    if(System.featureEnabled(SYSTEM_FEATURE_OTA_UPDATE_ENABLED)) {
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);                   //从平台获取系统控制信息
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);                   //从平台获取调试信息
-    }
-    //数据点处理
-    if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
-        // v2版本subscibe
-        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0);                 //从平台获取数据通讯信息
-
-        // 添加默认数据点
-        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);               //reboot
-        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);     //get all datapoint
-    }
-}
-
 static bool _intorobot_publish(topic_version_t version, const char* topic, uint8_t* payload, unsigned int plength, uint8_t qos, uint8_t retained)
 {
     String fulltopic = "";
@@ -895,12 +845,63 @@ void intorobot_cloud_disconnect(void)
     }
 }
 
+static void _cloud_params_init(void) {
+    char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
+
+    if(0 == HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain))) {
+        HAL_PARAMS_Set_System_sv_domain(INTOROBOT_SERVER_DOMAIN);
+    }
+    if(0 == HAL_PARAMS_Get_System_sv_port()) {
+        HAL_PARAMS_Set_System_sv_port(INTOROBOT_SERVER_PORT);
+    }
+    if(0 == HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain))) {
+        HAL_PARAMS_Set_System_http_domain(INTOROBOT_HTTP_DOMAIN);
+    }
+    if(0 == HAL_PARAMS_Get_System_http_port()) {
+        HAL_PARAMS_Set_System_http_port(INTOROBOT_HTTP_PORT);
+    }
+    if(0 == HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain))) {
+        HAL_PARAMS_Set_System_dw_domain(INTOROBOT_UPDATE_DOMAIN);
+    }
+}
+
+void intorobot_cloud_init(void)
+{
+    //对domain，port默认值处理发生变化，所以添加该函数初始化网络参数。
+    _cloud_params_init();
+    //mqtt server domain
+    char sv_domain[32] = {0};
+    HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
+    //mqtt server port
+    int sv_port=HAL_PARAMS_Get_System_sv_port();
+
+    memset(&g_debug_tx_buffer,0,sizeof(g_debug_tx_buffer));
+    memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
+
+    g_mqtt_client = MqttClientClass(sv_domain, sv_port, mqtt_client_callback, g_mqtt_tcp_client);
+    //ota 升级
+    if(System.featureEnabled(SYSTEM_FEATURE_OTA_UPDATE_ENABLED)) {
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);                   //从平台获取系统控制信息
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);                   //从平台获取调试信息
+    }
+    //数据点处理
+    if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        // v2版本subscibe
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0);                 //从平台获取数据通讯信息
+
+        // 添加默认数据点
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);               //reboot
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);     //get all datapoint
+    }
+}
+
 int intorobot_cloud_connect(void)
 {
     SCLOUD_DEBUG("---------mqtt connect start--------\r\n");
     //mqtt server domain
-    char sv_domain[32] = {0}, dw_domain[38] = {0};
+    char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
     HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
+    HAL_PARAMS_Get_System_http_domain(http_domain, sizeof(http_domain));
     HAL_PARAMS_Get_System_dw_domain(dw_domain, sizeof(dw_domain));
     //mqtt server port
     int sv_port = HAL_PARAMS_Get_System_sv_port();
@@ -918,6 +919,8 @@ int intorobot_cloud_connect(void)
     SCLOUD_DEBUG("---------terminal params--------\r\n");
     SCLOUD_DEBUG("mqtt domain     : %s\r\n", sv_domain);
     SCLOUD_DEBUG("mqtt port       : %d\r\n", sv_port);
+    SCLOUD_DEBUG("http domain     : %s\r\n", http_domain);
+    SCLOUD_DEBUG("http port       : %d\r\n", HAL_PARAMS_Get_System_http_port());
     SCLOUD_DEBUG("down domain     : %s\r\n", dw_domain);
     SCLOUD_DEBUG("at_mode         : %d\r\n", HAL_PARAMS_Get_System_at_mode());
     SCLOUD_DEBUG("zone            : %f\r\n", HAL_PARAMS_Get_System_zone());
@@ -1026,6 +1029,7 @@ bool intorobot_sync_time(void)
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
         payload = http.getString();
+        //SCLOUD_DEBUG("payload    : %s\r\n", (char *)payload.c_str());
         aJsonObject* root = aJson.parse((char *)payload.c_str());
         if (root == NULL)
         {return false;}

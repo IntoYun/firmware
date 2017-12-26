@@ -8,7 +8,7 @@ GCC_PREFIX ?= xtensa-esp32-elf-
 
 include $(COMMON_BUILD)/common-tools.mk
 
-CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32 -DF_CPU=240000000L
+CDEFINES += -DESP_PLATFORM -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H -DESP32 -DARDUINO_ARCH_ESP32 -DF_CPU=240000000L
 
 ifneq ("$(MODULE)","bootloader")
 CFLAGS += -g3 -Os
@@ -17,7 +17,7 @@ CFLAGS += -ggdb -Og
 CDEFINES += -DBOOTLOADER_BUILD=1 -DIDF_VER=\"v2.0-rc1-65-g34d0b00\"
 endif
 
-CFLAGS += -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wfatal-errors -Wno-error=deprecated-declarations -Wno-unused-parameter -Wno-sign-compare -ffunction-sections -fdata-sections -mlongcalls -nostdlib -fstrict-volatile-bitfields -MMD
+CFLAGS += -w -Wpointer-arith -Wno-error=unused-function -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wfatal-errors -Wno-error=deprecated-declarations -Wno-unused-parameter -Wno-sign-compare -fstack-protector -ffunction-sections -fdata-sections -mlongcalls -nostdlib -fstrict-volatile-bitfields -MMD
 
 CONLYFLAGS += -std=gnu99 -Wno-old-style-declaration
 
