@@ -271,7 +271,7 @@ public:
 
     void notify_disconnected()
     {
-        CLOUD_FN(cloud_disconnect(false), (void)0);
+        CLOUD_FN(cloud_disconnect(), (void)0);
         if (WLAN_CONNECTED) {
             //Breathe blue if established connection gets disconnected
             if (!WLAN_DISCONNECT) {

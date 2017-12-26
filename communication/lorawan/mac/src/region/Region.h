@@ -52,7 +52,7 @@
 #ifndef __REGION_H__
 #define __REGION_H__
 
-#include "LoRaMac.h"
+#include "../../inc/LoRaMac.h"
 
 
 

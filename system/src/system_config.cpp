@@ -1103,12 +1103,12 @@ bool system_config_process(void)
             system_config_finish();
         }
         system_config_type = config_type;
-        return false;
+        return true;
     }
     system_config_type = config_type;
 
     if(0 == system_config_initial_flag) {
-        CLOUD_FN(cloud_disconnect(), (void)0);
+        CLOUD_FN(cloud_disconnect(false), (void)0);
         system_config_initial();
         system_config_initial_flag = 1;
     }
@@ -1220,8 +1220,9 @@ void manage_system_config(void)
         if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
             system_rgb_blink(RGB_COLOR_RED, 1000);
             while(1) {
-                if(system_config_process())
-                {break;}
+                if(system_config_process()) {
+                    break;
+                }
                 HAL_Core_System_Yield();
             }
         }

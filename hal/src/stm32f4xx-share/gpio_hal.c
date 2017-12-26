@@ -153,7 +153,6 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
             break;
     }
     HAL_GPIO_Init(gpio_port, &GPIO_InitStructure);
-    HAL_GPIO_WritePin(gpio_port, gpio_pin, GPIO_PIN_RESET);
 }
 
 /*
@@ -302,21 +301,38 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
     return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
-void HAL_pinSetFast(pin_t pin)
+void HAL_pinModeFast(pin_t pin, PinMode mode)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_SET);
+    GPIO_TypeDef *gpio_port = PIN_MAP[pin].gpio_peripheral;
+    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
+    uint8_t gpio_source = PIN_MAP[pin].gpio_pin_source;
+    uint32_t temp = gpio_port->MODER;
+
+    CLEAR_BIT(temp, (uint32_t)gpio_pin << gpio_source);
+    CLEAR_BIT(temp, (uint32_t)gpio_pin << (gpio_source+1));
+    if(mode == OUTPUT)
+    {
+        SET_BIT(temp, (uint32_t)gpio_pin << gpio_source);
+    }
+    gpio_port->MODER = temp;
+}
+
+void HAL_pinSetFast(pin_t pin)
+{
+    STM32_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    PIN_MAP[pin].gpio_peripheral->BSRR = PIN_MAP[pin].gpio_pin;
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    HAL_GPIO_WritePin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin, GPIO_PIN_RESET);
+    STM32_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    PIN_MAP[pin].gpio_peripheral->BSRR = (uint32_t)PIN_MAP[pin].gpio_pin << 16U;
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
-    STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    return HAL_GPIO_ReadPin(PIN_MAP[pin].gpio_peripheral, PIN_MAP[pin].gpio_pin);
+    STM32_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    return ((PIN_MAP[pin].gpio_peripheral->IDR & PIN_MAP[pin].gpio_pin) == 0 ? 0 : 1);
 }
 

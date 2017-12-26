@@ -976,6 +976,7 @@ int intorobot_cloud_connect(void)
             HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "libVer", buffer);
             HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "subsysVer", buffer);
             aJson.addBooleanToObject(root, "online", true);
             char *string = aJson.print(root);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);

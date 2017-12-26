@@ -250,18 +250,27 @@ uint32_t HAL_Pulse_In(pin_t pin, uint16_t value, uint32_t timeout)
     return clockCyclesToMicroseconds(SYSTEM_TICK_COUNTER - pulse_start_cycle_count);
 }
 
+
+void HAL_pinModeFast(pin_t pin, PinMode mode)
+{
+    HAL_Pin_Mode(pin, mode);
+}
+
 void HAL_pinSetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, 1);
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    __digitalWrite(PIN_MAP[pin].gpio_pin, 1);
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
-    HAL_GPIO_Write(pin, 0);
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    __digitalWrite(PIN_MAP[pin].gpio_pin, 0);
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
-    return HAL_GPIO_Read(pin);
+    EESP8266_Pin_Info *PIN_MAP = HAL_Pin_Map();
+    return __digitalRead(PIN_MAP[pin].gpio_pin);
 }
 

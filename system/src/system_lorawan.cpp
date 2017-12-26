@@ -551,7 +551,7 @@ void intorobot_lorawan_send_terminal_info(void)
         memcpy(&buffer[index], temp, len);
         index+=len;
 
-        // productver
+        // swVer
         buffer[index++] = 0xFF;
         buffer[index++] = 0x02;
         buffer[index++] = 0x03;
