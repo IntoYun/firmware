@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/esp8266-share/bkpreg_hal.c"
-
-#else
-
 #include "bkpreg_hal.h"
 
 #define RTC_BKP_DR0                       ((uint32_t)0x00000000U)
@@ -19,7 +12,7 @@
 #define RTC_BKP_DR9                       ((uint32_t)0x00000009U)
 #define RTC_BKP_DR10                      ((uint32_t)0x0000000AU)
 
-#define RTC_MEM ((volatile uint32_t*)0x400C0000)
+#define RTC_MEM ((volatile uint32_t*)0x50000000)
 
 int32_t HAL_Core_Backup_Register(uint32_t BKP_DR)
 {
@@ -78,4 +71,3 @@ uint32_t HAL_Core_Read_Backup_Register(uint32_t BKP_DR)
     return 0xFFFFFFFF;
 }
 
-#endif

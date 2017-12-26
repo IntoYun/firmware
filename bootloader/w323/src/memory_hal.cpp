@@ -1,6 +1,9 @@
 #include "memory_hal.h"
-#include "flash.h"
 #include "binary.h"
+extern "C"
+{
+#include "bootloader_flash.h"
+}
 
 static const int FLASH_INT_MASK = ((B10 << 8) | B00111010);
 
@@ -23,7 +26,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Erase(uint32_t sector)
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    int rlt = SPIEraseSector(sector);
+    int rlt = bootloader_flash_erase_sector(sector);
     switch(rlt)
     {
         case 0:
@@ -43,7 +46,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Read(uint32_t address, uint32_t *pd
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    int rlt = SPIRead(address, pdata, datalen);
+    int rlt = bootloader_flash_read(address, pdata, datalen, false);
     switch(rlt)
     {
         case 0:
@@ -63,7 +66,7 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
 {
     HAL_Flash_StatusTypeDef result = HAL_FLASH_STATUS_TIMEOUT;
 
-    int rlt = SPIWrite(address, pdata, datalen);
+    int rlt = bootloader_flash_write(address, pdata, datalen, false);
     switch(rlt)
     {
         case 0:

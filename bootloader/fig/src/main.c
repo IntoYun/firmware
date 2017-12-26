@@ -13,7 +13,8 @@
 #include "boot_debug.h"
 
 //#define BOOTLOADER_VERSION  1
-#define BOOTLOADER_VERSION  2       //1. 简化工作模式  2. 简化灯的变化
+//#define BOOTLOADER_VERSION  2       //1. 简化工作模式  2. 简化灯的变化
+#define BOOTLOADER_VERSION  3       //见readme
 
 
 
