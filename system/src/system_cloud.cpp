@@ -53,7 +53,7 @@
 #include "intorobot_def.h"
 
 /*debug switch*/
-//#define SYSTEM_CLOUD_DEBUG
+#define SYSTEM_CLOUD_DEBUG
 
 #ifdef SYSTEM_CLOUD_DEBUG
 #define SCLOUD_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)

@@ -10,14 +10,7 @@
 #include "params_hal.h"
 #include "ui_hal.h"
 #include "bkpreg_hal.h"
-#include "esp32/hw_timer.h"
 #include "boot_debug.h"
-
-#include "esp_attr.h"
-#include "rom/cache.h"
-#include "soc/dport_reg.h"
-#include "soc/cpu.h"
-
 
 //#define BOOTLOADER_VERSION  1
 #define BOOTLOADER_VERSION  2       //1. 简化工作模式  2. 简化灯的变化
@@ -30,42 +23,6 @@ uint8_t START_APP_MODE = 0;
 uint8_t OTA_FIRMWARE_MODE = 0;
 
 uint32_t BUTTON_press_time = 0;
-
-
-extern int _bss_start;
-extern int _bss_end;
-
-
-void IRAM_ATTR call_start_cpu0()
-{
-    cpu_configure_region_protection();
-    //Clear bss
-    memset(&_bss_start, 0, (&_bss_end - &_bss_start) * sizeof(_bss_start));
-    /* completely reset MMU for both CPUs
-       (in case serial bootloader was running) */
-    Cache_Read_Disable(0);
-    Cache_Read_Disable(1);
-    Cache_Flush(0);
-    Cache_Flush(1);
-    mmu_init(0);
-    DPORT_REG_SET_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
-    mmu_init(1);
-    DPORT_REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MMU_IA_CLR);
-    /* (above steps probably unnecessary for most serial bootloader
-       usage, all that's absolutely needed is that we unmask DROM0
-       cache on the following two lines - normal ROM boot exits with
-       DROM0 cache unmasked, but serial bootloader exits with it
-       masked. However can't hurt to be thorough and reset
-       everything.)
-
-       The lines which manipulate DPORT_APP_CACHE_MMU_IA_CLR bit are
-       necessary to work around a hardware bug.
-    */
-    DPORT_REG_CLR_BIT(DPORT_PRO_CACHE_CTRL1_REG, DPORT_PRO_CACHE_MASK_DROM0);
-    DPORT_REG_CLR_BIT(DPORT_APP_CACHE_CTRL1_REG, DPORT_APP_CACHE_MASK_DROM0);
-
-    main();
-}
 
 int main()
 {

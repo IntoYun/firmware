@@ -4,7 +4,6 @@ INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/config
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/bluedroid
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/app_trace
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/app_update
-INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/bootloader_support
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/bt
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/driver
 INCLUDE_DIRS += $(TARGET_ESP32_SDK)/include/esp32
@@ -49,5 +48,4 @@ else
 LIB_DIRS +=
 LIBS +=
 endif
-
 
