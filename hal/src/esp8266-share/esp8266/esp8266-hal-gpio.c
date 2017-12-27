@@ -112,9 +112,12 @@ extern int ICACHE_RAM_ATTR __digitalRead(uint8_t pin) {
    GPIO INTERRUPTS
    */
 
+typedef void (*voidFuncPtr)(void);
+typedef void (*voidFuncPtrArg)(void*);
 typedef struct {
     uint8_t mode;
     void (*fn)(void);
+    void * arg;
 } interrupt_handler_t;
 
 static interrupt_handler_t interrupt_handlers[16];
@@ -139,32 +142,50 @@ void ICACHE_RAM_ATTR interrupt_handler(void *arg) {
             // to make ISR compatible to Arduino AVR model where interrupts are disabled
             // we disable them before we call the client ISR
             uint32_t savedPS = xt_rsil(15); // stop other interrupts
-            handler->fn();
+            if (handler->arg)
+            {
+                ((voidFuncPtrArg)handler->fn)(handler->arg);
+            }
+            else
+            {
+                handler->fn();
+            }
             xt_wsr_ps(savedPS);
         }
     }
     ETS_GPIO_INTR_ENABLE();
 }
 
-extern void ICACHE_RAM_ATTR __attachInterrupt(uint8_t pin, voidFuncPtr userFunc, int mode) {
+extern void ICACHE_RAM_ATTR __attachInterruptArg(uint8_t pin, voidFuncPtr userFunc, void *arg, int mode) {
     if(pin < 16) {
+        ETS_GPIO_INTR_DISABLE();
         interrupt_handler_t *handler = &interrupt_handlers[pin];
         handler->mode = mode;
         handler->fn = userFunc;
+        handler->arg = arg;
         interrupt_reg |= (1 << pin);
         GPC(pin) &= ~(0xF << GPCI);//INT mode disabled
         GPIEC = (1 << pin); //Clear Interrupt for this pin
         GPC(pin) |= ((mode & 0xF) << GPCI);//INT mode "mode"
+        ETS_GPIO_INTR_ENABLE();
     }
+}
+
+extern void ICACHE_RAM_ATTR __attachInterrupt(uint8_t pin, voidFuncPtr userFunc, int mode )
+{
+    __attachInterruptArg (pin, userFunc, 0, mode);
 }
 
 extern void ICACHE_RAM_ATTR __detachInterrupt(uint8_t pin) {
     if(pin < 16) {
+        ETS_GPIO_INTR_DISABLE();
         GPC(pin) &= ~(0xF << GPCI);//INT mode disabled
         GPIEC = (1 << pin); //Clear Interrupt for this pin
         interrupt_reg &= ~(1 << pin);
         interrupt_handler_t *handler = &interrupt_handlers[pin];
         handler->mode = 0;
         handler->fn = 0;
+        handler->arg = 0;
+        ETS_GPIO_INTR_ENABLE();
     }
 }
