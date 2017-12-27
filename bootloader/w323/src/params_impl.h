@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/esp8266-share/params_impl.h"
-
-#else
-
 #ifndef PARAMS_IMPL_H_
 #define PARAMS_IMPL_H_
 
@@ -28,7 +21,7 @@ typedef struct
     uint32_t boot_size;       // boot文件大小
     uint8_t  reserved1[47];   // 参数预留区 每添加一个参数，预留区大小减1
     uint8_t  end;             // 参数预留区 每添加一个参数，预留区大小减1
-} hal_boot_params_t;
+}hal_boot_params_t;
 
 
 typedef struct
@@ -56,4 +49,3 @@ typedef struct
 
 #endif /*SYSTEM_PARAMS_H_*/
 
-#endif

@@ -38,17 +38,17 @@ typedef struct {
 
 static volatile SockCtrl _sockets[10];
 
-const sock_handle_t SOCKET_MAX = (sock_handle_t)10; // 10 total sockets, handle 0-9
 const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
 
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
     sock_handle_t handle = socket(AF_INET, protocol==IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM, 0);
+    HALSOCKET_DEBUG("handle = %d\r\n", handle);
     if (socket_handle_valid(handle) && (protocol==IPPROTO_UDP)) {
         int yes = 1;
         setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
 
-        HALSOCKET_DEBUG("port = %d", port);
+        HALSOCKET_DEBUG("port = %d\r\n", port);
 
         struct sockaddr tSocketAddr;
         memset(&tSocketAddr, 0, sizeof(tSocketAddr));
@@ -85,7 +85,7 @@ int32_t socket_connect(sock_handle_t sd, const sockaddr_t *addr, long addrlen)
         memset(&tSocketAddr, 0, sizeof(struct sockaddr));
         tSocketAddr.sa_family = addr->sa_family;
         memcpy(tSocketAddr.sa_data, addr->sa_data, 14);
-        return connect(sd, &tSocketAddr, sizeof(tSocketAddr));
+        return connect(sd, &tSocketAddr, sizeof(tSocketAddr)) < 0 ? 1:0;
     }
     return 0;
 }
@@ -112,10 +112,10 @@ sock_result_t socket_receivefrom(sock_handle_t sock, void* buffer, socklen_t buf
     socklen_t slen = sizeof(si_other);
     sock_result_t result = recvfrom(sock, buffer, bufLen, MSG_DONTWAIT, &si_other, &slen);
     if (result > 0) {
-        HALSOCKET_DEBUG("result = %d", result);
+        HALSOCKET_DEBUG("result = %d\r\n", result);
         addr->sa_family = si_other.sa_family;
         memcpy(addr->sa_data, si_other.sa_data, 14);
-        HALSOCKET_DEBUG("%d %d   %d.%d.%d.%d", addr->sa_data[0], addr->sa_data[1], addr->sa_data[2],addr->sa_data[3],addr->sa_data[4],addr->sa_data[5]);
+        HALSOCKET_DEBUG("%d %d   %d.%d.%d.%d\r\n", addr->sa_data[0], addr->sa_data[1], addr->sa_data[2],addr->sa_data[3],addr->sa_data[4],addr->sa_data[5]);
     }
     return result;
 }
@@ -138,6 +138,7 @@ uint8_t socket_active_status(sock_handle_t socket)
 
 sock_result_t socket_close(sock_handle_t sock)
 {
+    HALSOCKET_DEBUG("socket_close = %d\r\n", sock);
     return (close(sock) == 0) ? 0 : 1;
 }
 
@@ -157,7 +158,7 @@ sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len,
 }
 
 inline bool is_valid(sock_handle_t handle) {
-    return handle<SOCKET_MAX;
+    return handle > 0;
 }
 
 uint8_t socket_handle_valid(sock_handle_t handle) {

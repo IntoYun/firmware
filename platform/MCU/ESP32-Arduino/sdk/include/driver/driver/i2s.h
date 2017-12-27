@@ -26,6 +26,7 @@
 #include "esp_attr.h"
 #include "esp_intr_alloc.h"
 #include "driver/periph_ctrl.h"
+#include "driver/adc.h"
 #include "freertos/semphr.h"
 
 #ifdef __cplusplus
@@ -42,6 +43,15 @@ typedef enum {
     I2S_BITS_PER_SAMPLE_24BIT   = 24,       /*!< I2S bits per sample: 24-bits*/
     I2S_BITS_PER_SAMPLE_32BIT   = 32,       /*!< I2S bits per sample: 32-bits*/
 } i2s_bits_per_sample_t;
+
+/**
+ * @brief I2S channel.
+ *
+ */
+typedef enum {
+    I2S_CHANNEL_MONO        = 1,            /*!< I2S 1 channel (mono)*/
+    I2S_CHANNEL_STEREO      = 2             /*!< I2S 2 channel (stereo)*/
+} i2s_channel_t;
 
 /**
  * @brief I2S communication standard format
@@ -100,14 +110,20 @@ typedef enum {
 /**
  * @brief I2S Mode, defaut is I2S_MODE_MASTER | I2S_MODE_TX
  *
+ * @note PDM and built-in DAC functions are only supported on I2S0 for current ESP32 chip.
+ *
  */
 typedef enum {
     I2S_MODE_MASTER = 1,
     I2S_MODE_SLAVE = 2,
     I2S_MODE_TX = 4,
     I2S_MODE_RX = 8,
-    I2S_MODE_DAC_BUILT_IN = 16
+    I2S_MODE_DAC_BUILT_IN = 16,       /*!< Output I2S data to built-in DAC, no matter the data format is 16bit or 32 bit, the DAC module will only take the 8bits from MSB*/
+    I2S_MODE_ADC_BUILT_IN = 32,       /*!< Input I2S data from built-in ADC, each data can be 12-bit width at most*/
+    I2S_MODE_PDM = 64,
 } i2s_mode_t;
+
+
 
 /**
  * @brief I2S configuration parameters for i2s_param_config function
@@ -122,6 +138,7 @@ typedef struct {
     int                     intr_alloc_flags;       /*!< Flags used to allocate the interrupt. One or multiple (ORred) ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info */
     int                     dma_buf_count;          /*!< I2S DMA Buffer Count */
     int                     dma_buf_len;            /*!< I2S DMA Buffer Length */
+    int                     use_apll;               /*!< I2S using APLL as main I2S clock, enable it to get accurate clock */
 } i2s_config_t;
 
 /**
@@ -134,6 +151,19 @@ typedef enum {
     I2S_EVENT_RX_DONE,     /*!< I2S DMA finish received 1 buffer*/
     I2S_EVENT_MAX,         /*!< I2S event max index*/
 } i2s_event_type_t;
+
+/**
+ * @brief I2S DAC mode for i2s_set_dac_mode.
+ *
+ * @note PDM and built-in DAC functions are only supported on I2S0 for current ESP32 chip.
+ */
+typedef enum {
+    I2S_DAC_CHANNEL_DISABLE  = 0,    /*!< Disable I2S built-in DAC signals*/
+    I2S_DAC_CHANNEL_RIGHT_EN = 1,    /*!< Enable I2S built-in DAC right channel, maps to DAC channel 1 on GPIO25*/
+    I2S_DAC_CHANNEL_LEFT_EN  = 2,    /*!< Enable I2S built-in DAC left  channel, maps to DAC channel 2 on GPIO26*/
+    I2S_DAC_CHANNEL_BOTH_EN  = 0x3,  /*!< Enable both of the I2S built-in DAC channels.*/
+    I2S_DAC_CHANNEL_MAX      = 0x4,  /*!< I2S built-in DAC mode max index*/
+} i2s_dac_mode_t;
 
 /**
  * @brief Event structure used in I2S event queue
@@ -157,6 +187,7 @@ typedef struct {
     int data_in_num;    /*!< DATA in pin*/
 } i2s_pin_config_t;
 
+
 typedef intr_handle_t i2s_isr_handle_t;
 /**
  * @brief Set I2S pin number
@@ -172,11 +203,29 @@ typedef intr_handle_t i2s_isr_handle_t;
  * Inside the pin configuration structure, set I2S_PIN_NO_CHANGE for any pin where
  * the current configuration should not be changed.
  *
+ * @note if *pin is set as NULL, this function will initialize both of the built-in DAC channels by default.
+ *       if you don't want this to happen and you want to initialize only one of the DAC channels, you can call i2s_set_dac_mode instead.
+ *
  * @return
  *     - ESP_OK   Success
  *     - ESP_FAIL Parameter error
  */
 esp_err_t i2s_set_pin(i2s_port_t i2s_num, const i2s_pin_config_t *pin);
+
+/**
+ * @brief Set I2S dac mode, I2S built-in DAC is disabled by default
+ *
+ * @param dac_mode DAC mode configurations - see i2s_dac_mode_t
+ *
+ * @note Built-in DAC functions are only supported on I2S0 for current ESP32 chip.
+ *       If either of the built-in DAC channel are enabled, the other one can not
+ *       be used as RTC DAC function at the same time.
+ *
+ * @return
+ *     - ESP_OK  Success
+ *     - ESP_ERR_INVALID_ARG  Parameter error
+ */
+esp_err_t i2s_set_dac_mode(i2s_dac_mode_t dac_mode);
 
 /**
  * @brief Install and start I2S driver.
@@ -337,6 +386,36 @@ esp_err_t i2s_start(i2s_port_t i2s_num);
  *     - ESP_FAIL Parameter error
  */
 esp_err_t i2s_zero_dma_buffer(i2s_port_t i2s_num);
+
+/**
+ * @brief Set clock & bit width used for I2S RX and TX.
+ *
+ * Similar to i2s_set_sample_rates(), but also sets bit width.
+ *
+ * @param i2s_num  I2S_NUM_0, I2S_NUM_1
+ *
+ * @param rate I2S sample rate (ex: 8000, 44100...)
+ *
+ * @param bits I2S bit width (I2S_BITS_PER_SAMPLE_16BIT, I2S_BITS_PER_SAMPLE_24BIT, I2S_BITS_PER_SAMPLE_32BIT)
+ *
+ * @param ch I2S channel, (I2S_CHANNEL_MONO, I2S_CHANNEL_STEREO)
+ *
+ * @return
+ *     - ESP_OK   Success
+ *     - ESP_FAIL Parameter error
+ */
+esp_err_t i2s_set_clk(i2s_port_t i2s_num, uint32_t rate, i2s_bits_per_sample_t bits, i2s_channel_t ch);
+
+/**
+ * @brief Set built-in ADC mode for I2S DMA, this function will initialize ADC pad,
+ *        and set ADC parameters.
+ * @param adc_unit  SAR ADC unit index
+ * @param adc_channel ADC channel index
+ * @return
+ *     - ESP_OK   Success
+ *     - ESP_FAIL Parameter error
+ */
+esp_err_t i2s_set_adc_mode(adc_unit_t adc_unit, adc1_channel_t adc_channel);
 
 #ifdef __cplusplus
 }

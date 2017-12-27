@@ -81,17 +81,24 @@ static void ui_task_start(void *pvParameters)
     }
 }
 
+#if CONFIG_FREERTOS_UNICORE
+#define ARDUINO_RUNNING_CORE 0
+#else
+#define ARDUINO_RUNNING_CORE 1
+#endif
+
 extern "C" const char intorobot_subsys_version_header[8] __attribute__((section(".subsys.version.header"))) = {'V', 'E', 'R', 'S', 'I', 'O', 'N', ':'};
 extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = stringify(SUBSYS_VERSION_STRING);
 extern "C" void app_main()
 {
+    esp_log_level_set("*", CONFIG_LOG_DEFAULT_LEVEL);
     nvs_flash_init();
     init();
     initVariant();
     printf("\n%08x", intorobot_subsys_version_header);
     printf("%08x\n", intorobot_subsys_version);
-    xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, 1);
-    xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, 1);
+    xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
+    xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
 }
 
 void HAL_Core_Init(void)

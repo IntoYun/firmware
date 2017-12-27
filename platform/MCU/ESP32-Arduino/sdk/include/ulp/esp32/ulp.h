@@ -848,12 +848,57 @@ static inline uint32_t SOC_REG_TO_ULP_PERIPH_SEL(uint32_t reg) {
 esp_err_t ulp_process_macros_and_load(uint32_t load_addr, const ulp_insn_t* program, size_t* psize);
 
 /**
+ * @brief Load ULP program binary into RTC memory
+ *
+ * ULP program binary should have the following format (all values little-endian):
+ *
+ * 1. MAGIC, (value 0x00706c75, 4 bytes)
+ * 2. TEXT_OFFSET, offset of .text section from binary start (2 bytes)
+ * 3. TEXT_SIZE, size of .text section (2 bytes)
+ * 4. DATA_SIZE, size of .data section (2 bytes)
+ * 5. BSS_SIZE, size of .bss section (2 bytes)
+ * 6. (TEXT_OFFSET - 16) bytes of arbitrary data (will not be loaded into RTC memory)
+ * 7. .text section
+ * 8. .data section
+ *
+ * Linker script in components/ulp/ld/esp32.ulp.ld produces ELF files which
+ * correspond to this format. This linker script produces binaries with load_addr == 0.
+ *
+ * @param load_addr address where the program should be loaded, expressed in 32-bit words
+ * @param program_binary pointer to program binary
+ * @param program_size size of the program binary
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if load_addr is out of range
+ *      - ESP_ERR_INVALID_SIZE if program_size doesn't match (TEXT_OFFSET + TEXT_SIZE + DATA_SIZE)
+ *      - ESP_ERR_NOT_SUPPORTED if the magic number is incorrect
+ */
+esp_err_t ulp_load_binary(uint32_t load_addr, const uint8_t* program_binary, size_t program_size);
+
+/**
  * @brief Run the program loaded into RTC memory
  * @param entry_point entry point, expressed in 32-bit words
  * @return  ESP_OK on success
  */
 esp_err_t ulp_run(uint32_t entry_point);
 
+/**
+ * @brief Set one of ULP wakeup period values
+ *
+ * ULP coprocessor starts running the program when the wakeup timer counts up
+ * to a given value (called period). There are 5 period values which can be
+ * programmed into SENS_ULP_CP_SLEEP_CYCx_REG registers, x = 0..4.
+ * By default, wakeup timer will use the period set into SENS_ULP_CP_SLEEP_CYC0_REG,
+ * i.e. period number 0. ULP program code can use SLEEP instruction to select
+ * which of the SENS_ULP_CP_SLEEP_CYCx_REG should be used for subsequent wakeups.
+ *
+ * @param period_index wakeup period setting number (0 - 4)
+ * @param period_us wakeup period, us
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG if period_index is out of range
+ */
+esp_err_t ulp_set_wakeup_period(size_t period_index, uint32_t period_us);
 
 #ifdef __cplusplus
 }

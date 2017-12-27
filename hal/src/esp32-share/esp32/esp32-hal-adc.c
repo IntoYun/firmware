@@ -152,8 +152,6 @@ bool IRAM_ATTR __adcAttachPin(uint8_t pin){
         CLEAR_PERI_REG_MASK(RTC_IO_PAD_DAC2_REG, RTC_IO_PDAC2_XPD_DAC | RTC_IO_PDAC2_DAC_XPD_FORCE);//stop dac2
     }
 
-    //pinMode(pin, ANALOG);
-
     __analogInit();
     return true;
 }
@@ -242,8 +240,6 @@ int __hallRead()    //hall sensor without LNA
     int Sens_Vp1;
     int Sens_Vn1;
 
-    //pinMode(36, ANALOG);
-    //pinMode(39, ANALOG);
     SET_PERI_REG_MASK(SENS_SAR_TOUCH_CTRL1_REG, SENS_XPD_HALL_FORCE_M);     // hall sens force enable
     SET_PERI_REG_MASK(RTC_IO_HALL_SENS_REG, RTC_IO_XPD_HALL);               // xpd hall
     SET_PERI_REG_MASK(SENS_SAR_TOUCH_CTRL1_REG, SENS_HALL_PHASE_FORCE_M);   // phase force

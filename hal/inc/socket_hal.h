@@ -37,7 +37,7 @@ typedef struct _sockaddr_t
     uint8_t    sa_data[14];
 } sockaddr_t;
 
-typedef uint32_t sock_handle_t;
+typedef int32_t sock_handle_t;
 typedef uint32_t socklen_t;
 typedef int32_t sock_result_t;
 
