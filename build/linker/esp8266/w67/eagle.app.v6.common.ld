@@ -1,12 +1,5 @@
 /* This linker script generated from xt-genldscripts.tpp for LSP . */
 /* Linker Script for ld -N */
-MEMORY
-{
-  dport0_0_seg :                        org = 0x3FF00000, len = 0x10
-  dram0_0_seg :                         org = 0x3FFE8000, len = 0x14000
-  iram1_0_seg :                         org = 0x40100000, len = 0x8000
-  irom0_0_seg :                         org = 0x40214010, len = 0xE0000
-}
 
 PHDRS
 {
@@ -25,6 +18,7 @@ EXTERN(_DoubleExceptionVector)
 EXTERN(_KernelExceptionVector)
 EXTERN(_NMIExceptionVector)
 EXTERN(_UserExceptionVector)
+EXTERN(core_version)
 PROVIDE(_memmap_vecbase_reset = 0x40000000);
 /* Various memory-map dependent cache attribute settings: */
 _memmap_cacheattr_wb_base = 0x00000110;
@@ -173,7 +167,21 @@ SECTIONS
     *libstdc++.a:(.literal .text .literal.* .text.*)
     *liblwip_gcc.a:(.literal .text .literal.* .text.*)
     *liblwip_src.a:(.literal .text .literal.* .text.*)
+    *liblwip2.a:(.literal .text .literal.* .text.*)
     *libaxtls.a:(.literal .text .literal.* .text.*)
+    *libat.a:(.literal.* .text.*)
+    *libcrypto.a:(.literal.* .text.*)
+    *libespnow.a:(.literal.* .text.*)
+    *libjson.a:(.literal.* .text.*)
+    *liblwip.a:(.literal.* .text.*)
+    *libmesh.a:(.literal.* .text.*)
+    *libnet80211.a:(.literal.* .text.*)
+    *libsmartconfig.a:(.literal.* .text.*)
+    *libssl.a:(.literal.* .text.*)
+    *libupgrade.a:(.literal.* .text.*)
+    *libwpa.a:(.literal.* .text.*)
+    *libwpa2.a:(.literal.* .text.*)
+    *libwps.a:(.literal.* .text.*)
     *(.irom0.literal .irom.literal .irom.text.literal .irom0.text .irom.text .irom.text.*)
     _irom0_text_end = ABSOLUTE(.);
     _flash_code_end = ABSOLUTE(.);

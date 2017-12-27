@@ -322,7 +322,7 @@ void scan_done_cb(void *arg, STATUS status)
 
     if(status == OK) {
         //获取ap数量
-        for(n = 0; it; it = it->next, n++);
+        for(n = 0; it; it = STAILQ_NEXT(it, next), n++);
         scanInfo.count = n;
 
         //申请内存
@@ -332,7 +332,7 @@ void scan_done_cb(void *arg, STATUS status)
             return;
         }
 
-        for(n = 0, it = (bss_info*)arg; it; it = it->next, n++)
+        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
         {
             memcpy(pNode[n].bssid, it->bssid, 6);
             pNode[n].rssi = it->rssi;
@@ -358,7 +358,7 @@ void scan_done_cb(void *arg, STATUS status)
         //填充ap 列表
         for(n = 0; n < scanInfo.count; n++)
         {
-            for(it = (bss_info*)arg; it; it = it->next)
+            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
             {
                 if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
                     memset(&data, 0, sizeof(WiFiAccessPoint));
