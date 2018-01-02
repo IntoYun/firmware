@@ -1,3 +1,20 @@
+## v1.6.8
+
+### FEATURES(功能)
+- 无
+
+### ENHANCEMENTS(优化)
+- [[PR #152]](https://github.com/HITSZ-NRSL/firmware/pull/152) 更新esp32 SDK
+- [[PR #153]](https://github.com/HITSZ-NRSL/firmware/pull/153) 更新esp8266 SDK
+- [[PR #154]](https://github.com/HITSZ-NRSL/firmware/pull/154) 修改esp8266 链接文件，保持与intoyuniot一致
+
+### BUG FIXES(漏洞修复)
+- 无
+
+### INTERNAL(内部)
+- 无
+
+
 ## v1.6.7
 
 ### FEATURES(功能)
