@@ -662,7 +662,7 @@ static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t
 
 static int _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout)
 {
-    SDATAPOINT_DEBUG_D("send data:");
+    SDATAPOINT_DEBUG("send data:");
     SDATAPOINT_DEBUG_DUMP(data, dataLen);
 #ifndef configNO_CLOUD
     bool result = intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
@@ -731,12 +731,8 @@ static int intorobotSendAllDatapoint(void)
 
     buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
-    if(DP_TRANSMIT_MODE_AUTOMATIC == intorobotGetDatapointTransmitMode()) {
-        g_datapoint_control.runtime = millis();
-        intorobotPropertyChangeClear();
-        return _intorobotSendRawData(buffer, index, false, 0);
-    }
-    return false;
+    intorobotPropertyChangeClear();
+    return _intorobotSendRawData(buffer, index, false, 0);
 }
 
 int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
@@ -754,7 +750,6 @@ int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
 
     buffer[index++] = DATA_PROTOCOL_DATAPOINT_BINARY;
     index += intorobotFormAllDatapoint(buffer+index, sizeof(buffer)-1, 1);
-    g_datapoint_control.runtime = millis();
     intorobotPropertyChangeClear();
     return _intorobotSendRawData(buffer, index, confirmed, timeout);
 }
