@@ -127,7 +127,7 @@ read_datapoint_result_t intorobotReadDatapointDouble(const uint16_t dpID, double
 read_datapoint_result_t intorobotReadDatapointFloat(const uint16_t dpID, float &value);
 read_datapoint_result_t intorobotReadDatapointString(const uint16_t dpID, String &value);
 read_datapoint_result_t intorobotReadDatapointStringChar(const uint16_t dpID, char *value);
-read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len);
+read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *&value, uint16_t &len);
 
 void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len);
 void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
