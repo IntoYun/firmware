@@ -108,7 +108,7 @@ class CloudDatepointClass {
         static read_datapoint_result_t readDatapoint(const uint16_t dpID, char *value) {
             return intorobotReadDatapointStringChar(dpID, value);
         }
-        static read_datapoint_result_t readDatapoint(const uint16_t dpID, uint8_t *value, uint16_t &len) {
+        static read_datapoint_result_t readDatapoint(const uint16_t dpID, uint8_t *&value, uint16_t &len) {
             return intorobotReadDatapointBinary(dpID, value, len);
         }
 

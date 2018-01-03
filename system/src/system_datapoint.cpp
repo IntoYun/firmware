@@ -328,7 +328,7 @@ read_datapoint_result_t intorobotReadDatapointStringChar(const uint16_t dpID, ch
     return readResult;
 }
 
-read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *value, uint16_t &len)
+read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *&value, uint16_t &len)
 {
     int index = intorobotDiscoverProperty(dpID);
     if (index == -1) {
