@@ -251,7 +251,7 @@ void uartEnd(uart_t* uart)
         return;
     }
 
-    if(uart->rx_enabled){
+    if(uart->rx_enabled) {
         if(NULL != uart->rx_buffer.buffer) {
             free(uart->rx_buffer.buffer);
             uart->rx_buffer.buffer = NULL;

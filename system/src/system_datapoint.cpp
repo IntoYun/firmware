@@ -343,6 +343,7 @@ read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_
 }
 
 // type   0: 平台控制写缓冲区数据   1：用户写缓冲区数据
+//
 void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type )
 {
     int i = intorobotDiscoverProperty(dpID);
@@ -354,7 +355,7 @@ void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const ui
     }
 
     if(DATA_TYPE_BINARY == properties[i]->dataType) {
-        if(memcmp(properties[i]->valueBinary.value, value, len)) {
+        if((properties[i]->valueBinary.len != len) || memcmp(properties[i]->valueBinary.value, value, len)) {
             properties[i]->change = true;
             if(type) { //用户操作
                 properties[i]->readFlag = RESULT_DATAPOINT_OLD;

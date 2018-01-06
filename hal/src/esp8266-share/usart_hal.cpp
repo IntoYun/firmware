@@ -102,8 +102,7 @@ void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1) {
         usartMap[serial] = &USART_MAP[USART_0];
-    }
-    else {
+    } else {
         usartMap[serial] = &USART_MAP[USART_1];
     }
 
@@ -119,8 +118,7 @@ void HAL_USART_Begin(HAL_USART_Serial serial, uint32_t baud)
 
 void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t config, void *ptr)
 {
-    if( true == usartMap[serial]->usart_enabled )
-    {
+    if( true == usartMap[serial]->usart_enabled ) {
         return;
     }
 
@@ -239,3 +237,4 @@ bool HAL_USART_Is_Enabled(HAL_USART_Serial serial)
 void HAL_USART_Half_Duplex(HAL_USART_Serial serial, bool Enable)
 {
 }
+

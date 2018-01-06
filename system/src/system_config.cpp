@@ -744,6 +744,7 @@ void UsbDeviceConfig::close(void)
 void UsartDeviceConfig::init(void)
 {
     serial.setTimeout(50);
+    serial.end();
     serial.begin(115200);
     while (!serial);
 }
