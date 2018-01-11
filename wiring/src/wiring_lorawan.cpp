@@ -297,7 +297,7 @@ uint8_t LoRaWanClass::getTxPower(void)
 {
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_CHANNELS_TX_POWER;
-    if(LoRaMacMibSetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
+    if(LoRaMacMibGetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK){
         return;
     }
     _txPower = mibReq.Param.ChannelsTxPower;
