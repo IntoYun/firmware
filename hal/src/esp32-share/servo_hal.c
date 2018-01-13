@@ -25,37 +25,21 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 #include "servo_hal.h"
 #include "pinmap_impl.h"
-#include "esp8266-hal-servo.h"
 
 void HAL_Servo_Attach(uint16_t pin)
 {
-    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    ESP8266ServoAttach(gpio_pin);
 }
 
 void HAL_Servo_Detach(uint16_t pin)
 {
-    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    ESP8266ServoDetach(gpio_pin);
 }
 
 void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
-    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    ESP8266ServoWrite(gpio_pin,pulseWidth);
 }
 
 uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
 {
-    EESP8266_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-
-    return ESP8266ServoRead(gpio_pin);
 }
 
 uint16_t HAL_Servo_Read_Frequency(uint16_t pin)
