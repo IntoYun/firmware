@@ -127,7 +127,19 @@ sock_result_t socket_bind(sock_handle_t sock, uint16_t port)
 
 sock_result_t socket_accept(sock_handle_t sock)
 {
-    return 0;
+    struct sockaddr tClientAddr;
+    socklen_t tAddrLen = sizeof(tClientAddr);
+
+    sock_result_t client_sock = accept(sock, &tClientAddr, &tAddrLen);
+    if(client_sock >= 0){
+        int val = 1;
+        if(setsockopt(client_sock, SOL_SOCKET, SO_KEEPALIVE, (char*)&val, sizeof(int)) == ESP_OK) {
+            val = false;//noDelay
+            if(setsockopt(client_sock, IPPROTO_TCP, TCP_NODELAY, (char*)&val, sizeof(int)) == ESP_OK)
+                return client_sock;
+        }
+    }
+    return client_sock;
 }
 
 uint8_t socket_active_status(sock_handle_t socket)
@@ -187,5 +199,20 @@ sock_result_t socket_peer(sock_handle_t sd, sock_peer_t* peer, void* reserved)
 
 sock_result_t socket_create_tcp_server(uint16_t port, network_interface_t nif)
 {
-    return -1;
+    sock_handle_t handle = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr tSocketAddr;
+
+    memset(&tSocketAddr, 0, sizeof(tSocketAddr));
+    tSocketAddr.sa_family = AF_INET;
+    tSocketAddr.sa_data[0] = (port & 0xFF00) >> 8;
+    tSocketAddr.sa_data[1] = (port & 0x00FF);
+    tSocketAddr.sa_data[2] = 0;  // Todo IPv6
+    tSocketAddr.sa_data[3] = 0;
+    tSocketAddr.sa_data[4] = 0;
+    tSocketAddr.sa_data[5] = 0;
+    bind(handle, &tSocketAddr, sizeof(tSocketAddr));
+    listen(handle , 4);
+    fcntl(handle, F_SETFL, O_NONBLOCK);
+    return handle;
 }
+

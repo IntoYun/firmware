@@ -27,11 +27,11 @@
 
 using namespace intorobot;
 
+static TCPClient* s_invalid_client = NULL;
+
 class TCPServerClient : public TCPClient
 {
-
 public:
-
     TCPServerClient(sock_handle_t sock) : TCPClient(sock) {}
 
     virtual IPAddress remoteIP() override
@@ -46,20 +46,22 @@ public:
 
 TCPServer::TCPServer(uint16_t port, network_interface_t nif) : _port(port), _nif(nif), _sock(socket_handle_invalid()), _client(socket_handle_invalid())
 {
-
+    if (!s_invalid_client) {
+        s_invalid_client = new TCPClient(socket_handle_invalid());
+    }
 }
 
 bool TCPServer::begin()
 {
     stop();
-    if(!Network.from(_nif).ready())
-    {
+    if(!Network.from(_nif).ready()) {
         return false;
     }
 
     if (socket_handle_valid(_sock)) {
         return true;
     }
+
     sock_result_t result = socket_create_tcp_server(_port, _nif);
     if (socket_handle_valid(result)) {
         _sock = result;
@@ -71,6 +73,7 @@ bool TCPServer::begin()
 
 void TCPServer::stop()
 {
+    _client.stop();
     socket_close(_sock);
     _sock = socket_handle_invalid();
 }
@@ -79,30 +82,24 @@ TCPClient TCPServer::available()
 {
     sock_handle_t SOCKET_INVALID = socket_handle_invalid();
 
-    if(_sock == SOCKET_INVALID)
-    {
+    if(_sock == SOCKET_INVALID) {
         begin();
     }
 
-    if((!Network.from(_nif).ready()) || (_sock == SOCKET_INVALID))
-    {
+    if((!Network.from(_nif).ready()) || (_sock == SOCKET_INVALID)) {
         _sock = SOCKET_INVALID;
-        _client = TCPClient(SOCKET_INVALID);
+        _client = *s_invalid_client;
         return _client;
     }
 
     int sock = socket_accept(_sock);
 
-    if (!socket_handle_valid(sock))
-    {
-        _client = TCPClient(SOCKET_INVALID);
-    }
-    else
-    {
+    if (!socket_handle_valid(sock)) {
+        _client = *s_invalid_client;
+    } else {
         TCPServerClient client = TCPServerClient(sock);
         client._remoteIP = client.remoteIP();      // fetch the peer IP ready for the copy operator
         _client = client;
-
     }
 
     return _client;
@@ -119,3 +116,4 @@ size_t TCPServer::write(const uint8_t *buffer, size_t size)
 }
 
 #endif
+
