@@ -211,12 +211,14 @@ public:
     bool ready() override
     {
         drive_now();
+        update_config(false);
         return (INTOROBOT_WLAN_STARTED && WLAN_DHCP);
     }
 
     bool connecting() override
     {
         drive_now();
+        update_config(false);
         return (INTOROBOT_WLAN_STARTED && WLAN_CONNECTING);
     }
 
@@ -293,6 +295,7 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success\r\n");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
+            update_config(true); //去掉，否则wifiJoinAp调用时会触发DHCP事件，导致AT指令任务忙等现象。neutron。
         } else {
             config_clear();
             WLAN_DHCP = 0;
