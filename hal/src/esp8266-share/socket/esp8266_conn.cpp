@@ -26,8 +26,6 @@
 #include "hw_config.h"
 #include "esp8266_conn.h"
 #include "timer_hal.h"
-#include "service_debug.h"
-
 
 //#define HAL_SOCKET_DEBUG
 
@@ -65,6 +63,8 @@ volatile uint8_t _socketSended=0;
 #define USO_MAX_WRITE   1024  //!< maximum number of bytes to write to socket (used with TX)
 // num sockets
 #define NUMSOCKETS      ((int)(sizeof(_sockets)/sizeof(*_sockets)))
+// num tcp server client socket list
+#define NUMSERVERSOCKETLIST   ((int)(sizeof(_sockets[0].serverSocketList)/sizeof(_sockets[0].serverSocketList[0])))
 //! test if it is a socket is ok to use
 #define ISSOCKET(s)     (((s) >= 0) && ((s) < NUMSOCKETS) && (_sockets[s].handle != MDM_SOCKET_ERROR))
 
@@ -74,7 +74,7 @@ static volatile uint32_t esp8266_conn_timeout_duration;
 inline void ARM_CONN_TIMEOUT(uint32_t dur) {
     esp8266_conn_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_conn_timeout_duration = dur;
-    //HALSOCKET_DEBUG("esp8266 CONN WD Set %d",(dur));
+    //HALSOCKET_DEBUG("esp8266 CONN WD Set %d\r\n",(dur));
 }
 inline bool IS_CONN_TIMEOUT() {
     return esp8266_conn_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_conn_timeout_start)>esp8266_conn_timeout_duration);
@@ -82,16 +82,28 @@ inline bool IS_CONN_TIMEOUT() {
 
 inline void CLR_CONN_TIMEOUT() {
     esp8266_conn_timeout_duration = 0;
-    //HALSOCKET_DEBUG("esp8266 CONN WD Cleared, was %d", esp8266_conn_timeout_duration);
+    //HALSOCKET_DEBUG("esp8266 CONN WD Cleared, was %d\r\n", esp8266_conn_timeout_duration);
 }
 
-SockCtrl Esp8266ConnClass::_sockets[5];
+SockCtrl Esp8266ConnClass::_sockets[10];
 
 Esp8266ConnClass::Esp8266ConnClass(void)
 {
     memset(_sockets, 0, sizeof(_sockets));
-    for (int socket = 0; socket < NUMSOCKETS; socket ++)
+    for (int socket = 0; socket < NUMSOCKETS; socket ++) {
         _sockets[socket].handle = MDM_SOCKET_ERROR;
+        memset(_sockets[socket].serverSocketList, MDM_SOCKET_ERROR, sizeof(_sockets[socket].serverSocketList));
+    }
+}
+
+bool Esp8266ConnClass::socketIsValid(int socket)
+{
+    return ISSOCKET(socket);
+}
+
+int Esp8266ConnClass::socketInvalid(void)
+{
+    return MDM_SOCKET_ERROR;
 }
 
 int Esp8266ConnClass::socketCreate(IpProtocol ipproto, int port)
@@ -99,7 +111,11 @@ int Esp8266ConnClass::socketCreate(IpProtocol ipproto, int port)
     int socket;
 
     // find an free socket
-    socket = _findSocket(MDM_SOCKET_ERROR);
+    if(MDM_IPPROTO_TCP_SERVER == _sockets[socket].ipproto) {
+        socket = _findSocketServer(MDM_SOCKET_ERROR);
+    } else {
+        socket = _findSocket(MDM_SOCKET_ERROR);
+    }
     if (socket != MDM_SOCKET_ERROR) {
         _sockets[socket].handle       = socket;
         _sockets[socket].ipproto      = ipproto;
@@ -115,20 +131,26 @@ int Esp8266ConnClass::socketCreate(IpProtocol ipproto, int port)
             _sockets[socket].esp8266_conn_ptr->proto.udp->local_port = port;
             memset(_sockets[socket].esp8266_conn_ptr->proto.udp->remote_ip,0,4);
             _sockets[socket].esp8266_conn_ptr->proto.udp->remote_port = 0;
-        }
-        else {
+        } else if(MDM_IPPROTO_TCP == _sockets[socket].ipproto) {
             _sockets[socket].esp8266_conn_ptr->type = ESPCONN_TCP;
             _sockets[socket].esp8266_conn_ptr->state = ESPCONN_NONE;
             _sockets[socket].esp8266_conn_ptr->proto.tcp = (esp_tcp *)os_zalloc(sizeof(esp_tcp));
             _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port = espconn_port(); //通过函数获取可用本地端口
             memset(_sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip, 0, 4);
             _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port = 0;
+        } else { //tcp server
+            _sockets[socket].esp8266_conn_ptr->type = ESPCONN_TCP;
+            _sockets[socket].esp8266_conn_ptr->state = ESPCONN_NONE;
+            _sockets[socket].esp8266_conn_ptr->proto.tcp = (esp_tcp *)os_zalloc(sizeof(esp_tcp));
+            _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port = port;
+            memset(_sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip, 0, 4);
+            _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port = 0;
+            espconn_regist_connectcb(_sockets[socket].esp8266_conn_ptr, _espconn_tcp_server_client_connect_callback);
+            espconn_create(_sockets[socket].esp8266_conn_ptr);
         }
-        HALSOCKET_DEBUG("OK! %s Socket %d was created", (ipproto?"UDP":"TCP"), socket);
-    }
-    else
-    {
-        HALSOCKET_DEBUG("Error! socket create failed!");
+        HALSOCKET_DEBUG("OK! %s Socket %d was created!\r\n", (ipproto?"UDP":"TCP"), socket);
+    } else {
+        HALSOCKET_DEBUG("Error! socket create failed!\r\n");
     }
     return socket;
 }
@@ -146,8 +168,7 @@ bool Esp8266ConnClass::socketConnect(int socket, const MDM_IP& ip, int port)
             _sockets[socket].connected = true;
             espconn_create(_sockets[socket].esp8266_conn_ptr);
             ok = true;
-        }
-        else {
+        } else {
             _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0] = (ip >> 24) & 0xFF;
             _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[1] = (ip >> 16) & 0xFF;
             _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[2] = (ip >> 8) & 0xFF;
@@ -172,18 +193,14 @@ bool Esp8266ConnClass::socketConnect(int socket, const MDM_IP& ip, int port)
             espconn_regist_recvcb(_sockets[socket].esp8266_conn_ptr, _espconn_recv_callback);
             espconn_regist_sentcb(_sockets[socket].esp8266_conn_ptr, _espconn_sent_callback);
             ok = true;
-            HALSOCKET_DEBUG("OK! %s Socket %d connected! remote_ip:" IPSTR ", remote_port:%d, local_port:%d", (_sockets[socket].ipproto?"UDP":"TCP"),\
+            HALSOCKET_DEBUG("OK! %s Socket %d connected! remote_ip:" IPSTR ", remote_port:%d, local_port:%d\r\n", (_sockets[socket].ipproto?"UDP":"TCP"),\
+                    socket, IPNUM(ip), port, _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port);
+        } else {
+            HALSOCKET_DEBUG("Error! %s Socket %d failed! remote_ip:" IPSTR ", remote_port:%d, local_port:%d\r\n", (_sockets[socket].ipproto?"UDP":"TCP"), \
                     socket, IPNUM(ip), port, _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port);
         }
-        else
-        {
-            HALSOCKET_DEBUG("Error! %s Socket %d failed! remote_ip:" IPSTR ", remote_port:%d, local_port:%d", (_sockets[socket].ipproto?"UDP":"TCP"), \
-                    socket, IPNUM(ip), port, _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port);
-        }
-    }
-    else
-    {
-        HALSOCKET_DEBUG("Error! Socket %d connect failed! remote_ip::" IPSTR ", remote_port:%d, local_port:%d", \
+    } else {
+        HALSOCKET_DEBUG("Error! Socket %d connect failed! remote_ip::" IPSTR ", remote_port:%d, local_port:%d\r\n", \
                 socket, IPNUM(ip), port, _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port);
     }
     return ok;
@@ -193,16 +210,31 @@ bool Esp8266ConnClass::socketIsConnected(int socket)
 {
     bool ok = false;
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    //HALSOCKET_DEBUG("socket %d is Connected: %s", socket, ok?"yes":"no");
+    //HALSOCKET_DEBUG("socket %d is Connected: %s\r\n", socket, ok?"yes":"no");
     return ok;
+}
+
+int Esp8266ConnClass::socketAccept(int socket)
+{
+    int socketTemp = MDM_SOCKET_ERROR;
+
+    if (ISSOCKET(socket) && (!_sockets[socket].connected)) { // 有tcp server client 连接
+        for(int i=0; i < NUMSERVERSOCKETLIST; i++) {
+            if (_sockets[socket].serverSocketList[i] != MDM_SOCKET_ERROR) {
+                socketTemp = _sockets[socket].serverSocketList[i];
+                _sockets[socket].serverSocketList[i] = MDM_SOCKET_ERROR;
+                break;
+            }
+        }
+    }
+    return socketTemp;
 }
 
 bool Esp8266ConnClass::socketClose(int socket)
 {
     bool ok = false;
-    if (ISSOCKET(socket) && (_sockets[socket].connected || _sockets[socket].open))
-    {
-        HALSOCKET_DEBUG("OK! %s socket %d close!", (_sockets[socket].ipproto?"UDP":"TCP"), socket);
+    if (ISSOCKET(socket) && (_sockets[socket].connected || _sockets[socket].open)) {
+        HALSOCKET_DEBUG("OK! %s socket %d close!\r\n", (_sockets[socket].ipproto?"UDP":"TCP"), socket);
         if((MDM_IPPROTO_TCP == _sockets[socket].ipproto) && (_sockets[socket].connected)) {
             ARM_CONN_TIMEOUT(2000);
             _socketDisconnected =0;
@@ -215,9 +247,8 @@ bool Esp8266ConnClass::socketClose(int socket)
                 }
             }
         }
-        if(0 == espconn_delete(_sockets[socket].esp8266_conn_ptr))
-        {
-            HALSOCKET_DEBUG("OK! espconn_delete");
+        if(0 == espconn_delete(_sockets[socket].esp8266_conn_ptr)) {
+            HALSOCKET_DEBUG("OK! espconn_delete\r\n");
         }
         // Assume RESP_OK in most situations, and assume closed
         // already if we couldn't close it, even though this can
@@ -232,31 +263,30 @@ bool Esp8266ConnClass::socketClose(int socket)
 bool Esp8266ConnClass::_socketFree(int socket)
 {
     bool ok = false;
-    if ((socket >= 0) && (socket < NUMSOCKETS)) {
-        if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
-            _sockets[socket].handle     = MDM_SOCKET_ERROR;
-            _sockets[socket].connected  = false;
-            _sockets[socket].pending    = 0;
-            _sockets[socket].open       = false;
-            if(MDM_IPPROTO_UDP == _sockets[socket].ipproto) {
-                HALSOCKET_DEBUG("OK! udp free");
-                free(_sockets[socket].esp8266_conn_ptr->proto.udp);
-                _sockets[socket].esp8266_conn_ptr->proto.udp = NULL;
-            }
-            else {
-                HALSOCKET_DEBUG("OK! tcp free");
-                free(_sockets[socket].esp8266_conn_ptr->proto.tcp);
-                _sockets[socket].esp8266_conn_ptr->proto.tcp = NULL;
-            }
-            if (_sockets[socket].esp8266_conn_ptr) {
-                HALSOCKET_DEBUG("OK! esp8266 conn ptr free");
-                free(_sockets[socket].esp8266_conn_ptr);
-                _sockets[socket].esp8266_conn_ptr = NULL;
-            }
-            if (_sockets[socket].pipe) {
-                delete _sockets[socket].pipe;
-                _sockets[socket].pipe = NULL;
-            }
+
+    if (ISSOCKET(socket)) {
+        _sockets[socket].handle     = MDM_SOCKET_ERROR;
+        _sockets[socket].connected  = false;
+        _sockets[socket].pending    = 0;
+        _sockets[socket].open       = false;
+        memset(_sockets[socket].serverSocketList, MDM_SOCKET_ERROR, sizeof(_sockets[socket].serverSocketList));
+        if(MDM_IPPROTO_UDP == _sockets[socket].ipproto) {
+            HALSOCKET_DEBUG("OK! udp free\r\n");
+            free(_sockets[socket].esp8266_conn_ptr->proto.udp);
+            _sockets[socket].esp8266_conn_ptr->proto.udp = NULL;
+        } else {
+            HALSOCKET_DEBUG("OK! tcp free\r\n");
+            free(_sockets[socket].esp8266_conn_ptr->proto.tcp);
+            _sockets[socket].esp8266_conn_ptr->proto.tcp = NULL;
+        }
+        if (_sockets[socket].esp8266_conn_ptr) {
+            HALSOCKET_DEBUG("OK! esp8266 conn ptr free\r\n");
+            free(_sockets[socket].esp8266_conn_ptr);
+            _sockets[socket].esp8266_conn_ptr = NULL;
+        }
+        if (_sockets[socket].pipe) {
+            delete _sockets[socket].pipe;
+            _sockets[socket].pipe = NULL;
         }
         ok = true;
     }
@@ -267,18 +297,17 @@ bool Esp8266ConnClass::socketFree(int socket)
 {
     // make sure it is closed
     socketClose(socket);
-    if(_socketFree(socket))
-    {
-        HALSOCKET_DEBUG("OK! socket %d free!", socket);
+    if(_socketFree(socket)) {
+        HALSOCKET_DEBUG("OK! socket %d free!\r\n", socket);
         return true;
     }
-    HALSOCKET_DEBUG("Error! socket %d free failed!", socket);
+    HALSOCKET_DEBUG("Error! socket %d free failed!\r\n", socket);
     return false;
 }
 
 int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
 {
-    HALSOCKET_DEBUG("OK! socket:%d send data len:%d!", socket,len);
+    HALSOCKET_DEBUG("OK! socket:%d send data len:%d!\r\n", socket,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -310,7 +339,7 @@ int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
 
 int Esp8266ConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    HALSOCKET_DEBUG("OK! socket:%d send data to ip:" IPSTR ", port:%d, len:%d!", socket,IPNUM(ip),port,len);
+    HALSOCKET_DEBUG("OK! socket:%d send data to ip:" IPSTR ", port:%d, len:%d!\r\n", socket,IPNUM(ip),port,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -325,8 +354,8 @@ int Esp8266ConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char *
                     _sockets[socket].esp8266_conn_ptr->proto.udp->remote_ip[2] = (ip >> 8) & 0xFF;
                     _sockets[socket].esp8266_conn_ptr->proto.udp->remote_ip[3] = ip & 0xFF;
                     _sockets[socket].esp8266_conn_ptr->proto.udp->remote_port = port;
-                    //HALSOCKET_DEBUG("udp remote_ip:" IPSTR "", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[1], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[2], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[3]);
-                    //HALSOCKET_DEBUG("udp remote_port:%d", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port);
+                    //HALSOCKET_DEBUG("udp remote_ip:" IPSTR "\r\n", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[1], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[2], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[3]);
+                    //HALSOCKET_DEBUG("udp remote_port:%d\r\n", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port);
                 }
                 else {
                     _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0] = (ip >> 24) & 0xFF;
@@ -335,8 +364,8 @@ int Esp8266ConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char *
                     _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[3] = ip & 0xFF;
                     _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port = port;
                     _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port = port;
-                    //HALSOCKET_DEBUG("tcp remote_ip:" IPSTR "", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[1], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[2], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[3]);
-                    //HALSOCKET_DEBUG("tcp remote_port:%d", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port);
+                    //HALSOCKET_DEBUG("tcp remote_ip:" IPSTR "\r\n", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[0], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[1], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[2], _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip[3]);
+                    //HALSOCKET_DEBUG("tcp remote_port:%d\r\n", _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port);
                 }
                 ARM_CONN_TIMEOUT(2000);
                 _socketSended =0;
@@ -427,8 +456,24 @@ int Esp8266ConnClass::_findSocket(int handle) {
     return MDM_SOCKET_ERROR;
 }
 
+int Esp8266ConnClass::_findSocketServer(int port, int handle) {
+    //寻找相同port的tcp server
+    for (int socket = 0; socket < NUMSOCKETS; socket++) {
+        if ((_sockets[socket].handle != MDM_SOCKET_ERROR)
+            && (_sockets[socket].ipproto == MDM_IPPROTO_TCP_SERVER)
+            && (_sockets[socket].esp8266_conn_ptr->proto.udp->local_port == port))
+            return MDM_SOCKET_ERROR;
+    }
+
+    for (int socket = 0; socket < NUMSOCKETS; socket++) {
+        if (_sockets[socket].handle == handle)
+            return socket;
+    }
+    return MDM_SOCKET_ERROR;
+}
+
 void Esp8266ConnClass::_espconn_connect_callback(void *arg) {
-    HALSOCKET_DEBUG("_espconn_connect_callback");
+    HALSOCKET_DEBUG("_espconn_connect_callback\r\n");
 
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;
@@ -448,7 +493,7 @@ void Esp8266ConnClass::_espconn_connect_callback(void *arg) {
 }
 
 void Esp8266ConnClass::_espconn_reconnect_callback(void *arg, sint8 errType) {
-    HALSOCKET_DEBUG("_espconn_reconnect_callback");
+    HALSOCKET_DEBUG("_espconn_reconnect_callback\r\n");
 
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;
@@ -469,13 +514,56 @@ void Esp8266ConnClass::_espconn_reconnect_callback(void *arg, sint8 errType) {
     _socketConnectConfirmed = 1;
 }
 
+void Esp8266ConnClass::_espconn_tcp_server_client_connect_callback(void *arg) {
+    HALSOCKET_DEBUG("_espconn_tcp_server_client_connect_callback\r\n");
+
+    int socket=0;
+    struct espconn *pespconn = (struct espconn *)arg;
+
+    for (socket=0; socket < NUMSOCKETS; socket++) {
+        if (ISSOCKET(socket)) {
+            if((_sockets[socket].ipproto == MDM_IPPROTO_TCP_SERVER)
+                    &&(pespconn->proto.tcp->local_port == _sockets[socket].esp8266_conn_ptr->proto.tcp->local_port)) {
+                break;
+            }
+        }
+    }
+
+    if (NUMSOCKETS != socket) {
+        _sockets[socket].connected = true;  //有server client连入
+        // find an free socket
+        int tcpSocket = _findSocket(MDM_SOCKET_ERROR);
+        if (tcpSocket != MDM_SOCKET_ERROR) {
+            for(int i=0; i < NUMSERVERSOCKETLIST; i++) {
+                if (_sockets[socket].serverSocketList[i] == MDM_SOCKET_ERROR) {
+                    _sockets[socket].serverSocketList[i] = tcpSocket;
+                    break;
+                }
+            }
+            _sockets[tcpSocket].handle       = tcpSocket;
+            _sockets[tcpSocket].ipproto      = MDM_IPPROTO_TCP;
+            _sockets[tcpSocket].connected  = false;
+            _sockets[tcpSocket].pending    = 0;
+            _sockets[tcpSocket].open       = true;
+            _sockets[tcpSocket].pipe = new Pipe<char>(MAX_SIZE);
+            _sockets[tcpSocket].esp8266_conn_ptr = pespconn;
+            espconn_regist_disconcb(_sockets[tcpSocket].esp8266_conn_ptr, _espconn_disconnect_callback);
+            espconn_regist_recvcb(_sockets[tcpSocket].esp8266_conn_ptr, _espconn_recv_callback);
+            espconn_regist_sentcb(_sockets[tcpSocket].esp8266_conn_ptr, _espconn_sent_callback);
+            HALSOCKET_DEBUG("OK! %s tcpSocket %d was created!\r\n", TCP SERVER CLIENT, tcpSocket);
+        } else {
+            HALSOCKET_DEBUG("Error! tcpSocket create failed!\r\n");
+        }
+    }
+}
+
 void Esp8266ConnClass::_espconn_sent_callback(void *arg) {
-    HALSOCKET_DEBUG("_espconn_sent_callback");
+    HALSOCKET_DEBUG("_espconn_sent_callback\r\n");
     _socketSended = 1;
 }
 
 void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigned short len) {
-    HALSOCKET_DEBUG("_espconn_recv_callback");
+    HALSOCKET_DEBUG("_espconn_recv_callback\r\n");
 
     int socket=0, n=0;
     struct espconn *pespconn = (struct espconn *)arg;
@@ -489,26 +577,24 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
         }
     }
     if (NUMSOCKETS != socket) {
-        HALSOCKET_DEBUG("Socket %d: has %d bytes pending", socket, len);
+        HALSOCKET_DEBUG("Socket %d: has %d bytes pending\r\n", socket, len);
         for(n=0; n < len ; n++) {
             if (_sockets[socket].pipe->writeable()) {
                 _sockets[socket].pipe->putc(pusrdata[n]);
-            }
-            else{
+            } else {
                 break;
             }
         }
         _sockets[socket].pending += n;
         remot_info *premot = NULL;
         if (espconn_get_connection_info(pespconn, &premot,0) == ESPCONN_OK){
-            //HALSOCKET_DEBUG("espconn_get_connection_info");
-            //HALSOCKET_DEBUG("remote_ip:" IPSTR "", premot->remote_ip[0], premot->remote_ip[1], premot->remote_ip[2], premot->remote_ip[3]);
-            //HALSOCKET_DEBUG("remote_port:%d", premot->remote_port);
+            //HALSOCKET_DEBUG("espconn_get_connection_info\r\n");
+            //HALSOCKET_DEBUG("remote_ip:" IPSTR "\r\n", premot->remote_ip[0], premot->remote_ip[1], premot->remote_ip[2], premot->remote_ip[3]);
+            //HALSOCKET_DEBUG("remote_port:%d\r\n", premot->remote_port);
             if(MDM_IPPROTO_UDP == _sockets[socket].ipproto) {
                 memcpy(_sockets[socket].esp8266_conn_ptr->proto.udp->remote_ip, premot->remote_ip, 4);
                 _sockets[socket].esp8266_conn_ptr->proto.udp->remote_port = premot->remote_port;
-            }
-            else {
+            } else {
                 memcpy(_sockets[socket].esp8266_conn_ptr->proto.tcp->remote_ip, premot->remote_ip, 4);
                 _sockets[socket].esp8266_conn_ptr->proto.tcp->remote_port = premot->remote_port;
             }
@@ -517,7 +603,7 @@ void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigne
 }
 
 void Esp8266ConnClass::_espconn_disconnect_callback(void *arg) {
-    HALSOCKET_DEBUG("_espconn_disconnect_callback");
+    HALSOCKET_DEBUG("_espconn_disconnect_callback\r\n");
 
     int socket=0;
     struct espconn *pespconn = (struct espconn *)arg;

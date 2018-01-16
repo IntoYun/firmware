@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef ESP8266_CONN_H
-#define ESP8266_CONN_H
+#ifndef ESP32_CONN_H
+#define ESP32_CONN_H
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -35,20 +35,20 @@
 // management struture for sockets
 typedef struct {
     int handle;
-    volatile IpProtocol ipproto;
-    volatile bool connected;
-    volatile int pending;
-    volatile bool open;
-    struct espconn *esp8266_conn_ptr;
+    IpProtocol ipproto;
+    bool connected;
+    int pending;
+    bool open;
+    int remote_port;
+    MDM_IP remote_ip;
     Pipe<char>* pipe;
-    int serverSocketList[5]; //tcp server client socket list
 } SockCtrl;
 
-class Esp8266ConnClass
+class Esp32ConnClass
 {
 public:
     //! Constructor
-    Esp8266ConnClass(void);
+    Esp32ConnClass(void);
 
     // ----------------------------------------------------------------
     // Sockets
@@ -114,8 +114,8 @@ public:
         \return the number of bytes read or SOCKET_ERROR on failure
     */
     int socketRecv(int socket, char* buf, int len);
-
     int socketRecvFrom(int socket, MDM_IP* ip, int* port, char* buf, int len);
+
     /** Close a connectied socket (that was connected with #socketConnect)
         \param socket the socket handle
         \return true if successfully, false otherwise
@@ -133,14 +133,8 @@ protected:
     static SockCtrl _sockets[10];
 
     static int _findSocket(int handle = MDM_SOCKET_ERROR/* = CREATE*/);
-    static int _findSocketServer(int port, int handle = MDM_SOCKET_ERROR/* = CREATE*/);
     static bool _socketFree(int socket);
-    static void _espconn_connect_callback(void *arg);
-    static void _espconn_reconnect_callback(void *arg, sint8 errType);
-    static void _espconn_tcp_server_client_connect_callback(void *arg);
-    static void _espconn_sent_callback(void *arg);
-    static void _espconn_recv_callback(void *arg, char *pusrdata, unsigned short len);
-    static void _espconn_disconnect_callback(void *arg);
 };
 
 #endif
+

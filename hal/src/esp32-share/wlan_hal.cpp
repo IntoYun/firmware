@@ -108,9 +108,9 @@ wlan_result_t wlan_deactivate()
 void wlan_setup()
 {
     esp32_setMode(WIFI_MODE_STA);
-    esp32_setDHCP(true);
     esp32_setAutoConnect(true);
     esp32_setAutoReconnect(true);
+    esp32_begin();
 }
 
 //=======wifi connect===========

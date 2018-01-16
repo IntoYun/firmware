@@ -20,10 +20,6 @@ License along with this library; if not, see <http://www.gnu.org/licenses/>.
 
 Esp8266ConnClass esp8266_conn;
 
-const sock_handle_t SOCKET_MAX = (sock_handle_t)5; // 5 total sockets, handle 0-4
-const sock_handle_t SOCKET_INVALID = (sock_handle_t)-1;
-
-
 sock_handle_t socket_create(uint8_t family, uint8_t type, uint8_t protocol, uint16_t port, network_interface_t nif)
 {
     sock_handle_t handle = esp8266_conn.socketCreate(protocol==IPPROTO_TCP ? MDM_IPPROTO_TCP : MDM_IPPROTO_UDP, port);
@@ -94,7 +90,8 @@ sock_result_t socket_bind(sock_handle_t sock, uint16_t port)
 
 sock_result_t socket_accept(sock_handle_t sock)
 {
-    return 0;
+    sock_handle_t handle = esp8266_conn.socketAccept(sock);
+    return handle;
 }
 
 uint8_t socket_active_status(sock_handle_t socket)
@@ -123,7 +120,7 @@ sock_result_t socket_sendto(sock_handle_t sd, const void* buffer, socklen_t len,
 }
 
 inline bool is_valid(sock_handle_t handle) {
-    return handle<SOCKET_MAX;
+    return esp8266_conn.socketIsValid(handle);
 }
 
 uint8_t socket_handle_valid(sock_handle_t handle) {
@@ -132,7 +129,7 @@ uint8_t socket_handle_valid(sock_handle_t handle) {
 
 sock_handle_t socket_handle_invalid()
 {
-    return SOCKET_INVALID;
+    return esp8266_conn.socketInvalid();
 }
 
 sock_result_t socket_join_multicast(const HAL_IPAddress* addr, network_interface_t nif, void* reserved)
@@ -152,5 +149,7 @@ sock_result_t socket_peer(sock_handle_t sd, sock_peer_t* peer, void* reserved)
 
 sock_result_t socket_create_tcp_server(uint16_t port, network_interface_t nif)
 {
-    return -1;
+    sock_handle_t handle = esp8266_conn.socketCreate(MDM_IPPROTO_TCP_SERVER, port);
+    return handle;
 }
+

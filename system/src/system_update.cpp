@@ -27,7 +27,7 @@
 #include "wiring_ticks.h"
 
 /*debug switch*/
-#define SYSTEM_UPDATE_DEBUG
+//#define SYSTEM_UPDATE_DEBUG
 
 #ifdef SYSTEM_UPDATE_DEBUG
 #define SUPDATE_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
