@@ -32,16 +32,31 @@
 #undef putc
 #undef getc
 
+typedef struct {
+    int local_port;
+    uint8 local_ip[4];
+    int remote_port;
+    uint8 remote_ip[4];
+} connect_info_t;
+
+typedef struct {
+    connect_info_t connect_info;
+    struct espconn *conn_ptr;
+    bool isAccepted;
+    bool isValid;
+    int handle;
+} server_client_t;
+
 // management struture for sockets
 typedef struct {
     int handle;
-    volatile IpProtocol ipproto;
-    volatile bool connected;
-    volatile int pending;
-    volatile bool open;
-    struct espconn *esp8266_conn_ptr;
+    IpProtocol ipproto;
+    bool connected;
+    int pending;
+    bool open;
+    server_client_t server_client_list[10]; //tcp server 活跃客户端列表
+    struct espconn *conn_ptr;
     Pipe<char>* pipe;
-    int serverSocketList[5]; //tcp server client socket list
 } SockCtrl;
 
 class Esp8266ConnClass
@@ -137,10 +152,13 @@ protected:
     static bool _socketFree(int socket);
     static void _espconn_connect_callback(void *arg);
     static void _espconn_reconnect_callback(void *arg, sint8 errType);
-    static void _espconn_tcp_server_client_connect_callback(void *arg);
     static void _espconn_sent_callback(void *arg);
     static void _espconn_recv_callback(void *arg, char *pusrdata, unsigned short len);
     static void _espconn_disconnect_callback(void *arg);
+    static void _espconn_tcp_server_listen_callback(void *arg);
+    static void _espconn_tcp_server_sent_callback(void *arg);
+    static void _espconn_tcp_server_recv_callback(void *arg, char *pusrdata, unsigned short len);
+    static void _espconn_tcp_server_disconnect_callback(void *arg);
 };
 
 #endif

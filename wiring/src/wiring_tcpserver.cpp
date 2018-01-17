@@ -29,6 +29,11 @@ using namespace intorobot;
 
 static TCPClient* s_invalid_client = NULL;
 
+static bool inline isOpen(sock_handle_t sd)
+{
+   return socket_handle_valid(sd);
+}
+
 class TCPServerClient : public TCPClient
 {
 public:
@@ -112,7 +117,12 @@ size_t TCPServer::write(uint8_t b)
 
 size_t TCPServer::write(const uint8_t *buffer, size_t size)
 {
-    return _client.write(buffer, size);
+    return status() ? socket_send(_sock, buffer, size) : -1;
+}
+
+uint8_t TCPServer::status()
+{
+    return (isOpen(_sock) && Network.from(_nif).ready() && (SOCKET_STATUS_ACTIVE == socket_active_status(_sock)));
 }
 
 #endif

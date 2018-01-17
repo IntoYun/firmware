@@ -1,0 +1,3 @@
+1. sdk/lib  libhal.a 修改成 libhalhal.a 防止libhal.a与firmware libhal.a 冲突。
+2. sdk/libc/xtensa-lx106-elf/include/assert.h  注释：#include <pgmspace.h>。
+3. sdk/lwip/include/arch/cc.h  注释：#define LWIP_ERR_T s32_t

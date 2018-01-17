@@ -40,6 +40,15 @@ extern "C" {
 #include "net_hal.h"
 #include "service_debug.h"
 
+#define HAL_WIFI_DEBUG
+
+#ifdef HAL_WIFI_DEBUG
+#define HALWIFI_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define HALWIFI_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define HALWIFI_DEBUG(...)
+#define HALWIFI_DEBUG_D(...)
+#endif
 
 extern "C" {
 void optimistic_yield(uint32_t interval_us);
@@ -55,7 +64,7 @@ static volatile uint32_t esp8266_wifi_timeout_duration;
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
     esp8266_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_wifi_timeout_duration = dur;
-    //DEBUG("esp8266 WIFI WD Set %d\r\n",(dur));
+    //HALWIFI_DEBUG("esp8266 WIFI WD Set %d\r\n",(dur));
 }
 inline bool IS_WIFI_TIMEOUT() {
     return esp8266_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
@@ -63,7 +72,7 @@ inline bool IS_WIFI_TIMEOUT() {
 
 inline void CLR_WIFI_TIMEOUT() {
     esp8266_wifi_timeout_duration = 0;
-    //DEBUG("esp8266 WIFI WD Cleared, was %d\r\n", esp8266_wifi_timeout_duration);
+    //HALWIFI_DEBUG("esp8266 WIFI WD Cleared, was %d\r\n", esp8266_wifi_timeout_duration);
 }
 
 static void _eventCallback(System_Event_t * evt)
@@ -71,17 +80,17 @@ static void _eventCallback(System_Event_t * evt)
     switch (evt->event)
     {
         case EVENT_STAMODE_CONNECTED:
-            DEBUG("EVENT_STAMODE_CONNECTED\r\n");
+            HALWIFI_DEBUG("EVENT_STAMODE_CONNECTED\r\n");
             break;
         case EVENT_STAMODE_DISCONNECTED:
-            DEBUG("EVENT_STAMODE_DISCONNECTED\r\n");
+            HALWIFI_DEBUG("EVENT_STAMODE_DISCONNECTED\r\n");
             HAL_NET_notify_disconnected();
             break;
         case EVENT_STAMODE_AUTHMODE_CHANGE:
-            DEBUG("EVENT_STAMODE_AUTHMODE_CHANGE\r\n");
+            HALWIFI_DEBUG("EVENT_STAMODE_AUTHMODE_CHANGE\r\n");
             break;
         case EVENT_STAMODE_GOT_IP:
-            DEBUG("EVENT_STAMODE_GOT_IP\r\n");
+            HALWIFI_DEBUG("EVENT_STAMODE_GOT_IP\r\n");
             HAL_NET_notify_dhcp(true);
             HAL_NET_notify_connected();
             break;
@@ -98,7 +107,7 @@ static void _eventCallback(System_Event_t * evt)
  * @param m WiFiMode_t
  */
 bool esp8266_wifiInit(void) {
-    DEBUG("esp8266_wifiInit\r\n");
+    HALWIFI_DEBUG("esp8266_wifiInit\r\n");
     wifi_set_event_handler_cb(_eventCallback);
 }
 
@@ -242,11 +251,11 @@ bool _smartConfigDone = false;
 void smartConfigCallback(uint32_t st, void* result) {
     sc_status status = (sc_status) st;
 
-    DEBUG("beginSmartConfig status = %d\r\n", status);
+    HALWIFI_DEBUG("beginSmartConfig status = %d\r\n", status);
     if(status == SC_STATUS_LINK) {
         station_config* sta_conf = reinterpret_cast<station_config*>(result);
-        DEBUG("ssid     = %s\r\n", sta_conf->ssid);
-        DEBUG("password = %s\r\n", sta_conf->password);
+        HALWIFI_DEBUG("ssid     = %s\r\n", sta_conf->ssid);
+        HALWIFI_DEBUG("password = %s\r\n", sta_conf->password);
         wifi_station_set_config(sta_conf);
         wifi_station_disconnect();
         wifi_station_connect();
@@ -263,7 +272,7 @@ bool esp8266_beginSmartConfig() {
         return false;
     }
 
-    DEBUG("esp8266_beginSmartConfig\r\n");
+    HALWIFI_DEBUG("esp8266_beginSmartConfig\r\n");
     if(!esp8266_enableSTA(true)) {
         // enable STA failed
         return false;
@@ -286,7 +295,7 @@ bool esp8266_stopSmartConfig() {
         return true;
     }
 
-    DEBUG("esp8266_stopSmartConfig\r\n");
+    HALWIFI_DEBUG("esp8266_stopSmartConfig\r\n");
     if(smartconfig_stop()) {
         _smartConfigStarted = false;
         return true;
@@ -385,3 +394,4 @@ wl_status_t esp8266_status()
             return WL_DISCONNECTED;
     }
 }
+

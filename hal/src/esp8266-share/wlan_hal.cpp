@@ -385,7 +385,7 @@ void optimistic_yield(uint32_t interval_us);
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)
 {
-    esp8266_setMode(WIFI_STA);
+    esp8266_enableSTA(WIFI_STA);
     memset((void *)&scanInfo, 0, sizeof(struct WlanScanInfo));
     scanInfo.callback = callback;
     scanInfo.callback_data = cookie;

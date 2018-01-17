@@ -122,10 +122,7 @@ void Network_Setup(void)
     system_rgb_blink(RGB_COLOR_GREEN, 1000);
 
     network.setup();
-
-    if((system_mode() == AUTOMATIC) || (system_mode() == SEMI_AUTOMATIC)) {
-        network.connect();
-    }
+    network.connect();
 
     if (network.ready()) {
         //连接上网络，默认蓝灯闪烁
