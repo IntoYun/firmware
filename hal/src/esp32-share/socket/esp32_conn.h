@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef ESP8266_CONN_H
-#define ESP8266_CONN_H
+#ifndef ESP32_CONN_H
+#define ESP32_CONN_H
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -32,21 +32,6 @@
 #undef putc
 #undef getc
 
-typedef struct {
-    int local_port;
-    uint8 local_ip[4];
-    int remote_port;
-    uint8 remote_ip[4];
-} connect_info_t;
-
-typedef struct {
-    connect_info_t connect_info;
-    struct espconn *conn_ptr;
-    bool isAccepted;
-    bool isValid;
-    int handle;
-} server_client_t;
-
 // management struture for sockets
 typedef struct {
     int handle;
@@ -54,16 +39,16 @@ typedef struct {
     bool connected;
     int pending;
     bool open;
-    server_client_t server_client_list[10]; //tcp server 活跃客户端列表
-    struct espconn *conn_ptr;
+    int remote_port;
+    MDM_IP remote_ip;
     Pipe<char>* pipe;
 } SockCtrl;
 
-class Esp8266ConnClass
+class Esp32ConnClass
 {
 public:
     //! Constructor
-    Esp8266ConnClass(void);
+    Esp32ConnClass(void);
 
     // ----------------------------------------------------------------
     // Sockets
@@ -129,8 +114,8 @@ public:
         \return the number of bytes read or SOCKET_ERROR on failure
     */
     int socketRecv(int socket, char* buf, int len);
-
     int socketRecvFrom(int socket, MDM_IP* ip, int* port, char* buf, int len);
+
     /** Close a connectied socket (that was connected with #socketConnect)
         \param socket the socket handle
         \return true if successfully, false otherwise
@@ -148,17 +133,8 @@ protected:
     static SockCtrl _sockets[10];
 
     static int _findSocket(int handle = MDM_SOCKET_ERROR/* = CREATE*/);
-    static int _findSocketServer(int port, int handle = MDM_SOCKET_ERROR/* = CREATE*/);
     static bool _socketFree(int socket);
-    static void _espconn_connect_callback(void *arg);
-    static void _espconn_reconnect_callback(void *arg, sint8 errType);
-    static void _espconn_sent_callback(void *arg);
-    static void _espconn_recv_callback(void *arg, char *pusrdata, unsigned short len);
-    static void _espconn_disconnect_callback(void *arg);
-    static void _espconn_tcp_server_listen_callback(void *arg);
-    static void _espconn_tcp_server_sent_callback(void *arg);
-    static void _espconn_tcp_server_recv_callback(void *arg, char *pusrdata, unsigned short len);
-    static void _espconn_tcp_server_disconnect_callback(void *arg);
 };
 
 #endif
+

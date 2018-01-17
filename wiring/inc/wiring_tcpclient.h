@@ -32,11 +32,7 @@
 #include "socket_hal.h"
 #include "platforms.h"
 
-#if PLATFORM_ID == PLATFORM_FIG
-#define TCPCLIENT_BUF_MAX_SIZE  1024
-#else
-#define TCPCLIENT_BUF_MAX_SIZE  128
-#endif
+#define TCPCLIENT_BUF_MAX_SIZE  256
 
 class TCPClient : public Client {
 

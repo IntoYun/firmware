@@ -52,8 +52,7 @@ typedef uint32_t MDM_IP;
 typedef enum {
     MDM_IPPROTO_TCP = 0,
     MDM_IPPROTO_UDP = 1,
-    MDM_IPPROTO_TCP_SERVER = 2,
-    MDM_IPPROTO_TCP_SERVER_CLIENT = 3
+    MDM_IPPROTO_TCP_SERVER = 2
 } IpProtocol;
 
 //! Socket error return codes

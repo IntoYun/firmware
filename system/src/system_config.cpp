@@ -1024,6 +1024,7 @@ system_config_type_t get_system_config_type(void)
 
 void system_config_initial(void)
 {
+    SCONFIG_DEBUG("system_config_initial\r\n");
     switch(get_system_config_type()) {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
 #ifdef configSETUP_UDP_ENABLE
@@ -1077,6 +1078,7 @@ void system_config_initial(void)
 
 void system_config_finish(void)
 {
+    SCONFIG_DEBUG("system_config_finish\r\n");
 #ifdef configSETUP_UDP_ENABLE
     DeviceSetupImlink.close();
 #endif

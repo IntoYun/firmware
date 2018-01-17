@@ -41,6 +41,7 @@ class TCPServer : public Print {
         TCPServer(uint16_t, network_interface_t nif=0);
         ~TCPServer() { stop(); }
 
+        uint8_t status();
         TCPClient available();
         virtual bool begin();
         virtual size_t write(uint8_t);

@@ -62,7 +62,9 @@ wl_status_t esp32_status();
 bool esp32_setAutoConnect(bool autoConnect);
 bool esp32_getAutoConnect();
 bool esp32_setAutoReconnect(bool autoReconnect);
+bool esp32_getAutoReconnect(void);
 int esp32_setConfig(wifi_config_t *conf);
+bool esp32_begin(void);
 
 #ifdef __cplusplus
 }
