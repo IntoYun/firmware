@@ -1,3 +1,29 @@
+## v1.6.9
+
+### FEATURES(功能)
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) esp32 添加tcp server功能。
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) esp8266 添加tcp server功能。
+
+### ENHANCEMENTS(优化)
+- [[PR #162]](https://github.com/HITSZ-NRSL/firmware/pull/162) lorawan将发射功率修改以3的倍率递减，修改后的发射功率为20/17/14/11/7/4db。
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) esp8266 SDK 与 esp8266 arduino 同步。对应master commit:074402e23b72305af2fa23c9944c7b96058f06b0。
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) 去掉wiring_tcpclient.h tcp buffer宏定义判断。对wifi模组统一接口。
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) tcp_server write接口修改成往所有连接server client发送数据。
+
+### BUG FIXES(漏洞修复)
+- [[PR #159]](https://github.com/HITSZ-NRSL/firmware/pull/159) 修正nut 和 w323 链接文件。否则编译大小提示大小出错。
+- [[PR #159]](https://github.com/HITSZ-NRSL/firmware/pull/159) 修正透传型数据点读取错误。
+- [[PR #159]](https://github.com/HITSZ-NRSL/firmware/pull/159) 修正用户设置非115200波特率，设备无法配置问题。
+- [[PR #159]](https://github.com/HITSZ-NRSL/firmware/pull/159) 修正对应wifi设备，手机和web打开页面，无法获取数据。
+- [[PR #162]](https://github.com/HITSZ-NRSL/firmware/pull/162) 修正lorawan获取发射功率错误问题。
+- [[PR #163]](https://github.com/HITSZ-NRSL/firmware/pull/163) 修正fig和w323 调用舵机接口无法编译问题。
+- [[PR #165]](https://github.com/HITSZ-NRSL/firmware/pull/165) 修正while(!WiFi.ready()) 后直接调用WiFi.localIP()无法获取ip地址。
+- [[PR #165]](https://github.com/HITSZ-NRSL/firmware/pull/165) 修正SYSTEM_MODE(MANUAL);无法连接WIFI问题。
+
+### INTERNAL(内部)
+- [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) 调整esp32 socket处理方式，达到统一接口目的。
+
+
 ## v1.6.8
 
 ### FEATURES(功能)
