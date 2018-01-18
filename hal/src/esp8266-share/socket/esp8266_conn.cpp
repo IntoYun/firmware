@@ -26,6 +26,7 @@
 #include "hw_config.h"
 #include "esp8266_conn.h"
 #include "timer_hal.h"
+#include "core_hal_esp8266.h"
 
 //#define HAL_SOCKET_DEBUG
 
@@ -41,16 +42,6 @@
 #undef putc
 #undef getc
 #endif
-
-extern "C" {
-void* ICACHE_RAM_ATTR pvPortZalloc(size_t size, const char* file, int line);
-
-void yield(void);
-void optimistic_yield(uint32_t interval_us);
-
-void esp_yield();
-void esp_schedule();
-}
 
 /* Private typedef ----------------------------------------------------------*/
 /* Private define -----------------------------------------------------------*/

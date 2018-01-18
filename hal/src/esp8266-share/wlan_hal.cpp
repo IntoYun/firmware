@@ -25,6 +25,7 @@
 #include "macaddr_hal.h"
 #include "delay_hal.h"
 #include "inet_hal.h"
+#include "core_hal_esp8266.h"
 
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
@@ -138,6 +139,7 @@ int wlan_connected_rssi(void)
 
 void wlan_drive_now(void)
 {
+    optimistic_yield(1000);
 }
 
 //================credentials======================
@@ -377,10 +379,6 @@ void scan_done_cb(void *arg, STATUS status)
         scanInfo.completed = true;
         free(pNode);
     }
-}
-
-extern "C" {
-void optimistic_yield(uint32_t interval_us);
 }
 
 int wlan_scan(wlan_scan_result_t callback, void* cookie)

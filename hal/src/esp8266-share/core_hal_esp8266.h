@@ -24,6 +24,7 @@
 extern "C" {
 #endif
 
+void optimistic_yield(uint32_t interval_us);
 
 #ifdef __cplusplus
 }
