@@ -228,7 +228,7 @@ public:
             system_notify_event(event_network_status, ep_network_status_powering_on);
             config_clear();
             on_now();
-            update_config(true);
+            //update_config(true);
             INTOROBOT_WLAN_STARTED = 1;
             INTOROBOT_WLAN_SLEEP = 0;
             system_notify_event(event_network_status, ep_network_status_on);
@@ -295,7 +295,7 @@ public:
             SNETWORK_DEBUG("CLR_WLAN_WD 1, DHCP success\r\n");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
-            update_config(true); //去掉，否则wifiJoinAp调用时会触发DHCP事件，导致AT指令任务忙等现象。neutron。
+            //update_config(true); //去掉，否则wifiJoinAp调用时会触发DHCP事件，导致AT指令任务忙等现象。neutron。
         } else {
             config_clear();
             WLAN_DHCP = 0;

@@ -318,7 +318,8 @@ int Esp32ConnClass::socketSendTo(int socket, MDM_IP ip, int port, const char * b
 
 int Esp32ConnClass::socketReadable(int socket)
 {
-    uint8_t buffer[128] = {0};  //实测 buffer的大小要比 tcp buffer小，否则fig 在线烧录不成功
+    uint8_t buffer[512] = {0};
+    uint16_t readLen = 0;
 
     if (ISSOCKET(socket) && (_sockets[socket].connected)) {
         int count;
@@ -331,7 +332,13 @@ int Esp32ConnClass::socketReadable(int socket)
         struct sockaddr si_other;
         socklen_t slen = sizeof(si_other);
 
-        res = recvfrom(_sockets[socket].handle, buffer, sizeof(buffer), MSG_DONTWAIT, &si_other, &slen);
+        if(MDM_IPPROTO_UDP == _sockets[socket].ipproto) {
+            readLen = 512; //实测 udp 有数据只能获取一次
+        } else {
+            readLen = 128; //实测 buffer的大小要比 tcp buffer小，否则fig 在线烧录不成功
+        }
+
+        res = recvfrom(_sockets[socket].handle, buffer, readLen, MSG_DONTWAIT, &si_other, &slen);
         if (res <= 0) {
             switch (errno) {
                 case ENOTCONN:
