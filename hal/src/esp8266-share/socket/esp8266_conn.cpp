@@ -188,12 +188,12 @@ bool Esp8266ConnClass::socketConnect(int socket, const MDM_IP& ip, int port)
                     break;
                 }
             }
+        }
 
-            if(_sockets[socket].connected == true) {
-                espconn_regist_recvcb(_sockets[socket].conn_ptr, _espconn_recv_callback);
-                espconn_regist_sentcb(_sockets[socket].conn_ptr, _espconn_sent_callback);
-                ok = true;
-            }
+        if(_sockets[socket].connected == true) {
+            espconn_regist_recvcb(_sockets[socket].conn_ptr, _espconn_recv_callback);
+            espconn_regist_sentcb(_sockets[socket].conn_ptr, _espconn_sent_callback);
+            ok = true;
         }
     }
 
