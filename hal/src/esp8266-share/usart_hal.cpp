@@ -29,11 +29,7 @@
 #include "usart_hal.h"
 #include "pinmap_impl.h"
 #include "esp8266-hal-uart.h"
-
-
-#define UART0    0
-#define UART1    1
-#define UART_NO -1
+#include "core_hal_esp8266.h"
 
 // Options for `config` argument of uart_init
 #define UART_NB_BIT_5         0B00000000
@@ -177,7 +173,7 @@ void HAL_USART_BeginConfig(HAL_USART_Serial serial, uint32_t baud, uint32_t conf
 void HAL_USART_End(HAL_USART_Serial serial)
 {
     if(uartGetDebug() == usartMap[serial]->usart_nr) {
-        uartSetDebug(0);
+        uartSetDebug(UART_NO);
     }
     uartEnd(usartMap[serial]->usart);
     usartMap[serial]->usart = NULL;
@@ -200,7 +196,12 @@ uint32_t HAL_USART_Write_NineBitData(HAL_USART_Serial serial, uint16_t data)
 
 int32_t HAL_USART_Available_Data(HAL_USART_Serial serial)
 {
-    return uartAvailable(usartMap[serial]->usart);
+    int32_t result = uartAvailable(usartMap[serial]->usart);
+
+    if (!result) {
+        optimistic_yield(10000);
+    }
+    return result;
 }
 
 int32_t HAL_USART_Available_Data_For_Write(HAL_USART_Serial serial)

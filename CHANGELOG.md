@@ -9,6 +9,7 @@
 - [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) esp8266 SDK 与 esp8266 arduino 同步。对应master commit:074402e23b72305af2fa23c9944c7b96058f06b0。
 - [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) 去掉wiring_tcpclient.h tcp buffer宏定义判断。对wifi模组统一接口。
 - [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) tcp_server write接口修改成往所有连接server client发送数据。
+- [[PR #169]](https://github.com/HITSZ-NRSL/firmware/pull/169) 去掉esp8266 sdk log信息。
 
 ### BUG FIXES(漏洞修复)
 - [[PR #159]](https://github.com/HITSZ-NRSL/firmware/pull/159) 修正nut 和 w323 链接文件。否则编译大小提示大小出错。
@@ -19,6 +20,8 @@
 - [[PR #163]](https://github.com/HITSZ-NRSL/firmware/pull/163) 修正fig和w323 调用舵机接口无法编译问题。
 - [[PR #165]](https://github.com/HITSZ-NRSL/firmware/pull/165) 修正while(!WiFi.ready()) 后直接调用WiFi.localIP()无法获取ip地址。
 - [[PR #165]](https://github.com/HITSZ-NRSL/firmware/pull/165) 修正SYSTEM_MODE(MANUAL);无法连接WIFI问题。
+- [[PR #169]](https://github.com/HITSZ-NRSL/firmware/pull/169) 修正esp8266 调用while(!Serial.available()); 出现看门狗超时。
+- [[PR #169]](https://github.com/HITSZ-NRSL/firmware/pull/169) 修正neutron配置网络失败问题, 由于AT指令冲突。。
 
 ### INTERNAL(内部)
 - [[PR #166]](https://github.com/HITSZ-NRSL/firmware/pull/166) 调整esp32 socket处理方式，达到统一接口目的。

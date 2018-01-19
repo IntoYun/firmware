@@ -39,6 +39,7 @@ extern "C" {
 #include "timer_hal.h"
 #include "net_hal.h"
 #include "service_debug.h"
+#include "core_hal_esp8266.h"
 
 #define HAL_WIFI_DEBUG
 
@@ -49,12 +50,6 @@ extern "C" {
 #define HALWIFI_DEBUG(...)
 #define HALWIFI_DEBUG_D(...)
 #endif
-
-extern "C" {
-void optimistic_yield(uint32_t interval_us);
-void esp_yield();
-void esp_schedule();
-}
 
 volatile uint8_t _dns_founded=0;
 

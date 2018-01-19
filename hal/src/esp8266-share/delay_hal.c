@@ -30,23 +30,7 @@
 #include "osapi.h"
 #include "user_interface.h"
 #include "cont.h"
-
-
-extern void optimistic_yield(uint32_t interval_us);
-
-#define ONCE 0
-#define REPEAT 1
-
-/**
- * Updated by HAL_1Ms_Tick()
- */
-/*
-static os_timer_t delay_timer;
-
-void delay_end(void* arg) {
-    esp_schedule();
-}
-*/
+#include "core_hal_esp8266.h"
 
 /*******************************************************************************
 * Function Name  : Delay

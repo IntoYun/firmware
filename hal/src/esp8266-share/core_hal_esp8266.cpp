@@ -142,6 +142,7 @@ static void do_global_ctors(void) {
 extern "C" const char intorobot_subsys_version_header[8] __attribute__((section(".subsys.version.header"))) = {'V', 'E', 'R', 'S', 'I', 'O', 'N', ':'};
 extern "C" const char intorobot_subsys_version[32] __attribute__((section(".subsys.version"))) = stringify(SUBSYS_VERSION_STRING);
 void init_done() {
+    //system_set_os_print(0);
     gdb_init();
     do_global_ctors();
     printf("\n%08x ", intorobot_subsys_version_header);
