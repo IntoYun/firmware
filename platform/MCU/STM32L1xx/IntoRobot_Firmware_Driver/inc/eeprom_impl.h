@@ -98,7 +98,7 @@ void HAL_EEPROM_Put(uint32_t address, const void *data, size_t length)
         return;
 
     for(int i = 0; i < length; i++) {
-        EEPROM_WriteByte(address+i, data+i);
+        EEPROM_WriteByte(address+i, ptr[i]);
     }
 }
 
