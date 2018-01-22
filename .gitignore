@@ -47,12 +47,8 @@ user/src/*
 user/src/application.ino
 
 #发布
-release/release-package
-release/release-online-program
+release
 
 # tags
 tags
-
-#项目工程
-project/*/target/
 
