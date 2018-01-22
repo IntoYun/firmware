@@ -41,9 +41,11 @@ static TimerEvent_t sleepTimer;
 static void before_sleep(uint32_t seconds) {
 #ifndef configNO_LORAWAN
     LoRa.radioSetSleep();
-    TimerInit(&sleepTimer, NULL);
-    TimerSetValue(&sleepTimer, seconds * 1000);
-    TimerStart(&sleepTimer);
+    if(seconds > 0){
+        TimerInit(&sleepTimer, NULL);
+        TimerSetValue(&sleepTimer, seconds * 1000);
+        TimerStart(&sleepTimer);
+    }
 #endif
 }
 

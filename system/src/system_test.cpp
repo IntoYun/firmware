@@ -363,7 +363,7 @@ void testSensorData(void* cookie)
 #if PLATFORM_ID == PLATFORM_ANT || PLATFORM_ID == PLATFORM_L6
 
 //ant l6生产时板子测试代码
-#define RF_FREQUENCY    434775000
+#define RF_FREQUENCY    433975000
 #define BUFFER_SIZE     8
 
 typedef enum
