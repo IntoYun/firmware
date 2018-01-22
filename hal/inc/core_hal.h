@@ -115,8 +115,9 @@ void HAL_Core_Enter_Com_Mode(void);
 void HAL_Core_Enter_Factory_Reset_Mode(void);
 void HAL_Core_Enter_Ota_Update_Mode(void);
 void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds);
+void HAL_Core_Execute_Stop_Mode(void);
 void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved);
-
+void HAL_Core_Execute_Standby_Mode(void);
 
 void HAL_Core_Enter_Safe_Mode(void* reserved);
 void HAL_Core_Enter_Bootloader(bool persist);

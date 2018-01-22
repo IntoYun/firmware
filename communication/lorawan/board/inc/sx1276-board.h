@@ -12,8 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __SX1276_ARCH_H__
-#define __SX1276_ARCH_H__
+#ifndef __SX1276_BOARD_H__
+#define __SX1276_BOARD_H__
 
 #ifdef __cplusplus
 extern "C" {

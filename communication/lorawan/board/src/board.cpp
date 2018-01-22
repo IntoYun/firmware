@@ -50,11 +50,6 @@ uint16_t BoardBatteryMeasureVolage( void )
     return batteryVoltage;
 }
 
-// uint16_t BoardGetBatteryVoltage( void )
-// {
-//     return BoardBatteryMeasureVolage( );
-// }
-
 uint8_t BoardGetBatteryLevel(void)
 {
     uint8_t batteryLevel = 0;

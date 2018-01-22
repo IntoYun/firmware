@@ -34,15 +34,8 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
  */
 static bool RadioIsActive = false;
-/*!
- * Nested interrupt counter.
- *
- * \remark Interrupt should only be fully disabled once the value is 0
- */
-static uint8_t IrqNestLevel = 0;
-static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
-
+static bool rtcSetCallback = false;
 /*!
  * Radio driver structure initialization
  */
@@ -262,7 +255,10 @@ void SX1276BoardInit(void)
     SPI1.setDataMode(0);
     SPI1.begin();
     SX1276IoInit();
-    HAL_RTC_SetCallbacks(TimerIrqHandler, NULL);
+    if(!rtcSetCallback){
+        rtcSetCallback = true;
+        HAL_RTC_SetCallbacks(TimerIrqHandler, NULL);
+    }
 }
 
 void SX1276SetReset(void)

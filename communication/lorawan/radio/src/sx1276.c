@@ -353,8 +353,7 @@ static void RxChainCalibration( void )
     }
 
     // Sets a Frequency in HF band
-    /* SX1276SetChannel( 868000000 ); */
-    SX1276SetChannel( 434000000 );
+    SX1276SetChannel( 868000000 );
 
     // Launch Rx chain calibration for HF band
     SX1276Write( REG_IMAGECAL, ( SX1276Read( REG_IMAGECAL ) & RF_IMAGECAL_IMAGECAL_MASK ) | RF_IMAGECAL_IMAGECAL_START );

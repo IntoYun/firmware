@@ -23,13 +23,6 @@ typedef uint32_t TimerTime_t;
 #endif
 
 /*!
- * \brief Initializes the RTC timer
- *
- * \remark The timer is based on the RTC
- */
-void RtcInit( void );
-
-/*!
  * \brief Start the RTC timer
  *
  * \remark The timer is based on the RTC Alarm running at 32.768KHz
@@ -75,23 +68,6 @@ TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
  * \retval elapsed Time since the eventInTime
  */
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
-
-/*!
- * \brief This function blocks the MCU from going into Low Power mode
- *
- * \param [IN] status [true: Enable, false: Disable
- */
-void BlockLowPowerDuringTask ( bool status );
-
-/*!
- * \brief Sets the MCU into low power STOP mode
- */
-void RtcEnterLowPowerStopMode( void );
-
-/*!
- * \brief Restore the MCU to its normal operation mode
- */
-void RtcRecoverMcuStatus( void );
 
 #endif // __RTC_BOARD_H__
 

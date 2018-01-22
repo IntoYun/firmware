@@ -269,7 +269,7 @@ void testSelfTest(void* cookie)
 #elif PLATFORM_ID == PLATFORM_ANT
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus()) {
+    if(HAL_RTC_Time_Is_Valid(nullptr)) {
         aJson.addNumberToObject(root, "status", 200);
     } else {
         aJson.addNumberToObject(root, "status", 201);
@@ -282,7 +282,7 @@ void testSelfTest(void* cookie)
 #elif PLATFORM_ID == PLATFORM_L6
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus()) {
+    if(HAL_RTC_Time_Is_Valid(nullptr)) {
         aJson.addNumberToObject(root, "status", 200);
     } else {
         aJson.addNumberToObject(root, "status", 201);
@@ -295,7 +295,7 @@ void testSelfTest(void* cookie)
 #elif PLATFORM_ID == PLATFORM_FOX
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
-    if(GetRTCSatus()) {
+    if(HAL_RTC_Time_Is_Valid(nullptr)) {
         aJson.addNumberToObject(root, "status", 200);
     } else {
         aJson.addNumberToObject(root, "status", 201);
