@@ -78,7 +78,7 @@ void BoardEnableIrq( void );
  *
  * \retval value  battery voltage in volts
  */
-uint32_t BoardGetBatteryVoltage( void );
+uint16_t BoardBatteryMeasureVolage( uint16_t pin);
 
 /*!
  * \brief Get the current battery level

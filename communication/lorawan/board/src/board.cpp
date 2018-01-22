@@ -17,6 +17,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "delay_hal.h"
 #include "wiring.h"
 
+static uint16_t batteryPin = SX1278_BATTERY_POWER;
+
 void DelayMs(uint32_t ms)
 {
     HAL_Delay_Milliseconds(ms);
@@ -32,14 +34,15 @@ void BoardEnableIrq( void )
     HAL_enable_irq(0);
 }
 
-uint16_t BoardBatteryMeasureVolage( void )
+uint16_t BoardBatteryMeasureVolage( uint16_t pin)
 {
     uint16_t vdd = 0;
     uint16_t vref = VREFINT_CAL;
     uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
+    batteryPin = pin;
 
-    vdiv = analogRead(SX1278_BATTERY_POWER);
+    vdiv = analogRead(batteryPin);
 
     vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
     batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
@@ -55,7 +58,7 @@ uint8_t BoardGetBatteryLevel(void)
     uint8_t batteryLevel = 0;
     uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
-    BatteryVoltage = BoardBatteryMeasureVolage( );
+    BatteryVoltage = BoardBatteryMeasureVolage( batteryPin );
 
     if( GetBoardPowerSource( ) == USB_POWER )
     {

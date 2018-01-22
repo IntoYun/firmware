@@ -589,6 +589,11 @@ int16_t LoRaWanClass::getRssi(void)
     return _macRssi;
 }
 
+uint16_t LoRaWanClass::getBatteryVoltage(uint16_t pin)
+{
+    return BoardBatteryMeasureVolage(pin);
+}
+
 //P2P透传接口
 int LoRaClass::radioSend(uint8_t *buffer, uint16_t length, uint32_t timeout)
 {
