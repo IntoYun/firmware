@@ -8,6 +8,7 @@
 #include "radio/inc/radio.h"
 #include "radio/inc/sx1276.h"
 #include "board/inc/sx1276-board.h"
+#include "board/inc/board.h"
 #include "board/inc/utilities.h"
 #include "board/inc/timer.h"
 #include "mac/inc/LoRaMac.h"

@@ -35,6 +35,7 @@
 #include "params_hal.h"
 #include "bkpreg_hal.h"
 #include "malloc.h"
+#include "usb_hal.h"
 
 /* Private typedef ----------------------------------------------------------*/
 
@@ -271,3 +272,123 @@ void SysTick_Handler(void)
     //HAL_System_Interrupt_Trigger(SysInterrupt_SysTick, NULL);
 }
 
+//mcu唤醒后时钟等设置
+static void McuRecoverSystem(void)
+{
+    Set_System();
+#ifdef configHAL_USB_CDC_ENABLE
+    USB_USART_Initial(115200);
+#endif
+
+#ifndef configNO_RGB_UI && configNO_SETUPBUTTON_UI
+    HAL_UI_Initial(); //初始化三色灯
+#endif
+}
+
+//进入低功耗模式前处理mcu相关接口
+static void McuLowPowerSystemProcess(void)
+{
+    /* __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗 USB_USART_Initial(0)会运行此功能*/
+    __HAL_RCC_LSI_DISABLE();
+
+    //禁用比较器
+    __COMP_CLK_DISABLE();
+
+    // 允许/禁用 调试端口 少800uA
+    HAL_DBGMCU_DisableDBGStopMode();
+
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+
+    // Enable Ultra low power mode
+    HAL_PWREx_EnableUltraLowPower( );
+
+    // Enable the fast wake up from Ultra low power mode
+    HAL_PWREx_EnableFastWakeUp( );
+}
+
+//低功耗模式下引脚设置
+static void McuLowPowerSetPin(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    /* Enable GPIOs clock */
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+
+    /* Configure all GPIO port pins in Analog Input mode (floating input trigger OFF) */
+    //无用IO需设为模拟输入
+    GPIO_InitStructure.Pin = GPIO_PIN_All;
+    GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+    HAL_GPIO_Init(GPIOH, &GPIO_InitStructure);
+
+    //处理sx1278 spi 接口 IO 设为输入上拉 降低1278功耗
+    GPIO_InitStructure.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStructure.Mode = INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    HAL_Pin_Mode(SX1278_NSS,INPUT_PULLUP);
+}
+
+
+void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds)
+{
+    DEBUG("mcu into stop mode\r\n");
+    McuLowPowerSetPin();
+    if(wakeUpPin != 0xFF){ //运行外部中断唤醒
+        HAL_Interrupts_Attach(wakeUpPin,NULL,NULL,edgeTriggerMode,NULL);
+    }
+
+#ifdef configHAL_USB_CDC_ENABLE
+    USB_USART_Initial(0);
+#endif
+
+    McuLowPowerSystemProcess();
+    HAL_Core_Execute_Stop_Mode();
+    McuRecoverSystem();
+}
+
+void HAL_Core_Execute_Stop_Mode(void)
+{
+    // Enter Stop Mode
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+}
+
+void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
+{
+    DEBUG("mcu into standby mode\r\n");
+    McuLowPowerSetPin();
+
+#ifdef configHAL_USB_CDC_ENABLE
+    USB_USART_Initial(0);
+#endif
+    McuLowPowerSystemProcess();
+    #if 0
+    /* Enable WKUP pin */
+#if PLATFORM_ID == PLATFORM_L6
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    GPIO_InitStructure.Pin = GPIO_PIN_0;
+    GPIO_InitStructure.Mode = INPUT;
+    GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+#endif
+    #endif
+
+    HAL_Core_Execute_Standby_Mode();
+}
+
+void HAL_Core_Execute_Standby_Mode(void)
+{
+    HAL_PWR_EnterSTANDBYMode();
+}
