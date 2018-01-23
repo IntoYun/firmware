@@ -29,11 +29,6 @@ void RtcSetTimeout( uint32_t timeout )
     HAL_RTC_Set_UnixAlarm(timeout);
 }
 
-TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
-{
-    return HAL_RtcGetAdjustedTimeoutValue(timeout);
-}
-
 TimerTime_t RtcGetTimerValue( void )
 {
     return HAL_RTC_Get_UnixTime();

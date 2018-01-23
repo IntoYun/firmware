@@ -204,9 +204,6 @@ void RTC_Alarm_IRQHandler( void )
 {
     HAL_RTC_AlarmIRQHandler( &RtcHandle );
     HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
-    RtcRecoverMcuStatus( );
-    RtcComputeWakeUpTime( );
-    BlockLowPowerDuringTask( false );
     if(rtcCallbacks) { //回调 TimerIrqHandler( )
         rtcCallbacks();
     }

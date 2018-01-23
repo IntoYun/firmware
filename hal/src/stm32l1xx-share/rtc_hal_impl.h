@@ -35,7 +35,6 @@ RtcCalendar_t RtcGetCalendar( void );
 RtcCalendar_t RtcComputeTimerTimeToAlarmTick( time_t timeCounter, RtcCalendar_t now );
 RtcCalendar_t RtcConvertTimerTimeToCalendarTick( time_t timeCounter );
 time_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar );
-time_t HAL_RtcGetAdjustedTimeoutValue( uint32_t timeout );
 
 extern RTC_HandleTypeDef RtcHandle;
 

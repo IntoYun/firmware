@@ -94,38 +94,9 @@ static uint16_t Century = 0;
 static bool CalendarRollOverReady = false;
 
 /*!
- * Flag used to indicates a the MCU has waken-up from an external IRQ
- */
-volatile bool NonScheduledWakeUp = false;
-
-/* static RtcCalendar_t RtcCalendarContext; */
-
-/*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
- * to set the MCU into low power mode
- */
-static bool RtcTimerEventAllowsLowPower = false;
-
-/*!
- * \brief Flag to disable the LowPower Mode even if the timestamps until the
- * next event is long enough to allow Low Power mode
- */
-static bool LowPowerDisableDuringTask = false;
-
-/*!
  * \brief Indicates if the RTC is already Initialized or not
  */
 static bool RtcInitialized = false;
-
-/*!
- * \brief Indicates if the RTC Wake Up Time is calibrated or not
- */
-static bool WakeUpTimeInitialized = false;
-
-/*!
- * \brief Hold the Wake-up time duration in ms
- */
-volatile uint32_t McuWakeUpTime = 0;
 
 /*!
  * \brief Hold the cumulated error in micro-second to compensate the timing errors
@@ -400,79 +371,4 @@ time_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 
     timeCounter = round( timeCounterTemp );
     return ( timeCounter );
-}
-
-void RtcComputeWakeUpTime( void )
-{
-    uint32_t start = 0;
-    uint32_t stop = 0;
-    RTC_AlarmTypeDef  alarmRtc;
-    RtcCalendar_t now;
-
-    if( WakeUpTimeInitialized == false )
-    {
-        now = RtcGetCalendar( );
-        HAL_RTC_GetAlarm( &RtcHandle, &alarmRtc, RTC_ALARM_A, RTC_FORMAT_BIN );
-
-        start = alarmRtc.AlarmTime.Seconds + ( SecondsInMinute * alarmRtc.AlarmTime.Minutes ) + ( SecondsInHour * alarmRtc.AlarmTime.Hours );
-        stop = now.CalendarTime.Seconds + ( SecondsInMinute * now.CalendarTime.Minutes ) + ( SecondsInHour * now.CalendarTime.Hours );
-
-        McuWakeUpTime = ceil ( ( stop - start ) * RTC_ALARM_TICK_DURATION );
-
-        WakeUpTimeInitialized = true;
-    }
-}
-
-void RtcRecoverMcuStatus( void )
-{
-    // PWR_FLAG_WU indicates the Alarm has waken-up the MCU
-    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET )
-    {
-        __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
-    }
-    else
-    {
-        NonScheduledWakeUp = true;
-    }
-    // check the clk source and set to full speed if we are coming from sleep mode
-    if( ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_HSI ) ||
-        ( __HAL_RCC_GET_SYSCLK_SOURCE( ) == RCC_SYSCLKSOURCE_STATUS_MSI ) )
-    {
-        //REMARK 唤醒后初始化时钟
-    }
-}
-
-void BlockLowPowerDuringTask ( bool status )
-{
-    if( status == true )
-    {
-        RtcRecoverMcuStatus( );
-    }
-    LowPowerDisableDuringTask = status;
-}
-
-time_t HAL_RtcGetAdjustedTimeoutValue( uint32_t timeout )
-{
-    if( timeout > McuWakeUpTime )
-    {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
-        if( NonScheduledWakeUp == true )
-        {
-            NonScheduledWakeUp = false;
-            timeout -= McuWakeUpTime;
-        }
-    }
-
-    if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
-        if( timeout < 50 ) // 50 ms
-        {
-            RtcTimerEventAllowsLowPower = false;
-        }
-        else
-        {
-            RtcTimerEventAllowsLowPower = true;
-            timeout -= McuWakeUpTime;
-        }
-    }
-    return  timeout;
 }
