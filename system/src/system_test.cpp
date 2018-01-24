@@ -53,10 +53,7 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
 {
     aJsonClass aJson;
 
-#if PLATFORM_ID == PLATFORM_ATOM
-#elif PLATFORM_ID == PLATFORM_NEUTRON
-#elif PLATFORM_ID == PLATFORM_NUT
-#elif PLATFORM_ID == PLATFORM_W67
+#if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_W67
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
 
@@ -206,13 +203,11 @@ void testAnalogRead(uint16_t pin, void* cookie)
 {
     aJsonClass aJson;
 
-#if PLATFORM_ID == PLATFORM_ATOM
-#elif PLATFORM_ID == PLATFORM_NEUTRON
-#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
+#if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
-    aJson.addNumberToObject(root, "value", analogRead(pin));
+    aJson.addNumberToObject(root, "value", (int)analogRead(pin));
     strPtr = aJson.print(root);
     ((DeviceConfig*)cookie)->write((unsigned char *)strPtr, strlen(strPtr));
     free(strPtr);
@@ -255,9 +250,7 @@ void testSelfTest(void* cookie)
 {
     aJsonClass aJson;
 
-#if PLATFORM_ID == PLATFORM_ATOM
-#elif PLATFORM_ID == PLATFORM_NEUTRON
-#elif PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
+#if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG || PLATFORM_ID == PLATFORM_W323
     aJsonObject* root = aJson.createObject();
     char* strPtr = nullptr;
     aJson.addNumberToObject(root, "status", 200);
