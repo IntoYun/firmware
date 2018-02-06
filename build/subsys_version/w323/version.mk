@@ -1,4 +1,4 @@
-SUBSYS_VERSION_STRING = 1.0.2.2
+SUBSYS_VERSION_STRING = 1.0.2.3
 
 # 模组系统版本号
 
@@ -22,4 +22,10 @@ SUBSYS_VERSION_STRING = 1.0.2.2
 #修改者：
 #修改点：
 # 1. MQTT采取加密方式
+
+##############################################
+#版本号：1.0.2.3
+#修改者：
+#修改点：
+# 1. 更新esp32 SDK。根据esp32-idf bootloader修改。commit: 5401a75badcfc9c20f7818fdf3c683e3da8b2547
 

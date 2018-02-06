@@ -625,21 +625,21 @@ int aJsonStream::printArray(aJsonObject *item)
         return 0;
     }
     aJsonObject *child = item->child;
-    if (!this->print('[')) {
+    if (this->print('[') == EOF) {
         return EOF;
     }
     while (child) {
-        if (!this->printValue(child)) {
+        if (this->printValue(child) == EOF) {
             return EOF;
         }
         child = child->next;
         if (child) {
-            if (!this->print(',')) {
+            if (this->print(',') == EOF) {
                 return EOF;
             }
         }
     }
-    if (!this->print(']')) {
+    if (this->print(']') == EOF) {
         return EOF;
     }
     return 0;
@@ -713,27 +713,27 @@ int aJsonStream::printObject(aJsonObject *item)
         return 0;
     }
     aJsonObject *child = item->child;
-    if (!this->print('{')) {
+    if (this->print('{') == EOF) {
         return EOF;
     }
     while (child) {
-        if (!this->printStringPtr(child->name)) {
+        if (this->printStringPtr(child->name) == EOF) {
             return EOF;
         }
-        if (!this->print(':')) {
+        if (this->print(':') == EOF) {
             return EOF;
         }
-        if (!this->printValue(child)) {
+        if (this->printValue(child) == EOF) {
             return EOF;
         }
         child = child->next;
         if (child) {
-            if (!this->print(',')) {
+            if (this->print(',') == EOF) {
                 return EOF;
             }
         }
     }
-    if (!this->print('}')) {
+    if (this->print('}') == EOF) {
         return EOF;
     }
     return 0;

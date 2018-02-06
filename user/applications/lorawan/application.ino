@@ -1,7 +1,7 @@
 
 #include "arduino.h"
 
-SerialDebugOutput debugOutput(115200, ALL_LEVEL);
+//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 // This EUI must be in little-endian format, so least-significant-byte
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,

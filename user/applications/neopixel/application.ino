@@ -18,7 +18,7 @@
 
  说明：带有“D”的为数字管脚，带有“A”的为模拟管脚，接线时请确认核心板引脚，避免接线错误。
  */
-SerialDebugOutput debugOutput(115200, ALL_LEVEL);
+//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
 
 #include "Adafruit_NeoPixel.h"
 

@@ -968,6 +968,7 @@ int intorobot_cloud_connect(void)
             aJson.addStringToObject(root, "subsysVer", buffer);
             aJson.addBooleanToObject(root, "online", true);
             char *string = aJson.print(root);
+            SCLOUD_DEBUG("info = %s\r\n", string);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);
             free(string);
             aJson.deleteItem(root);

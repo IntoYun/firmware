@@ -30,6 +30,7 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
     char temp[32];
     uint16_t templen;
 
+    esp8266MDM.init();  // 由于此时esp866通讯可能没有开始，需要添加初始化，否则版本号读不出来
     if (buffer!=NULL && len>0) {
         if(esp8266MDM.getNetVersion(temp))
         {
