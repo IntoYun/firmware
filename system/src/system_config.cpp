@@ -343,7 +343,8 @@ void DeviceConfig::dealGetInfo(void)
     aJson.addNumberToObject(value_Object, "at_mode", HAL_PARAMS_Get_System_at_mode());
 
     aJson.addNumberToObject(value_Object, "zone", HAL_PARAMS_Get_System_zone());
-#ifdef configWIRING_WIFI_ENABLE
+
+#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
     char domain[50] = {0};
     HAL_PARAMS_Get_System_sv_domain(domain, sizeof(domain));
     aJson.addStringToObject(value_Object, "sv_domain", domain);
@@ -358,6 +359,7 @@ void DeviceConfig::dealGetInfo(void)
     HAL_PARAMS_Get_System_dw_domain(domain, sizeof(domain));
     aJson.addStringToObject(value_Object, "dw_domain", domain);
 
+#ifdef configWIRING_WIFI_ENABLE
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     char macStr[20] = {0};
 
@@ -368,7 +370,7 @@ void DeviceConfig::dealGetInfo(void)
     memset(macStr, 0, sizeof(macStr));
     sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
     aJson.addStringToObject(value_Object, "apmac", macStr);
-#elif defined configWIRING_CELLULAR_ENABLE
+#endif
 #elif defined configWIRING_LORA_ENABLE
     char devaddr[12];
     HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
