@@ -29,6 +29,7 @@
 #include <string.h>
 
 /* Private functions ---------------------------------------------------------*/
+static const int FLASH_INT_MASK = 0x23A;  // ((B10 << 8) | B00111010);
 
 uint16_t FLASH_SectorToErase(flash_device_t device, uint32_t startAddress)
 {
@@ -87,27 +88,27 @@ bool FLASH_EraseMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint
 
     startSector = startAddress/SERIAL_FLASH_SECTOR_SIZE;
     numSectors = FLASH_SectorsMask(length, SERIAL_FLASH_SECTOR_SIZE);
-    xt_rsil(15);
+    ets_isr_mask(FLASH_INT_MASK);
     for (eraseCounter = 0, rc = 0; (eraseCounter < numSectors)&&(rc == 0); eraseCounter++) {
         rc = spi_flash_erase_sector(startSector + eraseCounter);
     }
-    xt_rsil(0);
+    ets_isr_unmask(FLASH_INT_MASK);
     return rc == 0;
 }
 
 bool FLASH_WriteMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t *data, uint32_t length)
 {
-    xt_rsil(15);
+    ets_isr_mask(FLASH_INT_MASK);
     int rc = spi_flash_write(startAddress, data, length);
-    xt_rsil(0);
+    ets_isr_unmask(FLASH_INT_MASK);
     return rc == 0;
 }
 
 bool FLASH_ReadMemory(flash_device_t flashDeviceID, uint32_t startAddress, uint32_t *data, uint32_t length)
 {
-    xt_rsil(15);
+    ets_isr_mask(FLASH_INT_MASK);
     int rc = spi_flash_read(startAddress, data, length);
-    xt_rsil(0);
+    ets_isr_unmask(FLASH_INT_MASK);
     return rc == 0;
 }
 
