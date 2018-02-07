@@ -1,3 +1,27 @@
+## v1.6.10
+
+### FEATURES(功能)
+- lorawan增加电池电压接口
+
+### ENHANCEMENTS(优化)
+- 修改esp8266 flash操作保护
+- l6默认打开usb串口
+- 修改lorawan rtc和sleep接口
+
+### BUG FIXES(漏洞修复)
+- 修正esp8266网页串口配置网络重启问题(#177)
+- 修正gprs模组配置getinfo信息未显示全
+- 修正fig 子系统版本号读取错误
+- 修正neutron子系统版本号读取错误
+- 修正esp8266使用舵机时，获取ssid或者配置网络时重启问题
+- 修正ant eeprom put接口错误
+
+### INTERNAL(内部)
+- 规范core_hal接口。
+- 修正按配置按键退出执行配置初始化bug。优化配置初始化和配置完成执行代码
+- lorawan去掉rtc计算唤醒时间等接口
+
+
 ## v1.6.9
 
 ### FEATURES(功能)
