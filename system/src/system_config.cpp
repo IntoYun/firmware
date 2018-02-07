@@ -406,8 +406,6 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* root)
         } else {
             WiFi.setCredentials(ssidObject->valuestring, passwdObject->valuestring);
         }
-        //network_disconnect(0, 0, NULL);
-        //network_connect(0, 0, 0, NULL);
         return;
     }
     aJson.deleteItem(root);
@@ -543,7 +541,6 @@ void DeviceConfig::dealSetSecurity(aJsonObject* root)
 void DeviceConfig::dealSetInfo(aJsonObject* root)
 {
     bool flag = true;
-
     aJsonObject* value_Object = aJson.getObjectItem(root, "value");
     if (value_Object == NULL) {
         aJson.deleteItem(root);
@@ -590,7 +587,7 @@ void DeviceConfig::dealSetInfo(aJsonObject* root)
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     aJsonObject* stamacObject = aJson.getObjectItem(value_Object, "stamac");
     aJsonObject* apmacObject = aJson.getObjectItem(value_Object, "apmac");
-    if ((stamacObject != NULL)&&(apmacObject != NULL)) {
+    if ((stamacObject != NULL) && (apmacObject != NULL)) {
         mac_str_to_bin(stamacObject->valuestring, stamac);
         mac_str_to_bin(apmacObject->valuestring, apmac);
         if(wlan_set_macaddr(stamac, apmac)) {
