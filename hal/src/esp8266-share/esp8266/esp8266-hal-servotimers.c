@@ -19,9 +19,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "hw_config.h"
 #include "esp8266-hal-servotimers.h"
 #include "esp8266-hal-servo.h"
-#include "service_debug.h"
 
 
 #if !defined (SERVO_EXCLUDE_TIMER0)
