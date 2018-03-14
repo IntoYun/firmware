@@ -647,7 +647,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                     system_rgb_blink(RGB_COLOR_BLUE, 1000); //蓝灯闪烁
                 } else { //不发送info直接激活
                     INTOROBOT_LORAWAN_CONNECTED = true;
-                    system_rgb_blink(RGB_COLOR_WHITE, 1000); //白灯闪烁
+                    system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
                 }
                 SLORAWAN_DEBUG("--LoRaWanOnEvent joined--\r\n");
             }
@@ -660,25 +660,25 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
         case LORAWAN_EVENT_RX_COMPLETE:
             {
+                int len, rssi;
+                uint8_t buffer[256];
+                len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
                 //数据点使能
                 if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)){
-                    int len, rssi;
-                    uint8_t buffer[256];
-                    len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
-
                     //SLORAWAN_DEBUG_D("lorawan receive data:");
                     //SLORAWAN_DEBUG_DUMP(buffer, len);
+                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX dataponit Data--\r\n");
                     switch(buffer[0]) {
                         case DATA_PROTOCOL_DATAPOINT_BINARY:
                             intorobotParseReceiveDatapoints(&buffer[1], len-1);
                             break;
-                        case DATA_PROTOCOL_CUSTOM:
-                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[1], len-1);
-                            break;
                         default:
+                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
                             break;
                     }
-                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--\r\n");
+                } else {
+                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX custom Data--\r\n");
+                    system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
                 }
             }
             break;
