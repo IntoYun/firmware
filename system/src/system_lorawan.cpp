@@ -156,11 +156,11 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_confirmed;
                 if(!LoRaWan._ackReceived){
                     LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-                    if(!INTOROBOT_LORAWAN_SEND_INFO){
+                    if(!INTOROBOT_LORAWAN_SEND_INFO){ //不是发送的info信息
                         system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
                     }
                 }else{
-                    if(!INTOROBOT_LORAWAN_SEND_INFO){
+                    if(!INTOROBOT_LORAWAN_SEND_INFO){//不是发送的info信息
                         system_notify_event(event_lorawan_status,ep_lorawan_send_success);
                     }
                 }
@@ -181,7 +181,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
             LoRaWan._ackReceived = false;
         }
         LoRaWan._macSendStatus = LORAMAC_SEND_FAIL;
-        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK && !INTOROBOT_LORAWAN_SEND_INFO){
+        if(!INTOROBOT_LORAWAN_RESP_SERVER_ACK && !INTOROBOT_LORAWAN_SEND_INFO){//不是发送的info信息
             system_notify_event(event_lorawan_status,ep_lorawan_send_fail);
         }
     }
@@ -315,7 +315,15 @@ void os_getDevEui(uint8_t *buf)
 void os_getAppEui(uint8_t *buf)
 {
     char appeui[24]={0};
+    char temp[24] = {0};
     HAL_PARAMS_Get_System_appeui(appeui, sizeof(appeui));
+    system_get_product_id(temp, sizeof(temp));
+    if(strcmp(temp, appeui) != 0) //lora产品将product_id当做appeui
+    {
+        strncpy(appeui,temp,strlen(temp));
+        HAL_PARAMS_Set_System_appeui(appeui);
+        SLORAWAN_DEBUG("lorawan set appeui\r\n");
+    }
     string2hex(appeui, buf, 8, true);
 }
 
@@ -386,6 +394,7 @@ void LoRaWanPause(void)
 
 void LoRaWanResume(void)
 {
+    System.disableFeature(SYSTEM_FEATURE_SEND_INFO_ENABLED);
     System.enableFeature(SYSTEM_FEATURE_LORAMAC_RUN_ENABLED);
     SX1276BoardInit(); //初始化1278
     LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
@@ -577,6 +586,7 @@ void intorobot_lorawan_send_terminal_info(void)
         }
         SLORAWAN_DEBUG_D("\r\n");
 
+        //阻塞式发送info信息
         if(LoRaWan.sendConfirmed(2, buffer, index, 150) == 0){
             INTOROBOT_LORAWAN_CONNECTED = true;
             INTOROBOT_LORAWAN_SEND_INFO = false;
@@ -633,7 +643,12 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 SLORAWAN_DEBUG("nwkskey: %s\r\n", nwkskey);
                 SLORAWAN_DEBUG("appskey: %s\r\n", appskey);
                 INTOROBOT_LORAWAN_JOINED = true;
-                system_rgb_blink(RGB_COLOR_BLUE, 1000); //蓝灯闪烁
+                if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)){
+                    system_rgb_blink(RGB_COLOR_BLUE, 1000); //蓝灯闪烁
+                } else { //不发送info直接激活
+                    INTOROBOT_LORAWAN_CONNECTED = true;
+                    system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
+                }
                 SLORAWAN_DEBUG("--LoRaWanOnEvent joined--\r\n");
             }
             break;
@@ -645,25 +660,25 @@ void LoRaWanOnEvent(lorawan_event_t event)
 
         case LORAWAN_EVENT_RX_COMPLETE:
             {
+                int len, rssi;
+                uint8_t buffer[256];
+                len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
                 //数据点使能
                 if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)){
-                    int len, rssi;
-                    uint8_t buffer[256];
-                    len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
-
                     //SLORAWAN_DEBUG_D("lorawan receive data:");
                     //SLORAWAN_DEBUG_DUMP(buffer, len);
+                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX dataponit Data--\r\n");
                     switch(buffer[0]) {
                         case DATA_PROTOCOL_DATAPOINT_BINARY:
                             intorobotParseReceiveDatapoints(&buffer[1], len-1);
                             break;
-                        case DATA_PROTOCOL_CUSTOM:
-                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[1], len-1);
-                            break;
                         default:
+                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
                             break;
                     }
-                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX Data--\r\n");
+                } else {
+                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX custom Data--\r\n");
+                    system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
                 }
             }
             break;
