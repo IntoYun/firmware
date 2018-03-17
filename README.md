@@ -35,4 +35,9 @@
 
 # 资源列表
 
+- [MolmcBridge工具使用说明](http://docs.intoyun.com/devicedev/develop-tools/molmc-bridge-manual/)
+- [在线编程开发工具](http://docs.intoyun.com/devicedev/develop-tools/online-ide-user-manual/ant/)
+- [离线编程开发工具](http://docs.intoyun.com/devicedev/develop-tools/offline-ide-user-manual/)
+
+
 
