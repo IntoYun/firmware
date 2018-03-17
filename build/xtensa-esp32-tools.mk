@@ -3,7 +3,7 @@
 #
 
 # 定义编译器和工具的前缀
-GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-esp32-elf/bin/
+GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/toolchain-xtensa32/bin/
 GCC_PREFIX ?= xtensa-esp32-elf-
 
 include $(COMMON_BUILD)/common-tools.mk

@@ -31,16 +31,7 @@ build/target/
 
 # 编译工具
 tools/dist
-tools/gcc-arm-none-eabi
-tools/xtensa-lx106-elf
-tools/xtensa-esp32-elf
-tools/esptool
-tools/esptool-py
-tools/stlink
-tools/esp8266
-tools/esp32
-tools/dfu-util
-tools/upload-reset
+tools/tool*
 
 #用户例子
 user/src/*
