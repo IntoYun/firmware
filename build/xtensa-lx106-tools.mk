@@ -4,7 +4,7 @@
 
 # 定义编译器和工具的前缀
 
-GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/xtensa-lx106-elf/bin/
+GCC_ARM_PATH ?= $(PROJECT_ROOT)/tools/toolchain-xtensa/bin/
 GCC_PREFIX ?= xtensa-lx106-elf-
 
 include $(COMMON_BUILD)/common-tools.mk
