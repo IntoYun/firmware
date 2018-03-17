@@ -14,11 +14,11 @@
 |intorobot-fig|开发模块|ESP32|基于ESP32通讯模组的开发模块|
 |intorobot-ant|开发模块|STM32L1|基于L6 LoRa通讯模组的开发模块|
 |intorobot-fox|开发模块|STM32L1|基于GPRS通讯模组的开发模块 |
-|intorobot-w6/w7|模组|STM32L1|ESP8266 WiFi通讯模组|
-|intorobot-w32/w33|模组|STM32L1|ESP32 WiFi+蓝牙通讯模组|
-|intorobot-l6|开发板|STM32L1|内置MCU LoRa通讯模组|
-|intorobot-gl2000|产品|STM32F4|WiFi LoRaWAN网关|
-|intorobot-gl2100|产品|STM32F4|GPRS LoRaWAN网关|
+|intorobot-w6/w7|商业模组|STM32L1|ESP8266 WiFi通讯模组|
+|intorobot-w32/w33|商业模组|STM32L1|ESP32 WiFi+蓝牙通讯模组|
+|intorobot-l6|商业模组|STM32L1|内置MCU LoRa通讯模组|
+|intorobot-gl2000|量产产品|STM32F4|WiFi LoRaWAN网关|
+|intorobot-gl2100|量产产品|STM32F4|GPRS LoRaWAN网关|
 
 ## 2.架构框图
 
@@ -26,9 +26,12 @@
 
 # 快速开始
 
+为了快速了解项目并搭建本地编译环境，请点击[快速开始](docs/gettingstarted.md)
 
 # 更新记录
 
+- [最新更新](http://github.com/intoyun/firmware/releases/)
+- [更新日志](CHANGELOG.md)
 
 # 资源列表
 
