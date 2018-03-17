@@ -2,14 +2,14 @@
 
 设备固件库源码工程，适用于IntoRobot系列产品，支持[IntoYun](https://www.intoyun.com/)和云服务[IntoRobot](https://www.intorobot.com/)云服务。
 
-该项目采取了Arduino编程方式(Arduino采取C/C++编程方式，把常用的功能和硬件接口封装成统一且通俗易懂的SDK接口，在软件执行效率和编程方式与常规C/C++开发无差别，非常适合用于开发项目)
+该项目采取了Arduino编程方式，采取C/C++编程方式，把常用的功能和硬件接口封装成统一且通俗易懂的SDK接口，在软件执行效率和编程方式与常规C/C++开发无差别，非常适合用于开发项目。
 
 ## 1.硬件型号
 
-| 硬件型号  | 硬件类型 | 硬件平台 | 产品描述 |
+| 型号  | 类型 | 硬件平台 | 产品描述 |
 |--------|--------|-------|--------|
-|intorobot-atom|开发模块|STM32F1|高性能Wi-Fi控制模块，双CPU架构，板载双天线设计，搭载OpenWrt开源操作系统。|
-|intorobot-neutron|开发模块|STM32F4|双CPU架构，搭载加速度，陀螺仪，磁力，声音，光，气压，温度7类传感器|
+|intorobot-atom|开发模块|STM32F1|双CPU架构，板载双天线设计，搭载OpenWrt开源操作系统|
+|intorobot-neutron|开发模块|STM32F4|双CPU架构，搭载加速度，陀螺仪，磁力，声音，光，气压传感器|
 |intorobot-nut|开发模块|ESP8266|基于ESP8266通讯模组的开发模块|
 |intorobot-fig|开发模块|ESP32|基于ESP32通讯模组的开发模块|
 |intorobot-ant|开发模块|STM32L1|基于L6 LoRa通讯模组的开发模块|
