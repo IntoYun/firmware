@@ -4,13 +4,13 @@
 
 # 快速开始
 
-- [项目介绍](http://docs.intoyun.com/opensource/firmware/)
-- [开发环境搭建](docs/gettingstarted.md)
+- [项目介绍](docs/gettingstarted.md)
+- [开发环境搭建](docs/dependencies.md)
 
 # 开发指南
 
-- [应用开发教程](docs/gettingstarted.md)
-- [固件库API接口](docs/gettingstarted.md)
+- [应用开发教程](docs/build.md)
+- [固件库API接口](http://docs.intoyun.com/devicedev/software-develop-master/master-sdk-api)
 
 # 更新记录
 
