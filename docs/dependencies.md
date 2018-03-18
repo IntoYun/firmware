@@ -1,98 +1,64 @@
 
-## Debug Build
+## 开发环境安装
 
-The firmware includes a debugging aid that enables debug output, from the system and from your own application code.
+目前支持Linux和MacOS开发。
 
-To create a debug build, add `DEBUG_BUILD=y` to the `make` command line. If the previous build was not a debug build then
-you should add `clean` to perform a clean build.
+### Linux安装(以Ubuntu为例)
 
-On the photon, the system modules must also be rebuilt also with `DEBUG_BUILD` set.
+#### 1. 安装python工具
 
-
-### Logging Messages
-
-Logging messages enabled in the debug build of firmware.
-
-A debug output handler determines where the log messages are printed to.
-The system provides some built-in output handlers:
-
-- `SerialDebugOutput` writes output to USB Serial
-- `Serial1DebugOutput` writes output to Hardware Serial (Serial1)
-
-To add an output handler to your application, declare it at top of your application code (before setup):
-
-```
-SerialDebugOutput debugOutput;
+```sh
+> sudo apt-get install python
 ```
 
-This will print all log messages to USB Serial.
+#### 1. 安装开发依赖工具
 
-The debug output variable can take two optional parameters
-
-- the baud rate,
-- the logging level - filters out messages below a given level
-
-```
-SerialDebugOutput debugOutput;          // default is 9600 and log everything
-SerialDebugOutput debugOutput(57600);   // use a faster baudrate and log everything
-SerialDebugOutput debugOutput(57600, WARN_LEVEL); // use a faster baudrate and log only warnings or more severe
-
+```sh
+cd tools
+./get.py
 ```
 
-### Log Levels
+### MacOS安装
 
-These log levels are available:
+#### 1. 安装python工具
 
-```
-    ALL_LEVEL           log everything
-    TRACE_LEVEL
-    DEBUG_LEVEL
-    WARN_LEVEL
-    ERROR_LEVEL
-    PANIC_LEVEL
-    NO_LOG_LEVEL        log nothing
+```sh
+> brew install python
 ```
 
-When a log level is set on the debug output, only log messages that are at the same level or
-further down in the list are printed.
+#### 1. 安装开发依赖工具
 
-For example, if the log level is set to `WARN_LEVEL` then warnings, errors and
-panic events are logged, but not debug messages or
-
-
-### Adding your own log messages
-
-Logging messages are added to your application code by using a logging macro.
-
-```
-void loop()
-{
-    static unsigned count = 0;
-    DEBUG("loop count %d", count);
-    count++;
-}
-```
-If the debug level is enabled, this would print out "loop count 0" on the first
-iteration, and higher numbers with each iteration.
-
-(Note that we increment the variable outside of the logging macro. This is because
-logging macros shouldn't have side affects that the program depends on, since
-these side affect will not be present in the non-debug build of the code.)
-
-The logging message includes the
-
-
-The name of the macro sets the logging level.
-
-```
-    DEBUG
-    INFO
-    WARN
-    ERROR
+```sh
+cd tools
+./get.py
 ```
 
-The first parameter is a format string. This follows the `printf` format.
-The remaining parameters are substituted into the placeholders in the format string.
+## 依赖工具说明
 
+### 1. arm-none-eabi-gcc
 
+IntoRobot系列产品采用了ARM Cortex M3/M4 CPU处理器，该工具为arm处理器的交叉编译工具。
 
+### 2. xtensa-lx106
+
+该工具为ESP8266交叉编译工具。
+
+### 3. xtensa-esp32
+
+该工具为ESP32交叉编译工具。
+
+### 4. st-flash
+
+该工具为ST ARM处理器烧录工具。
+
+### 5. dfu-util
+
+该工具为DFU(Device Firmware Upgrade)升级工具。
+
+### 6. esptool8266
+
+该工具为ESP8266芯片下载工具。
+
+### 7. esptool32
+
+该工具为ESP32芯片下载工具。
