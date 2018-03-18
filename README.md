@@ -4,13 +4,13 @@
 
 # 快速开始
 
-[快速了解项目](docs/gettingstarted.md)
-[开发环境搭建](docs/gettingstarted.md)
+- [快速了解项目](docs/gettingstarted.md)
+- [开发环境搭建](docs/gettingstarted.md)
 
 # 应用开发
 
-[应用开发教程](docs/gettingstarted.md)
-[固件库API接口](docs/gettingstarted.md)
+- [应用开发教程](docs/gettingstarted.md)
+- [固件库API接口](docs/gettingstarted.md)
 
 # 固件库开发
 
