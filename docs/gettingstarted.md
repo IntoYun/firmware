@@ -20,7 +20,7 @@
 
 ## 2.架构框图
 
-![架构框图](/docs/images/software-architecture-firmware.png)
+![架构框图](/docs/images/firmware-architecture.png)
 
 ```
 开发板（包括三色灯、按键、usb接口等）：atom, neutron, nut, ant, fig, fox等。
