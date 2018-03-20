@@ -1,98 +1,87 @@
+### 编译与烧录
 
-## Debug Build
-
-The firmware includes a debugging aid that enables debug output, from the system and from your own application code.
-
-To create a debug build, add `DEBUG_BUILD=y` to the `make` command line. If the previous build was not a debug build then
-you should add `clean` to perform a clean build.
-
-On the photon, the system modules must also be rebuilt also with `DEBUG_BUILD` set.
-
-
-### Logging Messages
-
-Logging messages enabled in the debug build of firmware.
-
-A debug output handler determines where the log messages are printed to.
-The system provides some built-in output handlers:
-
-- `SerialDebugOutput` writes output to USB Serial
-- `Serial1DebugOutput` writes output to Hardware Serial (Serial1)
-
-To add an output handler to your application, declare it at top of your application code (before setup):
+在firmware目录下，可以进行各个产品的编译。编译默认固件的命令主要如下：
 
 ```
-SerialDebugOutput debugOutput;
+make PLATFORM=neutron clean all APP=smartLight-default
+make PLATFORM=nut clean all APP=smartLight-default
+make PLATFORM=atom clean all APP=smartLight-default
+make PLATFORM=fig clean all APP=smartLight-default
+make PLATFORM=ant clean all APP=blink
+make PLATFORM=fox clean all APP=smartLight-default
+
+make PLATFORM=w67 clean all APP=smartLight-w67
+make PLATFORM=w323 clean all APP=blink
+make PLATFORM=l6 clean all APP=blink
 ```
 
-This will print all log messages to USB Serial.
 
-The debug output variable can take two optional parameters
+其中，*PLATFORM=product_name*也可以替换成*PLATFORM_ID=product_id*.产品的名称和ID的关系如下表（详情请参见build/platform-id.mk）：
 
-- the baud rate,
-- the logging level - filters out messages below a given level
+| 开发板       | PLATFORM_ID |
+|--------------|:-----------:|
+| neutron      | 888002      |
+| nut          | 888003      |
+| atom         | 888004      |
+| fig          | 888005      |
+| ant          | 868009      |
+| fox          | 878008      |
 
-```
-SerialDebugOutput debugOutput;          // default is 9600 and log everything
-SerialDebugOutput debugOutput(57600);   // use a faster baudrate and log everything
-SerialDebugOutput debugOutput(57600, WARN_LEVEL); // use a faster baudrate and log only warnings or more severe
+| 模组         | PLATFORM_ID |
+|--------------|:-----------:|
+| w67          | 888006      |
+| w323         | 888007      |
+| l6           | 868010      |
 
-```
+| 网关         | PLATFORM_ID |
+|--------------|:-----------:|
+| gl1000       | 188001      |
+| gl2000       | 188002      |
+| gl2100       | 178003      |
 
-### Log Levels
+| 其他产品     | PLATFORM_ID |
+|--------------|:-----------:|
+| gcc          | 208001      |
+| neutron-net  | 208002      |
+| anytest      | 208003      |
 
-These log levels are available:
-
-```
-    ALL_LEVEL           log everything
-    TRACE_LEVEL
-    DEBUG_LEVEL
-    WARN_LEVEL
-    ERROR_LEVEL
-    PANIC_LEVEL
-    NO_LOG_LEVEL        log nothing
-```
-
-When a log level is set on the debug output, only log messages that are at the same level or
-further down in the list are printed.
-
-For example, if the log level is set to `WARN_LEVEL` then warnings, errors and
-panic events are logged, but not debug messages or
-
-
-### Adding your own log messages
-
-Logging messages are added to your application code by using a logging macro.
+进入到main目录下，可以选择更多的编译选项，还可以进行烧录。
+以下常用的编译及烧录命令：
 
 ```
-void loop()
-{
-    static unsigned count = 0;
-    DEBUG("loop count %d", count);
-    count++;
-}
+make PLATFORM=atom clean all st-flash
+make PLATFORM=atom clean all program-dfu
+
+make PLATFORM=neutron clean all st-flash
+make PLATFORM=neutron clean all program-dfu
+
+make PLATFORM=ant clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=ant clean all DEBUG_BUILD=y USE_SWD=y program-dfu
+
+make PLATFORM=fox clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=fox clean all DEBUG_BUILD=y USE_SWD=y program-dfu
+
+make PLATFORM=nut clean all DEBUG_BUILD=y USE_SWD=y esptool
+
+make PLATFORM=fig clean all DEBUG_BUILD=y USE_SWD=y esptool-py
+
+make PLATFORM=w67 clean all DEBUG_BUILD=y USE_SWD=y esptool
+
+make PLATFORM=w323 clean all DEBUG_BUILD=y USE_SWD=y esptool-py
+
+make PLATFORM=l6 clean all DEBUG_BUILD=y USE_SWD=y st-flash
+make PLATFORM=l6 clean all DEBUG_BUILD=y USE_SWD=y program-dfu
+
 ```
-If the debug level is enabled, this would print out "loop count 0" on the first
-iteration, and higher numbers with each iteration.
 
-(Note that we increment the variable outside of the logging macro. This is because
-logging macros shouldn't have side affects that the program depends on, since
-these side affect will not be present in the non-debug build of the code.)
-
-The logging message includes the
-
-
-The name of the macro sets the logging level.
+指定工程目录编译:
+工程目录结构：
+1. 工程目录/src  放用户代码
+2. 工程目录/lib  放用户库
 
 ```
-    DEBUG
-    INFO
-    WARN
-    ERROR
+make PLATFORM=w67 all DEBUG_BUILD=y USE_SWD=y APPDIR=../project/loragateway
+
 ```
 
-The first parameter is a format string. This follows the `printf` format.
-The remaining parameters are substituted into the placeholders in the format string.
-
-
-
+DEBUG_BUILD=y打开调试， st-flash program-dfu esptool分别选择相应的烧录工具。
