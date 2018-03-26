@@ -152,11 +152,15 @@ void testDigitalWrite(uint16_t pin, uint16_t value, void* cookie)
     char* strPtr = nullptr;
     if(pin == 0xff) {
         uint8_t pinNumber;
-        for(pinNumber = 0; pinNumber < 9; pinNumber++) {
+        pinMode(2,OUTPUT);
+        pinMode(3,OUTPUT);
+        digitalWrite(2,value);
+        digitalWrite(3,value);
+        for(pinNumber = 6; pinNumber < 9; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
-        for(pinNumber = 11; pinNumber < 19; pinNumber++) {
+        for(pinNumber = 30; pinNumber < 42; pinNumber++) {
             pinMode(pinNumber,OUTPUT);
             digitalWrite(pinNumber,value);
         }
