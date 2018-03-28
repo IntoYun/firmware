@@ -42,8 +42,8 @@
 /* Private typedef -----------------------------------------------------------*/
 // I2Cnum_SDA_SCL
 typedef enum I2C_Num_Def {
-   I2C1_D8_D9_USER = 0,
-   I2C2_D0_D1_USER = 1
+   I2C1_GROUP = 0,
+   I2C2_GROUP = 1
 } I2C_Num_Def;
 
 typedef enum I2C_Transaction_Ending_Condition {
@@ -152,14 +152,14 @@ void HAL_I2C_GPIO_Init(HAL_I2C_Interface i2c)
         __HAL_RCC_I2C2_CLK_ENABLE();
     }
     i2cMap[i2c]->I2CHandle.Instance             = i2cMap[i2c]->I2C_Peripheral;
-    i2cMap[i2c]->I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
     i2cMap[i2c]->I2CHandle.Init.ClockSpeed      = i2cMap[i2c]->I2C_ClockSpeed; //400000;
-    i2cMap[i2c]->I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
     i2cMap[i2c]->I2CHandle.Init.DutyCycle       = I2C_DUTYCYCLE_16_9;
+    i2cMap[i2c]->I2CHandle.Init.OwnAddress1     = i2cMap[i2c]->I2C_Ownaddress1;//0x00;
+    i2cMap[i2c]->I2CHandle.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    i2cMap[i2c]->I2CHandle.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    i2cMap[i2c]->I2CHandle.Init.OwnAddress2     = 0x00;
     i2cMap[i2c]->I2CHandle.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     i2cMap[i2c]->I2CHandle.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
-    i2cMap[i2c]->I2CHandle.Init.OwnAddress1     = i2cMap[i2c]->I2C_Ownaddress1;//0x00;
-    i2cMap[i2c]->I2CHandle.Init.OwnAddress2     = 0x00;
     HAL_I2C_Init(&(i2cMap[i2c]->I2CHandle));
 }
 
@@ -187,9 +187,9 @@ static void HAL_I2C_SoftwareReset(HAL_I2C_Interface i2c)
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
     if(i2c == HAL_I2C_INTERFACE1) {
-        i2cMap[i2c] = &I2C_MAP[I2C1_D8_D9_USER];
+        i2cMap[i2c] = &I2C_MAP[I2C1_GROUP];
     } else if(i2c == HAL_I2C_INTERFACE2) {
-        i2cMap[i2c] = &I2C_MAP[I2C2_D0_D1_USER];
+        i2cMap[i2c] = &I2C_MAP[I2C2_GROUP];
     }
     i2cMap[i2c]->I2C_ClockSpeed       = CLOCK_SPEED_400KHZ;
     i2cMap[i2c]->I2C_Enabled          = false;

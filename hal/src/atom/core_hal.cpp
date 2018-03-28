@@ -25,10 +25,10 @@
 #include "wiring_ex_process.h"
 
 int main() {
-    USB_Cable_Initial();
+    // USB_Cable_Initial();
     //open bridge
     DEBUG_D("Bridge Connecting\r\n");
-    Bridge.begin();
+    // Bridge.begin();
     DEBUG_D("Bridge Connected\r\n");
     app_setup_and_loop();
     return 0;
