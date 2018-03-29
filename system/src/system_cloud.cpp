@@ -50,6 +50,7 @@
 #include "system_config.h"
 #include "string_convert.h"
 #include "wiring_ajson.h"
+#include "wiring_httpdownload.h"
 #include "intorobot_def.h"
 
 /*debug switch*/
@@ -78,6 +79,7 @@ volatile uint8_t INTOROBOT_CLOUD_CONNECTED = 0;          //平台连接状态 1�
 uint8_t g_mqtt_appskey[16] = {0};
 uint8_t g_mqtt_nwkskey[16] = {0};
 uint16_t g_up_seq_id = 0;
+uint8_t g_download_progress = 0;
 
 struct CallBackList g_callback_list;  //回调结构体
 struct CloudDebugBuffer  g_debug_tx_buffer;
@@ -108,8 +110,8 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
     SCLOUD_DEBUG("mqtt callback!\r\n");
     SCLOUD_DEBUG("topic: %s\r\n", topic);
 
-    SCLOUD_DEBUG("mqtt receive data:");
-    SCLOUD_DEBUG_DUMP(payload, length);
+    //SCLOUD_DEBUG("mqtt receive data:");
+    //SCLOUD_DEBUG_DUMP(payload, length);
 
     pdata = (uint8_t *)malloc(datalen+1);
     if(NULL == pdata) {
@@ -191,19 +193,24 @@ static void send_upgrade_status(const upgrade_reply_t upgrade_reply, const uint8
     intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_REPLY_TOPIC, (uint8_t*)status.c_str(), status.length(), 0, false);
 }
 
-void intorobot_send_upgrade_progress(uint8_t progress)
+static void intorobot_app_upgrade_progress(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize)
 {
-    send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+    uint8_t progress = (currentSize*100)/totalSize;
+
+    //SCLOUD_DEBUG("progress len = %d, currentSize = %d, totalSize = %d\r\n", len, currentSize, totalSize);
+    if(((progress - g_download_progress) > 20) || (0 == g_download_progress)) {
+        send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+        g_download_progress = progress;
+    }
 }
 
 //在线编程升级
-static void intorobot_ota_upgrade(const char *token, const char *md5)
+static void intorobot_program_upgrade(const char *token, const char *md5)
 {
-    SCLOUD_DEBUG("v2 :online upgrade!\r\n");
+    SCLOUD_DEBUG("v2 :online program upgrade!\r\n");
 
     bool flag = false;
     String domain = "", param = "";
-    uint8_t progress = 0;
 
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
@@ -215,25 +222,7 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
     domain+=down_domain;
     param += String(INTOROBOT_OTA_UPDATE_URL) + "?dwn_token=" + String(token);
 
-    uint32_t size = 0;
-#if PLATFORM_ID == PLATFORM_FIG
-    HTTPUpdate httpUpdate;
-    String url="http://" + domain + param;
-    httpUpdate.setStoreStartAddress(HAL_OTA_FlashAddress());
-    httpUpdate.setStoreMaxSize(HAL_OTA_FlashLength());
-    httpUpdate.setSendProgressCb(intorobot_send_upgrade_progress);
-    t_httpUpdate_return ret = httpUpdate.update(url);
-    switch(ret) {
-        case HTTP_UPDATE_OK:
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
-            size = httpUpdate.size();
-            flag = true;
-            break;
-        default:
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!\r\n");
-            break;
-    }
-#else
+#if PLATFORM_ID == PLATFORM_NEUTRON
     down_status_t status;
     down_status_t result = HAL_OTA_Download_App(domain.c_str(), param.c_str(), md5);
     switch(result)
@@ -248,8 +237,8 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
                     flag = true;
                     break;
                 } else if(DOWNSTATUS_DOWNING == status) {
-                    progress = HAL_OTA_Get_Download_Progress();
-                    send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+                    g_download_progress = HAL_OTA_Get_Download_Progress();
+                    send_upgrade_status(UPGRADE_REPLY_PROGRESS, g_download_progress);
                     delay(1000);
                 } else if(DOWNSTATUS_FAIL == status) {
                     break;
@@ -259,11 +248,24 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
         default:
             break;
     }
+#else
+    HTTPDownload httpUpdate;
+    String url="http://" + domain + param;
+    httpUpdate.onProgress(intorobot_app_upgrade_progress);
+    http_download_return_t ret = httpUpdate.update(url);
+    switch(ret) {
+        case HTTP_DOWNLOAD_OK:
+            SCLOUD_DEBUG("v2 :HTTP_DOWNLOAD_OK!\r\n");
+            flag = true;
+            break;
+        default:
+            SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!\r\n");
+            break;
+    }
 #endif
     if(flag) {
         send_upgrade_status(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
         delay(500);
-        HAL_OTA_Update_App(size);
         HAL_Core_System_Reset();
         while(1); //不会运行到地方
     } else {
@@ -272,14 +274,22 @@ static void intorobot_ota_upgrade(const char *token, const char *md5)
     led_state.restore();
 }
 
+static void intorobot_boot_upgrade_progress(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize)
+{
+}
+
+static void intorobot_defapp_upgrade_progress(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize)
+{
+}
+
 // 子系统升级
 static void intorobot_subsys_upgrade(const char *version)
 {
+#if 0
     SCLOUD_DEBUG("v2 :subsys_upgrade!\r\n");
 
     bool flag = false;
     String domain = "", param = "";
-    uint8_t progress = 0;
 
     led_state.save();
     system_rgb_color(RGB_COLOR_YELLOW);
@@ -296,26 +306,7 @@ static void intorobot_subsys_upgrade(const char *version)
 
     uint32_t defAppSize = 0, bootSize = 0;
     down_status_t status;
-#if PLATFORM_ID == PLATFORM_FIG
-    HTTPUpdate httpUpdate;
-    String url="http://" + domain + param + "/fig-boot.bin";
-    httpUpdate.setStoreStartAddress(HAL_BOOT_FlashAddress());
-    httpUpdate.setStoreMaxSize(HAL_BOOT_FlashLength());
-    t_httpUpdate_return ret = httpUpdate.update(url);
-    if(HTTP_UPDATE_OK == ret) {
-        bootSize = httpUpdate.size();
-        url="http://" + domain + param + "/default-fig.bin";
-        httpUpdate.setStoreStartAddress(HAL_DEF_APP_FlashAddress());
-        httpUpdate.setStoreMaxSize(HAL_DEF_APP_FlashLength());
-        httpUpdate.setSendProgressCb(intorobot_send_upgrade_progress);
-        t_httpUpdate_return ret = httpUpdate.update(url);
-        if(HTTP_UPDATE_OK == ret) {
-            defAppSize = httpUpdate.size();
-            SCLOUD_DEBUG("v2 :HTTP_UPDATE_OK!\r\n");
-            flag = true;
-        }
-    }
-#else
+#if PLATFORM_ID == PLATFORM_NEUTRON
     down_status_t result = HAL_OTA_Download_Subsys(domain.c_str(), param.c_str());
     switch(result)
     {
@@ -327,8 +318,8 @@ static void intorobot_subsys_upgrade(const char *version)
                 if(DOWNSTATUS_SUCCESS == status) {
                     break;
                 } else if(DOWNSTATUS_DOWNING == status) {
-                    progress = HAL_OTA_Get_Download_Progress();
-                    send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
+                    g_download_progress = HAL_OTA_Get_Download_Progress();
+                    send_upgrade_status(UPGRADE_REPLY_PROGRESS, g_download_progress);
                     delay(1000);
                     flag = true;
                 } else if(DOWNSTATUS_FAIL == status) {
@@ -338,6 +329,22 @@ static void intorobot_subsys_upgrade(const char *version)
             break;
         default:
             break;
+    }
+#else
+    HTTPDownload httpDownload;
+    String url="http://" + domain + param + "/fig-boot.bin";
+    httpDownload.onProgress(intorobot_boot_upgrade_progress);
+    http_download_return_t ret = httpUpdate.update(url);
+    if(HTTP_DOWNLOAD_OK == ret) {
+        bootSize = httpDownload.size();
+        url="http://" + domain + param + "/default-fig.bin";
+        httpDownload.onProgress(intorobot_defapp_upgrade_progress);
+        http_download_return_t ret = httpDownload.update(url);
+        if(HTTP_DOWNLOAD_OK == ret) {
+            defAppSize = httpDownload.size();
+            SCLOUD_DEBUG("v2 :HTTP_DOWNLOAD_OK!\r\n");
+            flag = true;
+        }
     }
 #endif
     if(flag) {
@@ -350,17 +357,76 @@ static void intorobot_subsys_upgrade(const char *version)
         send_upgrade_status(UPGRADE_REPLY_DOWN_FAIL, 0);
     }
     led_state.restore();
+#endif
 }
 
 //固件升级
-static void intorobot_firmware_upgrade(const char *version)
+static void intorobot_ota_upgrade(bool force, uint32_t size, const char *md5, const char *ver, const char *url)
 {
+    SCLOUD_DEBUG("v2 :ota upgrade!\r\n");
 
+    bool flag = false;
+
+    led_state.save();
+    system_rgb_color(RGB_COLOR_YELLOW);
+
+    send_upgrade_status(UPGRADE_REPLY_READY, 0);
+
+#if PLATFORM_ID == PLATFORM_NEUTRON
+    down_status_t status;
+    down_status_t result = HAL_OTA_Download_App(url, "", md5);
+    switch(result)
+    {
+        case DOWNSTATUS_SUCCESS:
+            flag = true;
+            break;
+        case DOWNSTATUS_DOWNING:
+            do {
+                status = HAL_OTA_Get_App_Download_Status();
+                if(DOWNSTATUS_SUCCESS == status) {
+                    flag = true;
+                    break;
+                } else if(DOWNSTATUS_DOWNING == status) {
+                    g_download_progress = HAL_OTA_Get_Download_Progress();
+                    send_upgrade_status(UPGRADE_REPLY_PROGRESS, g_download_progress);
+                    delay(1000);
+                } else if(DOWNSTATUS_FAIL == status) {
+                    break;
+                }
+            } while(1);
+            break;
+        default:
+            break;
+    }
+#else
+    HTTPDownload httpUpdate;
+    httpUpdate.onProgress(intorobot_app_upgrade_progress);
+    http_download_return_t ret = httpUpdate.update(url);
+    switch(ret) {
+        case HTTP_DOWNLOAD_OK:
+            SCLOUD_DEBUG("v2 :HTTP_DOWNLOAD_OK!\r\n");
+            flag = true;
+            break;
+        default:
+            SCLOUD_DEBUG("v2 :HTTP_UPDATE_FAIL!\r\n");
+            break;
+    }
+#endif
+    if(flag) {
+        send_upgrade_status(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
+        delay(500);
+        HAL_Core_System_Reset();
+        while(1); //不会运行到地方
+    } else {
+        send_upgrade_status(UPGRADE_REPLY_DOWN_FAIL, 0);
+    }
+    led_state.restore();
 }
 
 void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("v2 :cloud_action_callback!\r\n");
+    SCLOUD_DEBUG("payload: %s\r\n", payload);
 
     aJsonClass aJson;
     String s_payload;
@@ -370,57 +436,126 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
         s_payload+=(char)payload[n];
     }
 
+    g_download_progress = 0;
+
     root = aJson.parse((char *)s_payload.c_str());
     if(root == NULL) {
-        goto finish;
-    }
-
-    boardObject = aJson.getObjectItem(root, "board");
-    if(boardObject == NULL){
-        goto finish;
-    } else {
-        char board[32]="";
-        system_get_board_id(board, sizeof(board));
-        if(strcmp(boardObject->valuestring + 3, board + 3)) {
-            goto finish;
-        }
-        SCLOUD_DEBUG("board: %s\r\n", boardObject->valuestring);
+        goto failure;
     }
 
     cmdObject = aJson.getObjectItem(root, "cmd");
-    if(cmdObject == NULL) {
-        goto finish;
+    if((cmdObject == NULL) || (cmdObject->type != aJson_String)) {
+        goto failure;
     } else {
         SCLOUD_DEBUG("cmd: %s\r\n", cmdObject->valuestring);
-        if(!strcmp("upgradeBin", cmdObject->valuestring)) {
-            //在线编程升级
-            dtokenObject = aJson.getObjectItem(root, "dwn_token");
-            if(dtokenObject == NULL) {
-                goto finish;
+        if(!strcmp("upgradeBin", cmdObject->valuestring)) { //在线编程升级
+            boardObject = aJson.getObjectItem(root, "board");
+            if((boardObject == NULL) || (boardObject->type != aJson_String)) {
+                goto failure;
+            } else {
+                char board[32]="";
+                system_get_board_id(board, sizeof(board));
+                if(strcmp(boardObject->valuestring + 3, board + 3)) {
+                    goto failure;
+                }
+                SCLOUD_DEBUG("board: %s\r\n", boardObject->valuestring);
             }
-            intorobot_ota_upgrade(dtokenObject->valuestring, "");
-        } else if(!strcmp("upgradeSubsys", cmdObject->valuestring)) {
-            //升级子系统
+
+            dtokenObject = aJson.getObjectItem(root, "dwn_token");
+            if((dtokenObject == NULL) || (dtokenObject->type != aJson_String)) {
+                goto failure;
+            }
+            intorobot_program_upgrade(dtokenObject->valuestring, "");
+            goto finish;
+        } else if(!strcmp("upgradeSubsys", cmdObject->valuestring)) { //升级子系统
             versionObject = aJson.getObjectItem(root, "version");
-            if(versionObject == NULL) {
-                goto finish;
+            if((versionObject == NULL) || (versionObject->type != aJson_String)) {
+                goto failure;
             } else {
                 char sys_ver[24]={0};
                 HAL_PARAMS_Get_System_subsys_ver(sys_ver, sizeof(sys_ver));
                 if(!strcmp(sys_ver, versionObject->valuestring)) {
-                    goto finish;
+                    goto success;
                 }
             }
             intorobot_subsys_upgrade(versionObject->valuestring);
-        } else if(!strcmp("upgradeApp", cmdObject->valuestring)) {
-            //应用固件升级
-            intorobot_firmware_upgrade(versionObject->valuestring);
-        } else if(!strcmp("reboot", cmdObject->valuestring)) {
-            //启动处理
+            goto finish;
+        } else if(!strcmp("upgradeApp", cmdObject->valuestring)) { //应用固件升级
+            //处理type
+            aJsonObject *typeObject = aJson.getObjectItem(root, "type");
+            if((typeObject == NULL) || (typeObject->type != aJson_String)) {
+                goto failure;
+            }
+            if(strcmp(typeObject->valuestring, "0")) {
+                goto failure;
+            }
+
+            //处理force
+            bool force = false;
+            aJsonObject *forceObject = aJson.getObjectItem(root, "force");
+            if((forceObject != NULL) && (forceObject->type == aJson_Boolean)) {
+                force = forceObject->valuebool;
+            } else {
+                goto failure;
+            }
+
+            //处理size
+            uint32_t size = 0;
+            aJsonObject *sizeObject = aJson.getObjectItem(root, "size");
+            if((sizeObject != NULL) && (sizeObject->type == aJson_Int)) {
+                size = sizeObject->valueint;
+            } else {
+                goto failure;
+            }
+
+            //处理swVer
+            char *swVer = NULL;
+            aJsonObject *swVerObject = aJson.getObjectItem(root, "swVer");
+            if((swVerObject == NULL) || (swVerObject->type != aJson_String)) {
+                goto failure;
+            } else {
+                swVer = swVerObject->valuestring;
+            }
+
+            //处理url
+            char *url = NULL;
+            aJsonObject *urlObject = aJson.getObjectItem(root, "url");
+            if((urlObject == NULL) || (urlObject->type != aJson_String)) {
+                goto failure;
+            } else {
+                url = urlObject->valuestring;
+            }
+
+            //处理md5
+            char *md5 = NULL;
+            aJsonObject *md5Object = aJson.getObjectItem(root, "md5");
+            if((md5Object == NULL) || (md5Object->type != aJson_String)) {
+                goto failure;
+            } else {
+                md5 = md5Object->valuestring;
+            }
+
+            SCLOUD_DEBUG("force: %d\r\n", force);
+            SCLOUD_DEBUG("size: %d\r\n", size);
+            SCLOUD_DEBUG("md5: %s\r\n", md5);
+            SCLOUD_DEBUG("swVer: %s\r\n", swVer);
+            SCLOUD_DEBUG("url: %s\r\n", url);
+
+            intorobot_ota_upgrade(force, size, md5, swVer, url);
+            goto finish;
+        } else if(!strcmp("reboot", cmdObject->valuestring)) { //启动处理
             send_upgrade_status(UPGRADE_REPLY_REBOOT_READY, 0);
             HAL_Core_System_Reset();
         }
     }
+
+success:
+    send_upgrade_status(UPGRADE_REPLY_DOWN_SUCC_EXIT, 0);
+    goto finish;
+
+failure:
+    send_upgrade_status(UPGRADE_REPLY_DOWN_FAIL, 0);
+
 finish:
     if (root != NULL)
     {aJson.deleteItem(root);}
@@ -832,7 +967,8 @@ void intorobot_cloud_disconnect(void)
     }
 }
 
-static void _cloud_params_init(void) {
+static void _cloud_params_init(void)
+{
     char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
 
     if(0 == HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain))) {
@@ -860,10 +996,10 @@ void intorobot_cloud_init(void)
     char sv_domain[32] = {0};
     HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
     //mqtt server port
-    int sv_port=HAL_PARAMS_Get_System_sv_port();
+    int sv_port = HAL_PARAMS_Get_System_sv_port();
 
-    memset(&g_debug_tx_buffer,0,sizeof(g_debug_tx_buffer));
-    memset(&g_debug_rx_buffer,0,sizeof(g_debug_rx_buffer));
+    memset(&g_debug_tx_buffer, 0, sizeof(g_debug_tx_buffer));
+    memset(&g_debug_rx_buffer, 0, sizeof(g_debug_rx_buffer));
 
     g_mqtt_client = MqttClientClass(sv_domain, sv_port, mqtt_client_callback, g_mqtt_tcp_client);
     //ota 升级
@@ -953,19 +1089,23 @@ int intorobot_cloud_connect(void)
             if (root == NULL) {
                 return -1;
             }
-            system_get_board_id(buffer, sizeof(buffer));
-            aJson.addStringToObject(root, "board", buffer);
             system_get_product_id(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "productId", buffer);
-            aJson.addStringToObject(root, "mode", "master");
+
+            aJson.addNumberToObject(root, "bc", 1);
+            system_get_board_id(buffer, sizeof(buffer));
+            aJson.addStringToObject(root, "board", buffer);
             system_get_product_software_version(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "swVer", buffer);
             system_get_product_hardware_version(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "hwVer", buffer);
+
+            //后期将废除
             HAL_PARAMS_Get_System_fwlib_ver(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "libVer", buffer);
             HAL_PARAMS_Get_System_subsys_ver(buffer, sizeof(buffer));
             aJson.addStringToObject(root, "subsysVer", buffer);
+
             aJson.addBooleanToObject(root, "online", true);
             char *string = aJson.print(root);
             SCLOUD_DEBUG("info = %s\r\n", string);

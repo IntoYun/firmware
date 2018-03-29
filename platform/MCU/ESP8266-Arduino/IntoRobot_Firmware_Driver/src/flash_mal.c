@@ -161,24 +161,31 @@ bool FLASH_Backup(uint32_t FLASH_Address)
 
 bool FLASH_Restore(uint32_t FLASH_Address)
 {
-    //CRC verification Disabled by default
     return true;
 }
 
 bool FLASH_Restore_Bootloader(uint32_t FLASH_Address)
 {
-    //CRC verification Disabled by default
     return true;
 }
 
 void FLASH_Begin(uint32_t FLASH_Address, uint32_t imageSize)
 {
-
+    FLASH_EraseMemory(FLASH_SERIAL, FLASH_Address, imageSize);
 }
 
 int FLASH_Update(const uint8_t *pBuffer, uint32_t address, uint32_t bufferSize)
 {
-    return -1;
+    //这个是暂时解决方法，后续需要处理  因为fig ota下载的时候，如果调用FLASH_Begin()擦除一片区域很耗时间
+    if(!FLASH_EraseMemory(FLASH_SERIAL, address, bufferSize)) {
+        return 1;
+    }
+
+    if(!FLASH_WriteMemory(FLASH_SERIAL, address, (uint32_t *)pBuffer, bufferSize)) {
+        return 1;
+    }
+
+    return 0;
 }
 
 void FLASH_End(void)

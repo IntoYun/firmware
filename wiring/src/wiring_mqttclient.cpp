@@ -28,7 +28,7 @@
 #include "wiring_mqttclient.h"
 
 /*debug switch*/
-#define WIRING_MQTTCLIENT_DEBUG
+//#define WIRING_MQTTCLIENT_DEBUG
 
 #ifdef WIRING_MQTTCLIENT_DEBUG
 #define WMQTTCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)

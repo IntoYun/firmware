@@ -49,7 +49,7 @@ volatile uint8_t _socketConnectConfirmed=0;
 volatile uint8_t _socketDisconnected=0;
 volatile uint8_t _socketSended=0;
 /* Private macro ------------------------------------------------------------*/
-#define MAX_SIZE        1024  //!< max expected messages (used with RX)
+#define MAX_SIZE        2048  //!< max expected messages (used with RX)
 #define USO_MAX_WRITE   1024  //!< maximum number of bytes to write to socket (used with TX)
 // num sockets
 #define NUMSOCKETS      ((int)(sizeof(_sockets)/sizeof(*_sockets)))
@@ -537,6 +537,7 @@ void Esp8266ConnClass::_espconn_sent_callback(void *arg) {
 }
 
 void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigned short len) {
+    //DEBUG("1\r\n");
     HALSOCKET_DEBUG("_espconn_recv_callback\r\n");
 
     int socket=0, n=0;

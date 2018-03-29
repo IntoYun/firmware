@@ -30,7 +30,6 @@ uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len)
 
     if (buffer!=NULL && len>0) {
         flashStore.read(SUBSYS_VERSION_ADDR, (uint32_t *)data, sizeof(data));
-        DEBUG("subver = %s\r\n", data);
         if(!memcmp(data, "VERSION:", 8))
         {
             templen = MIN(strlen(&data[8]), len-1);
