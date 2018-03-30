@@ -307,6 +307,8 @@ void app_setup_and_loop_initial(bool *threaded)
 void app_setup_and_loop(void)
 {
     setup();
+
+    USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
     while(1)
     {
         loop();

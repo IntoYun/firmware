@@ -25,7 +25,7 @@
 #include "wiring_ex_process.h"
 
 int main() {
-    // USB_Cable_Initial();
+    USB_Cable_Initial();
     //open bridge
     DEBUG_D("Bridge Connecting\r\n");
     // Bridge.begin();
