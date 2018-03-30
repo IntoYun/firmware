@@ -45,6 +45,7 @@ bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mod
             do {
                 status = esp8266MDM.getDownOtafileStatus();
                 if(DEALSTATUS_SUCCESS == status) {
+                    HAL_Set_Update_Flag(0);
                     flag = true;
                     break;
                 } else if(DEALSTATUS_DOING == status) {
@@ -67,7 +68,7 @@ void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
     _update_handle = fn;
 }
 
-void HAL_Set_Update_Flag(void)
+void HAL_Set_Update_Flag(uint32_t size)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
