@@ -25,9 +25,9 @@
 #define PLATFORMS_H
 
 //创客核心板
+#define PLATFORM_ATOM                888001
 #define PLATFORM_NEUTRON             888002
 #define PLATFORM_NUT                 888003
-#define PLATFORM_ATOM                888004
 #define PLATFORM_FIG                 888005
 #define PLATFORM_FOX                 878008
 #define PLATFORM_ANT                 868009

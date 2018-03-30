@@ -59,13 +59,6 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
     Set_System();
-
-#ifdef DFU_BUILD_ENABLE
-    #if (PLATFORM_ID != PLATFORM_ATOM)
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x7000);
-    #endif
-#endif
-
     //设置管脚的默认值
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     __HAL_RCC_AFIO_CLK_ENABLE();

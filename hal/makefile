@@ -9,7 +9,7 @@ BUILD_PATH_EXT = $(HAL_BUILD_PATH_EXT)
 # ensure PLATFORM_NAME is defined
 include ../build/platform-id.mk
 
-ifeq ($(PLATFORM_ID), 888004)# atom
+ifeq ($(PLATFORM_ID), 888001)# atom
 DEPENDENCIES = wiring wiring_ex platform services
 else
 DEPENDENCIES = platform services
