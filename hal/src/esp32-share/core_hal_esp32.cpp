@@ -197,7 +197,7 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
-    HAL_Core_System_Reset();
+    //HAL_Core_System_Reset();
 }
 
 void HAL_Core_Enter_Safe_Mode(void* reserved)

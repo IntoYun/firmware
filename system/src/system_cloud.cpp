@@ -637,6 +637,7 @@ static bool _intorobot_publish(topic_version_t version, const char* topic, uint8
     dataIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
+    SCLOUD_DEBUG("publish! topic = %s, payload(%d) = %s!\r\n", fulltopic.c_str(), plength, payload);
     bool result = g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained);
     free(pdata);
     return result;
@@ -654,6 +655,7 @@ bool intorobot_subscribe(topic_version_t version, const char* topic, const char 
     add_subscribe_callback(version, (char *)topic, (char *)device_id, callback, qos);
     fill_mqtt_topic(fulltopic, version, topic, device_id);
 
+    SCLOUD_DEBUG("subscribe! topic = %s!\r\n", fulltopic.c_str());
     SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.subscribe(fulltopic.c_str(), qos));
 }
 
