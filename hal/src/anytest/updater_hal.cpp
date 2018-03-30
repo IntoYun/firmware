@@ -19,6 +19,7 @@
 
 #include "updater_hal.h"
 
+
 bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
 {
     return true;
