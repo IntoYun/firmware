@@ -931,6 +931,11 @@ int intorobot_cloud_connect(void)
         SCLOUD_DEBUG_DUMP(g_mqtt_appskey, 16);
         SCLOUD_DEBUG("nwkskey -> ");
         SCLOUD_DEBUG_DUMP(g_mqtt_nwkskey, 16);
+
+        //重新订阅
+        SCLOUD_DEBUG("---------mqtt resubscribe--------\r\n");
+        resubscribe();
+        //发送info
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
             aJsonClass aJson;
             char buffer[33] = {0};
@@ -963,9 +968,6 @@ int intorobot_cloud_connect(void)
             free(string);
             aJson.deleteItem(root);
         }
-        //重新订阅
-        SCLOUD_DEBUG("---------mqtt resubscribe--------\r\n");
-        resubscribe();
         return 0;
     }
     SCLOUD_DEBUG("---------connect failed--------\r\n");
