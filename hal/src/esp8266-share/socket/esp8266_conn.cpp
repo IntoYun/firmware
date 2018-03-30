@@ -49,7 +49,7 @@ volatile uint8_t _socketConnectConfirmed=0;
 volatile uint8_t _socketDisconnected=0;
 volatile uint8_t _socketSended=0;
 /* Private macro ------------------------------------------------------------*/
-#define MAX_SIZE        2048  //!< max expected messages (used with RX)
+#define MAX_SIZE        1024  //!< max expected messages (used with RX)
 #define USO_MAX_WRITE   1024  //!< maximum number of bytes to write to socket (used with TX)
 // num sockets
 #define NUMSOCKETS      ((int)(sizeof(_sockets)/sizeof(*_sockets)))
@@ -68,7 +68,7 @@ static volatile uint32_t esp8266_conn_timeout_duration;
 inline void ARM_CONN_TIMEOUT(uint32_t dur) {
     esp8266_conn_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_conn_timeout_duration = dur;
-    //HALSOCKET_DEBUG("esp8266 CONN WD Set %d\r\n",(dur));
+    HALSOCKET_DEBUG("esp8266 CONN WD Set %d\r\n",(dur));
 }
 inline bool IS_CONN_TIMEOUT() {
     return esp8266_conn_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_conn_timeout_start)>esp8266_conn_timeout_duration);
@@ -76,7 +76,7 @@ inline bool IS_CONN_TIMEOUT() {
 
 inline void CLR_CONN_TIMEOUT() {
     esp8266_conn_timeout_duration = 0;
-    //HALSOCKET_DEBUG("esp8266 CONN WD Cleared, was %d\r\n", esp8266_conn_timeout_duration);
+    HALSOCKET_DEBUG("esp8266 CONN WD Cleared, was %d\r\n", esp8266_conn_timeout_duration);
 }
 
 SockCtrl Esp8266ConnClass::_sockets[10];
@@ -341,7 +341,7 @@ int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
                 if(MDM_IPPROTO_TCP_SERVER == _sockets[socket].ipproto) {
                     for(int i=0; i < NUMSERVERSOCKETLIST; i++) {
                         if(_sockets[socket].server_client_list[i].isValid) {
-                            ARM_CONN_TIMEOUT(2000);
+                            ARM_CONN_TIMEOUT(1000);
                             _socketSended =0;
                             espconn_send(_sockets[socket].server_client_list[i].conn_ptr, (uint8 *)buf, blk);
                             while (!_socketSended) {
@@ -354,7 +354,7 @@ int Esp8266ConnClass::socketSend(int socket, const char * buf, int len)
                         }
                     }
                 } else {
-                    ARM_CONN_TIMEOUT(2000);
+                    ARM_CONN_TIMEOUT(1000);
                     _socketSended =0;
                     espconn_send(_sockets[socket].conn_ptr, (uint8 *)buf, blk);
                     while (!_socketSended) {
@@ -537,7 +537,6 @@ void Esp8266ConnClass::_espconn_sent_callback(void *arg) {
 }
 
 void Esp8266ConnClass::_espconn_recv_callback(void *arg, char *pusrdata, unsigned short len) {
-    //DEBUG("1\r\n");
     HALSOCKET_DEBUG("_espconn_recv_callback\r\n");
 
     int socket=0, n=0;

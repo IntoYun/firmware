@@ -70,10 +70,6 @@ class SystemClass {
         static void dfu(bool persist=false);
         static void reset(void);
 
-        static void enterSafeMode(void) {
-            HAL_Core_Enter_Safe_Mode(NULL);
-        }
-
         static void onSysTick(void(*handler)(void)) {
             SetSysTickHandler(handler);
         }

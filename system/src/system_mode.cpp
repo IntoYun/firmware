@@ -59,7 +59,6 @@ void set_system_mode(System_Mode_TypeDef mode)
     switch (mode)
     {
         case DEFAULT:   // DEFAULT can't happen in practice since it's cleared above. just keeps gcc happy.
-        case SAFE_MODE:
         case AUTOMATIC:
             intorobot_cloud_flag_connect();
             break;
@@ -70,12 +69,6 @@ void set_system_mode(System_Mode_TypeDef mode)
             break;
     }
 }
-
-System_Mode_TypeDef system_mode()
-{
-    return current_mode;
-}
-
 
 #if PLATFORM_THREADING
 

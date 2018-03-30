@@ -22,7 +22,7 @@
 #include "system_update.h"
 #include "system_cloud.h"
 #include "core_hal.h"
-#include "ota_flash_hal.h"
+#include "updater_hal.h"
 #include "params_hal.h"
 #include "wiring_ticks.h"
 #include "wiring_system.h"
@@ -108,8 +108,8 @@ bool UpdaterClass::begin(size_t size, updater_mode_t mode) {
 
     uint32_t updateStartAddress = 0;
     if(UPDATER_MODE_UPDATE == mode) {
-        updateStartAddress = HAL_OTA_FlashAddress();
-        uint32_t currentSketchSize = HAL_OTA_FlashLength();
+        updateStartAddress = HAL_Update_StartAddress();
+        uint32_t currentSketchSize = HAL_Update_FlashLength();
         //initialize
         if (updateStartAddress) {
             SUPDATE_DEBUG("[begin] updateStartAddress:  0x%08X (%d)\r\n", updateStartAddress, updateStartAddress);
@@ -193,7 +193,7 @@ bool UpdaterClass::end(bool evenIfRemaining){
     SUPDATE_DEBUG("Staged: address:0x%08X, size:0x%08X\r\n", _startAddress, _size);
 
     if(UPDATER_MODE_UPDATE == _mode) {
-        HAL_OTA_Update_App(_size);
+        HAL_Set_Update_Flag(_size);
     }
     _reset();
     return true;
@@ -205,7 +205,7 @@ bool UpdaterClass::_writeBuffer() {
     }
 
     if(UPDATER_MODE_UPDATE == _mode) {
-        int result = HAL_FLASH_Update(_buffer, _currentAddress, _bufferLen, NULL);
+        int result = HAL_Update_Flash(_buffer, _currentAddress, _bufferLen, NULL);
         if (result) {
             _currentAddress = (_startAddress + _size);
             _setError(UPDATE_ERROR_WRITE);

@@ -66,10 +66,6 @@ void HAL_Core_Factory_Reset(void)
 {
 }
 
-void HAL_Core_Enter_Safe_Mode(void* reserved)
-{
-}
-
 void HAL_Core_Enter_Bootloader(bool persist)
 {
 }

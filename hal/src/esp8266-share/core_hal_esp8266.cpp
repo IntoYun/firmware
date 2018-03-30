@@ -24,7 +24,7 @@
 #include "core_hal_esp8266.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
-#include "ota_flash_hal.h"
+#include "updater_hal.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "intorobot_macros.h"
@@ -240,8 +240,6 @@ void HAL_Core_Setup(void)
 {
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_Params();
-    HAL_SubSystem_Update_If_Needed();
-    HAL_Bootloader_Update_If_Needed();
 }
 
 extern "C" void __real_system_restart_local();
@@ -275,10 +273,6 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
-}
-
-void HAL_Core_Enter_Safe_Mode(void* reserved)
-{
 }
 
 void HAL_Core_Enter_Bootloader(bool persist)

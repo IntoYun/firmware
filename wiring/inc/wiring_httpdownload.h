@@ -67,10 +67,10 @@ public:
     void onProgress(THandlerFunction_Progress fn);
 
 protected:
+    bool urlAnalyze(String url, String &host, uint16_t &port, String &uri);
     http_download_return_t handleUpdate(HTTPClient& http, String md5, updater_mode_t mode);
     bool runUpdate(Stream& in, uint32_t size, String md5, updater_mode_t mode);
 
-    uint32_t _size;
     int _lastError;
     THandlerFunction_Progress _progress_callback;
 };

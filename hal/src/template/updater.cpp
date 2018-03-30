@@ -17,38 +17,38 @@
   ******************************************************************************
 */
 
-#ifndef SYSTEM_MODE_H_
-#define SYSTEM_MODE_H_
+#include "updater_hal.h"
+#include "core_hal.h"
+#include "flash_mal.h"
+#include "flash_map.h"
+#include "flash_storage_impl.h"
+#include "params_hal.h"
+#include "ui_hal.h"
 
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
 {
-  DEFAULT=0, AUTOMATIC = 1, SEMI_AUTOMATIC = 2, MANUAL = 3
-} System_Mode_TypeDef;
-
-void set_system_mode(System_Mode_TypeDef mode);
-System_Mode_TypeDef system_mode();
-
-namespace intorobot {
-    namespace feature {
-        enum State {
-            DISABLED =0,
-            ENABLED =1,
-        };
-    }
-
+    return true;
 }
-void system_thread_set_state(intorobot::feature::State feature, void* reserved);
-intorobot::feature::State system_thread_get_state(void*);
-uint16_t system_button_pushed_duration(uint8_t button, void* reserved);
 
-#ifdef __cplusplus
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
+{
 }
-#endif
 
-#endif	/* SYSTEM_MODE_H_ */
+void HAL_Set_Update_Flag(uint32_t size)
+{
+}
+
+uint32_t HAL_Update_StartAddress()
+{
+    return 0;
+}
+
+uint32_t HAL_Update_FlashLength()
+{
+    return 0;
+}
+
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    return false;
+}

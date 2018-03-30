@@ -16,39 +16,34 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
-#ifndef SYSTEM_MODE_H_
-#define SYSTEM_MODE_H_
+#ifndef UPDATER_HAL_H
+#define UPDATER_HAL_H
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
-#ifdef __cplusplus
+#ifdef	__cplusplus
 extern "C" {
 #endif
 
-typedef enum
-{
-  DEFAULT=0, AUTOMATIC = 1, SEMI_AUTOMATIC = 2, MANUAL = 3
-} System_Mode_TypeDef;
+typedef enum {
+    UPDATER_MODE_UPDATE,
+    UPDATER_MODE_DOWNLOAD
+} updater_mode_t;
 
-void set_system_mode(System_Mode_TypeDef mode);
-System_Mode_TypeDef system_mode();
+typedef void (*THandlerFunction_Progress)(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize);
 
-namespace intorobot {
-    namespace feature {
-        enum State {
-            DISABLED =0,
-            ENABLED =1,
-        };
-    }
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode);
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn);
+void HAL_Set_Update_Flag(uint32_t size);
+uint32_t HAL_Update_StartAddress();
+uint32_t HAL_Update_FlashLength();
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved);
 
-}
-void system_thread_set_state(intorobot::feature::State feature, void* reserved);
-intorobot::feature::State system_thread_get_state(void*);
-uint16_t system_button_pushed_duration(uint8_t button, void* reserved);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* SYSTEM_MODE_H_ */
+#endif /* UPDATER_HAL_H */

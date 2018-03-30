@@ -182,17 +182,14 @@ void app_loop(bool threaded)
     static uint8_t INTOROBOT_WIRING_APPLICATION = 0;
     if ((INTOROBOT_WIRING_APPLICATION != 1)) {
         //Execute user application setup only once
-        if (system_mode()!=SAFE_MODE)
-            setup();
+        setup();
         INTOROBOT_WIRING_APPLICATION = 1;
         _post_loop();
     }
 
     // Execute user application loop
-    if (system_mode()!=SAFE_MODE) {
-        loop();
-        _post_loop();
-    }
+    loop();
+    _post_loop();
 
     if (!threaded) {
         intorobot_process();
@@ -285,7 +282,7 @@ void app_setup_and_loop_initial(bool *threaded)
     CLOUD_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
     LORAWAN_FN(intorobotDatapointControl(DP_TRANSMIT_MODE_MANUAL, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL), (void)0);
 
-    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED && (system_mode() != SAFE_MODE);
+    *threaded = system_thread_get_state(NULL) != intorobot::feature::DISABLED;
 #if PLATFORM_THREADING
     if (*threaded) {
         SystemThread.start();

@@ -69,9 +69,6 @@ http_download_return_t HTTPDownload::update(const String& url, String md5)
     String host, uri;
     uint16_t port;
 
-    if(NULL != _progress_callback) {
-        HAL_Set_Update_Handle(_progress_callback);
-    }
     urlAnalyze(url, host, port, uri);
     if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_UPDATE)) {
         return HTTP_DOWNLOAD_OK;
@@ -111,9 +108,6 @@ http_download_return_t HTTPDownload::download(const String& url, String md5)
     String host, uri;
     uint16_t port;
 
-    if(NULL != _progress_callback) {
-        HAL_Set_Update_Handle(_progress_callback);
-    }
     urlAnalyze(url, host, port, uri);
     if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_DOWNLOAD)) {
         return HTTP_DOWNLOAD_OK;

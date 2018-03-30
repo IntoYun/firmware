@@ -3,6 +3,7 @@
 
 #include "intorobot_config.h"
 #include "md5_builder.h"
+#include "updater_hal.h"
 #include "wiring_ticks.h"
 #include "wiring_httpclient.h"
 
@@ -31,11 +32,6 @@ void system_lineCodingBitRateHandler(uint32_t bitrate);
 #define UPDATE_ERROR_MD5                (7)
 
 #define UPDATE_SECTOR_SIZE              0x1000
-
-typedef enum {
-    UPDATER_MODE_UPDATE,
-    UPDATER_MODE_DOWNLOAD
-} updater_mode_t;
 
 class UpdaterClass {
 public:
