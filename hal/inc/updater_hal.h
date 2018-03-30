@@ -16,35 +16,34 @@
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
   ******************************************************************************
 */
-
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __RTC_HAL_H
-#define __RTC_HAL_H
+#ifndef UPDATER_HAL_H
+#define UPDATER_HAL_H
 
 #include <stdint.h>
-#include <time.h>
+#include <stdbool.h>
+#include <stddef.h>
 
-/* Exported types ------------------------------------------------------------*/
-
-/* Exported constants --------------------------------------------------------*/
-
-/* Exported macros -----------------------------------------------------------*/
-
-/* Exported functions --------------------------------------------------------*/
-
-#ifdef __cplusplus
+#ifdef	__cplusplus
 extern "C" {
 #endif
 
-void HAL_RTC_Initial(void);
+typedef enum {
+    UPDATER_MODE_UPDATE,
+    UPDATER_MODE_DOWNLOAD
+} updater_mode_t;
 
-time_t HAL_RTC_Get_UnixTime(void);
-void HAL_RTC_Set_UnixTime(time_t value);
-void HAL_RTC_Set_UnixAlarm(time_t value);
-void HAL_RTC_Cancel_UnixAlarm(void);
+typedef void (*THandlerFunction_Progress)(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize);
+
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode);
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn);
+void HAL_Set_Update_Flag(uint32_t size);
+uint32_t HAL_Update_StartAddress();
+uint32_t HAL_Update_FlashLength();
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved);
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* __RTC_HAL_H */
+#endif /* UPDATER_HAL_H */

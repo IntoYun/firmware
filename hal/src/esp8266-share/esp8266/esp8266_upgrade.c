@@ -3,6 +3,17 @@
 #include "esp8266_upgrade.h"
 #include "params_hal.h"
 #include "md5_hash.h"
+#include "esp8266_downfile.h"
+
+//#define HAL_UPGRADE_DEBUG
+
+#ifdef HAL_UPGRADE_DEBUG
+#define HALUPGRADE_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define HALUPGRADE_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define HALUPGRADE_DEBUG(...)
+#define HALUPGRADE_DEBUG_D(...)
+#endif
 
 LOCAL struct MD5Context _ctx;
 LOCAL struct espconn *upgrade_conn;
@@ -14,12 +25,10 @@ LOCAL uint32 totallength = 0;
 LOCAL uint32 sumlength = 0;
 LOCAL struct upgrade_param *upgrade;
 
-extern uint8_t down_progress;
-extern enum file_type_t filetype;
+extern file_type_t filetype;
+extern esp8266_downfile_handle_t downfile_handle;
 
 extern int HAL_PARAMS_Set_Boot_ota_app_size(uint32_t size);
-extern int HAL_PARAMS_Set_Boot_def_app_size(uint32_t size);
-extern int HAL_PARAMS_Set_Boot_boot_size(uint32_t size);
 
 /******************************************************************************
  * FunctionName : system_upgrade_internal
@@ -49,7 +58,7 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
             break;
         }
 
-        DEBUG("%x %x\r\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
+        HALUPGRADE_DEBUG("%x %x\r\n",upgrade->fw_bin_sec_earse,upgrade->fw_bin_addr);
         /* earse sector, just earse when first enter this zone */
         if (upgrade->fw_bin_sec_earse != (upgrade->fw_bin_addr + len) >> 12) {
             uint16 lentmp = len;
@@ -60,7 +69,7 @@ LOCAL bool ICACHE_FLASH_ATTR system_upgrade_internal(struct upgrade_param *upgra
             }
             upgrade->fw_bin_sec_earse = (upgrade->fw_bin_addr + len) >> 12;
             spi_flash_erase_sector(upgrade->fw_bin_sec_earse);
-            DEBUG("%x\r\n",upgrade->fw_bin_sec_earse);
+            HALUPGRADE_DEBUG("%x\r\n",upgrade->fw_bin_sec_earse);
         }
 
         if (spi_flash_write(upgrade->fw_bin_addr, (uint32 *)upgrade->buffer, len) != SPI_FLASH_RESULT_OK) {
@@ -104,21 +113,11 @@ void ICACHE_FLASH_ATTR system_upgrade_init(void)
 
     system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
 
-    if (ONLINE_APP_FILE == filetype){
+    if (OTA_APP_FILE == filetype) {
         upgrade->fw_bin_sec = CACHE_ONLINE_APP_SEC_START;
         upgrade->fw_bin_sec_num = CACHE_ONLINE_APP_SEC_NUM;
     }
-#if PLATFORM_NUT == PLATFORM_ID
-    else if (BOOT_FILE == filetype){
-        upgrade->fw_bin_sec = CACHE_BOOT_SEC_START;
-        upgrade->fw_bin_sec_num = CACHE_BOOT_SEC_NUM;
-    }
-    else {
-        upgrade->fw_bin_sec = CACHE_DEFAULT_APP_SEC_START;
-        upgrade->fw_bin_sec_num = CACHE_DEFAULT_APP_SEC_NUM;
-    }
-#endif
-    DEBUG("sec=%d  sec_num=%d\r\n", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
+    HALUPGRADE_DEBUG("sec=%d  sec_num=%d\r\n", upgrade->fw_bin_sec, upgrade->fw_bin_sec_num);
     upgrade->fw_bin_addr = upgrade->fw_bin_sec * SPI_FLASH_SEC_SIZE;
 }
 
@@ -184,7 +183,7 @@ void ICACHE_FLASH_ATTR LOCAL upgrade_deinit(void){
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn){
     struct upgrade_server_info *server;
 
-    DEBUG("upgrade_connect_timeout_cb\r\n");
+    HALUPGRADE_DEBUG("upgrade_connect_timeout_cb\r\n");
     if (pespconn == NULL) {
         return;
     }
@@ -205,7 +204,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_timeout_cb(struct espconn *pespconn
 
 //下载结果检查
 LOCAL void ICACHE_FLASH_ATTR upgrade_check(struct upgrade_server_info *server){
-    DEBUG("upgrade_check\r\n");
+    HALUPGRADE_DEBUG("upgrade_check\r\n");
     if (server == NULL) {
         return;
     }
@@ -243,16 +242,17 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
     uint8_t md5_calc[16], i = 0;
     char output[64] = {0};
     struct upgrade_server_info *server = (struct upgrade_server_info *)upgrade_conn->reverse;
+    uint8_t *pdata = NULL;
 
     //检查返回码
     if (totallength == 0){
-        DEBUG("httpdata:%s\r\n", pusrdata);
+        HALUPGRADE_DEBUG("httpdata:%s\r\n", pusrdata);
         ptr = (char *)strstr(pusrdata, "HTTP/1.1 ");
         memset(returncode, 0, sizeof(returncode));
         memcpy(returncode, ptr+9, 3);
 
         if(strcmp(returncode ,"200")){ //下载失败
-            DEBUG("http download return code  error\r\n");
+            HALUPGRADE_DEBUG("http download return code  error\r\n");
             upgrade_check(server);
             return;
         }
@@ -260,14 +260,6 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 
     if (totallength == 0 && (ptr = (char *)strstr(pusrdata, "\r\n\r\n")) != NULL &&
         (ptr = (char *)strstr(pusrdata, "Content-Length")) != NULL) {
-        ptr = (char *)strstr(pusrdata, "\r\n\r\n");
-        length -= ptr - pusrdata;
-        length -= 4;
-        totallength += length;
-        DEBUG("upgrade file download start.\r\n");
-        MD5Init(&_ctx);
-        MD5Update(&_ctx, (uint8_t *)ptr + 4, length);
-        system_upgrade((uint8_t *)ptr + 4, length);
         ptr = (char *)strstr(pusrdata, "Content-Length: ");
         if (ptr != NULL) {
             ptr += 16;
@@ -278,22 +270,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
                 memcpy(lengthbuffer, ptr, ptmp2 - ptr);
                 sumlength = atoi(lengthbuffer);
                 uint32_t  limit_size = 0;
-                if (ONLINE_APP_FILE == filetype) {
+                if (OTA_APP_FILE == filetype) {
                     limit_size = CACHE_ONLINE_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
-                }
-#if PLATFORM_NUT == PLATFORM_ID
-                else if (BOOT_FILE == filetype) {
-                    limit_size = CACHE_BOOT_SEC_NUM * SPI_FLASH_SEC_SIZE;
-                }
-                else if (DEFAULT_APP_FILE == filetype) {
-                    limit_size = CACHE_DEFAULT_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
-                }
-#endif
 
-                if(sumlength >= limit_size){
-                    DEBUG("sumlength failed\r\n");
-                    upgrade_check(server);
-                    return;
+                    if(sumlength >= limit_size){
+                        HALUPGRADE_DEBUG("sumlength failed\r\n");
+                        upgrade_check(server);
+                        return;
+                    }
                 }
                 //获取文件MD5码
                 ptr = (char *)strstr(pusrdata, "X-Md5: ");
@@ -305,75 +289,65 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
                         memset(server->md5, 0, sizeof(server->md5));
                         memcpy(server->md5, ptr, ptmp2 - ptr);
                     } else {
-                        DEBUG("X-Mdt failed\r\n");
+                        HALUPGRADE_DEBUG("X-Mdt failed\r\n");
                         upgrade_check(server);
                         return;
                     }
                 }
             } else {
-                DEBUG("sumlength failed\r\n");
+                HALUPGRADE_DEBUG("sumlength failed\r\n");
                 upgrade_check(server);
                 return;
             }
         } else {
             upgrade_check(server);
-            DEBUG("Content-Length: failed\r\n");
+            HALUPGRADE_DEBUG("Content-Length: failed\r\n");
             return;
         }
+        ptr = (char *)strstr(pusrdata, "\r\n\r\n");
+        length -= ptr - pusrdata;
+        length -= 4;
+        pdata = (uint8_t *)ptr + 4;
+        HALUPGRADE_DEBUG("upgrade file download start.\r\n");
+        MD5Init(&_ctx);
     } else {
         if(totallength + length > sumlength)
             {length = sumlength - totallength;}
-        totallength += length;
-        DEBUG("totallen = %d\r\n",totallength);
-        MD5Update(&_ctx, (uint8_t *)pusrdata, length);
-        system_upgrade((uint8_t *)pusrdata, length);
+        pdata = (uint8_t *)pusrdata;
     }
 
-    if (ONLINE_APP_FILE == filetype) {
-        down_progress = totallength*100/sumlength;
+    totallength += length;
+    HALUPGRADE_DEBUG("totallen = %d\r\n",totallength);
+    MD5Update(&_ctx, pdata, length);
+    system_upgrade(pdata, length);
+
+    if(NULL != downfile_handle) {
+        downfile_handle(pdata, length, totallength, sumlength);
     }
-#if PLATFORM_NUT == PLATFORM_ID
-    else if (BOOT_FILE == filetype) { //下载完毕进度60
-        down_progress = totallength*10/sumlength;
-    }
-    else if (DEFAULT_APP_FILE == filetype) { //下载完毕进度100
-        down_progress = 10+totallength*90/sumlength;
-    }
-#endif
 
     if ((totallength == sumlength)) {
-        DEBUG("upgrade file download finished.\r\n");
+        HALUPGRADE_DEBUG("upgrade file download finished.\r\n");
         MD5Final(md5_calc, &_ctx);
         memset(output, 0, sizeof(output));
-        for(i = 0; i < 16; i++)
-        {
+        for(i = 0; i < 16; i++) {
             sprintf(output + (i * 2), "%02x", md5_calc[i]);
         }
-        DEBUG("md5 = %s\r\n",output);
-        DEBUG("server->md5 = %s\r\n",server->md5);
+        HALUPGRADE_DEBUG("md5 = %s\r\n",output);
+        HALUPGRADE_DEBUG("server->md5 = %s\r\n",server->md5);
         if(!strcmp(server->md5,output)){
-            DEBUG("md5 check ok.\r\n");
+            HALUPGRADE_DEBUG("md5 check ok.\r\n");
             system_upgrade_flag_set(UPGRADE_FLAG_FINISH);
-            if (ONLINE_APP_FILE == filetype) {
+            if (OTA_APP_FILE == filetype) {
                 HAL_PARAMS_Set_Boot_ota_app_size(sumlength);
+                HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
+                HAL_PARAMS_Save_Params();
             }
-#if PLATFORM_NUT == PLATFORM_ID
-            else if (BOOT_FILE == filetype) {
-                HAL_PARAMS_Set_Boot_boot_size(sumlength);
-            }
-            else if (DEFAULT_APP_FILE == filetype) {
-                HAL_PARAMS_Set_Boot_def_app_size(sumlength);
-            }
-#endif
-            else {
-            }
-            HAL_PARAMS_Save_Params();
             totallength = 0;
             sumlength = 0;
             upgrade_check(server);
             return;
         }
-        DEBUG("md5 check error.\r\n");
+        HALUPGRADE_DEBUG("md5 check error.\r\n");
         upgrade_check(server);
         return;
     }
@@ -396,14 +370,14 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_download(void *arg, char *pusrdata, unsigne
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
     struct espconn *pespconn = arg;
 
-    DEBUG("upgrade_connect_cb\r\n");
+    HALUPGRADE_DEBUG("upgrade_connect_cb\r\n");
     os_timer_disarm(&upgrade_connect_timer);
 
     espconn_regist_disconcb(pespconn, upgrade_disconcb);
     espconn_regist_sentcb(pespconn, upgrade_datasent);
 
     if (pbuf != NULL) {
-        DEBUG("%s\r\n", pbuf);
+        HALUPGRADE_DEBUG("%s\r\n", pbuf);
         espconn_sent(pespconn, pbuf, strlen((char *)pbuf));
     }
 }
@@ -416,7 +390,7 @@ LOCAL void ICACHE_FLASH_ATTR upgrade_connect_cb(void *arg){
  * Returns      : none
  *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR upgrade_connect(struct upgrade_server_info *server){
-    DEBUG("upgrade_connect\r\n");
+    HALUPGRADE_DEBUG("upgrade_connect\r\n");
 
     pbuf = server->url;
     espconn_regist_connectcb(upgrade_conn, upgrade_connect_cb);
@@ -444,7 +418,7 @@ bool ICACHE_FLASH_ATTR system_upgrade_start(struct upgrade_server_info *server){
         return false;
     }
     if (server == NULL) {
-        DEBUG("server is NULL\r\n");
+        HALUPGRADE_DEBUG("server is NULL\r\n");
         return false;
     }
     if (upgrade_conn == NULL) {

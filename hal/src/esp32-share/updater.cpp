@@ -17,62 +17,41 @@
   ******************************************************************************
 */
 
-#include <stdlib.h>
-#include "ota_flash_hal.h"
+#include "updater_hal.h"
 #include "core_hal.h"
+#include "flash_mal.h"
+#include "flash_map.h"
+#include "flash_storage_impl.h"
+#include "params_hal.h"
+#include "ui_hal.h"
 
-
-static bool bootloader_requires_update(void)
-{
-    return false;
-}
-
-static bool bootloader_update(void)
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
 {
     return true;
 }
 
-bool HAL_Bootloader_Update_If_Needed(void)
-{
-    bool updated = false;
-
-    if (bootloader_requires_update()) {
-        updated = bootloader_update();
-    }
-    return updated;
-}
-
-down_status_t HAL_OTA_Download_App(const char *host, const char *param, const char * md5)
-{
-    return DOWNSTATUS_FAIL;
-}
-
-down_status_t HAL_OTA_Get_App_Download_Status(void)
-{
-    return DOWNSTATUS_SUCCESS;
-}
-
-void HAL_OTA_Update_App(uint32_t size)
-{
-
-}
-
-down_status_t HAL_OTA_Download_Subsys(const char *host, const char *param)
-{
-    return DOWNSTATUS_FAIL;
-}
-
-down_status_t HAL_OTA_Get_Subsys_Download_Status(void)
-{
-    return DOWNSTATUS_FAIL;
-}
-
-void HAL_OTA_Upadate_Subsys(uint32_t defAppSize, uint32_t bootSize, bool flag)
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
 {
 }
 
-uint8_t HAL_OTA_Get_Download_Progress()
+void HAL_Set_Update_Flag(uint32_t size)
 {
-    return 0;
+    HAL_PARAMS_Set_Boot_ota_app_size(size);
+    HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
+    HAL_PARAMS_Save_Params();
 }
 
+uint32_t HAL_Update_StartAddress()
+{
+    return CACHE_ONLINE_APP_START_ADDR;
+}
+
+uint32_t HAL_Update_FlashLength()
+{
+    return CACHE_ONLINE_APP_SEC_NUM * SPI_FLASH_SEC_SIZE;
+}
+
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    return FLASH_Update(pBuffer, address, length);
+}

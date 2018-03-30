@@ -17,34 +17,44 @@
   ******************************************************************************
 */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIMER_HAL_H
-#define __TIMER_HAL_H
+#include "updater_hal.h"
+#include "wiring_ex_process.h"
+#include "core_hal.h"
 
-/* Includes ------------------------------------------------------------------*/
-#include "system_tick_hal.h"
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
+{
+    String url="";
+    Process Proc;
 
-/* Exported types ------------------------------------------------------------*/
-
-/* Exported constants --------------------------------------------------------*/
-
-/* Exported macros -----------------------------------------------------------*/
-
-/* Exported functions --------------------------------------------------------*/
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-system_tick_t HAL_Timer_Get_Micro_Seconds(void);
-system_tick_t HAL_Timer_Get_Milli_Seconds(void);
-
-#define HAL_Timer_Microseconds HAL_Timer_Get_Micro_Seconds
-#define HAL_Timer_Milliseconds HAL_Timer_Get_Milli_Seconds
-
-#ifdef __cplusplus
+    url+=host;
+    url+=uri;
+    Proc.begin("stm32_update_online");
+    Proc.addParameter("DOWN");
+    Proc.addParameter(url);
+    Proc.addParameter(md5);
+    int res = Proc.run();
+    return res == 0 ? true:false;
 }
-#endif
 
-#endif  /* __TIMER_HAL_H */
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
+{
+}
+
+void HAL_Set_Update_Flag(uint32_t size)
+{
+}
+
+uint32_t HAL_Update_StartAddress()
+{
+    return 0;
+}
+
+uint32_t HAL_Update_FlashLength()
+{
+    return 0;
+}
+
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    return 0;
+}

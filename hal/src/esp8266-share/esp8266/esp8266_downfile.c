@@ -25,8 +25,16 @@
 #include "hw_config.h"
 #include "esp8266_upgrade.h"
 #include "esp8266_downfile.h"
-#include "service_debug.h"
 
+//#define HAL_DOWNFILE_DEBUG
+
+#ifdef HAL_DOWNFILE_DEBUG
+#define HALDOWNFILE_DEBUG(...)  do {DEBUG(__VA_ARGS__);}while(0)
+#define HALDOWNFILE_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
+#else
+#define HALDOWNFILE_DEBUG(...)
+#define HALDOWNFILE_DEBUG_D(...)
+#endif
 
 #define pheadbuffer "Connection: keep-alive\r\n\
 Cache-Control: no-cache\r\n\
@@ -39,13 +47,12 @@ struct espconn *pespconn = NULL;
 struct upgrade_server_info *upServer = NULL;
 
 static ip_addr_t host_ip;
-enum file_type_t filetype = ONLINE_APP_FILE;
+file_type_t filetype = OTA_APP_FILE;
 
-uint8_t down_progress=0;
 os_timer_t downfile_timer;
 
-down_status_t _downOnlineAppFile_status;
-down_status_t _downDefaultAppFile_status;
+down_status_t _downfile_status;
+esp8266_downfile_handle_t downfile_handle = NULL;
 
 char hostname_tmp[128] = {0};
 char httppara_tmp[128] = {0};
@@ -53,53 +60,18 @@ char httppara_tmp[128] = {0};
 void downfile_rsp(void *arg);
 void downFile(char *hostname, char *httppara, char *md5para, void *check_cb);
 
-void down_default_app_cb(void){
-    os_timer_disarm(&downfile_timer);
-    filetype = DEFAULT_APP_FILE;
-    char para[256] = {0};
-    sprintf(para,"%s/%s", httppara_tmp, "default-nut.bin");
-    downFile(hostname_tmp, para, "", downfile_rsp);
-}
-
 //升级回调函数
-void downfile_rsp(void *arg){
+void downfile_rsp(void *arg) {
     char output[64] = {0};
     struct upgrade_server_info *server = arg;
 
     memset(output, 0, sizeof(output));
-    if(server->upgrade_flag == true)
-    {
-        if(ONLINE_APP_FILE == filetype) //esp8266升级文件
-        {
-            DEBUG("online_app_success\r\n");
-            _downOnlineAppFile_status = DOWNSTATUS_SUCCESS;
-        }
-#if PLATFORM_NUT == PLATFORM_ID
-        else if(BOOT_FILE == filetype) //esp8266升级文件
-        {
-            DEBUG("boot_success\r\n");
-            os_timer_disarm(&downfile_timer);
-            os_timer_setfn(&downfile_timer, (os_timer_func_t *)down_default_app_cb, NULL);
-            os_timer_arm(&downfile_timer, 500, 0);
-        }
-        else if(DEFAULT_APP_FILE == filetype) //默认stm32程序文件
-        {
-            DEBUG("default_app_success\r\n");
-            _downDefaultAppFile_status = DOWNSTATUS_SUCCESS;
-        }
-#endif
-    }
-    else
-    {
-        DEBUG("downfile_failed\r\n");
-        if(ONLINE_APP_FILE == filetype) //esp8266升级文件
-        {
-            _downOnlineAppFile_status = DOWNSTATUS_FAIL;
-        }
-        else
-        {
-            _downDefaultAppFile_status = DOWNSTATUS_FAIL;
-        }
+    if(server->upgrade_flag == true) {
+        HALDOWNFILE_DEBUG("downfile_success\r\n");
+        _downfile_status = DOWNSTATUS_SUCCESS;
+    } else {
+        HALDOWNFILE_DEBUG("downfile_failed\r\n");
+        _downfile_status = DOWNSTATUS_FAIL;
     }
 
     free(server->url);
@@ -113,9 +85,8 @@ void upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg){
     struct espconn *pespconn = (struct espconn *) arg;
 
     free(pespconn);
-    DEBUG("upServer_dns_found\r\n");
-    if(ipaddr == NULL)
-    {
+    HALDOWNFILE_DEBUG("upServer_dns_found\r\n");
+    if(ipaddr == NULL) {
         downfile_rsp(upServer);
         return;
     }
@@ -131,64 +102,40 @@ void downFile(char *hostname, char *httppara, char *md5para, void *check_cb){
     upServer->check_cb = check_cb;
     upServer->check_times = 20000;
 
-    if(upServer->url == NULL)
-    {
+    if(upServer->url == NULL) {
         upServer->url = (uint8 *)os_zalloc(1024);
     }
 
     sprintf((char *)upServer->url, "GET %s HTTP/1.0\r\nHost: %s\r\n"pheadbuffer"", httppara, hostname);
 
     strcpy(upServer->md5, md5para);
-    DEBUG("upServer->url=%s\r\n",upServer->url);
+    HALDOWNFILE_DEBUG("upServer->url=%s\r\n",upServer->url);
     host_ip.addr = ipaddr_addr(hostname);
-    if (host_ip.addr != IPADDR_NONE)
-    {
+    if (host_ip.addr != IPADDR_NONE) {
         memcpy(upServer->ip, &host_ip.addr, 4);
         system_upgrade_start(upServer);
-    }
-    else
-    {
+    } else {
         pespconn = (struct espconn *)os_zalloc(sizeof(struct espconn));
         espconn_gethostbyname(pespconn, hostname, &host_ip, upServer_dns_found);
     }
 }
 
-down_status_t esp8266_downOnlineApp(const char *host, const char *param, const char * md5)
+down_status_t esp8266_downfile(const char *host, const char *uri, const char * md5, file_type_t type)
 {
-    filetype = ONLINE_APP_FILE;
-    down_progress=0;
-    downFile((char *)host, (char *)param, (char *)md5, downfile_rsp);
-    _downOnlineAppFile_status = DOWNSTATUS_DOWNING;
-    return _downOnlineAppFile_status;
+    HALDOWNFILE_DEBUG("host : %s, uri : %s\r\n", host, uri);
+    filetype = type;
+    downFile((char *)host, (char *)uri, (char *)md5, downfile_rsp);
+    _downfile_status = DOWNSTATUS_DOWNING;
+    return _downfile_status;
 }
 
-down_status_t esp8266_downDefaultApp(const char *host, const char *param)
+down_status_t esp8266_getDownfileStatus(void)
 {
-    memset(hostname_tmp, 0, sizeof(hostname_tmp));
-    memset(httppara_tmp, 0, sizeof(httppara_tmp));
-    strcpy(hostname_tmp, host);
-    strcpy(httppara_tmp, param);
-    filetype = BOOT_FILE;
-    down_progress=0;
-    char para[256] = {0};
-    sprintf(para,"%s/%s", httppara_tmp, "nut-boot.bin");
-    downFile(hostname_tmp, para, "", downfile_rsp);
-    _downDefaultAppFile_status = DOWNSTATUS_DOWNING;
-    return _downDefaultAppFile_status;
+    optimistic_yield(10000);
+    return _downfile_status;
 }
 
-down_status_t esp8266_getDownOnlineAppStatus(void)
+void esp8266_set_downfile_handle(esp8266_downfile_handle_t fn)
 {
-    return _downOnlineAppFile_status;
+    downfile_handle = fn;
 }
-
-down_status_t esp8266_getDownDefaultAppStatus(void)
-{
-    return _downDefaultAppFile_status;
-}
-
-uint8_t esp8266_getDownloadProgress(void)
-{
-    return down_progress;
-}
-

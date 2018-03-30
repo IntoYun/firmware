@@ -20,23 +20,32 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ESP8266_WIFI_GENERIC_H_
-#define ESP8266_WIFI_GENERIC_H_
+#ifndef ESP8266_DOWNFILE_H_
+#define ESP8266_DOWNFILE_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "ota_flash_hal.h"
 
-down_status_t esp8266_downOnlineApp(const char *host, const char *param, const char * md5);
-down_status_t esp8266_downDefaultApp(const char *host, const char *param);
-down_status_t esp8266_getDownOnlineAppStatus(void);
-down_status_t esp8266_getDownDefaultAppStatus(void);
-uint8_t esp8266_getDownloadProgress(void);
+typedef enum {
+    OTA_APP_FILE,            //ota应用文件
+    DOWNLOAD_FILE,           //其他下载文件
+} file_type_t;
+
+typedef enum {
+    DOWNSTATUS_SUCCESS = 0,
+    DOWNSTATUS_FAIL    = 1,
+    DOWNSTATUS_DOWNING = 2,
+} down_status_t;
+
+typedef void (*esp8266_downfile_handle_t)(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize);
+
+down_status_t esp8266_downfile(const char *host, const char *uri, const char * md5, file_type_t type);
+down_status_t esp8266_getDownfileStatus(void);
+void esp8266_set_downfile_handle(esp8266_downfile_handle_t fn);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif /* ESP8266_WIFI_GENERIC_H_ */

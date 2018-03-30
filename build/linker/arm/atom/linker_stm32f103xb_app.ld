@@ -25,12 +25,12 @@ These are used by the startup in order to allocate stacks for the different mode
 
 __Stack_Size = 2048 ;
 
-PROVIDE ( _Stack_Size = __Stack_Size ) ;
+/* PROVIDE ( _Stack_Size = __Stack_Size ) ; */
 
 __Stack_Init = _estack - __Stack_Size ;
 
 /*"PROVIDE" allows to easily override these values from an object file or the commmand line.*/
-PROVIDE ( _Stack_Init = __Stack_Init ) ;
+/* PROVIDE ( _Stack_Init = __Stack_Init ) ; */
 
 /*
 There will be a link error if there is not this amount of RAM free at the end.
@@ -46,7 +46,6 @@ Linker subscript for STM32F10x definitions with 128K Flash and 20K RAM */
 MEMORY
 {
     SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 20K
-    /* APP_FLASH (rx)    : ORIGIN = 0x08007000, LENGTH = 128K-0x7000 */
     APP_FLASH (rx)    : ORIGIN = 0x08000000, LENGTH = 128K
 }
 

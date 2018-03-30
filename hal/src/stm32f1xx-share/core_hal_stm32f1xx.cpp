@@ -24,7 +24,7 @@
 #include "watchdog_hal.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
-#include "ota_flash_hal.h"
+#include "updater_hal.h"
 #include "gpio_hal.h"
 #include "interrupts_hal.h"
 #include "hw_config.h"
@@ -59,13 +59,6 @@ void HAL_Core_Init(void)
 void HAL_Core_Config(void)
 {
     Set_System();
-
-#ifdef DFU_BUILD_ENABLE
-    #if (PLATFORM_ID != PLATFORM_ATOM)
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x7000);
-    #endif
-#endif
-
     //设置管脚的默认值
 #if !defined(USE_SWD_JTAG) && !defined(USE_SWD)
     __HAL_RCC_AFIO_CLK_ENABLE();
@@ -117,7 +110,6 @@ void HAL_Core_Setup(void)
 {
     HAL_IWDG_Config(DISABLE);
     HAL_Core_Load_Params();
-    HAL_Bootloader_Update_If_Needed();
 }
 
 void HAL_Core_System_Reset(void)
@@ -159,10 +151,6 @@ void HAL_Core_Enter_Ota_Update_Mode(void)
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
     HAL_Core_System_Reset();
-}
-
-void HAL_Core_Enter_Safe_Mode(void* reserved)
-{
 }
 
 void HAL_Core_Enter_Bootloader(bool persist)

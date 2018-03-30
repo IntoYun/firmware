@@ -1,12 +1,6 @@
 /**
  ******************************************************************************
- * @file    system_tick_hal.h
- * @author  Matthew McGowan
- * @version V1.0.0
- * @date    25-Sept-2014
- * @brief
- ******************************************************************************
-  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
+  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -20,15 +14,37 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
- */
+  ******************************************************************************
+*/
+
+#include "updater_hal.h"
 
 
-#ifndef system_tick_hal_h_
-#define system_tick_hal_h_
+bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
+{
+    return true;
+}
 
-#include <stdint.h>
+void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
+{
+}
 
-typedef uint32_t system_tick_t;
+void HAL_Set_Update_Flag(uint32_t size)
+{
+}
 
-#endif
+uint32_t HAL_Update_StartAddress()
+{
+    return 0;
+}
+
+uint32_t HAL_Update_FlashLength()
+{
+    return 0;
+}
+
+int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+{
+    return false;
+}
+

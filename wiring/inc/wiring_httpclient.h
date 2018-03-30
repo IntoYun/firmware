@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef WIRING_HTTPCLIENT_NEW_H_
-#define WIRING_HTTPCLIENT_NEW_H_
+#ifndef WIRING_HTTPCLIENT_H_
+#define WIRING_HTTPCLIENT_H_
 
 #include "intorobot_config.h"
 
@@ -213,4 +213,4 @@ protected:
 };
 
 #endif
-#endif /* WIRING_HTTPCLIENT_NEW_H_ */
+#endif /* WIRING_HTTPCLIENT_H_ */

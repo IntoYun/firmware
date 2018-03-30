@@ -1,5 +1,5 @@
-#ifndef __UPGRADE_H__
-#define __UPGRADE_H__
+#ifndef ESP8266_UPGRADE_H_
+#define ESP8266_UPGRADE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,17 +7,9 @@ extern "C" {
 
 #include "flash_map.h"
 
-
 #define UPGRADE_FLAG_IDLE       0x00       //更新空闲
 #define UPGRADE_FLAG_START      0x01       //更新开始
 #define UPGRADE_FLAG_FINISH     0x02       //更新完成
-
-
-enum file_type_t {
-    ONLINE_APP_FILE,            //在线编程程序文件
-    DEFAULT_APP_FILE,           //默认应用程序文件
-    BOOT_FILE                   //bootloader程序文件
-};
 
 typedef void (*upgrade_states_check_callback)(void * arg);
 

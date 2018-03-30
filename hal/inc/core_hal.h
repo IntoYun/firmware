@@ -74,7 +74,6 @@ void HAL_Core_Enter_DFU_Mode(bool persist);
 void HAL_Core_Enter_Com_Mode(void);
 void HAL_Core_Enter_Factory_Reset_Mode(void);
 void HAL_Core_Enter_Ota_Update_Mode(void);
-void HAL_Core_Enter_Safe_Mode(void* reserved);
 void HAL_Core_Enter_Bootloader(bool persist);
 uint16_t HAL_Core_Get_Subsys_Version(char* buffer, uint16_t len);
 void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long seconds);

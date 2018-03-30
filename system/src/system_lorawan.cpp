@@ -25,7 +25,6 @@
 #include "hw_config.h"
 #include "core_hal.h"
 #include "params_hal.h"
-#include "ota_flash_hal.h"
 #include "system_datapoint.h"
 #include "system_mode.h"
 #include "system_task.h"
