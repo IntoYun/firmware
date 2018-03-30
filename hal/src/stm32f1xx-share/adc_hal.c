@@ -30,7 +30,7 @@
 #include "service_debug.h"
 
 #define ADC_DMA_BUFFERSIZE    10
-#define ADC_SAMPLING_TIME     ADC_SAMPLETIME_1CYCLE_5
+#define ADC_SAMPLING_TIME     ADC_SAMPLETIME_41CYCLES_5
 
 /* Private variables ---------------------------------------------------------*/
 // FIXME:Here not use volatile, it will occur volatile pointer error in C, but it is OK in C++
@@ -71,6 +71,11 @@ int32_t HAL_ADC_Read(uint16_t pin)
 
     if (adcInitFirstTime == true)
     {
+        RCC_PeriphCLKInitTypeDef  PeriphClkInit;
+        PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+        PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+
         HAL_ADC_DMA_Init();
         adcInitFirstTime = false;
     }
@@ -89,7 +94,7 @@ int32_t HAL_ADC_Read(uint16_t pin)
         ADC_HandleStruct.Init.DiscontinuousConvMode = DISABLE;
         ADC_HandleStruct.Init.NbrOfDiscConversion   = 0;
         ADC_HandleStruct.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-        ADC_HandleStruct.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONVEDGE_NONE;
+        /* ADC_HandleStruct.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONVEDGE_NONE; */
         /* ADC_HandleStruct.Init.DMAContinuousRequests = ENABLE; */
 
         HAL_ADC_Init(&ADC_HandleStruct);

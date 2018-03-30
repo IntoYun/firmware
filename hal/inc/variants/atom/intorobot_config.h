@@ -38,7 +38,7 @@
 /* config wiring usart serial. */
 #define configWIRING_USARTSERIAL_ENABLE
 #define configWIRING_USARTSERIAL1_ENABLE
-//#define configWIRING_USARTSERIAL2_ENABLE
+// #define configWIRING_USARTSERIAL2_ENABLE
 //#define configWIRING_USARTSERIAL3_ENABLE
 //#define configWIRING_USARTSERIAL4_ENABLE
 //#define configWIRING_USARTSERIAL5_ENABLE
