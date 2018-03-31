@@ -77,8 +77,8 @@ struct spi_transaction_t {
                                     ///< <b>NOTE: this field, used to be "command" in ESP-IDF 2.1 and before, is re-written to be used in a new way in ESP-IDF 3.0.</b>
                                     ///< - Example: write 0x0123 and command_bits=12 to send command 0x12, 0x3_ (in previous version, you may have to write 0x3_12).
     uint64_t addr;                  ///< Address data, of which the length is set in the ``address_bits`` of spi_device_interface_config_t.
-                                    ///< <b>NOTE: this field, used to be "address" in ESP-IDF 2.1 and before, is re-written to be used in a new way in ESP-IDF3.0.</b>
-                                    ///< - Example: write 0x123400 and address_bits=24 to send address of 0x12, 0x34, 0x00 (in previous version, you may have to write 0x12340000).
+                                    ///< <b>NOTE: this field, used to be "address" in ESP-IDF 2.1 and before, is re-written to be used in a new way in ESP-IDF3.0.</b> 
+                                    ///< - Example: write 0x123400 and address_bits=24 to send address of 0x12, 0x34, 0x00 (in previous version, you may have to write 0x12340000).  
     size_t length;                  ///< Total data length, in bits
     size_t rxlength;                ///< Total data length received, should be not greater than ``length`` in full-duplex mode (0 defaults this to the value of ``length``).
     void *user;                     ///< User-defined variable. Can be used to store eg transaction ID.
@@ -113,11 +113,11 @@ typedef struct spi_device_t* spi_device_handle_t;  ///< Handle for a device on a
  * @param host SPI peripheral that controls this bus
  * @param bus_config Pointer to a spi_bus_config_t struct specifying how the host should be initialized
  * @param dma_chan Either channel 1 or 2, or 0 in the case when no DMA is required. Selecting a DMA channel
- *                 for a SPI bus allows transfers on the bus to have sizes only limited by the amount of
+ *                 for a SPI bus allows transfers on the bus to have sizes only limited by the amount of 
  *                 internal memory. Selecting no DMA channel (by passing the value 0) limits the amount of
  *                 bytes transfered to a maximum of 32.
  *
- * @warning If a DMA channel is selected, any transmit and receive buffer used should be allocated in
+ * @warning If a DMA channel is selected, any transmit and receive buffer used should be allocated in 
  *          DMA-capable memory.
  *
  * @return 
@@ -200,8 +200,8 @@ esp_err_t spi_device_queue_trans(spi_device_handle_t handle, spi_transaction_t *
  * re-use the buffers.
  *
  * @param handle Device handle obtained using spi_host_add_dev
- * @param trans_desc Pointer to variable able to contain a pointer to the description of the transaction
-        that is executed. The descriptor should not be modified until the descriptor is returned by
+ * @param trans_desc Pointer to variable able to contain a pointer to the description of the transaction 
+        that is executed. The descriptor should not be modified until the descriptor is returned by 
         spi_device_get_trans_result.
  * @param ticks_to_wait Ticks to wait until there's a returned item; use portMAX_DELAY to never time
                         out.
@@ -227,6 +227,17 @@ esp_err_t spi_device_get_trans_result(spi_device_handle_t handle, spi_transactio
  *         - ESP_OK                on success
  */
 esp_err_t spi_device_transmit(spi_device_handle_t handle, spi_transaction_t *trans_desc);
+
+/**
+ * @brief Calculate the working frequency that is most close to desired frequency, and also the register value.
+ *
+ * @param fapb The frequency of apb clock, should be ``APB_CLK_FREQ``.
+ * @param hz Desired working frequency
+ * @param duty_cycle Duty cycle of the spi clock
+ * @param reg_o Output of value to be set in clock register, or NULL if not needed.
+ * @return Actual working frequency that most fit.
+ */
+int spi_cal_clock(int fapb, int hz, int duty_cycle, uint32_t* reg_o);
 
 
 #ifdef __cplusplus

@@ -94,14 +94,14 @@ static inline uint32_t IRAM_ATTR DPORT_REG_READ(uint32_t reg)
 #define _DPORT_REG_CLR_BIT(_r, _b)  _DPORT_REG_WRITE((_r), (_DPORT_REG_READ(_r) & (~(_b))))
 
 //read value from register
-static inline uint32_t IRAM_ATTR DPORT_READ_PERI_REG(uint32_t addr)
+static inline uint32_t IRAM_ATTR DPORT_READ_PERI_REG(uint32_t addr) 
 {
     uint32_t val;
 
     DPORT_STALL_OTHER_CPU_START();
     val = _DPORT_READ_PERI_REG(addr);
     DPORT_STALL_OTHER_CPU_END();
-
+    
     return val;
 }
 

@@ -248,7 +248,7 @@ esp_err_t uart_get_baudrate(uart_port_t uart_num, uint32_t* baudrate);
  *
  * @param uart_num  UART_NUM_0, UART_NUM_1 or UART_NUM_2
  * @param inverse_mask Choose the wires that need to be inverted.
- *        Inverse_mask should be chosen from
+ *        Inverse_mask should be chosen from 
           UART_INVERSE_RXD / UART_INVERSE_TXD / UART_INVERSE_RTS / UART_INVERSE_CTS,
           combined with OR operation.
  *
@@ -392,7 +392,7 @@ esp_err_t uart_enable_tx_intr(uart_port_t uart_num, int enable, int thresh);
  * @param fn  Interrupt handler function.
  * @param arg parameter for handler function
  * @param intr_alloc_flags Flags used to allocate the interrupt. One or multiple (ORred)
- *        ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info.
+ *        ESP_INTR_FLAG_* values. See esp_intr_alloc.h for more info. 
  * @param handle Pointer to return handle. If non-NULL, a handle for the interrupt will
  *        be returned here.
  *
@@ -420,7 +420,7 @@ esp_err_t uart_isr_free(uart_port_t uart_num);
  * @note Internal signal can be output to multiple GPIO pads.
  *       Only one GPIO pad can connect with input signal.
  *
- * @note Instead of GPIO number a macro 'UART_PIN_NO_CHANGE' may be provided
+ * @note Instead of GPIO number a macro 'UART_PIN_NO_CHANGE' may be provided 
          to keep the currently allocated pin.
  *
  * @param uart_num   UART_NUM_0, UART_NUM_1 or UART_NUM_2

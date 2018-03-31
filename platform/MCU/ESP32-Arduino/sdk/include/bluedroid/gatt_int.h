@@ -504,7 +504,7 @@ typedef struct {
     UINT16              next_handle;    /* next available handle */
     tGATT_SVC_CHG       gattp_attr;     /* GATT profile attribute service change */
     tGATT_IF            gatt_if;
-#if (GATTS_INCLUDED == TRUE)
+#if (GATTS_INCLUDED == TRUE)    
     tGATT_HDL_LIST_INFO hdl_list_info;
     tGATT_HDL_LIST_ELEM hdl_list[GATT_MAX_SR_PROFILES];
     tGATT_SRV_LIST_INFO srv_list_info;

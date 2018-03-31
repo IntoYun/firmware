@@ -330,7 +330,7 @@ struct tcp_pcb {
   }\
 } while(0)
 #else
-#define ESP_STATS_TCP_PCB(pcb)
+#define ESP_STATS_TCP_PCB(pcb) 
 #endif
 
 struct tcp_pcb_listen {

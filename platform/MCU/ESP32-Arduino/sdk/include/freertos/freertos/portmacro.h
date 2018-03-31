@@ -198,7 +198,7 @@ This all assumes that interrupts are either entirely disabled or enabled. Interr
 will break this scheme.
 
 Remark: For the ESP32, portENTER_CRITICAL and portENTER_CRITICAL_ISR both alias vTaskEnterCritical, meaning
-that either function can be called both from ISR as well as task context. This is not standard FreeRTOS
+that either function can be called both from ISR as well as task context. This is not standard FreeRTOS 
 behaviour; please keep this in mind if you need any compatibility with other FreeRTOS implementations.
 */
 void vPortCPUInitializeMutex(portMUX_TYPE *mux);
@@ -264,7 +264,7 @@ static inline unsigned portENTER_CRITICAL_NESTED() {
 
 //xTaskCreateStatic uses these functions to check incoming memory.
 #define portVALID_TCB_MEM(ptr) (esp_ptr_internal(ptr) && esp_ptr_byte_accessible(ptr))
-#ifndef CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY
+#ifdef CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY
 #define portVALID_STACK_MEM(ptr) esp_ptr_byte_accessible(ptr)
 #else
 #define portVALID_STACK_MEM(ptr) (esp_ptr_internal(ptr) && esp_ptr_byte_accessible(ptr))

@@ -421,7 +421,7 @@ typedef struct {
 /**
   * @brief service element
   */
-typedef struct {
+typedef struct { 
     bool                        is_primary;                 /*!< The service flag, ture if the service is primary service, else is secondly service */
     uint16_t                    start_handle;               /*!< The start handle of the service */
     uint16_t                    end_handle;                 /*!< The end handle of the service */

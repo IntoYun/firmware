@@ -423,154 +423,154 @@ extern UINT8 btif_trace_level;
 #define APPL_TRACE_VERBOSE(fmt, args...)    {if (appl_trace_level >= BT_TRACE_LEVEL_VERBOSE) BT_PRINTF(fmt, ## args);}
 
 #else
-#define LOG_ERROR(fmt, args...)
-#define LOG_WARN(fmt, args...)
-#define LOG_INFO(fmt, args...)
-#define LOG_DEBUG(fmt, args...)
-#define LOG_VERBOSE(fmt, args...)
+#define LOG_ERROR(fmt, args...)            
+#define LOG_WARN(fmt, args...)             
+#define LOG_INFO(fmt, args...)             
+#define LOG_DEBUG(fmt, args...)            
+#define LOG_VERBOSE(fmt, args...)          
 
 /* Define tracing for the HCI unit
 */
-#define HCI_TRACE_ERROR(fmt, args...)
-#define HCI_TRACE_WARNING(fmt, args...)
-#define HCI_TRACE_EVENT(fmt, args...)
-#define HCI_TRACE_DEBUG(fmt, args...)
+#define HCI_TRACE_ERROR(fmt, args...)      
+#define HCI_TRACE_WARNING(fmt, args...)    
+#define HCI_TRACE_EVENT(fmt, args...)      
+#define HCI_TRACE_DEBUG(fmt, args...)      
 
 /* Define tracing for BTM
 */
-#define BTM_TRACE_ERROR(fmt, args...)
-#define BTM_TRACE_WARNING(fmt, args...)
-#define BTM_TRACE_API(fmt, args...)
-#define BTM_TRACE_EVENT(fmt, args...)
-#define BTM_TRACE_DEBUG(fmt, args...)
+#define BTM_TRACE_ERROR(fmt, args...)      
+#define BTM_TRACE_WARNING(fmt, args...)    
+#define BTM_TRACE_API(fmt, args...)        
+#define BTM_TRACE_EVENT(fmt, args...)      
+#define BTM_TRACE_DEBUG(fmt, args...)      
 
 /* Define tracing for the L2CAP unit
 */
-#define L2CAP_TRACE_ERROR(fmt, args...)
-#define L2CAP_TRACE_WARNING(fmt, args...)
-#define L2CAP_TRACE_API(fmt, args...)
-#define L2CAP_TRACE_EVENT(fmt, args...)
-#define L2CAP_TRACE_DEBUG(fmt, args...)
+#define L2CAP_TRACE_ERROR(fmt, args...)    
+#define L2CAP_TRACE_WARNING(fmt, args...)  
+#define L2CAP_TRACE_API(fmt, args...)      
+#define L2CAP_TRACE_EVENT(fmt, args...)    
+#define L2CAP_TRACE_DEBUG(fmt, args...)    
 
 /* Define tracing for the SDP unit
 */
-#define SDP_TRACE_ERROR(fmt, args...)
-#define SDP_TRACE_WARNING(fmt, args...)
-#define SDP_TRACE_API(fmt, args...)
-#define SDP_TRACE_EVENT(fmt, args...)
-#define SDP_TRACE_DEBUG(fmt, args...)
+#define SDP_TRACE_ERROR(fmt, args...)      
+#define SDP_TRACE_WARNING(fmt, args...)    
+#define SDP_TRACE_API(fmt, args...)        
+#define SDP_TRACE_EVENT(fmt, args...)      
+#define SDP_TRACE_DEBUG(fmt, args...)      
 
 /* Define tracing for the RFCOMM unit
 */
-#define RFCOMM_TRACE_ERROR(fmt, args...)
-#define RFCOMM_TRACE_WARNING(fmt, args...)
-#define RFCOMM_TRACE_API(fmt, args...)
-#define RFCOMM_TRACE_EVENT(fmt, args...)
-#define RFCOMM_TRACE_DEBUG(fmt, args...)
+#define RFCOMM_TRACE_ERROR(fmt, args...)   
+#define RFCOMM_TRACE_WARNING(fmt, args...) 
+#define RFCOMM_TRACE_API(fmt, args...)     
+#define RFCOMM_TRACE_EVENT(fmt, args...)   
+#define RFCOMM_TRACE_DEBUG(fmt, args...)   
 
 /* Generic Access Profile traces */
-#define GAP_TRACE_ERROR(fmt, args...)
-#define GAP_TRACE_EVENT(fmt, args...)
-#define GAP_TRACE_API(fmt, args...)
-#define GAP_TRACE_WARNING(fmt, args...)
+#define GAP_TRACE_ERROR(fmt, args...)      
+#define GAP_TRACE_EVENT(fmt, args...)      
+#define GAP_TRACE_API(fmt, args...)        
+#define GAP_TRACE_WARNING(fmt, args...)    
 
 /* define traces for HID Host */
-#define HIDH_TRACE_ERROR(fmt, args...)
-#define HIDH_TRACE_WARNING(fmt, args...)
-#define HIDH_TRACE_API(fmt, args...)
-#define HIDH_TRACE_EVENT(fmt, args...)
-#define HIDH_TRACE_DEBUG(fmt, args...)
+#define HIDH_TRACE_ERROR(fmt, args...)     
+#define HIDH_TRACE_WARNING(fmt, args...)   
+#define HIDH_TRACE_API(fmt, args...)       
+#define HIDH_TRACE_EVENT(fmt, args...)     
+#define HIDH_TRACE_DEBUG(fmt, args...)     
 
 /* define traces for BNEP */
 
-#define BNEP_TRACE_ERROR(fmt, args...)
-#define BNEP_TRACE_WARNING(fmt, args...)
-#define BNEP_TRACE_API(fmt, args...)
-#define BNEP_TRACE_EVENT(fmt, args...)
-#define BNEP_TRACE_DEBUG(fmt, args...)
+#define BNEP_TRACE_ERROR(fmt, args...)     
+#define BNEP_TRACE_WARNING(fmt, args...)   
+#define BNEP_TRACE_API(fmt, args...)       
+#define BNEP_TRACE_EVENT(fmt, args...)     
+#define BNEP_TRACE_DEBUG(fmt, args...)     
 
 /* define traces for PAN */
 
-#define PAN_TRACE_ERROR(fmt, args...)
-#define PAN_TRACE_WARNING(fmt, args...)
-#define PAN_TRACE_API(fmt, args...)
-#define PAN_TRACE_EVENT(fmt, args...)
-#define PAN_TRACE_DEBUG(fmt, args...)
+#define PAN_TRACE_ERROR(fmt, args...)      
+#define PAN_TRACE_WARNING(fmt, args...)    
+#define PAN_TRACE_API(fmt, args...)        
+#define PAN_TRACE_EVENT(fmt, args...)      
+#define PAN_TRACE_DEBUG(fmt, args...)      
 
 /* Define tracing for the A2DP profile
 */
-#define A2D_TRACE_ERROR(fmt, args...)
-#define A2D_TRACE_WARNING(fmt, args...)
-#define A2D_TRACE_EVENT(fmt, args...)
-#define A2D_TRACE_DEBUG(fmt, args...)
-#define A2D_TRACE_API(fmt, args...)
+#define A2D_TRACE_ERROR(fmt, args...)      
+#define A2D_TRACE_WARNING(fmt, args...)    
+#define A2D_TRACE_EVENT(fmt, args...)      
+#define A2D_TRACE_DEBUG(fmt, args...)      
+#define A2D_TRACE_API(fmt, args...)        
 
 /* AVDTP
 */
-#define AVDT_TRACE_ERROR(fmt, args...)
-#define AVDT_TRACE_WARNING(fmt, args...)
-#define AVDT_TRACE_EVENT(fmt, args...)
-#define AVDT_TRACE_DEBUG(fmt, args...)
-#define AVDT_TRACE_API(fmt, args...)
+#define AVDT_TRACE_ERROR(fmt, args...)     
+#define AVDT_TRACE_WARNING(fmt, args...)   
+#define AVDT_TRACE_EVENT(fmt, args...)     
+#define AVDT_TRACE_DEBUG(fmt, args...)     
+#define AVDT_TRACE_API(fmt, args...)       
 
 /* Define tracing for the AVCTP protocol
 */
-#define AVCT_TRACE_ERROR(fmt, args...)
-#define AVCT_TRACE_WARNING(fmt, args...)
-#define AVCT_TRACE_EVENT(fmt, args...)
-#define AVCT_TRACE_DEBUG(fmt, args...)
-#define AVCT_TRACE_API(fmt, args...)
+#define AVCT_TRACE_ERROR(fmt, args...)     
+#define AVCT_TRACE_WARNING(fmt, args...)   
+#define AVCT_TRACE_EVENT(fmt, args...)     
+#define AVCT_TRACE_DEBUG(fmt, args...)     
+#define AVCT_TRACE_API(fmt, args...)       
 
 /* Define tracing for the AVRCP profile
 */
-#define AVRC_TRACE_ERROR(fmt, args...)
-#define AVRC_TRACE_WARNING(fmt, args...)
-#define AVRC_TRACE_EVENT(fmt, args...)
-#define AVRC_TRACE_DEBUG(fmt, args...)
-#define AVRC_TRACE_API(fmt, args...)
+#define AVRC_TRACE_ERROR(fmt, args...)     
+#define AVRC_TRACE_WARNING(fmt, args...)   
+#define AVRC_TRACE_EVENT(fmt, args...)     
+#define AVRC_TRACE_DEBUG(fmt, args...)     
+#define AVRC_TRACE_API(fmt, args...)       
 
 /* MCAP
 */
-#define MCA_TRACE_ERROR(fmt, args...)
-#define MCA_TRACE_WARNING(fmt, args...)
-#define MCA_TRACE_EVENT(fmt, args...)
-#define MCA_TRACE_DEBUG(fmt, args...)
-#define MCA_TRACE_API(fmt, args...)
+#define MCA_TRACE_ERROR(fmt, args...)      
+#define MCA_TRACE_WARNING(fmt, args...)    
+#define MCA_TRACE_EVENT(fmt, args...)      
+#define MCA_TRACE_DEBUG(fmt, args...)      
+#define MCA_TRACE_API(fmt, args...)        
 
 /* Define tracing for the ATT/GATT unit
 */
-#define GATT_TRACE_ERROR(fmt, args...)
-#define GATT_TRACE_WARNING(fmt, args...)
-#define GATT_TRACE_API(fmt, args...)
-#define GATT_TRACE_EVENT(fmt, args...)
-#define GATT_TRACE_DEBUG(fmt, args...)
+#define GATT_TRACE_ERROR(fmt, args...)     
+#define GATT_TRACE_WARNING(fmt, args...)   
+#define GATT_TRACE_API(fmt, args...)       
+#define GATT_TRACE_EVENT(fmt, args...)     
+#define GATT_TRACE_DEBUG(fmt, args...)     
 
 /* Define tracing for the SMP unit
 */
-#define SMP_TRACE_ERROR(fmt, args...)
-#define SMP_TRACE_WARNING(fmt, args...)
-#define SMP_TRACE_API(fmt, args...)
-#define SMP_TRACE_EVENT(fmt, args...)
-#define SMP_TRACE_DEBUG(fmt, args...)
+#define SMP_TRACE_ERROR(fmt, args...)      
+#define SMP_TRACE_WARNING(fmt, args...)    
+#define SMP_TRACE_API(fmt, args...)        
+#define SMP_TRACE_EVENT(fmt, args...)      
+#define SMP_TRACE_DEBUG(fmt, args...)      
 
 extern UINT8 btif_trace_level;
 
 // define traces for application
-#define BTIF_TRACE_ERROR(fmt, args...)
-#define BTIF_TRACE_WARNING(fmt, args...)
-#define BTIF_TRACE_API(fmt, args...)
-#define BTIF_TRACE_EVENT(fmt, args...)
-#define BTIF_TRACE_DEBUG(fmt, args...)
-#define BTIF_TRACE_VERBOSE(fmt, args...)
+#define BTIF_TRACE_ERROR(fmt, args...)     
+#define BTIF_TRACE_WARNING(fmt, args...)   
+#define BTIF_TRACE_API(fmt, args...)       
+#define BTIF_TRACE_EVENT(fmt, args...)     
+#define BTIF_TRACE_DEBUG(fmt, args...)     
+#define BTIF_TRACE_VERBOSE(fmt, args...)   
 
 /* define traces for application */
 
-#define APPL_TRACE_ERROR(fmt, args...)
-#define APPL_TRACE_WARNING(fmt, args...)
-#define APPL_TRACE_API(fmt, args...)
-#define APPL_TRACE_EVENT(fmt, args...)
-#define APPL_TRACE_DEBUG(fmt, args...)
-#define APPL_TRACE_VERBOSE(fmt, args...)
+#define APPL_TRACE_ERROR(fmt, args...)     
+#define APPL_TRACE_WARNING(fmt, args...)   
+#define APPL_TRACE_API(fmt, args...)       
+#define APPL_TRACE_EVENT(fmt, args...)     
+#define APPL_TRACE_DEBUG(fmt, args...)     
+#define APPL_TRACE_VERBOSE(fmt, args...)   
 #endif  ///CONFIG_BT_STACK_NO_LOG
 
 

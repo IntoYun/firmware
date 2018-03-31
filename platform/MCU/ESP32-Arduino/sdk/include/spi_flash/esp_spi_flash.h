@@ -180,7 +180,7 @@ esp_err_t spi_flash_mmap(size_t src_addr, size_t size, spi_flash_mmap_memory_t m
  * @brief Map sequences of pages of flash memory into data or instruction address space
  *
  * This function allocates sufficient number of 64k MMU pages and configures
- * them to map the indicated pages of flash memory contiguously into data address
+ * them to map the indicated pages of flash memory contiguously into data address 
  * space or into instruction address space. In this respect, it works in a similar
  * way as spi_flash_mmap but it allows mapping a (maybe non-contiguous) set of pages
  * into a contiguous region of memory.

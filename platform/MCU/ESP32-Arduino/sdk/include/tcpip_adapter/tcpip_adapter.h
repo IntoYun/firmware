@@ -168,7 +168,7 @@ typedef struct tcpip_adapter_dns_param_s {
 } tcpip_adapter_dns_param_t;
 
 #define TCPIP_ADAPTER_TRHEAD_SAFE 1
-#define TCPIP_ADAPTER_IPC_LOCAL   0
+#define TCPIP_ADAPTER_IPC_LOCAL   0 
 #define TCPIP_ADAPTER_IPC_REMOTE  1
 
 #define TCPIP_ADAPTER_IPC_CALL(_if, _mac, _ip, _data, _fn) do {\
@@ -319,8 +319,8 @@ esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_i
  * 1.In station mode, if dhcp client is enabled, then only the fallback DNS server can be set(TCPIP_ADAPTER_DNS_FALLBACK).
  *   Fallback DNS server is only used if no DNS servers are set via DHCP.
  *   If dhcp client is disabled, then need to set main/backup dns server(TCPIP_ADAPTER_DNS_MAIN, TCPIP_ADAPTER_DNS_BACKUP).
- *
- * 2.In soft-AP mode, the DNS Server's main dns server offered to the station is the IP address of soft-AP,
+ * 
+ * 2.In soft-AP mode, the DNS Server's main dns server offered to the station is the IP address of soft-AP, 
  *   if the application don't want to use the IP address of soft-AP, they can set the main dns server.
  *
  * This function is mainly used for setting static or Fallback DNS Server.
@@ -328,8 +328,8 @@ esp_err_t tcpip_adapter_set_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_i
  * @param[in]  tcpip_if: the interface which we want to set DNS Server information
  * @param[in]  type: the type of DNS Server,including TCPIP_ADAPTER_DNS_MAIN, TCPIP_ADAPTER_DNS_BACKUP, TCPIP_ADAPTER_DNS_FALLBACK
  * @param[in]  dns:  the DNS Server address to be set
- *
- * @return
+ * 
+ * @return 
  *      - ESP_OK on success
  *      - ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS invalid params
  */
@@ -338,15 +338,15 @@ esp_err_t tcpip_adapter_set_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_
 /**
  * @brief  Get DNS Server's information
  *
- * When set the DNS Server information successfully, can get the DNS Server's information via the appointed tcpip_if and type
+ * When set the DNS Server information successfully, can get the DNS Server's information via the appointed tcpip_if and type 
  *
  * This function is mainly used for getting DNS Server information.
  *
  * @param[in]  tcpip_if: the interface which we want to get DNS Server information
  * @param[in]  type: the type of DNS Server,including TCPIP_ADAPTER_DNS_MAIN, TCPIP_ADAPTER_DNS_BACKUP, TCPIP_ADAPTER_DNS_FALLBACK
  * @param[in]  dns:  the DNS Server address to be get
- *
- * @return
+ * 
+ * @return 
  *      - ESP_OK on success
  *      - ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS invalid params
  */
@@ -355,8 +355,8 @@ esp_err_t tcpip_adapter_get_dns_info(tcpip_adapter_if_t tcpip_if, tcpip_adapter_
 /**
  * @brief  Get interface's old IP information
  *
- * When the interface successfully gets a valid IP from DHCP server or static configured, a copy of
- * the IP information is set to the old IP information. When IP lost timer expires, the old IP
+ * When the interface successfully gets a valid IP from DHCP server or static configured, a copy of 
+ * the IP information is set to the old IP information. When IP lost timer expires, the old IP 
  * information is reset to 0.
  *
  * @param[in]   tcpip_if: the interface which we want to get old IP information
@@ -370,8 +370,8 @@ esp_err_t tcpip_adapter_get_old_ip_info(tcpip_adapter_if_t tcpip_if, tcpip_adapt
 /**
  * @brief  Set interface's old IP information
  *
- * When the interface successfully gets a valid IP from DHCP server or static configured, a copy of
- * the IP information is set to the old IP information. When IP lost timer expires, the old IP
+ * When the interface successfully gets a valid IP from DHCP server or static configured, a copy of 
+ * the IP information is set to the old IP information. When IP lost timer expires, the old IP 
  * information is reset to 0.
  *
  * @param[in]  tcpip_if: the interface which we want to set old IP information
@@ -602,6 +602,18 @@ esp_err_t tcpip_adapter_set_hostname(tcpip_adapter_if_t tcpip_if, const char *ho
  *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS:parameter error
  */
 esp_err_t tcpip_adapter_get_hostname(tcpip_adapter_if_t tcpip_if, const char **hostname);
+
+/**
+ * @brief  Get the LwIP netif* that is assigned to the interface
+ *
+ * @param[in]   tcpip_if: the interface which we will get the hostname
+ * @param[out]  void ** netif: pointer to fill the resulting interface
+ *
+ * @return ESP_OK:success
+ *         ESP_ERR_TCPIP_ADAPTER_IF_NOT_READY:interface status error
+ *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS:parameter error
+ */
+esp_err_t tcpip_adapter_get_netif(tcpip_adapter_if_t tcpip_if, void ** netif);
 
 #ifdef __cplusplus
 }

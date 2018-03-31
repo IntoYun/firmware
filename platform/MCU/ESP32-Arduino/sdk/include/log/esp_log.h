@@ -100,8 +100,16 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 
 #include "esp_log_internal.h"
 
+#ifndef LOG_LOCAL_LEVEL
+#ifndef BOOTLOADER_BUILD
+#define LOG_LOCAL_LEVEL  CONFIG_LOG_DEFAULT_LEVEL
+#else
+#define LOG_LOCAL_LEVEL  CONFIG_LOG_BOOTLOADER_LEVEL
+#endif
+#endif
+
 /**
- * @brief Log a buffer of hex bytes at specified level, seprated into 16 bytes each line.
+ * @brief Log a buffer of hex bytes at specified level, separated into 16 bytes each line.
  *
  * @param  tag      description tag
  *
@@ -116,7 +124,7 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
         if ( LOG_LOCAL_LEVEL >= level ) esp_log_buffer_hex_internal( tag, buffer, buff_len, level ); } while(0)
 
 /**
- * @brief Log a buffer of characters at specified level, seprated into 16 bytes each line. Buffer should contain only printable characters.
+ * @brief Log a buffer of characters at specified level, separated into 16 bytes each line. Buffer should contain only printable characters.
  *
  * @param  tag      description tag
  *
@@ -132,21 +140,21 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 
 /**
  * @brief Dump a buffer to the log at specified level.
- *
+ * 
  * The dump log shows just like the one below:
- *
+ * 
  *      W (195) log_example: 0x3ffb4280   45 53 50 33 32 20 69 73  20 67 72 65 61 74 2c 20  |ESP32 is great, |
  *      W (195) log_example: 0x3ffb4290   77 6f 72 6b 69 6e 67 20  61 6c 6f 6e 67 20 77 69  |working along wi|
  *      W (205) log_example: 0x3ffb42a0   74 68 20 74 68 65 20 49  44 46 2e 00              |th the IDF..|
- *
+ *      
  * It is highly recommend to use terminals with over 102 text width.
- *
+ * 
  * @param tag description tag
- *
+ * 
  * @param buffer Pointer to the buffer array
- *
+ * 
  * @param buff_len length of buffer in bytes
- *
+ * 
  * @param level level of the log
  */
 #define ESP_LOG_BUFFER_HEXDUMP( tag, buffer, buff_len, level ) do {\
@@ -219,14 +227,6 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 
 #define LOG_FORMAT(letter, format)  LOG_COLOR_ ## letter #letter " (%d) %s: " format LOG_RESET_COLOR "\n"
 
-#ifndef LOG_LOCAL_LEVEL
-#ifndef BOOTLOADER_BUILD
-#define LOG_LOCAL_LEVEL  ((esp_log_level_t) CONFIG_LOG_DEFAULT_LEVEL)
-#else
-#define LOG_LOCAL_LEVEL  ((esp_log_level_t) CONFIG_LOG_BOOTLOADER_LEVEL)
-#endif
-#endif
-
 /// macro to output logs in startup code, before heap allocator and syscalls have been initialized. log at ``ESP_LOG_ERROR`` level. @see ``printf``,``ESP_LOGE``
 #define ESP_EARLY_LOGE( tag, format, ... )  if (LOG_LOCAL_LEVEL >= ESP_LOG_ERROR)   { ets_printf(LOG_FORMAT(E, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }
 /// macro to output logs in startup code at ``ESP_LOG_WARN`` level.  @see ``ESP_EARLY_LOGE``,``ESP_LOGE``, ``printf``
@@ -247,7 +247,7 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 #else
 /**
  * macro to output logs at ESP_LOG_ERROR level.
- *
+ * 
  * @param tag tag of the log, which can be used to change the log level by ``esp_log_level_set`` at runtime.
  *
  * @see ``printf``
@@ -263,8 +263,8 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
 #define ESP_LOGV( tag, format, ... )  ESP_EARLY_LOGV(tag, format, ##__VA_ARGS__)
 #endif  // BOOTLOADER_BUILD
 
-/** runtime macro to output logs at a speicfied level.
- *
+/** runtime macro to output logs at a specified level.
+ * 
  * @param tag tag of the log, which can be used to change the log level by ``esp_log_level_set`` at runtime.
  *
  * @param level level of the output log.
@@ -282,8 +282,8 @@ void esp_log_write(esp_log_level_t level, const char* tag, const char* format, .
                 else if (level==ESP_LOG_VERBOSE )   { esp_log_write(ESP_LOG_VERBOSE,    tag, LOG_FORMAT(V, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }\
                 else                                { esp_log_write(ESP_LOG_INFO,       tag, LOG_FORMAT(I, format), esp_log_timestamp(), tag, ##__VA_ARGS__); }}while(0)
 
-/** runtime macro to output logs at a speicfied level. Also check the level with ``LOG_LOCAL_LEVEL``.
- *
+/** runtime macro to output logs at a specified level. Also check the level with ``LOG_LOCAL_LEVEL``.
+ * 
  * @see ``printf``, ``ESP_LOG_LEVEL``
  */
 #define ESP_LOG_LEVEL_LOCAL(level, tag, format, ...) do {\

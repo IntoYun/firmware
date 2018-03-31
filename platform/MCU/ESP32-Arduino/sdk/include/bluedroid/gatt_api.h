@@ -64,7 +64,7 @@
 #define  GATT_NOT_ENCRYPTED                  0x8e
 #define  GATT_CONGESTED                      0x8f
 
-#define  GATT_DUP_REG                        0x90
+#define  GATT_DUP_REG                        0x90 
 #define  GATT_ALREADY_OPEN                   0x91
 #define  GATT_CANCEL                         0x92
 

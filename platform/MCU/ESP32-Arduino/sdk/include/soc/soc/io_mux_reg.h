@@ -79,9 +79,9 @@
 
 /*
  * @attention
- *     The PIN_PULL[UP|DWN]_[EN|DIS]() functions used to exist as macros in previous SDK versions.
- *     Unfortunately, however, they do not work for some GPIOs on the ESP32 chip, which needs pullups
- *     and -downs turned on and off through RTC registers. The functions still exist for compatibility
+ *     The PIN_PULL[UP|DWN]_[EN|DIS]() functions used to exist as macros in previous SDK versions. 
+ *     Unfortunately, however, they do not work for some GPIOs on the ESP32 chip, which needs pullups 
+ *     and -downs turned on and off through RTC registers. The functions still exist for compatibility 
  *     with older code, but are marked as deprecated in order to generate a warning.
  *     Please replace them in this fashion: (make sure to include driver/gpio.h as well)
  *     PIN_PULLUP_EN(GPIO_PIN_MUX_REG[x])   ->  gpio_pullup_en(x)
@@ -90,7 +90,7 @@
  *     PIN_PULLDWN_DIS(GPIO_PIN_MUX_REG[x]) ->  gpio_pulldown_dis(x)
  *
 */
-static inline void __attribute__ ((deprecated)) PIN_PULLUP_DIS(uint32_t PIN_NAME)
+static inline void __attribute__ ((deprecated)) PIN_PULLUP_DIS(uint32_t PIN_NAME) 
 {
     REG_CLR_BIT(PIN_NAME, FUN_PU);
 }

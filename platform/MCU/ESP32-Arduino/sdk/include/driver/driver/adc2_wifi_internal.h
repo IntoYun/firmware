@@ -49,3 +49,4 @@ esp_err_t adc2_wifi_release();
 #endif
 
 #endif  /*_DRIVER_ADC2_INTERNAL_H_*/
+

@@ -232,7 +232,7 @@ bool heap_caps_check_integrity(uint32_t caps, bool print_errors);
 bool heap_caps_check_integrity_addr(intptr_t addr, bool print_errors);
 
 /**
- * @brief Enable malloc() in external memory and set limit below which
+ * @brief Enable malloc() in external memory and set limit below which 
  *        malloc() attempts are placed in internal memory.
  *
  * When external memory is in use, the allocation strategy is to initially try to

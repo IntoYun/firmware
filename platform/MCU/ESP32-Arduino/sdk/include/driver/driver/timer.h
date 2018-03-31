@@ -263,9 +263,9 @@ esp_err_t timer_set_alarm(timer_group_t group_num, timer_idx_t timer_num, timer_
  * @param handle Pointer to return handle. If non-NULL, a handle for the interrupt will
  *        be returned here.
  *
- * @note If the intr_alloc_flags value ESP_INTR_FLAG_IRAM is set,
- *       the handler function must be declared with IRAM_ATTR attribute
- *       and can only call functions in IRAM or ROM. It cannot call other timer APIs.
+ * @note If the intr_alloc_flags value ESP_INTR_FLAG_IRAM is set, 
+ *       the handler function must be declared with IRAM_ATTR attribute 
+ *       and can only call functions in IRAM or ROM. It cannot call other timer APIs. 
  *       Use direct register access to configure timers from inside the ISR in this case.
  *
  * @return

@@ -407,7 +407,7 @@ esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_re
   * @return
   *    - ESP_OK: succeed
   *    - ESP_ERR_WIFI_CONN: The station interface don't initialized
-  *    - ESP_ERR_WIFI_NOT_CONNECT: The station is in disconnect status
+  *    - ESP_ERR_WIFI_NOT_CONNECT: The station is in disconnect status 
   */
 esp_err_t esp_wifi_sta_get_ap_info(wifi_ap_record_t *ap_info);
 
@@ -545,7 +545,7 @@ esp_err_t esp_wifi_get_channel(uint8_t *primary, wifi_second_chan_t *second);
   * @attention 4. When the country info is changed because of configuration or because the station connects to a different
   *               external AP, the country IE in probe response/beacon of the soft-AP is changed also.
   * @attention 5. The country configuration is not stored into flash
-  * @attention 6. This API doesn't validate the per-country rules, it's up to the user to fill in all fields according to
+  * @attention 6. This API doesn't validate the per-country rules, it's up to the user to fill in all fields according to 
   *               local regulations.
   *
   * @param     country   the configured country info

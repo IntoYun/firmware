@@ -374,3 +374,4 @@ const OI_CHAR *OI_ScanBdAddr(const OI_CHAR *str,
 /**@}*/
 
 #endif /* _OI_UTILS_H */
+

@@ -34,7 +34,7 @@ const uint8_t *esp_bt_dev_get_address(void);
 
 
 /**
- * @brief           Set bluetooth device name. This function should be called after esp_bluedroid_enable()
+ * @brief           Set bluetooth device name. This function should be called after esp_bluedroid_enable() 
  *                  completes successfully
  *
  * @param[in]       name : device name to be set

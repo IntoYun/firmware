@@ -83,7 +83,7 @@ int Esp32ConnClass::socketCreate(IpProtocol ipproto, int port)
     // find an free socket
     int socket = _findSocket(MDM_SOCKET_ERROR);
     if (socket != MDM_SOCKET_ERROR) {
-        int sockfd  = socket(AF_INET, ipproto == MDM_IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM , 0);
+        int sockfd  = lwip_socket(AF_INET, ipproto == MDM_IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM , 0);
         if(sockfd < 0) {
             HALSOCKET_DEBUG("Error! socket create failed!\r\n");
             return MDM_SOCKET_ERROR;

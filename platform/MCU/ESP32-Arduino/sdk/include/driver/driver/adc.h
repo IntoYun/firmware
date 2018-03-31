@@ -114,14 +114,14 @@ typedef enum {
 
 /**
  * @brief Get the gpio number of a specific ADC1 channel.
- *
+ * 
  * @param channel Channel to get the gpio number
- *
+ * 
  * @param gpio_num output buffer to hold the gpio number
- *
- * @return
+ * 
+ * @return 
  *   - ESP_OK if success
- *   - ESP_ERR_INVALID_ARG if channal not valid
+ *   - ESP_ERR_INVALID_ARG if channal not valid 
  */
 esp_err_t adc1_pad_get_io_num(adc1_channel_t channel, gpio_num_t *gpio_num);
 
@@ -288,14 +288,14 @@ int hall_sensor_read();
 
 /**
  * @brief Get the gpio number of a specific ADC2 channel.
- *
+ * 
  * @param channel Channel to get the gpio number
- *
+ * 
  * @param gpio_num output buffer to hold the gpio number
- *
- * @return
+ * 
+ * @return 
  *   - ESP_OK if success
- *   - ESP_ERR_INVALID_ARG if channal not valid
+ *   - ESP_ERR_INVALID_ARG if channal not valid 
  */
 esp_err_t adc2_pad_get_io_num(adc2_channel_t channel, gpio_num_t *gpio_num);
 
@@ -316,8 +316,8 @@ esp_err_t adc2_pad_get_io_num(adc2_channel_t channel, gpio_num_t *gpio_num);
  * - 6dB attenuation (ADC_ATTEN_6db) gives full-scale voltage 2.2V
  * - 11dB attenuation (ADC_ATTEN_11db) gives full-scale voltage 3.9V (see note below)
  *
- * @note The full-scale voltage is the voltage corresponding to a maximum reading
- * (depending on ADC2 configured bit width, this value is: 4095 for 12-bits, 2047
+ * @note The full-scale voltage is the voltage corresponding to a maximum reading 
+ * (depending on ADC2 configured bit width, this value is: 4095 for 12-bits, 2047 
  * for 11-bits, 1023 for 10-bits, 511 for 9 bits.)
  *
  * @note At 11dB attenuation the maximum voltage is limited by VDD_A, not the full scale voltage.
@@ -339,9 +339,9 @@ esp_err_t adc2_config_channel_atten(adc2_channel_t channel, adc_atten_t atten);
  * function will always fail with ``ESP_ERR_TIMEOUT``.
  *
  * @param  channel ADC2 channel to read
- *
+ * 
  * @param width_bit Bit capture width for ADC2
- *
+ * 
  * @param raw_out the variable to hold the output data.
  *
  * @return

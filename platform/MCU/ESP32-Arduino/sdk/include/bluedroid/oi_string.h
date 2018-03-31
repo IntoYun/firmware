@@ -205,3 +205,4 @@ OI_INT OI_StrncmpInsensitive(OI_CHAR const *s1,
 
 /*****************************************************************************/
 #endif /* OI_STRING_H */
+

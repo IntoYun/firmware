@@ -220,3 +220,4 @@ extern void bta_av_sbc_bld_hdr(BT_HDR *p_buf, UINT16 fr_per_pkt);
 #endif  ///BTA_AV_INCLUDED == TRUE
 
 #endif /* BTA_AV_SBC_H */
+

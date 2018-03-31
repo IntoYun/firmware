@@ -19,7 +19,7 @@
 #ifndef __ASSEMBLER__
 #include "dport_access.h"
 #endif
-
+   
 /* Registers defined in this header file must be accessed using special macros,
  * prefixed with DPORT_. See soc/dport_access.h file for details.
  */
@@ -1077,7 +1077,7 @@
 #define DPORT_BT_RST (BIT(3))
 #define DPORT_MAC_RST (BIT(2))
 #define DPORT_FE_RST (BIT(1))
-#define DPORT_BB_RST (BIT(0))
+#define DPORT_BB_RST (BIT(0))  
 
 #define DPORT_BT_LPCK_DIV_INT_REG          (DR_REG_DPORT_BASE + 0x0D4)
 /* DPORT_BTEXTWAKEUP_REQ : R/W ;bitpos:[12] ;default: 1'b0 ; */
@@ -4271,3 +4271,5 @@
 #define DPORT_FLASH_MMU_TABLE_INVALID_VAL 0x100
 
 #endif /*_SOC_DPORT_REG_H_ */
+
+

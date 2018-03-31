@@ -33,7 +33,7 @@
 #include "wiring_httpclient.h"
 
 /*debug switch*/
-//#define WIRING_HTTPCLIENT_DEBUG
+#define WIRING_HTTPCLIENT_DEBUG
 
 #ifdef WIRING_HTTPCLIENT_DEBUG
 #define WHTTPCLIENT_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
@@ -435,7 +435,7 @@ int HTTPClient::sendRequest(const char * type, Stream * stream, size_t size)
                     }
 
                     // some time for the stream
-                    //delay(1);
+                    delay(1);
 
                     int leftBytes = (readBytes - bytesWrite);
 
@@ -462,9 +462,9 @@ int HTTPClient::sendRequest(const char * type, Stream * stream, size_t size)
                 if(len > 0) {
                     len -= readBytes;
                 }
-                //delay(0);
+                delay(0);
             } else {
-                //delay(1);
+                delay(1);
             }
         }
 
@@ -599,7 +599,7 @@ int HTTPClient::writeToStream(Stream * stream)
                 return returnError(HTTPC_ERROR_READ_TIMEOUT);
             }
 
-            //delay(0);
+            delay(0);
         }
     } else {
         return returnError(HTTPC_ERROR_ENCODING);
@@ -994,7 +994,7 @@ int HTTPClient::writeToStreamDataBlock(Stream * stream, int size)
                     }
 
                     // some time for the stream
-                    //delay(1);
+                    delay(1);
 
                     int leftBytes = (readBytes - bytesWrite);
 
@@ -1022,9 +1022,9 @@ int HTTPClient::writeToStreamDataBlock(Stream * stream, int size)
                     len -= readBytes;
                 }
 
-                //delay(0);
+                delay(0);
             } else {
-                //delay(1);
+                delay(1);
             }
         }
 

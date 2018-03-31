@@ -120,7 +120,7 @@ static inline void xt_set_intclear(unsigned int arg)
 /*
 -------------------------------------------------------------------------------
   Call this function to get handler's argument for the specified interrupt.
-
+ 
     n        - Interrupt number.
 -------------------------------------------------------------------------------
 */

@@ -49,13 +49,13 @@ typedef enum {
 } esp_crypto_cipher_alg_t;
 
 /*
- * This structure is about the algorithm when do crypto_hash operation, for detail,
+ * This structure is about the algorithm when do crypto_hash operation, for detail, 
  * please reference to the structure crypto_hash.
  */
 typedef struct crypto_hash esp_crypto_hash_t;
 
 /*
- * This structure is about the algorithm when do crypto_cipher operation, for detail,
+ * This structure is about the algorithm when do crypto_cipher operation, for detail, 
  * please reference to the structure crypto_cipher.
  */
 typedef struct crypto_cipher esp_crypto_cipher_t;
@@ -72,7 +72,7 @@ typedef struct crypto_cipher esp_crypto_cipher_t;
 typedef esp_crypto_hash_t * (*esp_crypto_hash_init_t)(esp_crypto_hash_alg_t alg, const unsigned char *key, int key_len);
 
 /**
-  * @brief The crypto callback function used in wpa enterprise hash operation when connect.
+  * @brief The crypto callback function used in wpa enterprise hash operation when connect. 
   *        Add data to hash calculation.
   *
   * @param ctz  Context pointer from esp_crypto_hash_init_t function.
@@ -83,7 +83,7 @@ typedef esp_crypto_hash_t * (*esp_crypto_hash_init_t)(esp_crypto_hash_alg_t alg,
 typedef void * (*esp_crypto_hash_update_t)(esp_crypto_hash_t *ctx, const unsigned char *data, int len);
 
 /**
-  * @brief The crypto callback function used in wpa enterprise hash operation when connect.
+  * @brief The crypto callback function used in wpa enterprise hash operation when connect. 
   *        Complete hash calculation.
   *
   * @param ctz  Context pointer from esp_crypto_hash_init_t function.
@@ -98,7 +98,7 @@ typedef void * (*esp_crypto_hash_update_t)(esp_crypto_hash_t *ctx, const unsigne
 typedef int * (*esp_crypto_hash_finish_t)(esp_crypto_hash_t *ctx, unsigned char *hash, int *len);
 
 /**
-  * @brief The AES callback function when do WPS connect.
+  * @brief The AES callback function when do WPS connect. 
   *
   * @param key  Encryption key.
   * @param iv  Encryption IV for CBC mode (16 bytes).
@@ -108,7 +108,7 @@ typedef int * (*esp_crypto_hash_finish_t)(esp_crypto_hash_t *ctx, unsigned char 
 typedef int * (*esp_aes_128_encrypt_t)(const unsigned char *key, const unsigned char *iv, unsigned char *data, int data_len);
 
 /**
-  * @brief The AES callback function when do WPS connect.
+  * @brief The AES callback function when do WPS connect. 
   *
   * @param key  Decryption key.
   * @param iv  Decryption IV for CBC mode (16 bytes).
@@ -186,7 +186,7 @@ typedef int * (*esp_crypto_cipher_decrypt_t)(esp_crypto_cipher_t *ctx,
 typedef void * (*esp_crypto_cipher_deinit_t)(esp_crypto_cipher_t *ctx);
 
 /**
-  * @brief The SHA256 callback function when do WPS connect.
+  * @brief The SHA256 callback function when do WPS connect. 
   *
   * @param key  Key for HMAC operations.
   * @param key_len  Length of the key in bytes.
@@ -199,7 +199,7 @@ typedef void * (*esp_hmac_sha256_t)(const unsigned char *key, int key_len, const
 		                    int data_len, unsigned char *mac);
 
 /**
-  * @brief The SHA256 callback function when do WPS connect.
+  * @brief The SHA256 callback function when do WPS connect. 
   *
   * @param key  Key for HMAC operations.
   * @param key_len  Length of the key in bytes.
@@ -220,7 +220,7 @@ typedef void * (*esp_hmac_sha256_vector_t)(const unsigned char *key, int key_len
   * @param label  A unique label for each purpose of the PRF.
   * @param data  Extra data to bind into the key.
   * @param data_len  Length of the data.
-  * @param buf  Buffer for the generated pseudo-random key.
+  * @param buf  Buffer for the generated pseudo-random key.  
   * @param buf_len  Number of bytes of key to generate.
   *
   */
@@ -228,7 +228,7 @@ typedef void * (*esp_sha256_prf_t)(const unsigned char *key, int key_len, const 
 	                           const unsigned char *data, int data_len, unsigned char *buf, int buf_len);
 
 /**
-  * @brief The SHA256 callback function when do WPS connect.
+  * @brief The SHA256 callback function when do WPS connect. 
   *
   * @param num_elem  Number of elements in the data vector.
   * @param addr  Pointers to the data areas.
@@ -240,7 +240,7 @@ typedef int * (*esp_sha256_vector_t)(int num_elem, const unsigned char *addr[], 
 		                     unsigned char *mac);
 
 /**
-  * @brief The bignum calculate callback function used when do connect.
+  * @brief The bignum calculate callback function used when do connect. 
   *        In WPS process, it used to calculate public key and private key.
   *
   * @param base  Base integer (big endian byte array).
@@ -270,7 +270,7 @@ typedef struct {
 }wpa_crypto_funcs_t;
 
 /**
-  * @brief The crypto callback function structure used when do WPS process. The
+  * @brief The crypto callback function structure used when do WPS process. The 
   *        structure can be set as software crypto or the crypto optimized by ESP32
   *        hardware.
   */
