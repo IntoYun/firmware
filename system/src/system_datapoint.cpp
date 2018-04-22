@@ -423,11 +423,16 @@ static double _pow(double base, int exponent)
 
 void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 {
-    //dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
+    //0x31 dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
     //大端表示，如果最高位是1，则表示两个字节，否则是一个字节
     if(len == 0){
         return;
     }
+
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return;
+    }
+
     int32_t index = 0;
     uint16_t dpID = 0;
     uint8_t dataType;
@@ -437,6 +442,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
     SDATAPOINT_DEBUG("OK! Rev datapoint data <%d>: ", len);
     SDATAPOINT_DEBUG_DUMP(payload, len);
 
+    index++;
     while(index < len) {
         if(payload[index] & 0x80)  {      //数据点有2个字节
             dpID = ((payload[index] & 0x7F) << 8) | payload[index+1]; //去掉最高位
@@ -672,6 +678,10 @@ static int _intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed
 //datepoint process
 int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout)
 {
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return -1;
+    }
+
     int i = intorobotDiscoverProperty(dpID);
 
     if (i == -1) {
@@ -721,6 +731,10 @@ int intorobotSendAllDatapoint(void)
     uint8_t buffer[512];
     uint16_t index = 0;
 
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return -1;
+    }
+
     if(0 == intorobotGetPropertyPermissionUpCount()) {
         return -1;
     }
@@ -735,6 +749,10 @@ int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout)
 {
     uint8_t buffer[512];
     uint16_t index = 0;
+
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return -1;
+    }
 
     if(0 == intorobotGetPropertyPermissionUpCount()) {
         return -1;
@@ -755,6 +773,10 @@ int intorobotSendDatapointAutomatic(void)
     uint8_t buffer[512];
     uint16_t index = 0;
     bool sendFlag = false;
+
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return -1;
+    }
 
     if(0 == intorobotGetPropertyPermissionUpCount()) {
         return -1;
