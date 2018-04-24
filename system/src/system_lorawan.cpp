@@ -206,7 +206,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         }
         LoRaWan._buffer = (uint8_t *)malloc(LoRaWan._bufferSize);
         memcpy(LoRaWan._buffer,mcpsIndication->Buffer,mcpsIndication->BufferSize);
-        system_notify_event(event_cloud_data, ep_cloud_data_raw, LoRaWan._buffer,LoRaWan._bufferSize);
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
     }
 
@@ -570,23 +569,10 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 int len, rssi;
                 uint8_t buffer[256];
                 len = LoRaWan.receive(buffer, sizeof(buffer), &rssi);
-                //数据点使能
-                if(System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
-                    //SLORAWAN_DEBUG_D("lorawan receive data:");
-                    //SLORAWAN_DEBUG_DUMP(buffer, len);
-                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX dataponit Data--\r\n");
-                    switch(buffer[0]) {
-                        case DATA_PROTOCOL_DATAPOINT_BINARY:
-                            intorobotParseReceiveDatapoints(&buffer[1], len-1);
-                            break;
-                        default:
-                            system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
-                            break;
-                    }
-                } else {
-                    SLORAWAN_DEBUG("--LoRaWanOnEvent RX custom Data--\r\n");
-                    system_notify_event(event_cloud_data, ep_cloud_data_custom, &buffer[0], len);
-                }
+                system_notify_event(event_cloud_data, ep_cloud_data_raw, buffer, len);    //不再使用，兼容之前
+                system_notify_event(event_cloud_data, ep_cloud_data_custom, buffer, len); //不再使用，兼容之前
+                system_notify_event(event_cloud_data, ep_cloud_comm_data, buffer, len);
+                intorobotParseReceiveDatapoints(buffer, len);
             }
             break;
 

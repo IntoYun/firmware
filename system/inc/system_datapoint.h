@@ -130,6 +130,7 @@ int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, cons
 int intorobotSendAllDatapoint(void);
 int intorobotSendAllDatapointManual(bool confirmed, uint16_t timeout);
 int intorobotSendDatapointAutomatic(void);
+int intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout);
 
 #ifdef __cplusplus
 }
