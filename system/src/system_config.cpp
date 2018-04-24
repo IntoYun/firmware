@@ -40,7 +40,6 @@
 #include "string_convert.h"
 #include "system_mode.h"
 #include "system_task.h"
-#include "system_test.h"
 #include "system_utilities.h"
 #include "system_event.h"
 #include "wiring_rgb.h"
@@ -190,10 +189,6 @@ bool DeviceConfig::process(void)
                 sendComfirm(200);
                 _isConfigSuccessful = true;
                 close();
-                break;
-            //测试类指令
-            case DEVICE_CONFIG_TEST:                    //设备测试
-                dealTest(root);
                 break;
             case DEVICE_CONFIG_ERROR: //错误
                 aJson.deleteItem(root);
@@ -636,55 +631,6 @@ void DeviceConfig::dealReboot(void)
 void DeviceConfig::dealExit(void)
 {
     sendComfirm(200);
-}
-
-void DeviceConfig::dealTest(aJsonObject* root)
-{
-    aJsonObject* value_Object = aJson.getObjectItem(root, "value");
-    if (value_Object == NULL) {
-        aJson.deleteItem(root);
-        sendComfirm(201);
-        return;
-    }
-
-#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
-    uint16_t pinNum;
-    uint8_t pinLevel;
-
-    aJsonObject* itemObject = aJson.getObjectItem(value_Object, "item");
-    if(itemObject == NULL) {return;}
-
-    if(strcmp(itemObject->valuestring,"digitalWrite") == 0) {
-        aJsonObject* pinObject = aJson.getObjectItem(value_Object,"pin");
-        if(pinObject == NULL) {return;}
-        pinNum = pinObject->valueint;
-
-        aJsonObject* valObject = aJson.getObjectItem(value_Object,"val");
-        if(valObject == NULL) {return;}
-        if(strcmp(valObject->valuestring,"HIGH") == 0) {
-            pinLevel = HIGH;
-        } else {
-            pinLevel = LOW;
-        }
-        aJson.deleteItem(root);
-        testDigitalWrite(pinNum,pinLevel,this);
-    } else if(strcmp(itemObject->valuestring,"analogRead") == 0) {
-        aJsonObject* pinObject = aJson.getObjectItem(value_Object,"pin");
-        if(pinObject == NULL) {return;}
-        pinNum = pinObject->valueint;
-        aJson.deleteItem(root);
-        testAnalogRead(pinNum,this);
-    } else if(strcmp(itemObject->valuestring,"selfTest") == 0) {
-        aJson.deleteItem(root);
-        testSelfTest(this);
-    } else if(strcmp(itemObject->valuestring,"rfCheck") == 0) {
-        aJson.deleteItem(root);
-        testRfCheck(this);
-    } else if(strcmp(itemObject->valuestring,"sensorData") == 0) {
-        aJson.deleteItem(root);
-        testSensorData(this);
-    }
-#endif
 }
 
 #ifdef configSETUP_USBSERIAL_ENABLE
