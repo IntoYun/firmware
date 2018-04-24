@@ -74,6 +74,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define FIRST_ANALOG_PIN       30
 #define TOTAL_ANALOG_PINS      12
 
+//数字接口
 #define PA9   0
 #define PA10  1
 #define PA11  2
@@ -84,6 +85,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define PB10  7
 #define PB11  8
 
+//数字模拟接口
 #define PA0   30
 #define PA1   31
 #define PA2   32
