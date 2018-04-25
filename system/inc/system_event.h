@@ -34,7 +34,8 @@ enum SystemEvents {
     event_network_status         = 1<<2,         // network event
     event_cloud_status           = 1<<3,         // cloud event
     event_app_status             = 1<<4,         // app event
-    event_cloud_data             = 1<<5,         // cloud data event
+    event_cloud_data             = 1<<5,         // cloud data event //保留,不再使用
+    event_cloud_comm             = 1<<5,         // cloud comm event
     event_reset                  = 1<<6,         // notifies that the system will now reset on return from this event.
     event_time_changed           = 1<<7,
     event_low_battery            = 1<<8,         // generated when low battery condition is detected
