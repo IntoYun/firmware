@@ -24,14 +24,17 @@
 #include "concurrent_hal.h"
 #include "static_assert.h"
 #include "delay_hal.h"
-#include "FreeRTOS.h"
-#include "FreeRTOSConfig.h"
-#include "task.h"
-#include "semphr.h"
-#include "timers.h"
 #include "hw_config.h"
 #include "interrupts_hal.h"
 #include <mutex>
+extern "C" {
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "freertos/timers.h"
+#include "freertos/event_groups.h"
+#include "freertos/portmacro.h"
+}
 
 // For OpenOCD FreeRTOS support
 extern const int  __attribute__((used)) uxTopUsedPriority = configMAX_PRIORITIES;
@@ -53,6 +56,8 @@ static_assert(sizeof(uint32_t)==sizeof(void*), "Requires uint32_t to be same siz
 #else
 #define _CREATE_NAME_TYPE const signed char
 #endif
+
+static portMUX_TYPE trace_mux = portMUX_INITIALIZER_UNLOCKED;
 
 
 /**
@@ -236,26 +241,26 @@ public:
 
     void wait(lock_t* lock)
     {
-        taskENTER_CRITICAL();
+        taskENTER_CRITICAL(&trace_mux);
         lock->unlock();
         queue.enqueue();
-        taskEXIT_CRITICAL();
+        taskEXIT_CRITICAL(&trace_mux);
         vTaskSuspend(NULL);
         lock->lock();
     }
 
     void signal()
     {
-        taskENTER_CRITICAL();
+        taskENTER_CRITICAL(&trace_mux);
         queue.wake();
-        taskEXIT_CRITICAL();
+        taskEXIT_CRITICAL(&trace_mux);
     }
 
     void broadcast()
     {
-        taskENTER_CRITICAL();
+        taskENTER_CRITICAL(&trace_mux);
         queue.wakeAll();
-        taskEXIT_CRITICAL();
+        taskEXIT_CRITICAL(&trace_mux);
     }
 };
 
