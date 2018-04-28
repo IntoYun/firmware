@@ -331,7 +331,7 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
         } else if(!strcmp("upgradeApp", cmdObject->valuestring)) { //应用固件升级
             //取消固件升级内部处理
             if(!System.featureEnabled(SYSTEM_FEATURE_OTA_UPDATE_ENABLED)) {
-                system_notify_event(event_cloud_data, ep_cloud_comm_ota, payload, len);
+                system_notify_event(event_cloud_comm, ep_cloud_comm_ota, payload, len);
                 goto finish;
             }
 
@@ -418,10 +418,12 @@ finish:
 void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 {
     SCLOUD_DEBUG("Ok! receive data form cloud!\r\n");
-    system_notify_event(event_cloud_data, ep_cloud_data_raw, payload, len);    //不再使用，兼容之前
-    system_notify_event(event_cloud_data, ep_cloud_data_custom, payload, len); //不再使用，兼容之前
-    system_notify_event(event_cloud_data, ep_cloud_comm_data, payload, len);
+
+    SCLOUD_DEBUG("OK! Rev datapoint data <%d>: ", len);
+    SCLOUD_DEBUG_DUMP(payload, len);
+
     intorobotParseReceiveDatapoints(payload, len);
+    system_notify_event(event_cloud_comm, ep_cloud_comm_data, payload, len);
 }
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
@@ -484,7 +486,7 @@ static bool _intorobot_publish(topic_version_t version, const char* topic, uint8
     dataIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    SCLOUD_DEBUG("publish! topic = %s, payload(%d) = %s\r\n", fulltopic.c_str(), plength, payload);
+    //SCLOUD_DEBUG("publish! topic = %s, payload(%d) = %s\r\n", fulltopic.c_str(), plength, payload);
     bool result = g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained);
     free(pdata);
     return result;
