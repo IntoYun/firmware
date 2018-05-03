@@ -55,8 +55,7 @@ typedef enum{
     DEVICE_CONFIG_RESET,                   //设备恢复出厂设置
     DEVICE_CONFIG_REBOOT,                  //设备重启
     DEVICE_CONFIG_EXIT,                    //退出配置模式
-    //测试类
-    DEVICE_CONFIG_TEST,                    //设备测试
+    //其他
     DEVICE_CONFIG_ERROR
 }DeviceConfigCmdType;
 
