@@ -134,7 +134,7 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
 
-#define LED_USER  D6
+#define LED_USER    D6
 #define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS    2
@@ -144,13 +144,6 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 
 #define LSBFIRST 0
 #define MSBFIRST 1
-
-
-/*************************************************************/
-/*defined for firmware test only, not for users*/
-#define INTOROBOT_TEST_PIN_DIGITAL          D0
-#define INTOROBOT_TEST_PIN_ADC              A2
-#define INTOROBOT_TEST_PIN_DAC              A3
 
 
 #ifdef __cplusplus
