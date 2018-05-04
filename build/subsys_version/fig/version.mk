@@ -1,4 +1,4 @@
-SUBSYS_VERSION_STRING = 1.0.2.3
+SUBSYS_VERSION_STRING = 1.0.3.3
 
 # 模组系统版本号
 #
@@ -32,4 +32,10 @@ SUBSYS_VERSION_STRING = 1.0.2.3
 #修改者：
 #修改点：
 # 1. 更新esp32 SDK。根据esp32-idf bootloader修改。commit: 5401a75badcfc9c20f7818fdf3c683e3da8b2547
+
+##############################################
+#版本号：1.0.3.3
+#修改者：
+#修改点：
+# 1. 默认程序归属至默认产品
 

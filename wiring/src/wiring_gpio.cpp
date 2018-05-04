@@ -157,8 +157,7 @@ int32_t analogRead(pin_t pin)
         return LOW;
     }
 
-    if(HAL_Validate_Pin_Function(pin, PF_ADC)!=PF_ADC)
-    {
+    if(HAL_Validate_Pin_Function(pin, PF_ADC) != PF_ADC) {
         return LOW;
     }
 
