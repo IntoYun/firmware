@@ -51,14 +51,13 @@ int32_t HAL_ADC_Read(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    if (PIN_MAP[pin].pin_mode != AN_INPUT)
-    {
+    if (PIN_MAP[pin].pin_mode != AN_INPUT) {
         HAL_GPIO_Save_Pin_Mode(pin);
         HAL_Pin_Mode(pin, AN_INPUT);
     }
 
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
-    if(!__adcAttachPin(gpio_pin) || !__adcStart(gpio_pin)){
+    if(!__adcAttachPin(gpio_pin) || !__adcStart(gpio_pin)) {
         return 0;
     }
     return __adcEnd(gpio_pin);

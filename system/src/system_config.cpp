@@ -110,8 +110,6 @@ DeviceConfigCmdType DeviceConfig::getMessageType(char *s) {
         return DEVICE_CONFIG_REBOOT;
     } else if(!strcmp(s,"exit")) {
         return DEVICE_CONFIG_EXIT;
-    } else if(!strcmp(s,"test")) {
-        return DEVICE_CONFIG_TEST;
     } else {
         return DEVICE_CONFIG_ERROR;
     }

@@ -423,24 +423,21 @@ static double _pow(double base, int exponent)
 
 void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 {
-    //0x31 dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
-    //大端表示，如果最高位是1，则表示两个字节，否则是一个字节
-    if(len == 0){
-        return;
-    }
-
-    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
-        return;
-    }
-
     int32_t index = 0;
     uint16_t dpID = 0;
     uint8_t dataType;
     uint16_t dataLength=0;
     int i = 0;
 
-    SDATAPOINT_DEBUG("OK! Rev datapoint data <%d>: ", len);
-    SDATAPOINT_DEBUG_DUMP(payload, len);
+    if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
+        return;
+    }
+
+    //0x31 dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
+    //大端表示，如果最高位是1，则表示两个字节，否则是一个字节
+    if((payload[0] != 0x31 ) || (len == 0)) {
+        return;
+    }
 
     index++;
     while(index < len) {
@@ -465,6 +462,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                     if(DATA_TYPE_BOOL == properties[i]->dataType) {
                         String valueString = String(valueBool);
                         intorobotWriteDatapoint(dpID, (uint8_t *)valueString.c_str(), valueString.length(), 0);
+                        SDATAPOINT_DEBUG("bool = %d\r\n", valueBool);
                     }
                     break;
                 }
@@ -551,8 +549,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
         HAL_Core_System_Reset();
     } else if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, dpGetAllDatapoint)) {
         intorobotSendAllDatapoint();
-    } else {
-        system_notify_event(event_cloud_data, ep_cloud_data_datapoint);
     }
 }
 

@@ -112,7 +112,7 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SDA  D1
 #define SCL  D0
 
-#define LED_USER  D7
+#define LED_USER    D7
 #define LED_BUILTIN LED_USER
 
 #define TOTAL_USARTS        1
@@ -121,13 +121,6 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 
 #define LSBFIRST 0
 #define MSBFIRST 1
-
-/*************************************************************/
-/*defined for firmware test only, not for users*/
-#define INTOROBOT_TEST_PIN_DIGITAL          D0
-#define INTOROBOT_TEST_PIN_ADC              A0
-
-
 
 #ifdef __cplusplus
 }

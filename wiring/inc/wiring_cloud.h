@@ -39,10 +39,14 @@ class CloudDatepointClass {
     public:
         //数据点自动发送设置
         static void datapointControl(dp_transmit_mode_t mode) {
+#ifndef configNO_CLOUD
             intorobotDatapointControl(mode, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
+#endif
         }
         static void datapointControl(dp_transmit_mode_t mode, uint32_t lapse) { //控制数据点  单位为s
+#ifndef configNO_CLOUD
             intorobotDatapointControl(mode, lapse);
+#endif
         }
 
         // 添加数据点

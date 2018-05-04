@@ -8,6 +8,7 @@ TARGET_HAL_ESP32_SHARE_PATH = $(TARGET_HAL_PATH)/src/esp32-share
 INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)
 INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/esp32
 INCLUDE_DIRS += $(TARGET_HAL_ESP32_SHARE_PATH)/socket
+include $(TARGET_HAL_PATH)/src/esp32/include.mk
 
 # if hal is used as a make dependency (linked) then add linker commands
 ifneq (,$(findstring hal,$(MAKE_DEPENDENCIES)))

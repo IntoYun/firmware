@@ -85,7 +85,7 @@ public:
         strcpy(board_name, stringify(PLATFORM_NAME));                           //模组名称
 
         feature_send_info_enable = true;            //发送设备信息  0:关闭  1:打开
-        feature_ota_update_enable = true;           //OTA升级       0:关闭  1:打开
+        feature_ota_update_enable = true;           //OTA自动升级   0:关闭  1:打开
 #if PLATFORM_ID == PLATFORM_W67 || PLATFORM_ID == PLATFORM_W323 || PLATFORM_ID == PLATFORM_L6
         feature_config_save_enable = false;         //配置模式保存  0:关闭  1:打开
 #else
@@ -97,7 +97,7 @@ public:
         feature_register_enable = true;             //设备注册      0:关闭  1:打开
         feature_loramac_run_enable = true;          //LoRaWan运行   0:关闭  1:打开
         feature_cloud_data_encrypt_enable = true;   //云端通讯数据加密   0:关闭  1:打开 对MQTT通讯有效
-        feature_standard_lorawan_enable = false;    //标准LoRaWan运行0关闭1打开
+        feature_standard_lorawan_enable = false;    //标准LoRaWan运行    0:关闭  1:打开
     }
     ~IntoRobotProduct(){}
 

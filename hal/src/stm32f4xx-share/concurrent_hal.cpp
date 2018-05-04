@@ -466,29 +466,29 @@ int os_timer_change(os_timer_t timer, os_timer_change_t change, bool fromISR, un
     portBASE_TYPE woken;
     switch (change)
     {
-    case OS_TIMER_CHANGE_START:
-        if (fromISR)
-            return xTimerStartFromISR(timer, &woken)!=pdPASS;
-        else
-            return xTimerStart(timer, block)!=pdPASS;
+        case OS_TIMER_CHANGE_START:
+            if (fromISR)
+                return xTimerStartFromISR(timer, &woken)!=pdPASS;
+            else
+                return xTimerStart(timer, block)!=pdPASS;
 
-    case OS_TIMER_CHANGE_RESET:
-        if (fromISR)
-            return xTimerResetFromISR(timer, &woken)!=pdPASS;
-        else
-            return xTimerReset(timer, block)!=pdPASS;
+        case OS_TIMER_CHANGE_RESET:
+            if (fromISR)
+                return xTimerResetFromISR(timer, &woken)!=pdPASS;
+            else
+                return xTimerReset(timer, block)!=pdPASS;
 
-    case OS_TIMER_CHANGE_STOP:
-        if (fromISR)
-            return xTimerStopFromISR(timer, &woken)!=pdPASS;
-        else
-            return xTimerStop(timer, block)!=pdPASS;
+        case OS_TIMER_CHANGE_STOP:
+            if (fromISR)
+                return xTimerStopFromISR(timer, &woken)!=pdPASS;
+            else
+                return xTimerStop(timer, block)!=pdPASS;
 
-    case OS_TIMER_CHANGE_PERIOD:
-        if (fromISR)
-            return xTimerChangePeriodFromISR(timer, period, &woken)!=pdPASS;
-        else
-            return xTimerChangePeriod(timer, period, block)!=pdPASS;
+        case OS_TIMER_CHANGE_PERIOD:
+            if (fromISR)
+                return xTimerChangePeriodFromISR(timer, period, &woken)!=pdPASS;
+            else
+                return xTimerChangePeriod(timer, period, block)!=pdPASS;
     }
     return -1;
 }

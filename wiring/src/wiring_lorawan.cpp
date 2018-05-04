@@ -191,7 +191,7 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
         _available = false; //数据已读取
         if(length < _bufferSize){
             size = length;
-        }else{
+        } else {
             size = _bufferSize;
         }
         *rssi = _macRssi;
