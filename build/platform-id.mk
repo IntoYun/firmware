@@ -20,7 +20,7 @@ USBD_PID_CDC=0x5740
 
 ifneq (,$(PLATFORM))
 
-################创客核心板####################
+################开发板/模组####################
 ifeq ("$(PLATFORM)","atom")
 PLATFORM_ID = 888001
 endif
@@ -37,17 +37,6 @@ ifeq ("$(PLATFORM)","fig")
 PLATFORM_ID = 888005
 endif
 
-ifeq ("$(PLATFORM)","ant")
-PLATFORM_ID = 868009
-endif
-
-ifeq ("$(PLATFORM)","fox")
-PLATFORM_ID = 878008
-endif
-
-#add 此处添加创客核心板
-
-################商业模块####################
 ifeq ("$(PLATFORM)","w67")
 PLATFORM_ID = 888006
 endif
@@ -56,10 +45,28 @@ ifeq ("$(PLATFORM)","w323")
 PLATFORM_ID = 888007
 endif
 
+ifeq ("$(PLATFORM)","fox")
+PLATFORM_ID = 878008
+endif
+
+ifeq ("$(PLATFORM)","ant")
+PLATFORM_ID = 868009
+endif
+
 ifeq ("$(PLATFORM)","l6")
 PLATFORM_ID = 868010
 endif
-#add  此处添加模块
+
+ifeq ("$(PLATFORM)","kid")
+PLATFORM_ID = 888011
+endif
+
+ifeq ("$(PLATFORM)","r67")
+PLATFORM_ID = 888012
+endif
+
+#add 此处添加开发板/模组
+
 
 ################其他####################
 ifeq ("$(PLATFORM)","gcc")
@@ -104,7 +111,7 @@ endif
 
 PLATFORM_ARCH=arm
 
-################创客核心板####################
+################开发板/模组####################
 ifeq ("$(PLATFORM_ID)","888001") #atom
 PLATFORM=atom
 PLATFORM_DEVICE=STM32F103xB
@@ -122,7 +129,7 @@ PLATFORM_DEVICE=STM32F411xE
 PLATFORM_NAME=neutron
 PLATFORM_MCU=STM32F4xx
 MCU_CORE=cortex-m4
-PRODUCT_DESC=IntoRobot neutron, 512k flash, 128k sram
+PRODUCT_DESC=IntoRobot Neutron, 512k flash, 128k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08020000
 PLATFORM_THREADING=1
@@ -134,7 +141,7 @@ PLATFORM=nut
 PLATFORM_DEVICE=nut
 PLATFORM_NAME=nut
 PLATFORM_MCU=ESP8266-Arduino
-PRODUCT_DESC=IntoRobot nut, ESP8266, 4MB Flash
+PRODUCT_DESC=IntoRobot Nut, ESP8266, 4MB Flash
 PLATFORM_BOOT_ADDR=0x00000
 PLATFORM_APP_ADDR=0x14000
 endif
@@ -145,47 +152,18 @@ PLATFORM=fig
 PLATFORM_DEVICE=fig
 PLATFORM_NAME=fig
 PLATFORM_MCU=ESP32-Arduino
-PRODUCT_DESC=IntoRobot fig, ESP32, 4MB Flash
+PRODUCT_DESC=IntoRobot Fig, ESP32, 4MB Flash
 PLATFORM_BOOT_ADDR=0x1000
 PLATFORM_APP_ADDR=0x20000
 endif
 
-ifeq ("$(PLATFORM_ID)","868009") #ant
-PLATFORM=ant
-PLATFORM_DEVICE=STM32L151xB
-PLATFORM_NAME=ant
-PLATFORM_MCU=STM32L1xx
-PLATFORM_COMM=lorawan
-MCU_CORE=cortex-m3
-PRODUCT_DESC=IntoRobot ant,  lora board, 128k flash, 16k sram
-PLATFORM_BOOT_ADDR=0x08000000
-PLATFORM_APP_ADDR=0x08006000
-endif
-
-ifeq ("$(PLATFORM_ID)","878008") #fox
-PLATFORM=fox
-PLATFORM_DEVICE=STM32F411xE
-PLATFORM_NAME=fox
-PLATFORM_MCU=STM32F4xx
-MCU_CORE=cortex-m4
-PRODUCT_DESC=IntoRobot fox, gprs board, Internal flash 512k flash, 128k sram + SPI flash 4096K
-PLATFORM_BOOT_ADDR=0x08000000
-PLATFORM_APP_ADDR=0x08020000
-#PLATFORM_APP_ADDR=0x09000000
-PLATFORM_THREADING=1
-endif
-
-
-# 此处新增创客核心板
-
-################商业模块####################
 ifeq ("$(PLATFORM_ID)","888006") #w67
 PLATFORM_ARCH=xtensa-lx106
 PLATFORM=w67
 PLATFORM_DEVICE=w67
 PLATFORM_NAME=w67
 PLATFORM_MCU=ESP8266-Arduino
-PRODUCT_DESC=IntoRobot w67, ESP8266, 4MB Flash
+PRODUCT_DESC=IntoRobot W6/W7, ESP8266, 4MB Flash
 PLATFORM_BOOT_ADDR=0x00000
 PLATFORM_APP_ADDR=0x14000
 endif
@@ -196,9 +174,34 @@ PLATFORM=w323
 PLATFORM_DEVICE=w323
 PLATFORM_NAME=w323
 PLATFORM_MCU=ESP32-Arduino
-PRODUCT_DESC=IntoRobot w323, ESP32, 4MB Flash
+PRODUCT_DESC=IntoRobot W32/W33, ESP32, 4MB Flash
 PLATFORM_BOOT_ADDR=0x1000
 PLATFORM_APP_ADDR=0x20000
+endif
+
+ifeq ("$(PLATFORM_ID)","878008") #fox
+PLATFORM=fox
+PLATFORM_DEVICE=STM32F411xE
+PLATFORM_NAME=fox
+PLATFORM_MCU=STM32F4xx
+MCU_CORE=cortex-m4
+PRODUCT_DESC=IntoRobot Fox, gprs board, Internal flash 512k flash, 128k sram + SPI flash 4096K
+PLATFORM_BOOT_ADDR=0x08000000
+PLATFORM_APP_ADDR=0x08020000
+#PLATFORM_APP_ADDR=0x09000000
+PLATFORM_THREADING=1
+endif
+
+ifeq ("$(PLATFORM_ID)","868009") #ant
+PLATFORM=ant
+PLATFORM_DEVICE=STM32L151xB
+PLATFORM_NAME=ant
+PLATFORM_MCU=STM32L1xx
+PLATFORM_COMM=lorawan
+MCU_CORE=cortex-m3
+PRODUCT_DESC=IntoRobot Ant,  lora board, 128k flash, 16k sram
+PLATFORM_BOOT_ADDR=0x08000000
+PLATFORM_APP_ADDR=0x08006000
 endif
 
 ifeq ("$(PLATFORM_ID)","868010") #l6
@@ -208,11 +211,36 @@ PLATFORM_NAME=l6
 PLATFORM_MCU=STM32L1xx
 PLATFORM_COMM=lorawan
 MCU_CORE=cortex-m3
-PRODUCT_DESC=IntoRobot l6, 128k flash, 16k sram
+PRODUCT_DESC=IntoRobot L6, 128k flash, 16k sram
 PLATFORM_BOOT_ADDR=0x08000000
 PLATFORM_APP_ADDR=0x08006000
 endif
-# 此处新增模块
+
+ifeq ("$(PLATFORM_ID)","888011") #kid
+PLATFORM=kid
+PLATFORM_DEVICE=STM32L151xB
+PLATFORM_NAME=kid
+PLATFORM_MCU=RTL8710
+PLATFORM_COMM=mqtt
+MCU_CORE=cortex-m4
+PRODUCT_DESC=IntoRobot Kid, 4M flash, 16k sram
+PLATFORM_BOOT_ADDR=0x08000000
+PLATFORM_APP_ADDR=0x08006000
+endif
+
+ifeq ("$(PLATFORM_ID)","888012") #r67
+PLATFORM=r67
+PLATFORM_DEVICE=STM32L151xB
+PLATFORM_NAME=r67
+PLATFORM_MCU=STM32L1xx
+PLATFORM_COMM=mqtt
+MCU_CORE=cortex-m4
+PRODUCT_DESC=IntoRobot R6/R7, 4M flash, 16k sram
+PLATFORM_BOOT_ADDR=0x08000000
+PLATFORM_APP_ADDR=0x08006000
+endif
+
+# 此处新增开发板/模组
 
 ################其他####################
 ifeq ("$(PLATFORM_ID)","208001") # gcc

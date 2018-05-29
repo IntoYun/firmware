@@ -24,18 +24,18 @@
 #ifndef PLATFORMS_H
 #define PLATFORMS_H
 
-//创客核心板
+//开发板/模组
 #define PLATFORM_ATOM                888001
 #define PLATFORM_NEUTRON             888002
 #define PLATFORM_NUT                 888003
 #define PLATFORM_FIG                 888005
-#define PLATFORM_FOX                 878008
-#define PLATFORM_ANT                 868009
-
-//商业模块
 #define PLATFORM_W67                 888006
 #define PLATFORM_W323                888007
+#define PLATFORM_FOX                 878008
+#define PLATFORM_ANT                 868009
 #define PLATFORM_L6                  868010
+#define PLATFORM_KID                 888011
+#define PLATFORM_R67                 888012
 
 //产品
 #define PLATFORM_GL2000              188002
