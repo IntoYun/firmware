@@ -100,7 +100,6 @@ SECTIONS
         _sdata = . ;
         *(.data)
         *(.data.*)
-        *(.RamFunc)        /* .RamFunc sections */
         . = ALIGN(4);
         /* This is used by the startup in order to initialize the .data secion */
         _edata = . ;
@@ -168,4 +167,3 @@ PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
 
 PROVIDE( __RAM_segment_used_end__ = link_stack_end );
 PROVIDE( __tx_free_memory_start = link_stack_end );
-
