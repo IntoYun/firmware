@@ -75,19 +75,13 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     // Initialize GPIO_InitStructure to fix system wake up from pin function.
     GPIO_InitTypeDef GPIO_InitStructure = {0};
 
-    if (gpio_port == GPIOA)
-    {
+    if (gpio_port == GPIOA) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
-    }
-    else if (gpio_port == GPIOB)
-    {
+    } else if (gpio_port == GPIOB) {
         __HAL_RCC_GPIOB_CLK_ENABLE();
-    }
-    else if (gpio_port == GPIOC)
-    {
+    } else if (gpio_port == GPIOC) {
        __HAL_RCC_GPIOC_CLK_ENABLE();
     }
-
 
     GPIO_InitStructure.Pin = gpio_pin;
 
@@ -138,8 +132,13 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         case AN_INPUT:        //Used internally for ADC Input
             GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
             GPIO_InitStructure.Pull = GPIO_NOPULL;
-            GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
             PIN_MAP[pin].pin_mode = AN_INPUT;
+            break;
+
+        case AN_OUTPUT:       //Used internally for DAC Output
+            GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+            GPIO_InitStructure.Pull = GPIO_NOPULL;
+            PIN_MAP[pin].pin_mode = AN_OUTPUT;
             break;
 
         default:
@@ -323,3 +322,4 @@ int32_t HAL_pinReadFast(pin_t pin)
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     return (((PIN_MAP[pin].gpio_peripheral->IDR & (uint32_t)PIN_MAP[pin].gpio_pin) == 0) ? 0 : 1);
 }
+
