@@ -135,8 +135,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define SCL  D0
 
 // DAC pins
-#define DAC1 A5
-#define DAC2 A4
+#define DAC1 A4
+#define DAC2 A5
 
 #define LED_USER    D7
 #define LED_BUILTIN LED_USER
