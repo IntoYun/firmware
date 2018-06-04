@@ -4,7 +4,7 @@
 **  File        : linker_stm32l151xb_boot.ld
 **
 **  Abstract    : Linker script for STM32L151xb Device with
-**                128KByte FLASH, 16KByte SRAM
+**                128KByte FLASH, 32KByte SRAM
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -39,7 +39,7 @@ _Minimum_Stack_Size = 0x400;
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32L1xx definitions with 128K Flash and 16K RAM
+Linker subscript for STM32L1xx definitions with 128K Flash and 32K RAM
 */
 
 /* Memory Spaces Definitions */
@@ -50,4 +50,4 @@ MEMORY
     APP_FLASH (rx)    : ORIGIN = 0x08006000, LENGTH = 128K-0x6000
 }
 
-INCLUDE linker_stm32l151xb_common.ld
+INCLUDE linker_stm32l151xba_common.ld

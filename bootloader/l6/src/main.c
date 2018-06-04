@@ -35,7 +35,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define BOOTLOADER_VERSION  1
+//#define BOOTLOADER_VERSION  1
+#define BOOTLOADER_VERSION  2
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/

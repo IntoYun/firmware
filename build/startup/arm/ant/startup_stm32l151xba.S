@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file      startup_stm32l151xb.s
+ * @file      startup_stm32l151xba.s
  * @author    MCD Application Team
  * @version   V1.6.0
  * @date      01-July-2016
@@ -372,5 +372,3 @@ g_pfnVectors:
 .thumb_set TIM7_IRQHandler,Default_Handler
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-

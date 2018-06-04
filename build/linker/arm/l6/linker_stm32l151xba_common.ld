@@ -7,11 +7,11 @@ ENTRY(Reset_Handler)
 
 /* include the memory spaces definitions sub-script */
 /*
-Linker subscript for STM32L151xb definitions with 128K Flash and 16K RAM
+Linker subscript for STM32L151xb definitions with 128K Flash and 32K RAM
 */
 
 /* higher address of the user mode stack */
-_estack = ORIGIN(SRAM)+LENGTH(SRAM)-1;  /* end of 16K SRAM 0x20003FFF*/
+_estack = ORIGIN(SRAM)+LENGTH(SRAM)-1;  /* end of 32K SRAM 0x20007FFF*/
 
 /* include the sections management sub-script for FLASH mode */
 
@@ -168,4 +168,3 @@ PROVIDE( _eheap = ALIGN( ORIGIN( SRAM ) + LENGTH( SRAM ) - 8, 8 ) );
 
 PROVIDE( __RAM_segment_used_end__ = link_stack_end );
 PROVIDE( __tx_free_memory_start = link_stack_end );
-
