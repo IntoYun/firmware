@@ -46,7 +46,7 @@ Linker subscript for STM32L1xx definitions with 128K Flash and 32K RAM
 
 MEMORY
 {
-    SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 32K
+    SRAM (xrw)        : ORIGIN = 0x20000000, LENGTH = 16K
     APP_FLASH (rx)    : ORIGIN = 0x08006000, LENGTH = 128K-0x6000
 }
 
