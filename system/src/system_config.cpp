@@ -216,6 +216,7 @@ void DeviceConfig::sendComfirm(int status)
 
 void DeviceConfig::dealHello(void)
 {
+    //DEBUG("dealHello = %d\r\n", System.freeMemory());
     aJsonObject* root = aJson.createObject();
     if (root == NULL) {return;}
 
@@ -321,7 +322,7 @@ void DeviceConfig::dealGetWifiList(void)
 
 void DeviceConfig::dealGetInfo(void)
 {
-    DEBUG("dealGetInfo = %d\r\n", System.freeMemory());
+    //DEBUG("dealGetInfo = %d\r\n", System.freeMemory());
     aJsonObject* root = aJson.createObject();
     if (root == NULL) {return;}
 
