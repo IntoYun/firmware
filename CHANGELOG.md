@@ -361,7 +361,7 @@
 - [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/54) [neutron/nut/fig/w67/w323] 获取网络状态采取通知机制
 
 ### 漏洞修复
-- [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/55) [all] STM32L151xB 芯片 ajson print申请变量大小改成512个字节
+- [[PR #54]](https://github.com/HITSZ-NRSL/firmware/pull/55) [all] STM32L151xBA 芯片 ajson print申请变量大小改成512个字节
 - [[PR #57]](https://github.com/HITSZ-NRSL/firmware/pull/56) [all] 修正调用IntoRobot.printf()函数编译出错，原因在于基类的继承属性
 
 ### 内部调整

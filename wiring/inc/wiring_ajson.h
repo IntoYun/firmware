@@ -48,8 +48,8 @@
 #define EOF -1
 #endif
 
-//#if defined (STM32L151xB) || defined (STM32F103xB)
-#if defined (STM32L151xB)
+//#if defined (STM32L151xBA) || defined (STM32F103xBA)
+#if defined (STM32L151xBA)
 #define PRINT_BUFFER_LEN 256   //改小， 如果内存不够，容易申请失败
 #else
 #define PRINT_BUFFER_LEN 1536
