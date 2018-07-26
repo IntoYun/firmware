@@ -60,7 +60,7 @@ void HAL_PWM_Write(uint16_t pin, uint8_t value)
  */
 void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_frequency)
 {
-    HAL_PWM_Write_With_Frequency_Ext(pin, (uint16_t)value, pwm_frequency);
+    HAL_PWM_Write_With_Frequency_Ext(pin, (uint32_t)value, pwm_frequency);
 }
 
 /*
@@ -112,17 +112,23 @@ uint16_t HAL_PWM_Get_AnalogValue(uint16_t pin)
 
 uint32_t HAL_PWM_Get_Frequency_Ext(uint16_t pin)
 {
-    return 0;
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    uint8_t channel = PIN_MAP[pin].timer_ch;
+
+    return ledcReadFreq(channel);
 }
 
 uint32_t HAL_PWM_Get_AnalogValue_Ext(uint16_t pin)
 {
-    return 0;
+    EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+    uint8_t channel = PIN_MAP[pin].timer_ch;
+
+    return ledcRead(channel);
 }
 
 uint32_t HAL_PWM_Get_Max_Frequency(uint16_t pin)
 {
-    return 65535;
+    return 312500; //测试得出
 }
 
 uint8_t HAL_PWM_Get_Resolution(uint16_t pin)

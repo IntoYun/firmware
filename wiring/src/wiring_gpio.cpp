@@ -35,13 +35,12 @@
  */
 void pinMode(uint16_t pin, PinMode setMode)
 {
-    if(pin >= TOTAL_PINS || setMode == PIN_MODE_NONE )
-    {
+    if(pin >= TOTAL_PINS || setMode == PIN_MODE_NONE) {
         return;
     }
 
     // Safety check
-    if( !pinAvailable(pin) ) {
+    if(!pinAvailable(pin)) {
         return;
     }
 
@@ -74,30 +73,28 @@ bool pinAvailable(uint16_t pin) {
 
     // SPI safety check
 #ifdef configWIRING_SPI_ENABLE
-    if(SPI.isEnabled() == true && (pin == SCK || pin == MOSI || pin == MISO))
-    {
+    if(SPI.isEnabled() == true && (pin == SCK || pin == MOSI || pin == MISO)) {
         return 0; // 'pin' is used
     }
 #endif
     // I2C safety check
 #ifdef configWIRING_WIRE_ENABLE
-    if(Wire.isEnabled() == true && (pin == SCL || pin == SDA))
-    {
+    if(Wire.isEnabled() == true && (pin == SCL || pin == SDA)) {
         return 0; // 'pin' is used
     }
 #endif
     // Serial safety check
 #ifdef configWIRING_USARTSERIAL_ENABLE
-    if(Serial.isEnabled() == true && (pin == RX || pin == TX))
-    {
+    if(Serial.isEnabled() == true && (pin == RX || pin == TX)) {
         return 0; // 'pin' is used
     }
 #endif
 
-    if (pin >= TOTAL_PINS)
+    if (pin >= TOTAL_PINS) {
         return 0;
-    else
+    } else {
         return 1; // 'pin' is available
+    }
 }
 
 inline bool is_input_mode(PinMode mode) {
@@ -113,10 +110,12 @@ inline bool is_input_mode(PinMode mode) {
 void digitalWrite(pin_t pin, uint8_t value)
 {
     PinMode mode = HAL_Get_Pin_Mode(pin);
-    if (mode==PIN_MODE_NONE || is_input_mode(mode))
+    if(mode==PIN_MODE_NONE || is_input_mode(mode)) {
         return;
+    }
+
     // Safety check
-    if( !pinAvailable(pin) ) {
+    if(!pinAvailable(pin)) {
         return;
     }
 
@@ -134,11 +133,12 @@ inline bool is_af_output_mode(PinMode mode) {
 int32_t digitalRead(pin_t pin)
 {
     PinMode mode = HAL_Get_Pin_Mode(pin);
-    if (is_af_output_mode(mode))
+    if(is_af_output_mode(mode)) {
         return LOW;
+    }
 
     // Safety check
-    if( !pinAvailable(pin) ) {
+    if(!pinAvailable(pin)) {
         return LOW;
     }
 
@@ -153,7 +153,7 @@ int32_t digitalRead(pin_t pin)
 int32_t analogRead(pin_t pin)
 {
     // Safety check
-    if( !pinAvailable(pin) ) {
+    if(!pinAvailable(pin)) {
         return LOW;
     }
 
@@ -171,23 +171,25 @@ int32_t analogRead(pin_t pin)
 void analogWrite(pin_t pin, uint32_t value)
 {
     // Safety check
-    if (!pinAvailable(pin))
-    {
+    if(!pinAvailable(pin)) {
         return;
     }
 
-    if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC)
-    {
+    if(HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC) {
         HAL_DAC_Write(pin, value);
-    }
-    else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
-    {
+    } else if(HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER) {
         PinMode mode = HAL_Get_Pin_Mode(pin);
-        if (mode != OUTPUT && mode != AF_OUTPUT_PUSHPULL)
-        {
+        if(mode != OUTPUT && mode != AF_OUTPUT_PUSHPULL) {
             return;
         }
-        HAL_PWM_Write_Ext(pin, value);
+
+        if(value == 0) {
+            HAL_GPIO_Write(pin, LOW);
+        } else if(value >= ((1 << HAL_PWM_Get_Resolution(pin)) - 1)) {
+            HAL_GPIO_Write(pin, HIGH);
+        } else {
+            HAL_PWM_Write_Ext(pin, value);
+        }
     }
 }
 
@@ -199,37 +201,40 @@ void analogWrite(pin_t pin, uint32_t value)
 void analogWrite(pin_t pin, uint32_t value, uint32_t pwm_frequency)
 {
     // Safety check
-    if (!pinAvailable(pin))
-    {
+    if(!pinAvailable(pin)) {
         return;
     }
 
-    if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
-    {
+    if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER) {
         PinMode mode = HAL_Get_Pin_Mode(pin);
-        if (mode != OUTPUT && mode != AF_OUTPUT_PUSHPULL)
-        {
+        if(mode != OUTPUT && mode != AF_OUTPUT_PUSHPULL) {
             return;
         }
-        HAL_PWM_Write_With_Frequency_Ext(pin, value, pwm_frequency);
+
+        if(value == 0) {
+            HAL_GPIO_Write(pin, LOW);
+        } else if(value >= ((1 << HAL_PWM_Get_Resolution(pin)) - 1)) {
+            HAL_GPIO_Write(pin, HIGH);
+        } else {
+            if((pwm_frequency == 0) || (pwm_frequency > HAL_PWM_Get_Max_Frequency(pin))) {
+                return;
+            }
+            HAL_PWM_Write_With_Frequency_Ext(pin, value, pwm_frequency);
+        }
     }
 }
 
 uint8_t analogWriteResolution(pin_t pin, uint8_t resolution)
 {
     // Safety check
-    if (!pinAvailable(pin))
-    {
+    if (!pinAvailable(pin)) {
         return 0;
     }
 
-    if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC)
-    {
+    if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC) {
         HAL_DAC_Set_Resolution(pin, resolution);
         return HAL_DAC_Get_Resolution(pin);
-    }
-    else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
-    {
+    } else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER) {
         HAL_PWM_Set_Resolution(pin, resolution);
         return HAL_PWM_Get_Resolution(pin);
     }
@@ -240,17 +245,13 @@ uint8_t analogWriteResolution(pin_t pin, uint8_t resolution)
 uint8_t analogWriteResolution(pin_t pin)
 {
     // Safety check
-    if (!pinAvailable(pin))
-    {
+    if (!pinAvailable(pin)) {
         return 0;
     }
 
-    if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC)
-    {
+    if (HAL_Validate_Pin_Function(pin, PF_DAC) == PF_DAC) {
         return HAL_DAC_Get_Resolution(pin);
-    }
-    else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER)
-    {
+    } else if (HAL_Validate_Pin_Function(pin, PF_TIMER) == PF_TIMER) {
         return HAL_PWM_Get_Resolution(pin);
     }
 
@@ -260,8 +261,7 @@ uint8_t analogWriteResolution(pin_t pin)
 uint32_t analogWriteMaxFrequency(pin_t pin)
 {
     // Safety check
-    if (!pinAvailable(pin))
-    {
+    if (!pinAvailable(pin)) {
         return 0;
     }
 
@@ -274,10 +274,11 @@ uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
 
     for (i = 0; i < 8; ++i) {
         digitalWrite(clockPin, HIGH);
-        if (bitOrder == LSBFIRST)
+        if (bitOrder == LSBFIRST) {
             value |= digitalRead(dataPin) << i;
-        else
+        } else {
             value |= digitalRead(dataPin) << (7 - i);
+        }
         digitalWrite(clockPin, LOW);
     }
     return value;
@@ -288,11 +289,11 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
     uint8_t i;
 
     for (i = 0; i < 8; i++)  {
-        if (bitOrder == LSBFIRST)
+        if (bitOrder == LSBFIRST) {
             digitalWrite(dataPin, !!(val & (1 << i)));
-        else
+        } else {
             digitalWrite(dataPin, !!(val & (1 << (7 - i))));
-
+        }
         digitalWrite(clockPin, HIGH);
         digitalWrite(clockPin, LOW);
     }
