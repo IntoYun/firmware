@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "esp32-hal-gpio.h"
+#include "esp32-hal-ledc.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "rom/ets_sys.h"
@@ -166,6 +167,7 @@ extern void IRAM_ATTR __pinMode(uint8_t pin, uint8_t mode)
 
 extern void IRAM_ATTR __digitalWrite(uint8_t pin, uint8_t val)
 {
+    ledcDetachPin(pin);
     if(val) {
         if(pin < 32) {
             GPIO.out_w1ts = ((uint32_t)1 << pin);
@@ -183,6 +185,7 @@ extern void IRAM_ATTR __digitalWrite(uint8_t pin, uint8_t val)
 
 extern int IRAM_ATTR __digitalRead(uint8_t pin)
 {
+    ledcDetachPin(pin);
     if(pin < 32) {
         return (GPIO.in >> pin) & 0x1;
     } else if(pin < 40) {

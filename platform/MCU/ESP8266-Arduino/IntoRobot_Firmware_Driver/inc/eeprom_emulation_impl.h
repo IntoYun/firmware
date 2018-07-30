@@ -48,9 +48,9 @@ void HAL_EEPROM_Init(void)
 uint8_t HAL_EEPROM_Read(uint32_t address)
 {
     if (address < 0 || (size_t)address >= _size)
-        return 0;
+        return 0xFF;
     if(!_data)
-        return 0;
+        return 0xFF;
 
     return _data[address];
 }
