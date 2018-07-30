@@ -31,7 +31,7 @@ extern "C" {
 
 static uint8_t EEPROM_ReadByte(uint32_t address)
 {
-    uint32_t rAddress = EEPROM_START_ADDRESS+address;
+    uint32_t rAddress = EEPROM_START_ADDRESS + address;
     uint8_t  tmp = 0;
     if(IS_FLASH_DATA_ADDRESS(rAddress)) {
         HAL_FLASHEx_DATAEEPROM_Unlock();
@@ -44,7 +44,7 @@ static uint8_t EEPROM_ReadByte(uint32_t address)
 
 static void EEPROM_WriteByte(uint32_t address, uint8_t dataVal)
 {
-    uint32_t wAddress = EEPROM_START_ADDRESS+address;
+    uint32_t wAddress = EEPROM_START_ADDRESS + address;
     if(IS_FLASH_DATA_ADDRESS(wAddress)) {
         HAL_FLASHEx_DATAEEPROM_Unlock();
         while(HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEERASEDATA_BYTE,wAddress,dataVal) != HAL_OK);
