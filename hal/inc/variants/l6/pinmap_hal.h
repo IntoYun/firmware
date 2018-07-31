@@ -139,8 +139,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define MOSI  PB15
 
 // I2C pins
-#define SDA   PB10
-#define SCL   PB11
+#define SDA   PB11
+#define SCL   PB10
 
 // DAC pins
 #define DAC1  PA5
