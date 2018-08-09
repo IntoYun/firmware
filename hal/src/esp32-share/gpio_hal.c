@@ -40,14 +40,18 @@ PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    if (!is_valid_pin(pin))
+    if (!is_valid_pin(pin)) {
         return PF_NONE;
-    if (pinFunction==PF_ADC && PIN_MAP[pin].adc_channel!=ADC_CHANNEL_NONE)
+    }
+    if (pinFunction==PF_ADC && PIN_MAP[pin].adc_channel!=ADC_CHANNEL_NONE) {
         return PF_ADC;
-    if (pinFunction==PF_DAC && PIN_MAP[pin].dac_channel!=DAC_CHANNEL_NONE)
+    }
+    if (pinFunction==PF_DAC && PIN_MAP[pin].dac_channel!=DAC_CHANNEL_NONE) {
         return PF_DAC;
-    if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral != 0xFF)
+    }
+    if (pinFunction==PF_TIMER && PIN_MAP[pin].timer_peripheral != 0xFF) {
         return PF_TIMER;
+    }
     return PF_DIO;
 }
 
@@ -61,8 +65,7 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     pin_t gpio_pin = PIN_MAP[pin].gpio_pin;
 
-    switch (setMode)
-    {
+    switch (setMode) {
         case OUTPUT:
             PIN_MAP[pin].pin_mode = OUTPUT;
             mode = ESP32_OUTPUT;
@@ -96,6 +99,10 @@ void HAL_Pin_Mode(pin_t pin, PinMode setMode)
         default:
             break;
     }
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
+    }
     __pinMode(gpio_pin, mode);
 }
 
@@ -117,13 +124,13 @@ PinMode HAL_GPIO_Recall_Pin_Mode(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     uint32_t uprop = (uint32_t)PIN_MAP[pin].user_property;
-    if ((uprop & 0xFF000000) != 0xAA000000)
+    if ((uprop & 0xFF000000) != 0xAA000000) {
         return PIN_MODE_NONE;
+    }
     PinMode pm = (PinMode)((uprop & 0x00FF0000) >> 16);
 
     // Safety check
-    switch(pm)
-    {
+    switch(pm) {
         case INPUT:
         case OUTPUT:
         case INPUT_PULLUP:
@@ -132,11 +139,11 @@ PinMode HAL_GPIO_Recall_Pin_Mode(uint16_t pin)
         case AF_OUTPUT_DRAIN:
         case AN_INPUT:
         case AN_OUTPUT:
-        break;
+            break;
 
         default:
-        pm = PIN_MODE_NONE;
-        break;
+            pm = PIN_MODE_NONE;
+            break;
     }
     return pm;
 }
@@ -148,15 +155,18 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
     //If the pin is used by analogWrite, we need to change the mode
-    if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL)
-    {
+    if(PIN_MAP[pin].pin_mode == AF_OUTPUT_PUSHPULL) {
         HAL_Pin_Mode(pin, OUTPUT);
     }
-    else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
-    {
-        if (HAL_DAC_Is_Enabled(pin))
+    else if (PIN_MAP[pin].pin_mode == AN_OUTPUT) {
+        if (HAL_DAC_Is_Enabled(pin)) {
             HAL_DAC_Enable(pin, 0);
+        }
         HAL_Pin_Mode(pin, OUTPUT);
+    }
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
     }
     __digitalWrite(PIN_MAP[pin].gpio_pin, value);
 }
@@ -167,34 +177,30 @@ void HAL_GPIO_Write(uint16_t pin, uint8_t value)
 int32_t HAL_GPIO_Read(uint16_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
-    if(PIN_MAP[pin].pin_mode == AN_INPUT)
-    {
+    if(PIN_MAP[pin].pin_mode == AN_INPUT) {
         PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
-        if(pm == PIN_MODE_NONE)
-        {
+        if(pm == PIN_MODE_NONE) {
             return 0;
-        }
-        else
-        {
+        } else {
             // Restore the PinMode after calling analogRead() on same pin earlier
             HAL_Pin_Mode(pin, pm);
         }
-    }
-    else if (PIN_MAP[pin].pin_mode == AN_OUTPUT)
-    {
+    } else if (PIN_MAP[pin].pin_mode == AN_OUTPUT) {
         PinMode pm = HAL_GPIO_Recall_Pin_Mode(pin);
-        if(pm == PIN_MODE_NONE)
-        {
+        if(pm == PIN_MODE_NONE) {
             return 0;
-        }
-        else
-        {
+        } else {
             // Disable DAC
-            if (HAL_DAC_Is_Enabled(pin))
+            if (HAL_DAC_Is_Enabled(pin)) {
                 HAL_DAC_Enable(pin, 0);
+            }
             // Restore pin mode
             HAL_Pin_Mode(pin, pm);
         }
+    }
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
     }
     return __digitalRead(PIN_MAP[pin].gpio_pin);
 }
@@ -233,18 +239,33 @@ void HAL_pinModeFast(pin_t pin, PinMode mode)
 void HAL_pinSetFast(pin_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
+    }
     __digitalWrite(PIN_MAP[pin].gpio_pin, 1);
 }
 
 void HAL_pinResetFast(pin_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
+    }
     __digitalWrite(PIN_MAP[pin].gpio_pin, 0);
 }
 
 int32_t HAL_pinReadFast(pin_t pin)
 {
     EESP32_Pin_Info* PIN_MAP = HAL_Pin_Map();
+
+    if(PIN_MAP[pin].pwm_status) {
+        PIN_MAP[pin].pwm_status = 0;
+        ledcDetachPin(PIN_MAP[pin].gpio_pin);
+    }
     return __digitalRead(PIN_MAP[pin].gpio_pin);
 }
 

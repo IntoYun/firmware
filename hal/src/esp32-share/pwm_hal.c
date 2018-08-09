@@ -94,6 +94,7 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
     if(channel > 15 || gpio_pin > 27) {
         return;
     } else {
+        PIN_MAP[pin].pwm_status = 1;
         ledcSetup(channel, pwm_frequency, HAL_PWM_Get_Resolution(pin));
         ledcAttachPin(gpio_pin, channel);
         ledcWrite(channel, value);
