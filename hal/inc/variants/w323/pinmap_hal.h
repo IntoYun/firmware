@@ -119,24 +119,24 @@ EESP32_Pin_Info* HAL_Pin_Map(void);
 #define RXD1  RX1
 
 // SPI pins
-#define SS    GPIO5  //D5
-#define SCK   GPIO18 //D2
-#define MISO  GPIO19 //D0
-#define MOSI  GPIO23 //D1
+#define SS    GPIO5
+#define SCK   GPIO18
+#define MISO  GPIO19
+#define MOSI  GPIO23
 
 // SPI1 pins
-#define SS1   GPIO26 //A4
-#define SCK1  GPIO15 //A5
-#define MISO1 GPIO14 //A6
-#define MOSI1 GPIO12 //A7
+#define SS1   GPIO15
+#define SCK1  GPIO14
+#define MISO1 GPIO12
+#define MOSI1 GPIO13
 
 // I2C pins
-#define SDA   GPIO18 //D0
-#define SCL   GPIO19 //D1
+#define SDA   GPIO23
+#define SCL   GPIO19
 
 // I2C_1 pins
-#define SDA1  GPIO25 //A2
-#define SCL1  GPIO26 //A3
+#define SDA1  GPIO26
+#define SCL1  GPIO25
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users

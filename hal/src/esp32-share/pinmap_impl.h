@@ -36,6 +36,7 @@ typedef struct EESP32_Pin_Info {
     uint8_t timer_ch;
     PinMode pin_mode;
     int32_t user_property;
+    uint8_t pwm_status;
 } ESP32_Pin_Info;
 
 ESP32_Pin_Info* HAL_Pin_Map(void);
