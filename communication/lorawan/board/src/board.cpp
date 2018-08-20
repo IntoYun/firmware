@@ -18,6 +18,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "wiring.h"
 
 static uint16_t batteryPin = SX1278_BATTERY_POWER;
+static uint8_t IrqNestLevel = 0;
 
 void DelayMs(uint32_t ms)
 {
@@ -27,11 +28,15 @@ void DelayMs(uint32_t ms)
 void BoardDisableIrq( void )
 {
     HAL_disable_irq();
+    IrqNestLevel++;
 }
 
 void BoardEnableIrq( void )
 {
-    HAL_enable_irq(0);
+    IrqNestLevel--;
+    if( IrqNestLevel == 0 ) {
+        HAL_enable_irq(0);
+    }
 }
 
 uint16_t BoardBatteryMeasureVolage( uint16_t pin)

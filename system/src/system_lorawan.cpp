@@ -412,7 +412,9 @@ void LoRaWanJoinOTAA(void)
     mlmeReq.Req.Join.AppKey = LoRaWan.macParams.appKey;
     mlmeReq.Req.Join.NbTrials = LoRaWan._joinNbTrials;
 
-    LoRaMacMlmeRequest( &mlmeReq );
+    if( LoRaMacMlmeRequest( &mlmeReq ) != LORAMAC_STATUS_OK ) {
+        LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
+    }
 }
 
 bool LoRaWanJoinABP(void)
