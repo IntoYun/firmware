@@ -89,6 +89,11 @@ static const uint8_t DaysInMonthLeapYear[] = { 31, 29, 31, 30, 31, 30, 31, 31, 3
 static uint16_t Century = 0;
 
 /*!
+ * Holds the previous century for centruy wrapping
+ */
+static uint16_t PreviousCentury = 0;
+
+/*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
 static bool CalendarRollOverReady = false;
@@ -112,11 +117,12 @@ static int32_t TimeoutValueError = 0;
 //以下函数与mktime(),localtime()功能类似，只是为了节省空间。
 static void RtcCheckCalendarRollOver( uint8_t year )
 {
-    if( year == 99 ) {
+    if( year > 0 ) {
         CalendarRollOverReady = true;
+        PreviousCentury = Century;
     }
 
-    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) ) {
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == PreviousCentury ) ) {
         // Indicate a roll-over of the calendar
         CalendarRollOverReady = false;
         Century = Century + 100;

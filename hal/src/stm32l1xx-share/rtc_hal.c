@@ -139,6 +139,9 @@ void HAL_RTC_Initial( void )
 
     HAL_RTC_Initialize_UnixTime();
 
+    // Enable Direct Read of the calendar registers (not through Shadow registers)
+    HAL_RTCEx_EnableBypassShadow( &RtcHandle );
+
     HAL_NVIC_SetPriority( RTC_Alarm_IRQn, RTC_Alarm_IRQ_PRIORITY, 0 );
     HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
     RtcInitialized = true;
@@ -168,6 +171,10 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
     HAL_RTCEx_DeactivateWakeUpTimer( &RtcHandle );
 
+    if( value <= 3 ) {
+        value = 3;
+    }
+
     RtcCalendar_t alarmTimer = RtcComputeTimerTimeToAlarmTick(value, RtcGetCalendar());
 
     RTC_AlarmStructure.Alarm = RTC_ALARM_A;
@@ -175,6 +182,8 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     RTC_AlarmStructure.AlarmMask = RTC_ALARMMASK_NONE;
     RTC_AlarmStructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
 
+    RTC_AlarmStructure.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+    RTC_AlarmStructure.AlarmTime.SubSeconds = 0;
     RTC_AlarmStructure.AlarmTime.Seconds = alarmTimer.CalendarTime.Seconds;
     RTC_AlarmStructure.AlarmTime.Minutes = alarmTimer.CalendarTime.Minutes;
     RTC_AlarmStructure.AlarmTime.Hours = alarmTimer.CalendarTime.Hours;

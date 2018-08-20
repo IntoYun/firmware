@@ -251,13 +251,13 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
+    BoardDisableIrq( );
+
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead;
-
-    BoardDisableIrq( );
 
     // List is empty or the Obj to stop does not exist
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
@@ -278,9 +278,9 @@ void TimerStop( TimerEvent_t *obj )
 
             remainingTime = obj->Timestamp - elapsedTime;
 
+            TimerListHead->IsRunning = false;
             if( TimerListHead->Next != NULL )
             {
-                TimerListHead->IsRunning = false;
                 TimerListHead = TimerListHead->Next;
                 TimerListHead->Timestamp += remainingTime;
                 TimerListHead->IsRunning = true;
