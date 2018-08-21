@@ -18,8 +18,8 @@
 */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SOFTWARE_TIMERS_HAL_H
-#define __SOFTWARE_TIMERS_HAL_H
+#ifndef __TIMERS_HAL_H
+#define __TIMERS_HAL_H
 
 /* Includes ------------------------------------------------------------------*/
 
@@ -36,17 +36,17 @@ extern "C" {
 #endif
 typedef void* hal_timer_t;
 
-int HAL_Software_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot);
-int HAL_Software_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Software_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Software_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Software_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block);
-int HAL_Software_Timers_Dispose(hal_timer_t timer);
-int HAL_Software_Timers_Is_Active(hal_timer_t timer);
-int HAL_Software_Timers_Get_Id(hal_timer_t timer, void **timer_id);
+int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot);
+int HAL_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block);
+int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block);
+int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block);
+int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block);
+int HAL_Timers_Dispose(hal_timer_t timer);
+int HAL_Timers_Is_Active(hal_timer_t timer);
+int HAL_Timers_Get_Id(hal_timer_t timer, void **timer_id);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* __SOFTWARE_TIMERS_HAL_H */
+#endif  /* __TIMERS_HAL_H */

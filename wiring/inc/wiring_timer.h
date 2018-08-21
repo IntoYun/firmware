@@ -17,11 +17,11 @@
  ******************************************************************************
  */
 
-#ifndef WIRING_SOFTWARE_TIMER_H_
-#define WIRING_SOFTWARE_TIMER_H_
+#ifndef WIRING_TIMER_H_
+#define WIRING_TIMER_H_
 
 #include "stddef.h"
-#include "software_timers_hal.h"
+#include "timers_hal.h"
 #include <functional>
 
 class Timer
@@ -31,7 +31,7 @@ class Timer
         typedef std::function<void(void)> timer_callback_fn;
 
         Timer(unsigned period, timer_callback_fn callback_, bool one_shot=false) : running(false), handle(nullptr), callback(std::move(callback_)) {
-            HAL_Software_Timers_Create(&handle, period, invoke_timer, this, one_shot);
+            HAL_Timers_Create(&handle, period, invoke_timer, this, one_shot);
         }
 
         template <typename T>
@@ -58,7 +58,7 @@ class Timer
         bool changePeriod(unsigned period, unsigned block=default_wait) { return _changePeriod(period, block, false); }
 
         bool isValid() const { return handle!=nullptr; }
-        bool isActive() const { return isValid() && HAL_Software_Timers_Is_Active(handle); }
+        bool isActive() const { return isValid() && HAL_Timers_Is_Active(handle); }
 
         void dispose()
         {
@@ -68,7 +68,7 @@ class Timer
                 while (running) {
                     delay(1);
                 }
-                HAL_Software_Timers_Dispose(handle);
+                HAL_Timers_Dispose(handle);
                 handle = nullptr;
             }
         }
@@ -81,22 +81,22 @@ class Timer
         bool _start(unsigned block, bool fromISR=false)
         {
             stop(fromISR);
-            return handle ? !HAL_Software_Timers_Start(handle, fromISR, block) : false;
+            return handle ? !HAL_Timers_Start(handle, fromISR, block) : false;
         }
 
         bool _stop(unsigned block, bool fromISR=false)
         {
-            return handle ? !HAL_Software_Timers_Stop(handle, fromISR, block) : false;
+            return handle ? !HAL_Timers_Stop(handle, fromISR, block) : false;
         }
 
         bool _reset(unsigned block, bool fromISR=false)
         {
-            return handle ? !HAL_Software_Timers_Reset(handle, fromISR, block) : false;
+            return handle ? !HAL_Timers_Reset(handle, fromISR, block) : false;
         }
 
         bool _changePeriod(unsigned period, unsigned block, bool fromISR=false)
         {
-            return handle ? !HAL_Software_Timers_Change_Period(handle, period, fromISR , block) : false;
+            return handle ? !HAL_Timers_Change_Period(handle, period, fromISR , block) : false;
         }
 
         /*
@@ -116,7 +116,7 @@ class Timer
         static void invoke_timer(hal_timer_t timer)
         {
             void *timer_id = NULL;
-            if (!HAL_Software_Timers_Get_Id(timer, &timer_id)) {
+            if (!HAL_Timers_Get_Id(timer, &timer_id)) {
                 if (timer_id)
                     ((Timer*)timer_id)->timeout();
             }

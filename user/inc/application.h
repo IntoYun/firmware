@@ -58,7 +58,7 @@
 #include "wiring_network.h"
 #include "wiring_client.h"
 #include "wiring_startup.h"
-#include "wiring_software_timer.h"
+#include "wiring_timer.h"
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"
 #include "wiring_httpclient.h"

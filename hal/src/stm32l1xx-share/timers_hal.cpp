@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    software_timers_hal.c
+ * @file    timers_hal.c
  * @authors robin
  * @version V1.0.0
  * @date    19-06-2017
@@ -23,45 +23,45 @@
  ******************************************************************************
  */
 
-#include "software_timers_hal.h"
+#include "timers_hal.h"
 
 
-int HAL_Software_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)
+int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block)
+int HAL_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block)
+int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block)
+int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block)
+int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Dispose(hal_timer_t timer)
+int HAL_Timers_Dispose(hal_timer_t timer)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Is_Active(hal_timer_t timer)
+int HAL_Timers_Is_Active(hal_timer_t timer)
 {
     return -1;
 }
 
-int HAL_Software_Timers_Get_Id(hal_timer_t timer, void** timer_id)
+int HAL_Timers_Get_Id(hal_timer_t timer, void** timer_id)
 {
     return -1;
 }
