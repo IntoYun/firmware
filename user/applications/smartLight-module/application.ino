@@ -2,9 +2,6 @@
  * w67 默认程序
  */
 
-//SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);
-//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
-
 PRODUCT_ID(NTxkPo6yxW3UetAFnpaveYCdbHGSDAfd)     //产品ID
 PRODUCT_SECRET(5e51611f582027dd5239f6f39d6c1eb4) //产品密钥
 PRODUCT_VERSION(2)     //产品版本号

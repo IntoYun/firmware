@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef CORE_HAL_ESP8266_H
-#define CORE_HAL_ESP8266_H
+#ifndef CORE_HAL_RTL8710_H
+#define CORE_HAL_RTL8710_H
 
 #ifdef __cplusplus
 extern "C" {

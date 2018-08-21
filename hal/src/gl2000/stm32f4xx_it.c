@@ -31,7 +31,7 @@
 #include <stdbool.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

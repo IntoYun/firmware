@@ -1,6 +1,12 @@
 /**
  ******************************************************************************
-  Copyright (c) 2013-2014 IntoRobot Team.  All right reserved.
+ * @file    timer_hal.c
+ * @authors Satish Nair, Brett Walach
+ * @version V1.0.0
+ * @date    12-Sept-2014
+ * @brief
+ ******************************************************************************
+  Copyright (c) 2013-2015 IntoRobot Industries, Inc.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public

@@ -29,7 +29,7 @@
 #include "stm32f4xx_hal.h"
 #include "usbd_core.h"
 #include "platform_config.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

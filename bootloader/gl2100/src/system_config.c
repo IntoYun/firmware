@@ -52,7 +52,7 @@ void usart_debug_initial(uint32_t baud)
     UartHandleDebug.Init.OverSampling = UART_OVERSAMPLING_16;
     HAL_UART_DeInit(&UartHandleDebug);
     HAL_UART_Init(&UartHandleDebug);
-    set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
+    //set_logger_output(log_output, ALL_LEVEL); //注册debug实现函数
 }
 
 void usart_cellular_initial(uint32_t baud)

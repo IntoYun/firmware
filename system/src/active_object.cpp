@@ -20,7 +20,7 @@
 #include "active_object.h"
 
 #include "wiring_interrupts.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 
 #if PLATFORM_THREADING
 

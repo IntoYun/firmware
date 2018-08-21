@@ -29,7 +29,6 @@
 #include "gpio_hal.h"
 #include <math.h>
 #include "rtc_hal_impl.h"
-#include "service_debug.h"
 #include "interrupts_hal.h"
 #include "ui_hal.h"
 

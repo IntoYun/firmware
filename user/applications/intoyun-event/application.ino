@@ -2,9 +2,6 @@
  * InotYun 测试程序
  */
 
-//SerialUSBDebugOutput debugOutput(115200, ALL_LEVEL);
-//SerialDebugOutput debugOutput(115200, ALL_LEVEL);
-
 PRODUCT_ID(y4NFFyDE9uq6H202)     //产品ID
 PRODUCT_SECRET(ab697b0dc1716d24cfc49b071668e766) //产品密钥
 PRODUCT_VERSION(2)     //产品版本号

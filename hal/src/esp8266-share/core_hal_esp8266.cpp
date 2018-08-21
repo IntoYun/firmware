@@ -50,6 +50,7 @@ void HAL_Core_Setup(void);
 /* Private variables --------------------------------------------------------*/
 struct rst_info resetInfo;
 static os_timer_t systick_timer;
+const static char *TAG = "hal";
 
 /* Extern variables ----------------------------------------------------------*/
 int atexit(void (*func)()) __attribute__((weak));
@@ -208,11 +209,11 @@ void HAL_Core_Load_Params(void)
 
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
         //初始化参数 保留密钥
-        DEBUG_D("init params fac\r\n");
+        MOLMC_LOGD(TAG, "init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     } else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
         //初始化所有参数
-        DEBUG_D("init params all\r\n");
+        MOLMC_LOGD(TAG, "init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
 

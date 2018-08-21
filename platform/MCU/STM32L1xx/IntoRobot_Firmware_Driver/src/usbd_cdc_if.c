@@ -31,7 +31,7 @@
 #include "usbd_cdc_desc.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

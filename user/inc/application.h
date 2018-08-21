@@ -39,6 +39,7 @@
 #include "system_utilities.h"
 
 #include "wiring.h"
+#include "wiring_log.h"
 #include "wiring_cloud.h"
 #include "wiring_interrupts.h"
 #include "wiring_string.h"
@@ -74,7 +75,6 @@
 #include "wiring_mqttclient.h"
 #include "fast_pin.h"
 #include "string_convert.h"
-#include "debug_output_handler.h"
 
 // this was being implicitly pulled in by some of the other headers
 // adding here for backwards compatibility.

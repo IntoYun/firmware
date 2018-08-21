@@ -27,7 +27,6 @@
 #include "hw_config.h"
 #include "interrupts_hal.h"
 #include "pinmap_impl.h"
-#include "service_debug.h"
 
 //Interrupt Modes
 #define ESP8266_INTERRUPT_MODE_RISING    0x01

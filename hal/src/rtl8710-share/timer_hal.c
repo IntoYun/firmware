@@ -20,8 +20,8 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************
- */
+  ******************************************************************************
+*/
 
 #include "hw_config.h"
 #include "timer_hal.h"
@@ -44,7 +44,7 @@
  */
 system_tick_t HAL_Timer_Get_Micro_Seconds(void)
 {
-    return GetSystem1UsTick();
+    return 0;
 }
 
 /*
@@ -52,5 +52,5 @@ system_tick_t HAL_Timer_Get_Micro_Seconds(void)
  */
 system_tick_t HAL_Timer_Get_Milli_Seconds(void)
 {
-    return GetSystem1MsTick();
+    return 0;
 }

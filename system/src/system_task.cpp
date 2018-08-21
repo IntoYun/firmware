@@ -37,7 +37,7 @@
 #include "system_rgbled.h"
 #include "intorobot_macros.h"
 #include "system_tick_hal.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 #include "wiring_network.h"
 #include "wiring_constants.h"
 #include "wiring_cloud.h"
@@ -47,18 +47,7 @@
 #include "string_convert.h"
 #include "wiring_time.h"
 
-/*debug switch*/
-#define SYSTEM_TASK_DEBUG
-
-#ifdef SYSTEM_TASK_DEBUG
-#define STASK_DEBUG(...)    do {DEBUG(__VA_ARGS__);}while(0)
-#define STASK_DEBUG_D(...)  do {DEBUG_D(__VA_ARGS__);}while(0)
-#define STASK_DEBUG_DUMP    DEBUG_DUMP
-#else
-#define STASK_DEBUG(...)
-#define STASK_DEBUG_D(...)
-#define STASK_DEBUG_DUMP
-#endif
+const static char *TAG = "system-task";
 
 #ifndef configNO_NETWORK
 using intorobot::Network;
@@ -276,7 +265,7 @@ void manage_cloud_connection(void)
 void cloud_disconnect(bool controlRGB)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
-        STASK_DEBUG("cloud_disconnect\r\n");
+        MOLMC_LOGD(TAG, "cloud_disconnect\r\n");
         INTOROBOT_CLOUD_CONNECTED = 0;
         if(controlRGB) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);
@@ -292,7 +281,7 @@ void cloud_disconnect(bool controlRGB)
 #ifndef configNO_LORAWAN
 void LoraWAN_Setup(void)
 {
-    STASK_DEBUG("LoRaWan_Setup\r\n");
+    MOLMC_LOGD(TAG, "LoRaWan_Setup\r\n");
     LoRaWanResume();
     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
@@ -303,10 +292,10 @@ void manage_lorawan_connection(void)
         return;
     }
 
-    if(!INTOROBOT_LORAWAN_JOINED){
-        if(!INTOROBOT_LORAWAN_JOINING){
-            if(LoRaWanJoinIsEnabled()){
-                STASK_DEBUG("lorawan start join\r\n");
+    if(!INTOROBOT_LORAWAN_JOINED) {
+        if(!INTOROBOT_LORAWAN_JOINING) {
+            if(LoRaWanJoinIsEnabled()) {
+                MOLMC_LOGD(TAG, "lorawan start join\r\n");
                 INTOROBOT_LORAWAN_JOINING = true;
                 LoRaWanJoinEnable(false);
                 LoRaWanJoinOTAA();

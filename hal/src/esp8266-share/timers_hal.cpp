@@ -86,7 +86,7 @@ int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block)
 
 int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block)
 {
-    return HAL_Software_Timers_Start(timer, fromISR, block);
+    return HAL_Timers_Start(timer, fromISR, block);
 }
 
 int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block)
@@ -94,7 +94,7 @@ int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, u
     if(NULL != timer) {
         software_timers_t *_timer = (software_timers_t *)timer;
         _timer->period = period;
-        return HAL_Software_Timers_Start(timer, fromISR, block);
+        return HAL_Timers_Start(timer, fromISR, block);
     }
     return -1;
 }

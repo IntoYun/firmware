@@ -42,6 +42,7 @@ uint32_t freeheap();
 }
 /* Private macro ------------------------------------------------------------*/
 /* Private variables --------------------------------------------------------*/
+const static char *TAG = "hal";
 /* Extern variables ----------------------------------------------------------*/
 
 void SysTick_Handler(void)
@@ -85,11 +86,11 @@ static void HAL_Core_Load_Params(void)
 
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
         //初始化参数 保留密钥
-        DEBUG_D("init params fac\r\n");
+        MOLMC_LOGD(TAG, "init params fac\r\n");
         HAL_PARAMS_Init_Fac_System_Params();
     } else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
         //初始化所有参数
-        DEBUG_D("init params all\r\n");
+        MOLMC_LOGD(TAG, "init params all\r\n");
         HAL_PARAMS_Init_All_System_Params();
     }
 

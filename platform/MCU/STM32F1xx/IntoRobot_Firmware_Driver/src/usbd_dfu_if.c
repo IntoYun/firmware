@@ -28,7 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_dfu_if.h"
 #include "stm32f1xx_hal_conf.h"
-#include "service_debug.h"
+#include "molmc_log.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
