@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include "concurrent_hal.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 
 void ActiveObjectBase::start_thread()
 {
@@ -52,7 +52,7 @@ void ActiveObjectBase::run()
 		{
         	configuration.background_task();
         }
-        else if ((now=HAL_Timer_Get_Milli_Seconds())-last_background_run > configuration.take_wait)
+        else if ((now=HAL_Tick_Get_Milli_Seconds())-last_background_run > configuration.take_wait)
         {
         	last_background_run = now;
         	configuration.background_task();

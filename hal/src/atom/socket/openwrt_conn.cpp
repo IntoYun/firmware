@@ -25,7 +25,7 @@
 
 #include "hw_config.h"
 #include "openwrt_conn.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 
 #ifdef putc
 #undef putc

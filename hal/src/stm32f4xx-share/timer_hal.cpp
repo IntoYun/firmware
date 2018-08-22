@@ -24,9 +24,9 @@
  */
 
 #include "concurrent_hal.h"
-#include "timers_hal.h"
+#include "timer_hal.h"
 
-
+/*
 int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)
 {
     return os_timer_create((os_timer_t *)timer, period, callback, timer_id, one_shot, nullptr);
@@ -66,3 +66,46 @@ int HAL_Timers_Get_Id(hal_timer_t timer, void** timer_id)
 {
     return os_timer_get_id((os_timer_t)timer, timer_id);
 }
+*/
+
+int HAL_Timer_Create(timer_handle_t *handle, uint32_t period, timer_callback_fn_t callback_fn, bool one_shot, timer_precision_t precision)
+{
+    return -1;
+}
+
+int HAL_Timer_Start(timer_handle_t handle)
+{
+    return -1;
+}
+
+int HAL_Timer_Stop(timer_handle_t handle)
+{
+    return -1;
+}
+
+int HAL_Timer_Reset(timer_handle_t handle)
+{
+    return -1;
+}
+
+int HAL_Timer_Attach_Interrupt(timer_handle_t handle, uint32_t period)
+{
+    return -1;
+}
+
+int HAL_Timer_Change_Period(timer_handle_t handle, uint32_t period)
+{
+    return -1;
+}
+
+int HAL_Timer_Is_Active(timer_handle_t handle)
+{
+    return -1;
+}
+
+uint32_t HAL_Timer_Get_Remain_Time(timer_handle_t handle)
+{
+    return 0;
+}
+
+

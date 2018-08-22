@@ -23,7 +23,7 @@
 #include "watchdog_hal.h"
 #include "wlan_hal.h"
 #include "delay_hal.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "core_hal.h"
 #include "params_hal.h"
 #include "wiring_system.h"
@@ -71,37 +71,37 @@ static uint8_t cloud_failed_connection_attempts = 0;
 void network_connection_attempt_init()
 {
     network_connection_attempts=0;
-    network_backoff_start = HAL_Timer_Get_Milli_Seconds();
+    network_backoff_start = HAL_Tick_Get_Milli_Seconds();
 }
 
 void network_connection_attempted()
 {
     if (network_connection_attempts<255)
         network_connection_attempts++;
-    network_backoff_start = HAL_Timer_Get_Milli_Seconds();
+    network_backoff_start = HAL_Tick_Get_Milli_Seconds();
 }
 
 inline uint8_t in_network_backoff_period()
 {
-    return (HAL_Timer_Get_Milli_Seconds()-network_backoff_start)<backoff_period(network_connection_attempts);
+    return (HAL_Tick_Get_Milli_Seconds()-network_backoff_start)<backoff_period(network_connection_attempts);
 }
 
 void cloud_connection_attempt_init()
 {
     cloud_failed_connection_attempts=0;
-    cloud_backoff_start = HAL_Timer_Get_Milli_Seconds();
+    cloud_backoff_start = HAL_Tick_Get_Milli_Seconds();
 }
 
 void cloud_connection_failed()
 {
     if (cloud_failed_connection_attempts<255)
         cloud_failed_connection_attempts++;
-    cloud_backoff_start = HAL_Timer_Get_Milli_Seconds();
+    cloud_backoff_start = HAL_Tick_Get_Milli_Seconds();
 }
 
 inline uint8_t in_cloud_backoff_period()
 {
-    return (HAL_Timer_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
+    return (HAL_Tick_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
 }
 
 #ifndef configNO_NETWORK
@@ -333,12 +333,12 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
     system_tick_t intorobot_loop_elapsed_millis = INTOROBOT_LOOP_DELAY_MILLIS;
     intorobot_loop_total_millis += ms;
 
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-    system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
+    system_tick_t start_millis = HAL_Tick_Get_Milli_Seconds();
+    system_tick_t end_micros = HAL_Tick_Get_Micro_Seconds() + (1000*ms);
 
     while (1) {
         HAL_Core_System_Yield();
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
+        system_tick_t elapsed_millis = HAL_Tick_Get_Milli_Seconds() - start_millis;
         if (elapsed_millis > ms) {
             break;
         }
@@ -353,19 +353,19 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
     system_tick_t intorobot_loop_elapsed_millis = INTOROBOT_LOOP_DELAY_MILLIS;
     intorobot_loop_total_millis += ms;
 
-    system_tick_t start_millis = HAL_Timer_Get_Milli_Seconds();
-    system_tick_t end_micros = HAL_Timer_Get_Micro_Seconds() + (1000*ms);
+    system_tick_t start_millis = HAL_Tick_Get_Milli_Seconds();
+    system_tick_t end_micros = HAL_Tick_Get_Micro_Seconds() + (1000*ms);
 
     while (1) {
         HAL_Core_System_Yield();
-        system_tick_t elapsed_millis = HAL_Timer_Get_Milli_Seconds() - start_millis;
+        system_tick_t elapsed_millis = HAL_Tick_Get_Milli_Seconds() - start_millis;
         if (elapsed_millis > ms) {
             break;
         } else if (elapsed_millis >= (ms-1)) {
             // on the last millisecond, resolve using millis - we don't know how far in that millisecond had come
             // have to be careful with wrap around since start_micros can be greater than end_micros.
             for (;;) {
-                system_tick_t delay = end_micros-HAL_Timer_Get_Micro_Seconds();
+                system_tick_t delay = end_micros-HAL_Tick_Get_Micro_Seconds();
                 if (delay>100000)
                     return;
                 HAL_Delay_Microseconds(min(delay/2, 1u));

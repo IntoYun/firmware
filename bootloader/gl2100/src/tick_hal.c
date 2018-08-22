@@ -1,6 +1,5 @@
-
 #include "hw_config.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -18,7 +17,7 @@
 /*
  * @brief Should return the number of microseconds since the processor started up.
  */
-system_tick_t HAL_Timer_Get_Micro_Seconds(void)
+system_tick_t HAL_Tick_Get_Micro_Seconds(void)
 {
     return GetSystem1UsTick();
 }
@@ -26,8 +25,7 @@ system_tick_t HAL_Timer_Get_Micro_Seconds(void)
 /*
  * @brief Should return the number of milliseconds since the processor started up.
  */
-system_tick_t HAL_Timer_Get_Milli_Seconds(void)
+system_tick_t HAL_Tick_Get_Milli_Seconds(void)
 {
     return GetSystem1MsTick();
 }
-

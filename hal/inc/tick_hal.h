@@ -17,25 +17,33 @@
   ******************************************************************************
 */
 
-#ifndef WIRING_TICKS_H_
-#define WIRING_TICKS_H_
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __TICK_HAL_H
+#define __TICK_HAL_H
+
+/* Includes ------------------------------------------------------------------*/
+#include "system_tick_hal.h"
+
+/* Exported types ------------------------------------------------------------*/
+
+/* Exported constants --------------------------------------------------------*/
+
+/* Exported macros -----------------------------------------------------------*/
+
+/* Exported functions --------------------------------------------------------*/
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "tick_hal.h"
-#include "delay_hal.h"
+system_tick_t HAL_Tick_Get_Micro_Seconds(void);
+system_tick_t HAL_Tick_Get_Milli_Seconds(void);
 
-inline system_tick_t millis(void) { return HAL_Tick_Get_Milli_Seconds(); }
-inline unsigned long micros(void) { return HAL_Tick_Get_Micro_Seconds(); }
-void delay(unsigned long ms);
-inline void delayMicroseconds(unsigned int us) { HAL_Delay_Microseconds(us); }
+#define HAL_Tick_Microseconds HAL_Tick_Get_Micro_Seconds
+#define HAL_Tick_Milliseconds HAL_Tick_Get_Milli_Seconds
 
 #ifdef __cplusplus
 }
 #endif
 
-
-#endif	/* WIRING_TICKS_H_ */
-
+#endif  /* __TICK_HAL_H */

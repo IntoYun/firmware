@@ -23,7 +23,7 @@
  ******************************************************************************
  */
 
-#include "timers_hal.h"
+#include "timer_hal.h"
 
 
 int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)

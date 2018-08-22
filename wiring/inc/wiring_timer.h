@@ -21,106 +21,49 @@
 #define WIRING_TIMER_H_
 
 #include "stddef.h"
-#include "timers_hal.h"
-#include <functional>
+#include "timer_hal.h"
 
 class Timer
 {
     public:
-
-        typedef std::function<void(void)> timer_callback_fn;
-
-        Timer(unsigned period, timer_callback_fn callback_, bool one_shot=false) : running(false), handle(nullptr), callback(std::move(callback_)) {
-            HAL_Timers_Create(&handle, period, invoke_timer, this, one_shot);
-        }
-
-        template <typename T>
-            Timer(unsigned period, void (T::*handler)(), T& instance, bool one_shot=false) : Timer(period, std::bind(handler, &instance), one_shot)
-        {
+        Timer(unsigned period, timer_callback_fn_t callback_fn, bool one_shot = false, timer_precision_t precision = TIMER_PRECISION_MS) {
+            HAL_Timer_Create(&handle, period, callback_fn, one_shot, precision);
         }
 
         virtual ~Timer() {
-            // when the timer is calling the std::function, we cannot dispose of it until the function completes.
-            // the call has exited.
-            dispose();
         }
 
-        bool startFromISR() { return _start(0, true); }
-        bool stopFromISR() { return _stop(0, true); }
-        bool resetFromISR() { return _reset(0, true); }
-        bool changePeriodFromISR(unsigned period) { return _changePeriod(period, 0, true); }
+        bool start(void) {
+            stop();
+            return !HAL_Timer_Start(handle);
+        }
 
-        static const unsigned default_wait = 0x7FFFFFFF;
+        bool stop(void) {
+            return !HAL_Timer_Stop(handle);
+        }
 
-        bool start(unsigned block=default_wait) { return _start(block, false); }
-        bool stop(unsigned block=default_wait) { return _stop(block, false); }
-        bool reset(unsigned block=default_wait) { return _reset(block, false); }
-        bool changePeriod(unsigned period, unsigned block=default_wait) { return _changePeriod(period, block, false); }
+        bool reset(void) {
+            return !HAL_Timer_Reset(handle);
+        }
 
-        bool isValid() const { return handle!=nullptr; }
-        bool isActive() const { return isValid() && HAL_Timers_Is_Active(handle); }
+        bool attachInterrupt(timer_callback_fn_t callback_fn) {
+            return !HAL_Timer_Attach_Interrupt(handle, callback_fn);
+        }
 
-        void dispose()
-        {
-            if (handle)
-            {
-                stop();
-                while (running) {
-                    delay(1);
-                }
-                HAL_Timers_Dispose(handle);
-                handle = nullptr;
-            }
+        bool changePeriod(uint32_t period) {
+            return !HAL_Timer_Change_Period(handle, period);
+        }
+
+        bool isActive(void) {
+            return !HAL_Timer_Is_Active(handle);
+        }
+
+        uint32_t getRemainTime(void) {
+            return HAL_Timer_Get_Remain_Time(handle);
         }
 
     private:
-        volatile bool running;
-        hal_timer_t handle;
-        timer_callback_fn callback;
-
-        bool _start(unsigned block, bool fromISR=false)
-        {
-            stop(fromISR);
-            return handle ? !HAL_Timers_Start(handle, fromISR, block) : false;
-        }
-
-        bool _stop(unsigned block, bool fromISR=false)
-        {
-            return handle ? !HAL_Timers_Stop(handle, fromISR, block) : false;
-        }
-
-        bool _reset(unsigned block, bool fromISR=false)
-        {
-            return handle ? !HAL_Timers_Reset(handle, fromISR, block) : false;
-        }
-
-        bool _changePeriod(unsigned period, unsigned block, bool fromISR=false)
-        {
-            return handle ? !HAL_Timers_Change_Period(handle, period, fromISR , block) : false;
-        }
-
-        /*
-         * Subclasses can either provide a callback function, or override
-         * this timeout method.
-         */
-        virtual void timeout()
-        {
-            running = true;
-            if (callback)
-            {
-                callback();
-            }
-            running = false;
-        }
-
-        static void invoke_timer(hal_timer_t timer)
-        {
-            void *timer_id = NULL;
-            if (!HAL_Timers_Get_Id(timer, &timer_id)) {
-                if (timer_id)
-                    ((Timer*)timer_id)->timeout();
-            }
-        }
+        timer_handle_t handle;
 };
 
 #endif

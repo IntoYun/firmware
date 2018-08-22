@@ -18,10 +18,11 @@
 */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIMERS_HAL_H
-#define __TIMERS_HAL_H
+#ifndef __TICK_HAL_H
+#define __TICK_HAL_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "system_tick_hal.h"
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -34,19 +35,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef void* hal_timer_t;
 
-int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot);
-int HAL_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block);
-int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block);
-int HAL_Timers_Dispose(hal_timer_t timer);
-int HAL_Timers_Is_Active(hal_timer_t timer);
-int HAL_Timers_Get_Id(hal_timer_t timer, void **timer_id);
+
+system_tick_t HAL_Tick_Get_Micro_Seconds(void);
+system_tick_t HAL_Tick_Get_Milli_Seconds(void);
+
+#define HAL_Tick_Microseconds HAL_Tick_Get_Micro_Seconds
+#define HAL_Tick_Milliseconds HAL_Tick_Get_Milli_Seconds
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* __TIMERS_HAL_H */
+#endif  /* __TICK_HAL_H */

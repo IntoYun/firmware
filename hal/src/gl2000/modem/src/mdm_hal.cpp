@@ -25,7 +25,7 @@
 
 #include "hw_config.h"
 #include "mdm_hal.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "delay_hal.h"
 #include "gpio_hal.h"
 #include "concurrent_hal.h"
@@ -65,7 +65,7 @@ extern "C"
 //! test if it is a socket is ok to use
 #define ISSOCKET(s)     (((s) >= 0) && ((s) < NUMSOCKETS) && (_sockets[s].handle != MDM_SOCKET_ERROR))
 //! check for timeout
-#define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
+#define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Tick_Get_Milli_Seconds() - t) > ms))
 //! helper to make sure that lock unlock pair is always balanced
 #define LOCK()      __modem_lock()
 //! helper to make sure that lock unlock pair is always balanced
@@ -92,7 +92,6 @@ static void __modem_unlock(void)
 }
 
 #ifdef MDM_DEBUG
-
 static int calcAtCmdLen(const char* buf, int len)
 {
     int calcLen = 0;
@@ -169,7 +168,6 @@ MDMParser::MDMParser(void)
         _sockets[socket].handle = MDM_SOCKET_ERROR;
 #ifdef MODEM_DEBUG
     _debugLevel = 3;
-    _debugTime = HAL_Timer_Get_Milli_Seconds();
 #endif
 }
 
@@ -190,7 +188,7 @@ int MDMParser::send(const char* buf, int len)
         char *temp = malloc(calcAtCmdLen(buf, len) + 8);
         if(NULL != temp) {
             dumpAtCmd(buf, len, temp);
-            MOLMC_LOGD(TAG, "[%010u]:AT send \" %s \"", HAL_Timer_Get_Milli_Seconds()-_debugTime, temp);
+            MOLMC_LOGD(TAG, "AT send \" %s \"", temp);
             free(temp);
         }
     }
@@ -216,7 +214,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     if (_cancel_all_operations) return WAIT;
 
     char buf[MAX_SIZE + 64 /* add some more space for framing */];
-    system_tick_t start = HAL_Timer_Get_Milli_Seconds();
+    system_tick_t start = HAL_Tick_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
 #ifdef MODEM_DEBUG
@@ -234,7 +232,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
             char *temp = malloc(calcAtCmdLen(buf, len) + 8);
             if(NULL != temp) {
                 dumpAtCmd(buf, len, temp);
-                MOLMC_LOGD(TAG, "[%010u]:AT read %s \" %s \"", HAL_Timer_Get_Milli_Seconds()-_debugTime, s, temp);
+                MOLMC_LOGD(TAG, "AT read %s \" %s \"", s, temp);
                 free(temp);
             }
             (void)s;

@@ -25,7 +25,7 @@
 
 #include "hw_config.h"
 #include "mdm_hal.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "delay_hal.h"
 #include "gpio_hal.h"
 #include "mdmapn_hal.h"
@@ -60,7 +60,7 @@ extern "C"
 //! test if it is a socket is ok to use
 #define ISSOCKET(s)     (((s) >= 0) && ((s) < NUMSOCKETS) && (_sockets[s].handle != MDM_SOCKET_ERROR))
 //! check for timeout
-#define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Timer_Get_Milli_Seconds() - t) > ms))
+#define TIMEOUT(t, ms)  ((ms != TIMEOUT_BLOCKING) && ((HAL_Tick_Get_Milli_Seconds() - t) > ms))
 //! registration ok check helper
 #define REG_OK(r)       ((r == REG_HOME) || (r == REG_ROAMING))
 //! registration done check helper (no need to poll further)
@@ -94,12 +94,12 @@ static volatile uint32_t gprs_timeout_start;
 static volatile uint32_t gprs_timeout_duration;
 
 inline void ARM_GPRS_TIMEOUT(uint32_t dur) {
-    gprs_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    gprs_timeout_start = HAL_Tick_Get_Milli_Seconds();
     gprs_timeout_duration = dur;
     MOLMC_LOGD(TAG, "GPRS WD Set %d",(dur));
 }
 inline bool IS_GPRS_TIMEOUT() {
-    return gprs_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-gprs_timeout_start)>gprs_timeout_duration);
+    return gprs_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-gprs_timeout_start)>gprs_timeout_duration);
 }
 
 inline void CLR_GPRS_TIMEOUT() {
@@ -243,7 +243,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     if (_cancel_all_operations) return WAIT;
 
     char buf[MAX_SIZE + 64 /* add some more space for framing */];
-    system_tick_t start = HAL_Timer_Get_Milli_Seconds();
+    system_tick_t start = HAL_Tick_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
 #ifdef MDM_DEBUG
@@ -605,8 +605,8 @@ bool MDMParser::powerOn(const char* simpin)
             if (RESP_OK != waitFinalResp(_cbCPIN, &_dev.sim))
                 goto failure;
         } else if (_dev.sim != SIM_READY) {
-            system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-            while ((HAL_Timer_Get_Milli_Seconds() - start < 1000UL) && !_cancel_all_operations); // just wait
+            system_tick_t start = HAL_Tick_Get_Milli_Seconds();
+            while ((HAL_Tick_Get_Milli_Seconds() - start < 1000UL) && !_cancel_all_operations); // just wait
         }
     }
     if (_dev.sim != SIM_READY) {
@@ -770,10 +770,10 @@ bool MDMParser::registerNet(NetStatus* status /*= NULL*/, system_tick_t timeout_
             if (RESP_OK != waitFinalResp())
                 goto failure;
             // Now check every 5 seconds for 5 minutes to see if we're connected to the tower (GSM and GPRS)
-            system_tick_t start = HAL_Timer_Get_Milli_Seconds();
+            system_tick_t start = HAL_Tick_Get_Milli_Seconds();
             while (!checkNetStatus(status) && !TIMEOUT(start, timeout_ms) && !_cancel_all_operations) {
-                system_tick_t start = HAL_Timer_Get_Milli_Seconds();
-                while ((HAL_Timer_Get_Milli_Seconds() - start < 5000UL) && !_cancel_all_operations); // just wait
+                system_tick_t start = HAL_Tick_Get_Milli_Seconds();
+                while ((HAL_Tick_Get_Milli_Seconds() - start < 5000UL) && !_cancel_all_operations); // just wait
                 //HAL_Delay_Milliseconds(15000);
             }
             if (_net.csd == REG_DENIED) MOLMC_LOGE(TAG, "CSD Registration Denied");

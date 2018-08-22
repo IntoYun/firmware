@@ -22,9 +22,16 @@
 #define __TIMER_HAL_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "system_tick_hal.h"
+#include <stdint.h>
 
 /* Exported types ------------------------------------------------------------*/
+typedef enum {
+    TIMER_PRECISION_US, //milliseconds
+    TIMER_PRECISION_MS  //microseconds
+} timer_precision_t;
+
+typedef void (*timer_callback_fn_t)(void);
+typedef int32_t timer_handle_t;
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -36,15 +43,18 @@
 extern "C" {
 #endif
 
-
-system_tick_t HAL_Timer_Get_Micro_Seconds(void);
-system_tick_t HAL_Timer_Get_Milli_Seconds(void);
-
-#define HAL_Timer_Microseconds HAL_Timer_Get_Micro_Seconds
-#define HAL_Timer_Milliseconds HAL_Timer_Get_Milli_Seconds
+int HAL_Timer_Create(timer_handle_t *handle, uint32_t period, timer_callback_fn_t callback_fn, bool one_shot, timer_precision_t precision);
+int HAL_Timer_Start(timer_handle_t handle);
+int HAL_Timer_Stop(timer_handle_t handle);
+int HAL_Timer_Reset(timer_handle_t handle);
+int HAL_Timer_Attach_Interrupt(timer_handle_t handle, uint32_t period);
+int HAL_Timer_Change_Period(timer_handle_t handle, uint32_t period);
+int HAL_Timer_Is_Active(timer_handle_t handle);
+uint32_t HAL_Timer_Get_Remain_Time(timer_handle_t handle);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif  /* __TIMER_HAL_H */
+

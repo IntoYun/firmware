@@ -190,12 +190,12 @@ void HAL_System_Config(void)
 
 system_tick_t millis(void)
 {
-    return HAL_Timer_Get_Milli_Seconds();
+    return HAL_Tick_Get_Milli_Seconds();
 }
 
 unsigned long micros(void)
 {
-    return HAL_Timer_Get_Micro_Seconds();
+    return HAL_Tick_Get_Micro_Seconds();
 }
 
 void delay(uint32_t ms)

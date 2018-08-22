@@ -37,7 +37,7 @@
 #include "intorobot_macros.h"
 #include "rtc_hal.h"
 #include "delay_hal.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "params_hal.h"
 #include "bkpreg_hal.h"
 #include "flash_map.h"

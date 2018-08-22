@@ -57,12 +57,12 @@ static volatile uint32_t config_timeout_start;
 static volatile uint32_t config_timeout_duration;
 
 inline void ARM_CONFIG_TIMEOUT(uint32_t dur) {
-    config_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    config_timeout_start = HAL_Tick_Get_Milli_Seconds();
     config_timeout_duration = dur;
     MOLMC_LOGD(TAG, "CONFIG WD Set %d",(dur));
 }
 inline bool IS_CONFIG_TIMEOUT() {
-    return config_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-config_timeout_start)>config_timeout_duration);
+    return config_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-config_timeout_start)>config_timeout_duration);
 }
 
 inline void CLR_CONFIG_TIMEOUT() {

@@ -36,7 +36,7 @@ extern "C" {
 #include "lwip/dns.h"
 }
 
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "net_hal.h"
 #include "molmc_log.h"
 #include "core_hal_esp8266.h"
@@ -49,12 +49,12 @@ static volatile uint32_t esp8266_wifi_timeout_start;
 static volatile uint32_t esp8266_wifi_timeout_duration;
 
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
-    esp8266_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    esp8266_wifi_timeout_start = HAL_Tick_Get_Milli_Seconds();
     esp8266_wifi_timeout_duration = dur;
     //MOLMC_LOGD(TAG, "esp8266 WIFI WD Set %d",(dur));
 }
 inline bool IS_WIFI_TIMEOUT() {
-    return esp8266_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
+    return esp8266_wifi_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
 }
 
 inline void CLR_WIFI_TIMEOUT() {

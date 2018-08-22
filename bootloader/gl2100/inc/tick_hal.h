@@ -17,34 +17,34 @@
   ******************************************************************************
 */
 
-#include "hw_config.h"
-#include "timer_hal.h"
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __TICK_HAL_H
+#define __TICK_HAL_H
+
+/* Includes ------------------------------------------------------------------*/
+#include "system_tick_hal.h"
+
+/* Exported types ------------------------------------------------------------*/
+
+/* Exported constants --------------------------------------------------------*/
+
+/* Exported macros -----------------------------------------------------------*/
+
+/* Exported functions --------------------------------------------------------*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-/* Private typedef -----------------------------------------------------------*/
+system_tick_t HAL_Tick_Get_Micro_Seconds(void);
+system_tick_t HAL_Tick_Get_Milli_Seconds(void);
 
-/* Private define ------------------------------------------------------------*/
+#define HAL_Tick_Microseconds HAL_Tick_Get_Micro_Seconds
+#define HAL_Tick_Milliseconds HAL_Tick_Get_Milli_Seconds
 
-/* Private macro -------------------------------------------------------------*/
-
-/* Private variables ---------------------------------------------------------*/
-
-/* Extern variables ----------------------------------------------------------*/
-
-/* Private function prototypes -----------------------------------------------*/
-
-/*
- * @brief Should return the number of microseconds since the processor started up.
- */
-system_tick_t HAL_Timer_Get_Micro_Seconds(void)
-{
-    return GetSystem1UsTick();
+#ifdef __cplusplus
 }
+#endif
 
-/*
- * @brief Should return the number of milliseconds since the processor started up.
- */
-system_tick_t HAL_Timer_Get_Milli_Seconds(void)
-{
-    return GetSystem1MsTick();
-}
+#endif  /* __TICK_HAL_H */

@@ -25,7 +25,7 @@
 
 #include "hw_config.h"
 #include "esp8266_conn.h"
-#include "timer_hal.h"
+#include "tick_hal.h"
 #include "core_hal_esp8266.h"
 
 const static char *TAG = "hal-socket";
@@ -56,12 +56,12 @@ static volatile uint32_t esp8266_conn_timeout_start;
 static volatile uint32_t esp8266_conn_timeout_duration;
 
 inline void ARM_CONN_TIMEOUT(uint32_t dur) {
-    esp8266_conn_timeout_start = HAL_Timer_Get_Milli_Seconds();
+    esp8266_conn_timeout_start = HAL_Tick_Get_Milli_Seconds();
     esp8266_conn_timeout_duration = dur;
     MOLMC_LOGD(TAG, "esp8266 CONN WD Set %d",(dur));
 }
 inline bool IS_CONN_TIMEOUT() {
-    return esp8266_conn_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_conn_timeout_start)>esp8266_conn_timeout_duration);
+    return esp8266_conn_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-esp8266_conn_timeout_start)>esp8266_conn_timeout_duration);
 }
 
 inline void CLR_CONN_TIMEOUT() {

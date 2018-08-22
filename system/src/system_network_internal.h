@@ -46,12 +46,12 @@ extern uint32_t wlan_watchdog_duration;
 extern uint32_t wlan_watchdog_base;
 
 inline void ARM_WLAN_WD(uint32_t x) {
-    wlan_watchdog_base = HAL_Timer_Get_Milli_Seconds();
+    wlan_watchdog_base = HAL_Tick_Get_Milli_Seconds();
     wlan_watchdog_duration = x;
     MOLMC_LOGD(GTAG, "WD Set %d",(x));
 }
 inline bool WLAN_WD_TO() {
-    return wlan_watchdog_duration && ((HAL_Timer_Get_Milli_Seconds()-wlan_watchdog_base)>wlan_watchdog_duration);
+    return wlan_watchdog_duration && ((HAL_Tick_Get_Milli_Seconds()-wlan_watchdog_base)>wlan_watchdog_duration);
 }
 
 inline void CLR_WLAN_WD() {
