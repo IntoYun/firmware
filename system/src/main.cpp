@@ -66,7 +66,7 @@ using namespace intorobot;
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-const static char *TAG = "system";
+const static char *TAG = "system-main";
 
 typedef enum
 {
@@ -244,7 +244,7 @@ void app_setup_and_loop_initial(bool *threaded)
     set_system_mode(DEFAULT);
     Time.zone(HAL_PARAMS_Get_System_zone());
 
-    MOLMC_LOGD(TAG, "---------------welcome from IntoRobot!-----------------\r\n");
+    MOLMC_LOGD(TAG, "---------------welcome from IntoRobot!-----------------");
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
 #ifdef configHAL_USB_CDC_ENABLE
     USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
@@ -255,18 +255,18 @@ void app_setup_and_loop_initial(bool *threaded)
     char buffer[33] = {0};
 
     if(PRODUCT_TYPE_GATEWAY == system_get_product_type()) {
-        MOLMC_LOGD(TAG, "product_type = gateway\r\n");
+        MOLMC_LOGD(TAG, "product_type = gateway");
     } else {
-        MOLMC_LOGD(TAG, "product_type = note\r\n");
+        MOLMC_LOGD(TAG, "product_type = note");
     }
     system_get_product_software_version(buffer, sizeof(buffer));
-    MOLMC_LOGD(TAG, "product_software_version = %s\r\n", buffer);
+    MOLMC_LOGD(TAG, "product_software_version = %s", buffer);
     system_get_product_hardware_version(buffer, sizeof(buffer));
-    MOLMC_LOGD(TAG, "product_hardware_version = %s\r\n", buffer);
+    MOLMC_LOGD(TAG, "product_hardware_version = %s", buffer);
     system_get_product_id(buffer, sizeof(buffer));
-    MOLMC_LOGD(TAG, "product_id = %s\r\n", buffer);
+    MOLMC_LOGD(TAG, "product_id = %s", buffer);
     system_get_product_secret(buffer, sizeof(buffer));
-    MOLMC_LOGD(TAG, "product_secret = %s\r\n", buffer);
+    MOLMC_LOGD(TAG, "product_secret = %s", buffer);
 #endif
 
 #ifdef configSETUP_ENABLE

@@ -37,7 +37,7 @@ extern "C" {
 #include "esp32-hal-wifi.h"
 #include "net_hal.h"
 
-const static char *TAG = "hal-esp32-wifi";
+const static char *TAG = "hal-wifi";
 
 static ScanDoneCb _scanDoneCb = NULL;
 
@@ -47,7 +47,7 @@ static volatile uint32_t esp32_wifi_timeout_duration;
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
     esp32_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp32_wifi_timeout_duration = dur;
-    //MOLMC_LOGD(TAG, "esp32 WIFI WD Set %d\r\n",(dur));
+    //MOLMC_LOGD(TAG, "esp32 WIFI WD Set %d",(dur));
 }
 inline bool IS_WIFI_TIMEOUT() {
     return esp32_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp32_wifi_timeout_start)>esp32_wifi_timeout_duration);
@@ -55,7 +55,7 @@ inline bool IS_WIFI_TIMEOUT() {
 
 inline void CLR_WIFI_TIMEOUT() {
     esp32_wifi_timeout_duration = 0;
-    //MOLMC_LOGD(TAG, "esp32 WIFI WD Cleared, was %d\r\n", esp32_wifi_timeout_duration);
+    //MOLMC_LOGD(TAG, "esp32 WIFI WD Cleared, was %d", esp32_wifi_timeout_duration);
 }
 
 #if CONFIG_FREERTOS_UNICORE
@@ -73,17 +73,17 @@ const char * system_event_reasons[] = { "UNSPECIFIED", "AUTH_EXPIRE", "AUTH_LEAV
 static esp_err_t _eventCallback(void *arg, system_event_t *event)
 {
     if(event->event_id == SYSTEM_EVENT_SCAN_DONE) {
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_SCAN_DONE\r\n");
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_SCAN_DONE");
         _scanDoneCb();
     }
     else if(event->event_id == SYSTEM_EVENT_STA_DISCONNECTED) {
         uint8_t reason = event->event_info.disconnected.reason;
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_DISCONNECTED reason = %u - %s\r\n", reason, reason2str(reason));
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_DISCONNECTED reason = %u - %s", reason, reason2str(reason));
         if(reason == WIFI_REASON_NO_AP_FOUND) {
         } else if(reason == WIFI_REASON_AUTH_FAIL || reason == WIFI_REASON_ASSOC_FAIL) {
         } else if(reason == WIFI_REASON_BEACON_TIMEOUT || reason == WIFI_REASON_HANDSHAKE_TIMEOUT) {
         } else if(reason == WIFI_REASON_AUTH_EXPIRE) {
-            MOLMC_LOGD(TAG, "reconnect\r\n");
+            MOLMC_LOGD(TAG, "reconnect");
             if(esp32_getAutoReconnect()) {
                 esp32_begin();
             }
@@ -92,17 +92,17 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         HAL_NET_notify_disconnected();
     }
     else if(event->event_id == SYSTEM_EVENT_STA_START) {
-        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_START\r\n");
+        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_START");
     }
     else if(event->event_id == SYSTEM_EVENT_STA_STOP) {
-        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_STOP\r\n");
+        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_STOP");
     }
     else if(event->event_id == SYSTEM_EVENT_STA_GOT_IP) {
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_GOT_IP\r\n");
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_GOT_IP");
         /*
            tcpip_adapter_ip_info_t ip;
            tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &ip);
-           MOLMC_LOGD(TAG, "%x\r\n", ip.ip.addr);
+           MOLMC_LOGD(TAG, "%x", ip.ip.addr);
            */
         HAL_NET_notify_dhcp(true);
         HAL_NET_notify_connected();
@@ -352,11 +352,11 @@ static bool _smartConfigDone = false;
 static void smartConfigCallback(uint32_t st, void* result)
 {
     smartconfig_status_t status = (smartconfig_status_t) st;
-    MOLMC_LOGD(TAG, "beginSmartConfig status = %d\r\n", status);
+    MOLMC_LOGD(TAG, "beginSmartConfig status = %d", status);
     if (status == SC_STATUS_LINK) {
         wifi_sta_config_t *sta_conf = reinterpret_cast<wifi_sta_config_t *>(result);
-        MOLMC_LOGD(TAG, "ssid     = %s\r\n", sta_conf->ssid);
-        MOLMC_LOGD(TAG, "password = %s\r\n", sta_conf->password);
+        MOLMC_LOGD(TAG, "ssid     = %s", sta_conf->ssid);
+        MOLMC_LOGD(TAG, "password = %s", sta_conf->password);
         esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t *)sta_conf);
         esp_wifi_connect();
     } else if (status == SC_STATUS_LINK_OVER) {
@@ -366,7 +366,7 @@ static void smartConfigCallback(uint32_t st, void* result)
 
 bool esp32_beginSmartConfig()
 {
-    MOLMC_LOGD(TAG, "esp32_beginSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp32_beginSmartConfig");
     if (_smartConfigStarted) {
         return false;
     }
@@ -389,7 +389,7 @@ bool esp32_beginSmartConfig()
 
 bool esp32_stopSmartConfig()
 {
-    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig");
     if (!_smartConfigStarted) {
         return true;
     }

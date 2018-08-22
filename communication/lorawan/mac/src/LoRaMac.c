@@ -683,7 +683,7 @@ static void OnRadioTxDone( void )
         McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
         ChannelsNbRepCounter++;
     }
-    MOLMC_LOGD(TAG, "loramac radio tx done\r\n");
+    MOLMC_LOGD(TAG, "loramac radio tx done");
 }
 
 static void PrepareRxDoneAbort( void )
@@ -701,12 +701,12 @@ static void PrepareRxDoneAbort( void )
     // Trig OnMacCheckTimerEvent call as soon as possible
     TimerSetValue( &MacStateCheckTimer, 1 );
     TimerStart( &MacStateCheckTimer );
-    MOLMC_LOGD(TAG, "loramac radio rx done abort\r\n");
+    MOLMC_LOGD(TAG, "loramac radio rx done abort");
 }
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
-    MOLMC_LOGD(TAG, "loramac radio rx done\r\n");
+    MOLMC_LOGD(TAG, "loramac radio rx done");
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
     ApplyCFListParams_t applyCFList;
@@ -957,7 +957,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         {
                             SrvAckRequested = true;
                             McpsIndication.McpsIndication = MCPS_CONFIRMED;
-                            MOLMC_LOGD(TAG, "loramac servr ack requested\r\n");
+                            MOLMC_LOGD(TAG, "loramac servr ack requested");
 
                             if( ( DownLinkCounter == downLinkCounter ) &&
                                 ( DownLinkCounter != 0 ) )
@@ -968,7 +968,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 // It should not provide the same frame to the application
                                 // layer again.
                                 skipIndication = true;
-                                MOLMC_LOGD(TAG, "loramac downLinkCounter is not equal\r\n");
+                                MOLMC_LOGD(TAG, "loramac downLinkCounter is not equal");
                             }
                         }
                         else
@@ -1025,13 +1025,13 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                                        downLinkCounter,
                                                        LoRaMacRxPayload );
 
-                                MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands\r\n");
+                                MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands");
                                 // Decode frame payload MAC commands
                                 ProcessMacCommands( LoRaMacRxPayload, 0, frameLen, snr );
                             }
                             else
                             {
-                                MOLMC_LOGD(TAG, "skipIndication = true // frame is error\r\n");
+                                MOLMC_LOGD(TAG, "skipIndication = true // frame is error");
                                 skipIndication = true;
                             }
                         }
@@ -1039,7 +1039,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         {
                             if( fCtrl.Bits.FOptsLen > 0 )
                             {
-                                MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands\r\n");
+                                MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands");
                                 // Decode Options field MAC commands. Omit the fPort.
                                 ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr );
                             }
@@ -1059,7 +1059,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 McpsIndication.RxData = true;
                                 #if 1
                                 MOLMC_LOGD(TAG, "decrypt payload length = %d\r\n",frameLen);
-                                MOLMC_LOGD(TAG, "decrypt payload:\r\n");
+                                MOLMC_LOGD(TAG, "decrypt payload:");
                                 MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacRxPayload,frameLen);
                                 #endif
                             }
@@ -1069,7 +1069,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     {
                         if( fCtrl.Bits.FOptsLen > 0 )
                         {
-                            MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands\r\n");
+                            MOLMC_LOGD(TAG, "LoRaMac ProcessMacCommands");
                             // Decode Options field MAC commands
                             ProcessMacCommands( payload, 8, appPayloadStartIndex, snr );
                         }
@@ -1139,7 +1139,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
 static void OnRadioTxTimeout( void )
 {
-    MOLMC_LOGD(TAG, "loramac radio tx timeout\r\n");
+    MOLMC_LOGD(TAG, "loramac radio tx timeout");
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1156,7 +1156,7 @@ static void OnRadioTxTimeout( void )
 
 static void OnRadioRxError( void )
 {
-    MOLMC_LOGD(TAG, "loramac radio rx error\r\n");
+    MOLMC_LOGD(TAG, "loramac radio rx error");
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1192,7 +1192,7 @@ static void OnRadioRxError( void )
 
 static void OnRadioRxTimeout( void )
 {
-    MOLMC_LOGD(TAG, "loramac radio rx timeout\r\n");
+    MOLMC_LOGD(TAG, "loramac radio rx timeout");
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1956,7 +1956,7 @@ static LoRaMacStatus_t ScheduleTx( void )
     // Select channel
     while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff ) == false )
     {
-        MOLMC_LOGD(TAG, "ScheduleTx Select channel\r\n");
+        MOLMC_LOGD(TAG, "ScheduleTx Select channel");
         // Set the default datarate
         LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
         // Update datarate in the function parameters
@@ -3203,13 +3203,13 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             #if 1
             //debug
-            MOLMC_LOGD(TAG, "LoRaMacDevEui:\r\n");
+            MOLMC_LOGD(TAG, "LoRaMacDevEui:");
             MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacDevEui,8);
 
-            MOLMC_LOGD(TAG, "LoRaMacAppEui:\r\n");
+            MOLMC_LOGD(TAG, "LoRaMacAppEui:");
             MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacAppEui,8);
 
-            MOLMC_LOGD(TAG, "LoRaMacAppKey:\r\n");
+            MOLMC_LOGD(TAG, "LoRaMacAppKey:");
             MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacAppKey,16);
             #endif
 
@@ -3414,7 +3414,7 @@ void LoRaMacAbortRun(void)
     TimerStop( &AckTimeoutTimer);
     LoRaMacFlags.Value = 0;
     LoRaMacState = LORAMAC_IDLE;
-    MOLMC_LOGD(TAG, "loramac abort run!!!\r\n");
+    MOLMC_LOGD(TAG, "loramac abort run!!!");
 }
 
 uint32_t LoRaMacGetChannelFreq(uint8_t id)

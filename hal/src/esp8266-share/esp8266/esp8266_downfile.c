@@ -26,7 +26,7 @@
 #include "esp8266_upgrade.h"
 #include "esp8266_downfile.h"
 
-const static char *TAG = "hal";
+const static char *TAG = "hal-download";
 
 #define pheadbuffer "Connection: keep-alive\r\n\
 Cache-Control: no-cache\r\n\
@@ -59,10 +59,10 @@ void downfile_rsp(void *arg) {
 
     memset(output, 0, sizeof(output));
     if(server->upgrade_flag == true) {
-        MOLMC_LOGD(TAG, "downfile_success\r\n");
+        MOLMC_LOGD(TAG, "downfile_success");
         _downfile_status = DOWNSTATUS_SUCCESS;
     } else {
-        MOLMC_LOGD(TAG, "downfile_failed\r\n");
+        MOLMC_LOGD(TAG, "downfile_failed");
         _downfile_status = DOWNSTATUS_FAIL;
     }
 
@@ -77,7 +77,7 @@ void upServer_dns_found(const char *name, ip_addr_t *ipaddr, void *arg){
     struct espconn *pespconn = (struct espconn *) arg;
 
     free(pespconn);
-    MOLMC_LOGD(TAG, "upServer_dns_found\r\n");
+    MOLMC_LOGD(TAG, "upServer_dns_found");
     if(ipaddr == NULL) {
         downfile_rsp(upServer);
         return;
@@ -101,7 +101,7 @@ void downFile(char *hostname, char *httppara, char *md5para, void *check_cb){
     sprintf((char *)upServer->url, "GET %s HTTP/1.0\r\nHost: %s\r\n"pheadbuffer"", httppara, hostname);
 
     strcpy(upServer->md5, md5para);
-    MOLMC_LOGD(TAG, "upServer->url=%s\r\n",upServer->url);
+    MOLMC_LOGD(TAG, "upServer->url=%s",upServer->url);
     host_ip.addr = ipaddr_addr(hostname);
     if (host_ip.addr != IPADDR_NONE) {
         memcpy(upServer->ip, &host_ip.addr, 4);
@@ -114,7 +114,7 @@ void downFile(char *hostname, char *httppara, char *md5para, void *check_cb){
 
 down_status_t esp8266_downfile(const char *host, const char *uri, const char * md5, file_type_t type)
 {
-    MOLMC_LOGD(TAG, "host : %s, uri : %s\r\n", host, uri);
+    MOLMC_LOGD(TAG, "host : %s, uri : %s", host, uri);
     filetype = type;
     downFile((char *)host, (char *)uri, (char *)md5, downfile_rsp);
     _downfile_status = DOWNSTATUS_DOWNING;

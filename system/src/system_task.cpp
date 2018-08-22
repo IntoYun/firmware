@@ -265,7 +265,7 @@ void manage_cloud_connection(void)
 void cloud_disconnect(bool controlRGB)
 {
     if (INTOROBOT_CLOUD_CONNECTED) {
-        MOLMC_LOGD(TAG, "cloud_disconnect\r\n");
+        MOLMC_LOGD(TAG, "cloud_disconnect");
         INTOROBOT_CLOUD_CONNECTED = 0;
         if(controlRGB) {
             system_rgb_blink(RGB_COLOR_BLUE, 1000);
@@ -281,7 +281,7 @@ void cloud_disconnect(bool controlRGB)
 #ifndef configNO_LORAWAN
 void LoraWAN_Setup(void)
 {
-    MOLMC_LOGD(TAG, "LoRaWan_Setup\r\n");
+    MOLMC_LOGD(TAG, "LoRaWan_Setup");
     LoRaWanResume();
     system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
 }
@@ -295,7 +295,7 @@ void manage_lorawan_connection(void)
     if(!INTOROBOT_LORAWAN_JOINED) {
         if(!INTOROBOT_LORAWAN_JOINING) {
             if(LoRaWanJoinIsEnabled()) {
-                MOLMC_LOGD(TAG, "lorawan start join\r\n");
+                MOLMC_LOGD(TAG, "lorawan start join");
                 INTOROBOT_LORAWAN_JOINING = true;
                 LoRaWanJoinEnable(false);
                 LoRaWanJoinOTAA();

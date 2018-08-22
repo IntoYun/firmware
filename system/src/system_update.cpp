@@ -83,7 +83,7 @@ void UpdaterClass::_reset() {
 
 bool UpdaterClass::begin(size_t size, updater_mode_t mode) {
     if(_size > 0) {
-        MOLMC_LOGD(TAG, "[begin] already running\r\n");
+        MOLMC_LOGD(TAG, "[begin] already running");
         return false;
     }
 
@@ -101,15 +101,15 @@ bool UpdaterClass::begin(size_t size, updater_mode_t mode) {
         uint32_t currentSketchSize = HAL_Update_FlashLength();
         //initialize
         if (updateStartAddress) {
-            MOLMC_LOGD(TAG, "[begin] updateStartAddress:  0x%08X (%d)\r\n", updateStartAddress, updateStartAddress);
-            MOLMC_LOGD(TAG, "[begin] updateFileSize:      0x%08X (%d)\r\n", size, size);
+            MOLMC_LOGD(TAG, "[begin] updateStartAddress:  0x%08X (%d)", updateStartAddress, updateStartAddress);
+            MOLMC_LOGD(TAG, "[begin] updateFileSize:      0x%08X (%d)", size, size);
 
             if(size >= currentSketchSize) {
                 _setError(UPDATE_ERROR_SPACE);
                 return false;
             }
         } else {
-            MOLMC_LOGD(TAG, "[begin] updateStartAddress = 0.\r\n");
+            MOLMC_LOGD(TAG, "[begin] updateStartAddress = 0.");
             return false;
         }
     }
@@ -127,9 +127,9 @@ bool UpdaterClass::begin(size_t size, updater_mode_t mode) {
     }
     _buffer = new uint8_t[_bufferSize];
 
-    MOLMC_LOGD(TAG, "[begin] _startAddress:       0x%08X (%d)\r\n", _startAddress, _startAddress);
-    MOLMC_LOGD(TAG, "[begin] _currentAddress:     0x%08X (%d)\r\n", _currentAddress, _currentAddress);
-    MOLMC_LOGD(TAG, "[begin] _size:               0x%08X (%d)\r\n", _size, _size);
+    MOLMC_LOGD(TAG, "[begin] _startAddress:       0x%08X (%d)", _startAddress, _startAddress);
+    MOLMC_LOGD(TAG, "[begin] _currentAddress:     0x%08X (%d)", _currentAddress, _currentAddress);
+    MOLMC_LOGD(TAG, "[begin] _size:               0x%08X (%d)", _size, _size);
 
     _md5.begin();
     return true;
@@ -151,12 +151,12 @@ void UpdaterClass::onProgress(THandlerFunction_Progress fn){
 
 bool UpdaterClass::end(bool evenIfRemaining){
     if(_size == 0){
-        MOLMC_LOGD(TAG, "no update\r\n");
+        MOLMC_LOGD(TAG, "no update");
         return false;
     }
 
     if(hasError() || (!isFinished() && !evenIfRemaining)){
-        MOLMC_LOGD(TAG, "premature end: res:%u, pos:%u/%u\r\n", getError(), progress(), _size);
+        MOLMC_LOGD(TAG, "premature end: res:%u, pos:%u/%u", getError(), progress(), _size);
         _reset();
         return false;
     }
@@ -175,11 +175,11 @@ bool UpdaterClass::end(bool evenIfRemaining){
             _reset();
             return false;
         } else {
-            MOLMC_LOGD(TAG, "MD5 Success: %s\r\n", _target_md5.c_str());
+            MOLMC_LOGD(TAG, "MD5 Success: %s", _target_md5.c_str());
         }
     }
 
-    MOLMC_LOGD(TAG, "Staged: address:0x%08X, size:0x%08X\r\n", _startAddress, _size);
+    MOLMC_LOGD(TAG, "Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
 
     if(UPDATER_MODE_UPDATE == _mode) {
         HAL_Set_Update_Flag(_size);
@@ -271,7 +271,7 @@ size_t UpdaterClass::writeStream(Stream &data) {
             return written;
         written += toRead;
         intorobot_cloud_handle();
-        MOLMC_LOGD(TAG, "writeStream toRead = %d , _bufferLen = %d, written = %d\r\n", toRead, _bufferLen, written);
+        MOLMC_LOGD(TAG, "writeStream toRead = %d , _bufferLen = %d, written = %d", toRead, _bufferLen, written);
     }
     return written;
 }
@@ -282,7 +282,7 @@ void UpdaterClass::_setError(int error){
     _error = error;
     Update.printError(errorString);
 
-    MOLMC_LOGD(TAG, "%s\r\n", errorString.c_str());
+    MOLMC_LOGD(TAG, "%s", errorString.c_str());
 }
 
 void UpdaterClass::printError(Print &out){

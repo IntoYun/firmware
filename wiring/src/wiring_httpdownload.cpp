@@ -35,7 +35,7 @@
 #include "wiring_httpdownload.h"
 #include "platforms.h"
 
-const static char *TAG = "wiring-httpdownload";
+const static char *TAG = "wiring-httpd";
 
 HTTPDownload::HTTPDownload(void)
     : _lastError(0)
@@ -195,7 +195,7 @@ bool HTTPDownload::urlAnalyze(String url, String &host, uint16_t &port, String &
     // check for : (http: or https:
     int index = url.indexOf(':');
     if(index < 0) {
-        MOLMC_LOGD(TAG, "[urlAnalyze]failed to parse protocol\r\n");
+        MOLMC_LOGD(TAG, "[urlAnalyze]failed to parse protocol");
         return false;
     }
 
@@ -255,19 +255,19 @@ http_download_return_t HTTPDownload::handleUpdate(HTTPClient& http, String md5, 
     int len = http.getSize();
 
     if(code <= 0) {
-        MOLMC_LOGD(TAG, "[httpDownload] HTTP error: %s\r\n", http.errorToString(code).c_str());
+        MOLMC_LOGD(TAG, "[httpDownload] HTTP error: %s", http.errorToString(code).c_str());
         _lastError = code;
         http.end();
         return HTTP_DOWNLOAD_FAILED;
     }
 
-    MOLMC_LOGD(TAG, "[httpDownload] Header read fin.\r\n");
-    MOLMC_LOGD(TAG, "[httpDownload] Server header:\r\n");
-    MOLMC_LOGD(TAG, "[httpDownload] - code: %d\r\n", code);
-    MOLMC_LOGD(TAG, "[httpDownload] - len: %d\r\n", len);
+    MOLMC_LOGD(TAG, "[httpDownload] Header read fin.");
+    MOLMC_LOGD(TAG, "[httpDownload] Server header:");
+    MOLMC_LOGD(TAG, "[httpDownload] - code: %d", code);
+    MOLMC_LOGD(TAG, "[httpDownload] - len: %d", len);
 
     if(http.hasHeader("X-Md5")) {
-        MOLMC_LOGD(TAG, "[httpDownload] - MD5: %s\r\n", http.header("X-Md5").c_str());
+        MOLMC_LOGD(TAG, "[httpDownload] - MD5: %s", http.header("X-Md5").c_str());
     }
 
     switch(code) {
@@ -275,7 +275,7 @@ http_download_return_t HTTPDownload::handleUpdate(HTTPClient& http, String md5, 
             if(len > 0) {
                 bool startUpdate = true;
                 if((UPDATER_MODE_UPDATE == mode) && (len > (int)HAL_Update_FlashLength())) {
-                    MOLMC_LOGD(TAG, "[httpDownload] FreeSketchSpace to low (%d) needed: %d\r\n", HAL_Update_FlashLength(), len);
+                    MOLMC_LOGD(TAG, "[httpDownload] FreeSketchSpace to low (%d) needed: %d", HAL_Update_FlashLength(), len);
                     startUpdate = false;
                 }
 
@@ -286,21 +286,21 @@ http_download_return_t HTTPDownload::handleUpdate(HTTPClient& http, String md5, 
                     TCPClient * tcp = http.getStreamPtr();
 
                     delay(100);
-                    MOLMC_LOGD(TAG, "[httpDownload] runUpdate flash...\r\n");
+                    MOLMC_LOGD(TAG, "[httpDownload] runUpdate flash...");
 
                     if(runUpdate(*tcp, len, http.header("X-Md5"), mode)) {
                         ret = HTTP_DOWNLOAD_OK;
-                        MOLMC_LOGD(TAG, "[httpDownload] Update ok\r\n");
+                        MOLMC_LOGD(TAG, "[httpDownload] Update ok");
                         http.end();
                     } else {
                         ret = HTTP_DOWNLOAD_FAILED;
-                        MOLMC_LOGD(TAG, "[httpDownload] Update failed\r\n");
+                        MOLMC_LOGD(TAG, "[httpDownload] Update failed");
                     }
                 }
             } else {
                 _lastError = HTTP_DE_SERVER_NOT_REPORT_SIZE;
                 ret = HTTP_DOWNLOAD_FAILED;
-                MOLMC_LOGD(TAG, "[httpDownload] Content-Length is 0 or not set by Server?!\r\n");
+                MOLMC_LOGD(TAG, "[httpDownload] Content-Length is 0 or not set by Server?!");
             }
             break;
         case HTTP_CODE_NOT_MODIFIED:
@@ -318,7 +318,7 @@ http_download_return_t HTTPDownload::handleUpdate(HTTPClient& http, String md5, 
         default:
             _lastError = HTTP_DE_SERVER_WRONG_HTTP_CODE;
             ret = HTTP_DOWNLOAD_FAILED;
-            MOLMC_LOGD(TAG, "[httpDownload] HTTP Code is (%d)\r\n", code);
+            MOLMC_LOGD(TAG, "[httpDownload] HTTP Code is (%d)", code);
             break;
     }
 
@@ -341,7 +341,7 @@ bool HTTPDownload::runUpdate(Stream& in, uint32_t size, String md5, updater_mode
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        MOLMC_LOGD(TAG, "[httpDownload] Update.begin failed! (%s)\r\n", error.c_str());
+        MOLMC_LOGD(TAG, "[httpDownload] Update.begin failed! (%s)", error.c_str());
         return false;
     }
 
@@ -352,7 +352,7 @@ bool HTTPDownload::runUpdate(Stream& in, uint32_t size, String md5, updater_mode
     if(md5.length()) {
         if(!Update.setMD5(md5.c_str())) {
             _lastError = HTTP_DE_SERVER_FAULTY_MD5;
-            MOLMC_LOGD(TAG, "[httpDownload] Update.setMD5 failed! (%s)\r\n", md5.c_str());
+            MOLMC_LOGD(TAG, "[httpDownload] Update.setMD5 failed! (%s)", md5.c_str());
             return false;
         }
     }
@@ -361,7 +361,7 @@ bool HTTPDownload::runUpdate(Stream& in, uint32_t size, String md5, updater_mode
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        MOLMC_LOGD(TAG, "[httpDownload] Update.writeStream failed! (%s)\r\n", error.c_str());
+        MOLMC_LOGD(TAG, "[httpDownload] Update.writeStream failed! (%s)", error.c_str());
         return false;
     }
 
@@ -369,7 +369,7 @@ bool HTTPDownload::runUpdate(Stream& in, uint32_t size, String md5, updater_mode
         _lastError = Update.getError();
         Update.printError(error);
         error.trim(); // remove line ending
-        MOLMC_LOGD(TAG, "[httpDownload] Update.end failed! (%s)\r\n", error.c_str());
+        MOLMC_LOGD(TAG, "[httpDownload] Update.end failed! (%s)", error.c_str());
         return false;
     }
 

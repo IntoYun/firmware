@@ -139,7 +139,7 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                         //lz-modify 去掉让所有通道都可以入网
                         if(UseLoRaWanStandardProtocol())
                         {
-                            MOLMC_LOGD(TAG, "region eu433 use default channel join\r\n");
+                            MOLMC_LOGD(TAG, "region eu433 use default channel join");
                             continue;
                         }
                         //end===
@@ -151,7 +151,7 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                     //lz-modify
                     if(UseLoRaWanStandardProtocol())
                     {
-                        MOLMC_LOGD(TAG, "region eu433 datarate is not supported\r\n");
+                        MOLMC_LOGD(TAG, "region eu433 datarate is not supported");
                         continue;
                     }
                     //end===
@@ -629,13 +629,13 @@ bool RegionEU433TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
-        MOLMC_LOGD(TAG, "loramac fsk-mode tx\r\n");
+        MOLMC_LOGD(TAG, "loramac fsk-mode tx");
         modem = MODEM_FSK;
         Radio.SetTxConfig( modem, phyTxPower, 25000, bandwidth, phyDr * 1000, 0, 5, false, true, 0, 0, false, 3000 );
     }
     else
     {
-        MOLMC_LOGD(TAG, "loramac lora-mode tx\r\n");
+        MOLMC_LOGD(TAG, "loramac lora-mode tx");
         modem = MODEM_LORA;
         Radio.SetTxConfig( modem, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
     }
@@ -946,7 +946,7 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         //lz-modify add
         if(!UseLoRaWanStandardProtocol())
         {
-            MOLMC_LOGD(TAG, "region eu433 select datarate\r\n");
+            MOLMC_LOGD(TAG, "region eu433 select datarate");
             LoRaMacParams.ChannelsDatarate = randr( Channels[*channel].DrRange.Fields.Min, Channels[*channel].DrRange.Fields.Max );
         }
         //======

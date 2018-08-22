@@ -30,7 +30,6 @@
 #include "usbd_cdc.h"
 #include "usbd_core.h"
 #include "platform_config.h"
-#include "molmc_log.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

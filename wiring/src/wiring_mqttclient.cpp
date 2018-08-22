@@ -27,7 +27,7 @@
 #include "wiring.h"
 #include "wiring_mqttclient.h"
 
-const static char *TAG = "wiring-mqttclient";
+const static char *TAG = "wiring-mqttc";
 
 MqttClientClass::MqttClientClass() {
     this->_state = MQTT_DISCONNECTED;
@@ -410,12 +410,12 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
         }
         if(write(header,buffer,length-5))
         {
-            MOLMC_LOGD(TAG, "OK! published topic: %s, payload -> \r\n", topic);
+            MOLMC_LOGD(TAG, "OK! published topic: %s, payload -> ", topic);
             MOLMC_LOG_BUFFER_HEX(TAG, payload, plength);
             return true;
         }
     }
-    MOLMC_LOGD(TAG, "Error! publish topic: %s, payload -> \r\n", topic);
+    MOLMC_LOGD(TAG, "Error! publish topic: %s, payload -> ", topic);
     MOLMC_LOG_BUFFER_HEX(TAG, payload, plength);
     return false;
 }
@@ -532,11 +532,11 @@ boolean MqttClientClass::subscribe(const char* topic, uint8_t qos) {
         buffer[length++] = qos;
         if(write(MQTTSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            MOLMC_LOGD(TAG, "OK! subscribe topic: %s\r\n", topic);
+            MOLMC_LOGD(TAG, "OK! subscribe topic: %s", topic);
             return true;
         }
     }
-    MOLMC_LOGD(TAG, "Error! subscribe topic: %s\r\n", topic);
+    MOLMC_LOGD(TAG, "Error! subscribe topic: %s", topic);
     return false;
 }
 
@@ -556,16 +556,16 @@ boolean MqttClientClass::unsubscribe(const char* topic) {
         length = writeString(topic, buffer,length);
         if(write(MQTTUNSUBSCRIBE|MQTTQOS1,buffer,length-5))
         {
-            MOLMC_LOGD(TAG, "OK! unsubscribe topic: %s\r\n", topic);
+            MOLMC_LOGD(TAG, "OK! unsubscribe topic: %s", topic);
             return true;
         }
     }
-    MOLMC_LOGD(TAG, "Error! unsubscribe topic: %s\r\n", topic);
+    MOLMC_LOGD(TAG, "Error! unsubscribe topic: %s", topic);
     return false;
 }
 
 void MqttClientClass::disconnect() {
-    MOLMC_LOGD(TAG, "mqttClient! disconnect\r\n");
+    MOLMC_LOGD(TAG, "mqttClient! disconnect");
     buffer[0] = MQTTDISCONNECT;
     buffer[1] = 0;
     _client->write(buffer,2);

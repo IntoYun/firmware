@@ -48,7 +48,7 @@ extern uint32_t wlan_watchdog_base;
 inline void ARM_WLAN_WD(uint32_t x) {
     wlan_watchdog_base = HAL_Timer_Get_Milli_Seconds();
     wlan_watchdog_duration = x;
-    MOLMC_LOGD(GTAG, "WD Set %d\r\n",(x));
+    MOLMC_LOGD(GTAG, "WD Set %d",(x));
 }
 inline bool WLAN_WD_TO() {
     return wlan_watchdog_duration && ((HAL_Timer_Get_Milli_Seconds()-wlan_watchdog_base)>wlan_watchdog_duration);
@@ -56,7 +56,7 @@ inline bool WLAN_WD_TO() {
 
 inline void CLR_WLAN_WD() {
     wlan_watchdog_duration = 0;
-    MOLMC_LOGD(GTAG, "WD Cleared, was %d\r\n",wlan_watchdog_duration);
+    MOLMC_LOGD(GTAG, "WD Cleared, was %d",wlan_watchdog_duration);
 }
 
 /**
@@ -141,7 +141,7 @@ public:
 
     void connect(bool listen_enabled=true) override
     {
-        MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d\r\n", (int)ready(), (int)connecting());
+        MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
         if (!ready() && !connecting()) {
             bool was_sleeping = INTOROBOT_WLAN_SLEEP;
 
@@ -158,7 +158,7 @@ public:
                 }
             } else {
                 WLAN_CONNECTING = 1;
-                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 1\r\n");
+                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 1");
                 ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
                 system_notify_event(event_network_status, ep_network_status_connecting);
                 connect_finalize();
@@ -247,7 +247,7 @@ public:
          * from WICED on loss of internet and reconnect
          */
         if (!WLAN_DISCONNECT && !WLAN_DHCP) {
-            MOLMC_LOGD(GTAG, "ARM_WLAN_WD 2\r\n");
+            MOLMC_LOGD(GTAG, "ARM_WLAN_WD 2");
             ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
         }
         //system_notify_event(event_network_status, ep_network_status_connected);
@@ -260,7 +260,7 @@ public:
             //Breathe blue if established connection gets disconnected
             if (!WLAN_DISCONNECT) {
                 //if WiFi.disconnect called, do not enable wlan watchdog
-                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 3\r\n");
+                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 3");
                 ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
             }
         }
@@ -274,14 +274,14 @@ public:
     {
         WLAN_CONNECTING = 0;
         if (dhcp) {
-            MOLMC_LOGD(GTAG, "CLR_WLAN_WD 1, DHCP success\r\n");
+            MOLMC_LOGD(GTAG, "CLR_WLAN_WD 1, DHCP success");
             CLR_WLAN_WD();
             WLAN_DHCP = 1;
             //update_config(true); //去掉，否则wifiJoinAp调用时会触发DHCP事件，导致AT指令任务忙等现象。neutron。
         } else {
             config_clear();
             WLAN_DHCP = 0;
-            MOLMC_LOGD(GTAG, "DHCP fail, ARM_WLAN_WD 5\r\n");
+            MOLMC_LOGD(GTAG, "DHCP fail, ARM_WLAN_WD 5");
             ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
         }
     }

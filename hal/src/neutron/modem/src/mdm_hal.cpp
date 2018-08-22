@@ -94,7 +94,8 @@ static int calcAtCmdLen(const char* buf, int len)
     while (len --) {
         char ch = *buf++;
         if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if (ch == '"') calcLen += 2;
+            if      (ch == '%') calcLen += 2;
+            else if (ch == '"') calcLen += 2;
             else if (ch == '\\') calcLen += 2;
             else calcLen++;
         } else {
@@ -184,7 +185,7 @@ int MDMParser::send(const char* buf, int len)
         char *temp = malloc(calcAtCmdLen(buf, len) + 8);
         if(NULL != temp) {
             dumpAtCmd(buf, len, temp);
-            MOLMC_LOGD(TAG, "[%010u]:AT send \" %s \"\r\n", HAL_Timer_Get_Milli_Seconds()-_debugTime, temp);
+            MOLMC_LOGD(TAG, "[%010u]:AT send \" %s \"", HAL_Timer_Get_Milli_Seconds()-_debugTime, temp);
             free(temp);
         }
     }
@@ -228,7 +229,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
             char *temp = malloc(calcAtCmdLen(buf, len) + 8);
             if(NULL != temp) {
                 dumpAtCmd(buf, len, temp);
-                MOLMC_LOGD(TAG, "[%010u]:AT read %s \" %s \"\r\n", HAL_Timer_Get_Milli_Seconds()-_debugTime, s, temp);
+                MOLMC_LOGD(TAG, "[%010u]:AT read %s \" %s \"", HAL_Timer_Get_Milli_Seconds()-_debugTime, s, temp);
                 free(temp);
             }
             (void)s;
@@ -250,7 +251,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 // +IPD, <socket>,<length>,<remote IP>,<remote port>
                 if ((sscanf(cmd, "IPD,%d,%d," IPSTR ",%d", &sk, &sz, &a, &b, &c, &d, &p) == 7)) {
                     socket = _findSocket(sk);
-                    MOLMC_LOGD(TAG, "Socket %d: handle %d has %d bytes pending!\r\n", socket, sk, sz);
+                    MOLMC_LOGD(TAG, "Socket %d: handle %d has %d bytes pending!", socket, sk, sz);
                     if (socket != MDM_SOCKET_ERROR) {
                         s = strchr(buf, ':');
                         for(n=0; n < sz; n++) {
@@ -417,7 +418,7 @@ bool MDMParser::init(void)
     }
 
     if (i < 0) {
-        MOLMC_LOGD(TAG, "[ No Reply from Modem ]\r\n");
+        MOLMC_LOGD(TAG, "[ No Reply from Modem ]");
     }
 
     if (continue_cancel) {
@@ -693,13 +694,13 @@ int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
            aps[_aplistindex].security = security;
            aps[_aplistindex].channel = channel;
            aps[_aplistindex].rssi = rssi;
-           MOLMC_LOGD(TAG, "aps[%d].ssid = %s \r\n", _aplistindex, ssid);
-           MOLMC_LOGD(TAG, "aps[%d].ssidLength = %d \r\n", _aplistindex, aps[_aplistindex].ssid_len);
-           MOLMC_LOGD(TAG, "aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x\r\n", _aplistindex, aps[_aplistindex].bssid[0],\
+           MOLMC_LOGD(TAG, "aps[%d].ssid = %s ", _aplistindex, ssid);
+           MOLMC_LOGD(TAG, "aps[%d].ssidLength = %d ", _aplistindex, aps[_aplistindex].ssid_len);
+           MOLMC_LOGD(TAG, "aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x", _aplistindex, aps[_aplistindex].bssid[0],\
            aps[_aplistindex].bssid[1],aps[_aplistindex].bssid[2],aps[_aplistindex].bssid[3],aps[_aplistindex].bssid[4],aps[_aplistindex].bssid[5]);
-           MOLMC_LOGD(TAG, "aps[%d].security = %d \r\n", _aplistindex, aps[_aplistindex].security);
-           MOLMC_LOGD(TAG, "aps[%d].channel = %d \r\n", _aplistindex, aps[_aplistindex].channel);
-           MOLMC_LOGD(TAG, "aps[%d].rssi = %d \r\n", _aplistindex, aps[_aplistindex].rssi);
+           MOLMC_LOGD(TAG, "aps[%d].security = %d ", _aplistindex, aps[_aplistindex].security);
+           MOLMC_LOGD(TAG, "aps[%d].channel = %d ", _aplistindex, aps[_aplistindex].channel);
+           MOLMC_LOGD(TAG, "aps[%d].rssi = %d ", _aplistindex, aps[_aplistindex].rssi);
            _aplistindex++;
            }
            }
@@ -725,7 +726,7 @@ int MDMParser::apScan(wifi_ap_t* aps, size_t aps_count)
         if (RESP_OK == waitFinalResp(_cbApScan, aps, 10000)){
             result = _aplistindex;
         }
-        MOLMC_LOGD(TAG, "result = %d \r\n", result);
+        MOLMC_LOGD(TAG, "result = %d ", result);
     }
     UNLOCK();
     return result;
@@ -898,7 +899,7 @@ int MDMParser::socketCreate(IpProtocol ipproto, int port)
     // find an free socket
     socket = _findSocket(MDM_SOCKET_ERROR);
     if (socket != MDM_SOCKET_ERROR) {
-        //MOLMC_LOGD(TAG, "Socket %d: handle %d was created\r\n", socket, socket);
+        //MOLMC_LOGD(TAG, "Socket %d: handle %d was created", socket, socket);
         _sockets[socket].handle     = socket;
         _sockets[socket].ipproto    = ipproto;
         _sockets[socket].localip    = port;
@@ -907,7 +908,7 @@ int MDMParser::socketCreate(IpProtocol ipproto, int port)
         _sockets[socket].open       = true;
         _sockets[socket].pipe = new Pipe<char>(MAX_SIZE);
     }
-    //MOLMC_LOGD(TAG, "socketCreate(%s)\r\n", (ipproto?"UDP":"TCP"));
+    //MOLMC_LOGD(TAG, "socketCreate(%s)", (ipproto?"UDP":"TCP"));
     return socket;
 }
 
@@ -916,7 +917,7 @@ bool MDMParser::socketConnect(int socket, const char * host, int port)
     bool ok = false;
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)\r\n", socket,port);
+        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)", socket,port);
         if(_sockets[socket].ipproto)
             sendFormated("AT+CIPSTART=%d,\"%s\",\"%s\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", host, port, _sockets[socket].localip, 2);
         else
@@ -933,7 +934,7 @@ bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
     bool ok = false;
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)\r\n", socket,port);
+        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)", socket,port);
         if(_sockets[socket].ipproto)
             sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",%d,%d,%d\r\n", _sockets[socket].handle, "UDP", IPNUM(ip), port, _sockets[socket].localip, 2);
         else
@@ -950,7 +951,7 @@ bool MDMParser::socketIsConnected(int socket)
     bool ok = false;
     LOCK();
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    //MOLMC_LOGD(TAG, "socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
+    //MOLMC_LOGD(TAG, "socketIsConnected(%d) %s", socket, ok?"yes":"no");
     UNLOCK();
     return ok;
 }
@@ -962,7 +963,7 @@ bool MDMParser::socketClose(int socket)
     if (ISSOCKET(socket)
             && (_sockets[socket].connected || _sockets[socket].open))
     {
-        //MOLMC_LOGD(TAG, "socketClose(%d)\r\n", socket);
+        //MOLMC_LOGD(TAG, "socketClose(%d)", socket);
         sendFormated("AT+CIPCLOSE=%d\r\n", _sockets[socket].handle);
         if (RESP_ERROR == waitFinalResp()) {
         }
@@ -983,7 +984,7 @@ bool MDMParser::_socketFree(int socket)
     LOCK();
     if ((socket >= 0) && (socket < NUMSOCKETS)) {
         if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
-            //MOLMC_LOGD(TAG, "socketFree(%d)\r\n",  socket);
+            //MOLMC_LOGD(TAG, "socketFree(%d)",  socket);
             _sockets[socket].handle     = MDM_SOCKET_ERROR;
             _sockets[socket].localip    = 0;
             _sockets[socket].connected  = false;
@@ -1007,7 +1008,7 @@ bool MDMParser::socketFree(int socket)
 
 int MDMParser::socketSend(int socket, const char * buf, int len)
 {
-    //MOLMC_LOGD(TAG, "socketSend(%d,%d)\r\n", socket,len);
+    //MOLMC_LOGD(TAG, "socketSend(%d,%d)", socket,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1038,7 +1039,7 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
 
 int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    //MOLMC_LOGD(TAG, "socketSendTo(%d," IPSTR ",%d,,%d)\r\n", socket,IPNUM(ip),port,len);
+    //MOLMC_LOGD(TAG, "socketSendTo(%d," IPSTR ",%d,,%d)", socket,IPNUM(ip),port,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1082,7 +1083,7 @@ int MDMParser::socketReadable(int socket)
     //因为数据已经下发到本地 所以连接断开也可以获取剩余数据  2016-01-12 chenkaiyao
     /*
     if (ISSOCKET(socket) && _sockets[socket].connected) {
-        //MOLMC_LOGD(TAG, "socketReadable(%d)\r\n", socket);
+        //MOLMC_LOGD(TAG, "socketReadable(%d)", socket);
         // allow to receive unsolicited commands
         if (_sockets[socket].connected)
             pending = _sockets[socket].pending;
@@ -1295,7 +1296,7 @@ bool MDMParser::getBootloader(void)
     if (_init) {
         sendFormated("AT+IR_GETFILESIZE=%d,2\r\n", PACKAGE_UNIT);
         if (RESP_OK == waitFinalResp(_cbGetBootloaderPacketSize, &packet_size)) {
-            MOLMC_LOGD(TAG, "packet_size = %d\r\n", packet_size);
+            MOLMC_LOGD(TAG, "packet_size = %d", packet_size);
             if(packet_size) {
                 for(PacketIndex = 0; PacketIndex < packet_size; PacketIndex++) {
                     sendFormated("AT+IR_GETFILEPACKET= %d,%d,2\r\n", PACKAGE_UNIT, PacketIndex);
@@ -1305,11 +1306,11 @@ bool MDMParser::getBootloader(void)
                         crc_update_n(buf, PACKAGE_UNIT);
                         crc16 = crc_get_reseult();
                         if( crc16 == ((buf[PACKAGE_UNIT] << 8) | (buf[PACKAGE_UNIT+1]))) {
-                            MOLMC_LOGD(TAG, "crc32 success  flash begin\r\n");
+                            MOLMC_LOGD(TAG, "crc32 success  flash begin");
                             if( PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR+PACKAGE_UNIT < APP_ADDR ) {
                                 InternalFlashStore flashStore;
                                 if( flashStore.write(PacketIndex*PACKAGE_UNIT+CACHE_BOOTLOADER_START_ADDR, (uint32_t *)&buf, PACKAGE_UNIT) ) {
-                                    MOLMC_LOGD(TAG, "crc32 success flash end\r\n");
+                                    MOLMC_LOGD(TAG, "crc32 success flash end");
                                     continue;
                                 }
                             }
@@ -1344,7 +1345,7 @@ bool MDMParser::setDebug(int level)
 void MDMParser::dumpIp(MDM_IP ip)
 {
     if (ip != NOIP) {
-        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =\r\n", IPNUM(ip));
+        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
     }
 }
 

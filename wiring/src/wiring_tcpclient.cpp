@@ -28,7 +28,7 @@
 #include "inet_hal.h"
 #include "intorobot_macros.h"
 
-const static char *TAG = "wiring-tcpclient";
+const static char *TAG = "wiring-tcpc";
 
 using namespace intorobot;
 
@@ -58,7 +58,7 @@ int TCPClient::connect(const char* host, uint16_t port, network_interface_t nif)
         if((rv = inet_gethostbyname(host, strlen(host), ip_addr, nif, NULL)) == 0) {
             return connect(ip_addr, port, nif);
         } else {
-            MOLMC_LOGD(TAG, "tcp connect: unable to get IP for hostname\r\n");
+            MOLMC_LOGD(TAG, "tcp connect: unable to get IP for hostname");
         }
     }
     return rv;
@@ -87,9 +87,9 @@ int TCPClient::connect(IPAddress ip, uint16_t port, network_interface_t nif)
             HAL_NET_SetNetWatchDog(ot);
             _remoteIP = ip;
             if(connected) {
-                MOLMC_LOGD(TAG, "tcp connect success! create socket %d\r\n", _sock);
+                MOLMC_LOGD(TAG, "tcp connect success! create socket %d", _sock);
             } else {
-                MOLMC_LOGD(TAG, "tcp connect failed!\r\n");
+                MOLMC_LOGD(TAG, "tcp connect failed!");
                 stop();
             }
         }
@@ -126,7 +126,7 @@ int TCPClient::available()
         if ( _total < arraySize(_buffer)) {
             int ret = socket_receive(_sock, _buffer + _total , arraySize(_buffer)-_total, 0);
             if (ret > 0) {
-                MOLMC_LOGD(TAG, "tcp receive data %d\r\n", ret);
+                MOLMC_LOGD(TAG, "tcp receive data %d", ret);
                 if (_total == 0) _offset = 0;
                 _total += ret;
             }
@@ -172,7 +172,7 @@ void TCPClient::flush()
 
 void TCPClient::stop()
 {
-    MOLMC_LOGD(TAG, "tcp stop! close socket %d\r\n", _sock);
+    MOLMC_LOGD(TAG, "tcp stop! close socket %d", _sock);
     if (isOpen(_sock))
         socket_close(_sock);
     _sock = socket_handle_invalid();
@@ -188,7 +188,7 @@ uint8_t TCPClient::connected()
     if(!rv && isOpen(_sock) && (SOCKET_STATUS_INACTIVE == socket_active_status(_sock))) {
         rv = available(); // Try CC3000
         if (!rv) {        // No more Data and CLOSE_WAIT
-            //MOLMC_LOGD(TAG, "caling Stop No more Data and in CLOSE_WAIT\r\n");
+            //MOLMC_LOGD(TAG, "caling Stop No more Data and in CLOSE_WAIT");
             stop();       // Close our side
         }
     }

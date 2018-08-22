@@ -96,7 +96,7 @@ static volatile uint32_t gprs_timeout_duration;
 inline void ARM_GPRS_TIMEOUT(uint32_t dur) {
     gprs_timeout_start = HAL_Timer_Get_Milli_Seconds();
     gprs_timeout_duration = dur;
-    MOLMC_LOGD(TAG, "GPRS WD Set %d\r\n",(dur));
+    MOLMC_LOGD(TAG, "GPRS WD Set %d",(dur));
 }
 inline bool IS_GPRS_TIMEOUT() {
     return gprs_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-gprs_timeout_start)>gprs_timeout_duration);
@@ -104,7 +104,7 @@ inline bool IS_GPRS_TIMEOUT() {
 
 inline void CLR_GPRS_TIMEOUT() {
     gprs_timeout_duration = 0;
-    MOLMC_LOGD(TAG, "GPRS WD Cleared, was %d\r\n", gprs_timeout_duration);
+    MOLMC_LOGD(TAG, "GPRS WD Cleared, was %d", gprs_timeout_duration);
 }
 
 #ifdef MDM_DEBUG
@@ -115,7 +115,8 @@ static int calcAtCmdLen(const char* buf, int len)
     while (len --) {
         char ch = *buf++;
         if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if (ch == '"') calcLen += 2;
+            if      (ch == '%') calcLen += 2;
+            else if (ch == '"') calcLen += 2;
             else if (ch == '\\') calcLen += 2;
             else calcLen++;
         } else {
@@ -185,7 +186,6 @@ MDMParser::MDMParser(void)
         _sockets[socket].handle = MDM_SOCKET_ERROR;
 #ifdef MDM_DEBUG
     _debugLevel = 3;
-    _debugTime = HAL_Timer_Get_Milli_Seconds();
 #endif
 }
 
@@ -212,10 +212,12 @@ int MDMParser::send(const char* buf, int len)
 {
 #ifdef MDM_DEBUG
     if (_debugLevel >= 3) {
-        char *temp = malloc(calcAtCmdLen(buf, len) + 8);
+        uint16_t tempLen = calcAtCmdLen(buf, len) + 8;
+        char *temp = malloc(tempLen);
         if(NULL != temp) {
+            memset(temp, 0, tempLen);
             dumpAtCmd(buf, len, temp);
-            MOLMC_LOGD(TAG, "[%010u]:AT send \" %s \"\r\n", HAL_Timer_Get_Milli_Seconds()-_debugTime, temp);
+            MOLMC_LOGD(TAG, "AT send \" %s \"", temp);
             free(temp);
         }
     }
@@ -249,18 +251,20 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
         {
             int len = LENGTH(ret);
             int type = TYPE(ret);
-            const char* s = (type == TYPE_UNKNOWN)? YEL "UNK" DEF :
-                            (type == TYPE_TEXT)   ? MAG "TXT" DEF :
-                            (type == TYPE_OK   )  ? GRE "OK " DEF :
-                            (type == TYPE_ERROR)  ? RED "ERR" DEF :
-                            (type == TYPE_ABORTED) ? RED "ABT" DEF :
-                            (type == TYPE_PLUS)   ? CYA " + " DEF :
-                            (type == TYPE_PROMPT) ? BLU " > " DEF :
-                                                        "..." ;
-            char *temp = malloc(calcAtCmdLen(buf, len) + 8);
+            const char* s = (type == TYPE_UNKNOWN)? "UNK" :
+                            (type == TYPE_TEXT)   ? "TXT" :
+                            (type == TYPE_OK   )  ? "OK " :
+                            (type == TYPE_ERROR)  ? "ERR" :
+                            (type == TYPE_ABORTED) ? "ABT" :
+                            (type == TYPE_PLUS)   ? " + " :
+                            (type == TYPE_PROMPT) ? " > " :
+                            "..." ;
+            uint16_t tempLen = calcAtCmdLen(buf, len) + 8;
+            char *temp = malloc(tempLen);
             if(NULL != temp) {
+                memset(temp, 0, tempLen);
                 dumpAtCmd(buf, len, temp);
-                MOLMC_LOGD(TAG, "[%010u]:AT read %s \" %s \"\r\n", HAL_Timer_Get_Milli_Seconds()-_debugTime, s, temp);
+                MOLMC_LOGD(TAG, "AT read %s \" %s \"", s, temp);
                 free(temp);
             }
             (void)s;
@@ -281,11 +285,11 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 // SMS Command ---------------------------------
                 // +CNMI: <mem>,<index>
                 if (sscanf(cmd, "CMTI: \"%*[^\"]\",%d", &a) == 1) {
-                    MOLMC_LOGD(TAG, "New SMS at index %d\r\n", a);
+                    MOLMC_LOGD(TAG, "New SMS at index %d", a);
                     if (sms_cb) SMSreceived(a);
                 }
                 else if ((sscanf(cmd, "CIEV: 9,%d", &a) == 1)) {
-                    MOLMC_LOGD(TAG, "CIEV matched: 9,%d\r\n", a);
+                    MOLMC_LOGD(TAG, "CIEV matched: 9,%d", a);
                     // Wait until the system is attached before attempting to act on GPRS detach
                     if (_attached) {
                         _attached_urc = (a==2)?1:0;
@@ -296,7 +300,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 // +RECEIVE,<socket>,<length>:
                 } else if ((sscanf(cmd, "RECEIVE,%d,%d", &a, &b) == 2)) {
                     socket = _findSocket(a);
-                    //MOLMC_LOGD(TAG, "Socket %d: handle %d has %d bytes pending!\r\n", socket, a, b);
+                    //MOLMC_LOGD(TAG, "Socket %d: handle %d has %d bytes pending!", socket, a, b);
                     if (socket != MDM_SOCKET_ERROR) {
                         p = strchr(buf, ':');
                         for(n=0; n < b; n++) {
@@ -313,11 +317,11 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 // GSM/UMTS Specific -------------------------------------------
                 // +UUPSDD: <profile_id>
                 if (sscanf(cmd, "UUPSDD: %s", s) == 1) {
-                    MOLMC_LOGD(TAG, "UUPSDD: %s matched\r\n", PROFILE);
+                    MOLMC_LOGD(TAG, "UUPSDD: %s matched", PROFILE);
                     if ( !strcmp(s, PROFILE) ) {
                         _ip = NOIP;
                         _attached = false;
-                        MOLMC_LOGD(TAG, "PDP context deactivated remotely!\r\n");
+                        MOLMC_LOGD(TAG, "PDP context deactivated remotely!");
                         // PDP context was remotely deactivated via URC,
                         // Notify system of disconnect.
                         HAL_NET_notify_dhcp(false);
@@ -495,7 +499,7 @@ bool MDMParser::_powerOn(void)
         _init = true;
     }
 
-    MOLMC_LOGI(TAG, "\r\n[ Modem::powerOn ] = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::powerOn ] = = = = = = = = = = = = = =");
     bool continue_cancel = false;
     bool retried_after_reset = false;
 
@@ -528,7 +532,7 @@ bool MDMParser::_powerOn(void)
     }
 
     if (i < 0) {
-        MOLMC_LOGE(TAG, "[ No Reply from Modem ]\r\n");
+        MOLMC_LOGE(TAG, "[ No Reply from Modem ]");
     }
 
     if (continue_cancel) {
@@ -594,7 +598,7 @@ bool MDMParser::powerOn(const char* simpin)
         // Enter PIN if needed
         if (_dev.sim == SIM_PIN) {
             if (!simpin) {
-                MOLMC_LOGE(TAG, "SIM PIN not available\r\n");
+                MOLMC_LOGE(TAG, "SIM PIN not available");
                 goto failure;
             }
             sendFormated("AT+CPIN=%s\r\n", simpin);
@@ -607,7 +611,7 @@ bool MDMParser::powerOn(const char* simpin)
     }
     if (_dev.sim != SIM_READY) {
         if (_dev.sim == SIM_MISSING) {
-            MOLMC_LOGE(TAG, "SIM not inserted\r\n");
+            MOLMC_LOGE(TAG, "SIM not inserted");
         }
         goto failure;
     }
@@ -637,7 +641,7 @@ bool MDMParser::init(DevStatus* status)
 
     if (_dev.sim != SIM_READY) {
         if (_dev.sim == SIM_MISSING)
-            MOLMC_LOGE(TAG, "SIM not inserted\r\n");
+            MOLMC_LOGE(TAG, "SIM not inserted");
         goto failure;
     }
     // get the manufacturer
@@ -737,7 +741,7 @@ int MDMParser::_cbCCID(int type, const char* buf, int len, char* ccid)
 {
     if ((type == TYPE_PLUS) && ccid) {
         if (sscanf(buf, "\r\n+CCID: %[^\r]\r\n", ccid) == 1) {
-            //MOLMC_LOGD(TAG, "Got CCID: %s\r\n", ccid);
+            //MOLMC_LOGD(TAG, "Got CCID: %s", ccid);
         }
     }
     return WAIT;
@@ -772,8 +776,8 @@ bool MDMParser::registerNet(NetStatus* status /*= NULL*/, system_tick_t timeout_
                 while ((HAL_Timer_Get_Milli_Seconds() - start < 5000UL) && !_cancel_all_operations); // just wait
                 //HAL_Delay_Milliseconds(15000);
             }
-            if (_net.csd == REG_DENIED) MOLMC_LOGE(TAG, "CSD Registration Denied\r\n");
-            if (_net.psd == REG_DENIED) MOLMC_LOGE(TAG, "PSD Registration Denied\r\n");
+            if (_net.csd == REG_DENIED) MOLMC_LOGE(TAG, "CSD Registration Denied");
+            if (_net.psd == REG_DENIED) MOLMC_LOGE(TAG, "PSD Registration Denied");
             // if (_net.csd == REG_DENIED || _net.psd == REG_DENIED) {
             //     sendFormated("AT+CEER\r\n");
             //     waitFinalResp();
@@ -1087,9 +1091,9 @@ bool MDMParser::pdp(const char* apn)
 // This is setting up an external PDP context, join() creates an internal one
 // which is ultimately the one that's used by the system. So no need for this.
 #if 0
-        MOLMC_LOGI(TAG, "Modem::pdp\r\n");
+        MOLMC_LOGI(TAG, "Modem::pdp");
 
-        MOLMC_LOGD(TAG, "Define the PDP context 1 with PDP type \"IP\" and APN \"%s\"\r\n", apn);
+        MOLMC_LOGD(TAG, "Define the PDP context 1 with PDP type \"IP\" and APN \"%s\"", apn);
         sendFormated("AT+CGDCONT=1,\"IP\",\"%s\"\r\n", apn);
         if (RESP_OK != waitFinalResp(NULL, NULL, 2000))
             goto failure;
@@ -1305,7 +1309,7 @@ MDM_IP MDMParser::join(const char* apn /*= NULL*/, const char* username /*= NULL
                 apn      = _APN_GET(config);
                 username = _APN_GET(config);
                 password = _APN_GET(config);
-                MOLMC_LOGD(TAG, "Testing APN Settings(\"%s\",\"%s\",\"%s\")\r\n", apn, username, password);
+                MOLMC_LOGD(TAG, "Testing APN Settings(\"%s\",\"%s\",\"%s\")", apn, username, password);
             }
 
             // Set up the APN
@@ -1500,11 +1504,11 @@ int MDMParser::socketCreate(IpProtocol ipproto, int port)
     }
 
     if (_attached) {
-        //MOLMC_LOGD(TAG, "socketCreate(%s)\r\n", (ipproto?"UDP":"TCP"));
+        //MOLMC_LOGD(TAG, "socketCreate(%s)", (ipproto?"UDP":"TCP"));
         // find an free socket
         socket = _findSocket(MDM_SOCKET_ERROR);
         if (socket != MDM_SOCKET_ERROR) {
-            //MOLMC_LOGD(TAG, "Socket %d: handle %d was created\r\n", socket, socket);
+            //MOLMC_LOGD(TAG, "Socket %d: handle %d was created", socket, socket);
             _sockets[socket].handle     = socket;
             _sockets[socket].ipproto    = ipproto;
             _sockets[socket].localip    = port;
@@ -1524,7 +1528,7 @@ int MDMParser::socketCreate(IpProtocol ipproto, int port)
             waitFinalResp();
             */
         }
-        //MOLMC_LOGD(TAG, "socketCreate(%s)\r\n", (ipproto?"UDP":"TCP"));
+        //MOLMC_LOGD(TAG, "socketCreate(%s)", (ipproto?"UDP":"TCP"));
     }
     UNLOCK();
     return socket;
@@ -1535,7 +1539,7 @@ bool MDMParser::socketConnect(int socket, const char * host, int port)
     MDM_IP ip = gethostbyname(host);
     if (ip == NOIP)
         return false;
-    //MOLMC_LOGD(TAG, "socketConnect(host: %s)\r\n", host);
+    //MOLMC_LOGD(TAG, "socketConnect(host: %s)", host);
     // connect to socket
     return socketConnect(socket, ip, port);
 }
@@ -1545,7 +1549,7 @@ bool MDMParser::socketConnect(int socket, const MDM_IP& ip, int port)
     bool ok = false;
     LOCK();
     if (ISSOCKET(socket) && (!_sockets[socket].connected)) {
-        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)\r\n", socket,port);
+        //MOLMC_LOGD(TAG, "socketConnect(%d,port:%d)", socket,port);
         if(_sockets[socket].ipproto)
             sendFormated("AT+CIPSTART=%d,\"%s\",\"" IPSTR "\",\"%d\"\r\n", _sockets[socket].handle, "UDP", IPNUM(ip), port);
         else
@@ -1567,7 +1571,7 @@ bool MDMParser::socketIsConnected(int socket)
     bool ok = false;
     LOCK();
     ok = ISSOCKET(socket) && _sockets[socket].connected;
-    //MOLMC_LOGD(TAG, "socketIsConnected(%d) %s\r\n", socket, ok?"yes":"no");
+    //MOLMC_LOGD(TAG, "socketIsConnected(%d) %s", socket, ok?"yes":"no");
     UNLOCK();
     return ok;
 }
@@ -1579,7 +1583,7 @@ bool MDMParser::socketClose(int socket)
     if (ISSOCKET(socket)
             && (_sockets[socket].connected || _sockets[socket].open))
     {
-        //MOLMC_LOGD(TAG, "socketClose(%d)\r\n", socket);
+        //MOLMC_LOGD(TAG, "socketClose(%d)", socket);
         sendFormated("AT+CIPCLOSE=%d,1\r\n", _sockets[socket].handle);
         if (RESP_ERROR == waitFinalResp()) {
         }
@@ -1600,7 +1604,7 @@ bool MDMParser::_socketFree(int socket)
     LOCK();
     if ((socket >= 0) && (socket < NUMSOCKETS)) {
         if (_sockets[socket].handle != MDM_SOCKET_ERROR) {
-            //MOLMC_LOGD(TAG, "socketFree(%d)\r\n",  socket);
+            //MOLMC_LOGD(TAG, "socketFree(%d)",  socket);
             _sockets[socket].handle     = MDM_SOCKET_ERROR;
             _sockets[socket].localip    = 0;
             _sockets[socket].connected  = false;
@@ -1624,7 +1628,7 @@ bool MDMParser::socketFree(int socket)
 
 int MDMParser::socketSend(int socket, const char * buf, int len)
 {
-    //MOLMC_LOGD(TAG, "socketSend(%d,%d)\r\n", socket,len);
+    //MOLMC_LOGD(TAG, "socketSend(%d,%d)", socket,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1654,7 +1658,7 @@ int MDMParser::socketSend(int socket, const char * buf, int len)
 
 int MDMParser::socketSendTo(int socket, MDM_IP ip, int port, const char * buf, int len)
 {
-    //MOLMC_LOGD(TAG, "socketSendTo(%d," IPSTR ",%d,%d)\r\n", socket,IPNUM(ip),port,len);
+    //MOLMC_LOGD(TAG, "socketSendTo(%d," IPSTR ",%d,%d)", socket,IPNUM(ip),port,len);
     int cnt = len;
     while (cnt > 0) {
         int blk = USO_MAX_WRITE;
@@ -1875,27 +1879,27 @@ void MDMParser::dumpDevStatus(DevStatus* status)
     MOLMC_LOGI(TAG, "\r\n[ Modem::devStatus ] = = = = = = = = = = = = = =");
     const char* txtDev[] = { "Unknown", "SARA-G350", "LISA-U200", "LISA-C200", "SARA-U260", "SARA-U270", "LEON-G200" };
     if (status->dev < sizeof(txtDev)/sizeof(*txtDev) && (status->dev != DEV_UNKNOWN))
-        MOLMC_LOGD(TAG, "  Device:       %s\r\n", txtDev[status->dev]);
+        MOLMC_LOGD(TAG, "  Device:       %s", txtDev[status->dev]);
     const char* txtLpm[] = { "Disabled", "Enabled", "Active" };
     if (status->lpm < sizeof(txtLpm)/sizeof(*txtLpm))
-        MOLMC_LOGD(TAG, "  Power Save:   %s\r\n", txtLpm[status->lpm]);
+        MOLMC_LOGD(TAG, "  Power Save:   %s", txtLpm[status->lpm]);
     const char* txtSim[] = { "Unknown", "Missing", "Pin", "Ready" };
     if (status->sim < sizeof(txtSim)/sizeof(*txtSim) && (status->sim != SIM_UNKNOWN))
-        MOLMC_LOGD(TAG, "  SIM:          %s\r\n", txtSim[status->sim]);
+        MOLMC_LOGD(TAG, "  SIM:          %s", txtSim[status->sim]);
     if (*status->ccid)
-        MOLMC_LOGD(TAG, "  CCID:         %s\r\n", status->ccid);
+        MOLMC_LOGD(TAG, "  CCID:         %s", status->ccid);
     if (*status->imei)
-        MOLMC_LOGD(TAG, "  IMEI:         %s\r\n", status->imei);
+        MOLMC_LOGD(TAG, "  IMEI:         %s", status->imei);
     if (*status->imsi)
-        MOLMC_LOGD(TAG, "  IMSI:         %s\r\n", status->imsi);
+        MOLMC_LOGD(TAG, "  IMSI:         %s", status->imsi);
     if (*status->meid)
-        MOLMC_LOGD(TAG, "  MEID:         %s\r\n", status->meid); // LISA-C
+        MOLMC_LOGD(TAG, "  MEID:         %s", status->meid); // LISA-C
     if (*status->manu)
-        MOLMC_LOGD(TAG, "  Manufacturer: %s\r\n", status->manu);
+        MOLMC_LOGD(TAG, "  Manufacturer: %s", status->manu);
     if (*status->model)
-        MOLMC_LOGD(TAG, "  Model:        %s\r\n", status->model);
+        MOLMC_LOGD(TAG, "  Model:        %s", status->model);
     if (*status->ver)
-        MOLMC_LOGD(TAG, "  Version:      %s\r\n", status->ver);
+        MOLMC_LOGD(TAG, "  Version:      %s", status->ver);
 }
 
 void MDMParser::dumpNetStatus(NetStatus *status)
@@ -1903,30 +1907,30 @@ void MDMParser::dumpNetStatus(NetStatus *status)
     MOLMC_LOGI(TAG, "\r\n[ Modem::netStatus ] = = = = = = = = = = = = = =");
     const char* txtReg[] = { "Unknown", "Denied", "None", "Home", "Roaming" };
     if (status->csd < sizeof(txtReg)/sizeof(*txtReg) && (status->csd != REG_UNKNOWN))
-        MOLMC_LOGD(TAG, "  CSD Registration:   %s\r\n", txtReg[status->csd]);
+        MOLMC_LOGD(TAG, "  CSD Registration:   %s", txtReg[status->csd]);
     if (status->psd < sizeof(txtReg)/sizeof(*txtReg) && (status->psd != REG_UNKNOWN))
-        MOLMC_LOGD(TAG, "  PSD Registration:   %s\r\n", txtReg[status->psd]);
+        MOLMC_LOGD(TAG, "  PSD Registration:   %s", txtReg[status->psd]);
     const char* txtAct[] = { "Unknown", "GSM", "Edge", "3G", "CDMA" };
     if (status->act < sizeof(txtAct)/sizeof(*txtAct) && (status->act != ACT_UNKNOWN))
-        MOLMC_LOGD(TAG, "  Access Technology:  %s\r\n", txtAct[status->act]);
+        MOLMC_LOGD(TAG, "  Access Technology:  %s", txtAct[status->act]);
     if (status->rssi)
-        MOLMC_LOGD(TAG, "  Signal Strength:    %d dBm\r\n", status->rssi);
+        MOLMC_LOGD(TAG, "  Signal Strength:    %d dBm", status->rssi);
     if (status->qual)
-        MOLMC_LOGD(TAG, "  Signal Quality:     %d\r\n", status->qual);
+        MOLMC_LOGD(TAG, "  Signal Quality:     %d", status->qual);
     if (*status->opr)
-        MOLMC_LOGD(TAG, "  Operator:           %s\r\n", status->opr);
+        MOLMC_LOGD(TAG, "  Operator:           %s", status->opr);
     if (status->lac != 0xFFFF)
-        MOLMC_LOGD(TAG, "  Location Area Code: %04X\r\n", status->lac);
+        MOLMC_LOGD(TAG, "  Location Area Code: %04X", status->lac);
     if (status->ci != 0xFFFFFFFF)
-        MOLMC_LOGD(TAG, "  Cell ID:            %08X\r\n", status->ci);
+        MOLMC_LOGD(TAG, "  Cell ID:            %08X", status->ci);
     if (*status->num)
-        MOLMC_LOGD(TAG, "  Phone Number:       %s\r\n", status->num);
+        MOLMC_LOGD(TAG, "  Phone Number:       %s", status->num);
 }
 
 void MDMParser::dumpIp(MDM_IP ip)
 {
     if (ip != NOIP) {
-        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =\r\n", IPNUM(ip));
+        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
     }
 }
 
@@ -2096,7 +2100,7 @@ MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/)
     CellularSerialPipe(rxSize, txSize)
 {
 #ifdef MODEM_DEBUG
-    //_debugLevel = -1;
+    _debugLevel = -1;
 #endif
 
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.

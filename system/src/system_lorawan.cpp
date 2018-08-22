@@ -114,7 +114,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 {
                     // Check Datarate
                     // Check TxPower
-                    // DEBUG("mcpsConfirm->MCPS_UNCONFIRMED\r\n");
+                    // DEBUG("mcpsConfirm->MCPS_UNCONFIRMED");
                     LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                     LoRaWan._txPower = mcpsConfirm->TxPower;
                     LoRaWan._macRunStatus = ep_lorawan_mcpsconfirm_unconfirmed;
@@ -129,7 +129,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                     // Check TxPower
                     // Check AckReceived
                     // Check NbTrials
-                    // DEBUG("mcpsConfirm->MCPS_CONFIRMED\r\n");
+                    // DEBUG("mcpsConfirm->MCPS_CONFIRMED");
                     LoRaWan._uplinkDatarate = mcpsConfirm->Datarate;
                     LoRaWan._txPower = mcpsConfirm->TxPower;
                     LoRaWan._ackReceived = mcpsConfirm->AckReceived;
@@ -240,7 +240,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                         mibReq.Type = MIB_CHANNELS_MASK;
                         mibReq.Param.ChannelsMask = &channelMask;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-                        MOLMC_LOGD(TAG, "lorawan close other channel\r\n");
+                        MOLMC_LOGD(TAG, "lorawan close other channel");
                     }
 
                     LoRaWanOnEvent(LORAWAN_EVENT_JOINED);
@@ -464,7 +464,7 @@ void LoRaWanRespondServerConfirmedFrame(void)
     mcpsReq.Req.Unconfirmed.Datarate = LoRaWan.getDataRate();
 
     if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK ) {
-        MOLMC_LOGD(TAG, "LoRaWan send empty frame status OK!!!\r\n");
+        MOLMC_LOGD(TAG, "LoRaWan send empty frame status OK!!!");
     }
 }
 
@@ -512,9 +512,9 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_OTAA_ACTIVE);
                 HAL_PARAMS_Save_Params();
 
-                MOLMC_LOGD(TAG, "devaddr: %s\r\n", devaddr);
-                MOLMC_LOGD(TAG, "nwkskey: %s\r\n", nwkskey);
-                MOLMC_LOGD(TAG, "appskey: %s\r\n", appskey);
+                MOLMC_LOGD(TAG, "devaddr: %s", devaddr);
+                MOLMC_LOGD(TAG, "nwkskey: %s", nwkskey);
+                MOLMC_LOGD(TAG, "appskey: %s", appskey);
                 INTOROBOT_LORAWAN_JOINED = true;
                 INTOROBOT_LORAWAN_CONNECTED = true;
 
@@ -522,7 +522,7 @@ void LoRaWanOnEvent(lorawan_event_t event)
                 system_notify_event(event_lorawan_status,ep_lorawan_join_success);
 
                 system_rgb_blink(RGB_COLOR_WHITE, 2000); //白灯闪烁
-                MOLMC_LOGD(TAG, "--LoRaWanOnEvent joined--\r\n");
+                MOLMC_LOGD(TAG, "--LoRaWanOnEvent joined--");
             }
             break;
 
@@ -532,14 +532,14 @@ void LoRaWanOnEvent(lorawan_event_t event)
             LoRaWan._macRunStatus = ep_lorawan_join_fail;
             system_notify_event(event_lorawan_status,ep_lorawan_join_fail);
 
-            MOLMC_LOGD(TAG, "--LoRaWanOnEvent join failed--\r\n");
+            MOLMC_LOGD(TAG, "--LoRaWanOnEvent join failed--");
             break;
 
         case LORAWAN_EVENT_RX_COMPLETE:
             break;
 
         case LORAWAN_EVENT_MCPSINDICATION_CONFIRMED:
-            MOLMC_LOGD(TAG, "LoRaWanOnEvent Respond Server ACK\r\n");
+            MOLMC_LOGD(TAG, "LoRaWanOnEvent Respond Server ACK");
             if(LoRaWan.getMacClassType() == CLASS_C) {
                 INTOROBOT_LORAWAN_RESP_SERVER_ACK = true;
                 LoRaWanRespondServerConfirmedFrame();

@@ -226,7 +226,7 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
     int trunc = vsnprintf(_buffer, sizeof(_buffer), format, list);
     s_log_print_func(_buffer);
     if (trunc > (int)sizeof(_buffer)) {
-       s_log_print_func("...");
+       s_log_print_func("...\r\n");
     }
     va_end(list);
 }
@@ -363,7 +363,7 @@ void molmc_log_buffer_hex_internal(const char *tag, const void *buffer, uint16_t
         for( int i = 0; i < bytes_cur_line; i ++ ) {
             sprintf( hex_buffer + 3*i, "%02x ", (uint8_t)ptr_line[i] );
         }
-        MOLMC_LOG_LEVEL( log_level, tag, "%s\r\n", hex_buffer );
+        MOLMC_LOG_LEVEL( log_level, tag, "%s", hex_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );
@@ -396,7 +396,7 @@ void molmc_log_buffer_char_internal(const char *tag, const void *buffer, uint16_
         for( int i = 0; i < bytes_cur_line; i ++ ) {
             sprintf( char_buffer + i, "%c", ptr_line[i] );
         }
-        MOLMC_LOG_LEVEL( log_level, tag, "%s\r\n", char_buffer );
+        MOLMC_LOG_LEVEL( log_level, tag, "%s", char_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );
@@ -450,7 +450,7 @@ void molmc_log_buffer_hexdump_internal( const char *tag, const void *buffer, uin
         }
         ptr_hd += sprintf( ptr_hd, "|" );
 
-        MOLMC_LOG_LEVEL( log_level, tag, "%s\r\n", hd_buffer );
+        MOLMC_LOG_LEVEL( log_level, tag, "%s", hd_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );

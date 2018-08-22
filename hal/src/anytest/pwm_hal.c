@@ -156,7 +156,7 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
         TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
         if(HAL_TIM_PWM_Init(&TimHandle) != HAL_OK) {
             // Error
-            MOLMC_LOGD(TAG, "PWM Init Error!\r\n");
+            MOLMC_LOGD(TAG, "PWM Init Error!");
         }
 
         /*##-2- Configure the PWM channels #b########################################*/
@@ -169,17 +169,17 @@ void HAL_PWM_Write_With_Frequency_Ext(uint16_t pin, uint32_t value, uint32_t pwm
         sConfig.Pulse = TIM_CCR;
         if(HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK) {
             /* Configuration Error */
-            MOLMC_LOGD(TAG, "PWM Configuration Error!\r\n");
+            MOLMC_LOGD(TAG, "PWM Configuration Error!");
         }
 
         /* Start channel */
         if(HAL_TIM_PWM_Start(&TimHandle, PIN_MAP[pin].timer_ch) != HAL_OK) {
             /* PWM Generation Error */
-            MOLMC_LOGD(TAG, "PWM Generation Error!\r\n");
+            MOLMC_LOGD(TAG, "PWM Generation Error!");
         }
     } else {
         // Error
-        MOLMC_LOGD(TAG, "PWM First Error!\r\n");
+        MOLMC_LOGD(TAG, "PWM First Error!");
     }
 }
 

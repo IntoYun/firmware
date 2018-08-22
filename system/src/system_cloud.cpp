@@ -96,10 +96,10 @@ void mqtt_client_callback(char *topic, uint8_t *payload, uint32_t length)
     uint8_t mic[4];
     uint16_t down_seq_id;
 
-    MOLMC_LOGD(TAG, "mqtt callback!\r\n");
-    MOLMC_LOGD(TAG, "topic: %s\r\n", topic);
+    MOLMC_LOGD(TAG, "mqtt callback!");
+    MOLMC_LOGD(TAG, "topic: %s", topic);
 
-    //MOLMC_LOGD(TAG, "mqtt receive data:\r\n");
+    //MOLMC_LOGD(TAG, "mqtt receive data:");
     //MOLMC_LOG_BUFFER_HEX(TAG, payload, length);
 
     pdata = (uint8_t *)malloc(datalen+1);
@@ -186,7 +186,7 @@ static void intorobot_app_upgrade_progress(uint8_t *data, size_t len, uint32_t c
 {
     uint8_t progress = (currentSize * 100)/totalSize;
 
-    //MOLMC_LOGD(TAG, "progress len = %d, currentSize = %d, totalSize = %d, g_download_progress = %d\r\n", len, currentSize, totalSize, g_download_progress);
+    //MOLMC_LOGD(TAG, "progress len = %d, currentSize = %d, totalSize = %d, g_download_progress = %d", len, currentSize, totalSize, g_download_progress);
     if((progress > 0) && (progress - g_download_progress) > 30) {
         g_download_progress = progress;
         send_upgrade_status(UPGRADE_REPLY_PROGRESS, progress);
@@ -196,7 +196,7 @@ static void intorobot_app_upgrade_progress(uint8_t *data, size_t len, uint32_t c
 //在线编程升级
 static void intorobot_program_upgrade(const char *token, const char *md5)
 {
-    MOLMC_LOGD(TAG, "v2 :online program upgrade!\r\n");
+    MOLMC_LOGD(TAG, "v2 :online program upgrade!");
 
     bool flag = false;
     String domain = "", param = "";
@@ -213,16 +213,16 @@ static void intorobot_program_upgrade(const char *token, const char *md5)
 
     HTTPDownload httpUpdate;
     String url="http://" + domain + param;
-    MOLMC_LOGD(TAG, "url = %s!\r\n", url.c_str());
+    MOLMC_LOGD(TAG, "url = %s!", url.c_str());
     httpUpdate.onProgress(intorobot_app_upgrade_progress);
     http_download_return_t ret = httpUpdate.update(url);
     switch(ret) {
         case HTTP_DOWNLOAD_OK:
-            MOLMC_LOGD(TAG, "v2 :HTTP_DOWNLOAD_OK!\r\n");
+            MOLMC_LOGD(TAG, "v2 :HTTP_DOWNLOAD_OK!");
             flag = true;
             break;
         default:
-            MOLMC_LOGD(TAG, "v2 :HTTP_UPDATE_FAIL!\r\n");
+            MOLMC_LOGD(TAG, "v2 :HTTP_UPDATE_FAIL!");
             break;
     }
 
@@ -240,7 +240,7 @@ static void intorobot_program_upgrade(const char *token, const char *md5)
 //固件升级
 static void intorobot_ota_upgrade(bool force, uint32_t size, const char *md5, const char *ver, const char *url)
 {
-    MOLMC_LOGD(TAG, "v2 :ota upgrade!\r\n");
+    MOLMC_LOGD(TAG, "v2 :ota upgrade!");
 
     bool flag = false;
 
@@ -254,11 +254,11 @@ static void intorobot_ota_upgrade(bool force, uint32_t size, const char *md5, co
     http_download_return_t ret = httpUpdate.update(url);
     switch(ret) {
         case HTTP_DOWNLOAD_OK:
-            MOLMC_LOGD(TAG, "v2 :HTTP_DOWNLOAD_OK!\r\n");
+            MOLMC_LOGD(TAG, "v2 :HTTP_DOWNLOAD_OK!");
             flag = true;
             break;
         default:
-            MOLMC_LOGD(TAG, "v2 :HTTP_UPDATE_FAIL!\r\n");
+            MOLMC_LOGD(TAG, "v2 :HTTP_UPDATE_FAIL!");
             break;
     }
 
@@ -275,8 +275,8 @@ static void intorobot_ota_upgrade(bool force, uint32_t size, const char *md5, co
 
 void cloud_action_callback(uint8_t *payload, uint32_t len)
 {
-    MOLMC_LOGD(TAG, "v2 :cloud_action_callback!\r\n");
-    MOLMC_LOGD(TAG, "payload: %s\r\n", payload);
+    MOLMC_LOGD(TAG, "v2 :cloud_action_callback!");
+    MOLMC_LOGD(TAG, "payload: %s", payload);
 
     aJsonClass aJson;
     String s_payload;
@@ -297,7 +297,7 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
     if((cmdObject == NULL) || (cmdObject->type != aJson_String)) {
         goto failure;
     } else {
-        MOLMC_LOGD(TAG, "cmd: %s\r\n", cmdObject->valuestring);
+        MOLMC_LOGD(TAG, "cmd: %s", cmdObject->valuestring);
         if(!strcmp("upgradeBin", cmdObject->valuestring)) { //在线编程升级
             boardObject = aJson.getObjectItem(root, "board");
             if((boardObject == NULL) || (boardObject->type != aJson_String)) {
@@ -308,7 +308,7 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
                 if(strcmp(boardObject->valuestring + 3, board + 3)) {
                     goto failure;
                 }
-                MOLMC_LOGD(TAG, "board: %s\r\n", boardObject->valuestring);
+                MOLMC_LOGD(TAG, "board: %s", boardObject->valuestring);
             }
 
             dtokenObject = aJson.getObjectItem(root, "dwn_token");
@@ -378,11 +378,11 @@ void cloud_action_callback(uint8_t *payload, uint32_t len)
                 md5 = md5Object->valuestring;
             }
 
-            MOLMC_LOGD(TAG, "force: %d\r\n", force);
-            MOLMC_LOGD(TAG, "size: %d\r\n", size);
-            MOLMC_LOGD(TAG, "md5: %s\r\n", md5);
-            MOLMC_LOGD(TAG, "swVer: %s\r\n", swVer);
-            MOLMC_LOGD(TAG, "url: %s\r\n", url);
+            MOLMC_LOGD(TAG, "force: %d", force);
+            MOLMC_LOGD(TAG, "size: %d", size);
+            MOLMC_LOGD(TAG, "md5: %s", md5);
+            MOLMC_LOGD(TAG, "swVer: %s", swVer);
+            MOLMC_LOGD(TAG, "url: %s", url);
 
             intorobot_ota_upgrade(force, size, md5, swVer, url);
             goto finish;
@@ -406,9 +406,9 @@ finish:
 
 void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 {
-    MOLMC_LOGD(TAG, "Ok! receive data form cloud!\r\n");
+    MOLMC_LOGD(TAG, "Ok! receive data form cloud!");
 
-    MOLMC_LOGD(TAG, "OK! Rev datapoint data <%d>: \r\n", len);
+    MOLMC_LOGD(TAG, "OK! Rev datapoint data <%d>: ", len);
     MOLMC_LOG_BUFFER_HEX(TAG, payload, len);
 
     intorobotParseReceiveDatapoints(payload, len);
@@ -417,7 +417,7 @@ void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)
 {
-    MOLMC_LOGD(TAG, "system debug recieve!\r\n");
+    MOLMC_LOGD(TAG, "system debug recieve!");
     mqtt_receive_debug_info(payload, len);
 }
 
@@ -475,7 +475,7 @@ static bool _intorobot_publish(topic_version_t version, const char* topic, uint8
     dataIndex += 4;
 
     fill_mqtt_topic(fulltopic, version, topic, NULL);
-    //MOLMC_LOGD(TAG, "publish! topic = %s, payload(%d) = %s\r\n", fulltopic.c_str(), plength, payload);
+    //MOLMC_LOGD(TAG, "publish! topic = %s, payload(%d) = %s", fulltopic.c_str(), plength, payload);
     bool result = g_mqtt_client.publish(fulltopic.c_str(), pdata, dataIndex, retained);
     free(pdata);
     return result;
@@ -493,7 +493,7 @@ bool intorobot_subscribe(topic_version_t version, const char* topic, const char 
     add_subscribe_callback(version, (char *)topic, (char *)device_id, callback, qos);
     fill_mqtt_topic(fulltopic, version, topic, device_id);
 
-    MOLMC_LOGD(TAG, "subscribe! topic = %s\r\n", fulltopic.c_str());
+    MOLMC_LOGD(TAG, "subscribe! topic = %s", fulltopic.c_str());
     SYSTEM_THREAD_CONTEXT_SYNC_CALL_RESULT(g_mqtt_client.subscribe(fulltopic.c_str(), qos));
 }
 
@@ -855,7 +855,7 @@ void intorobot_cloud_init(void)
 
 int intorobot_cloud_connect(void)
 {
-    MOLMC_LOGD(TAG, "---------mqtt connect start--------\r\n");
+    MOLMC_LOGD(TAG, "---------mqtt connect start--------");
     //mqtt server domain
     char sv_domain[32] = {0}, http_domain[32] = {0}, dw_domain[38] = {0};
     HAL_PARAMS_Get_System_sv_domain(sv_domain, sizeof(sv_domain));
@@ -874,17 +874,17 @@ int intorobot_cloud_connect(void)
     HAL_PARAMS_Get_System_access_token(access_token, sizeof(access_token));
     string2hex(access_token, access_token_hex, sizeof(access_token_hex), false);
 
-    MOLMC_LOGD(TAG, "---------terminal params--------\r\n");
-    MOLMC_LOGD(TAG, "mqtt domain     : %s\r\n", sv_domain);
-    MOLMC_LOGD(TAG, "mqtt port       : %d\r\n", sv_port);
-    MOLMC_LOGD(TAG, "http domain     : %s\r\n", http_domain);
-    MOLMC_LOGD(TAG, "http port       : %d\r\n", HAL_PARAMS_Get_System_http_port());
-    MOLMC_LOGD(TAG, "down domain     : %s\r\n", dw_domain);
-    MOLMC_LOGD(TAG, "at_mode         : %d\r\n", HAL_PARAMS_Get_System_at_mode());
-    MOLMC_LOGD(TAG, "zone            : %f\r\n", HAL_PARAMS_Get_System_zone());
-    MOLMC_LOGD(TAG, "device_id       : %s\r\n", device_id);
-    MOLMC_LOGD(TAG, "access_token    : %s\r\n", access_token);
-    MOLMC_LOGD(TAG, "--------------------------------\r\n");
+    MOLMC_LOGD(TAG, "---------terminal params--------");
+    MOLMC_LOGD(TAG, "mqtt domain     : %s", sv_domain);
+    MOLMC_LOGD(TAG, "mqtt port       : %d", sv_port);
+    MOLMC_LOGD(TAG, "http domain     : %s", http_domain);
+    MOLMC_LOGD(TAG, "http port       : %d", HAL_PARAMS_Get_System_http_port());
+    MOLMC_LOGD(TAG, "down domain     : %s", dw_domain);
+    MOLMC_LOGD(TAG, "at_mode         : %d", HAL_PARAMS_Get_System_at_mode());
+    MOLMC_LOGD(TAG, "zone            : %f", HAL_PARAMS_Get_System_zone());
+    MOLMC_LOGD(TAG, "device_id       : %s", device_id);
+    MOLMC_LOGD(TAG, "access_token    : %s", access_token);
+    MOLMC_LOGD(TAG, "--------------------------------");
 
     String fulltopic, payload;
     fill_mqtt_topic(fulltopic, TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, NULL);
@@ -908,17 +908,17 @@ int intorobot_cloud_connect(void)
         payload += '0';
     }
     payload += cMac_string;
-    MOLMC_LOGD(TAG, "mqtt passwork ->  %s\r\n", payload.c_str());
+    MOLMC_LOGD(TAG, "mqtt passwork ->  %s", payload.c_str());
     if(g_mqtt_client.connect(device_id, device_id, payload, fulltopic, 0, true, INTOROBOT_MQTT_WILL_MESSAGE)) {
         MqttConnectComputeSKeys( access_token_hex, random_hex, g_mqtt_nwkskey, g_mqtt_appskey );
-        MOLMC_LOGD(TAG, "---------connect success--------\r\n");
-        MOLMC_LOGD(TAG, "appskey -> \r\n");
+        MOLMC_LOGD(TAG, "---------connect success--------");
+        MOLMC_LOGD(TAG, "appskey -> ");
         MOLMC_LOG_BUFFER_HEX(TAG, g_mqtt_appskey, 16);
-        MOLMC_LOGD(TAG, "nwkskey -> \r\n");
+        MOLMC_LOGD(TAG, "nwkskey -> ");
         MOLMC_LOG_BUFFER_HEX(TAG, g_mqtt_nwkskey, 16);
 
         //重新订阅
-        MOLMC_LOGD(TAG, "---------mqtt resubscribe--------\r\n");
+        MOLMC_LOGD(TAG, "---------mqtt resubscribe--------");
         resubscribe();
         //发送info
         if(System.featureEnabled(SYSTEM_FEATURE_SEND_INFO_ENABLED)) {
@@ -946,14 +946,14 @@ int intorobot_cloud_connect(void)
 
             aJson.addBooleanToObject(root, "online", true);
             char *string = aJson.print(root);
-            //MOLMC_LOGD(TAG, "info = %s\r\n", string);
+            //MOLMC_LOGD(TAG, "info = %s", string);
             intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_WILL_TOPIC, (uint8_t*)string, strlen(string), 0, true);
             free(string);
             aJson.deleteItem(root);
         }
         return 0;
     }
-    MOLMC_LOGD(TAG, "---------connect failed--------\r\n");
+    MOLMC_LOGD(TAG, "---------connect failed--------");
     return -1;
 }
 
@@ -974,7 +974,7 @@ void intorobot_cloud_keepalive(uint16_t sec)
 
 bool intorobot_sync_time(void)
 {
-    MOLMC_LOGD(TAG, "---------device syncTime begin---------\r\n");
+    MOLMC_LOGD(TAG, "---------device syncTime begin---------");
     time_t utc_time = 0;
     bool flag = false;
     HTTPClient http;
@@ -990,7 +990,7 @@ bool intorobot_sync_time(void)
     int httpCode = http.POST(payload);
     if(httpCode == HTTP_CODE_OK) {
         payload = http.getString();
-        //MOLMC_LOGD(TAG, "payload    : %s\r\n", (char *)payload.c_str());
+        //MOLMC_LOGD(TAG, "payload    : %s", (char *)payload.c_str());
         aJsonObject* root = aJson.parse((char *)payload.c_str());
         if (root == NULL)
         {return false;}
@@ -1002,7 +1002,7 @@ bool intorobot_sync_time(void)
             } else if( tsObject->type == aJson_Uint ) {
                 utc_time = tsObject->valueuint;
             }
-            MOLMC_LOGD(TAG, "utc_time    : %d\r\n", utc_time);
+            MOLMC_LOGD(TAG, "utc_time    : %d", utc_time);
             randomSeed(utc_time);
             Time.setTime(utc_time);
             flag = true;
@@ -1013,14 +1013,14 @@ bool intorobot_sync_time(void)
     if(flag) {
         return true;
     } else {
-        MOLMC_LOGD(TAG, "device syncTime failed!\r\n");
+        MOLMC_LOGD(TAG, "device syncTime failed!");
         return false;
     }
 }
 
 bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signature)
 {
-    MOLMC_LOGD(TAG, "---------device register begin---------\r\n");
+    MOLMC_LOGD(TAG, "---------device register begin---------");
 
     HTTPClient http;
     aJsonClass aJson;
@@ -1060,9 +1060,9 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
             HAL_PARAMS_Set_System_access_token(accessTokenObject->valuestring);
             HAL_PARAMS_Set_System_at_mode(AT_MODE_FLAG_ABP);
             HAL_PARAMS_Save_Params();
-            MOLMC_LOGD(TAG, "device_id    : %s\r\n", deviceIdObject->valuestring);
-            MOLMC_LOGD(TAG, "access_token : %s\r\n", accessTokenObject->valuestring);
-            MOLMC_LOGD(TAG, "device register success!\r\n");
+            MOLMC_LOGD(TAG, "device_id    : %s", deviceIdObject->valuestring);
+            MOLMC_LOGD(TAG, "access_token : %s", accessTokenObject->valuestring);
+            MOLMC_LOGD(TAG, "device register success!");
             flag = true;
         }
         aJson.deleteItem(root);
@@ -1071,7 +1071,7 @@ bool intorobot_device_register(char *prodcut_id, time_t utc_time, char *signatur
     if(flag) {
         return true;
     } else {
-        MOLMC_LOGD(TAG, "device register failed!\r\n");
+        MOLMC_LOGD(TAG, "device register failed!");
         return false;
     }
 }

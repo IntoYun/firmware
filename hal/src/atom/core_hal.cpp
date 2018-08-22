@@ -29,9 +29,9 @@ const static char *TAG = "hal";
 int main() {
     USB_Cable_Initial();
     //open bridge
-    MOLMC_LOGD(TAG, "Bridge Connecting\r\n");
+    MOLMC_LOGD(TAG, "Bridge Connecting");
     Bridge.begin();
-    MOLMC_LOGD(TAG, "Bridge Connected\r\n");
+    MOLMC_LOGD(TAG, "Bridge Connected");
     app_setup_and_loop();
     return 0;
 }

@@ -82,7 +82,7 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             sockaddr_t tSocketAddr;
             int connected = 0;
 
-            MOLMC_LOGD(TAG, "udp begin success! create socket %d\r\n",_sock);
+            MOLMC_LOGD(TAG, "udp begin success! create socket %d",_sock);
             flush();
             tSocketAddr.sa_family = AF_INET;
             tSocketAddr.sa_data[0] = (remotePort & 0xFF00) >> 8;
@@ -96,9 +96,9 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             connected = (socket_connect(_sock, &tSocketAddr, sizeof(tSocketAddr)) == 0 ? 1 : 0);
             HAL_NET_SetNetWatchDog(ot);
             if(connected) {
-                MOLMC_LOGD(TAG, "upd connect success! create socket %d\r\n", _sock);
+                MOLMC_LOGD(TAG, "upd connect success! create socket %d", _sock);
             } else {
-                MOLMC_LOGD(TAG, "upd connect failed!\r\n");
+                MOLMC_LOGD(TAG, "upd connect failed!");
                 stop();
             }
             _remoteIP = remoteIP;
@@ -107,7 +107,7 @@ uint8_t UDP::begin(IPAddress remoteIP, uint16_t remotePort, uint16_t port, netwo
             _nif = nif;
             bound = true;
         } else {
-            MOLMC_LOGD(TAG, "udp begin failed!\r\n");
+            MOLMC_LOGD(TAG, "udp begin failed!");
             stop();
             bound = false;
         }
@@ -122,7 +122,7 @@ int UDP::available()
 
 void UDP::stop()
 {
-    MOLMC_LOGD(TAG, "udp stop: close socket %d\r\n", _sock);
+    MOLMC_LOGD(TAG, "udp stop: close socket %d", _sock);
     if (isOpen(_sock)) {
         socket_close(_sock);
     }
@@ -182,7 +182,7 @@ int UDP::sendPacket(const uint8_t* buffer, size_t buffer_size, IPAddress remoteI
     remoteSockAddr.sa_data[5] = remoteIP[3];
 
     int rv = socket_sendto(_sock, buffer, buffer_size, 0, &remoteSockAddr, sizeof(remoteSockAddr));
-    MOLMC_LOGD(TAG, "udp sendPacket(buffer=%lx, size=%d)=%d\r\n",buffer, buffer_size, rv);
+    MOLMC_LOGD(TAG, "udp sendPacket(buffer=%lx, size=%d)=%d",buffer, buffer_size, rv);
     return rv;
 }
 

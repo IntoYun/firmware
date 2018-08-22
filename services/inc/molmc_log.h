@@ -236,7 +236,7 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
 #define MOLMC_LOG_RESET_COLOR
 #endif //CONFIG_MOLMC_LOG_COLORS
 
-#define MOLMC_LOG_FORMAT(letter, format)  MOLMC_LOG_COLOR_ ## letter #letter " [%010u]:[%-20.20s]: " format MOLMC_LOG_RESET_COLOR ""
+#define MOLMC_LOG_FORMAT(letter, format)  MOLMC_LOG_COLOR_ ## letter #letter " [%010u]:[%-16.16s]: " format MOLMC_LOG_RESET_COLOR "\n"
 
 #if defined(USE_ONLY_PANIC)
 #define MOLMC_LOGE( tag, format, ... )

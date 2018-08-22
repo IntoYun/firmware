@@ -41,7 +41,7 @@ extern "C" {
 #include "molmc_log.h"
 #include "core_hal_esp8266.h"
 
-const static char *TAG = "hal-esp8266-wifi";
+const static char *TAG = "hal-wifi";
 
 volatile uint8_t _dns_founded=0;
 
@@ -51,7 +51,7 @@ static volatile uint32_t esp8266_wifi_timeout_duration;
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
     esp8266_wifi_timeout_start = HAL_Timer_Get_Milli_Seconds();
     esp8266_wifi_timeout_duration = dur;
-    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Set %d\r\n",(dur));
+    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Set %d",(dur));
 }
 inline bool IS_WIFI_TIMEOUT() {
     return esp8266_wifi_timeout_duration && ((HAL_Timer_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
@@ -59,7 +59,7 @@ inline bool IS_WIFI_TIMEOUT() {
 
 inline void CLR_WIFI_TIMEOUT() {
     esp8266_wifi_timeout_duration = 0;
-    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Cleared, was %d\r\n", esp8266_wifi_timeout_duration);
+    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
 }
 
 static void _eventCallback(System_Event_t * evt)
@@ -67,17 +67,17 @@ static void _eventCallback(System_Event_t * evt)
     switch (evt->event)
     {
         case EVENT_STAMODE_CONNECTED:
-            MOLMC_LOGD(TAG, "EVENT_STAMODE_CONNECTED\r\n");
+            MOLMC_LOGD(TAG, "EVENT_STAMODE_CONNECTED");
             break;
         case EVENT_STAMODE_DISCONNECTED:
-            MOLMC_LOGD(TAG, "EVENT_STAMODE_DISCONNECTED\r\n");
+            MOLMC_LOGD(TAG, "EVENT_STAMODE_DISCONNECTED");
             HAL_NET_notify_disconnected();
             break;
         case EVENT_STAMODE_AUTHMODE_CHANGE:
-            MOLMC_LOGD(TAG, "EVENT_STAMODE_AUTHMODE_CHANGE\r\n");
+            MOLMC_LOGD(TAG, "EVENT_STAMODE_AUTHMODE_CHANGE");
             break;
         case EVENT_STAMODE_GOT_IP:
-            MOLMC_LOGD(TAG, "EVENT_STAMODE_GOT_IP\r\n");
+            MOLMC_LOGD(TAG, "EVENT_STAMODE_GOT_IP");
             HAL_NET_notify_dhcp(true);
             HAL_NET_notify_connected();
             break;
@@ -95,7 +95,7 @@ static void _eventCallback(System_Event_t * evt)
  */
 bool esp8266_wifiInit(void)
 {
-    MOLMC_LOGD(TAG, "esp8266_wifiInit\r\n");
+    MOLMC_LOGD(TAG, "esp8266_wifiInit");
     wifi_set_event_handler_cb(_eventCallback);
     return true;
 }
@@ -250,11 +250,11 @@ void smartConfigCallback(uint32_t st, void* result)
 {
     sc_status status = (sc_status) st;
 
-    MOLMC_LOGD(TAG, "beginSmartConfig status = %d\r\n", status);
+    MOLMC_LOGD(TAG, "beginSmartConfig status = %d", status);
     if(status == SC_STATUS_LINK) {
         station_config* sta_conf = reinterpret_cast<station_config*>(result);
-        MOLMC_LOGD(TAG, "ssid     = %s\r\n", sta_conf->ssid);
-        MOLMC_LOGD(TAG, "password = %s\r\n", sta_conf->password);
+        MOLMC_LOGD(TAG, "ssid     = %s", sta_conf->ssid);
+        MOLMC_LOGD(TAG, "password = %s", sta_conf->password);
         wifi_station_set_config(sta_conf);
         wifi_station_disconnect();
         wifi_station_connect();
@@ -272,7 +272,7 @@ bool esp8266_beginSmartConfig()
         return false;
     }
 
-    MOLMC_LOGD(TAG, "esp8266_beginSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp8266_beginSmartConfig");
     if(!esp8266_enableSTA(true)) {
         // enable STA failed
         return false;
@@ -295,7 +295,7 @@ bool esp8266_stopSmartConfig()
         return true;
     }
 
-    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig");
     if(smartconfig_stop()) {
         _smartConfigStarted = false;
         return true;

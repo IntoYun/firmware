@@ -37,7 +37,7 @@ TIM_HandleTypeDef TimHandleTone;
  */
 void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
 {
-    MOLMC_LOGD(TAG, "Enter HAL_Tone_Start ...\r\n");
+    MOLMC_LOGD(TAG, "Enter HAL_Tone_Start ...");
     if(frequency < 20 || frequency > 20000)
     {
         return;//no tone for frequency outside of human audible range
@@ -55,7 +55,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         // else if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         if( (PIN_MAP[pin].timer_peripheral == TIM2) )
         {
-            MOLMC_LOGD(TAG, "Tone TIM2  Configuration...\r\n");
+            MOLMC_LOGD(TAG, "Tone TIM2  Configuration...");
             __HAL_RCC_TIM2_CLK_ENABLE();
 
             GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
@@ -89,7 +89,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
             else if(pin == A6)
                 PIN_MAP[D2].timer_ccr = 0;
 
-            MOLMC_LOGD(TAG, "Tone TIM3  Configuration...\r\n");
+            MOLMC_LOGD(TAG, "Tone TIM3  Configuration...");
             __HAL_RCC_TIM3_CLK_ENABLE();
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
@@ -112,7 +112,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM4) )
         {
-            MOLMC_LOGD(TAG, "Tone TIM4  Configuration...\r\n");
+            MOLMC_LOGD(TAG, "Tone TIM4  Configuration...");
             __HAL_RCC_TIM4_CLK_ENABLE();
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;
             GPIO_InitStruct.Pin       = PIN_MAP[pin].gpio_pin;
@@ -134,7 +134,7 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         }
         else if( (PIN_MAP[pin].timer_peripheral == TIM5) )
         {
-            MOLMC_LOGD(TAG, "Tone TIM5  Configuration...\r\n");
+            MOLMC_LOGD(TAG, "Tone TIM5  Configuration...");
             __HAL_RCC_TIM5_CLK_ENABLE();
 
             GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
@@ -168,8 +168,8 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         {
             timer_channel_toggle_count = 2 * frequency * duration / 1000; // Change to seconds.
         }
-        MOLMC_LOGD(TAG, "Tone TIM_Prescaler: %d\r\n", TIM_Prescaler);
-        MOLMC_LOGD(TAG, "Tone TIM_CCR: %d\r\n", TIM_CCR);
+        MOLMC_LOGD(TAG, "Tone TIM_Prescaler: %d", TIM_Prescaler);
+        MOLMC_LOGD(TAG, "Tone TIM_CCR: %d", TIM_CCR);
 
         PIN_MAP[pin].timer_ccr = TIM_CCR;
         PIN_MAP[pin].user_property = timer_channel_toggle_count;
@@ -193,20 +193,20 @@ void HAL_Tone_Start(uint8_t pin, uint32_t frequency, uint32_t duration)
         if (HAL_TIM_OC_ConfigChannel(&TimHandleTone, &sConfig, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             /* Configuration Error */
-            MOLMC_LOGD(TAG, "TIM OC CconfigChannel Error\r\n");
+            MOLMC_LOGD(TAG, "TIM OC CconfigChannel Error");
         }
 
         /* Start channel */
         if (HAL_TIM_OC_Start_IT(&TimHandleTone, PIN_MAP[pin].timer_ch) != HAL_OK)
         {
             //Error_Handler();
-            MOLMC_LOGD(TAG, "TIM OC Start IT Error\r\n");
+            MOLMC_LOGD(TAG, "TIM OC Start IT Error");
         }
     }
     else
     {
         // Error
-        MOLMC_LOGD(TAG, "The Tone First Error\r\n");
+        MOLMC_LOGD(TAG, "The Tone First Error");
     }
 }
 
