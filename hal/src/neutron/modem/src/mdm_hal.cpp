@@ -140,7 +140,7 @@ MDMParser::MDMParser(void)
     memset(_sockets, 0, sizeof(_sockets));
     for (int socket = 0; socket < NUMSOCKETS; socket ++)
         _sockets[socket].handle = MDM_SOCKET_ERROR;
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     _debugLevel = 3;
 #endif
 }
@@ -157,7 +157,7 @@ void MDMParser::resume(void) {
 
 int MDMParser::send(const char* buf, int len)
 {
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     if (_debugLevel >= 3) {
         MOLMC_LOGD_HEADER(TAG);
         MOLMC_LOGD_TEXT(TAG, "AT Send ");
@@ -188,7 +188,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Tick_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
         if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
         {
             int len = LENGTH(ret);
@@ -1303,7 +1303,7 @@ bool MDMParser::getBootloader(void)
 // ----------------------------------------------------------------
 bool MDMParser::setDebug(int level)
 {
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     if ((_debugLevel >= -1) && (level >= -1) &&
             (_debugLevel <=  3) && (level <=  3)) {
         _debugLevel = level;
@@ -1468,7 +1468,7 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
 MDMEsp8266Serial::MDMEsp8266Serial(int rxSize /*= 256*/, int txSize /*= 256*/) :
     Esp8266SerialPipe(rxSize, txSize)
 {
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     _debugLevel = -1;
 #endif
 

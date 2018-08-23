@@ -1831,7 +1831,7 @@ bool MDMParser::ussdCommand(const char* cmd, char* buf)
 // ----------------------------------------------------------------
 bool MDMParser::setDebug(int level)
 {
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     if ((_debugLevel >= -1) && (level >= -1) &&
             (_debugLevel <=  3) && (level <=  3)) {
         _debugLevel = level;
@@ -2066,7 +2066,7 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
 MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/) :
     CellularSerialPipe(rxSize, txSize)
 {
-#ifdef MODEM_DEBUG
+#ifdef MDM_DEBUG
     _debugLevel = -1;
 #endif
 
