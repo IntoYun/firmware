@@ -236,20 +236,45 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
 #define MOLMC_LOG_RESET_COLOR
 #endif //CONFIG_MOLMC_LOG_COLORS
 
-#define MOLMC_LOG_FORMAT(letter, format)  MOLMC_LOG_COLOR_ ## letter #letter " [%010u]:[%-16.16s]: " format MOLMC_LOG_RESET_COLOR "\n"
+#define MOLMC_LOG_FORMAT_HEADER(letter)        MOLMC_LOG_COLOR_##letter #letter " [%010u]:[%-12.12s]: " MOLMC_LOG_RESET_COLOR
+#define MOLMC_LOG_FORMAT_TEXT(letter, format)  MOLMC_LOG_COLOR_##letter format MOLMC_LOG_RESET_COLOR
 
 #if defined(USE_ONLY_PANIC)
+#define MOLMC_LOGE_HEADER( tag )
+#define MOLMC_LOGW_HEADER( tag )
+#define MOLMC_LOGI_HEADER( tag )
+#define MOLMC_LOGD_HEADER( tag )
+#define MOLMC_LOGV_HEADER( tag )
+
+#define MOLMC_LOGE( tag, format, ... )
+#define MOLMC_LOGW( tag, format, ... )
+#define MOLMC_LOGI( tag, format, ... )
+#define MOLMC_LOGD( tag, format, ... )
+#define MOLMC_LOGV( tag, format, ... )
+
 #define MOLMC_LOGE( tag, format, ... )
 #define MOLMC_LOGW( tag, format, ... )
 #define MOLMC_LOGI( tag, format, ... )
 #define MOLMC_LOGD( tag, format, ... )
 #define MOLMC_LOGV( tag, format, ... )
 #else
-#define MOLMC_LOGE( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_ERROR,   tag, format, ##__VA_ARGS__)
-#define MOLMC_LOGW( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_WARN,    tag, format, ##__VA_ARGS__)
-#define MOLMC_LOGI( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_INFO,    tag, format, ##__VA_ARGS__)
-#define MOLMC_LOGD( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_DEBUG,   tag, format, ##__VA_ARGS__)
-#define MOLMC_LOGV( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_VERBOSE, tag, format, ##__VA_ARGS__)
+#define MOLMC_LOGE_HEADER( tag ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_ERROR,   tag, MOLMC_LOG_FORMAT_HEADER(E), molmc_log_timestamp(), tag)
+#define MOLMC_LOGW_HEADER( tag ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_WARN,   tag, MOLMC_LOG_FORMAT_HEADER(W), molmc_log_timestamp(), tag)
+#define MOLMC_LOGI_HEADER( tag ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_INFO,   tag, MOLMC_LOG_FORMAT_HEADER(I), molmc_log_timestamp(), tag)
+#define MOLMC_LOGD_HEADER( tag ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_DEBUG,   tag, MOLMC_LOG_FORMAT_HEADER(D), molmc_log_timestamp(), tag)
+#define MOLMC_LOGV_HEADER( tag ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_VERBOSE,   tag, MOLMC_LOG_FORMAT_HEADER(V), molmc_log_timestamp(), tag)
+
+#define MOLMC_LOGE_TEXT( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_ERROR,   tag, MOLMC_LOG_FORMAT_TEXT(E, format), ##__VA_ARGS__)
+#define MOLMC_LOGW_TEXT( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_WARN,    tag, MOLMC_LOG_FORMAT_TEXT(W, format), ##__VA_ARGS__)
+#define MOLMC_LOGI_TEXT( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_INFO,    tag, MOLMC_LOG_FORMAT_TEXT(I, format), ##__VA_ARGS__)
+#define MOLMC_LOGD_TEXT( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_DEBUG,   tag, MOLMC_LOG_FORMAT_TEXT(D, format), ##__VA_ARGS__)
+#define MOLMC_LOGV_TEXT( tag, format, ... ) MOLMC_LOG_LEVEL_LOCAL(MOLMC_LOG_VERBOSE, tag, MOLMC_LOG_FORMAT_TEXT(V, format), ##__VA_ARGS__)
+
+#define MOLMC_LOGE( tag, format, ... ) do{ MOLMC_LOGE_HEADER( tag ); MOLMC_LOGE_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGE_TEXT( tag, "%s", "\n" ); } while(0)
+#define MOLMC_LOGW( tag, format, ... ) do{ MOLMC_LOGW_HEADER( tag ); MOLMC_LOGW_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGW_TEXT( tag, "%s", "\n" ); } while(0)
+#define MOLMC_LOGI( tag, format, ... ) do{ MOLMC_LOGI_HEADER( tag ); MOLMC_LOGI_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGI_TEXT( tag, "%s", "\n" ); } while(0)
+#define MOLMC_LOGD( tag, format, ... ) do{ MOLMC_LOGD_HEADER( tag ); MOLMC_LOGD_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGD_TEXT( tag, "%s", "\n" ); } while(0)
+#define MOLMC_LOGV( tag, format, ... ) do{ MOLMC_LOGV_HEADER( tag ); MOLMC_LOGV_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGV_TEXT( tag, "%s", "\n" ); } while(0)
 #endif
 
 /** runtime macro to output logs at a specified level.
@@ -265,11 +290,11 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
  * @see ``printf``
  */
 #define MOLMC_LOG_LEVEL(level, tag, format, ...) do { \
-        if (level==MOLMC_LOG_ERROR )          { molmc_log_write(MOLMC_LOG_ERROR,      tag, MOLMC_LOG_FORMAT(E, format), molmc_log_timestamp(), tag, ##__VA_ARGS__); } \
-        else if (level==MOLMC_LOG_WARN )      { molmc_log_write(MOLMC_LOG_WARN,       tag, MOLMC_LOG_FORMAT(W, format), molmc_log_timestamp(), tag, ##__VA_ARGS__); } \
-        else if (level==MOLMC_LOG_DEBUG )     { molmc_log_write(MOLMC_LOG_DEBUG,      tag, MOLMC_LOG_FORMAT(D, format), molmc_log_timestamp(), tag, ##__VA_ARGS__); } \
-        else if (level==MOLMC_LOG_VERBOSE )   { molmc_log_write(MOLMC_LOG_VERBOSE,    tag, MOLMC_LOG_FORMAT(V, format), molmc_log_timestamp(), tag, ##__VA_ARGS__); } \
-        else                                  { molmc_log_write(MOLMC_LOG_INFO,       tag, MOLMC_LOG_FORMAT(I, format), molmc_log_timestamp(), tag, ##__VA_ARGS__); } \
+        if (level==MOLMC_LOG_ERROR )          { molmc_log_write(MOLMC_LOG_ERROR,      tag, format, ##__VA_ARGS__); } \
+        else if (level==MOLMC_LOG_WARN )      { molmc_log_write(MOLMC_LOG_WARN,       tag, format, ##__VA_ARGS__); } \
+        else if (level==MOLMC_LOG_DEBUG )     { molmc_log_write(MOLMC_LOG_DEBUG,      tag, format, ##__VA_ARGS__); } \
+        else if (level==MOLMC_LOG_VERBOSE )   { molmc_log_write(MOLMC_LOG_VERBOSE,    tag, format, ##__VA_ARGS__); } \
+        else                                  { molmc_log_write(MOLMC_LOG_INFO,       tag, format, ##__VA_ARGS__); } \
     } while(0)
 
 /** runtime macro to output logs at a specified level. Also check the level with ``MOLMC_LOG_LOCAL_LEVEL``.

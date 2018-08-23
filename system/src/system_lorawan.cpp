@@ -35,7 +35,7 @@
 #include "wiring_system.h"
 #include "wiring_interrupts.h"
 
-const static char *TAG = "system-lorawan";
+const static char *TAG = "sys-lorawan";
 
 using namespace intorobot;
 

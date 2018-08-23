@@ -30,7 +30,7 @@
 #include "system_datapoint.h"
 #include "system_lorawan.h"
 
-const static char *TAG = "system-datap";
+const static char *TAG = "sys-datap";
 
 volatile datapoint_control_t g_datapoint_control = {DP_TRANSMIT_MODE_AUTOMATIC, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL, 0};
 int intorobotSendAllDatapoint(void);

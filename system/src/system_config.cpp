@@ -44,7 +44,7 @@
 #include "system_event.h"
 #include "wiring_rgb.h"
 
-const static char *TAG = "system-config";
+const static char *TAG = "sys-config";
 
 #ifndef configNO_NETWORK
 //using namespace intorobot;

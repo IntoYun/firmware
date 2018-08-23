@@ -28,7 +28,7 @@
 #include "inet_hal.h"
 #include "intorobot_macros.h"
 
-const static char *TAG = "wiring-tcpc";
+const static char *TAG = "wire-tcpc";
 
 using namespace intorobot;
 

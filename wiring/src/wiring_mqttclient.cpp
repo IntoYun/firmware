@@ -27,7 +27,7 @@
 #include "wiring.h"
 #include "wiring_mqttclient.h"
 
-const static char *TAG = "wiring-mqttc";
+const static char *TAG = "wire-mqttc";
 
 MqttClientClass::MqttClientClass() {
     this->_state = MQTT_DISCONNECTED;

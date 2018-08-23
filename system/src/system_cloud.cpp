@@ -53,7 +53,7 @@
 #include "wiring_httpdownload.h"
 #include "intorobot_def.h"
 
-const static char *TAG = "system-cloud";
+const static char *TAG = "sys-cloud";
 
 using namespace intorobot;
 

@@ -47,7 +47,7 @@ int HAL_Timer_Create(timer_handle_t *handle, uint32_t period, timer_callback_fn_
 int HAL_Timer_Start(timer_handle_t handle);
 int HAL_Timer_Stop(timer_handle_t handle);
 int HAL_Timer_Reset(timer_handle_t handle);
-int HAL_Timer_Attach_Interrupt(timer_handle_t handle, uint32_t period);
+int HAL_Timer_Attach_Interrupt(timer_handle_t handle, timer_callback_fn_t callback_fn);
 int HAL_Timer_Change_Period(timer_handle_t handle, uint32_t period);
 int HAL_Timer_Is_Active(timer_handle_t handle);
 uint32_t HAL_Timer_Get_Remain_Time(timer_handle_t handle);

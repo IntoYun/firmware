@@ -28,7 +28,7 @@
 #include "wlan_hal.h"
 #include "wiring_constants.h"
 
-const static char *TAG = "wiring-udp";
+const static char *TAG = "wire-udp";
 
 using namespace intorobot;
 

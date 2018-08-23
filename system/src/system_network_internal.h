@@ -30,7 +30,7 @@
 #include "system_cloud.h"
 #include "system_threading.h"
 
-const static char *GTAG = "system-network";
+const static char *GTAG = "sys-network";
 
 enum eWanTimings
 {

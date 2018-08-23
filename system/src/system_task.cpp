@@ -47,7 +47,7 @@
 #include "string_convert.h"
 #include "wiring_time.h"
 
-const static char *TAG = "system-task";
+const static char *TAG = "sys-task";
 
 #ifndef configNO_NETWORK
 using intorobot::Network;

@@ -35,7 +35,7 @@
 #include "wiring_httpdownload.h"
 #include "platforms.h"
 
-const static char *TAG = "wiring-httpd";
+const static char *TAG = "wire-httpd";
 
 HTTPDownload::HTTPDownload(void)
     : _lastError(0)

@@ -117,51 +117,28 @@ inline void CLR_GPRS_TIMEOUT() {
 
 #ifdef MDM_DEBUG
 
-static int calcAtCmdLen(const char* buf, int len)
+void dumpAtCmd(const char* buf, int len)
 {
-    int calcLen = 0;
+    MOLMC_LOGD_TEXT(TAG, "(%3d): \"", len);
     while (len --) {
         char ch = *buf++;
         if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if      (ch == '%') calcLen += 2;
-            else if (ch == '"') calcLen += 2;
-            else if (ch == '\\') calcLen += 2;
-            else calcLen++;
+            if      (ch == '%')  MOLMC_LOGD_TEXT(TAG, "%%");
+            else if (ch == '"')  MOLMC_LOGD_TEXT(TAG, "\\\"");
+            else if (ch == '\\') MOLMC_LOGD_TEXT(TAG, "\\\\");
+            else MOLMC_LOGD_TEXT(TAG, "%c", ch);
         } else {
-            if      (ch == '\a') calcLen += 2; // BEL (0x07)
-            else if (ch == '\b') calcLen += 2; // Backspace (0x08)
-            else if (ch == '\t') calcLen += 2; // Horizontal Tab (0x09)
-            else if (ch == '\n') calcLen += 2; // Linefeed (0x0A)
-            else if (ch == '\v') calcLen += 2; // Vertical Tab (0x0B)
-            else if (ch == '\f') calcLen += 2; // Formfeed (0x0C)
-            else if (ch == '\r') calcLen += 2; // Carriage Return (0x0D)
-            else calcLen += 4;
+            if      (ch == '\a') MOLMC_LOGD_TEXT(TAG, "\\a"); // BEL (0x07)
+            else if (ch == '\b') MOLMC_LOGD_TEXT(TAG, "\\b"); // Backspace (0x08)
+            else if (ch == '\t') MOLMC_LOGD_TEXT(TAG, "\\t"); // Horizontal Tab (0x09)
+            else if (ch == '\n') MOLMC_LOGD_TEXT(TAG, "\\n"); // Linefeed (0x0A)
+            else if (ch == '\v') MOLMC_LOGD_TEXT(TAG, "\\v"); // Vertical Tab (0x0B)
+            else if (ch == '\f') MOLMC_LOGD_TEXT(TAG, "\\f"); // Formfeed (0x0C)
+            else if (ch == '\r') MOLMC_LOGD_TEXT(TAG, "\\r"); // Carriage Return (0x0D)
+            else                 MOLMC_LOGD_TEXT(TAG, "\\x%02x", (unsigned char)ch);
         }
     }
-    return calcLen;
-}
-
-static void dumpAtCmd(const char* buf, int len, char *dest)
-{
-    int index = 0;
-    while (len --) {
-        char ch = *buf++;
-        if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if      (ch == '%')  strcat(dest, "%%");
-            else if (ch == '"')  strcat(dest, "\\\"");
-            else if (ch == '\\') strcat(dest, "\\\\");
-            else                 sprintf(&(dest[strlen(dest)]), "%c", ch);
-        } else {
-            if      (ch == '\a') strcat(dest, "\\a"); // BEL (0x07)
-            else if (ch == '\b') strcat(dest, "\\b"); // Backspace (0x08)
-            else if (ch == '\t') strcat(dest, "\\t"); // Horizontal Tab (0x09)
-            else if (ch == '\n') strcat(dest, "\\n"); // Linefeed (0x0A)
-            else if (ch == '\v') strcat(dest, "\\v"); // Vertical Tab (0x0B)
-            else if (ch == '\f') strcat(dest, "\\f"); // Formfeed (0x0C)
-            else if (ch == '\r') strcat(dest, "\\r"); // Carriage Return (0x0D)
-            else                 sprintf(&(dest[strlen(dest)]), "\\x%02x", (unsigned char)ch);
-        }
-    }
+    MOLMC_LOGD_TEXT(TAG, "\"\r\n");
 }
 
 #endif
@@ -198,12 +175,12 @@ MDMParser::MDMParser(void)
 }
 
 void MDMParser::cancel(void) {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::cancel ] = = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::cancel ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = true;
 }
 
 void MDMParser::resume(void) {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::resume ] = = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::resume ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = false;
 }
 
@@ -220,14 +197,9 @@ int MDMParser::send(const char* buf, int len)
 {
 #ifdef MDM_DEBUG
     if (_debugLevel >= 3) {
-        uint16_t tempLen = calcAtCmdLen(buf, len) + 8;
-        char *temp = malloc(tempLen);
-        if(NULL != temp) {
-            memset(temp, 0, tempLen);
-            dumpAtCmd(buf, len, temp);
-            MOLMC_LOGD(TAG, "AT send \" %s \"", temp);
-            free(temp);
-        }
+        MOLMC_LOGD_HEADER(TAG);
+        MOLMC_LOGD_TEXT(TAG, "AT Send ");
+        dumpAtCmd(buf, len);
     }
 #endif
     return _send(buf, len);
@@ -260,21 +232,16 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
             int len = LENGTH(ret);
             int type = TYPE(ret);
             const char* s = (type == TYPE_UNKNOWN)? "UNK" :
-                            (type == TYPE_TEXT)   ? "TXT" :
-                            (type == TYPE_OK   )  ? "OK " :
-                            (type == TYPE_ERROR)  ? "ERR" :
-                            (type == TYPE_ABORTED) ? "ABT" :
-                            (type == TYPE_PLUS)   ? " + " :
-                            (type == TYPE_PROMPT) ? " > " :
-                            "..." ;
-            uint16_t tempLen = calcAtCmdLen(buf, len) + 8;
-            char *temp = malloc(tempLen);
-            if(NULL != temp) {
-                memset(temp, 0, tempLen);
-                dumpAtCmd(buf, len, temp);
-                MOLMC_LOGD(TAG, "AT read %s \" %s \"", s, temp);
-                free(temp);
-            }
+                (type == TYPE_TEXT)   ? "TXT" :
+                (type == TYPE_OK   )  ? "OK " :
+                (type == TYPE_ERROR)  ? "ERR" :
+                (type == TYPE_ABORTED) ? "ABT" :
+                (type == TYPE_PLUS)   ? " + " :
+                (type == TYPE_PROMPT) ? " > " :
+                "..." ;
+            MOLMC_LOGD_HEADER(TAG);
+            MOLMC_LOGD_TEXT(TAG, "AT Read ");
+            dumpAtCmd(buf, len);
             (void)s;
         }
 #endif
@@ -645,7 +612,7 @@ failure:
 bool MDMParser::init(DevStatus* status)
 {
     LOCK();
-    MOLMC_LOGI(TAG, "\r\n[ Modem::init ] = = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::init ] = = = = = = = = = = = = = = =");
 
     // Returns the product serial number, IMEI (International Mobile Equipment Identity)
     sendFormated("AT+CGSN\r\n");
@@ -704,7 +671,7 @@ bool MDMParser::powerOff(void)
     bool ok = false;
     bool continue_cancel = false;
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::powerOff ] = = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::powerOff ] = = = = = = = = = = = = = =");
         if (_cancel_all_operations) {
             continue_cancel = true;
             resume(); // make sure we can use the AT parser
@@ -754,7 +721,7 @@ int MDMParser::_cbCCID(int type, const char* buf, int len, char* ccid)
 {
     if ((type == TYPE_PLUS) && ccid) {
         if (sscanf(buf, "\r\n+CCID: %[^\r]\r\n", ccid) == 1) {
-            //MOLMC_LOGD(TAG, "Got CCID: %s\r\n", ccid);
+            //MOLMC_LOGD(TAG, "Got CCID: %s", ccid);
         }
     }
     return WAIT;
@@ -764,7 +731,7 @@ bool MDMParser::registerNet(NetStatus* status /*= NULL*/, system_tick_t timeout_
 {
     LOCK();
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::register ] = = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::register ] = = = = = = = = = = = = = =");
         // Check to see if we are already connected. If so don't issue these
         // commands as they will knock us off the cellular network.
         if (checkNetStatus() == false) {
@@ -854,7 +821,7 @@ bool MDMParser::getSignalStrength(NetStatus &status)
     bool ok = false;
     LOCK();
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::getSignalStrength ] = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::getSignalStrength ] = = = = = = = = = =");
         sendFormated("AT+CSQ\r\n");
         if (RESP_OK == waitFinalResp(_cbCSQ, &_net)) {
             ok = true;
@@ -871,7 +838,7 @@ bool MDMParser::getDataUsage(MDM_DataUsage &data)
     bool ok = false;
     LOCK();
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::getDataUsage ] = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::getDataUsage ] = = = = = = = = = =");
         sendFormated("AT+UGCNTRD\r\n");
         if (RESP_OK == waitFinalResp(_cbUGCNTRD, &_data_usage)) {
             ok = true;
@@ -900,7 +867,7 @@ bool MDMParser::setBandSelect(MDM_BandSelect &data)
     bool ok = false;
     LOCK();
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::setBandSelect ] = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::setBandSelect ] = = = = = = = = = =");
 
         char bands_to_set[22] = "";
         _setBandSelectString(data, bands_to_set, 0);
@@ -955,7 +922,7 @@ bool MDMParser::getBandSelect(MDM_BandSelect &data)
     LOCK();
     if (_init && _pwr) {
         MDM_BandSelect data_sel;
-        MOLMC_LOGI(TAG, "\r\n[ Modem::getBandSelect ] = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::getBandSelect ] = = = = = = = = = =");
         sendFormated("AT+UBANDSEL?\r\n");
         if (RESP_OK == waitFinalResp(_cbBANDSEL, &data_sel)) {
             ok = true;
@@ -972,7 +939,7 @@ bool MDMParser::getBandAvailable(MDM_BandSelect &data)
     LOCK();
     if (_init && _pwr) {
         MDM_BandSelect data_avail;
-        MOLMC_LOGI(TAG, "\r\n[ Modem::getBandAvailable ] = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::getBandAvailable ] = = = = = = = = = =");
         sendFormated("AT+UBANDSEL=?\r\n");
         if (RESP_OK == waitFinalResp(_cbBANDAVAIL, &data_avail)) {
             ok = true;
@@ -1262,7 +1229,7 @@ MDM_IP MDMParser::join(const char* apn /*= NULL*/, const char* username /*= NULL
 {
     LOCK();
     if (_init && _pwr) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::join ] = = = = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::join ] = = = = = = = = = = = = = = = =");
         _ip = NOIP;
         int a = 0;
         bool force = false; // If we are already connected, don't force a reconnect.
@@ -1387,7 +1354,7 @@ bool MDMParser::reconnect(void)
     bool ok = false;
     LOCK();
     if (_activated) {
-        MOLMC_LOGI(TAG, "\r\n[ Modem::reconnect ] = = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::reconnect ] = = = = = = = = = = = = = =");
         if (!_attached) {
             //Get local IP address
             sendFormated("AT+CIFSR\r\n");
@@ -1417,7 +1384,7 @@ bool MDMParser::disconnect(void)
             continue_cancel = true;
             resume(); // make sure we can use the AT parser
         }
-        MOLMC_LOGI(TAG, "\r\n[ Modem::disconnect ] = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::disconnect ] = = = = = = = = = = = = =");
         if (_ip != NOIP) {
             /* Deactivates the PDP context assoc */
             sendFormated("AT+CIPSHUT\r\n");
@@ -1450,7 +1417,7 @@ bool MDMParser::detach(void)
             continue_cancel = true;
             resume(); // make sure we can use the AT parser
         }
-        MOLMC_LOGI(TAG, "\r\n[ Modem::detach ] = = = = = = = = = = = = = = =");
+        MOLMC_LOGI(TAG, "[ Modem::detach ] = = = = = = = = = = = = = = =");
         // if (_ip != NOIP) {  // if we disconnect() first we won't have an IP
             /* Detach from the GPRS network and conserve network resources. */
             /* Any active PDP context will also be deactivated. */
@@ -1889,7 +1856,7 @@ bool MDMParser::setDebug(int level)
 
 void MDMParser::dumpDevStatus(DevStatus* status)
 {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::devStatus ] = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::devStatus ] = = = = = = = = = = = = = =");
     const char* txtDev[] = { "Unknown", "SARA-G350", "LISA-U200", "LISA-C200", "SARA-U260", "SARA-U270", "LEON-G200" };
     if (status->dev < sizeof(txtDev)/sizeof(*txtDev) && (status->dev != DEV_UNKNOWN))
         MOLMC_LOGD(TAG, "  Device:       %s", txtDev[status->dev]);
@@ -1917,7 +1884,7 @@ void MDMParser::dumpDevStatus(DevStatus* status)
 
 void MDMParser::dumpNetStatus(NetStatus *status)
 {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::netStatus ] = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::netStatus ] = = = = = = = = = = = = = =");
     const char* txtReg[] = { "Unknown", "Denied", "None", "Home", "Roaming" };
     if (status->csd < sizeof(txtReg)/sizeof(*txtReg) && (status->csd != REG_UNKNOWN))
         MOLMC_LOGD(TAG, "  CSD Registration:   %s", txtReg[status->csd]);
@@ -1943,7 +1910,7 @@ void MDMParser::dumpNetStatus(NetStatus *status)
 void MDMParser::dumpIp(MDM_IP ip)
 {
     if (ip != NOIP) {
-        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
+        MOLMC_LOGD(TAG, "[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
     }
 }
 
@@ -2113,7 +2080,7 @@ MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/)
     CellularSerialPipe(rxSize, txSize)
 {
 #ifdef MODEM_DEBUG
-    //_debugLevel = -1;
+    _debugLevel = -1;
 #endif
 
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.
@@ -2145,5 +2112,4 @@ void MDMCellularSerial::resume()
     LOCK();
     rxResume();
 }
-
 

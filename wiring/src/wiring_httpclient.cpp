@@ -32,7 +32,7 @@
 #include "wiring_ticks.h"
 #include "wiring_httpclient.h"
 
-const static char *TAG = "wiring-httpc";
+const static char *TAG = "wire-httpc";
 
 class TransportTraits
 {

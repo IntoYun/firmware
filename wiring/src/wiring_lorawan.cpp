@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "molmc_log.h"
 
-const static char *TAG = "wiring-lorawan";
+const static char *TAG = "wire-lorawan";
 
 LoRaWanClass LoRaWan;
 LoRaClass LoRa;

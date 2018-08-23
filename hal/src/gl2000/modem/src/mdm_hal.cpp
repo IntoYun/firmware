@@ -92,52 +92,31 @@ static void __modem_unlock(void)
 }
 
 #ifdef MDM_DEBUG
-static int calcAtCmdLen(const char* buf, int len)
+
+void dumpAtCmd(const char* buf, int len)
 {
-    int calcLen = 0;
+    MOLMC_LOGD_TEXT(TAG, "(%3d): \"", len);
     while (len --) {
         char ch = *buf++;
         if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if      (ch == '%') calcLen += 2;
-            else if (ch == '"') calcLen += 2;
-            else if (ch == '\\') calcLen += 2;
-            else calcLen++;
+            if      (ch == '%')  MOLMC_LOGD_TEXT(TAG, "%%");
+            else if (ch == '"')  MOLMC_LOGD_TEXT(TAG, "\\\"");
+            else if (ch == '\\') MOLMC_LOGD_TEXT(TAG, "\\\\");
+            else MOLMC_LOGD_TEXT(TAG, "%c", ch);
         } else {
-            if      (ch == '\a') calcLen += 2; // BEL (0x07)
-            else if (ch == '\b') calcLen += 2; // Backspace (0x08)
-            else if (ch == '\t') calcLen += 2; // Horizontal Tab (0x09)
-            else if (ch == '\n') calcLen += 2; // Linefeed (0x0A)
-            else if (ch == '\v') calcLen += 2; // Vertical Tab (0x0B)
-            else if (ch == '\f') calcLen += 2; // Formfeed (0x0C)
-            else if (ch == '\r') calcLen += 2; // Carriage Return (0x0D)
-            else calcLen += 4;
+            if      (ch == '\a') MOLMC_LOGD_TEXT(TAG, "\\a"); // BEL (0x07)
+            else if (ch == '\b') MOLMC_LOGD_TEXT(TAG, "\\b"); // Backspace (0x08)
+            else if (ch == '\t') MOLMC_LOGD_TEXT(TAG, "\\t"); // Horizontal Tab (0x09)
+            else if (ch == '\n') MOLMC_LOGD_TEXT(TAG, "\\n"); // Linefeed (0x0A)
+            else if (ch == '\v') MOLMC_LOGD_TEXT(TAG, "\\v"); // Vertical Tab (0x0B)
+            else if (ch == '\f') MOLMC_LOGD_TEXT(TAG, "\\f"); // Formfeed (0x0C)
+            else if (ch == '\r') MOLMC_LOGD_TEXT(TAG, "\\r"); // Carriage Return (0x0D)
+            else                 MOLMC_LOGD_TEXT(TAG, "\\x%02x", (unsigned char)ch);
         }
     }
-    return calcLen;
+    MOLMC_LOGD_TEXT(TAG, "\"\r\n");
 }
 
-static void dumpAtCmd(const char* buf, int len, char *dest)
-{
-    int index = 0;
-    while (len --) {
-        char ch = *buf++;
-        if ((ch > 0x1F) && (ch < 0x7F)) { // is printable
-            if      (ch == '%')  strcat(dest, "%%");
-            else if (ch == '"')  strcat(dest, "\\\"");
-            else if (ch == '\\') strcat(dest, "\\\\");
-            else                 sprintf(&(dest[strlen(dest)]), "%c", ch);
-        } else {
-            if      (ch == '\a') strcat(dest, "\\a"); // BEL (0x07)
-            else if (ch == '\b') strcat(dest, "\\b"); // Backspace (0x08)
-            else if (ch == '\t') strcat(dest, "\\t"); // Horizontal Tab (0x09)
-            else if (ch == '\n') strcat(dest, "\\n"); // Linefeed (0x0A)
-            else if (ch == '\v') strcat(dest, "\\v"); // Vertical Tab (0x0B)
-            else if (ch == '\f') strcat(dest, "\\f"); // Formfeed (0x0C)
-            else if (ch == '\r') strcat(dest, "\\r"); // Carriage Return (0x0D)
-            else                 sprintf(&(dest[strlen(dest)]), "\\x%02x", (unsigned char)ch);
-        }
-    }
-}
 #endif
 /* Private variables --------------------------------------------------------*/
 
@@ -172,12 +151,12 @@ MDMParser::MDMParser(void)
 }
 
 void MDMParser::cancel(void) {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::cancel ] = = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::cancel ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = true;
 }
 
 void MDMParser::resume(void) {
-    MOLMC_LOGI(TAG, "\r\n[ Modem::resume ] = = = = = = = = = = = = = = =");
+    MOLMC_LOGI(TAG, "[ Modem::resume ] = = = = = = = = = = = = = = =");
     _cancel_all_operations = false;
 }
 
@@ -185,12 +164,9 @@ int MDMParser::send(const char* buf, int len)
 {
 #ifdef MODEM_DEBUG
     if (_debugLevel >= 3) {
-        char *temp = malloc(calcAtCmdLen(buf, len) + 8);
-        if(NULL != temp) {
-            dumpAtCmd(buf, len, temp);
-            MOLMC_LOGD(TAG, "AT send \" %s \"", temp);
-            free(temp);
-        }
+        MOLMC_LOGD_HEADER(TAG);
+        MOLMC_LOGD_TEXT(TAG, "AT Send ");
+        dumpAtCmd(buf, len);
     }
 #endif
     return _send(buf, len);
@@ -229,12 +205,9 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 (type == TYPE_PLUS)   ? " + ":
                 (type == TYPE_PROMPT) ? " > ":
                 "..." ;
-            char *temp = malloc(calcAtCmdLen(buf, len) + 8);
-            if(NULL != temp) {
-                dumpAtCmd(buf, len, temp);
-                MOLMC_LOGD(TAG, "AT read %s \" %s \"", s, temp);
-                free(temp);
-            }
+            MOLMC_LOGD_HEADER(TAG);
+            MOLMC_LOGD_TEXT(TAG, "AT Read ");
+            dumpAtCmd(buf, len);
             (void)s;
         }
 #endif
@@ -1284,7 +1257,7 @@ bool MDMParser::setDebug(int level)
 void MDMParser::dumpIp(MDM_IP ip)
 {
     if (ip != NOIP) {
-        MOLMC_LOGD(TAG, "\r\n[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
+        MOLMC_LOGD(TAG, "[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
     }
 }
 
@@ -1437,7 +1410,7 @@ MDMEsp8266Serial::MDMEsp8266Serial(int rxSize /*= 256*/, int txSize /*= 256*/) :
     Esp8266SerialPipe(rxSize, txSize)
 {
 #ifdef MODEM_DEBUG
-    //_debugLevel = -1;
+    _debugLevel = -1;
 #endif
 
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.

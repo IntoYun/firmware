@@ -20,7 +20,6 @@
 #ifndef WIRING_TIMER_H_
 #define WIRING_TIMER_H_
 
-#include "stddef.h"
 #include "timer_hal.h"
 
 class Timer

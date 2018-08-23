@@ -27,7 +27,7 @@
 #include "wiring_ticks.h"
 #include "wiring_system.h"
 
-const static char *TAG = "system-update";
+const static char *TAG = "sys-update";
 
 #ifdef START_DFU_FLASHER_SERIAL_SPEED
 static uint32_t start_dfu_flasher_serial_speed = START_DFU_FLASHER_SERIAL_SPEED;

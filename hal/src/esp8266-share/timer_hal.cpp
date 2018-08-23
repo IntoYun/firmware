@@ -157,7 +157,7 @@ int HAL_Timer_Reset(timer_handle_t handle)
     return -1;
 }
 
-int HAL_Timer_Attach_Interrupt(timer_handle_t handle, uint32_t period)
+int HAL_Timer_Attach_Interrupt(timer_handle_t handle, timer_callback_fn_t callback_fn)
 {
     return -1;
 }
