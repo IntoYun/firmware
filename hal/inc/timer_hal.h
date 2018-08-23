@@ -25,13 +25,6 @@
 #include <stdint.h>
 
 /* Exported types ------------------------------------------------------------*/
-typedef enum {
-    TIMER_PRECISION_US, //milliseconds
-    TIMER_PRECISION_MS  //microseconds
-} timer_precision_t;
-
-typedef void (*timer_callback_fn_t)(void);
-typedef int32_t timer_handle_t;
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -43,14 +36,10 @@ typedef int32_t timer_handle_t;
 extern "C" {
 #endif
 
-int HAL_Timer_Create(timer_handle_t *handle, uint32_t period, timer_callback_fn_t callback_fn, bool one_shot, timer_precision_t precision);
-int HAL_Timer_Start(timer_handle_t handle);
-int HAL_Timer_Stop(timer_handle_t handle);
-int HAL_Timer_Reset(timer_handle_t handle);
-int HAL_Timer_Attach_Interrupt(timer_handle_t handle, timer_callback_fn_t callback_fn);
-int HAL_Timer_Change_Period(timer_handle_t handle, uint32_t period);
-int HAL_Timer_Is_Active(timer_handle_t handle);
-uint32_t HAL_Timer_Get_Remain_Time(timer_handle_t handle);
+void HAL_Timer_Initial(void);
+void HAL_Timer_Set_Timeout(uint32_t timeout);
+uint32_t HAL_Timer_Get_ElapsedTime(void);
+void HAL_Timer_Set_Callback(const void (*handle)(void));
 
 #ifdef __cplusplus
 }
