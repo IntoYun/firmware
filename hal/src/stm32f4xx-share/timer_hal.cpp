@@ -42,7 +42,7 @@ uint32_t HAL_Timer_Get_ElapsedTime(void)
     return 0;
 }
 
-void HAL_Timer_Set_Callback(timer_callback_fn_t callback_fn);
+void HAL_Timer_Set_Callback(const void (*handle)(void))
 {
 
 }

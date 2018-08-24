@@ -31,11 +31,12 @@ extern "C" {
 typedef void (*timer_callback_fn_t)(void);
 
 /*!
- * \brief Timer object description
+ * \brief System Timer object description
  */
-typedef struct {
+typedef struct SystemTimerEvent_s {
     uint32_t Timestamp;               //! Current timer value
     uint32_t ReloadValue;             //! Timer delay value
+    bool IsRepeat;                    //! Is the timer repeat
     bool IsRunning;                   //! Is the timer currently running
     timer_callback_fn_t Callback;     //! Timer IRQ callback function
     struct SystemTimerEvent_s *Next;  //! Pointer to the next Timer object.
@@ -49,15 +50,13 @@ typedef uint32_t SystemTimerTime_t;
 #endif
 
 /*!
- * \brief Initializes the timer object
+ * \brief Set Timer Irq CallBack
  *
- * \remark TimerSetValue function must be called before starting the timer.
- *         this function initializes timestamp and reload value at 0.
+ * \remark Irq Callback must be called before starting the timer.
+ *         this function set the hal timer irq callback.
  *
- * \param [IN] obj          Structure containing the timer object parameters
- * \param [IN] callback     Function callback called at the end of the timeout
  */
-void system_timer_set_callback(void);
+void system_timer_set_irq_callback(void);
 
 /*!
  * \brief Initializes the timer object
@@ -65,53 +64,70 @@ void system_timer_set_callback(void);
  * \remark TimerSetValue function must be called before starting the timer.
  *         this function initializes timestamp and reload value at 0.
  *
- * \param [IN] obj          Structure containing the timer object parameters
+ * \param [IN] TimerObject  Structure containing the timer object parameters
  * \param [IN] callback     Function callback called at the end of the timeout
+ * \param [IN] isRepeat     Function callback called at the end of the timeout
  */
-void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback );
+void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback , bool isRepeat);
 
 /*!
  * \brief Starts and adds the timer object to the list of timer events
  *
- * \param [IN] obj Structure containing the timer object parameters
+ * \param [IN] TimerObject Structure containing the timer object parameters
  */
 void system_timer_start( SystemTimerEvent_t *TimerObject );
 
 /*!
  * \brief Stops and removes the timer object from the list of timer events
  *
- * \param [IN] obj Structure containing the timer object parameters
+ * \param [IN] TimerObject Structure containing the timer object parameters
  */
 void system_timer_stop( SystemTimerEvent_t *TimerObject );
 
 /*!
  * \brief Resets the timer object
  *
- * \param [IN] obj Structure containing the timer object parameters
+ * \param [IN] TimerObject Structure containing the timer object parameters
  */
 void system_timer_reset( SystemTimerEvent_t *TimerObject );
 
 /*!
  * \brief Set timer new timeout value
  *
- * \param [IN] obj   Structure containing the timer object parameters
+ * \param [IN] TimerObject   Structure containing the timer object parameters
  * \param [IN] value New timer timeout value
  */
-void system_timer_set_value( SystemTimerEvent_t *TimerObject, uint32_t value );
+void system_timer_set_value( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value );
 
 /*!
- * \brief Return the Time elapsed since a fix moment in Time
+ * \brief Return the Time elapsed of TimerObject
  *
- * \param [IN] savedTime    fix moment in Time
- * \retval time             returns elapsed time
+ * \param [IN] TimerObject   Structure containing the timer object parameters
+ * \param [IN] callback      Function callback called at the end of the timeout
+ */
+void system_timer_attach_interrupt( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback_fn );
+
+/*!
+ * \brief Return the active status of TimerObject
+ *
+ * \param [IN] TimerObject   Structure containing the timer object parameters
+ * \retval time              returns the active status of time
+ */
+bool system_timer_is_active( SystemTimerEvent_t *TimerObject );
+
+/*!
+ * \brief Return the Time elapsed of TimerObject
+ *
+ * \param [IN] TimerObject   Structure containing the timer object parameters
+ * \retval time              returns elapsed time
  */
 SystemTimerTime_t system_timer_get_elapsed_time( SystemTimerEvent_t *TimerObject );
 
 /*!
- * \brief Return the Time elapsed since a fix moment in Time
+ * \brief Return the Time ramaining of TimerObject
  *
- * \param [IN] eventInFuture    fix moment in the future
- * \retval time             returns difference between now and future event
+ * \param [IN] TimerObject   Structure containing the timer object parameters
+ * \retval time              returns remaining time
  */
 SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObject );
 

@@ -20,49 +20,58 @@
 #ifndef WIRING_TIMER_H_
 #define WIRING_TIMER_H_
 
-#include "timer_hal.h"
+#include "system_timer.h"
 
 class Timer
 {
     public:
-        Timer(unsigned period, timer_callback_fn_t callback_fn, bool one_shot = false, timer_precision_t precision = TIMER_PRECISION_MS) {
-            HAL_Timer_Create(&handle, period, callback_fn, one_shot, precision);
+        Timer(unsigned period, timer_callback_fn_t callback_fn, bool isRepeat = false) {
+            system_timer_init( &TimerObject, callback_fn, isRepeat);
         }
 
-        virtual ~Timer() {
+        virtual ~Timer(void) {
         }
 
         bool start(void) {
-            stop();
-            return !HAL_Timer_Start(handle);
+            system_timer_start( &TimerObject );
+            return true;
         }
 
         bool stop(void) {
-            return !HAL_Timer_Stop(handle);
+            system_timer_stop( &TimerObject );
+            return true;
         }
 
         bool reset(void) {
-            return !HAL_Timer_Reset(handle);
-        }
-
-        bool attachInterrupt(timer_callback_fn_t callback_fn) {
-            return !HAL_Timer_Attach_Interrupt(handle, callback_fn);
+            system_timer_reset( &TimerObject );
+            return true;
         }
 
         bool changePeriod(uint32_t period) {
-            return !HAL_Timer_Change_Period(handle, period);
+            system_timer_set_value( &TimerObject, period );
+            return true;
+        }
+
+        bool attachInterrupt(timer_callback_fn_t callback_fn) {
+            system_timer_attach_interrupt( &TimerObject, callback_fn );
+            return true;
         }
 
         bool isActive(void) {
-            return !HAL_Timer_Is_Active(handle);
+            return system_timer_is_active( &TimerObject );
         }
 
-        uint32_t getRemainTime(void) {
-            return HAL_Timer_Get_Remain_Time(handle);
+        uint32_t getelapsedTime(void) {
+            return system_timer_get_elapsed_time( &TimerObject );
+        }
+
+        uint32_t getRemainingTime(void) {
+            return system_timer_get_remaining_time( &TimerObject );
         }
 
     private:
-        timer_handle_t handle;
+        SystemTimerEvent_t TimerObject;
 };
 
 #endif
+

@@ -17,7 +17,8 @@
  ******************************************************************************
  */
 
-#include "hal-timer.h"
+#include "interrupts_hal.h"
+#include "timer_hal.h"
 #include "system_timer.h"
 
 /*!
@@ -34,7 +35,7 @@ static uint8_t IrqNestLevel = 0;
  */
 static void _system_timer_disable_irq( void )
 {
-    HAL_disable_irq();
+    HAL_disable_irq( );
     IrqNestLevel++;
 }
 
@@ -68,7 +69,7 @@ static void _system_timer_set_timeout( SystemTimerEvent_t *TimerObject )
  */
 static SystemTimerTime_t _system_timer_get_value( void )
 {
-    return HAL_Timer_Get_ElapsedTime(TimerObject->Timestamp);
+    return HAL_Timer_Get_ElapsedTime(  );
 }
 
 /*!
@@ -147,6 +148,35 @@ static void _system_timer_insert_newhead_timer( SystemTimerEvent_t *TimerObject,
     _system_timer_set_timeout( SystemTimerListHead );
 }
 
+static void _system_timer_insert( SystemTimerEvent_t *TimerObject )
+{
+    uint32_t elapsedTime = 0;
+    uint32_t remainingTime = 0;
+
+    TimerObject->Timestamp = TimerObject->ReloadValue;
+    TimerObject->IsRunning = false;
+
+    if( SystemTimerListHead == NULL ) {
+        _system_timer_insert_newhead_timer( TimerObject, TimerObject->Timestamp );
+    } else {
+        if( SystemTimerListHead->IsRunning == true ) {
+            elapsedTime = _system_timer_get_value( );
+            if( elapsedTime > SystemTimerListHead->Timestamp ) {
+                elapsedTime = SystemTimerListHead->Timestamp; // security but should never occur
+            }
+            remainingTime = SystemTimerListHead->Timestamp - elapsedTime;
+        } else {
+            remainingTime = SystemTimerListHead->Timestamp;
+        }
+
+        if( TimerObject->Timestamp < remainingTime ) {
+            _system_timer_insert_newhead_timer( TimerObject, remainingTime );
+        } else {
+            _system_timer_insert_timer( TimerObject, remainingTime );
+        }
+    }
+}
+
 /*!
  * \brief Check if the Object to be added is not already in the list
  *
@@ -189,6 +219,10 @@ static void _system_timer_irq_handler( void )
         SystemTimerEvent_t* elapsedTimer = SystemTimerListHead;
         SystemTimerListHead = SystemTimerListHead->Next;
 
+        if(elapsedTimer->IsRepeat == true) {
+            _system_timer_insert( elapsedTimer );
+        }
+
         if( elapsedTimer->Callback != NULL ) {
             elapsedTimer->Callback( );
         }
@@ -203,15 +237,16 @@ static void _system_timer_irq_handler( void )
     }
 }
 
-void system_timer_set_callback(void)
+void system_timer_set_irq_callback(void)
 {
     HAL_Timer_Set_Callback(&_system_timer_irq_handler);
 }
 
-void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback )
+void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback , bool isRepeat)
 {
     TimerObject->Timestamp = 0;
     TimerObject->ReloadValue = 0;
+    TimerObject->IsRepeat = isRepeat;
     TimerObject->IsRunning = false;
     TimerObject->Callback = callback;
     TimerObject->Next = NULL;
@@ -219,38 +254,13 @@ void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t cal
 
 void system_timer_start( SystemTimerEvent_t *TimerObject )
 {
-    uint32_t elapsedTime = 0;
-    uint32_t remainingTime = 0;
-
-    _system_timer_disable_irq();
+    _system_timer_disable_irq( );
 
     if( ( TimerObject == NULL ) || ( _system_timer_exists( TimerObject ) == true ) ) {
-        _system_timer_enable_irq();
+        _system_timer_enable_irq( );
         return;
     }
-
-    TimerObject->Timestamp = TimerObject->ReloadValue;
-    TimerObject->IsRunning = false;
-
-    if( SystemTimerListHead == NULL ) {
-        _system_timer_insert_newhead_timer( TimerObject, TimerObject->Timestamp );
-    } else {
-        if( SystemTimerListHead->IsRunning == true ) {
-            elapsedTime = _system_timer_get_value( );
-            if( elapsedTime > SystemTimerListHead->Timestamp ) {
-                elapsedTime = SystemTimerListHead->Timestamp; // security but should never occur
-            }
-            remainingTime = SystemTimerListHead->Timestamp - elapsedTime;
-        } else {
-            remainingTime = SystemTimerListHead->Timestamp;
-        }
-
-        if( TimerObject->Timestamp < remainingTime ) {
-            _system_timer_insert_newhead_timer( TimerObject, remainingTime );
-        } else {
-            _system_timer_insert_timer( TimerObject, remainingTime );
-        }
-    }
+    _system_timer_insert( TimerObject );
     _system_timer_enable_irq( );
 }
 
@@ -262,10 +272,10 @@ void system_timer_stop( SystemTimerEvent_t *TimerObject )
     SystemTimerEvent_t* prev = SystemTimerListHead;
     SystemTimerEvent_t* cur = SystemTimerListHead;
 
-    _system_timer_disable_irq();
+    _system_timer_disable_irq( );
     // List is empty or the TimerObject to stop does not exist
     if( ( SystemTimerListHead == NULL ) || ( TimerObject == NULL ) ) {
-        _system_timer_enable_irq();
+        _system_timer_enable_irq( );
         return;
     }
 
@@ -316,7 +326,7 @@ void system_timer_stop( SystemTimerEvent_t *TimerObject )
             }
         }
     }
-    _system_timer_enable_irq();
+    _system_timer_enable_irq( );
 }
 
 void system_timer_reset( SystemTimerEvent_t *TimerObject )
@@ -325,22 +335,32 @@ void system_timer_reset( SystemTimerEvent_t *TimerObject )
     system_timer_start( TimerObject );
 }
 
-void system_timer_set_value( SystemTimerEvent_t *TimerObject, uint32_t value )
+void system_timer_set_value( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value )
 {
     system_timer_stop( TimerObject );
     TimerObject->Timestamp = value;
     TimerObject->ReloadValue = value;
 }
 
+void system_timer_attach_interrupt( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback_fn )
+{
+    return TimerObject->Callback = callback_fn;
+}
+
+bool system_timer_is_active( SystemTimerEvent_t *TimerObject )
+{
+    return _system_timer_exists( TimerObject );
+}
+
 SystemTimerTime_t system_timer_get_elapsed_time( SystemTimerEvent_t *TimerObject )
 {
-    _system_timer_disable_irq();
+    _system_timer_disable_irq( );
     // List is empty or the TimerObject to stop does not exist
     if( ( SystemTimerListHead == NULL ) || ( TimerObject == NULL ) ) {
-        _system_timer_enable_irq();
+        _system_timer_enable_irq( );
         return 0;
     }
-    _system_timer_enable_irq();
+    _system_timer_enable_irq( );
 
     return TimerObject->ReloadValue - system_timer_get_remaining_time( TimerObject );
 }
@@ -352,15 +372,15 @@ SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObje
 
     SystemTimerEvent_t* cur = SystemTimerListHead;
 
-    _system_timer_disable_irq();
+    _system_timer_disable_irq( );
     // List is empty or the TimerObject to stop does not exist
     if( ( SystemTimerListHead == NULL ) || ( TimerObject == NULL ) ) {
-        _system_timer_enable_irq();
+        _system_timer_enable_irq( );
         return 0;
     }
 
     if( TimerObject->IsRunning == true ) {
-        elapsedTime = _system_timer_get_value();
+        elapsedTime = _system_timer_get_value( );
         if( elapsedTime > TimerObject->Timestamp ) {
             elapsedTime = TimerObject->Timestamp;
         }
@@ -368,7 +388,7 @@ SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObje
     } else {
         while( cur != NULL ) {
             if( cur->IsRunning == true ) {
-                elapsedTime = _system_timer_get_value();
+                elapsedTime = _system_timer_get_value( );
                 if( elapsedTime > cur->Timestamp ) {
                     elapsedTime = cur->Timestamp;
                 }
@@ -384,7 +404,7 @@ SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObje
             }
         }
     }
-    _system_timer_enable_irq();
+    _system_timer_enable_irq( );
     return remainingTime;
 }
 
