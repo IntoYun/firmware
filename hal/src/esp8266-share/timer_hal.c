@@ -137,20 +137,47 @@ int HAL_Timers_Get_Id(hal_timer_t timer, void **timer_id)
 }
 #endif
 
+static os_timer_t system_timer;
+static TimerCallback_t _timerCallback = NULL;
+uint32_t _elapsedTickStart = 0;
+
+static void _system_timer_handler(void* arg)
+{
+    if(_timerCallback) {
+        HAL_Timer_Stop();
+        _timerCallback();
+    }
+}
+
 void HAL_Timer_Start(uint32_t timeout)
 {
+    _elapsedTickStart = system_get_time();
+    os_timer_disarm(&system_timer);
+    os_timer_setfn(&system_timer, (os_timer_func_t*)&_system_timer_handler, 0);
+    os_timer_arm(&system_timer, timeout, 0);
 }
 
 void HAL_Timer_Stop(void)
 {
+    os_timer_disarm(&system_timer);
 }
 
 uint32_t HAL_Timer_Get_ElapsedTime(void)
 {
-    return 0;
+    uint32_t elapsedTick = 0;
+    uint32_t _elapsedTickCurrent = system_get_time();
+
+    if (_elapsedTickCurrent < _elapsedTickStart) {
+        elapsedTick =  UINT_MAX - _elapsedTickStart + _elapsedTickCurrent;
+    } else {
+        elapsedTick = _elapsedTickCurrent - _elapsedTickStart;
+    }
+
+    return elapsedTick / 1000;
 }
 
 void HAL_Timer_Set_Callback(TimerCallback_t callback)
 {
+    _timerCallback = callback;
 }
 

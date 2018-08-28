@@ -23,65 +23,73 @@
  ******************************************************************************
  */
 
-#include "concurrent_hal.h"
 #include "timer_hal.h"
+#include "hw_config.h"
+#include "esp_timer.h"
 
-#if 0
-int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)
+static esp_timer_handle_t _timer = NULL;
+static TimerCallback_t _timerCallback = NULL;
+uint32_t _elapsedTickStart = 0;
+
+static uint32_t IRAM_ATTR _get_systemTick(void)
 {
-    return os_timer_create((os_timer_t *)timer, period, callback, timer_id, one_shot, nullptr);
+    uint32_t ccount;
+    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    return ccount;
 }
 
-int HAL_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block)
+static void _system_timer_handler(void)
 {
-    return os_timer_change((os_timer_t)timer, OS_TIMER_CHANGE_START, fromISR, 0, block, nullptr);
+    if(_timerCallback) {
+        HAL_Timer_Stop();
+        _timerCallback();
+    }
 }
-
-int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block)
-{
-    return os_timer_change((os_timer_t)timer, OS_TIMER_CHANGE_STOP, fromISR, 0, block, nullptr);
-}
-
-int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block)
-{
-    return os_timer_change((os_timer_t)timer, OS_TIMER_CHANGE_RESET, fromISR, 0, block, nullptr);
-}
-
-int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block)
-{
-    return os_timer_change((os_timer_t)timer, OS_TIMER_CHANGE_PERIOD, fromISR, period, block, nullptr);
-}
-
-int HAL_Timers_Dispose(hal_timer_t timer)
-{
-    return os_timer_destroy((os_timer_t)timer, nullptr);
-}
-
-int HAL_Timers_Is_Active(hal_timer_t timer)
-{
-    return os_timer_is_active((os_timer_t)timer, nullptr);
-}
-
-int HAL_Timers_Get_Id(hal_timer_t timer, void** timer_id)
-{
-    return os_timer_get_id((os_timer_t)timer, timer_id);
-}
-#endif
 
 void HAL_Timer_Start(uint32_t timeout)
 {
+    _elapsedTickStart = _get_systemTick();
+
+    esp_timer_create_args_t _timerConfig;
+
+    _timerConfig.arg = (void*)0;
+    _timerConfig.callback = _system_timer_handler;
+    _timerConfig.dispatch_method = ESP_TIMER_TASK;
+    _timerConfig.name = "Ticker";
+
+    if (_timer) {
+        esp_timer_stop(_timer);
+        esp_timer_delete(_timer);
+    }
+    esp_timer_create(&_timerConfig, &_timer);
+    esp_timer_start_once(_timer, timeout * 1000);
 }
 
 void HAL_Timer_Stop(void)
 {
+    if (_timer) {
+        esp_timer_stop(_timer);
+        esp_timer_delete(_timer);
+        _timer = NULL;
+    }
 }
 
 uint32_t HAL_Timer_Get_ElapsedTime(void)
 {
-    return 0;
+    uint32_t elapsedTick = 0;
+    uint32_t _elapsedTickCurrent = _get_systemTick();
+
+    if (_elapsedTickCurrent < _elapsedTickStart) {
+        elapsedTick =  UINT_MAX - _elapsedTickStart + _elapsedTickCurrent;
+    } else {
+        elapsedTick = _elapsedTickCurrent - _elapsedTickStart;
+    }
+
+    return elapsedTick / (SYSTEM_US_TICKS * 1000);
 }
 
 void HAL_Timer_Set_Callback(TimerCallback_t callback)
 {
+    _timerCallback = callback;
 }
 

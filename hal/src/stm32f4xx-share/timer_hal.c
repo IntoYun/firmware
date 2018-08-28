@@ -27,7 +27,7 @@
 #include "timer_hal.h"
 #include "stm32f4xx_it.h"
 
-static TIM_HandleTypeDef Tim1Handle;
+static TIM_HandleTypeDef TimHandle;
 static TimerCallback_t _timerCallback = NULL;
 uint32_t _elapsedTickStart = 0;
 
@@ -44,18 +44,18 @@ void HAL_Timer_Start(uint32_t timeout)
         timeout = 0x10000;
     }
 
-    Tim1Handle.Instance = TIM1;
-    Tim1Handle.Init.Period = timeout - 1;
-    Tim1Handle.Init.Prescaler = (uint32_t) ((SystemCoreClock / 10000) - 1);;
-    Tim1Handle.Init.ClockDivision = 0;
-    Tim1Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-    HAL_TIM_Base_Init(&Tim1Handle);
+    TimHandle.Instance = TIM1;
+    TimHandle.Init.Period = timeout - 1;
+    TimHandle.Init.Prescaler = (uint32_t) ((SystemCoreClock / 10000) - 1);;
+    TimHandle.Init.ClockDivision = 0;
+    TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
+    HAL_TIM_Base_Init(&TimHandle);
 
     HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, TIM_IRQ_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 
-    HAL_TIM_Base_Start_IT(&Tim1Handle);
-    __HAL_TIM_CLEAR_IT(&Tim1Handle, TIM_IT_UPDATE); //防止定时器开启立即进入定时器中断
+    HAL_TIM_Base_Start_IT(&TimHandle);
+    __HAL_TIM_CLEAR_IT(&TimHandle, TIM_IT_UPDATE); //防止定时器开启立即进入定时器中断
 }
 
 void HAL_Timer_Stop(void)
@@ -85,9 +85,9 @@ void HAL_Timer_Set_Callback(TimerCallback_t callback)
 
 void TIM1_UP_TIM10_IRQHandler(void)
 {
-    if(__HAL_TIM_GET_FLAG(&Tim1Handle, TIM_FLAG_UPDATE) != RESET) {
-        if(__HAL_TIM_GET_IT_SOURCE(&Tim1Handle, TIM_IT_UPDATE) != RESET) {
-            __HAL_TIM_CLEAR_IT(&Tim1Handle, TIM_IT_UPDATE);
+    if(__HAL_TIM_GET_FLAG(&TimHandle, TIM_FLAG_UPDATE) != RESET) {
+        if(__HAL_TIM_GET_IT_SOURCE(&TimHandle, TIM_IT_UPDATE) != RESET) {
+            __HAL_TIM_CLEAR_IT(&TimHandle, TIM_IT_UPDATE);
             if(_timerCallback) {
                 HAL_Timer_Stop();
                 _timerCallback();
