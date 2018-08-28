@@ -1980,7 +1980,7 @@ static LoRaMacStatus_t ScheduleTx( void )
     {
         RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindow1Config.WindowOffset;
         RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindow2Config.WindowOffset;
-        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //AÀàÈëÍøÊ±¼ä */
+        /* RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2; //Aç±»å…¥ç½‘æ—¶é—´ */
         MOLMC_LOGD(TAG, "rx1 window join delay = %d\r\n",RxWindow1Delay);
         MOLMC_LOGD(TAG, "rx2 window join delay = %d\r\n",RxWindow2Delay);
     }
@@ -1992,8 +1992,8 @@ static LoRaMacStatus_t ScheduleTx( void )
         }
         RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindow1Config.WindowOffset;
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset;
-        /* RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //¹Ì¶¨ RX1½ÓÊÕ´°¿Ú´ò¿ªÊ±¼ä */
-        /* RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //¹Ì¶¨ RX2½ÓÊÕ´°¿Ú´ò¿ªÊ±¼ä */
+        /* RxWindow1Delay = LoRaMacParams.ReceiveDelay1; //å›ºå®š RX1æ¥æ”¶çª—å£æ‰“å¼€æ—¶é—´ */
+        /* RxWindow2Delay = LoRaMacParams.ReceiveDelay2; //å›ºå®š RX2æ¥æ”¶çª—å£æ‰“å¼€æ—¶é—´ */
         MOLMC_LOGD(TAG, "rx1 window delay = %d\r\n",RxWindow1Delay);
         MOLMC_LOGD(TAG, "rx2 window delay = %d\r\n",RxWindow2Delay);
     }
@@ -2247,7 +2247,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     }
 
     #if 1
-    //debug ´òÓ¡×é°üÊı¾İ
+    //debug æ‰“å°ç»„åŒ…æ•°æ®
     MOLMC_LOGD(TAG, "frame length = %d\r\n",LoRaMacBufferPktLen);
     MOLMC_LOGD(TAG, "frame data:");
     MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacBuffer,LoRaMacBufferPktLen);
@@ -2470,7 +2470,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Random seed initialization
     srand1( Radio.Random( ) );
-    //lz-modifyÔö¼ÓÏµÍ³Ëæ»úÖÖ×Ó
+    //lz-modifyå¢åŠ ç³»ç»Ÿéšæœºç§å­
     srand(Radio.Random( ));
     //====
 
