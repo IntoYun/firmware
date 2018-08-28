@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    timers_hal.c
+ * @file    software_timers_hal.c
  * @authors robin
  * @version V1.0.0
  * @date    19-06-2017
@@ -23,18 +23,14 @@
  ******************************************************************************
  */
 
-#include "hw_config.h"
 #include "timer_hal.h"
 
-
-void HAL_Timer_Initial(void)
+void HAL_Timer_Start(uint32_t timeout)
 {
-
 }
 
-void HAL_Timer_Set_Timeout(uint32_t timeout)
+void HAL_Timer_Stop(void)
 {
-
 }
 
 uint32_t HAL_Timer_Get_ElapsedTime(void)
@@ -42,8 +38,7 @@ uint32_t HAL_Timer_Get_ElapsedTime(void)
     return 0;
 }
 
-void HAL_Timer_Set_Callback(const void (*handle)(void))
+void HAL_Timer_Set_Callback(TimerCallback_t callback)
 {
-
 }
 

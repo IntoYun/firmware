@@ -68,44 +68,20 @@ int HAL_Timers_Get_Id(hal_timer_t timer, void** timer_id)
 }
 #endif
 
-int HAL_Timer_Create(timer_handle_t *handle, uint32_t period, timer_callback_fn_t callback_fn, bool one_shot, timer_precision_t precision)
+void HAL_Timer_Start(uint32_t timeout)
 {
-    return -1;
 }
 
-int HAL_Timer_Start(timer_handle_t handle)
+void HAL_Timer_Stop(void)
 {
-    return -1;
 }
 
-int HAL_Timer_Stop(timer_handle_t handle)
-{
-    return -1;
-}
-
-int HAL_Timer_Reset(timer_handle_t handle)
-{
-    return -1;
-}
-
-int HAL_Timer_Attach_Interrupt(timer_handle_t handle, timer_callback_fn_t callback_fn)
-{
-    return -1;
-}
-
-int HAL_Timer_Change_Period(timer_handle_t handle, uint32_t period)
-{
-    return -1;
-}
-
-int HAL_Timer_Is_Active(timer_handle_t handle)
-{
-    return -1;
-}
-
-uint32_t HAL_Timer_Get_Remain_Time(timer_handle_t handle)
+uint32_t HAL_Timer_Get_ElapsedTime(void)
 {
     return 0;
 }
 
+void HAL_Timer_Set_Callback(TimerCallback_t callback)
+{
+}
 

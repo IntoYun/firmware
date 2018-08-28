@@ -34,9 +34,9 @@ typedef void (*timer_callback_fn_t)(void);
  * \brief System Timer object description
  */
 typedef struct SystemTimerEvent_s {
-    uint32_t Timestamp;               //! Current timer value
-    uint32_t ReloadValue;             //! Timer delay value
-    bool IsRepeat;                    //! Is the timer repeat
+    uint32_t Timestamp;               //! Current timer value  [ms]
+    uint32_t ReloadValue;             //! Timer delay value [ms]
+    bool IsOneshot;                   //! Is the timer oneshot
     bool IsRunning;                   //! Is the timer currently running
     timer_callback_fn_t Callback;     //! Timer IRQ callback function
     struct SystemTimerEvent_s *Next;  //! Pointer to the next Timer object.
@@ -65,10 +65,11 @@ void system_timer_set_irq_callback(void);
  *         this function initializes timestamp and reload value at 0.
  *
  * \param [IN] TimerObject  Structure containing the timer object parameters
+ * \param [IN] period       period of timer
  * \param [IN] callback     Function callback called at the end of the timeout
- * \param [IN] isRepeat     Function callback called at the end of the timeout
+ * \param [IN] isOneshot    Oneshot or repeat
  */
-void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback , bool isRepeat);
+void system_timer_init( SystemTimerEvent_t *TimerObject, SystemTimerTime_t period, timer_callback_fn_t callback , bool isOneshot);
 
 /*!
  * \brief Starts and adds the timer object to the list of timer events
@@ -97,7 +98,7 @@ void system_timer_reset( SystemTimerEvent_t *TimerObject );
  * \param [IN] TimerObject   Structure containing the timer object parameters
  * \param [IN] value New timer timeout value
  */
-void system_timer_set_value( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value );
+void system_timer_set_period( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value );
 
 /*!
  * \brief Return the Time elapsed of TimerObject

@@ -20,6 +20,7 @@
 #include "interrupts_hal.h"
 #include "timer_hal.h"
 #include "system_timer.h"
+#include "molmc_log.h"
 
 /*!
  * Timers list head pointer
@@ -59,7 +60,7 @@ static void _system_timer_enable_irq( void )
  */
 static void _system_timer_set_timeout( SystemTimerEvent_t *TimerObject )
 {
-    HAL_Timer_Set_Timeout(TimerObject->Timestamp);
+    HAL_Timer_Start(TimerObject->Timestamp);
 }
 
 /*!
@@ -67,7 +68,7 @@ static void _system_timer_set_timeout( SystemTimerEvent_t *TimerObject )
  *
  * \retval value current timer value
  */
-static SystemTimerTime_t _system_timer_get_value( void )
+static SystemTimerTime_t _system_timer_get_elapsed_time( void )
 {
     return HAL_Timer_Get_ElapsedTime(  );
 }
@@ -160,7 +161,7 @@ static void _system_timer_insert( SystemTimerEvent_t *TimerObject )
         _system_timer_insert_newhead_timer( TimerObject, TimerObject->Timestamp );
     } else {
         if( SystemTimerListHead->IsRunning == true ) {
-            elapsedTime = _system_timer_get_value( );
+            elapsedTime = _system_timer_get_elapsed_time( );
             if( elapsedTime > SystemTimerListHead->Timestamp ) {
                 elapsedTime = SystemTimerListHead->Timestamp; // security but should never occur
             }
@@ -205,7 +206,7 @@ static void _system_timer_irq_handler( void )
         return;
     }
 
-    elapsedTime = _system_timer_get_value( );
+    elapsedTime = _system_timer_get_elapsed_time( );
 
     if( elapsedTime >= SystemTimerListHead->Timestamp ) {
         SystemTimerListHead->Timestamp = 0;
@@ -219,7 +220,7 @@ static void _system_timer_irq_handler( void )
         SystemTimerEvent_t* elapsedTimer = SystemTimerListHead;
         SystemTimerListHead = SystemTimerListHead->Next;
 
-        if(elapsedTimer->IsRepeat == true) {
+        if(elapsedTimer->IsOneshot == false) {
             _system_timer_insert( elapsedTimer );
         }
 
@@ -242,11 +243,11 @@ void system_timer_set_irq_callback(void)
     HAL_Timer_Set_Callback(&_system_timer_irq_handler);
 }
 
-void system_timer_init( SystemTimerEvent_t *TimerObject, timer_callback_fn_t callback , bool isRepeat)
+void system_timer_init( SystemTimerEvent_t *TimerObject, SystemTimerTime_t period, timer_callback_fn_t callback , bool isOneshot)
 {
-    TimerObject->Timestamp = 0;
-    TimerObject->ReloadValue = 0;
-    TimerObject->IsRepeat = isRepeat;
+    TimerObject->Timestamp = period;
+    TimerObject->ReloadValue = period;
+    TimerObject->IsOneshot = isOneshot;
     TimerObject->IsRunning = false;
     TimerObject->Callback = callback;
     TimerObject->Next = NULL;
@@ -281,7 +282,7 @@ void system_timer_stop( SystemTimerEvent_t *TimerObject )
 
     if( SystemTimerListHead == TimerObject ) { // Stop the Head
         if( SystemTimerListHead->IsRunning == true ) { // The head is already running
-            elapsedTime = _system_timer_get_value( );
+            elapsedTime = _system_timer_get_elapsed_time( );
             if( elapsedTime > TimerObject->Timestamp ) {
                 elapsedTime = TimerObject->Timestamp;
             }
@@ -335,7 +336,7 @@ void system_timer_reset( SystemTimerEvent_t *TimerObject )
     system_timer_start( TimerObject );
 }
 
-void system_timer_set_value( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value )
+void system_timer_set_period( SystemTimerEvent_t *TimerObject, SystemTimerTime_t value )
 {
     system_timer_stop( TimerObject );
     TimerObject->Timestamp = value;
@@ -380,7 +381,7 @@ SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObje
     }
 
     if( TimerObject->IsRunning == true ) {
-        elapsedTime = _system_timer_get_value( );
+        elapsedTime = _system_timer_get_elapsed_time( );
         if( elapsedTime > TimerObject->Timestamp ) {
             elapsedTime = TimerObject->Timestamp;
         }
@@ -388,7 +389,7 @@ SystemTimerTime_t system_timer_get_remaining_time( SystemTimerEvent_t *TimerObje
     } else {
         while( cur != NULL ) {
             if( cur->IsRunning == true ) {
-                elapsedTime = _system_timer_get_value( );
+                elapsedTime = _system_timer_get_elapsed_time( );
                 if( elapsedTime > cur->Timestamp ) {
                     elapsedTime = cur->Timestamp;
                 }

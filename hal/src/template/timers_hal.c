@@ -25,43 +25,20 @@
 
 #include "timer_hal.h"
 
-
-int HAL_Timers_Create(hal_timer_t *timer, unsigned period, void (*callback)(hal_timer_t timer), void* const timer_id, bool one_shot)
+void HAL_Timer_Start(uint32_t timeout)
 {
-    return -1;
 }
 
-int HAL_Timers_Start(hal_timer_t timer, bool fromISR, unsigned block)
+void HAL_Timer_Stop(void)
 {
-    return -1;
 }
 
-int HAL_Timers_Stop(hal_timer_t timer, bool fromISR, unsigned block)
+uint32_t HAL_Timer_Get_ElapsedTime(void)
 {
-    return -1;
+    return 0;
 }
 
-int HAL_Timers_Reset(hal_timer_t timer, bool fromISR, unsigned block)
+void HAL_Timer_Set_Callback(TimerCallback_t callback)
 {
-    return -1;
 }
 
-int HAL_Timers_Change_Period(hal_timer_t timer, unsigned period, bool fromISR, unsigned block)
-{
-    return -1;
-}
-
-int HAL_Timers_Dispose(hal_timer_t timer)
-{
-    return -1;
-}
-
-int HAL_Timers_Is_Active(hal_timer_t timer)
-{
-    return -1;
-}
-
-int HAL_Timers_Get_Id(hal_timer_t timer, void** timer_id)
-{
-    return -1;
-}

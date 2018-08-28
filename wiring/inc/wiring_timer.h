@@ -25,8 +25,8 @@
 class Timer
 {
     public:
-        Timer(unsigned period, timer_callback_fn_t callback_fn, bool isRepeat = false) {
-            system_timer_init( &TimerObject, callback_fn, isRepeat);
+        Timer(unsigned period, timer_callback_fn_t callback_fn, bool one_shot = false) {
+            system_timer_init( &TimerObject, period, callback_fn, one_shot);
         }
 
         virtual ~Timer(void) {
@@ -48,7 +48,7 @@ class Timer
         }
 
         bool changePeriod(uint32_t period) {
-            system_timer_set_value( &TimerObject, period );
+            system_timer_set_period( &TimerObject, period );
             return true;
         }
 

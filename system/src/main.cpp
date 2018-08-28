@@ -56,6 +56,7 @@
 #include "system_datapoint.h"
 #include "malloc.h"
 #include "wiring_time.h"
+#include "system_timer.h"
 
 using namespace intorobot;
 
@@ -242,6 +243,7 @@ void app_setup_and_loop_initial(bool *threaded)
     HAL_Core_Init();
     load_system_fwlib_version();
     set_system_mode(DEFAULT);
+    system_timer_set_irq_callback();
     Time.zone(HAL_PARAMS_Get_System_zone());
 
     MOLMC_LOGD(TAG, "---------------welcome from IntoRobot!-----------------");

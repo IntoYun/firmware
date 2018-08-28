@@ -170,10 +170,6 @@ void HAL_RTC_Set_UnixAlarm(time_t value)
     HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
     HAL_RTCEx_DeactivateWakeUpTimer( &RtcHandle );
 
-    if( value <= 3 ) {
-        value = 3;
-    }
-
     RtcCalendar_t alarmTimer = RtcComputeTimerTimeToAlarmTick(value, RtcGetCalendar());
 
     RTC_AlarmStructure.Alarm = RTC_ALARM_A;

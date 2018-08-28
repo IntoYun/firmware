@@ -2066,10 +2066,6 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
 MDMCellularSerial::MDMCellularSerial(int rxSize /*= 256*/, int txSize /*= 256*/) :
     CellularSerialPipe(rxSize, txSize)
 {
-#ifdef MDM_DEBUG
-    _debugLevel = -1;
-#endif
-
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.
 }
 

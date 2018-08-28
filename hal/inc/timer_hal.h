@@ -25,6 +25,7 @@
 #include <stdint.h>
 
 /* Exported types ------------------------------------------------------------*/
+typedef void (*TimerCallback_t)(void);
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -36,10 +37,10 @@
 extern "C" {
 #endif
 
-void HAL_Timer_Initial(void);
-void HAL_Timer_Set_Timeout(uint32_t timeout);
+void HAL_Timer_Start(uint32_t timeout);
+void HAL_Timer_Stop(void);
 uint32_t HAL_Timer_Get_ElapsedTime(void);
-void HAL_Timer_Set_Callback(const void (*handle)(void));
+void HAL_Timer_Set_Callback(TimerCallback_t callback);
 
 #ifdef __cplusplus
 }

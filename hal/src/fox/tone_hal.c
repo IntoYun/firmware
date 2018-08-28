@@ -294,10 +294,12 @@ void TIM2_IRQHandler(void)
  * @param  None
  * @retval None
  */
+/*
 void TIM3_IRQHandler(void)
 {
     HAL_TIM_IRQHandler(&TimHandleTone);
 }
+*/
 
 /**
  * @brief  This function handles TIM4_INSTANCE Interrupt.
