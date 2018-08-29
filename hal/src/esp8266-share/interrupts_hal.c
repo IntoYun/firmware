@@ -187,12 +187,12 @@ void ICACHE_RAM_ATTR HAL_EXTI_Handler(void)
 
 int HAL_disable_irq()
 {
-    return xt_rsil(15); // stop other interrupts
+    return xt_rsil(15); // disable all interrupts
 }
 
 void HAL_enable_irq(int is)
 {
-    xt_wsr_ps(is);
+    xt_rsil(0); // enable all interrupts
 }
 
 uint8_t HAL_IsISR()

@@ -50,8 +50,11 @@ void HAL_Timer_Start(uint32_t timeout)
 {
     _elapsedTickStart = _get_systemTick();
 
-    esp_timer_create_args_t _timerConfig;
+    if(timeout < 1) {
+        timeout = 1;
+    }
 
+    esp_timer_create_args_t _timerConfig;
     _timerConfig.arg = (void*)0;
     _timerConfig.callback = _system_timer_handler;
     _timerConfig.dispatch_method = ESP_TIMER_TASK;
