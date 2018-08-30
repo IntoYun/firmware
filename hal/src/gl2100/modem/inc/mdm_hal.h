@@ -184,7 +184,7 @@ public:
     /** get the current assigned IP address
         \return the ip that is assigned
     */
-    MDM_IP getIpAddress(void) { return _ip; }
+    MDM_IP getIpAddress(void);
 
     // ----------------------------------------------------------------
     // Sockets

@@ -54,18 +54,6 @@ public:
     /* User to resume all operations */
     void resume(void);
 
-    /** Combined Init, checkNetStatus, join suitable for simple applications
-        \param simpin a optional pin of the SIM card
-        \param apn  the of the network provider e.g. "internet" or "apn.provider.com"
-        \param username is the user name text string for the authentication phase
-        \param password is the password text string for the authentication phase
-        \param auth is the authentication mode (CHAP,PAP,NONE or DETECT)
-        \return true if successful, false otherwise
-    */
-    bool connect(const char* simpin = NULL,
-            const char* apn = "CMNET", const char* username = NULL,
-            const char* password = NULL, Auth auth = AUTH_DETECT);
-
     /**
      * Used to issue a hardware reset of the modem
      */
@@ -78,11 +66,16 @@ public:
      */
     bool powerOn(const char* simpin = NULL);
 
+    /** Power off the MT, This function has to be called prior to
+        switching off the supply.
+        \return true if successfully, false otherwise
+    */
+    bool powerOff(void);
+
     /** init (Attach) the MT to the GPRS service.
-        \param status an optional struture to with device information
         \return true if successful, false otherwise
     */
-    bool init(DevStatus* status = NULL);
+    bool init(void);
 
     /** get the current device status
         \param strocture holding the device information.
@@ -91,19 +84,6 @@ public:
 
     const DevStatus* getDevStatus() { return &_dev; }
 
-    /** register to the network
-        \param status an optional structure to with network information
-        \param timeout_ms -1 blocking, else non blocking timeout in ms
-        \return true if successful and connected to network, false otherwise
-    */
-    bool registerNet(NetStatus* status = NULL, system_tick_t timeout_ms = 300000);
-
-    /** check if the network is available
-        \param status an optional structure to with network information
-        \return true if successful and connected to network, false otherwise
-    */
-    bool checkNetStatus(NetStatus* status = NULL);
-
     /** checks the signal strength
         \param status an optional structure that will have current network information
                and updated RSSI and QUAL values.
@@ -111,69 +91,31 @@ public:
     */
     bool getSignalStrength(NetStatus &status);
 
-    /** fetches the current data usage byte counts
-        \param data a required structure that will be populated with
-               current data usage values.
-        \return true if successful, false otherwise
-    */
-    bool getDataUsage(MDM_DataUsage &data);
-
-    /** sets the cellular frequency bands used
-        \param bands a comma delimited constant char string of bands.
-        \return true if successful, false otherwise
-    */
-    bool setBandSelect(MDM_BandSelect &data);
-
-    /** gets the cellular frequency bands curently used
-        \param data a required structure that will be populated with
-               current bands set for use.
-        \return true if successful, false otherwise
-    */
-    bool getBandSelect(MDM_BandSelect &data);
-
-    /** gets the cellular frequency bands available to select
-        \param data a required structure that will be populated with
-               current bands available.
-        \return true if successful, false otherwise
-    */
-    bool getBandAvailable(MDM_BandSelect &data);
-
-    /** Power off the MT, This function has to be called prior to
-        switching off the supply.
-        \return true if successfully, false otherwise
-    */
-    bool powerOff(void);
-
-    /** Setup the PDP context
-    */
-    bool pdp(const char* apn = "spark.telefonica.com");
-
     // ----------------------------------------------------------------
     // Data Connection (GPRS)
     // ----------------------------------------------------------------
+    /** Setup the PDP context
+    */
+    bool pdp(void);
 
     ip_status_t getIpStatus(void);
-    /** register (Attach) the MT to the GPRS service.
+
+    void drive(void);
+
+    /** Combined Init, checkNetStatus, join suitable for simple applications
         \param apn  the of the network provider e.g. "internet" or "apn.provider.com"
         \param username is the user name text string for the authentication phase
         \param password is the password text string for the authentication phase
         \param auth is the authentication mode (CHAP,PAP,NONE or DETECT)
-        \return the ip that is assigned
+        \return true if successful, false otherwise
     */
-    MDM_IP join(const char* apn = "intorobot.telefonica.com", const char* username = NULL,
-                       const char* password = NULL, Auth auth = AUTH_DETECT);
+    bool connect(const char* apn = "CMNET", const char* username = NULL,
+            const char* password = NULL, Auth auth = AUTH_DETECT);
 
     /** deregister (detach) the MT from the GPRS service.
         \return true if successful, false otherwise
     */
     bool disconnect(void);
-
-    bool reconnect(void);
-
-    /** Detach the MT from the GPRS service.
-        \return true if successful, false otherwise
-    */
-    bool detach(void);
 
     /** Translates a domain name to an IP address
         \param host the domain name to translate e.g. "u-blox.com"
@@ -184,7 +126,7 @@ public:
     /** get the current assigned IP address
         \return the ip that is assigned
     */
-    MDM_IP getIpAddress(void) { return _ip; }
+    MDM_IP getIpAddress(void);
 
     // ----------------------------------------------------------------
     // Sockets
@@ -478,9 +420,6 @@ protected:
     static int _cbCPIN(int type, const char* buf, int len, Sim* sim);
     static int _cbCCID(int type, const char* buf, int len, char* ccid);
     // network
-    static int _cbUGCNTRD(int type, const char* buf, int len, MDM_DataUsage* data);
-    static int _cbBANDAVAIL(int type, const char* buf, int len, MDM_BandSelect* data);
-    static int _cbBANDSEL(int type, const char* buf, int len, MDM_BandSelect* data);
     static int _cbCSQ(int type, const char* buf, int len, NetStatus* status);
     static int _cbCOPS(int type, const char* buf, int len, NetStatus* status);
     static int _cbCNUM(int type, const char* buf, int len, char* num);
@@ -488,17 +427,12 @@ protected:
     static int _cbUDOPN(int type, const char* buf, int len, char* mccmnc);
     // sockets
     static int _cbIPSHUT(int type, const char* buf, int len, char *temp);
-    static int _cbSAPBR(int type, const char* buf, int len, int* act);
+    static int _cbCGATT(int type, const char* buf, int len, char *state);
     static int _cbCIFSR(int type, const char* buf, int len, MDM_IP* ip);
     static int _cbCDNSGIP(int type, const char* buf, int len, MDM_IP* ip);
     static int _cbGetIpStatus(int type, const char* buf, int len, ip_status_t* result);
     static int _cbSocketConnect(int type, const char* buf, int len, char *tmp);
-    static int _cbUSOCR(int type, const char* buf, int len, int* handle);
-    static int _cbUSOCTL(int type, const char* buf, int len, int* handle);
-    typedef struct { char* buf; int len; } USORDparam;
-    static int _cbUSORD(int type, const char* buf, int len, USORDparam* param);
-    typedef struct { char* buf; MDM_IP ip; int port; int len; } USORFparam;
-    static int _cbUSORF(int type, const char* buf, int len, USORFparam* param);
+    // sms
     typedef struct { char* buf; char* num; } CMGRparam;
     static int _cbCUSD(int type, const char* buf, int len, char* resp);
     // sms
@@ -512,8 +446,6 @@ protected:
     // variables
     DevStatus   _dev; //!< collected device information
     NetStatus   _net; //!< collected network information
-    MDM_IP       _ip;  //!< assigned ip address
-    MDM_DataUsage _data_usage; //!< collected data usage information
     // Cellular callback to notify of new SMS
     _CELLULAR_SMS_CB sms_cb;
     void* sms_data;
@@ -533,23 +465,13 @@ protected:
     // LISA-U and SARA-G have 7 sockets
     SockCtrl _sockets[7];
     int _findSocket(int handle = MDM_SOCKET_ERROR/* = CREATE*/);
-    int _socketCloseHandleIfOpen(int socket);
-    int _socketCloseUnusedHandles(void);
-    int _socketSocket(int socket, IpProtocol ipproto, int port);
     bool _socketFree(int socket);
     bool _powerOn(void);
-    void _setBandSelectString(MDM_BandSelect &data, char* bands, int index=0); // private helper to create bands strings
     static MDMParser* inst;
     bool _init;
     bool _pwr;
-    bool _activated;
-    bool _attached;
-    bool _attached_urc;
+    cellular_state_t _state;
     volatile bool _cancel_all_operations;
-#ifdef MDM_DEBUG
-    int _debugLevel;
-    void _debugPrint(int level, const char* color, const char* format, ...);
-#endif
 };
 
 // -----------------------------------------------------------------------

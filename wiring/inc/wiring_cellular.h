@@ -61,11 +61,13 @@ public:
     void setCredentials(const char* apn) {
         setCredentials(apn, "", "");
     }
+
     void setCredentials(const char* username, const char* password) {
         setCredentials("", username, password);
     }
+
     void setCredentials(const char* apn, const char* username, const char* password) {
-        // todo
+        cellular_credentials_set(apn, username, password, nullptr);
     }
 
     bool ready()
@@ -74,15 +76,6 @@ public:
     }
 
     CellularSignal RSSI();
-
-    bool getDataUsage(CellularData &data_get);
-    bool setDataUsage(CellularData &data_set);
-    bool resetDataUsage(void);
-
-    bool setBandSelect(const char* band);
-    bool setBandSelect(CellularBand &data_set);
-    bool getBandSelect(CellularBand &data_get);
-    bool getBandAvailable(CellularBand &data_get);
 
     template<typename... Targs>
     inline int command(const char* format, Targs... Fargs)

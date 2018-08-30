@@ -83,7 +83,7 @@ public:
 
     int set_credentials(NetworkCredentials* credentials) override
     {
-        if (!INTOROBOT_WLAN_STARTED || !credentials) {
+        if (!SYSTEM_NETWORK_STARTED || !credentials) {
             return -1;
         }
 

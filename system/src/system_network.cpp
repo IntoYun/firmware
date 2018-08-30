@@ -31,12 +31,12 @@
 #include "ui_hal.h"
 #include <string.h>
 
-uint32_t wlan_watchdog_base;
-uint32_t wlan_watchdog_duration;
+uint32_t network_watchdog_base;
+uint32_t network_watchdog_duration;
 
-volatile uint8_t INTOROBOT_WLAN_RESET;
-volatile uint8_t INTOROBOT_WLAN_SLEEP;
-volatile uint8_t INTOROBOT_WLAN_STARTED;
+volatile uint8_t SYSTEM_NETWORK_RESET;
+volatile uint8_t SYSTEM_NETWORK_SLEEP;
+volatile uint8_t SYSTEM_NETWORK_STARTED;
 
 #ifndef configNO_NETWORK
 

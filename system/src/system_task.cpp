@@ -59,32 +59,12 @@ volatile system_tick_t intorobot_loop_total_millis = 0;
  * Time in millis of the last cloud connection attempt.
  * The next attempt isn't made until the backoff period has elapsed.
  */
-static int network_backoff_start = 0;
 static int cloud_backoff_start = 0;
 
 /**
  * The number of connection attempts.
  */
-static uint8_t network_connection_attempts = 0;
 static uint8_t cloud_failed_connection_attempts = 0;
-
-void network_connection_attempt_init()
-{
-    network_connection_attempts=0;
-    network_backoff_start = HAL_Tick_Get_Milli_Seconds();
-}
-
-void network_connection_attempted()
-{
-    if (network_connection_attempts<255)
-        network_connection_attempts++;
-    network_backoff_start = HAL_Tick_Get_Milli_Seconds();
-}
-
-inline uint8_t in_network_backoff_period()
-{
-    return (HAL_Tick_Get_Milli_Seconds()-network_backoff_start)<backoff_period(network_connection_attempts);
-}
 
 void cloud_connection_attempt_init()
 {
@@ -114,41 +94,25 @@ void Network_Setup(void)
     network.setup();
     network.connect();
 
-    if (network.ready()) {
-        //连接上网络，默认蓝灯闪烁
-        system_rgb_blink(RGB_COLOR_BLUE, 1000);
-    }
-
-    network_connection_attempt_init();
     CLOUD_FN(intorobot_cloud_init(), (void)0);
 }
 
 void manage_network_connection()
 {
-    if (in_network_backoff_period())
-        return;
-
-    static bool was_connected = false;
-    if (network.ready()) {
-        if(!was_connected) {
-            was_connected = true;
-            INTOROBOT_CLOUD_SOCKETED = 1;
-            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
-            manage_ip_config();
-            system_notify_event(event_network_status, ep_network_status_connected);
+    if (IS_NETWORK_TIMEOUT()) {
+        if (SYSTEM_NETWORK_STARTED) {
+            bool was_disconnected = network.manual_disconnect();
+            cloud_disconnect();
+            network.disconnect();
+            network.off();
+            CLR_NETWORK_WD();
+            network.set_manual_disconnect(was_disconnected);
         }
     } else {
-        if(was_connected) {
-            was_connected = false;
-            INTOROBOT_CLOUD_SOCKETED = 0;
-#ifndef configNO_CLOUD
-            INTOROBOT_CLOUD_CONNECTED = 0;
-#endif
-            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
-            system_notify_event(event_network_status, ep_network_status_disconnected);
+        if (!SYSTEM_NETWORK_STARTED || (intorobot_cloud_flag_auto_connect() && !network.ready())) {
+            network.connect();
         }
     }
-    network_connection_attempted();
 }
 
 #endif
@@ -181,7 +145,7 @@ static bool _device_register(void)
 
 void preprocess_cloud_connection(void)
 {
-    if (INTOROBOT_CLOUD_SOCKETED) {
+    if (network.ready()) {
         if (!INTOROBOT_CLOUD_CONNECT_PREPARED) {
             if(System.featureEnabled(SYSTEM_FEATURE_AUTO_TIME_SYN_ENABLED)) {
                 // 同步时间
@@ -214,7 +178,7 @@ void preprocess_cloud_connection(void)
 
 void establish_cloud_connection(void)
 {
-    if (INTOROBOT_CLOUD_SOCKETED) {
+    if (network.ready()) {
         if (!INTOROBOT_CLOUD_CONNECTED) {
             // 设备未注册
             if (AT_MODE_FLAG_ABP != HAL_PARAMS_Get_System_at_mode())
@@ -240,7 +204,7 @@ void establish_cloud_connection(void)
 
 void handle_cloud_connection(void)
 {
-    if (INTOROBOT_CLOUD_SOCKETED) {
+    if (network.ready()) {
         if (INTOROBOT_CLOUD_CONNECTED) {
             int err = intorobot_cloud_handle();
             if (err) {
@@ -374,7 +338,7 @@ static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
             HAL_Delay_Milliseconds(1);
         }
 
-        if (INTOROBOT_WLAN_SLEEP || force_no_background_loop) {
+        if (force_no_background_loop) {
             //Do not yield for Spark_Idle()
         } else if ((elapsed_millis >= intorobot_loop_elapsed_millis) \
                 || (intorobot_loop_total_millis >= INTOROBOT_LOOP_DELAY_MILLIS)) {

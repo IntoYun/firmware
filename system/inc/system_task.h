@@ -21,7 +21,6 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS);
 void Network_Setup();
 void LoraWAN_Setup(void);
 
-extern volatile uint8_t INTOROBOT_CLOUD_SOCKETED;           //网络连接状态 1连接 0断开
 extern volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED;   //平台链接预处理状态 1已经处理
 extern volatile uint8_t INTOROBOT_CLOUD_CONNECTED;          //平台连接状态 1连接上了
 
@@ -29,8 +28,8 @@ extern volatile bool INTOROBOT_LORAWAN_JOINED;
 extern volatile bool INTOROBOT_LORAWAN_CONNECTED;
 extern volatile bool INTOROBOT_LORAWAN_JOINING;
 
-extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
-extern volatile uint8_t INTOROBOT_WLAN_STARTED;
+extern volatile uint8_t SYSTEM_NETWORK_SLEEP;
+extern volatile uint8_t SYSTEM_NETWORK_STARTED;
 
 extern volatile uint8_t SYSTEM_POWEROFF;
 extern volatile uint32_t TimingFlashUpdateTimeout;

@@ -42,31 +42,10 @@ class CellularNetworkInterface : public ManagedIPNetworkInterface<CellularConfig
 protected:
     virtual void connect_init() override { /* n/a */ }
 
-    void connect_finalize_impl() {
-        cellular_result_t result = -1;
-        result = cellular_init(NULL);
-        if (result) { return; }
-
-        result = cellular_register(NULL);
-        if (result) { return; }
-
-        CellularCredentials* savedCreds;
-        savedCreds = cellular_credentials_get(NULL);
-        result = cellular_pdp_activate(savedCreds, NULL);
-        if (result) { return; }
-
-        //MOLMC_LOGD(GTAG, "savedCreds = %s %s %s", savedCreds->apn, savedCreds->username, savedCreds->password);
-        result = cellular_gprs_attach(savedCreds, NULL);
-        if (result) { return; }
-
-        HAL_NET_notify_connected();
-        HAL_NET_notify_dhcp(true);
-    }
-
     void connect_finalize() override {
         ATOMIC_BLOCK() { connecting = true; }
 
-        connect_finalize_impl();
+        cellular_connect(nullptr);
 
         bool require_resume = false;
 
@@ -82,8 +61,7 @@ protected:
         }
     }
 
-    void drive_now() override
-    {
+    void drive_now() override {
         cellular_drive_now();
     }
 
@@ -92,14 +70,12 @@ protected:
     }
 
     void off_now() override {
-        cellular_pdp_deactivate(NULL);
-        cellular_gprs_detach(NULL);
+        cellular_disconnect(nullptr);
         cellular_off(NULL);
     }
 
     void disconnect_now() override {
-        cellular_pdp_deactivate(NULL);
-        cellular_gprs_detach(NULL);
+        cellular_disconnect(nullptr);
     }
 
 public:
@@ -122,17 +98,7 @@ public:
 
     // todo - associate credentials with presense of SIM card??
     bool clear_credentials() override { /* n/a */ return true; }
-    bool has_credentials() override
-    {
-        bool rv = cellular_sim_ready(NULL);
-        MOLMC_LOGD(GTAG, "%s", (rv)?"Sim Ready":"Sim not inserted? Detecting...");
-        if (!rv) {
-            cellular_on(NULL);
-            rv = cellular_sim_ready(NULL);
-            MOLMC_LOGD(GTAG, "%s", (rv)?"Sim Ready":"Sim not inserted.");
-        }
-        return rv;
-    }
+    bool has_credentials() override { /* n/a */ return true; }
     int set_credentials(NetworkCredentials* creds) override { /* n/a */ return -1; }
 
     void connect_cancel(bool cancel) override {

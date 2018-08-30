@@ -61,7 +61,6 @@ using namespace intorobot;
 #include "wiring_mqttclient.h"
 #include "mqttcrypto.h"
 
-volatile uint8_t INTOROBOT_CLOUD_SOCKETED         = 0;   //网络连接状态 1连接 0断开
 volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED = 0;   //平台链接预处理状态 1已经处理
 volatile uint8_t INTOROBOT_CLOUD_CONNECTED        = 0;   //平台连接状态 1连接上了
 
@@ -793,7 +792,7 @@ static void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len)
  */
 bool intorobot_cloud_flag_connected(void)
 {
-    if (INTOROBOT_CLOUD_SOCKETED && INTOROBOT_CLOUD_CONNECTED) {
+    if (INTOROBOT_CLOUD_CONNECTED) {
         return true;
     } else {
         return false;
