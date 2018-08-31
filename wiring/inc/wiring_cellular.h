@@ -67,7 +67,7 @@ public:
     }
 
     void setCredentials(const char* apn, const char* username, const char* password) {
-        cellular_credentials_set(apn, username, password, nullptr);
+        HAL_Cellular_Set_Credentials(apn, username, password, nullptr);
     }
 
     bool ready()
@@ -80,27 +80,27 @@ public:
     template<typename... Targs>
     inline int command(const char* format, Targs... Fargs)
     {
-        return cellular_command(NULL, NULL, 10000, format, Fargs...);
+        return HAL_Cellular_Command(NULL, NULL, 10000, format, Fargs...);
     }
 
     template<typename... Targs>
     inline int command(system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
-        return cellular_command(NULL, NULL, timeout_ms, format, Fargs...);
+        return HAL_Cellular_Command(NULL, NULL, timeout_ms, format, Fargs...);
     }
 
     template<typename T, typename... Targs>
     inline int command(int (*cb)(int type, const char* buf, int len, T* param),
             T* param, const char* format, Targs... Fargs)
     {
-        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, 10000, format, Fargs...);
+        return HAL_Cellular_Command((_CALLBACKPTR_MDM)cb, (void*)param, 10000, format, Fargs...);
     }
 
     template<typename T, typename... Targs>
     inline int command(int (*cb)(int type, const char* buf, int len, T* param),
             T* param, system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
-        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
+        return HAL_Cellular_Command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
     }
 
     IPAddress resolve(const char* name)

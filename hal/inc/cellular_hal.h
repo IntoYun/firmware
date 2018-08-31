@@ -44,14 +44,14 @@ typedef void (*_CELLULAR_SMS_CB_MDM)(void* data, int index);
  * Power on and initialize the cellular module,
  * if USART3 not initialized, will be done on first call.
  */
-int cellular_on(void* reserved);
+int HAL_Cellular_On(void* reserved);
 
 /**
  * Power off the cellular module.
  */
-int cellular_off(void* reserved);
+int HAL_Cellular_Off(void* reserved);
 
-void cellular_drive_now(void);
+void HAL_Cellular_Drive(void);
 
 #ifdef __cplusplus
 // Todo - is storing raw string pointers correct here? These will only be valid
@@ -72,14 +72,14 @@ struct CellularCredentials
 typedef struct CellularCredentials CellularCredentials;
 #endif
 
-int cellular_connect(void* reserved);
+int HAL_Cellular_Connect(void* reserved);
 
-int cellular_disconnect(void* reserved);
+int HAL_Cellular_Disconnect(void* reserved);
 
 /**
  * Fetch the ip configuration.
  */
-int  cellular_fetch_ipconfig(CellularConfig* config, void* reserved);
+int HAL_Cellular_Fetch_Ipconfig(CellularConfig* config, void* reserved);
 
 #ifdef __cplusplus
 struct CellularDevice
@@ -101,19 +101,17 @@ typedef struct CellularDevice CellularDevice;
 /**
  * Retrieve cellular module info, must be initialized first.
  */
-int cellular_device_info(CellularDevice* device, void* reserved);
+int HAL_Cellular_Get_Device_Info(CellularDevice* device, void* reserved);
 
 /**
  * Set cellular connection parameters
  */
-int cellular_credentials_set(const char* apn, const char* username, const char* password, void* reserved);
+int HAL_Cellular_Set_Credentials(const char* apn, const char* username, const char* password, void* reserved);
 
 /**
  * Get cellular connection parameters
  */
-CellularCredentials* cellular_credentials_get(void* reserved);
-
-bool cellular_sim_ready(void* reserved);
+CellularCredentials* HAL_Cellular_Get_Credentials(void* reserved);
 
 /**
  * Attempts to stop/resume the cellular modem from performing AT operations.
@@ -123,7 +121,7 @@ bool cellular_sim_ready(void* reserved);
  *        calledFromISR: true if called from ISR, false if called from main system thread.
  *        reserved: pass NULL. Allows future expansion.
  */
-void cellular_cancel(bool cancel, bool calledFromISR, void* reserved);
+void HAL_Cellular_Cancel(bool cancel, bool calledFromISR, void* reserved);
 
 #ifdef __cplusplus
 struct CellularSignalHal
@@ -138,27 +136,27 @@ typedef struct CellularSignalHal CellularSignalHal;
 /**
  * Retrieve cellular signal strength info
  */
-int cellular_signal(CellularSignalHal &signal, void* reserved);
+int HAL_Cellular_Get_Signal(CellularSignalHal &signal, void* reserved);
 
 /**
  * Send an AT command and wait for response, optionally specify a callback function to parse the results
  */
-int cellular_command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms, const char* format, ...);
+int HAL_Cellular_Command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms, const char* format, ...);
 
 /**
  * Set the SMS received callback handler
  */
-int cellular_sms_received_handler_set(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved);
+int HAL_Cellular_Set_SMS_Received_Handler(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved);
 
 /**
  * Pauses cellular modem serial communication
  */
-int cellular_pause(void* reserved);
+int HAL_Cellular_Pause(void* reserved);
 
 /**
  * Resumes cellular modem serial communication
  */
-int cellular_resume(void* reserved);
+int HAL_Cellular_Resume(void* reserved);
 
 #ifdef __cplusplus
 }

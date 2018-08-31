@@ -45,7 +45,7 @@ protected:
     void connect_finalize() override {
         ATOMIC_BLOCK() { connecting = true; }
 
-        cellular_connect(nullptr);
+        HAL_Cellular_Connect(nullptr);
 
         bool require_resume = false;
 
@@ -57,25 +57,25 @@ protected:
             connecting = false;
         }
         if (require_resume) {
-            cellular_cancel(false, HAL_IsISR(), NULL);
+            HAL_Cellular_Cancel(false, HAL_IsISR(), NULL);
         }
     }
 
     void drive_now() override {
-        cellular_drive_now();
+        HAL_Cellular_Drive();
     }
 
     void on_now() override {
-        cellular_on(NULL);
+        HAL_Cellular_On(NULL);
     }
 
     void off_now() override {
-        cellular_disconnect(nullptr);
-        cellular_off(NULL);
+        HAL_Cellular_Disconnect(nullptr);
+        HAL_Cellular_Off(NULL);
     }
 
     void disconnect_now() override {
-        cellular_disconnect(nullptr);
+        HAL_Cellular_Disconnect(nullptr);
     }
 
 public:
@@ -91,7 +91,7 @@ public:
     }
 
     void fetch_ipconfig(CellularConfig* target)  {
-        cellular_fetch_ipconfig(target, NULL);
+        HAL_Cellular_Fetch_Ipconfig(target, NULL);
     }
 
     void setup() override { /* n/a */ }
@@ -114,7 +114,7 @@ public:
             }
         }
         if (require_cancel) {
-            cellular_cancel(cancel, HAL_IsISR(), NULL);
+            HAL_Cellular_Cancel(cancel, HAL_IsISR(), NULL);
         }
     }
 

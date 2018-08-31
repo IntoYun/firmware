@@ -32,7 +32,7 @@ namespace intorobot {
         }
 
         CellularSignalHal sig_hal;
-        if (cellular_signal(sig_hal, NULL) != 0) {
+        if (HAL_Cellular_Get_Signal(sig_hal, NULL) != 0) {
             sig.rssi = 1;
             return sig;
         }

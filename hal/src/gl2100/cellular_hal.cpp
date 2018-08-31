@@ -67,7 +67,7 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInuS)
     return 0;
 }
 
-int cellular_on(void* reserved)
+int HAL_Cellular_On(void* reserved)
 {
     if(CellularMDM.powerOn()) {
         return 0;
@@ -75,7 +75,7 @@ int cellular_on(void* reserved)
     return -1;
 }
 
-int cellular_off(void* reserved)
+int HAL_Cellular_Off(void* reserved)
 {
     if(CellularMDM.powerOff()) {
         return 0;
@@ -83,12 +83,12 @@ int cellular_off(void* reserved)
     return -1;
 }
 
-void cellular_drive_now(void)
+void HAL_Cellular_Drive(void)
 {
     CellularMDM.drive();
 }
 
-int cellular_connect(void* reserved)
+int HAL_Cellular_Connect(void* reserved)
 {
     const CellularCredentials& cred = cellularCredentials;
     const char* apn = cred.apn;
@@ -99,7 +99,7 @@ int cellular_connect(void* reserved)
     return -1;
 }
 
-int cellular_disconnect(void* reserved)
+int HAL_Cellular_Disconnect(void* reserved)
 {
     if(CellularMDM.disconnect()) {
         return 0;
@@ -107,7 +107,7 @@ int cellular_disconnect(void* reserved)
     return -1;
 }
 
-int cellular_device_info(CellularDevice* device, void* reserved)
+int HAL_Cellular_Get_Device_Info(CellularDevice* device, void* reserved)
 {
     const DevStatus* status = CellularMDM.getDevStatus();
     if (!*status->ccid) {
@@ -119,7 +119,7 @@ int cellular_device_info(CellularDevice* device, void* reserved)
     return 0;
 }
 
-int cellular_fetch_ipconfig(CellularConfig* config, void* reserved)
+int HAL_Cellular_Fetch_Ipconfig(CellularConfig* config, void* reserved)
 {
     uint32_t ip_addr = CellularMDM.getIpAddress(); // Local IP
     if (ip_addr > 0) {
@@ -129,7 +129,7 @@ int cellular_fetch_ipconfig(CellularConfig* config, void* reserved)
     return -1;
 }
 
-int cellular_credentials_set(const char* apn, const char* username, const char* password, void* reserved)
+int HAL_Cellular_Set_Credentials(const char* apn, const char* username, const char* password, void* reserved)
 {
     cellularCredentials.apn = apn;
     cellularCredentials.username = username;
@@ -138,18 +138,12 @@ int cellular_credentials_set(const char* apn, const char* username, const char* 
 }
 
 // todo - better to have the caller pass CellularCredentials and copy the details out according to the size of the struct given.
-CellularCredentials* cellular_credentials_get(void* reserved)
+CellularCredentials* HAL_Cellular_Get_Credentials(void* reserved)
 {
     return &cellularCredentials;
 }
 
-bool cellular_sim_ready(void* reserved)
-{
-    const DevStatus* status = CellularMDM.getDevStatus();
-    return status->sim == SIM_READY;
-}
-
-void cellular_cancel(bool cancel, bool calledFromISR, void*)
+void HAL_Cellular_Cancel(bool cancel, bool calledFromISR, void*)
 {
     if (cancel) {
         CellularMDM.cancel();
@@ -158,7 +152,7 @@ void cellular_cancel(bool cancel, bool calledFromISR, void*)
     }
 }
 
-int cellular_signal(CellularSignalHal &signal, void* reserved)
+int HAL_Cellular_Get_Signal(CellularSignalHal &signal, void* reserved)
 {
     NetStatus status;
 
@@ -170,7 +164,7 @@ int cellular_signal(CellularSignalHal &signal, void* reserved)
     return -1;
 }
 
-int cellular_command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms, const char* format, ...)
+int HAL_Cellular_Command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms, const char* format, ...)
 {
     char buf[256];
     va_list args;
@@ -183,7 +177,7 @@ int cellular_command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms,
     return CellularMDM.waitFinalResp((MDMParser::_CALLBACKPTR)cb, (void*)param, timeout_ms);
 }
 
-int cellular_sms_received_handler_set(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved)
+int HAL_Cellular_Set_SMS_Received_Handler(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved)
 {
     if (cb) {
         CellularMDM.setSMSreceivedHandler((MDMParser::_CELLULAR_SMS_CB)cb, (void*)data);
@@ -192,13 +186,13 @@ int cellular_sms_received_handler_set(_CELLULAR_SMS_CB_MDM cb, void* data, void*
     return -1;
 }
 
-int cellular_pause(void* reserved)
+int HAL_Cellular_Pause(void* reserved)
 {
     CellularMDM.pause();
     return 0;
 }
 
-int cellular_resume(void* reserved)
+int HAL_Cellular_Resume(void* reserved)
 {
     CellularMDM.resume();
     return 0;
