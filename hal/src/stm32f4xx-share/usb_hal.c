@@ -37,7 +37,7 @@
  * Input          : baudRate.
  * Return         : None.
  *******************************************************************************/
-void USB_USART_Initial(uint32_t baudRate)
+void HAL_USB_USART_Initial(uint32_t baudRate)
 {
     //TODO
     //create usb mutex
@@ -62,31 +62,31 @@ void USB_USART_Initial(uint32_t baudRate)
     }
 }
 
-unsigned USB_USART_Baud_Rate(void)
+uint32_t HAL_USB_USART_Baud_Rate(void)
 {
     return LineCoding.bitrate;
 }
 
-void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
+void HAL_USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
 {
     //Init USB Serial first before calling the linecoding handler
-    USB_USART_Initial(115200);
+    HAL_USB_USART_Initial(115200);
 
     //Set the system defined custom handler
     SetLineCodingBitRateHandler(handler);
 }
 
-static inline bool USB_USART_Connected() {
+static inline bool HAL_USB_USART_Connected() {
     return LineCoding.bitrate > 0;
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Available_Data.
+ * Function Name  : HAL_USB_USART_Available_Data.
  * Description    : Return the length of available data received from USB.
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-int32_t USB_USART_Available_Data(void)
+int32_t HAL_USB_USART_Available_Data(void)
 {
     return sdkGetQueueDataLen(&USB_Rx_Queue);
 }
@@ -97,11 +97,11 @@ int32_t USB_USART_Available_Data(void)
  * Input          : None
  * Return         : Data.
  *******************************************************************************/
-int32_t USB_USART_Receive_Data(uint8_t peek)
+int32_t HAL_USB_USART_Receive_Data(uint8_t peek)
 {
     uint8_t data;
 
-    if(USB_USART_Available_Data()) {
+    if(HAL_USB_USART_Available_Data()) {
         if(peek) {
             sdkTryQueueData(&USB_Rx_Queue, sdkGetQueueHead(&USB_Rx_Queue) , &data);
         } else {
@@ -113,26 +113,26 @@ int32_t USB_USART_Receive_Data(uint8_t peek)
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Available_Data_For_Write.
+ * Function Name  : HAL_USB_USART_Available_Data_For_Write.
  * Description    : Return the length of available space in TX buffer
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-int32_t USB_USART_Available_Data_For_Write(void)
+int32_t HAL_USB_USART_Available_Data_For_Write(void)
 {
-    if (USB_USART_Connected()) {
+    if (HAL_USB_USART_Connected()) {
         return 1;
     }
     return -1;
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Send_Data.
+ * Function Name  : HAL_USB_USART_Send_Data.
  * Description    : Send Data from USB_USART to USB Host.
  * Input          : Data.
  * Return         : None.
  *******************************************************************************/
-void USB_USART_Send_Data(uint8_t Data)
+void HAL_USB_USART_Send_Data(uint8_t Data)
 {
     //TODO
     //osMutexWait(usb_mutex, osWaitForever);
@@ -159,7 +159,7 @@ void USB_USART_Send_Data(uint8_t Data)
     //osMutexRelease(usb_mutex);
 }
 
-void USB_USART_Flush_Data(void)
+void HAL_USB_USART_Flush_Data(void)
 {
 }
 
@@ -183,7 +183,7 @@ void OTG_FS_IRQHandler(void)
  * Output        : None.
  * Return value  : None.
  *******************************************************************************/
-void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
+void HAL_USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 {
 }
 #endif

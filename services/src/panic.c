@@ -24,7 +24,7 @@
 #include "molmc_log.h"
 #include "ui_hal.h"
 #include "delay_hal.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "interrupts_hal.h"
 #include "core_hal.h"
 

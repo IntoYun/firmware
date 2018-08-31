@@ -24,13 +24,12 @@
 #include "pinmap_impl.h"
 #include "sdkqueue.h"
 
-
-UART_HandleTypeDef UartHandle_TXRX;
-SDK_QUEUE Usart_Rx_Queue_TXRX;
+UART_HandleTypeDef UartHandle_SERIAL1;
+SDK_QUEUE Usart_Rx_Queue_SERIAL1;
 
 /* Private typedef -----------------------------------------------------------*/
 typedef enum USART_Num_Def {
-    USART_TX_RX = 0,
+    USART_SERIAL1 = 0,
 } USART_Num_Def;
 
 /* Private macro -------------------------------------------------------------*/
@@ -82,9 +81,9 @@ static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] conta
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {
     if(serial == HAL_USART_SERIAL1) {
-        usartMap[serial] = &USART_MAP[USART_TX_RX];
-        usartMap[serial]->uart_handle = &UartHandle_TXRX;
-        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_TXRX;
+        usartMap[serial] = &USART_MAP[USART_SERIAL1];
+        usartMap[serial]->uart_handle = &UartHandle_SERIAL1;
+        usartMap[serial]->usart_rx_queue = &Usart_Rx_Queue_SERIAL1;
         sdkInitialQueue(usartMap[serial]->usart_rx_queue, SDK_MAX_QUEUE_SIZE);
     }
 

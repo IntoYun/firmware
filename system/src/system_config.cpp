@@ -268,7 +268,7 @@ void DeviceConfig::dealGetWifiList(void)
 #ifdef configWIRING_WIFI_ENABLE
     WiFiAccessPoint ap[10];
 
-    wlan_Imlink_stop();
+    HAL_WLAN_Imlink_Stop();
     int found = WiFi.scan(ap, 10);
     if(found < 1) {
         sendComfirm(201);
@@ -303,7 +303,7 @@ void DeviceConfig::dealGetWifiList(void)
         }
         aJson.deleteItem(root);
     }
-    wlan_Imlink_start();
+    HAL_WLAN_Imlink_Start();
 #elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
     sendComfirm(201);
 #endif
@@ -347,7 +347,7 @@ void DeviceConfig::dealGetInfo(void)
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     char macStr[20] = {0};
 
-    wlan_get_macaddr(stamac, apmac);
+    HAL_WLAN_Get_Macaddr(stamac, apmac);
     memset(macStr, 0, sizeof(macStr));
     sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", stamac[0], stamac[1], stamac[2], stamac[3], stamac[4], stamac[5]);
     aJson.addStringToObject(value_Object, "stamac", macStr);
@@ -379,7 +379,7 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* root)
     }
 
 #ifdef configWIRING_WIFI_ENABLE
-    wlan_Imlink_stop();
+    HAL_WLAN_Imlink_Stop();
     network_disconnect(0, 0, NULL);
     network_connect(0, 0, 0, NULL);
 
@@ -569,18 +569,6 @@ void DeviceConfig::dealSetInfo(aJsonObject* root)
     if (httpPortObject != NULL) {
         HAL_PARAMS_Set_System_http_port(httpPortObject->valueint);
     }
-#ifdef configWIRING_WIFI_ENABLE
-    uint8_t stamac[6] = {0}, apmac[6] = {0};
-    aJsonObject* stamacObject = aJson.getObjectItem(value_Object, "stamac");
-    aJsonObject* apmacObject = aJson.getObjectItem(value_Object, "apmac");
-    if ((stamacObject != NULL) && (apmacObject != NULL)) {
-        mac_str_to_bin(stamacObject->valuestring, stamac);
-        mac_str_to_bin(apmacObject->valuestring, apmac);
-        if(wlan_set_macaddr(stamac, apmac)) {
-            flag = false;
-        }
-    }
-#endif
 #endif
     if(true == flag) {
         HAL_PARAMS_Save_Params();
@@ -799,7 +787,7 @@ void UdpDeviceConfig::init(void)
 {
     Udp.setTimeout(50);
     network_setup(0, 0, NULL);
-    wlan_Imlink_start();
+    HAL_WLAN_Imlink_Start();
     UdpStep = 0;
 }
 
@@ -827,8 +815,8 @@ int UdpDeviceConfig::available(void)
     switch(UdpStep)
     {
         case 0:
-            if( IMLINK_SUCCESS == wlan_Imlink_get_status() ) {
-                wlan_Imlink_stop();
+            if( IMLINK_SUCCESS == HAL_WLAN_Imlink_Get_Status() ) {
+                HAL_WLAN_Imlink_Stop();
                 network_connect(0, 0, 0, NULL);
                 ARM_CONFIG_TIMEOUT(5000);
                 UdpStep = 1;
@@ -836,7 +824,7 @@ int UdpDeviceConfig::available(void)
             break;
         case 1:
             if(IS_CONFIG_TIMEOUT()) {
-                wlan_Imlink_start();
+                HAL_WLAN_Imlink_Start();
                 CLR_CONFIG_TIMEOUT();
                 UdpStep = 0;
             }
@@ -854,7 +842,7 @@ int UdpDeviceConfig::available(void)
             if(IS_CONFIG_TIMEOUT()) {
                 Udp.stop();
                 system_rgb_blink(RGB_COLOR_RED, 1000);
-                wlan_Imlink_start();
+                HAL_WLAN_Imlink_Start();
                 CLR_CONFIG_TIMEOUT();
                 UdpStep = 0;
             }
@@ -887,7 +875,7 @@ size_t UdpDeviceConfig::write(const uint8_t *buf, size_t size)
 void UdpDeviceConfig::close(void)
 {
     Udp.stop();
-    wlan_Imlink_stop();
+    HAL_WLAN_Imlink_Stop();
 }
 #endif
 

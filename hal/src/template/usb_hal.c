@@ -36,61 +36,61 @@
  * Input          : baudRate.
  * Return         : None.
  *******************************************************************************/
-void USB_USART_Initial(uint32_t baudRate)
+void HAL_USB_USART_Initial(uint32_t baudRate)
 {
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Available_Data.
+ * Function Name  : HAL_USB_USART_Available_Data.
  * Description    : Return the length of available data received from USB.
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-int32_t USB_USART_Available_Data(void)
+int32_t HAL_USB_USART_Available_Data(void)
 {
   return 0;
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Receive_Data.
+ * Function Name  : HAL_USB_USART_Receive_Data.
  * Description    : Return data sent by USB Host.
  * Input          : None
  * Return         : Data.
  *******************************************************************************/
-int32_t USB_USART_Receive_Data(uint8_t peek)
+int32_t HAL_USB_USART_Receive_Data(uint8_t peek)
 {
   return -1;
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Available_Data_For_Write.
+ * Function Name  : HAL_USB_USART_Available_Data_For_Write.
  * Description    : Return the length of available space in TX buffer
  * Input          : None.
  * Return         : Length.
  *******************************************************************************/
-int32_t USB_USART_Available_Data_For_Write(void)
+int32_t HAL_USB_USART_Available_Data_For_Write(void)
 {
   return 0;
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Send_Data.
+ * Function Name  : HAL_USB_USART_Send_Data.
  * Description    : Send Data from USB_USART to USB Host.
  * Input          : Data.
  * Return         : None.
  *******************************************************************************/
-void USB_USART_Send_Data(uint8_t Data)
+void HAL_USB_USART_Send_Data(uint8_t Data)
 {
 
 }
 
 /*******************************************************************************
- * Function Name  : USB_USART_Flush_Data.
+ * Function Name  : HAL_USB_USART_Flush_Data.
  * Description    : Flushes TX buffer
  * Input          : None.
  * Return         : None.
  *******************************************************************************/
-void USB_USART_Flush_Data(void)
+void HAL_USB_USART_Flush_Data(void)
 {
 
 }
@@ -98,29 +98,27 @@ void USB_USART_Flush_Data(void)
 
 #ifdef configHAL_USB_HID_ENABLE
 /*******************************************************************************
- * Function Name : USB_HID_Send_Report.
+ * Function Name : HAL_USB_HID_Send_Report.
  * Description   : Send HID Report Info to Host.
  * Input         : pHIDReport and reportSize.
  * Output        : None.
  * Return value  : None.
  *******************************************************************************/
-void USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
+void HAL_USB_HID_Send_Report(void *pHIDReport, size_t reportSize)
 {
 }
 #endif
 
-
-
-unsigned int USB_USART_Baud_Rate(void)
+uint32_t HAL_USB_USART_Baud_Rate(void)
 {
     return 0;
 }
 
-void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
+void HAL_USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate))
 {
 }
 
-int32_t USB_USART_Flush_Output(unsigned timeout, void* reserved)
+int32_t HAL_USB_USART_Flush_Output(unsigned timeout, void* reserved)
 {
     return 0;
 }

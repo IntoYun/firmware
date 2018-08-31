@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "core_hal.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "rng_hal.h"
 #include "rgbled_hal.h"
 #include "ota_flash_hal.h"

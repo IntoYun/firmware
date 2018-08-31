@@ -36,7 +36,7 @@ class USBSerial : public Stream
         USBSerial();
         virtual ~USBSerial() {};
 
-        unsigned int baud() { return USB_USART_Baud_Rate(); }
+        uint32_t baud() { return HAL_USB_USART_Baud_Rate(); }
 
         operator bool() { return baud()!=0; }
 

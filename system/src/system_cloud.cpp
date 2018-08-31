@@ -61,7 +61,6 @@ using namespace intorobot;
 #include "wiring_mqttclient.h"
 #include "mqttcrypto.h"
 
-volatile uint8_t INTOROBOT_CLOUD_SOCKETED         = 0;   //网络连接状态 1连接 0断开
 volatile uint8_t INTOROBOT_CLOUD_CONNECT_PREPARED = 0;   //平台链接预处理状态 1已经处理
 volatile uint8_t INTOROBOT_CLOUD_CONNECTED        = 0;   //平台连接状态 1连接上了
 
@@ -793,7 +792,7 @@ static void mqtt_receive_debug_info(uint8_t *pIn, uint32_t len)
  */
 bool intorobot_cloud_flag_connected(void)
 {
-    if (INTOROBOT_CLOUD_SOCKETED && INTOROBOT_CLOUD_CONNECTED) {
+    if (INTOROBOT_CLOUD_CONNECTED) {
         return true;
     } else {
         return false;
@@ -846,11 +845,14 @@ void intorobot_cloud_init(void)
     // v2版本subscibe
     intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
     intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);   //从平台获取调试信息
-    intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
 
-    // 添加默认数据点
-    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);           //reboot
-    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0); //get all datapoint
+    if(PRODUCT_TYPE_NOTE == system_get_product_type()) {
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
+
+        // 添加默认数据点
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);           //reboot
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0); //get all datapoint
+    }
 }
 
 int intorobot_cloud_connect(void)

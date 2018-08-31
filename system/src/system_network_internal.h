@@ -38,25 +38,24 @@ enum eWanTimings
     DISCONNECT_TO_RECONNECT = S2M(2),
 };
 
-extern volatile uint8_t INTOROBOT_WLAN_RESET;
-extern volatile uint8_t INTOROBOT_WLAN_SLEEP;
-extern volatile uint8_t INTOROBOT_WLAN_STARTED;
+extern volatile uint8_t SYSTEM_NETWORK_STARTED;
 
-extern uint32_t wlan_watchdog_duration;
-extern uint32_t wlan_watchdog_base;
+extern uint32_t network_watchdog_duration;
+extern uint32_t network_watchdog_base;
 
-inline void ARM_WLAN_WD(uint32_t x) {
-    wlan_watchdog_base = HAL_Tick_Get_Milli_Seconds();
-    wlan_watchdog_duration = x;
-    MOLMC_LOGD(GTAG, "WD Set %d",(x));
-}
-inline bool WLAN_WD_TO() {
-    return wlan_watchdog_duration && ((HAL_Tick_Get_Milli_Seconds()-wlan_watchdog_base)>wlan_watchdog_duration);
+inline void ARM_NETWORK_WD(uint32_t x) {
+    network_watchdog_base = HAL_Tick_Get_Milli_Seconds();
+    network_watchdog_duration = x;
+    MOLMC_LOGD(GTAG, "Network WD Set %d",(x));
 }
 
-inline void CLR_WLAN_WD() {
-    wlan_watchdog_duration = 0;
-    MOLMC_LOGD(GTAG, "WD Cleared, was %d",wlan_watchdog_duration);
+inline bool IS_NETWORK_TIMEOUT() {
+    return network_watchdog_duration && ((HAL_Tick_Get_Milli_Seconds()-network_watchdog_base)>network_watchdog_duration);
+}
+
+inline void CLR_NETWORK_WD() {
+    network_watchdog_duration = 0;
+    MOLMC_LOGD(GTAG, "Network WD Cleared, was %d",network_watchdog_duration);
 }
 
 /**
@@ -100,12 +99,12 @@ struct NetworkInterface
 
 class ManagedNetworkInterface : public NetworkInterface
 {
-    volatile uint8_t WLAN_DISCONNECT;
-    volatile uint8_t WLAN_DELETE_PROFILES;
-    volatile uint8_t WLAN_CONNECTED;
-    volatile uint8_t WLAN_CONNECTING;
-    volatile uint8_t WLAN_DHCP;
-    volatile uint8_t WLAN_CAN_SHUTDOWN;
+    volatile uint8_t NETWORK_DISCONNECT;
+    volatile uint8_t NETWORK_DELETE_PROFILES;
+    volatile uint8_t NETWORK_CONNECTED;
+    volatile uint8_t NETWORK_CONNECTING;
+    volatile uint8_t NETWORK_DHCP;
+    volatile uint8_t NETWORK_CAN_SHUTDOWN;
 
 protected:
     virtual network_interface_t network_interface() override { return 0; }
@@ -126,40 +125,35 @@ public:
 
     bool manual_disconnect() override
     {
-        return WLAN_DISCONNECT;
+        return NETWORK_DISCONNECT;
     }
 
     void set_manual_disconnect(bool disconnect)
     {
-        WLAN_DISCONNECT = disconnect;
+        NETWORK_DISCONNECT = disconnect;
     }
 
     bool connected() override
     {
-        return WLAN_CONNECTED;
+        return NETWORK_CONNECTED;
     }
 
     void connect(bool listen_enabled=true) override
     {
         MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
         if (!ready() && !connecting()) {
-            bool was_sleeping = INTOROBOT_WLAN_SLEEP;
-
             on(); // activate WiFi
 
-            WLAN_DISCONNECT = 0;
+            NETWORK_DISCONNECT = 0;
             connect_init();
-            INTOROBOT_WLAN_STARTED = 1;
-            INTOROBOT_WLAN_SLEEP = 0;
+            SYSTEM_NETWORK_STARTED = 1;
 
             if (!has_credentials()) {
-                if (was_sleeping) {
-                    disconnect();
-                }
+                disconnect();
             } else {
-                WLAN_CONNECTING = 1;
-                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 1");
-                ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
+                NETWORK_CONNECTING = 1;
+                MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 1");
+                ARM_NETWORK_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
                 system_notify_event(event_network_status, ep_network_status_connecting);
                 connect_finalize();
             }
@@ -168,25 +162,26 @@ public:
 
     void disconnect() override
     {
-        const bool was_connected = WLAN_CONNECTED;
-        const bool was_connecting = WLAN_CONNECTING;
+        const bool was_connected = NETWORK_CONNECTED;
+        const bool was_connecting = NETWORK_CONNECTING;
 
-        if (INTOROBOT_WLAN_STARTED) {
-            WLAN_DISCONNECT = 1; //Do not ARM_WLAN_WD() in WLAN_Async_Callback()
-            WLAN_CONNECTING = 0;
-            WLAN_CONNECTED = 0;
-            WLAN_DHCP = 0;
+        if (SYSTEM_NETWORK_STARTED) {
+            NETWORK_DISCONNECT = 1; //Do not ARM_NETWORK_WD() in WLAN_Async_Callback()
+            NETWORK_CONNECTING = 0;
+            NETWORK_CONNECTED = 0;
+            NETWORK_DHCP = 0;
 
             CLOUD_FN(cloud_disconnect(), (void)0);
             if (was_connected) {
                 // "Disconnecting" event is generated only for a successfully established connection
-                //system_notify_event(event_network_status, ep_network_status_disconnecting);
+                system_notify_event(event_network_status, ep_network_status_disconnecting);
             }
             disconnect_now();
             config_clear();
             if (was_connected || was_connecting) {
-                //system_notify_event(event_network_status, ep_network_status_disconnected);
+                system_notify_event(event_network_status, ep_network_status_disconnected);
             }
+            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }
     }
 
@@ -194,111 +189,110 @@ public:
     {
         drive_now();
         update_config(false);
-        return (INTOROBOT_WLAN_STARTED && WLAN_DHCP);
+        return (SYSTEM_NETWORK_STARTED && NETWORK_DHCP);
     }
 
     bool connecting() override
     {
         drive_now();
         update_config(false);
-        return (INTOROBOT_WLAN_STARTED && WLAN_CONNECTING);
+        return (SYSTEM_NETWORK_STARTED && NETWORK_CONNECTING);
     }
 
     void on() override
     {
-        if (!INTOROBOT_WLAN_STARTED) {
+        if (!SYSTEM_NETWORK_STARTED) {
             system_notify_event(event_network_status, ep_network_status_powering_on);
             config_clear();
             on_now();
             //update_config(true);
-            INTOROBOT_WLAN_STARTED = 1;
-            INTOROBOT_WLAN_SLEEP = 0;
+            SYSTEM_NETWORK_STARTED = 1;
             system_notify_event(event_network_status, ep_network_status_on);
         }
     }
 
     void off(bool disconnect_cloud=false) override
     {
-        if (INTOROBOT_WLAN_STARTED) {
+        if (SYSTEM_NETWORK_STARTED) {
             disconnect();
             system_notify_event(event_network_status, ep_network_status_powering_off);
             off_now();
-
-            INTOROBOT_WLAN_SLEEP = 1;
 
             if (disconnect_cloud) {
                 CLOUD_FN(intorobot_cloud_flag_disconnect(), (void)0);
             }
 
-            INTOROBOT_WLAN_STARTED = 0;
-            WLAN_DHCP = 0;
-            WLAN_CONNECTED = 0;
-            WLAN_CONNECTING = 0;
+            SYSTEM_NETWORK_STARTED = 0;
+            NETWORK_DHCP = 0;
+            NETWORK_CONNECTED = 0;
+            NETWORK_CONNECTING = 0;
             system_notify_event(event_network_status, ep_network_status_off);
         }
     }
 
     void notify_connected()
     {
-        WLAN_CONNECTED = 1;
-        WLAN_CONNECTING = 0;
+        NETWORK_CONNECTED = 1;
+        NETWORK_CONNECTING = 0;
 
         /* If DHCP has completed, don't re-arm WD due to spurious notify_connected()
          * from WICED on loss of internet and reconnect
          */
-        if (!WLAN_DISCONNECT && !WLAN_DHCP) {
-            MOLMC_LOGD(GTAG, "ARM_WLAN_WD 2");
-            ARM_WLAN_WD(CONNECT_TO_ADDRESS_MAX);
+        if (!NETWORK_DISCONNECT && !NETWORK_DHCP) {
+            MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 2");
+            ARM_NETWORK_WD(CONNECT_TO_ADDRESS_MAX);
         }
-        //system_notify_event(event_network_status, ep_network_status_connected);
+        MOLMC_LOGD(GTAG, "notify_connected");
+        system_notify_event(event_network_status, ep_network_status_connected);
+        system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
     }
 
     void notify_disconnected()
     {
         CLOUD_FN(cloud_disconnect(), (void)0);
-        if (WLAN_CONNECTED) {
+        if (NETWORK_CONNECTED) {
             //Breathe blue if established connection gets disconnected
-            if (!WLAN_DISCONNECT) {
+            if (!NETWORK_DISCONNECT) {
                 //if WiFi.disconnect called, do not enable wlan watchdog
-                MOLMC_LOGD(GTAG, "ARM_WLAN_WD 3");
-                ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
+                MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 3");
+                ARM_NETWORK_WD(DISCONNECT_TO_RECONNECT);
             }
         }
-        WLAN_CONNECTED = 0;
-        WLAN_CONNECTING = 0;
-        WLAN_DHCP = 0;
-        //system_notify_event(event_network_status, ep_network_status_disconnected);
+        NETWORK_CONNECTED = 0;
+        NETWORK_CONNECTING = 0;
+        NETWORK_DHCP = 0;
+        system_notify_event(event_network_status, ep_network_status_disconnected);
+        system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
 
     void notify_dhcp(bool dhcp)
     {
-        WLAN_CONNECTING = 0;
+        NETWORK_CONNECTING = 0;
         if (dhcp) {
-            MOLMC_LOGD(GTAG, "CLR_WLAN_WD 1, DHCP success");
-            CLR_WLAN_WD();
-            WLAN_DHCP = 1;
-            //update_config(true); //去掉，否则wifiJoinAp调用时会触发DHCP事件，导致AT指令任务忙等现象。neutron。
+            MOLMC_LOGD(GTAG, "CLR_NETWORK_WD 1, DHCP success");
+            CLR_NETWORK_WD();
+            NETWORK_DHCP = 1;
         } else {
             config_clear();
-            WLAN_DHCP = 0;
-            MOLMC_LOGD(GTAG, "DHCP fail, ARM_WLAN_WD 5");
-            ARM_WLAN_WD(DISCONNECT_TO_RECONNECT);
+            NETWORK_DHCP = 0;
+            MOLMC_LOGD(GTAG, "DHCP fail, ARM_NETWORK_WD 5");
+            ARM_NETWORK_WD(DISCONNECT_TO_RECONNECT);
         }
     }
 
     void notify_can_shutdown()
     {
-        WLAN_CAN_SHUTDOWN = 1;
+        NETWORK_CAN_SHUTDOWN = 1;
     }
 
     void notify_cannot_shutdown()
     {
-        WLAN_CAN_SHUTDOWN = 0;
+        NETWORK_CAN_SHUTDOWN = 0;
     }
 
     inline bool hasDHCP()
     {
-        return WLAN_DHCP && !INTOROBOT_WLAN_SLEEP;
+        return NETWORK_DHCP;
     }
 };
 
@@ -343,3 +337,4 @@ public:
 #endif
 
 #endif/* SYSTEM_NETWORK_INTERNAL_H */
+

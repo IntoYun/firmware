@@ -36,8 +36,6 @@ typedef struct __attribute__((__packed__))  _CellularConfig_t {
     NetworkConfig nw;
 } CellularConfig;
 
-typedef int cellular_result_t;
-
 typedef int (*_CALLBACKPTR_MDM)(int type, const char* buf, int len, void* param);
 
 typedef void (*_CELLULAR_SMS_CB_MDM)(void* data, int index);
@@ -46,17 +44,14 @@ typedef void (*_CELLULAR_SMS_CB_MDM)(void* data, int index);
  * Power on and initialize the cellular module,
  * if USART3 not initialized, will be done on first call.
  */
-cellular_result_t  cellular_on(void* reserved);
+int HAL_Cellular_On(void* reserved);
 
-cellular_result_t  cellular_init(void* reserved);
-
-cellular_result_t cellular_status(void* reserved);
 /**
  * Power off the cellular module.
  */
-cellular_result_t  cellular_off(void* reserved);
+int HAL_Cellular_Off(void* reserved);
 
-void cellular_drive_now(void);
+void HAL_Cellular_Drive(void);
 
 #ifdef __cplusplus
 // Todo - is storing raw string pointers correct here? These will only be valid
@@ -77,35 +72,14 @@ struct CellularCredentials
 typedef struct CellularCredentials CellularCredentials;
 #endif
 
-/**
- * Wait for the cellular module to register on the GSM network.
- */
-cellular_result_t  cellular_register(void* reserved);
+int HAL_Cellular_Connect(void* reserved);
 
-/**
- * Activate the PDP context
- */
-cellular_result_t  cellular_pdp_activate(CellularCredentials* connect, void* reserved);
-
-/**
- * Deactivate the PDP context
- */
-cellular_result_t  cellular_pdp_deactivate(void* reserved);
-
-/**
- * Perform a GPRS attach.
- */
-cellular_result_t  cellular_gprs_attach(CellularCredentials* connect, void* reserved);
-
-/**
- * Perform a GPRS detach.
- */
-cellular_result_t  cellular_gprs_detach(void* reserved);
+int HAL_Cellular_Disconnect(void* reserved);
 
 /**
  * Fetch the ip configuration.
  */
-cellular_result_t  cellular_fetch_ipconfig(CellularConfig* config, void* reserved);
+int HAL_Cellular_Fetch_Ipconfig(CellularConfig* config, void* reserved);
 
 #ifdef __cplusplus
 struct CellularDevice
@@ -127,19 +101,17 @@ typedef struct CellularDevice CellularDevice;
 /**
  * Retrieve cellular module info, must be initialized first.
  */
-cellular_result_t cellular_device_info(CellularDevice* device, void* reserved);
+int HAL_Cellular_Get_Device_Info(CellularDevice* device, void* reserved);
 
 /**
  * Set cellular connection parameters
  */
-cellular_result_t cellular_credentials_set(const char* apn, const char* username, const char* password, void* reserved);
+int HAL_Cellular_Set_Credentials(const char* apn, const char* username, const char* password, void* reserved);
 
 /**
  * Get cellular connection parameters
  */
-CellularCredentials* cellular_credentials_get(void* reserved);
-
-bool cellular_sim_ready(void* reserved);
+CellularCredentials* HAL_Cellular_Get_Credentials(void* reserved);
 
 /**
  * Attempts to stop/resume the cellular modem from performing AT operations.
@@ -149,7 +121,7 @@ bool cellular_sim_ready(void* reserved);
  *        calledFromISR: true if called from ISR, false if called from main system thread.
  *        reserved: pass NULL. Allows future expansion.
  */
-void cellular_cancel(bool cancel, bool calledFromISR, void* reserved);
+void HAL_Cellular_Cancel(bool cancel, bool calledFromISR, void* reserved);
 
 #ifdef __cplusplus
 struct CellularSignalHal
@@ -164,70 +136,31 @@ typedef struct CellularSignalHal CellularSignalHal;
 /**
  * Retrieve cellular signal strength info
  */
-cellular_result_t cellular_signal(CellularSignalHal &signal, void* reserved);
+int HAL_Cellular_Get_Signal(CellularSignalHal &signal, void* reserved);
 
 /**
  * Send an AT command and wait for response, optionally specify a callback function to parse the results
  */
-cellular_result_t cellular_command(_CALLBACKPTR_MDM cb, void* param,
-                         system_tick_t timeout_ms, const char* format, ...);
-
-#ifdef __cplusplus
-struct CellularDataHal {
-    uint16_t size;
-    int cid;
-    int tx_session_offset;
-    int rx_session_offset;
-    int tx_total_offset;
-    int rx_total_offset;
-    int tx_session;
-    int rx_session;
-    int tx_total;
-    int rx_total;
-
-    CellularDataHal()
-    {
-        memset(this, 0, sizeof(*this));
-        cid = -1;
-        size = sizeof(*this);
-    }
-};
-#else
-typedef struct CellularDataHal CellularDataHal;
-#endif
-
-/**
- * Set cellular data usage info
- */
-cellular_result_t cellular_data_usage_set(CellularDataHal* data, void* reserved);
-
-/**
- * Get cellular data usage info
- */
-cellular_result_t cellular_data_usage_get(CellularDataHal* data, void* reserved);
+int HAL_Cellular_Command(_CALLBACKPTR_MDM cb, void* param, system_tick_t timeout_ms, const char* format, ...);
 
 /**
  * Set the SMS received callback handler
  */
-cellular_result_t cellular_sms_received_handler_set(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved);
-
-/**
- * Implementation of the USART3 IRQ handler exported via dynalib interface
- */
-void HAL_USART3_Handler_Impl(void* reserved);
+int HAL_Cellular_Set_SMS_Received_Handler(_CELLULAR_SMS_CB_MDM cb, void* data, void* reserved);
 
 /**
  * Pauses cellular modem serial communication
  */
-cellular_result_t cellular_pause(void* reserved);
+int HAL_Cellular_Pause(void* reserved);
 
 /**
  * Resumes cellular modem serial communication
  */
-cellular_result_t cellular_resume(void* reserved);
+int HAL_Cellular_Resume(void* reserved);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif	/* CELLULAR_HAL_H */
+

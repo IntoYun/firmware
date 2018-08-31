@@ -45,7 +45,7 @@ enum SecurityType {
 class WiFiClass : public NetworkClass
 {
     void setIPAddressSource(IPAddressSource source) {
-        wlan_set_ipaddress_source(source, true, NULL);
+        HAL_WLAN_Set_Ipaddress_Source(source, true, NULL);
     }
 
 public:
@@ -177,7 +177,7 @@ public:
     void setStaticIP(const IPAddress& host, const IPAddress& netmask,
         const IPAddress& gateway, const IPAddress& dns)
     {
-        wlan_set_ipaddress(host, netmask, gateway, dns, NULL, NULL);
+        HAL_WLAN_Set_Ipaddress(host, netmask, gateway, dns, NULL, NULL);
     }
 
     void useStaticIP()
@@ -191,7 +191,7 @@ public:
     }
 
     int scan(wlan_scan_result_t callback, void* cookie=NULL) {
-        return wlan_scan(callback, cookie);
+        return HAL_WLAN_Scan(callback, cookie);
     }
 
     int scan(WiFiAccessPoint* results, size_t result_count);

@@ -54,7 +54,7 @@
 #endif
 
 /* Exported functions --------------------------------------------------------*/
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 
 #ifdef __cplusplus
 extern "C" {

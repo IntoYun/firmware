@@ -35,7 +35,6 @@
 #include "Schedule.h"
 #include "esp8266-hal-wifi.h"
 #include "flash_map.h"
-#include "macaddr_hal.h"
 
 
 /* Private typedef ----------------------------------------------------------*/
@@ -154,7 +153,6 @@ void init_done()
     printf("%08x\n", (uint32_t)intorobot_subsys_version);
     HAL_Core_Config();
     HAL_Core_Setup();
-    wlan_set_macaddr_when_init();
     esp_schedule();
 }
 

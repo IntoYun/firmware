@@ -1051,15 +1051,6 @@ int MDMParser::socketReadable(int socket)
         pending = _sockets[socket].pending;
     }
 
-    //因为数据已经下发到本地 所以连接断开也可以获取剩余数据  2016-01-12 chenkaiyao
-    /*
-    if (ISSOCKET(socket) && _sockets[socket].connected) {
-        //MOLMC_LOGD(TAG, "socketReadable(%d)", socket);
-        // allow to receive unsolicited commands
-        if (_sockets[socket].connected)
-            pending = _sockets[socket].pending;
-    }
-    */
     return pending;
 }
 

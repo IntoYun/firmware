@@ -67,44 +67,44 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 }
 
 //=======wifi activate/deactivate===========
-wlan_result_t wlan_activate()
+wlan_result_t HAL_WLAN_Activate(void)
 {
     return 0;
 }
 
-wlan_result_t wlan_deactivate()
+wlan_result_t HAL_WLAN_Deactivate(void)
 {
     return 0;
 }
 
-void wlan_setup()
+void HAL_WLAN_Setup(void)
 {
     esp8266MDM.reset();
     esp8266MDM.init();
 }
 
 //=======wifi connect===========
-int wlan_connect_init()
+int HAL_WLAN_Connect_Init(void)
 {
     return 0;
 }
 
-wlan_result_t wlan_connect_finalize()
+wlan_result_t HAL_WLAN_Connect_Finalize(void)
 {
     return 0;
 }
 
-wlan_result_t wlan_disconnect_now()
+wlan_result_t HAL_WLAN_Disconnect_Now(void)
 {
     return 0;
 }
 
-void wlan_connect_cancel(bool called_from_isr)
+void HAL_WLAN_Connect_Cancel(bool called_from_isr)
 {
 
 }
 
-int wlan_connected_rssi(void)
+int HAL_WLAN_Connected_Rssi(void)
 {
     wifi_info_t wifiInfo;
 
@@ -114,39 +114,39 @@ int wlan_connected_rssi(void)
     return 0;
 }
 
-void wlan_drive_now(void)
+void HAL_WLAN_Drive_Now(void)
 {
     esp8266MDM.drive();
 }
 
 //================credentials======================
-int wlan_clear_credentials()
+int HAL_WLAN_Clear_Credentials(void)
 {
     return 0;
 }
 
-int wlan_has_credentials()
+int HAL_WLAN_Has_Credentials(void)
 {
     return 0;
 }
 
-bool wlan_reset_credentials_store_required()
+bool HAL_WLAN_Reset_Credentials_Store_Required(void)
 {
     return false;
 }
 
-wlan_result_t wlan_reset_credentials_store()
+wlan_result_t HAL_WLAN_Reset_Credentials_Store(void)
 {
-    wlan_clear_credentials();
+    HAL_WLAN_Clear_Credentials();
     return 0;
 }
 
-int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
+int HAL_WLAN_Get_Credentials(wlan_scan_result_t callback, void* callback_data)
 {
     return 0;
 }
 
-int wlan_set_credentials(WLanCredentials* c)
+int HAL_WLAN_Set_Credentials(WLanCredentials* c)
 {
     if(JOINAP_SUCCESS == esp8266MDM.wifiJoinAp(c->ssid, c->password)) {
         return 0;
@@ -155,24 +155,24 @@ int wlan_set_credentials(WLanCredentials* c)
 }
 
 //==============imlink==================
-void wlan_Imlink_start()
+void HAL_WLAN_Imlink_Start(void)
 {
     //esp8266MDM.reset();
     //esp8266MDM.init();
     esp8266MDM.startSmartconfig(SMARTCONFIGTYPE_ESPTOUCH);
 }
 
-imlink_status_t wlan_Imlink_get_status()
+imlink_status_t HAL_WLAN_Imlink_Get_Status(void)
 {
     return (imlink_status_t)esp8266MDM.getSmartconfigStatus();
 }
 
-void wlan_Imlink_stop()
+void HAL_WLAN_Imlink_Stop(void)
 {
     esp8266MDM.stopSmartconfig();
 }
 
-void wlan_fetch_ipconfig(WLanConfig* config)
+void HAL_WLAN_Fetch_Ipconfig(WLanConfig* config)
 {
     wifi_addr_t addr;
     wifi_info_t wifiInfo;
@@ -190,14 +190,14 @@ void wlan_fetch_ipconfig(WLanConfig* config)
     }
 }
 
-void wlan_set_error_count(uint32_t errorCount)
+void HAL_WLAN_Set_Error_Count(uint32_t errorCount)
 {
 }
 
 /**
  * Sets the IP source - static or dynamic.
  */
-void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reserved)
+void HAL_WLAN_Set_Ipaddress_Source(IPAddressSource source, bool persist, void* reserved)
 {
 }
 
@@ -210,7 +210,7 @@ void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reser
  * @param dns2
  * @param reserved
  */
-void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
+void HAL_WLAN_Set_Ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
         const HAL_IPAddress* gateway, const HAL_IPAddress* dns1, const HAL_IPAddress* dns2, void* reserved)
 {
 
@@ -256,7 +256,7 @@ WLanSecurityCipher toCipherType(uint8_t security)
 }
 
 #define WLAN_SCAN_AP_NUM 25
-int wlan_scan(wlan_scan_result_t callback, void* cookie)
+int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
 {
     //申请内存
     wifi_ap_t *aps = (wifi_ap_t *)malloc(sizeof(wifi_ap_t)*WLAN_SCAN_AP_NUM);
@@ -286,17 +286,9 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
 }
 
 /**
- * wifi set station and ap mac addr
- */
-int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
-{
-    return 0;
-}
-
-/**
  * wifi get station and ap mac addr
  */
-int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
+int HAL_WLAN_Get_Macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
     return 0;
 }

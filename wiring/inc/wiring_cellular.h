@@ -61,11 +61,13 @@ public:
     void setCredentials(const char* apn) {
         setCredentials(apn, "", "");
     }
+
     void setCredentials(const char* username, const char* password) {
         setCredentials("", username, password);
     }
+
     void setCredentials(const char* apn, const char* username, const char* password) {
-        // todo
+        HAL_Cellular_Set_Credentials(apn, username, password, nullptr);
     }
 
     bool ready()
@@ -75,39 +77,30 @@ public:
 
     CellularSignal RSSI();
 
-    bool getDataUsage(CellularData &data_get);
-    bool setDataUsage(CellularData &data_set);
-    bool resetDataUsage(void);
-
-    bool setBandSelect(const char* band);
-    bool setBandSelect(CellularBand &data_set);
-    bool getBandSelect(CellularBand &data_get);
-    bool getBandAvailable(CellularBand &data_get);
-
     template<typename... Targs>
     inline int command(const char* format, Targs... Fargs)
     {
-        return cellular_command(NULL, NULL, 10000, format, Fargs...);
+        return HAL_Cellular_Command(NULL, NULL, 10000, format, Fargs...);
     }
 
     template<typename... Targs>
     inline int command(system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
-        return cellular_command(NULL, NULL, timeout_ms, format, Fargs...);
+        return HAL_Cellular_Command(NULL, NULL, timeout_ms, format, Fargs...);
     }
 
     template<typename T, typename... Targs>
     inline int command(int (*cb)(int type, const char* buf, int len, T* param),
             T* param, const char* format, Targs... Fargs)
     {
-        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, 10000, format, Fargs...);
+        return HAL_Cellular_Command((_CALLBACKPTR_MDM)cb, (void*)param, 10000, format, Fargs...);
     }
 
     template<typename T, typename... Targs>
     inline int command(int (*cb)(int type, const char* buf, int len, T* param),
             T* param, system_tick_t timeout_ms, const char* format, Targs... Fargs)
     {
-        return cellular_command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
+        return HAL_Cellular_Command((_CALLBACKPTR_MDM)cb, (void*)param, timeout_ms, format, Fargs...);
     }
 
     IPAddress resolve(const char* name)

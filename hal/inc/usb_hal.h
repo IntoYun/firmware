@@ -42,23 +42,23 @@ extern "C" {
  * @param baudRate  The data rate of the connection. If 0, the connection is
  * uninitialized.
  */
-void USB_USART_Initial(uint32_t baudRate);
+void HAL_USB_USART_Initial(uint32_t baudRate);
 
-unsigned int USB_USART_Baud_Rate(void);
+uint32_t HAL_USB_USART_Baud_Rate(void);
 
-void USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate));
+void HAL_USB_USART_LineCoding_BitRate_Handler(void (*handler)(uint32_t bitRate));
 
 /**
  * Retrieves the number of bytes of data available.
  * @return
  */
-int32_t USB_USART_Available_Data(void);
+int32_t HAL_USB_USART_Available_Data(void);
 
 /**
  * Retrieves the number of bytes of data available in the TX buffer.
  * @return
  */
-int32_t USB_USART_Available_Data_For_Write(void);
+int32_t HAL_USB_USART_Available_Data_For_Write(void);
 
 /**
  * Reads data from the input buffer.
@@ -67,25 +67,25 @@ int32_t USB_USART_Available_Data_For_Write(void);
  * When `true`, the data byte is left in the buffer.
  * @return
  */
-int32_t USB_USART_Receive_Data(uint8_t peek);
+int32_t HAL_USB_USART_Receive_Data(uint8_t peek);
 
 /**
  * Sends data to the USB serial.
  * @param Data      The data to write.
  * @return
  */
-void USB_USART_Send_Data(uint8_t Data);
+void HAL_USB_USART_Send_Data(uint8_t Data);
 
 /**
  * Flushes TX buffer
  * @return
  */
-void USB_USART_Flush_Data(void);
+void HAL_USB_USART_Flush_Data(void);
 
 #endif
 
 #ifdef configHAL_USB_HID_ENABLE
-void USB_HID_Send_Report(void *pHIDReport, size_t reportSize);
+void HAL_USB_HID_Send_Report(void *pHIDReport, size_t reportSize);
 #endif
 
 #ifdef __cplusplus

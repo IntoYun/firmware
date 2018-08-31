@@ -38,7 +38,7 @@
 #include "system_update.h"
 #include "core_hal.h"
 #include "delay_hal.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "usb_hal.h"
 #include "system_mode.h"
 #include "system_rgbled.h"
@@ -249,7 +249,7 @@ void app_setup_and_loop_initial(bool *threaded)
     MOLMC_LOGD(TAG, "---------------welcome from IntoRobot!-----------------");
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
 #ifdef configHAL_USB_CDC_ENABLE
-    USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
+    HAL_USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
 #endif
 

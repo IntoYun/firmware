@@ -59,10 +59,10 @@ http_download_return_t HTTPDownload::update(const String& url, String md5)
     uint16_t port;
 
     if(NULL != _progress_callback) {
-        HAL_Set_Update_Handle(_progress_callback);
+        HAL_Updater_Set_Handle(_progress_callback);
     }
     urlAnalyze(url, host, port, uri);
-    if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_UPDATE)) {
+    if(HAL_Updater_Run(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_UPDATE)) {
         return HTTP_DOWNLOAD_OK;
     } else {
         return HTTP_DOWNLOAD_FAILED;
@@ -77,7 +77,7 @@ http_download_return_t HTTPDownload::update(const String& url, String md5)
 http_download_return_t HTTPDownload::update(const String& host, uint16_t port, const String& uri, String md5)
 {
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_W67
-    if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_UPDATE)) {
+    if(HAL_Updater_Run(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_UPDATE)) {
         return HTTP_DOWNLOAD_OK;
     } else {
         return HTTP_DOWNLOAD_FAILED;
@@ -101,10 +101,10 @@ http_download_return_t HTTPDownload::download(const String& url, String md5)
     uint16_t port;
 
     if(NULL != _progress_callback) {
-        HAL_Set_Update_Handle(_progress_callback);
+        HAL_Updater_Set_Handle(_progress_callback);
     }
     urlAnalyze(url, host, port, uri);
-    if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_DOWNLOAD)) {
+    if(HAL_Updater_Run(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_DOWNLOAD)) {
         return HTTP_DOWNLOAD_OK;
     } else {
         return HTTP_DOWNLOAD_FAILED;
@@ -119,7 +119,7 @@ http_download_return_t HTTPDownload::download(const String& url, String md5)
 http_download_return_t HTTPDownload::download(const String& host, uint16_t port, const String& uri, String md5)
 {
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_W67
-    if(HAL_Update(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_DOWNLOAD)) {
+    if(HAL_Updater_Run(host.c_str(), uri.c_str(), md5.c_str(), UPDATER_MODE_DOWNLOAD)) {
         return HTTP_DOWNLOAD_OK;
     } else {
         return HTTP_DOWNLOAD_FAILED;
@@ -274,8 +274,8 @@ http_download_return_t HTTPDownload::handleUpdate(HTTPClient& http, String md5, 
         case HTTP_CODE_OK:  ///< OK (Start Update)
             if(len > 0) {
                 bool startUpdate = true;
-                if((UPDATER_MODE_UPDATE == mode) && (len > (int)HAL_Update_FlashLength())) {
-                    MOLMC_LOGD(TAG, "[httpDownload] FreeSketchSpace to low (%d) needed: %d", HAL_Update_FlashLength(), len);
+                if((UPDATER_MODE_UPDATE == mode) && (len > (int)HAL_Updater_Flash_Length())) {
+                    MOLMC_LOGD(TAG, "[httpDownload] FreeSketchSpace to low (%d) needed: %d", HAL_Updater_Flash_Length(), len);
                     startUpdate = false;
                 }
 
