@@ -174,7 +174,7 @@ static void McuRecoverSystem(void)
 {
     Set_System();
 #ifdef configHAL_USB_CDC_ENABLE
-    USB_USART_Initial(115200);
+    HAL_USB_USART_Initial(115200);
 #endif
 
 #ifndef configNO_RGB_UI && configNO_SETUPBUTTON_UI
@@ -185,7 +185,7 @@ static void McuRecoverSystem(void)
 //进入低功耗模式前处理mcu相关接口
 static void McuLowPowerSystemProcess(void)
 {
-    /* __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗 USB_USART_Initial(0)会运行此功能*/
+    /* __HAL_RCC_USB_FORCE_RESET();//USB 如果打开了 必须运行来降低功耗 HAL_USB_USART_Initial(0)会运行此功能*/
     __HAL_RCC_LSI_DISABLE();
 
     //禁用比较器
@@ -245,7 +245,7 @@ void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long
     }
 
 #ifdef configHAL_USB_CDC_ENABLE
-    USB_USART_Initial(0);
+    HAL_USB_USART_Initial(0);
 #endif
 
     McuLowPowerSystemProcess();
@@ -265,7 +265,7 @@ void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
     McuLowPowerSetPin();
 
 #ifdef configHAL_USB_CDC_ENABLE
-    USB_USART_Initial(0);
+    HAL_USB_USART_Initial(0);
 #endif
     McuLowPowerSystemProcess();
     #if 0

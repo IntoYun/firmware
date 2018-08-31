@@ -36,34 +36,34 @@ USBSerial::USBSerial()
 
 void USBSerial::begin(long speed)
 {
-    USB_USART_Initial((unsigned)speed);
+    HAL_USB_USART_Initial((unsigned)speed);
 }
 
 void USBSerial::end()
 {
-    USB_USART_Initial(0);
+    HAL_USB_USART_Initial(0);
 }
 
 // Read data from buffer
 int USBSerial::read()
 {
-    return USB_USART_Receive_Data(false);
+    return HAL_USB_USART_Receive_Data(false);
 }
 
 int USBSerial::availableForWrite()
 {
-    return USB_USART_Available_Data_For_Write();
+    return HAL_USB_USART_Available_Data_For_Write();
 }
 
 int USBSerial::available()
 {
-    return USB_USART_Available_Data();
+    return HAL_USB_USART_Available_Data();
 }
 
 size_t USBSerial::write(uint8_t byte)
 {
-    if (USB_USART_Available_Data_For_Write() > 0 || _blocking) {
-        USB_USART_Send_Data(byte);
+    if (HAL_USB_USART_Available_Data_For_Write() > 0 || _blocking) {
+        HAL_USB_USART_Send_Data(byte);
         return 1;
     }
     return 0;
@@ -71,7 +71,7 @@ size_t USBSerial::write(uint8_t byte)
 
 void USBSerial::flush()
 {
-    USB_USART_Flush_Data();
+    HAL_USB_USART_Flush_Data();
 }
 
 void USBSerial::blockOnOverrun(bool block)
@@ -81,7 +81,7 @@ void USBSerial::blockOnOverrun(bool block)
 
 int USBSerial::peek()
 {
-    return USB_USART_Receive_Data(true);
+    return HAL_USB_USART_Receive_Data(true);
 }
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
