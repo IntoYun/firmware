@@ -97,8 +97,8 @@ bool UpdaterClass::begin(size_t size, updater_mode_t mode) {
 
     uint32_t updateStartAddress = 0;
     if(UPDATER_MODE_UPDATE == mode) {
-        updateStartAddress = HAL_Update_StartAddress();
-        uint32_t currentSketchSize = HAL_Update_FlashLength();
+        updateStartAddress = HAL_Updater_Start_Address();
+        uint32_t currentSketchSize = HAL_Updater_Flash_Length();
         //initialize
         if (updateStartAddress) {
             MOLMC_LOGD(TAG, "[begin] updateStartAddress:  0x%08X (%d)", updateStartAddress, updateStartAddress);
@@ -182,7 +182,7 @@ bool UpdaterClass::end(bool evenIfRemaining){
     MOLMC_LOGD(TAG, "Staged: address:0x%08X, size:0x%08X", _startAddress, _size);
 
     if(UPDATER_MODE_UPDATE == _mode) {
-        HAL_Set_Update_Flag(_size);
+        HAL_Updater_Set_Flag(_size);
     }
     _reset();
     return true;
@@ -194,7 +194,7 @@ bool UpdaterClass::_writeBuffer() {
     }
 
     if(UPDATER_MODE_UPDATE == _mode) {
-        int result = HAL_Update_Flash(_buffer, _currentAddress, _bufferLen, NULL);
+        int result = HAL_Updater_Flash(_buffer, _currentAddress, _bufferLen, NULL);
         if (result) {
             _currentAddress = (_startAddress + _size);
             _setError(UPDATE_ERROR_WRITE);

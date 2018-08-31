@@ -31,7 +31,7 @@
 
 static THandlerFunction_Progress _update_handle = NULL;
 
-bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
+bool HAL_Updater_Run(const char *host, const char *uri, const char * md5, updater_mode_t mode)
 {
     bool flag = false;
     deal_status_t status;
@@ -45,7 +45,7 @@ bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mod
             do {
                 status = esp8266MDM.getDownOtafileStatus();
                 if(DEALSTATUS_SUCCESS == status) {
-                    HAL_Set_Update_Flag(0);
+                    HAL_Updater_Set_Flag(0);
                     flag = true;
                     break;
                 } else if(DEALSTATUS_DOING == status) {
@@ -63,28 +63,28 @@ bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mod
     return flag;
 }
 
-void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
+void HAL_Updater_Set_Handle(THandlerFunction_Progress fn)
 {
     _update_handle = fn;
 }
 
-void HAL_Set_Update_Flag(uint32_t size)
+void HAL_Updater_Set_Flag(uint32_t size)
 {
     HAL_PARAMS_Set_Boot_boot_flag(BOOT_FLAG_OTA_UPDATE);
     HAL_PARAMS_Save_Params();
 }
 
-uint32_t HAL_Update_StartAddress()
+uint32_t HAL_Updater_Start_Address(void)
 {
     return 0;
 }
 
-uint32_t HAL_Update_FlashLength()
+uint32_t HAL_Updater_Flash_Length(void)
 {
     return 0;
 }
 
-int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+int HAL_Updater_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
 {
     return 0;
 }

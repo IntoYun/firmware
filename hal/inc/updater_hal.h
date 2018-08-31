@@ -34,12 +34,12 @@ typedef enum {
 
 typedef void (*THandlerFunction_Progress)(uint8_t *data, size_t len, uint32_t currentSize, uint32_t totalSize);
 
-bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode);
-void HAL_Set_Update_Handle(THandlerFunction_Progress fn);
-void HAL_Set_Update_Flag(uint32_t size);
-uint32_t HAL_Update_StartAddress();
-uint32_t HAL_Update_FlashLength();
-int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved);
+bool HAL_Updater_Run(const char *host, const char *uri, const char * md5, updater_mode_t mode);
+void HAL_Updater_Set_Handle(THandlerFunction_Progress fn);
+void HAL_Updater_Set_Flag(uint32_t size);
+uint32_t HAL_Updater_Start_Address(void);
+uint32_t HAL_Updater_Flash_Length(void);
+int HAL_Updater_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved);
 
 
 #ifdef __cplusplus

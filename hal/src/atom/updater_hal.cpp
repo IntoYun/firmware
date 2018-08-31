@@ -21,7 +21,7 @@
 #include "wiring_ex_process.h"
 #include "core_hal.h"
 
-bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mode_t mode)
+bool HAL_Updater_Run(const char *host, const char *uri, const char * md5, updater_mode_t mode)
 {
     String url="";
     Process Proc;
@@ -36,25 +36,25 @@ bool HAL_Update(const char *host, const char *uri, const char * md5, updater_mod
     return res == 0 ? true:false;
 }
 
-void HAL_Set_Update_Handle(THandlerFunction_Progress fn)
+void HAL_Updater_Set_Handle(THandlerFunction_Progress fn)
 {
 }
 
-void HAL_Set_Update_Flag(uint32_t size)
+void HAL_Updater_Set_Flag(uint32_t size)
 {
 }
 
-uint32_t HAL_Update_StartAddress()
-{
-    return 0;
-}
-
-uint32_t HAL_Update_FlashLength()
+uint32_t HAL_Updater_Start_Address(void)
 {
     return 0;
 }
 
-int HAL_Update_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
+uint32_t HAL_Updater_Flash_Length(void)
+{
+    return 0;
+}
+
+int HAL_Updater_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length, void* reserved)
 {
     return 0;
 }
