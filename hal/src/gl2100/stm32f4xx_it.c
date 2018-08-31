@@ -154,8 +154,7 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
     /* Go to infinite loop when Usage Fault exception occurs */
-    while (1)
-    {
+    while (1) {
     }
 }
 

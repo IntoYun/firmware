@@ -63,49 +63,6 @@ typedef struct {
     unsigned int ci;     //!< Cell ID in hexadecimal format (2 to 4 bytes in hex)
 } NetStatus;
 
-#ifdef __cplusplus
-//! Data Usage struct
-struct MDM_DataUsage {
-    uint16_t size;
-    int cid;
-    int tx_session;
-    int rx_session;
-    int tx_total;
-    int rx_total;
-
-    MDM_DataUsage()
-    {
-        memset(this, 0, sizeof(*this));
-        size = sizeof(*this);
-    }
-};
-#else
-typedef struct MDM_DataUsage MDM_DataUsage;
-#endif
-
-//! Bands
-// NOTE: KEEP IN SYNC with band_enums[] array in spark_wiring_cellular_printable.h
-typedef enum { BAND_DEFAULT=0, BAND_0=0, BAND_700=700, BAND_800=800, BAND_850=850,
-               BAND_900=900, BAND_1500=1500, BAND_1700=1700, BAND_1800=1800,
-               BAND_1900=1900, BAND_2100=2100, BAND_2600=2600 } MDM_Band;
-
-#ifdef __cplusplus
-//! Band Select struct
-struct MDM_BandSelect {
-    uint16_t size;
-    int count;
-    MDM_Band band[5];
-
-    MDM_BandSelect()
-    {
-        memset(this, 0, sizeof(*this));
-        size = sizeof(*this);
-    }
-};
-#else
-typedef struct MDM_BandSelect MDM_BandSelect;
-#endif
-
 typedef enum {
     IPSTATUS_ATERROR       = 0,
     IPSTATUS_INITIAL       = 1,
@@ -116,6 +73,14 @@ typedef enum {
     IPSTATUS_PROCESSING    = 6,
     IPSTATUS_DEACT         = 7
 } ip_status_t;
+
+typedef enum {
+    CELLULAR_STATE_INVALID       = 0,
+    CELLULAR_STATE_READY         = 1,
+    CELLULAR_STATE_CONNECTING    = 2,
+    CELLULAR_STATE_CONNECTED     = 3,
+    CELLULAR_STATE_DISCONNECTED  = 4,
+} cellular_state_t;
 
 //! An IP v4 address
 typedef uint32_t MDM_IP;
@@ -170,7 +135,7 @@ enum {
     TYPE_ERROR      = 0x120000,
     TYPE_RING       = 0x210000,
     TYPE_CONNECT    = 0x220000,
-    TYPE_CONNECTFAIL= 0x230000,
+    TYPE_DISCONNECT = 0x230000,
     TYPE_CONNECTCLOSTED = 0x240000,
     TYPE_SENDOK     = 0x250000,
     TYPE_SENDERROR  = 0x260000,

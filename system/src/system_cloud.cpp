@@ -845,11 +845,14 @@ void intorobot_cloud_init(void)
     // v2版本subscibe
     intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_ACTION_TOPIC, NULL, cloud_action_callback, 0);   //从平台获取系统控制信息
     intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_DEBUGTX_TOPIC, NULL, cloud_debug_callback, 0);   //从平台获取调试信息
-    intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
 
-    // 添加默认数据点
-    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);           //reboot
-    intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0); //get all datapoint
+    if(PRODUCT_TYPE_NOTE == system_get_product_type()) {
+        intorobot_subscribe(TOPIC_VERSION_V2, INTOROBOT_MQTT_TX_TOPIC, NULL, cloud_data_receive_callback, 0); //从平台获取数据通讯信息
+
+        // 添加默认数据点
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_RESET, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0);           //reboot
+        intorobotDefineDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, DP_PERMISSION_UP_DOWN, false, DP_POLICY_NONE, 0); //get all datapoint
+    }
 }
 
 int intorobot_cloud_connect(void)
