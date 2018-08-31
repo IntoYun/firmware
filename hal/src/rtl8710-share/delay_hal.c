@@ -25,7 +25,7 @@
 
 #include "delay_hal.h"
 #include "hw_config.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 
 /*******************************************************************************
 * Function Name  : Delay

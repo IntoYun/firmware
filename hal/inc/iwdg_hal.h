@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef WATCHDOG_HAL_H
-#define	WATCHDOG_HAL_H
+#ifndef IWDG_HAL_H
+#define IWDG_HAL_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -38,5 +38,5 @@ void HAL_IWDG_Feed(void);
 }
 #endif
 
-#endif	/* WATCHDOG_HAL_H */
+#endif	/* IWDG_HAL_H */
 

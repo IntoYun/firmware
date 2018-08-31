@@ -20,7 +20,7 @@
 #include "intorobot_config.h"
 #include <stdio.h>
 #include "string.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "wlan_hal.h"
 #include "delay_hal.h"
 #include "tick_hal.h"

@@ -25,7 +25,7 @@
 #include "system_cloud.h"
 #include "system_event.h"
 #include "system_threading.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "wlan_hal.h"
 #include "delay_hal.h"
 #include "ui_hal.h"

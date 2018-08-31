@@ -22,7 +22,7 @@
 #include <string.h>
 #include "core_hal.h"
 #include "core_hal_stm32l1xx.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "rng_hal.h"
 #include "ui_hal.h"
 #include "updater_hal.h"

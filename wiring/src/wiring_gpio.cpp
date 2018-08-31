@@ -24,7 +24,7 @@
 #include "wiring_usartserial.h"
 #include "wiring_spi.h"
 #include "wiring_i2c.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "delay_hal.h"
 #include "pinmap_hal.h"
 #include "system_task.h"

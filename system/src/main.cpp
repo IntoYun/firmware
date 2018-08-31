@@ -38,7 +38,7 @@
 #include "system_update.h"
 #include "core_hal.h"
 #include "delay_hal.h"
-#include "watchdog_hal.h"
+#include "iwdg_hal.h"
 #include "usb_hal.h"
 #include "system_mode.h"
 #include "system_rgbled.h"
