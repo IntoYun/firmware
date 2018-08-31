@@ -24,22 +24,22 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
     return 0;
 }
 
-int wlan_clear_credentials()
+int HAL_WLAN_Clear_Credentials()
 {
     return 0;
 }
 
-int wlan_has_credentials()
+int HAL_WLAN_Has_Credentials()
 {
     return 0;
 }
 
-wlan_result_t wlan_activate()
+wlan_result_t HAL_WLAN_Activate(void)
 {
     return 0;
 }
 
-wlan_result_t wlan_deactivate()
+wlan_result_t HAL_WLAN_Deactivate(void)
 {
     return 0;
 }
@@ -54,43 +54,38 @@ wlan_result_t wlan_disconnect()
     return 0;
 }
 
-int wlan_status()
-{
-    return -1;
-}
-
-int wlan_connected_rssi(void)
+int HAL_WLAN_Connected_Rssi(void)
 {
     return 0;
 }
 
-int wlan_set_credentials(WLanCredentials* c)
+int HAL_WLAN_Set_Credentials(WLanCredentials* c)
 {
     return -1;
 }
 
-void wlan_Imlink_start()
+void HAL_WLAN_Imlink_Start(void)
 {
 }
 
-imlink_status_t wlan_Imlink_get_status()
+imlink_status_t HAL_WLAN_Imlink_Get_Status(void)
 {
     return IMLINK_SUCCESS;
 }
 
-void wlan_Imlink_stop()
+void HAL_WLAN_Imlink_Stop(void)
 {
 }
 
-void wlan_setup()
+void HAL_WLAN_Setup(void)
 {
 }
 
-void wlan_fetch_ipconfig(WLanConfig* config)
+void HAL_WLAN_Fetch_Ipconfig(WLanConfig* config)
 {
 }
 
-void wlan_set_error_count(uint32_t errorCount)
+void HAL_WLAN_Set_Error_Count(uint32_t errorCount)
 {
 }
 
@@ -98,7 +93,7 @@ void wlan_set_error_count(uint32_t errorCount)
 /**
  * Sets the IP source - static or dynamic.
  */
-void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reserved)
+void HAL_WLAN_Set_Ipaddress_Source(IPAddressSource source, bool persist, void* reserved)
 {
 }
 
@@ -111,13 +106,13 @@ void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reser
  * @param dns2
  * @param reserved
  */
-void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
+void HAL_WLAN_Set_Ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
         const HAL_IPAddress* gateway, const HAL_IPAddress* dns1, const HAL_IPAddress* dns2, void* reserved)
 {
 
 }
 
-int wlan_scan(wlan_scan_result_t callback, void* cookie)
+int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
 {
     return -1;
 }
@@ -125,24 +120,16 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie)
 /**
  * Lists all WLAN credentials currently stored on the device
  */
-int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data)
+int HAL_WLAN_Get_Credentials(wlan_scan_result_t callback, void* callback_data)
 {
     // Reading credentials from the CC3000 is not possible
     return 0;
 }
 
 /**
- * wifi set station and ap mac addr
- */
-int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
-{
-    return 0;
-}
-
-/**
  * wifi get station and ap mac addr
  */
-int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
+int HAL_WLAN_Get_Macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
 {
     return 0;
 }

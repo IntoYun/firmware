@@ -60,43 +60,43 @@ STATIC_ASSERT(WLanConfigSize, sizeof(WLanConfig)==WLanConfig_Size_V2);
 /**
  * Called once at startup to initialize the wlan hardware.
  */
-void wlan_setup();
+void HAL_WLAN_Setup(void);
 
 /**
  * Enable wifi without connecting.
  */
-wlan_result_t wlan_activate();
+wlan_result_t HAL_WLAN_Activate(void);
 
 /**
  * Disable wifi.
  */
-wlan_result_t wlan_deactivate();
+wlan_result_t HAL_WLAN_Deactivate(void);
 
 /**
  * Connect start the wireless connection.
  */
-wlan_result_t  wlan_connect_init();
+wlan_result_t  HAL_WLAN_Connect_Init(void);
 
 /**
  * Finalize the connection by connecting to stored profiles.
  */
-wlan_result_t  wlan_connect_finalize();
+wlan_result_t  HAL_WLAN_Connect_Finalize(void);
 
-wlan_result_t wlan_disconnect_now();
+wlan_result_t HAL_WLAN_Disconnect_Now(void);
 /**
  * Cancel a previous call to any blocking wifi connect method.
  * @param called_from_isr - set to true if this is being called from an ISR.
  */
-void wlan_connect_cancel(bool called_from_isr);
+void HAL_WLAN_Connect_Cancel(bool called_from_isr);
 
 /**
  * @return <0 for a valid signal strength, in db.
  *         0 for rssi not found (caller could retry)
  *         >0 for an error
  */
-int wlan_connected_rssi();
+int HAL_WLAN_Connected_Rssi(void);
 
-void wlan_drive_now(void);
+void HAL_WLAN_Drive_Now(void);
 
 // Provide compatibility with the original cc3000 headers.
 #ifdef WLAN_SEC_UNSEC
@@ -159,12 +159,12 @@ typedef struct WiFiAccessPoint {
 
 typedef void (*wlan_scan_result_t)(WiFiAccessPoint* ap, void* cookie);
 
-int wlan_clear_credentials();
-int wlan_has_credentials();
-bool wlan_reset_credentials_store_required();
-wlan_result_t  wlan_reset_credentials_store();
-int wlan_set_credentials(WLanCredentials* credentials);
-int wlan_get_credentials(wlan_scan_result_t callback, void* callback_data);
+int HAL_WLAN_Clear_Credentials(void);
+int HAL_WLAN_Has_Credentials(void);
+bool HAL_WLAN_Reset_Credentials_Store_Required(void);
+wlan_result_t  HAL_WLAN_Reset_Credentials_Store(void);
+int HAL_WLAN_Set_Credentials(WLanCredentials* credentials);
+int HAL_WLAN_Get_Credentials(wlan_scan_result_t callback, void* callback_data);
 
 /**
  * Initialize imlink config mode.
@@ -176,16 +176,16 @@ typedef enum {
     IMLINK_IDLE = 3,
 } imlink_status_t;
 
-void wlan_Imlink_start();
-void wlan_Imlink_stop();
-imlink_status_t wlan_Imlink_get_status();
+void HAL_WLAN_Imlink_Start(void);
+void HAL_WLAN_Imlink_Stop(void);
+imlink_status_t HAL_WLAN_Imlink_Get_Status(void);
 
-void wlan_set_error_count(uint32_t error_count);
+void HAL_WLAN_Set_Error_Count(uint32_t error_count);
 
 /**
  * Retrieve IP address info. Available after HAL_WLAN_notify_dhcp() has been callted.
  */
-void wlan_fetch_ipconfig(WLanConfig* config);
+void HAL_WLAN_Fetch_Ipconfig(WLanConfig* config);
 
 typedef enum {
     DYNAMIC_IP,
@@ -195,7 +195,7 @@ typedef enum {
 /**
  * Sets the IP source - static or dynamic.
  */
-void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reserved);
+void HAL_WLAN_Set_Ipaddress_Source(IPAddressSource source, bool persist, void* reserved);
 
 /**
  * Sets the IP Addresses to use when the device is in static IP mode.
@@ -206,7 +206,7 @@ void wlan_set_ipaddress_source(IPAddressSource source, bool persist, void* reser
  * @param dns2
  * @param reserved
  */
-void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
+void HAL_WLAN_Set_Ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmask,
         const HAL_IPAddress* gateway, const HAL_IPAddress* dns1, const HAL_IPAddress* dns2, void* reserved);
 
 
@@ -215,7 +215,7 @@ void wlan_set_ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* netmas
  * @param cookie    An opaque handle that is passed to the callback.
  * @return negative on error.
  */
-int wlan_scan(wlan_scan_result_t callback, void* cookie);
+int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie);
 
 /**
  * Lists all WLAN credentials currently stored on the device
@@ -224,9 +224,7 @@ int wlan_scan(wlan_scan_result_t callback, void* cookie);
  * @return count of stored credentials, negative on error.
  */
 
-
-int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
-int wlan_get_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
+int HAL_WLAN_Get_Macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr);
 
 #ifdef	__cplusplus
 }

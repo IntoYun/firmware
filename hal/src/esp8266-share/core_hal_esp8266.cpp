@@ -35,7 +35,6 @@
 #include "Schedule.h"
 #include "esp8266-hal-wifi.h"
 #include "flash_map.h"
-#include "macaddr_hal.h"
 
 const static char *TAG = "hal-core";
 
@@ -150,7 +149,6 @@ void init_done()
     do_global_ctors();
     HAL_Core_Config();
     HAL_Core_Setup();
-    wlan_set_macaddr_when_init();
     esp_schedule();
 }
 

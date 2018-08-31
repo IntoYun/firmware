@@ -62,7 +62,7 @@ class APScan : public APArrayPopulator {
 
         int start()
         {
-            return std::min(count, wlan_scan(callback, this));
+            return std::min(count, HAL_WLAN_Scan(callback, this));
         }
 };
 
@@ -72,7 +72,7 @@ class APList : public APArrayPopulator {
 
         int start()
         {
-            return std::min(count, wlan_get_credentials(callback, this));
+            return std::min(count, HAL_WLAN_Get_Credentials(callback, this));
         }
 };
 
@@ -92,7 +92,7 @@ int8_t WiFiClass::RSSI() {
 
     system_tick_t _functionStart = millis();
     while ((millis() - _functionStart) < 1000) {
-        int rv = wlan_connected_rssi();
+        int rv = HAL_WLAN_Connected_Rssi();
         if (rv != 0)
             return (rv);
     }

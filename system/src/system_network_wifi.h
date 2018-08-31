@@ -37,26 +37,26 @@ class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNe
 protected:
     void connect_init() override
     {
-        wlan_connect_init();
+        HAL_WLAN_Connect_Init();
     }
 
     void connect_finalize() override
     {
-        wlan_connect_finalize();
+        HAL_WLAN_Connect_Finalize();
     }
 
     void disconnect_now() override
     {
-        wlan_disconnect_now();
+        HAL_WLAN_Disconnect_Now();
     }
 
     void drive_now() override
     {
-        wlan_drive_now();
+        HAL_WLAN_Drive_Now();
     }
 
-    void on_now() override { wlan_activate(); }
-    void off_now() override { wlan_deactivate(); }
+    void on_now() override { HAL_WLAN_Activate(); }
+    void off_now() override { HAL_WLAN_Deactivate(); }
 
 public:
 
@@ -73,12 +73,12 @@ public:
     void connect_cancel(bool cancel) override
     {
         if (cancel)
-            wlan_connect_cancel(HAL_IsISR());
+            HAL_WLAN_Connect_Cancel(HAL_IsISR());
     }
 
     bool has_credentials() override
     {
-        return wlan_has_credentials()==0;
+        return HAL_WLAN_Has_Credentials()==0;
     }
 
     int set_credentials(NetworkCredentials* credentials) override
@@ -95,7 +95,7 @@ public:
 
         credentials->security = security;
 
-        int result = wlan_set_credentials(credentials);
+        int result = HAL_WLAN_Set_Credentials(credentials);
         if (!result) {
             //system_notify_event(network_credentials, network_credentials_added, credentials);
         }
@@ -104,26 +104,26 @@ public:
 
     bool clear_credentials() override
     {
-        return wlan_clear_credentials() == 0;
+        return HAL_WLAN_Clear_Credentials() == 0;
     }
 
     void setup() override
     {
-        wlan_setup();
+        HAL_WLAN_Setup();
 
-        if (wlan_reset_credentials_store_required()) {
-            wlan_reset_credentials_store();
+        if (HAL_WLAN_Reset_Credentials_Store_Required()) {
+            HAL_WLAN_Reset_Credentials_Store();
         }
     }
 
     void fetch_ipconfig(WLanConfig* target)
     {
-        wlan_fetch_ipconfig(target);
+        HAL_WLAN_Fetch_Ipconfig(target);
     }
 
     void set_error_count(unsigned count) override
     {
-        wlan_set_error_count(count);
+        HAL_WLAN_Set_Error_Count(count);
     }
 };
 
