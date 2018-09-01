@@ -91,7 +91,7 @@ uint32_t molmc_log_timestamp(void);
  *
  * This function or these macros should not be used from an interrupt.
  */
-bool molmc_log_should_output(molmc_log_level_t level, const char* tag);
+bool molmc_log_should_output(const char* tag, molmc_log_level_t level);
 
 /**
  * @brief Write message into the log
@@ -101,13 +101,15 @@ bool molmc_log_should_output(molmc_log_level_t level, const char* tag);
  *
  * This function or these macros should not be used from an interrupt.
  */
-void molmc_log_write(molmc_log_level_t level, const char* tag, const char* format, ...);
+void molmc_log_write(const char* tag, molmc_log_level_t level, const char* format, ...);
 
 //these functions do not check level versus MOLMC_LOCAL_LEVEL, this should be done in iotx_log_api.h
 /**
  * @brief Log a buffer of hex bytes at Info level
  *
  * @param  tag      description tag
+ *
+ * @param level level of the log
  *
  * @param  buffer   Pointer to the buffer array
  *
@@ -116,12 +118,14 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
  * @see ``molmc_log_buffer_hex_level``
  *
  */
-void molmc_log_buffer_hex_internal(molmc_log_level_t level, const char *tag, const void *buffer, uint16_t buff_len);
+void molmc_log_buffer_hex_internal(const char *tag, molmc_log_level_t level, const void *buffer, uint16_t buff_len);
 
 /**
  * @brief Log a buffer of characters at Info level. Buffer should contain only printable characters.
  *
  * @param  tag      description tag
+ *
+ * @param level level of the log
  *
  * @param  buffer   Pointer to the buffer array
  *
@@ -130,7 +134,7 @@ void molmc_log_buffer_hex_internal(molmc_log_level_t level, const char *tag, con
  * @see ``molmc_log_buffer_char_level``
  *
  */
-void molmc_log_buffer_char_internal(molmc_log_level_t level, const char *tag, const void *buffer, uint16_t buff_len);
+void molmc_log_buffer_char_internal(const char *tag, molmc_log_level_t level, const void *buffer, uint16_t buff_len);
 
 /**
  * @brief Dump a buffer to the log at specified level.
@@ -143,16 +147,16 @@ void molmc_log_buffer_char_internal(molmc_log_level_t level, const char *tag, co
  *
  * It is highly recommend to use terminals with over 102 text width.
  * *
- * @param level level of the log
- *
  * @param tag description tag
+ *
+ * @param level level of the log
  *
  * @param buffer Pointer to the buffer array
  *
  * @param buff_len length of buffer in bytes
  */
 
-void molmc_log_buffer_hexdump_internal(molmc_log_level_t log_level, const char *tag, const void *buffer, uint16_t buff_len);
+void molmc_log_buffer_hexdump_internal(const char *tag, molmc_log_level_t log_level, const void *buffer, uint16_t buff_len);
 
 #if CONFIG_MOLMC_LOG_COLORS
 #define MOLMC_LOG_COLOR_BLACK   "30"
@@ -182,11 +186,11 @@ void molmc_log_buffer_hexdump_internal(molmc_log_level_t log_level, const char *
 #define MOLMC_LOG_FORMAT_HEADER(letter)        MOLMC_LOG_COLOR_##letter #letter " [%010u]:[%-12.12s]: " MOLMC_LOG_RESET_COLOR
 #define MOLMC_LOG_FORMAT_TEXT(letter, format)  MOLMC_LOG_COLOR_##letter format MOLMC_LOG_RESET_COLOR
 
-#define MOLMC_LOGE_SHOULD_OUTPUT( tag ) molmc_log_should_output(MOLMC_LOG_ERROR, tag)
-#define MOLMC_LOGW_SHOULD_OUTPUT( tag ) molmc_log_should_output(MOLMC_LOG_WARN, tag)
-#define MOLMC_LOGI_SHOULD_OUTPUT( tag ) molmc_log_should_output(MOLMC_LOG_INFO, tag)
-#define MOLMC_LOGD_SHOULD_OUTPUT( tag ) molmc_log_should_output(MOLMC_LOG_DEBUG, tag)
-#define MOLMC_LOGV_SHOULD_OUTPUT( tag ) molmc_log_should_output(MOLMC_LOG_VERBOSE, tag)
+#define MOLMC_LOGE_SHOULD_OUTPUT( tag ) molmc_log_should_output( tag, MOLMC_LOG_ERROR )
+#define MOLMC_LOGW_SHOULD_OUTPUT( tag ) molmc_log_should_output( tag, MOLMC_LOG_WARN )
+#define MOLMC_LOGI_SHOULD_OUTPUT( tag ) molmc_log_should_output( tag, MOLMC_LOG_INFO )
+#define MOLMC_LOGD_SHOULD_OUTPUT( tag ) molmc_log_should_output( tag, MOLMC_LOG_DEBUG )
+#define MOLMC_LOGV_SHOULD_OUTPUT( tag ) molmc_log_should_output( tag, MOLMC_LOG_VERBOSE )
 
 #if MOLMC_LOG_LOCAL_LEVEL == MOLMC_LOG_NONE
 #define MOLMC_LOGE_HEADER( tag )
@@ -227,17 +231,17 @@ void molmc_log_buffer_hexdump_internal(molmc_log_level_t log_level, const char *
 
 #else
 
-#define MOLMC_LOGE_HEADER( tag ) do { molmc_log_write(MOLMC_LOG_ERROR,   tag, MOLMC_LOG_FORMAT_HEADER(E), molmc_log_timestamp(), tag); } while(0)
-#define MOLMC_LOGW_HEADER( tag ) do { molmc_log_write(MOLMC_LOG_WARN,    tag, MOLMC_LOG_FORMAT_HEADER(W), molmc_log_timestamp(), tag); } while(0)
-#define MOLMC_LOGI_HEADER( tag ) do { molmc_log_write(MOLMC_LOG_INFO,    tag, MOLMC_LOG_FORMAT_HEADER(I), molmc_log_timestamp(), tag); } while(0)
-#define MOLMC_LOGD_HEADER( tag ) do { molmc_log_write(MOLMC_LOG_DEBUG,   tag, MOLMC_LOG_FORMAT_HEADER(D), molmc_log_timestamp(), tag); } while(0)
-#define MOLMC_LOGV_HEADER( tag ) do { molmc_log_write(MOLMC_LOG_VERBOSE, tag, MOLMC_LOG_FORMAT_HEADER(V), molmc_log_timestamp(), tag); } while(0)
+#define MOLMC_LOGE_HEADER( tag ) do { molmc_log_write( tag, MOLMC_LOG_ERROR,    MOLMC_LOG_FORMAT_HEADER(E), molmc_log_timestamp(), tag ); } while(0)
+#define MOLMC_LOGW_HEADER( tag ) do { molmc_log_write( tag, MOLMC_LOG_WARN,     MOLMC_LOG_FORMAT_HEADER(W), molmc_log_timestamp(), tag ); } while(0)
+#define MOLMC_LOGI_HEADER( tag ) do { molmc_log_write( tag, MOLMC_LOG_INFO,     MOLMC_LOG_FORMAT_HEADER(I), molmc_log_timestamp(), tag ); } while(0)
+#define MOLMC_LOGD_HEADER( tag ) do { molmc_log_write( tag, MOLMC_LOG_DEBUG,    MOLMC_LOG_FORMAT_HEADER(D), molmc_log_timestamp(), tag ); } while(0)
+#define MOLMC_LOGV_HEADER( tag ) do { molmc_log_write( tag, MOLMC_LOG_VERBOSE,  MOLMC_LOG_FORMAT_HEADER(V), molmc_log_timestamp(), tag ); } while(0)
 
-#define MOLMC_LOGE_TEXT( tag, format, ... ) do { molmc_log_write(MOLMC_LOG_ERROR,   tag, MOLMC_LOG_FORMAT_TEXT(E, format), ##__VA_ARGS__); } while(0)
-#define MOLMC_LOGW_TEXT( tag, format, ... ) do { molmc_log_write(MOLMC_LOG_WARN,    tag, MOLMC_LOG_FORMAT_TEXT(W, format), ##__VA_ARGS__); } while(0)
-#define MOLMC_LOGI_TEXT( tag, format, ... ) do { molmc_log_write(MOLMC_LOG_INFO,    tag, MOLMC_LOG_FORMAT_TEXT(I, format), ##__VA_ARGS__); } while(0)
-#define MOLMC_LOGD_TEXT( tag, format, ... ) do { molmc_log_write(MOLMC_LOG_DEBUG,   tag, MOLMC_LOG_FORMAT_TEXT(D, format), ##__VA_ARGS__); } while(0)
-#define MOLMC_LOGV_TEXT( tag, format, ... ) do { molmc_log_write(MOLMC_LOG_VERBOSE, tag, MOLMC_LOG_FORMAT_TEXT(V, format), ##__VA_ARGS__); } while(0)
+#define MOLMC_LOGE_TEXT( tag, format, ... ) do { molmc_log_write( tag, MOLMC_LOG_ERROR,   MOLMC_LOG_FORMAT_TEXT(E, format), ##__VA_ARGS__ ); } while(0)
+#define MOLMC_LOGW_TEXT( tag, format, ... ) do { molmc_log_write( tag, MOLMC_LOG_WARN,    MOLMC_LOG_FORMAT_TEXT(W, format), ##__VA_ARGS__ ); } while(0)
+#define MOLMC_LOGI_TEXT( tag, format, ... ) do { molmc_log_write( tag, MOLMC_LOG_INFO,    MOLMC_LOG_FORMAT_TEXT(I, format), ##__VA_ARGS__ ); } while(0)
+#define MOLMC_LOGD_TEXT( tag, format, ... ) do { molmc_log_write( tag, MOLMC_LOG_DEBUG,   MOLMC_LOG_FORMAT_TEXT(D, format), ##__VA_ARGS__ ); } while(0)
+#define MOLMC_LOGV_TEXT( tag, format, ... ) do { molmc_log_write( tag, MOLMC_LOG_VERBOSE, MOLMC_LOG_FORMAT_TEXT(V, format), ##__VA_ARGS__ ); } while(0)
 
 #define MOLMC_LOGE( tag, format, ... ) do { MOLMC_LOGE_HEADER( tag ); MOLMC_LOGE_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGE_TEXT( tag, "%s", "\n" ); } while(0)
 #define MOLMC_LOGW( tag, format, ... ) do { MOLMC_LOGW_HEADER( tag ); MOLMC_LOGW_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGW_TEXT( tag, "%s", "\n" ); } while(0)
@@ -245,24 +249,23 @@ void molmc_log_buffer_hexdump_internal(molmc_log_level_t log_level, const char *
 #define MOLMC_LOGD( tag, format, ... ) do { MOLMC_LOGD_HEADER( tag ); MOLMC_LOGD_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGD_TEXT( tag, "%s", "\n" ); } while(0)
 #define MOLMC_LOGV( tag, format, ... ) do { MOLMC_LOGV_HEADER( tag ); MOLMC_LOGV_TEXT( tag, format, ##__VA_ARGS__ ); MOLMC_LOGV_TEXT( tag, "%s", "\n" ); } while(0)
 
-#define MOLMC_LOGE_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal(MOLMC_LOG_ERROR,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGW_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal(MOLMC_LOG_WARN,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGI_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal(MOLMC_LOG_INFO,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGD_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal(MOLMC_LOG_DEBUG,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGV_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal(MOLMC_LOG_VERBOSE, tag, buffer, buff_len); } while(0)
+#define MOLMC_LOGE_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal( tag, MOLMC_LOG_ERROR,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGW_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal( tag, MOLMC_LOG_WARN,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGI_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal( tag, MOLMC_LOG_INFO,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGD_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal( tag, MOLMC_LOG_DEBUG,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGV_BUFFER_CHAR( tag, buffer, buff_len ) do { molmc_log_buffer_char_internal( tag, MOLMC_LOG_VERBOSE, buffer, buff_len ); } while(0)
 
+#define MOLMC_LOGE_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal( tag, MOLMC_LOG_ERROR,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGW_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal( tag, MOLMC_LOG_WARN,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGI_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal( tag, MOLMC_LOG_INFO,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGD_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal( tag, MOLMC_LOG_DEBUG,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGV_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal( tag, MOLMC_LOG_VERBOSE, buffer, buff_len ); } while(0)
 
-#define MOLMC_LOGE_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal(MOLMC_LOG_ERROR,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGW_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal(MOLMC_LOG_WARN,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGI_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal(MOLMC_LOG_INFO,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGD_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal(MOLMC_LOG_DEBUG,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGV_BUFFER_HEX( tag, buffer, buff_len ) do { molmc_log_buffer_hex_internal(MOLMC_LOG_VERBOSE, tag, buffer, buff_len); } while(0)
-
-#define MOLMC_LOGE_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal(MOLMC_LOG_ERROR,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGW_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal(MOLMC_LOG_WARN,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGI_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal(MOLMC_LOG_INFO,    tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGD_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal(MOLMC_LOG_DEBUG,   tag, buffer, buff_len); } while(0)
-#define MOLMC_LOGV_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal(MOLMC_LOG_VERBOSE, tag, buffer, buff_len); } while(0)
+#define MOLMC_LOGE_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal( tag, MOLMC_LOG_ERROR,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGW_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal( tag, MOLMC_LOG_WARN,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGI_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal( tag, MOLMC_LOG_INFO,    buffer, buff_len ); } while(0)
+#define MOLMC_LOGD_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal( tag, MOLMC_LOG_DEBUG,   buffer, buff_len ); } while(0)
+#define MOLMC_LOGV_BUFFER_HEXDUMP( tag, buffer, buff_len ) do { molmc_log_buffer_hexdump_internal( tag, MOLMC_LOG_VERBOSE, buffer, buff_len ); } while(0)
 #endif
 
 #ifdef __cplusplus

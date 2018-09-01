@@ -303,7 +303,7 @@ uint32_t molmc_log_timestamp()
     return millis();
 }
 
-bool molmc_log_should_output(molmc_log_level_t level, const char* tag)
+bool molmc_log_should_output(const char* tag, molmc_log_level_t level)
 {
     if ( MOLMC_LOG_LOCAL_LEVEL < (level) ) {
         return false;
@@ -331,11 +331,11 @@ bool molmc_log_should_output(molmc_log_level_t level, const char* tag)
     return true;
 }
 
-void molmc_log_write(molmc_log_level_t level, const char* tag, const char* format, ...)
+void molmc_log_write(const char* tag, molmc_log_level_t level, const char* format, ...)
 {
     char _buffer[MAX_DEBUG_MESSAGE_LENGTH];
 
-    if(!molmc_log_should_output(level, tag)) {
+    if(!molmc_log_should_output(tag, level)) {
         return;
     }
 
@@ -349,7 +349,7 @@ void molmc_log_write(molmc_log_level_t level, const char* tag, const char* forma
     va_end(list);
 }
 
-void molmc_log_buffer_hex_internal(molmc_log_level_t level, const char *tag, const void *buffer, uint16_t buff_len)
+void molmc_log_buffer_hex_internal(const char *tag, molmc_log_level_t level, const void *buffer, uint16_t buff_len)
 {
     if ( buff_len == 0 ) return;
     char temp_buffer[BYTES_PER_LINE+3];   //for not-byte-accessible memory
@@ -358,7 +358,7 @@ void molmc_log_buffer_hex_internal(molmc_log_level_t level, const char *tag, con
     const char *ptr_buffer = buffer;
     int bytes_cur_line;
 
-    if(!molmc_log_should_output(level, tag)) {
+    if(!molmc_log_should_output(tag, level)) {
         return;
     }
 
@@ -379,13 +379,13 @@ void molmc_log_buffer_hex_internal(molmc_log_level_t level, const char *tag, con
         for( int i = 0; i < bytes_cur_line; i ++ ) {
             sprintf( hex_buffer + 3*i, "%02x ", (uint8_t)ptr_line[i] );
         }
-        molmc_log_write( level, tag, "%s\r\n", hex_buffer );
+        molmc_log_write( tag, level, "%s\r\n", hex_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );
 }
 
-void molmc_log_buffer_char_internal(molmc_log_level_t level, const char *tag, const void *buffer, uint16_t buff_len)
+void molmc_log_buffer_char_internal(const char *tag, molmc_log_level_t level, const void *buffer, uint16_t buff_len)
 {
     if ( buff_len == 0 ) return;
     char temp_buffer[BYTES_PER_LINE+3];   //for not-byte-accessible memory
@@ -394,7 +394,7 @@ void molmc_log_buffer_char_internal(molmc_log_level_t level, const char *tag, co
     const char *ptr_buffer = buffer;
     int bytes_cur_line;
 
-    if(!molmc_log_should_output(level, tag)) {
+    if(!molmc_log_should_output(tag, level)) {
         return;
     }
 
@@ -415,13 +415,13 @@ void molmc_log_buffer_char_internal(molmc_log_level_t level, const char *tag, co
         for( int i = 0; i < bytes_cur_line; i ++ ) {
             sprintf( char_buffer + i, "%c", ptr_line[i] );
         }
-        molmc_log_write( level, tag, "%s\r\n", char_buffer );
+        molmc_log_write( tag, level, "%s\r\n", char_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );
 }
 
-void molmc_log_buffer_hexdump_internal(molmc_log_level_t level, const char *tag, const void *buffer, uint16_t buff_len)
+void molmc_log_buffer_hexdump_internal(const char *tag, molmc_log_level_t level, const void *buffer, uint16_t buff_len)
 {
     if ( buff_len == 0 ) return;
     char temp_buffer[BYTES_PER_LINE+3];   //for not-byte-accessible memory
@@ -433,7 +433,7 @@ void molmc_log_buffer_hexdump_internal(molmc_log_level_t level, const char *tag,
     char *ptr_hd;
     int bytes_cur_line;
 
-    if(!molmc_log_should_output(level, tag)) {
+    if(!molmc_log_should_output(tag, level)) {
         return;
     }
 
@@ -473,7 +473,7 @@ void molmc_log_buffer_hexdump_internal(molmc_log_level_t level, const char *tag,
         }
         ptr_hd += sprintf( ptr_hd, "|" );
 
-        molmc_log_write( level, tag, "%s\r\n", hd_buffer );
+        molmc_log_write( tag, level, "%s\r\n", hd_buffer );
         ptr_buffer += bytes_cur_line;
         buff_len -= bytes_cur_line;
     } while( buff_len );

@@ -19,22 +19,8 @@
 
 #include "wiring_log.h"
 
-LogClass::LogClass()
+LogClass& __fetch_global_log()
 {
+    static LogClass _log;
+    return _log;
 }
-
-LogClass::~LogClass()
-{
-}
-
-void LogClass::setLevel(const char* tag, molmc_log_level_t level)
-{
-    molmc_log_level_set(tag, level);
-}
-
-log_output_fn_t LogClass::setOutput(log_output_fn_t func)
-{
-    molmc_log_set_output(func);
-}
-
-LogClass Log;

@@ -208,8 +208,11 @@ class LoRaClass
         uint32_t _txTimeout = 30000;         //发射超时时间 单位ms
 };
 
-extern LoRaWanClass LoRaWan;
-extern LoRaClass LoRa;
+extern LoRaWanClass &__fetch_global_lorawan();
+#define LoRaWan __fetch_global_lorawan()
+
+extern LoRaClass &__fetch_global_lora();
+#define LoRa __fetch_global_lora()
 
 #endif
 #endif /* WIRING_LORAWAN_H_ */

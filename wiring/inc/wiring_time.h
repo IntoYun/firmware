@@ -96,6 +96,7 @@ class TimeClass {
 
 };
 
-extern TimeClass Time;	//eg. usage: Time.day();
+extern TimeClass &__fetch_global_time();
+#define Time __fetch_global_time()
 
 #endif
