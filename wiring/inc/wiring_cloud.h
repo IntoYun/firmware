@@ -20,7 +20,7 @@
 #ifndef WIRING_CLOUD_H_
 #define WIRING_CLOUD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdio.h>
 #include "wiring_string.h"
 #include "system_cloud.h"

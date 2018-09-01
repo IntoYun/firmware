@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdio.h>
 #include "string.h"
 #include "iwdg_hal.h"

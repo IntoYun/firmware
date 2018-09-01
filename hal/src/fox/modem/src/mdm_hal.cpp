@@ -134,7 +134,6 @@ void dumpAtCmd(const char* buf, int len)
     }
     MOLMC_LOGD_TEXT(TAG, "\"\r\n");
 }
-
 #endif
 /* Private variables --------------------------------------------------------*/
 
@@ -182,9 +181,11 @@ void MDMParser::SMSreceived(int index) {
 int MDMParser::send(const char* buf, int len)
 {
 #ifdef MDM_DEBUG
-    MOLMC_LOGD_HEADER(TAG);
-    MOLMC_LOGD_TEXT(TAG, "AT Send ");
-    dumpAtCmd(buf, len);
+    if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+        MOLMC_LOGD_HEADER(TAG);
+        MOLMC_LOGD_TEXT(TAG, "AT Send ");
+        dumpAtCmd(buf, len);
+    }
 #endif
     return _send(buf, len);
 }
@@ -210,25 +211,29 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Tick_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
+
 #ifdef MDM_DEBUG
-        if ((ret != WAIT) && (ret != NOT_FOUND))
-        {
-            int len = LENGTH(ret);
-            int type = TYPE(ret);
-            const char* s = (type == TYPE_UNKNOWN)? "UNK" :
-                (type == TYPE_TEXT)   ? "TXT" :
-                (type == TYPE_OK   )  ? "OK " :
-                (type == TYPE_ERROR)  ? "ERR" :
-                (type == TYPE_ABORTED) ? "ABT" :
-                (type == TYPE_PLUS)   ? " + " :
-                (type == TYPE_PROMPT) ? " > " :
-                "..." ;
-            MOLMC_LOGD_HEADER(TAG);
-            MOLMC_LOGD_TEXT(TAG, "AT Read %s ", s);
-            dumpAtCmd(buf, len);
-            (void)s;
+        if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+            if ((ret != WAIT) && (ret != NOT_FOUND))
+            {
+                int len = LENGTH(ret);
+                int type = TYPE(ret);
+                const char* s = (type == TYPE_UNKNOWN)? "UNK" :
+                    (type == TYPE_TEXT)   ? "TXT" :
+                    (type == TYPE_OK   )  ? "OK " :
+                    (type == TYPE_ERROR)  ? "ERR" :
+                    (type == TYPE_ABORTED) ? "ABT" :
+                    (type == TYPE_PLUS)   ? " + " :
+                    (type == TYPE_PROMPT) ? " > " :
+                    "..." ;
+                MOLMC_LOGD_HEADER(TAG);
+                MOLMC_LOGD_TEXT(TAG, "AT Read %s ", s);
+                dumpAtCmd(buf, len);
+                (void)s;
+            }
         }
 #endif
+
         if ((ret != WAIT) && (ret != NOT_FOUND))
         {
             int type = TYPE(ret);
@@ -554,7 +559,9 @@ bool MDMParser::init(void)
         goto failure;
 
 #ifdef MDM_DEBUG
-    dumpDevStatus(&_dev);
+    if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+        dumpDevStatus(&_dev);
+    }
 #endif
 
     // 设置网络参数 ---------------------------------

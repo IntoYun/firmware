@@ -20,7 +20,7 @@
 #ifndef WIRING_CELLULAR_PRINTABLE_H_
 #define WIRING_CELLULAR_PRINTABLE_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_CELLULAR_ENABLE
 

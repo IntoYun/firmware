@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configHAL_USB_CDC_ENABLE
 /**

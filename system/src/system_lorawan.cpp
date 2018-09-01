@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>

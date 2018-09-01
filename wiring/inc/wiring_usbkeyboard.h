@@ -20,7 +20,7 @@
 #ifndef WIRING_USBKEYBOARD_H_
 #define WIRING_USBKEYBOARD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_USBKEYBOARD_ENABLE
 #include "wiring.h"

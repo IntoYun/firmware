@@ -20,7 +20,7 @@
 #ifndef SYSTEM_LORAWAN_H_
 #define SYSTEM_LORAWAN_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configNO_LORAWAN
 #define LORAWAN_FN(x,y) (y)

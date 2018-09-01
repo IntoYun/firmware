@@ -1,7 +1,7 @@
 #ifndef  WIRING_LORAWAN_H_
 #define  WIRING_LORAWAN_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdlib.h>
 #ifndef configNO_LORAWAN
 

@@ -20,7 +20,7 @@
 #ifndef WIRING_USBMOUSE_H_
 #define WIRING_USBMOUSE_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_USBMOUSE_ENABLE
 #include "wiring.h"

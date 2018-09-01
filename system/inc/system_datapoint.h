@@ -20,7 +20,7 @@
 #ifndef SYSTEM_DATAPOINT_H_
 #define SYSTEM_DATAPOINT_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #include <string.h>
 #include <stdint.h>

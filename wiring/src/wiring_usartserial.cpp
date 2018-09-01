@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_USARTSERIAL_ENABLE
 
 #include "wiring_usartserial.h"

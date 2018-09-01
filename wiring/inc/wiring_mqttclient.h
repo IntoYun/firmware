@@ -20,7 +20,7 @@
 #ifndef WIRING_MQTTCLIENT_H_
 #define WIRING_MQTTCLIENT_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifndef configNO_CLOUD
 #include "wiring_constants.h"

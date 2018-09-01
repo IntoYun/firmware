@@ -20,7 +20,7 @@
 #ifndef WIRING_USARTSERIAL_H_
 #define WIRING_USARTSERIAL_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_USARTSERIAL_ENABLE
 
 #include "wiring_stream.h"

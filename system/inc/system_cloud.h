@@ -20,7 +20,7 @@
 #ifndef SYSTEM_CLOUD_H_
 #define SYSTEM_CLOUD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configNO_CLOUD
 #define CLOUD_FN(x,y) (y)

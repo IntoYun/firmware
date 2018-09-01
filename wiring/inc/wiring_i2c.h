@@ -20,7 +20,7 @@
 #ifndef WIRING_I2C_H_
 #define WIRING_I2C_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_WIRE_ENABLE
 
 #include "wiring_stream.h"

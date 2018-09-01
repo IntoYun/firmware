@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -650,7 +650,7 @@ static uint16_t intorobotFormAllDatapoint(uint8_t *buffer, uint16_t len, uint8_t
 int intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16_t timeout)
 {
     MOLMC_LOGD(TAG, "send data:");
-    MOLMC_LOG_BUFFER_HEX(TAG, data, dataLen);
+    MOLMC_LOGD_BUFFER_HEX(TAG, data, dataLen);
 #ifndef configNO_CLOUD
     bool result = intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
     return result ? 0 : -1;

@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 
 #ifdef __cplusplus

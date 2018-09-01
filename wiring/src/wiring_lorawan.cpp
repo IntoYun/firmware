@@ -1,4 +1,4 @@
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifndef configNO_LORAWAN
 
 #include "wiring_lorawan.h"

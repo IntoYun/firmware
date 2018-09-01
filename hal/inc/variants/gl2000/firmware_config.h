@@ -17,11 +17,11 @@
   ******************************************************************************
 */
 
-#ifndef INTOROBOT_CONFIG_H_
-#define INTOROBOT_CONFIG_H_
+#ifndef FIRMWARE_CONFIG_H_
+#define FIRMWARE_CONFIG_H_
 
 /* config hal function. */
-//#define configHAL_USB_CDC_ENABLE
+#define configHAL_USB_CDC_ENABLE
 //#define configHAL_USB_HID_ENABLE
 
 /* config wiring communication type. */
@@ -31,38 +31,37 @@
 //#define configWIRING_IPV6_ENABLE
 
 /* config wiring usb serial. */
-//#define configWIRING_USBSERIAL_ENABLE
+#define configWIRING_USBSERIAL_ENABLE
 //#define configWIRING_USBMOUSE_ENABLE
 //#define configWIRING_USBKEYBOARD_ENABLE
 
 /* config wiring usart serial. */
 #define configWIRING_USARTSERIAL_ENABLE
-#define configWIRING_USARTSERIAL1_ENABLE
+//#define configWIRING_USARTSERIAL1_ENABLE
 //#define configWIRING_USARTSERIAL2_ENABLE
 //#define configWIRING_USARTSERIAL3_ENABLE
 //#define configWIRING_USARTSERIAL4_ENABLE
 //#define configWIRING_USARTSERIAL5_ENABLE
 
 /* config wring wire */
-#define configWIRING_WIRE_ENABLE
-#define configWIRING_WIRE1_ENABLE
+//#define configWIRING_WIRE_ENABLE
+//#define configWIRING_WIRE1_ENABLE
 //#define configWIRING_WIRE2_ENABLE
 
 /* config wring spi */
 #define configWIRING_SPI_ENABLE
-#define configWIRING_SPI1_ENABLE
+//#define configWIRING_SPI1_ENABLE
 //#define configWIRING_SPI2_ENABLE
 
 /* config wiring can. */
-// #define configWIRING_CAN_ENABLE
+//#define configWIRING_CAN_ENABLE
 //#define configWIRING_CAN1_ENABLE
-
 
 /* config setup */
 #define configSETUP_ENABLE
-//#define configSETUP_USBSERIAL_ENABLE
-#define configSETUP_USARTSERIAL_ENABLE
-#define configSETUP_TCP_ENABLE
+#define configSETUP_USBSERIAL_ENABLE
+//#define configSETUP_USARTSERIAL_ENABLE
+//#define configSETUP_TCP_ENABLE
 #define configSETUP_UDP_ENABLE
 
 /* config network */
@@ -75,10 +74,10 @@
 #define configNO_LORAWAN
 
 /* config rgb ui */
-//#define configNO_RGB_UI
+#define configNO_RGB_UI
 
 /* config setup button ui */
-//#define configNO_SETUPBUTTON_UI
+#define configNO_SETUPBUTTON_UI
 
 /* config panic */
 #define configPANIC_BUT_KEEP_CALM
@@ -88,5 +87,4 @@
 #define configSERVO_TIM_PWM_FREQ                50  //50Hz
 
 
-#endif /* INTOROBOT_CONFIG_H */
-
+#endif /* FIRMWARE_CONFIG_H */

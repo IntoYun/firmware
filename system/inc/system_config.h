@@ -25,7 +25,7 @@
 #ifndef SYSTEM_CONFIG_H_
 #define SYSTEM_CONFIG_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configSETUP_ENABLE
 

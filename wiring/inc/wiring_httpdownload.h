@@ -20,7 +20,7 @@
 #ifndef WIRING_HTTPDOWNLOAD_H_
 #define WIRING_HTTPDOWNLOAD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifndef configNO_NETWORK
 

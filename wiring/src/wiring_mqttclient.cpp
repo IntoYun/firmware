@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifndef configNO_CLOUD
 
 #include <stdio.h>
@@ -411,12 +411,12 @@ boolean MqttClientClass::publish(const char* topic, const uint8_t* payload, unsi
         if(write(header,buffer,length-5))
         {
             MOLMC_LOGD(TAG, "OK! published topic: %s, payload -> ", topic);
-            MOLMC_LOG_BUFFER_HEX(TAG, payload, plength);
+            MOLMC_LOGD_BUFFER_HEX(TAG, payload, plength);
             return true;
         }
     }
     MOLMC_LOGD(TAG, "Error! publish topic: %s, payload -> ", topic);
-    MOLMC_LOG_BUFFER_HEX(TAG, payload, plength);
+    MOLMC_LOGD_BUFFER_HEX(TAG, payload, plength);
     return false;
 }
 

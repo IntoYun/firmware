@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdio.h>
 #include <stddef.h>
 #include "rtc_hal.h"

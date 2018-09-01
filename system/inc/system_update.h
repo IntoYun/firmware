@@ -1,7 +1,7 @@
 #ifndef SYSTEM_UPDATE_H
 #define SYSTEM_UPDATE_H
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include "md5_builder.h"
 #include "updater_hal.h"
 #include "wiring_ticks.h"

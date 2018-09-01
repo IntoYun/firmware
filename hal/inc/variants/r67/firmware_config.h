@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef INTOROBOT_CONFIG_H_
-#define INTOROBOT_CONFIG_H_
+#ifndef FIRMWARE_CONFIG_H_
+#define FIRMWARE_CONFIG_H_
 
 /* config hal function. */
 //#define configHAL_USB_CDC_ENABLE
@@ -87,4 +87,4 @@
 #define configSERVO_TIM_PWM_FREQ                50  //50Hz
 
 
-#endif /* INTOROBOT_CONFIG_H */
+#endif /* FIRMWARE_CONFIG_H */

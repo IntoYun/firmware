@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_USBMOUSE_ENABLE
 
 #include "wiring_usbmouse.h"

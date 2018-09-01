@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configSETUP_ENABLE
 
 #include <stdio.h>

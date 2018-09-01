@@ -20,7 +20,7 @@
 #ifndef WIRING_WIFI_H_
 #define WIRING_WIFI_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_WIFI_ENABLE
 

@@ -21,7 +21,7 @@
 #define SYSTEM_NETWORK_CELLULAR_H
 
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_CELLULAR_ENABLE
 
 #include "system_network_internal.h"

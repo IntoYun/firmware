@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_WIRE_ENABLE
 
 #include "wiring_i2c.h"

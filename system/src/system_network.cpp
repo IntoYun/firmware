@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #include "wiring_ticks.h"
 #include "system_network.h"

@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_CELLULAR_ENABLE
 
 #include "wiring_cellular.h"

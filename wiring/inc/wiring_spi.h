@@ -20,7 +20,7 @@
 #ifndef WIRING_SPI_H_
 #define WIRING_SPI_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #ifdef configWIRING_SPI_ENABLE
 
 #include "wiring.h"

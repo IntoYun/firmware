@@ -20,7 +20,7 @@
 #ifndef WIRING_CAN_H
 #define WIRING_CAN_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_CAN_ENABLE
 

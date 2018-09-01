@@ -20,7 +20,7 @@
 #ifndef WIRING_USBSERIAL_H_
 #define WIRING_USBSERIAL_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #ifdef configWIRING_USBSERIAL_ENABLE
 
