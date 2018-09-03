@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_SPI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI
 
 #include <stdio.h>
 #include "wiring_spi.h"
@@ -244,7 +244,7 @@ SPIClass &__fetch_global_spi()
     return spi;
 }
 
-#ifdef FIRMWARE_CONFIG_WIRING_SPI1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI1
 SPIClass &__fetch_global_spi1()
 {
     static SPIClass spi1(HAL_SPI_INTERFACE2);
@@ -252,7 +252,7 @@ SPIClass &__fetch_global_spi1()
 }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_SPI2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI2
 SPIClass &__fetch_global_spi2()
 {
     static SPIClass spi2(HAL_SPI_INTERFACE3);

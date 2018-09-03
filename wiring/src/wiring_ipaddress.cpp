@@ -53,7 +53,7 @@ IPAddress::IPAddress(const uint8_t* address)
 
 IPAddress::operator bool()
 {
-#ifdef FIRMWARE_CONFIG_WIRING_IPV6_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_IPV6
 #error handle me!
 #else
     return address.ipv4!=0;

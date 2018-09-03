@@ -18,7 +18,7 @@
  */
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR
 
 #include "wiring_cellular.h"
 

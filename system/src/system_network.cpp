@@ -40,14 +40,14 @@ volatile uint8_t SYSTEM_NETWORK_STARTED;
 
 #ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
-#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI
 #include "system_network_wifi.h"
 WiFiNetworkInterface wifi;
 ManagedNetworkInterface& network = wifi;
 inline NetworkInterface& nif(network_interface_t _nif) { return wifi; }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR
 #include "system_network_cellular.h"
 CellularNetworkInterface cellular;
 ManagedNetworkInterface& network = cellular;

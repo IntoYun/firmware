@@ -60,27 +60,27 @@ void serialEvent() __attribute__((weak));
 __attribute__((weak)) void serialEvent() {}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
 void serialEvent1() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
 void serialEvent2() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
 void serialEvent3() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
 void serialEvent4() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
 void serialEvent5() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
 void usbSerialEvent() __attribute__((weak));
 #endif
 
@@ -99,29 +99,29 @@ void serialEventRun()
         serialEvent();
     }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
     if (serialEvent1 && Serial1.available()>0) {
         serialEvent1();
     }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
     if (serialEventRun2) {serialEventRun2();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
     if (serialEventRun3) {serialEventRun3();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
     if (serialEventRun4) {serialEventRun4();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
     if (serialEventRun5) {serialEventRun5();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
     if (usbSerialEvent && SerialUSB.available() > 0) {
         usbSerialEvent();
     }

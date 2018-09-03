@@ -192,7 +192,7 @@ class SystemClass {
         inline int disableFeature(system_feature_t feature) {
             return system_product_instance().set_system_feature(feature, false);
         }
-#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
         void configEnterMode(system_config_type_t config_type) {
             set_system_config_type(config_type);
         }

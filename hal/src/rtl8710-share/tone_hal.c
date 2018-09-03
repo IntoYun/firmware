@@ -34,7 +34,7 @@
 const uint8_t tone_timers[] = { 1 };
 static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255, };
 static long toggle_counts[AVAILABLE_TONE_PINS] = { 0, };
-uint32_t tone_freq = configTIM_PWM_FREQ;
+uint32_t tone_freq = FIRMWARE_CONFIG_TIM_PWM_FREQ;
 
 void t1IntHandler();
 

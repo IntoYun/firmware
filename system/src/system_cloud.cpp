@@ -1102,7 +1102,7 @@ void intorobot_process(void)
 
     intorobot_process_flag = 1;
 
-#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
     if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
         manage_system_config();
         goto exit_process;

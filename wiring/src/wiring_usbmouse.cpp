@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_USBMOUSE_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBMOUSE
 
 #include "wiring_usbmouse.h"
 //

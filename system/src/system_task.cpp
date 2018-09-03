@@ -273,7 +273,7 @@ void manage_lorawan_connection(void)
 void system_process_loop(void)
 {
     intorobot_loop_total_millis = 0;
-#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
     if(!g_intorobot_system_config) {
 #endif
         NEWORK_FN(manage_network_connection(), (void)0);
@@ -281,7 +281,7 @@ void system_process_loop(void)
         CLOUD_FN(manage_cloud_connection(), (void)0);
         CLOUD_FN(manage_app_auto_update(), (void)0);
         LORAWAN_FN(manage_lorawan_connection(), (void)0);
-#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
     }
 #endif
 }

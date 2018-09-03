@@ -98,7 +98,7 @@ test(api_wiring_usartserial) {
     API_COMPILE(Serial.end());
 }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
 test(api_wiring_usbserial) {
     API_COMPILE(SerialUSB.blockOnOverrun(false));
     API_COMPILE(SerialUSB.blockOnOverrun(true));
@@ -159,36 +159,36 @@ test(api_map) {
 test(api_wiring_globals) {
     void* ptrs[] = {
         &SPI,
-#ifdef FIRMWARE_CONFIG_WIRING_SPI1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI1
         &SPI1,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_SPI2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI2
         &SPI2,
 #endif
         &Serial,
         &Wire,
-#ifdef FIRMWARE_CONFIG_WIRING_WIRE1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE1
         &Wire1,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_WIRE2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE2
         &Wire2,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_WIRE3_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE3
         &Wire3,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
         &Serial1,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
         &Serial2,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
         &Serial3,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
         &Serial4,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
         &Serial5,
 #endif
         &EEPROM,

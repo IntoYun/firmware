@@ -20,7 +20,7 @@
 #include "wiring_can.h"
 #include "wiring_constants.h"
 
-#ifdef FIRMWARE_CONFIG_WIRING_CAN_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CAN
 // Constructors ////////////////////////////////////////////////////////////////
 
 CANChannel::CANChannel(HAL_CAN_Channel channel,

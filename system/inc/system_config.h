@@ -27,7 +27,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
 
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
@@ -98,7 +98,7 @@ public:
     void dealTest(aJsonObject* root);
 };
 
-#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
 class UsbDeviceConfig : public DeviceConfig
 {
 public:
@@ -118,7 +118,7 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
 class UsartDeviceConfig: public DeviceConfig
 {
 public:
@@ -138,7 +138,7 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
 class TcpDeviceConfig: public DeviceConfig
 {
 public:
@@ -159,7 +159,7 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_UDP
 class UdpDeviceConfig : public DeviceConfig
 {
 public:
@@ -179,16 +179,16 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
 extern UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
-#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
 extern UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
-#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
 extern TcpDeviceConfig DeviceSetupAp;
 #endif
-#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_UDP
 extern UdpDeviceConfig DeviceSetupImlink;
 #endif
 
