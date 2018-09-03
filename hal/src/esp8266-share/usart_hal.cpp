@@ -31,6 +31,8 @@
 #include "esp8266-hal-uart.h"
 #include "core_hal_esp8266.h"
 
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
+
 // Options for `config` argument of uart_init
 #define UART_NB_BIT_5         0B00000000
 #define UART_NB_BIT_6         0B00000100
@@ -77,7 +79,7 @@ typedef struct {
 /*
  * USART mapping
  */
-ESP8266_USART_Info USART_MAP[TOTAL_USARTS] =
+ESP8266_USART_Info USART_MAP[TOTAL_USART_NUM] =
 {
     /*
      * USART_number (UART0, UART1)
@@ -90,7 +92,7 @@ ESP8266_USART_Info USART_MAP[TOTAL_USARTS] =
     { UART1, TX1, 0xFF, NULL, false, false, -1 }         // USART 1
 };
 
-static ESP8266_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+static ESP8266_USART_Info *usartMap[TOTAL_USART_NUM]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {

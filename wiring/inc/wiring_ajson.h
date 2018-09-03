@@ -24,7 +24,7 @@
 #ifndef WIRING_AJSON_H_
 #define WIRING_AJSON_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include "wiring_print.h"
 #include "wiring_stream.h"
 #include "wiring_client.h"
@@ -137,7 +137,7 @@ class aJsonStream : public Print
         int bucket;
 };
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 /* JSON stream that consumes data from a connection (usually
  * Ethernet client) until the connection is closed. */
 class aJsonClientStream : public aJsonStream {

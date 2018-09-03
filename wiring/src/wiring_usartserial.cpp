@@ -17,8 +17,8 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
-#ifdef configWIRING_USARTSERIAL_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_USART > 0
 
 #include "wiring_usartserial.h"
 #include "wiring_constants.h"
@@ -115,7 +115,7 @@ USARTSerial &__fetch_global_serial()
     return serial;
 }
 
-#ifdef configWIRING_USARTSERIAL1_ENABLE
+#if FIRMWARE_CONFIG_WIRING_USART > 1
 USARTSerial &__fetch_global_serial1()
 {
     static USARTSerial serial1(HAL_USART_SERIAL2);
@@ -123,7 +123,7 @@ USARTSerial &__fetch_global_serial1()
 }
 #endif
 
-#ifdef configWIRING_USARTSERIAL2_ENABLE
+#if FIRMWARE_CONFIG_WIRING_USART > 2
 USARTSerial &__fetch_global_serial2()
 {
     static USARTSerial serial2(HAL_USART_SERIAL3);

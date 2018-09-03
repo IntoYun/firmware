@@ -20,9 +20,9 @@
 #ifndef WIRING_NETWORK_H_
 #define WIRING_NETWORK_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ipaddress.h"
 

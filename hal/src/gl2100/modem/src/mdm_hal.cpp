@@ -118,7 +118,6 @@ inline void CLR_CELLULAR_TIMEOUT(void) {
     MOLMC_LOGD(TAG, "CELLULAR WD Cleared, was %d", cellular_timeout_duration);
 }
 
-#ifdef MDM_DEBUG
 void dumpAtCmd(const char* buf, int len)
 {
     MOLMC_LOGD_TEXT(TAG, "(%3d): \"", len);
@@ -143,7 +142,6 @@ void dumpAtCmd(const char* buf, int len)
     MOLMC_LOGD_TEXT(TAG, "\"\r\n");
 }
 
-#endif
 /* Private variables --------------------------------------------------------*/
 
 MDMParser* MDMParser::inst;
@@ -189,11 +187,11 @@ void MDMParser::SMSreceived(int index) {
 
 int MDMParser::send(const char* buf, int len)
 {
-#ifdef MDM_DEBUG
-    MOLMC_LOGD_HEADER(TAG);
-    MOLMC_LOGD_TEXT(TAG, "AT Send ");
-    dumpAtCmd(buf, len);
-#endif
+    if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+        MOLMC_LOGD_HEADER(TAG);
+        MOLMC_LOGD_TEXT(TAG, "AT Send ");
+        dumpAtCmd(buf, len);
+    }
     return _send(buf, len);
 }
 
@@ -218,25 +216,27 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     system_tick_t start = HAL_Tick_Get_Milli_Seconds();
     do {
         int ret = getLine(buf, sizeof(buf));
-#ifdef MDM_DEBUG
-        if ((ret != WAIT) && (ret != NOT_FOUND))
-        {
-            int len = LENGTH(ret);
-            int type = TYPE(ret);
-            const char* s = (type == TYPE_UNKNOWN)? "UNK" :
-                (type == TYPE_TEXT)   ? "TXT" :
-                (type == TYPE_OK   )  ? "OK " :
-                (type == TYPE_ERROR)  ? "ERR" :
-                (type == TYPE_ABORTED) ? "ABT" :
-                (type == TYPE_PLUS)   ? " + " :
-                (type == TYPE_PROMPT) ? " > " :
-                "..." ;
-            MOLMC_LOGD_HEADER(TAG);
-            MOLMC_LOGD_TEXT(TAG, "AT Read %s ", s);
-            dumpAtCmd(buf, len);
-            (void)s;
+
+        if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+            if ((ret != WAIT) && (ret != NOT_FOUND))
+            {
+                int len = LENGTH(ret);
+                int type = TYPE(ret);
+                const char* s = (type == TYPE_UNKNOWN)? "UNK" :
+                    (type == TYPE_TEXT)   ? "TXT" :
+                    (type == TYPE_OK   )  ? "OK " :
+                    (type == TYPE_ERROR)  ? "ERR" :
+                    (type == TYPE_ABORTED) ? "ABT" :
+                    (type == TYPE_PLUS)   ? " + " :
+                    (type == TYPE_PROMPT) ? " > " :
+                    "..." ;
+                MOLMC_LOGD_HEADER(TAG);
+                MOLMC_LOGD_TEXT(TAG, "AT Read %s ", s);
+                dumpAtCmd(buf, len);
+                (void)s;
+            }
         }
-#endif
+
         if ((ret != WAIT) && (ret != NOT_FOUND))
         {
             int type = TYPE(ret);
@@ -567,9 +567,9 @@ bool MDMParser::init(void)
     if (RESP_OK != waitFinalResp(_cbString, _dev.imsi))
         goto failure;
 
-#ifdef MDM_DEBUG
-    dumpDevStatus(&_dev);
-#endif
+    if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+        dumpDevStatus(&_dev);
+    }
 
     // 设置网络参数 ---------------------------------
     // start up multi-ip connection

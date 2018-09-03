@@ -19,7 +19,7 @@
 
 #include "wiring_cloud.h"
 
-#if (!defined configNO_CLOUD) || (!defined configNO_LORAWAN)
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD || FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 CloudClass& __fetch_global_cloud()
 {

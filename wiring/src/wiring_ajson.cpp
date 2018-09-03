@@ -105,7 +105,7 @@ size_t aJsonStream::readBytes(uint8_t *buffer, size_t len)
     return len;
 }
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 int aJsonClientStream::getch()
 {
     if (bucket != EOF) {

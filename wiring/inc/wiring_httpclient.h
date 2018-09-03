@@ -25,9 +25,9 @@
 #ifndef WIRING_HTTPCLIENT_H_
 #define WIRING_HTTPCLIENT_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include <memory>
 #include "wiring_string.h"

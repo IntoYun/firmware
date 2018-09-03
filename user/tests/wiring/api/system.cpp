@@ -70,7 +70,7 @@ test(system_freememory) {
 }
 
 test(system_waitfor) {
-#ifdef configWIRING_WIFI_ENABLE
+#if FIRMWARE_CONFIG_WIRING_WIFI
     API_COMPILE(System.waitCondition([]{return WiFi.ready();}));
     API_COMPILE(waitFor(WiFi.ready, 10000));
     API_COMPILE(waitUntil(WiFi.ready));
@@ -128,7 +128,7 @@ test(system_events)
 }
 
 test(system_config) {
-#ifdef configSETUP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP
     API_COMPILE(System.configBegin(SYSTEM_CONFIG_TYPE_NONE));
     API_COMPILE(System.configEnd());
     API_COMPILE(System.configStatus());

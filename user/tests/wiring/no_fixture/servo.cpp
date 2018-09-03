@@ -35,7 +35,7 @@ test(SERVO_CannotAttachWhenPinSelectedIsNotTimerChannel) {
     testServo.attach(pin);
     // then
     //Servo works on fixed PWM frequency of 50Hz
-    assertNotEqual(HAL_Servo_Read_Frequency(pin), configSERVO_TIM_PWM_FREQ);
+    assertNotEqual(HAL_Servo_Read_Frequency(pin), FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ);
     //To Do : Add test for remaining pins if required
 }
 
@@ -46,7 +46,7 @@ test(SERVO_CannotAttachWhenPinSelectedIsOutOfRange) {
     testServo.attach(pin);
     // then
     //Servo works on fixed PWM frequency of 50Hz
-    assertNotEqual(HAL_Servo_Read_Frequency(pin), configSERVO_TIM_PWM_FREQ);
+    assertNotEqual(HAL_Servo_Read_Frequency(pin), FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ);
     //To Do : Add test for remaining pins if required
 }
 
@@ -56,7 +56,7 @@ test(SERVO_AttachedOnPinResultsInCorrectFrequency) {
     testServo.attach(pin);
     // then
     //Servo works on fixed PWM frequency of 50Hz
-    assertEqual(HAL_Servo_Read_Frequency(pin), configSERVO_TIM_PWM_FREQ);
+    assertEqual(HAL_Servo_Read_Frequency(pin), FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ);
     //To Do : Add test for remaining pins if required
 }
 

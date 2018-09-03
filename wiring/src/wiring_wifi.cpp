@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
-#ifdef configWIRING_WIFI_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include "wiring_wifi.h"
 #include "wiring_ticks.h"
@@ -127,3 +127,4 @@ NetworkClass& Network = WiFi;
 }
 
 #endif
+

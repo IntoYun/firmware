@@ -25,9 +25,9 @@
 #ifndef SYSTEM_CONFIG_H_
 #define SYSTEM_CONFIG_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifdef configSETUP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP
 
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
@@ -98,7 +98,7 @@ public:
     void dealTest(aJsonObject* root);
 };
 
-#ifdef configSETUP_USBSERIAL_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 class UsbDeviceConfig : public DeviceConfig
 {
 public:
@@ -118,7 +118,7 @@ public:
 };
 #endif
 
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 class UsartDeviceConfig: public DeviceConfig
 {
 public:
@@ -138,7 +138,7 @@ public:
 };
 #endif
 
-#ifdef configSETUP_TCP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
 class TcpDeviceConfig: public DeviceConfig
 {
 public:
@@ -159,7 +159,7 @@ public:
 };
 #endif
 
-#ifdef configSETUP_UDP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_UDP
 class UdpDeviceConfig : public DeviceConfig
 {
 public:
@@ -179,16 +179,16 @@ public:
 };
 #endif
 
-#ifdef configSETUP_USBSERIAL_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 extern UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 extern UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
-#ifdef configSETUP_TCP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
 extern TcpDeviceConfig DeviceSetupAp;
 #endif
-#ifdef configSETUP_UDP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP_UDP
 extern UdpDeviceConfig DeviceSetupImlink;
 #endif
 

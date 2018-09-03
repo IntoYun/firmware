@@ -16,8 +16,8 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#include "intorobot_config.h"
-#ifdef configWIRING_SPI_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include <stdio.h>
 #include "wiring_spi.h"
@@ -244,7 +244,7 @@ SPIClass &__fetch_global_spi()
     return spi;
 }
 
-#ifdef configWIRING_SPI1_ENABLE
+#if FIRMWARE_CONFIG_WIRING_SPI > 1
 SPIClass &__fetch_global_spi1()
 {
     static SPIClass spi1(HAL_SPI_INTERFACE2);
@@ -252,7 +252,7 @@ SPIClass &__fetch_global_spi1()
 }
 #endif
 
-#ifdef configWIRING_SPI2_ENABLE
+#if FIRMWARE_CONFIG_WIRING_SPI > 2
 SPIClass &__fetch_global_spi2()
 {
     static SPIClass spi2(HAL_SPI_INTERFACE3);

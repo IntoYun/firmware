@@ -24,15 +24,15 @@
 #ifndef SYSTEM_NETWORK_H
 #define SYSTEM_NETWORK_H
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifdef configNO_NETWORK
-#define NEWORK_FN(x,y) (y)
-#else
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 #define NEWORK_FN(x,y) (x)
+#else
+#define NEWORK_FN(x,y) (y)
 #endif
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "inet_hal.h"
 #include "wlan_hal.h"

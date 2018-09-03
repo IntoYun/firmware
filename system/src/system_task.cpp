@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdio.h>
 #include "string.h"
 #include "iwdg_hal.h"
@@ -49,7 +49,7 @@
 
 const static char *TAG = "sys-task";
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 using intorobot::Network;
 #endif
 
@@ -84,7 +84,7 @@ inline uint8_t in_cloud_backoff_period()
     return (HAL_Tick_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
 }
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 void Network_Setup(void)
 {
@@ -117,7 +117,7 @@ void manage_network_connection()
 
 #endif
 
-#ifndef configNO_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 /**
  * terminal auto update
  */
@@ -242,7 +242,7 @@ void cloud_disconnect(bool controlRGB)
 
 #endif
 
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 void LoraWAN_Setup(void)
 {
     MOLMC_LOGD(TAG, "LoRaWan_Setup");
@@ -273,7 +273,7 @@ void manage_lorawan_connection(void)
 void system_process_loop(void)
 {
     intorobot_loop_total_millis = 0;
-#ifdef configSETUP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP
     if(!g_intorobot_system_config) {
 #endif
         NEWORK_FN(manage_network_connection(), (void)0);
@@ -281,7 +281,7 @@ void system_process_loop(void)
         CLOUD_FN(manage_cloud_connection(), (void)0);
         CLOUD_FN(manage_app_auto_update(), (void)0);
         LORAWAN_FN(manage_lorawan_connection(), (void)0);
-#ifdef configSETUP_ENABLE
+#if FIRMWARE_CONFIG_SYSTEM_SETUP
     }
 #endif
 }
@@ -289,7 +289,7 @@ void system_process_loop(void)
 /*
  * @brief This should block for a certain number of milliseconds and also execute system_process_loop
  */
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 static void system_delay_pump(unsigned long ms, bool force_no_background_loop)
 {
     HAL_Core_System_Yield();

@@ -24,7 +24,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
-#include "intorobot_config.h"
+#include "firmware_config.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,11 +39,13 @@ typedef enum PinMode {
     INPUT,
     OUTPUT,
     INPUT_PULLUP,
-    INPUT_PULLDOWN,
+    INPUT_PULLDOWN,     // PULLDOWN only possible for pin16
+    //Used internally begin
     AF_OUTPUT_PUSHPULL, //Used internally for Alternate Function Output PushPull(TIM, UART, SPI etc)
     AF_OUTPUT_DRAIN,    //Used internally for Alternate Function Output Drain(I2C etc). External pullup resistors required.
     AN_INPUT,           //Used internally for ADC Input
     AN_OUTPUT,          //Used internally for DAC Output
+    //Used internally end
     PIN_MODE_NONE=0xFF
 } PinMode;
 
@@ -56,19 +59,21 @@ typedef enum {
 
 PinFunction HAL_Validate_Pin_Function(pin_t pin, PinFunction pinFunction);
 
-typedef struct STM32_Pin_Info  STM32_Pin_Info;
+typedef struct EESP8266_Pin_Info  EESP8266_Pin_Info;
 
-STM32_Pin_Info* HAL_Pin_Map(void);
+EESP8266_Pin_Info* HAL_Pin_Map(void);
 
 /* Exported macros -----------------------------------------------------------*/
 
 /*
 * Pin mapping. Borrowed from Wiring
 */
-#define TOTAL_PINS             70
-#define TOTAL_ANALOG_PINS      8
-#define TOTAL_DIGITAL_PINS     8
-#define FIRST_ANALOG_PIN       30
+
+#define TOTAL_PINS              31
+#define FIRST_DIGITAL_PIN       0
+#define TOTAL_DIGITAL_PINS      10
+#define FIRST_ANALOG_PIN        30
+#define TOTAL_ANALOG_PINS       1
 
 #define D0 0
 #define D1 1
@@ -79,53 +84,35 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define D6 6
 #define D7 7
 
+// Serial pins
+#define TX    8
+#define RX    9
+
+#define TXD   TX
+#define RXD   RX
+
+// Serial1 pin
+#define TX1   D0
+
+#define TXD1  TX1
+
 #define A0 30
-#define A1 31
-#define A2 32
-#define A3 33
-#define A4 34
-#define A5 35
-#define A6 36
-#define A7 37
-
-// Uart pins
-#define CTS A0
-#define RTS A1
-
-#define TX A2
-#define RX A3
 
 // SPI pins
-#define SS   A4
-#define SCK  A5
-#define MISO A6
-#define MOSI A7
-
-#define SS1   D4
-#define SCK1  D3
-#define MISO1 D2
-#define MOSI1 D0
+#define SS   D5
+#define SCK  D2
+#define MISO D3
+#define MOSI D4
 
 // I2C pins
-#define SDA  D2
-#define SCL  D1
+#define SDA  D1
+#define SCL  D0
 
 // The following pins are only defined for easy access during development.
 // Will be removed later as they are internal I/O and users
 // should not have too easy of access or bad code could do harm.
-#define LIGHT_SENSOR_UC     65
-#define SENSOR_SDA_UC       66
-#define SENSOR_SCL_UC       67
-
-#define ESP8266_TXD_UC      68
-#define ESP8266_RXD_UC      69
-
-
-#define LED_USER  D7
-
-#define TOTAL_USARTS        1
-#define TOTAL_SPIS          1
-#define TOTAL_I2CS          1
+#define LED_USER           D6
+#define LED_BUILTIN        LED_USER
 
 #define LSBFIRST 0
 #define MSBFIRST 1

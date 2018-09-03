@@ -21,9 +21,10 @@
 #include "hw_config.h"
 #include "i2s_hal.h"
 
+#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S
+
 const static char *TAG = "hal";
 
-#define TOTAL_I2S 2
 // I2Snum_SD_CK
 typedef enum I2S_Num_Def {
     I2S1_D3_D0_USER = 0,
@@ -59,13 +60,13 @@ typedef struct STM32_I2S_Info {
  * I2S1: CK PB3(D3); SD PB5(D0)
  * I2S2: CK PB10;    SD PB15
  */
-STM32_I2S_Info I2S_MAP[TOTAL_I2S] =
+STM32_I2S_Info I2S_MAP[TOTAL_I2S_NUM] =
 {
     { SPI3, DMA_CHANNEL_0, DMA1_Stream0, DMA1_Stream0_IRQn, GPIOB, GPIOB, GPIO_PIN_3, GPIO_PIN_5, GPIO_AF6_SPI3},
     { SPI2, DMA_CHANNEL_0, DMA1_Stream3, DMA1_Stream3_IRQn, GPIOB, GPIOB, GPIO_PIN_10, GPIO_PIN_15, GPIO_AF5_SPI2}
 };
 
-static STM32_I2S_Info *i2sMap[TOTAL_I2S];
+static STM32_I2S_Info *i2sMap[TOTAL_I2S_NUM];
 I2S_HandleTypeDef *sensorI2SHandle = (I2S_HandleTypeDef *)&I2S_MAP[I2S2_CK_SD_SENSOR].I2SHandle;
 
 /* Private typedef -----------------------------------------------------------*/

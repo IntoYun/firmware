@@ -26,13 +26,24 @@
 class LogClass
 {
     public:
-        LogClass();
-        ~LogClass();
+        LogClass() {};
+        ~LogClass() {};
 
-        void setLevel(const char* tag, molmc_log_level_t level);
-        log_output_fn_t setOutput(log_output_fn_t func);
+        void setLevel(const char* tag, molmc_log_level_t level) {
+            molmc_log_level_set(tag, level);
+        }
+
+        log_output_fn_t setOutput(log_output_fn_t func) {
+            molmc_log_set_output(func);
+        }
+
+        bool shouldOutput(const char* tag, molmc_log_level_t level) {
+            return molmc_log_should_output(tag, level);
+        }
 };
 
-extern LogClass Log;
+extern LogClass &__fetch_global_log();
+#define Log __fetch_global_log()
 
 #endif
+

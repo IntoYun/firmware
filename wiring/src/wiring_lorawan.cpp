@@ -1,5 +1,5 @@
-#include "intorobot_config.h"
-#ifndef configNO_LORAWAN
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #include "wiring_lorawan.h"
 #include "system_lorawan.h"
@@ -12,8 +12,6 @@
 
 const static char *TAG = "wire-lorawan";
 
-LoRaWanClass LoRaWan;
-LoRaClass LoRa;
 //lorawan 接口
 bool LoRaWanClass::joinABP(void)
 {
@@ -869,6 +867,18 @@ uint8_t LoRaClass::radioReadReg(uint8_t addr)
 void LoRaClass::radioWriteReg(uint8_t addr, uint8_t data)
 {
     Radio.Write(addr,data);
+}
+
+LoRaWanClass& __fetch_global_lorawan()
+{
+    static LoRaWanClass _LoRaWan;
+    return _LoRaWan;
+}
+
+LoRaClass& __fetch_global_lora()
+{
+    static LoRaClass _LoRa;
+    return _LoRa;
 }
 
 #endif

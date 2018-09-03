@@ -33,6 +33,7 @@ extern "C" {
 /*******************************************************************************
  * HAL interface functions for CAN
  *******************************************************************************/
+#define TOTAL_CAN_NUM FIRMWARE_CONFIG_WIRING_CAN
 
 /*******************************************************************************
    Name:           HAL_CAN_Init
@@ -57,7 +58,7 @@ void HAL_CAN_Init(HAL_CAN_Channel channel,
 
    Parameters:
        @param channel CAN Channel (CAN1, CAN2, etc)
-       @param baud The baud rate of the CAN bus 
+       @param baud The baud rate of the CAN bus
        @param flags Configuration flags for the CAN channel
 
 *******************************************************************************/

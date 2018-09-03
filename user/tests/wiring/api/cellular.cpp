@@ -19,7 +19,7 @@
 
 #include "testapi.h"
 
-#ifdef configWIRING_CELLULAR_ENABLE
+#if FIRMWARE_CONFIG_WIRING_CELLULAR
 
 test(api_cellular_rssi) {
     CellularSignal sig;

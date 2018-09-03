@@ -20,8 +20,8 @@
 #ifndef SYSTEM_NETWORK_WIFI_H
 #define	SYSTEM_NETWORK_WIFI_H
 
-#include "intorobot_config.h"
-#ifdef configWIRING_WIFI_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include "system_network_internal.h"
 #include "wlan_hal.h"

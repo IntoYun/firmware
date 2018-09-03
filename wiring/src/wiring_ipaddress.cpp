@@ -17,9 +17,9 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ipaddress.h"
 #include "wiring_print.h"
@@ -53,7 +53,7 @@ IPAddress::IPAddress(const uint8_t* address)
 
 IPAddress::operator bool()
 {
-#ifdef configWIRING_IPV6_ENABLE
+#if FIRMWARE_CONFIG_WIRING_IPV6
 #error handle me!
 #else
     return address.ipv4!=0;

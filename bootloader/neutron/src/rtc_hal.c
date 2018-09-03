@@ -8,7 +8,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "rtc_hal.h"
-#include "gpio_hal.h"
 
 RTC_HandleTypeDef RtcHandle;
 

@@ -20,8 +20,8 @@
 #ifndef SYSTEM_NETWORK_INTERNAL_H
 #define SYSTEM_NETWORK_INTERNAL_H
 
-#include "intorobot_config.h"
-#ifndef configNO_NETWORK
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ticks.h"
 #include "system_event.h"

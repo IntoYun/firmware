@@ -20,8 +20,8 @@
 #ifndef WIRING_SPI_H_
 #define WIRING_SPI_H_
 
-#include "intorobot_config.h"
-#ifdef configWIRING_SPI_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include "wiring.h"
 #include "wiring_thread.h"
@@ -239,22 +239,22 @@ class SPIClass {
 extern SPIClass &__fetch_global_spi();
 #define SPI __fetch_global_spi()
 
-#ifdef configWIRING_SPI1_ENABLE
+#if FIRMWARE_CONFIG_WIRING_SPI > 1
 #ifdef SPI1
 #undef SPI1
 #endif  // SPI1
 extern SPIClass &__fetch_global_spi1();
 #define SPI1 __fetch_global_spi1()
-#endif //configWIRING_SPI1_ENABLE
+#endif
 
-#ifdef configWIRING_SPI2_ENABLE
+#if FIRMWARE_CONFIG_WIRING_SPI > 2
 #ifdef SPI2
 #undef SPI2
 #endif  // SPI2
 extern SPIClass &__fetch_global_spi2();
 #define SPI2 __fetch_global_spi2()
-#endif //configWIRING_SPI2_ENABLE
+#endif
 
-#endif //configWIRING_SPI_ENABLE
+#endif
 
 #endif

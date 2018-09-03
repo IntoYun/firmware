@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include <stdio.h>
 #include <stddef.h>
 #include "rtc_hal.h"
@@ -34,12 +34,12 @@
 #include "wiring_system.h"
 #include "wiring_interrupts.h"
 
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 static TimerEvent_t sleepTimer;
 #endif
 
 static void before_sleep(uint32_t seconds) {
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
     LoRa.radioSetSleep();
     if(seconds > 0){
         TimerInit(&sleepTimer, NULL);
@@ -50,7 +50,7 @@ static void before_sleep(uint32_t seconds) {
 }
 
 static void after_sleep() {
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
     TimerStop(&sleepTimer);
     SX1276BoardInit();
     LoRa.radioSetModem(MODEM_LORA);
@@ -71,7 +71,7 @@ static void after_sleep() {
 
 int system_sleep_impl(system_sleep_mode_t sleepMode, uint32_t seconds, void* reserved)
 {
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
     if(LoRaWan.getMacClassType() == CLASS_C){
         return -1;
     }
@@ -83,7 +83,7 @@ int system_sleep_impl(system_sleep_mode_t sleepMode, uint32_t seconds, void* res
 
 int system_sleep_pin_impl(uint16_t wakeUpPin, uint16_t edgeTriggerMode, uint32_t seconds, void(*handler)(), void* reserved)
 {
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
     if(LoRaWan.getMacClassType() == CLASS_C){
         return -1;
     }

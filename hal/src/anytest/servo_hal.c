@@ -40,7 +40,7 @@
 // XXX: SytemCoreClock = TIM_CLK here, Other board need to be changed.
 // or set the CLK in the code below
 #define SERVO_TIM_PRESCALER (uint16_t)(SystemCoreClock / 1000000) - 1       // To get TIM counter clock = 1MHz, TIM2-5 CLK = SystemCoreClock
-#define SERVO_TIM_ARR       (uint16_t)(1000000 / configSERVO_TIM_PWM_FREQ) - 1    // To get PWM period = 20ms
+#define SERVO_TIM_ARR       (uint16_t)(1000000 / FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ) - 1    // To get PWM period = 20ms
 
 void HAL_Servo_Attach(uint16_t pin)
 {
@@ -176,7 +176,7 @@ void HAL_Servo_Write_Pulse_Width(uint16_t pin, uint16_t pulseWidth)
 {
     STM32_Pin_Info* PIN_MAP = HAL_Pin_Map();
 
-    //SERVO_TIM_CCR = pulseWidth * (SERVO_TIM_ARR + 1) * configSERVO_TIM_PWM_FREQ / 1000000;
+    //SERVO_TIM_CCR = pulseWidth * (SERVO_TIM_ARR + 1) * FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ / 1000000;
     uint16_t SERVO_TIM_CCR = pulseWidth;
 
     TIM_OC_InitTypeDef sConfig;
@@ -207,7 +207,7 @@ uint16_t HAL_Servo_Read_Pulse_Width(uint16_t pin)
 
     SERVO_TIM_CCR = HAL_TIM_ReadCapturedValue(&htim, PIN_MAP[pin].timer_ch);
 
-    //pulseWidth = (SERVO_TIM_CCR * 1000000) / ((SERVO_TIM_ARR + 1) * configSERVO_TIM_PWM_FREQ);
+    //pulseWidth = (SERVO_TIM_CCR * 1000000) / ((SERVO_TIM_ARR + 1) * FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ);
     return SERVO_TIM_CCR;
 }
 

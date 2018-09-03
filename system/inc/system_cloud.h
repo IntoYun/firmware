@@ -20,12 +20,12 @@
 #ifndef SYSTEM_CLOUD_H_
 #define SYSTEM_CLOUD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifdef configNO_CLOUD
-#define CLOUD_FN(x,y) (y)
-#else
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 #define CLOUD_FN(x,y) (x)
+#else
+#define CLOUD_FN(x,y) (y)
 #endif
 
 
@@ -35,7 +35,7 @@
 #include <time.h>
 #include <stdint.h>
 
-#ifndef configNO_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 
 #define MAX_CALLBACK_NUM    32
 

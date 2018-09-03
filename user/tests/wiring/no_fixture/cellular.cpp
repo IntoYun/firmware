@@ -21,7 +21,7 @@
 #include "unit-test/unit-test.h"
 #include "socket_hal.h"
 
-#ifdef configWIRING_CELLULAR_ENABLE
+#if FIRMWARE_CONFIG_WIRING_CELLULAR
 
 /* Scenario: The device will connect to the Cloud even when all
  *           TCP socket types are consumed
@@ -349,7 +349,7 @@ test(BAND_SELECT_setting_non_defaults_then_restore_defaults) {
 }
 #endif
 
-#ifdef configWIRING_CELLULAR_ENABLE
+#if FIRMWARE_CONFIG_WIRING_CELLULAR
 
 void checkIPAddress(const char* name, const IPAddress& address)
 {

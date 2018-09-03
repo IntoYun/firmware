@@ -1060,7 +1060,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 #if 1
                                 MOLMC_LOGD(TAG, "decrypt payload length = %d\r\n",frameLen);
                                 MOLMC_LOGD(TAG, "decrypt payload:");
-                                MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacRxPayload,frameLen);
+                                MOLMC_LOGD_BUFFER_HEX(TAG, LoRaMacRxPayload,frameLen);
                                 #endif
                             }
                         }
@@ -2250,7 +2250,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     //debug 打印组包数据
     MOLMC_LOGD(TAG, "frame length = %d\r\n",LoRaMacBufferPktLen);
     MOLMC_LOGD(TAG, "frame data:");
-    MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacBuffer,LoRaMacBufferPktLen);
+    MOLMC_LOGD_BUFFER_HEX(TAG, LoRaMacBuffer,LoRaMacBufferPktLen);
     #endif
     return LORAMAC_STATUS_OK;
 }
@@ -3204,13 +3204,13 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             #if 1
             //debug
             MOLMC_LOGD(TAG, "LoRaMacDevEui:");
-            MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacDevEui,8);
+            MOLMC_LOGD_BUFFER_HEX(TAG, LoRaMacDevEui,8);
 
             MOLMC_LOGD(TAG, "LoRaMacAppEui:");
-            MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacAppEui,8);
+            MOLMC_LOGD_BUFFER_HEX(TAG, LoRaMacAppEui,8);
 
             MOLMC_LOGD(TAG, "LoRaMacAppKey:");
-            MOLMC_LOG_BUFFER_HEX(TAG, LoRaMacAppKey,16);
+            MOLMC_LOGD_BUFFER_HEX(TAG, LoRaMacAppKey,16);
             #endif
 
             // Reset variable JoinRequestTrials

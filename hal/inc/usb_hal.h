@@ -34,9 +34,10 @@
 extern "C" {
 #endif
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifdef configHAL_USB_CDC_ENABLE
+#if FIRMWARE_CONFIG_HAL_USB_CDC
+
 /**
  * Initialize or deinitialize USB serial
  * @param baudRate  The data rate of the connection. If 0, the connection is
@@ -84,7 +85,7 @@ void HAL_USB_USART_Flush_Data(void);
 
 #endif
 
-#ifdef configHAL_USB_HID_ENABLE
+#if FIRMWARE_CONFIG_HAL_USB_HID
 void HAL_USB_HID_Send_Report(void *pHIDReport, size_t reportSize);
 #endif
 

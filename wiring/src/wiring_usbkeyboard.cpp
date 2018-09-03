@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
-#ifdef configWIRING_USBKEYBOARD_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_USBKEYBOARD
 
 #include "wiring_usbkeyboard.h"
 

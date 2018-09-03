@@ -322,4 +322,9 @@ String TimeClass::timeFormatImpl(tm* calendar_time, const char* format, int time
     return String(buf);
 }
 
-TimeClass Time;
+TimeClass& __fetch_global_time()
+{
+    static TimeClass _time;
+    return _time;
+}
+

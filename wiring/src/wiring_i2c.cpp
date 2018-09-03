@@ -17,8 +17,8 @@
  ******************************************************************************
  */
 
-#include "intorobot_config.h"
-#ifdef configWIRING_WIRE_ENABLE
+#include "firmware_config.h"
+#if FIRMWARE_CONFIG_WIRING_WIRE > 0
 
 #include "wiring_i2c.h"
 #include "i2c_hal.h"
@@ -240,13 +240,13 @@ TwoWire& __fetch_global_wire()
     return wire;
 }
 
-#ifdef configWIRING_WIRE1_ENABLE
+#if FIRMWARE_CONFIG_WIRING_WIRE > 1
 TwoWire& __fetch_global_wire1()
 {
     static TwoWire wire1(HAL_I2C_INTERFACE2);
     return wire1;
 }
-#endif  // configWIRING_WIRE1_ENABLE
+#endif
 
-#endif  // configWIRING_WIRE_ENABLE
+#endif
 

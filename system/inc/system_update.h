@@ -1,7 +1,7 @@
 #ifndef SYSTEM_UPDATE_H
 #define SYSTEM_UPDATE_H
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include "md5_builder.h"
 #include "updater_hal.h"
 #include "wiring_ticks.h"
@@ -20,7 +20,7 @@ void system_lineCodingBitRateHandler(uint32_t bitrate);
 }
 #endif
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #define UPDATE_ERROR_OK                 (0)
 #define UPDATE_ERROR_WRITE              (1)

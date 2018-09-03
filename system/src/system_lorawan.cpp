@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,7 +39,7 @@ const static char *TAG = "sys-lorawan";
 
 using namespace intorobot;
 
-#ifndef configNO_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #define LORAWAN_PUBLIC_NETWORK                  true
 #define LORAWAN_NETWORK_ID                      ( uint32_t )0

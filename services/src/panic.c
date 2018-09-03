@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 #include "intorobot_macros.h"
 #include <stdint.h>
 #include "panic.h"

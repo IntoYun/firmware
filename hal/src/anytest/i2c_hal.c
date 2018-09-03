@@ -31,8 +31,8 @@
 
 
 /* Private define ------------------------------------------------------------*/
-// XXX: Change
-#define TOTAL_I2C   2
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
+
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 #define EVENT_TIMEOUT   100000 // 100ms
 
@@ -94,13 +94,13 @@ typedef struct STM32_I2C_Info {
 /* Private variables ---------------------------------------------------------*/
 // XXX: Change
 // I2C mapping
-STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
+STM32_I2C_Info I2C_MAP[TOTAL_WIRE_NUM] =
 {
     { I2C1, GPIOB, GPIOB, GPIO_PIN_7, GPIO_PIN_6,   I2C1_ER_IRQn, I2C1_EV_IRQn},
     { I2C2, GPIOB, GPIOB, GPIO_PIN_11, GPIO_PIN_10, I2C2_ER_IRQn, I2C2_EV_IRQn},
 };
 
-static STM32_I2C_Info *i2cMap[TOTAL_I2C]; // pointer to I2C_MAP[] containing I2C peripheral info
+static STM32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral info
 
 /*
  * @brief De-Initialize the I2C peripheral.

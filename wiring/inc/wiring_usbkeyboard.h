@@ -20,9 +20,9 @@
 #ifndef WIRING_USBKEYBOARD_H_
 #define WIRING_USBKEYBOARD_H_
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifdef configWIRING_USBKEYBOARD_ENABLE
+#if FIRMWARE_CONFIG_WIRING_USBKEYBOARD
 #include "wiring.h"
 
 #define KEY_LEFT_CTRL		0x80

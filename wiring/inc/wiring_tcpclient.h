@@ -21,9 +21,9 @@
 #define __WIRING_TCPCLIENT_H
 
 
-#include "intorobot_config.h"
+#include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "config.h"
 #include "system_network.h"

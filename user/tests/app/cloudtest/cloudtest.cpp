@@ -96,7 +96,7 @@ void do_cmd(String arg)
 {
 	if (arg.equals("bounce_pdp"))
 	{
-#ifdef configWIRING_CELLULAR_ENABLE
+#if FIRMWARE_CONFIG_WIRING_CELLULAR
 		 Cellular.command(40*1000, "AT+UPSDA=0,4\r\n");
 		 Cellular.command(40*1000, "AT+UPSDA=0,3\r\n");
 		 Serial.println("bounced pdp context");
