@@ -72,19 +72,19 @@ PinMode getPinMode(uint16_t pin)
 bool pinAvailable(uint16_t pin) {
 
     // SPI safety check
-#ifdef configWIRING_SPI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI_ENABLE
     if(SPI.isEnabled() == true && (pin == SCK || pin == MOSI || pin == MISO)) {
         return 0; // 'pin' is used
     }
 #endif
     // I2C safety check
-#ifdef configWIRING_WIRE_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE_ENABLE
     if(Wire.isEnabled() == true && (pin == SCL || pin == SDA)) {
         return 0; // 'pin' is used
     }
 #endif
     // Serial safety check
-#ifdef configWIRING_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL_ENABLE
     if(Serial.isEnabled() == true && (pin == RX || pin == TX)) {
         return 0; // 'pin' is used
     }

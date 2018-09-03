@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef configWIRING_USBKEYBOARD_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBKEYBOARD_ENABLE
 
 #include "wiring_usbkeyboard.h"
 

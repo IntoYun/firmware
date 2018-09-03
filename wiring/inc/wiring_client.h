@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "system_network.h"
 #include "wiring_print.h"

@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef configWIRING_CELLULAR_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
 
 #include "wiring_network.h"
 #include "system_network.h"

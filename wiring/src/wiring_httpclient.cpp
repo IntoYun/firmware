@@ -24,7 +24,7 @@
 
 #include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include <stdlib.h>
 #include "base64.h"

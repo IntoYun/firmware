@@ -57,7 +57,7 @@ const static char *TAG = "sys-cloud";
 
 using namespace intorobot;
 
-#ifndef configNO_CLOUD
+#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
 #include "wiring_mqttclient.h"
 #include "mqttcrypto.h"
 
@@ -1102,7 +1102,7 @@ void intorobot_process(void)
 
     intorobot_process_flag = 1;
 
-#ifdef configSETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
     if(SYSTEM_CONFIG_TYPE_NONE != get_system_config_type()) {
         manage_system_config();
         goto exit_process;

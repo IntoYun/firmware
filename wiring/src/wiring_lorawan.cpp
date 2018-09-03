@@ -1,5 +1,5 @@
 #include "firmware_config.h"
-#ifndef configNO_LORAWAN
+#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #include "wiring_lorawan.h"
 #include "system_lorawan.h"

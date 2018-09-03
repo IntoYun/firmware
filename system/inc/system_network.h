@@ -26,13 +26,13 @@
 
 #include "firmware_config.h"
 
-#ifdef configNO_NETWORK
-#define NEWORK_FN(x,y) (y)
-#else
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 #define NEWORK_FN(x,y) (x)
+#else
+#define NEWORK_FN(x,y) (y)
 #endif
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "inet_hal.h"
 #include "wlan_hal.h"

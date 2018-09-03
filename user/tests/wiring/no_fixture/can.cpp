@@ -20,7 +20,7 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
-#ifdef configWIRING_CAN_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CAN_ENABLE
 
 test(CAN_INTERFACE1_ReceivesTransmittedMessage) {
     CANChannel can(HAL_CAN_INTERFACE1);
@@ -144,7 +144,7 @@ test(CAN_INTERFACE1_DoesntReceiveFilteredExtendedMessage) {
 
 #endif
 
-#ifdef configWIRING_CAN1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CAN1_ENABLE
 
 test(CAN_INTERFACE2_ReceivesTransmittedMessage) {
     CANChannel can(HAL_CAN_INTERFACE2);

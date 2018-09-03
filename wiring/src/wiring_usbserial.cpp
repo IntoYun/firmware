@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef configWIRING_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL_ENABLE
 
 #include "wiring_usbserial.h"
 

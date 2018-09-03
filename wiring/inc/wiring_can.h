@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef configWIRING_CAN_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CAN_ENABLE
 
 #include "wiring.h"
 #include "can_hal.h"

@@ -173,11 +173,11 @@ void HAL_Core_Enter_Bootloader(bool persist)
 static void McuRecoverSystem(void)
 {
     Set_System();
-#ifdef configHAL_USB_CDC_ENABLE
+#ifdef FIRMWARE_CONFIG_HAL_USB_CDC_ENABLE
     HAL_USB_USART_Initial(115200);
 #endif
 
-#ifndef configNO_RGB_UI && configNO_SETUPBUTTON_UI
+#ifdef FIRMWARE_CONFIG_SYSTEM_RGB && FIRMWARE_CONFIG_SYSTEM_BUTTON
     HAL_UI_Initial(); //初始化三色灯
 #endif
 }
@@ -244,7 +244,7 @@ void HAL_Core_Enter_Stop_Mode(uint16_t wakeUpPin, uint16_t edgeTriggerMode, long
         HAL_Interrupts_Attach(wakeUpPin,NULL,NULL,edgeTriggerMode,NULL);
     }
 
-#ifdef configHAL_USB_CDC_ENABLE
+#ifdef FIRMWARE_CONFIG_HAL_USB_CDC_ENABLE
     HAL_USB_USART_Initial(0);
 #endif
 
@@ -264,7 +264,7 @@ void HAL_Core_Enter_Standby_Mode(uint32_t seconds, void* reserved)
     MOLMC_LOGD(TAG, "mcu into standby mode");
     McuLowPowerSetPin();
 
-#ifdef configHAL_USB_CDC_ENABLE
+#ifdef FIRMWARE_CONFIG_HAL_USB_CDC_ENABLE
     HAL_USB_USART_Initial(0);
 #endif
     McuLowPowerSystemProcess();

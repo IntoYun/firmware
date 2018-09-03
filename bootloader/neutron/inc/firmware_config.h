@@ -21,63 +21,59 @@
 #define FIRMWARE_CONFIG_H_
 
 /* config hal function. */
-#define configHAL_USB_CDC_ENABLE
-//#define configHAL_USB_HID_ENABLE
+#define FIRMWARE_CONFIG_HAL_USB_CDC_ENABLE 1
+//#define FIRMWARE_CONFIG_HAL_USB_HID_ENABLE 1
 
 /* config wiring communication type. */
-#define configWIRING_WIFI_ENABLE
-//#define configWIRING_CELLULAR_ENABLE
-//#define configWIRING_LORA_ENABLE
-//#define configWIRING_IPV6_ENABLE
+#define FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_LORA_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_IPV6_ENABLE
 
 /* config wiring usb serial. */
-#define configWIRING_USBSERIAL_ENABLE
-//#define configWIRING_USBMOUSE_ENABLE
-//#define configWIRING_USBKEYBOARD_ENABLE
+#define FIRMWARE_CONFIG_WIRING_USBSERIAL_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USBMOUSE_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USBKEYBOARD_ENABLE
 
 /* config wiring usart serial. */
-#define configWIRING_USARTSERIAL_ENABLE
-//#define configWIRING_USARTSERIAL1_ENABLE
-//#define configWIRING_USARTSERIAL2_ENABLE
-//#define configWIRING_USARTSERIAL3_ENABLE
-//#define configWIRING_USARTSERIAL4_ENABLE
-//#define configWIRING_USARTSERIAL5_ENABLE
+#define FIRMWARE_CONFIG_WIRING_USARTSERIAL_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USARTSERIAL1_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USARTSERIAL2_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USARTSERIAL3_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_USARTSERIAL4_ENABLE
+//#define FIRMWARE_CONFIG_USARTSERIAL5_ENABLE
 
 /* config wring wire */
-#define configWIRING_WIRE_ENABLE
-//#define configWIRING_WIRE1_ENABLE
-//#define configWIRING_WIRE2_ENABLE
+#define FIRMWARE_CONFIG_WIRE_ENABLE
+//#define FIRMWARE_CONFIG_WIRE1_ENABLE
+//#define FIRMWARE_CONFIG_WIRE2_ENABLE
 
 /* config wring spi */
-#define configWIRING_SPI_ENABLE
-#define configWIRING_SPI1_ENABLE
-//#define configWIRING_SPI2_ENABLE
+#define FIRMWARE_CONFIG_SPI_ENABLE
+#define FIRMWARE_CONFIG_SPI1_ENABLE
+//#define FIRMWARE_CONFIG_SPI2_ENABLE
 
 /* config wiring can. */
-//#define configWIRING_CAN_ENABLE
-//#define configWIRING_CAN1_ENABLE
+//#define FIRMWARE_CONFIG_WIRING_CAN_ENABLE
+//#define FIRMWARE_CONFIG_CAN1_ENABLE
 
 /* config setup */
-#define configSETUP_ENABLE
+#define FIRMWARE_CONFIG_SETUP_ENABLE
 
 /* config network */
-//#define configNO_NETWORK
+//#define FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 /* config cloud */
-//#define configNO_CLOUD
+//#define FIRMWARE_CONFIG_SYSTEM_CLOUD
 
 /* config rgb ui */
-//#define configNO_RGB_UI
+//#define FIRMWARE_CONFIG_SYSTEM_RGB
 
 /* config setup button ui */
-//#define configNO_SETUPBUTTON_UI
+//#define FIRMWARE_CONFIG_SYSTEM_BUTTON
 
-/* config panic */
-#define configPANIC_BUT_KEEP_CALM
-
-
-#define configTIM_PWM_FREQ                      500 //500Hz
-#define configSERVO_TIM_PWM_FREQ                50  //50Hz
+#define FIRMWARE_CONFIG_TIM_PWM_FREQ 500
+#define FIRMWARE_CONFIG_SERVO_TIM_PWM_FREQ                50  //50Hz
 
 
 #endif /* FIRMWARE_CONFIG_H_ */

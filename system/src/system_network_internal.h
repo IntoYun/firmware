@@ -21,7 +21,7 @@
 #define SYSTEM_NETWORK_INTERNAL_H
 
 #include "firmware_config.h"
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ticks.h"
 #include "system_event.h"

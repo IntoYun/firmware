@@ -192,7 +192,7 @@ class SystemClass {
         inline int disableFeature(system_feature_t feature) {
             return system_product_instance().set_system_feature(feature, false);
         }
-#ifdef configSETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
         void configEnterMode(system_config_type_t config_type) {
             set_system_config_type(config_type);
         }
@@ -212,7 +212,7 @@ class SystemClass {
             system_get_firmlib_version(version, sizeof(version));
             return String(version);
         }
-#ifndef configNO_CLOUD
+#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
         bool deviceRegister(char *prodcut_id, size_t utc_time, char *signature) {
             return intorobot_device_register(prodcut_id, utc_time, signature);
         }

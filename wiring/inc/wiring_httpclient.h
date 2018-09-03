@@ -27,7 +27,7 @@
 
 #include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include <memory>
 #include "wiring_string.h"

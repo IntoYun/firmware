@@ -38,16 +38,16 @@ volatile uint8_t SYSTEM_NETWORK_RESET;
 volatile uint8_t SYSTEM_NETWORK_SLEEP;
 volatile uint8_t SYSTEM_NETWORK_STARTED;
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
 #include "system_network_wifi.h"
 WiFiNetworkInterface wifi;
 ManagedNetworkInterface& network = wifi;
 inline NetworkInterface& nif(network_interface_t _nif) { return wifi; }
 #endif
 
-#ifdef configWIRING_CELLULAR_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
 #include "system_network_cellular.h"
 CellularNetworkInterface cellular;
 ManagedNetworkInterface& network = cellular;

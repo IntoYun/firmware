@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include <stdint.h>
 #include <string.h>

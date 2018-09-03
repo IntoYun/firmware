@@ -651,11 +651,11 @@ int intorobotSendRawData(uint8_t *data, uint16_t dataLen, bool confirmed, uint16
 {
     MOLMC_LOGD(TAG, "send data:");
     MOLMC_LOGD_BUFFER_HEX(TAG, data, dataLen);
-#ifndef configNO_CLOUD
+#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
     bool result = intorobot_publish(TOPIC_VERSION_V2, INTOROBOT_MQTT_RX_TOPIC, data, dataLen, 0, false);
     return result ? 0 : -1;
 #endif
-#ifndef configNO_LORAWAN
+#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
     return intorobot_lorawan_send_data(data, dataLen, confirmed, timeout);
 #endif
 }

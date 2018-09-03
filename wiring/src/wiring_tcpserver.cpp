@@ -19,7 +19,7 @@
 
 #include "firmware_config.h"
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_tcpclient.h"
 #include "wiring_tcpserver.h"

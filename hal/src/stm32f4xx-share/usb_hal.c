@@ -24,7 +24,7 @@
 #include "sdkqueue.h"
 
 /* Private typedef -----------------------------------------------------------*/
-#ifdef configHAL_USB_CDC_ENABLE
+#ifdef FIRMWARE_CONFIG_HAL_USB_CDC_ENABLE
 
 /* Private define ------------------------------------------------------------*/
 
@@ -175,7 +175,7 @@ void OTG_FS_IRQHandler(void)
 
 #endif
 
-#ifdef configHAL_USB_HID_ENABLE
+#ifdef FIRMWARE_CONFIG_HAL_USB_HID_ENABLE
 /*******************************************************************************
  * Function Name : USB_HID_Send_Report.
  * Description   : Send HID Report Info to Host.

@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef configSETUP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_ENABLE
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,7 +46,7 @@
 
 const static char *TAG = "sys-config";
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 //using namespace intorobot;
 #endif
 using namespace intorobot;
@@ -229,7 +229,7 @@ void DeviceConfig::dealHello(void)
 
 void DeviceConfig::dealCheckWifi(void)
 {
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     aJsonObject* root = aJson.createObject();
     if (root == NULL) {return;}
 
@@ -247,25 +247,25 @@ void DeviceConfig::dealCheckWifi(void)
         free(string);
     }
     aJson.deleteItem(root);
-#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
 
 void DeviceConfig::dealGetNetworkStatus(void)
 {
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     dealCheckWifi();
-#elif defined configWIRING_CELLULAR_ENABLE
+#elif defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE
     sendComfirm(200);
-#elif defined configWIRING_LORA_ENABLE
+#elif defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE
     sendComfirm(200);
 #endif
 }
 
 void DeviceConfig::dealGetWifiList(void)
 {
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     WiFiAccessPoint ap[10];
 
     HAL_WLAN_Imlink_Stop();
@@ -304,7 +304,7 @@ void DeviceConfig::dealGetWifiList(void)
         aJson.deleteItem(root);
     }
     HAL_WLAN_Imlink_Start();
-#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE)
     sendComfirm(201);
 #endif
 }
@@ -328,7 +328,7 @@ void DeviceConfig::dealGetInfo(void)
 
     aJson.addNumberToObject(value_Object, "zone", HAL_PARAMS_Get_System_zone());
 
-#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
+#if (defined FIRMWARE_CONFIG_WIRING_WIFI_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE)
     char domain[50] = {0};
     HAL_PARAMS_Get_System_sv_domain(domain, sizeof(domain));
     aJson.addStringToObject(value_Object, "sv_domain", domain);
@@ -343,7 +343,7 @@ void DeviceConfig::dealGetInfo(void)
     HAL_PARAMS_Get_System_dw_domain(domain, sizeof(domain));
     aJson.addStringToObject(value_Object, "dw_domain", domain);
 
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     uint8_t stamac[6] = {0}, apmac[6] = {0};
     char macStr[20] = {0};
 
@@ -355,7 +355,7 @@ void DeviceConfig::dealGetInfo(void)
     sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", apmac[0], apmac[1], apmac[2], apmac[3], apmac[4], apmac[5]);
     aJson.addStringToObject(value_Object, "apmac", macStr);
 #endif
-#elif defined configWIRING_LORA_ENABLE
+#elif defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE
     char devaddr[12];
     HAL_PARAMS_Get_System_devaddr(devaddr, sizeof(devaddr));
     aJson.addStringToObject(value_Object, "devaddr", devaddr);
@@ -378,7 +378,7 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* root)
         return;
     }
 
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     HAL_WLAN_Imlink_Stop();
     network_disconnect(0, 0, NULL);
     network_connect(0, 0, 0, NULL);
@@ -396,7 +396,7 @@ void DeviceConfig::dealSetNetworkCredentials(aJsonObject* root)
     }
     aJson.deleteItem(root);
     sendComfirm(201);
-#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE)
     aJson.deleteItem(root);
     sendComfirm(201);
 #endif
@@ -411,7 +411,7 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* root)
         return;
     }
 
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     //zone
     aJsonObject* zoneObject = aJson.getObjectItem(value_Object, "zone");
     if (zoneObject != NULL) {
@@ -446,7 +446,7 @@ void DeviceConfig::dealSendDeviceInfo(aJsonObject* root)
     HAL_PARAMS_Save_Params();
     aJson.deleteItem(root);
     sendComfirm(200);
-#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE)
     aJson.deleteItem(root);
     sendComfirm(200);
 #endif
@@ -467,7 +467,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* root)
     //at_mode
     aJsonObject *atModeObject = aJson.getObjectItem(value_Object, "at_mode");
     if (atModeObject != NULL) {
-#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
+#if (defined FIRMWARE_CONFIG_WIRING_WIFI_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE)
         aJsonObject *accessTokenObject = aJson.getObjectItem(value_Object, "access_token");
         if(AT_MODE_FLAG_ABP == atModeObject->valueint) {
             if (deviceIdObject != NULL && accessTokenObject != NULL) {
@@ -476,7 +476,7 @@ void DeviceConfig::dealSetSecurity(aJsonObject* root)
                 flag = true;
             }
         }
-#elif defined configWIRING_LORA_ENABLE
+#elif defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE
         aJsonObject *appeuiObject = aJson.getObjectItem(value_Object, "appeui");
         aJsonObject *appkeyObject = aJson.getObjectItem(value_Object, "appkey");
         aJsonObject *devaddrObject = aJson.getObjectItem(value_Object, "devaddr");
@@ -543,7 +543,7 @@ void DeviceConfig::dealSetInfo(aJsonObject* root)
         HAL_PARAMS_Set_System_zone(valuefloat);
     }
 
-#if (defined configWIRING_WIFI_ENABLE) || (defined configWIRING_CELLULAR_ENABLE)
+#if (defined FIRMWARE_CONFIG_WIRING_WIFI_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE)
     //mqtt server domain
     aJsonObject* svDomainObject = aJson.getObjectItem(value_Object, "sv_domain");
     if (svDomainObject != NULL) {
@@ -582,12 +582,12 @@ void DeviceConfig::dealSetInfo(aJsonObject* root)
 
 void DeviceConfig::dealRestartNetwork(void)
 {
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
     WiFi.off();
     delay(1000);
     WiFi.on();
     sendComfirm(200);
-#elif (defined configWIRING_CELLULAR_ENABLE) || (defined configWIRING_LORA_ENABLE)
+#elif (defined FIRMWARE_CONFIG_WIRING_CELLULAR_ENABLE) || (defined FIRMWARE_CONFIG_WIRING_LORA_ENABLE)
     sendComfirm(200);
 #endif
 }
@@ -609,7 +609,7 @@ void DeviceConfig::dealExit(void)
     sendComfirm(200);
 }
 
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
 void UsbDeviceConfig::init(void)
 {
     serialusb.setTimeout(50);
@@ -661,7 +661,7 @@ void UsbDeviceConfig::close(void)
 }
 #endif
 
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
 void UsartDeviceConfig::init(void)
 {
     serial.setTimeout(50);
@@ -714,7 +714,7 @@ void UsartDeviceConfig::close(void)
 }
 #endif
 
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
 void TcpDeviceConfig::init(void)
 {
     server.begin();
@@ -780,7 +780,7 @@ void TcpDeviceConfig::close(void)
 }
 #endif
 
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
 static volatile uint8_t UdpStep = 0;
 
 void UdpDeviceConfig::init(void)
@@ -879,16 +879,16 @@ void UdpDeviceConfig::close(void)
 }
 #endif
 
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
 UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
 UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
 TcpDeviceConfig DeviceSetupAp;
 #endif
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
 UdpDeviceConfig DeviceSetupImlink;
 #endif
 
@@ -959,46 +959,46 @@ void system_config_initial(void)
     HAL_Core_Enter_Config();
     switch(get_system_config_type()) {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入串口配置模式
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
             DeviceSetupImlink.init();
 #endif
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
             DeviceSetupAp.init();
 #endif
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
             DeviceSetupImlink.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_imlink_config);
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
             DeviceSetupAp.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_ap_config);
@@ -1011,16 +1011,16 @@ void system_config_initial(void)
 void system_config_finish(void)
 {
     MOLMC_LOGD(TAG, "system config finish");
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
     DeviceSetupImlink.close();
 #endif
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
     DeviceSetupAp.close();
 #endif
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
     DeviceSetupUsbSerial.close();
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
     DeviceSetupUsartSerial.close();
 #endif
     HAL_Core_Exit_Config();
@@ -1041,60 +1041,60 @@ bool system_config_process(void)
     //配置处理
     switch(get_system_config_type()) {
         case SYSTEM_CONFIG_TYPE_IMLINK_SERIAL:   //进入imlink+串口配置模式
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
             if(DeviceSetupImlink.process()) {
                 goto success;
             }
 #endif
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }
 #endif
             break;
         case SYSTEM_CONFIG_TYPE_AP_SERIAL:      //进入ap+串口配置模式
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
             if(DeviceSetupAp.process()) {
                 goto success;
             }
 #endif
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }
 #endif
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-#ifdef configSETUP_USBSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USBSERIAL_ENABLE
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef configSETUP_USARTSERIAL_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_USARTSERIAL_ENABLE
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }
 #endif
             break;
         case SYSTEM_CONFIG_TYPE_IMLINK:         //进入imlink配置模式
-#ifdef configSETUP_UDP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_UDP_ENABLE
             if(DeviceSetupImlink.process()) {
                 goto success;
             }
 #endif
             break;
         case SYSTEM_CONFIG_TYPE_AP:             //进入ap配置模式
-#ifdef configSETUP_TCP_ENABLE
+#ifdef FIRMWARE_CONFIG_SETUP_TCP_ENABLE
             if(DeviceSetupAp.process()) {
                 goto success;
             }

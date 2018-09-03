@@ -45,7 +45,7 @@ static pwm_state_t PWM_State[TIM_NUM] = {
 
 void HAL_PWM_Write(uint16_t pin, uint8_t value)
 {
-    HAL_PWM_Write_With_Frequency_Ext(pin, (uint32_t)value, configTIM_PWM_FREQ);
+    HAL_PWM_Write_With_Frequency_Ext(pin, (uint32_t)value, FIRMWARE_CONFIG_TIM_PWM_FREQ);
 }
 
 void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_frequency)
@@ -55,7 +55,7 @@ void HAL_PWM_Write_With_Frequency(uint16_t pin, uint8_t value, uint16_t pwm_freq
 
 void HAL_PWM_Write_Ext(uint16_t pin, uint32_t value)
 {
-    HAL_PWM_Write_With_Frequency_Ext(pin, value, configTIM_PWM_FREQ);
+    HAL_PWM_Write_With_Frequency_Ext(pin, value, FIRMWARE_CONFIG_TIM_PWM_FREQ);
 }
 
 /*

@@ -21,7 +21,7 @@
 #define WIRING_I2C_H_
 
 #include "firmware_config.h"
-#ifdef configWIRING_WIRE_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE_ENABLE
 
 #include "wiring_stream.h"
 #include "i2c_hal.h"
@@ -82,15 +82,15 @@ class TwoWire : public Stream
 #define Wire __fetch_global_wire()
 TwoWire& __fetch_global_wire();
 
-#ifdef configWIRING_WIRE1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIRE1_ENABLE
 #ifdef Wire1
 #undef Wire1
 #endif
 #define Wire1 __fetch_global_wire1()
 TwoWire& __fetch_global_wire1();
-#endif  // configWIRING_WIRE1_ENABLE
+#endif  // FIRMWARE_CONFIG_WIRING_WIRE1_ENABLE
 
-#endif  // configWIRING_WIRE_ENABLE
+#endif  // FIRMWARE_CONFIG_WIRING_WIRE_ENABLE
 
 #endif
 

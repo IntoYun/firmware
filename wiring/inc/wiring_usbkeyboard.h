@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef configWIRING_USBKEYBOARD_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_USBKEYBOARD_ENABLE
 #include "wiring.h"
 
 #define KEY_LEFT_CTRL		0x80

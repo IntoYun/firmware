@@ -56,7 +56,7 @@ void system_lineCodingBitRateHandler(uint32_t bitrate) {
 #endif
 }
 
-#ifndef configNO_NETWORK
+#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 UpdaterClass::UpdaterClass()
     : _error(0)

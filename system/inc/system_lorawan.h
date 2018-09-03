@@ -22,13 +22,13 @@
 
 #include "firmware_config.h"
 
-#ifdef configNO_LORAWAN
-#define LORAWAN_FN(x,y) (y)
-#else
+#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
 #define LORAWAN_FN(x,y) (x)
+#else
+#define LORAWAN_FN(x,y) (y)
 #endif
 
-#ifndef configNO_LORAWAN
+#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #include <string.h>
 #include <time.h>

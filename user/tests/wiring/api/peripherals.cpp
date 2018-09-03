@@ -30,7 +30,7 @@ test(SPI_clock)
     API_COMPILE(SPI.setClockDividerReference(SPI_CLK_ARDUINO));
 }
 
-#ifdef configWIRING_SPI1_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_SPI1_ENABLE
 test(SPI1_begin)
 {
     API_COMPILE(SPI1.begin());

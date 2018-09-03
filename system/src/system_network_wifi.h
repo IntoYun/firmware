@@ -21,7 +21,7 @@
 #define	SYSTEM_NETWORK_WIFI_H
 
 #include "firmware_config.h"
-#ifdef configWIRING_WIFI_ENABLE
+#ifdef FIRMWARE_CONFIG_WIRING_WIFI_ENABLE
 
 #include "system_network_internal.h"
 #include "wlan_hal.h"
