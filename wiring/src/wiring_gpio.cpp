@@ -84,7 +84,7 @@ bool pinAvailable(uint16_t pin) {
     }
 #endif
     // Serial safety check
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USART
     if(Serial.isEnabled() == true && (pin == RX || pin == TX)) {
         return 0; // 'pin' is used
     }

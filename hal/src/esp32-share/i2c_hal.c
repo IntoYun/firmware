@@ -38,6 +38,8 @@
 #include "soc/i2c_struct.h"
 #include "soc/dport_reg.h"
 
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 
 #define I2C_SCL_IDX(p)  ((p==0)?I2CEXT0_SCL_OUT_IDX:((p==1)?I2CEXT1_SCL_OUT_IDX:0))
@@ -98,14 +100,13 @@ typedef struct ESP32_I2C_Info {
 /*
  * I2C mapping
  */
-ESP32_I2C_Info I2C_MAP[TOTAL_I2CS] =
+ESP32_I2C_Info I2C_MAP[TOTAL_WIRE_NUM] =
 {
         { SCL, SDA},    // I2C0  D0, D1
         { SCL1, SDA1}   // I2C1  A3, A4
 };
 
-/* static ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc) */
-ESP32_I2C_Info *i2cMap[TOTAL_I2CS]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
+ESP32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {

@@ -609,7 +609,7 @@ void DeviceConfig::dealExit(void)
     sendComfirm(200);
 }
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 void UsbDeviceConfig::init(void)
 {
     serialusb.setTimeout(50);
@@ -661,7 +661,7 @@ void UsbDeviceConfig::close(void)
 }
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 void UsartDeviceConfig::init(void)
 {
     serial.setTimeout(50);
@@ -879,10 +879,10 @@ void UdpDeviceConfig::close(void)
 }
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
 #ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
@@ -962,10 +962,10 @@ void system_config_initial(void)
 #ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_UDP
             DeviceSetupImlink.init();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_imlink_serial_config);
@@ -974,19 +974,19 @@ void system_config_initial(void)
 #ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
             DeviceSetupAp.init();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_ap_serial_config);
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             DeviceSetupUsbSerial.init();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             DeviceSetupUsartSerial.init();
 #endif
             system_notify_event(event_mode_changed, ep_mode_serial_config);
@@ -1017,10 +1017,10 @@ void system_config_finish(void)
 #ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP
     DeviceSetupAp.close();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
     DeviceSetupUsbSerial.close();
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
     DeviceSetupUsartSerial.close();
 #endif
     HAL_Core_Exit_Config();
@@ -1046,12 +1046,12 @@ bool system_config_process(void)
                 goto success;
             }
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }
@@ -1063,24 +1063,24 @@ bool system_config_process(void)
                 goto success;
             }
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }
 #endif
             break;
         case SYSTEM_CONFIG_TYPE_SERIAL:         //串口配置模式
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
             if(DeviceSetupUsbSerial.process()) {
                 goto success;
             }
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
             if(DeviceSetupUsartSerial.process()) {
                 goto success;
             }

@@ -30,8 +30,8 @@
 #include "tick_hal.h"
 
 /* Private define ------------------------------------------------------------*/
-// XXX: Change
-#define TOTAL_I2C   2
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 #define EVENT_TIMEOUT   100000 // 100ms
 
@@ -93,7 +93,7 @@ typedef struct STM32_I2C_Info {
 /* Private variables ---------------------------------------------------------*/
 // XXX: Change
 // I2C mapping
-STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
+STM32_I2C_Info I2C_MAP[TOTAL_WIRE_NUM] =
 {
     /* I2C3, PB4, PA8  for usrs*/
     /* I2C1, PB9, PB8  for sensors*/
@@ -101,7 +101,7 @@ STM32_I2C_Info I2C_MAP[TOTAL_I2C] =
     { I2C1, GPIOB, GPIOB, GPIO_PIN_9, GPIO_PIN_8, GPIO_AF4_I2C1, GPIO_AF4_I2C1, I2C1_ER_IRQn, I2C1_EV_IRQn}
 };
 
-static STM32_I2C_Info *i2cMap[TOTAL_I2C]; // pointer to I2C_MAP[] containing I2C peripheral info
+static STM32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral info
 
 /*
  * @brief De-Initialize the I2C peripheral.

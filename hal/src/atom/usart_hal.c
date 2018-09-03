@@ -30,6 +30,8 @@
 #include "pinmap_impl.h"
 #include "gpio_hal.h"
 
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+
 #define USART_QUEUE_SIZE             256
 
 UART_HandleTypeDef UartHandle_A2A3;    // USART2 A2(PA3)-RX A3(PA2)-TX
@@ -70,7 +72,7 @@ typedef struct STM32_USART_Info {
 /*
  * USART mapping
  */
-STM32_USART_Info USART_MAP[TOTAL_USARTS] =
+STM32_USART_Info USART_MAP[TOTAL_USART_NUM] =
 {
     /*
      * USART_peripheral (USARTx/UARTx; not using others)
@@ -88,7 +90,7 @@ STM32_USART_Info USART_MAP[TOTAL_USARTS] =
     { USART1, USART1_IRQn, BRIDGE_TX, BRIDGE_RX }         // USART 1
 };
 
-static STM32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+static STM32_USART_Info *usartMap[TOTAL_USART_NUM]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {

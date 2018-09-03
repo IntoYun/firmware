@@ -98,7 +98,7 @@ test(api_wiring_usartserial) {
     API_COMPILE(Serial.end());
 }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
 test(api_wiring_usbserial) {
     API_COMPILE(SerialUSB.blockOnOverrun(false));
     API_COMPILE(SerialUSB.blockOnOverrun(true));
@@ -176,19 +176,19 @@ test(api_wiring_globals) {
 #ifdef FIRMWARE_CONFIG_WIRING_WIRE3
         &Wire3,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
+#ifdef FIRMWARE_CONFIG_WIRING_USART1
         &Serial1,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
+#ifdef FIRMWARE_CONFIG_WIRING_USART2
         &Serial2,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
+#ifdef FIRMWARE_CONFIG_WIRING_USART3
         &Serial3,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
+#ifdef FIRMWARE_CONFIG_WIRING_USART4
         &Serial4,
 #endif
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
+#ifdef FIRMWARE_CONFIG_WIRING_USART5
         &Serial5,
 #endif
         &EEPROM,

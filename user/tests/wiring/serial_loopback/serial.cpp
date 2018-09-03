@@ -28,7 +28,7 @@
  *
  */
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
 test(SERIALUSB_ReadWriteSucceedsWithUserIntervention) {
     //The following code will test all the important USB Serial routines
     char test[] = "hello";

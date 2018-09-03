@@ -27,7 +27,7 @@
 #include "hw_config.h"
 #include "spi_hal.h"
 
-#define TOTAL_SPI 2
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
 
 typedef enum SPI_Num_Def {
     SPI2_B13_B14_B15 = 0,
@@ -71,13 +71,13 @@ typedef struct STM32_SPI_Info {
  * SPI1: NSS PA4 (A9); SCK PA5(A10);  MISO PA6(A11);  MOSI PA7(A12);  AF5
  * SPI2: NSS PB12(D2); SCK PB13(D3); MISO PB14(D4); MOSI PB15(D5); AF5
  */
-STM32_SPI_Info SPI_MAP[TOTAL_SPI] =
+STM32_SPI_Info SPI_MAP[TOTAL_SPI_NUM] =
 {
     { SPI2, DMA1_Channel4, DMA1_Channel5, DMA1_Channel4_IRQn, DMA1_Channel5_IRQn, GPIOB, GPIOB, GPIOB, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15, GPIO_PIN_12},
     { SPI1, DMA1_Channel2, DMA1_Channel3, DMA1_Channel2_IRQn, DMA1_Channel3_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5,  GPIO_PIN_6,  GPIO_PIN_7,  GPIO_PIN_4},
 };
 
-static STM32_SPI_Info *spiMap[TOTAL_SPI];
+static STM32_SPI_Info *spiMap[TOTAL_SPI_NUM];
 /* Private typedef -----------------------------------------------------------*/
 
 /*

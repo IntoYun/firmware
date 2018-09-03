@@ -24,9 +24,9 @@
 
 /* static PDMFilter_InitStruct Filter; */
 
-const static char *TAG = "hal";
+#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S_NUM
 
-#define TOTAL_I2S 1
+const static char *TAG = "hal";
 
 typedef enum I2S_Num_Def {
     I2S1_GROUP = 0,
@@ -61,12 +61,12 @@ typedef struct STM32_I2S_Info {
  * I2S mapping
  * I2S1: CK PA5; SD PA7
  */
-STM32_I2S_Info I2S_MAP[TOTAL_I2S] =
+STM32_I2S_Info I2S_MAP[TOTAL_I2S_NUM] =
 {
     { SPI1, DMA_CHANNEL_3, DMA2_Stream0, DMA2_Stream0_IRQn, GPIOA, GPIOA, GPIO_PIN_5, GPIO_PIN_7, GPIO_AF5_SPI1},
 };
 
-static STM32_I2S_Info *i2sMap[TOTAL_I2S];
+static STM32_I2S_Info *i2sMap[TOTAL_I2S_NUM];
 
 
 /*

@@ -117,10 +117,6 @@ EESP8266_Pin_Info* HAL_Pin_Map(void);
 #define LED_USER           D6
 #define LED_BUILTIN        LED_USER
 
-#define TOTAL_USARTS        2
-#define TOTAL_SPIS          1
-#define TOTAL_I2CS          1
-
 #define LSBFIRST 0
 #define MSBFIRST 1
 

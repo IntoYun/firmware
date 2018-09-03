@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
 
 #include "wiring_stream.h"
 #include "usb_hal.h"

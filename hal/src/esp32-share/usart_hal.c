@@ -29,6 +29,8 @@
 #include "pinmap_impl.h"
 #include "esp32-hal-uart.h"
 
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+
 #define UART0       0
 #define UART1       1
 #define UART2       2
@@ -75,7 +77,7 @@ typedef struct {
 /*
  * USART mapping
  */
-ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
+ESP32_USART_Info USART_MAP[TOTAL_USART_NUM] =
 {
     /*
      * uart number
@@ -88,7 +90,7 @@ ESP32_USART_Info USART_MAP[TOTAL_USARTS] =
      {UART2, TX1, RX1, NULL, false, false, -1},           // USART1 D3, D4
 };
 
-static ESP32_USART_Info *usartMap[TOTAL_USARTS]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
+static ESP32_USART_Info *usartMap[TOTAL_USART_NUM]; // pointer to USART_MAP[] containing USART peripheral register locations (etc)
 
 void HAL_USART_Initial(HAL_USART_Serial serial)
 {

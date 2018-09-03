@@ -60,27 +60,27 @@ void serialEvent() __attribute__((weak));
 __attribute__((weak)) void serialEvent() {}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
+#ifdef FIRMWARE_CONFIG_WIRING_USART1
 void serialEvent1() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
+#ifdef FIRMWARE_CONFIG_WIRING_USART2
 void serialEvent2() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
+#ifdef FIRMWARE_CONFIG_WIRING_USART3
 void serialEvent3() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
+#ifdef FIRMWARE_CONFIG_WIRING_USART4
 void serialEvent4() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
+#ifdef FIRMWARE_CONFIG_WIRING_USART5
 void serialEvent5() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
 void usbSerialEvent() __attribute__((weak));
 #endif
 
@@ -99,29 +99,29 @@ void serialEventRun()
         serialEvent();
     }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
+#ifdef FIRMWARE_CONFIG_WIRING_USART1
     if (serialEvent1 && Serial1.available()>0) {
         serialEvent1();
     }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
+#ifdef FIRMWARE_CONFIG_WIRING_USART2
     if (serialEventRun2) {serialEventRun2();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL3
+#ifdef FIRMWARE_CONFIG_WIRING_USART3
     if (serialEventRun3) {serialEventRun3();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL4
+#ifdef FIRMWARE_CONFIG_WIRING_USART4
     if (serialEventRun4) {serialEventRun4();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL5
+#ifdef FIRMWARE_CONFIG_WIRING_USART5
     if (serialEventRun5) {serialEventRun5();}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USBSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
     if (usbSerialEvent && SerialUSB.available() > 0) {
         usbSerialEvent();
     }

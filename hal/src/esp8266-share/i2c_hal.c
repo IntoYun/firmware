@@ -30,6 +30,8 @@
 #include "hw_config.h"
 #include "pinmap_impl.h"
 
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+
 const static char *TAG = "hal";
 
 unsigned char twi_dcount = 18;

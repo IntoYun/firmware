@@ -98,7 +98,7 @@ public:
     void dealTest(aJsonObject* root);
 };
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 class UsbDeviceConfig : public DeviceConfig
 {
 public:
@@ -118,7 +118,7 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 class UsartDeviceConfig: public DeviceConfig
 {
 public:
@@ -179,10 +179,10 @@ public:
 };
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USBSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USB
 extern UsbDeviceConfig DeviceSetupUsbSerial;
 #endif
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_USART
 extern UsartDeviceConfig DeviceSetupUsartSerial;
 #endif
 #ifdef FIRMWARE_CONFIG_SYSTEM_SETUP_TCP

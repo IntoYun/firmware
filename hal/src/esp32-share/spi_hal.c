@@ -42,6 +42,7 @@
 #include "soc/gpio_sig_map.h"
 #include "soc/dport_reg.h"
 
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
 
 struct spi_struct_t {
     spi_dev_t * dev;
@@ -88,7 +89,7 @@ typedef struct ESP32_SPI_Info {
 /*
  * SPI mapping
  */
-ESP32_SPI_Info SPI_MAP[TOTAL_SPIS] =
+ESP32_SPI_Info SPI_MAP[TOTAL_SPI_NUM] =
 {
     // The pin definition can be changed to any pin
     //               VSPI                 HSPI
@@ -100,7 +101,7 @@ ESP32_SPI_Info SPI_MAP[TOTAL_SPIS] =
     {SCK1, MISO1, MOSI1, SS1}   // HSPI SCK MISO MOSI SS
 };
 
-static ESP32_SPI_Info *spiMap[TOTAL_SPIS]; // pointer to SPI_MAP[] containing SPI peripheral register locations (etc)
+static ESP32_SPI_Info *spiMap[TOTAL_SPI_NUM]; // pointer to SPI_MAP[] containing SPI peripheral register locations (etc)
 
 void HAL_SPI_Initial(HAL_SPI_Interface spi)
 {

@@ -18,7 +18,7 @@
  */
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL
+#ifdef FIRMWARE_CONFIG_WIRING_USART
 
 #include "wiring_usartserial.h"
 #include "wiring_constants.h"
@@ -115,7 +115,7 @@ USARTSerial &__fetch_global_serial()
     return serial;
 }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL1
+#ifdef FIRMWARE_CONFIG_WIRING_USART1
 USARTSerial &__fetch_global_serial1()
 {
     static USARTSerial serial1(HAL_USART_SERIAL2);
@@ -123,7 +123,7 @@ USARTSerial &__fetch_global_serial1()
 }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USARTSERIAL2
+#ifdef FIRMWARE_CONFIG_WIRING_USART2
 USARTSerial &__fetch_global_serial2()
 {
     static USARTSerial serial2(HAL_USART_SERIAL3);

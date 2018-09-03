@@ -21,7 +21,7 @@
 #include "hw_config.h"
 #include "spi_hal.h"
 
-#define TOTAL_SPI 2
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
 //#define useDMASPI
 
 typedef enum SPI_Num_Def {
@@ -66,11 +66,11 @@ typedef struct STM32_SPI_Info {
  * SPI mapping
  * SPI1: NSS PA4 (D13); SCK PA5(D14); MISO PA6(D15); MOSI PA7(D16); AF5
  */
-STM32_SPI_Info SPI_MAP[TOTAL_SPI] =
+STM32_SPI_Info SPI_MAP[TOTAL_SPI_NUM] =
 {
     { SPI1, DMA_CHANNEL_3, DMA2_Stream5, DMA2_Stream0, DMA2_Stream5_IRQn, DMA2_Stream0_IRQn, GPIOA, GPIOA, GPIOA, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7, GPIO_PIN_4, GPIO_AF5_SPI1},
 };
-static STM32_SPI_Info *spiMap[TOTAL_SPI];
+static STM32_SPI_Info *spiMap[TOTAL_SPI_NUM];
 /* Private typedef -----------------------------------------------------------*/
 
 /*
