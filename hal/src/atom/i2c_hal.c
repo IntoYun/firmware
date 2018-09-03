@@ -99,7 +99,7 @@ STM32_I2C_Info I2C_MAP[TOTAL_WIRE_NUM] =
     { I2C2, GPIOB, GPIOB, GPIO_PIN_11, GPIO_PIN_10, I2C2_ER_IRQn, I2C2_EV_IRQn},
 };
 
-static STM32_I2C_Info *i2cMap[WIRING_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral info
+static STM32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral info
 
 /*
  * @brief De-Initialize the I2C peripheral.
