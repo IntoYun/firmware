@@ -36,7 +36,7 @@ extern "C" {
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_HAL_USB_CDC
+#if FIRMWARE_CONFIG_HAL_USB_CDC
 
 /**
  * Initialize or deinitialize USB serial
@@ -85,7 +85,7 @@ void HAL_USB_USART_Flush_Data(void);
 
 #endif
 
-#ifdef FIRMWARE_CONFIG_HAL_USB_HID
+#if FIRMWARE_CONFIG_HAL_USB_HID
 void HAL_USB_HID_Send_Report(void *pHIDReport, size_t reportSize);
 #endif
 

@@ -29,7 +29,7 @@
 #include "molmc_log.h"
 #include "esp8266-hal-spi.h"
 
-#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI
 
 static bool SPI_Enabled = false;
 static bool SPI_Bit_Order_Set = false;

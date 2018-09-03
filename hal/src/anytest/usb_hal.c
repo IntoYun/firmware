@@ -23,7 +23,7 @@
 #include "tick_hal.h"
 
 /* Private typedef -----------------------------------------------------------*/
-#ifdef FIRMWARE_CONFIG_HAL_USB_CDC
+#if FIRMWARE_CONFIG_HAL_USB_CDC
 
 /* Private define ------------------------------------------------------------*/
 
@@ -183,7 +183,7 @@ void HAL_USB_LP_CAN1_RX0_IRQHandler(void)
 
 #endif
 
-#ifdef FIRMWARE_CONFIG_HAL_USB_HID
+#if FIRMWARE_CONFIG_HAL_USB_HID
 /*******************************************************************************
  * Function Name : HAL_USB_HID_Send_Report.
  * Description   : Send HID Report Info to Host.

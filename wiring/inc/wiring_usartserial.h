@@ -21,7 +21,7 @@
 #define WIRING_USARTSERIAL_H_
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_USART
+#if FIRMWARE_CONFIG_WIRING_USART > 0
 
 #include "wiring_stream.h"
 #include "usart_hal.h"
@@ -61,27 +61,27 @@ class USARTSerial : public Stream
         bool isEnabled(void);
 };
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART1
+#if FIRMWARE_CONFIG_WIRING_USART > 1
 void serialEventRun1(void) __attribute__((weak));
 void serialEvent1(void) __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART2
+#if FIRMWARE_CONFIG_WIRING_USART > 2
 void serialEventRun2(void) __attribute__((weak));
 void serialEvent2(void) __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART3
+#if FIRMWARE_CONFIG_WIRING_USART > 3
 void serialEventRun3(void) __attribute__((weak));
 void serialEvent3(void) __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART4
+#if FIRMWARE_CONFIG_WIRING_USART > 4
 void serialEventRun4(void) __attribute__((weak));
 void serialEvent4(void) __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART5
+#if FIRMWARE_CONFIG_WIRING_USART > 5
 void serialEventRun5(void) __attribute__((weak));
 void serialEvent5(void) __attribute__((weak));
 #endif
@@ -98,12 +98,12 @@ inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
 extern USARTSerial &__fetch_global_serial();
 #define Serial __fetch_global_serial()
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART1
+#if FIRMWARE_CONFIG_WIRING_USART > 1
 extern USARTSerial &__fetch_global_serial1();
 #define Serial1 __fetch_global_serial1()
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART2
+#if FIRMWARE_CONFIG_WIRING_USART > 2
 extern USARTSerial &__fetch_global_serial2();
 #define Serial2 __fetch_global_serial2()
 #endif

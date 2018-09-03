@@ -20,7 +20,7 @@
 #include "application.h"
 #include "unit-test/unit-test.h"
 
-#ifdef FIRMWARE_CONFIG_WIRING_WIFI
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 test(wifi_resolve_3_levels)
 {

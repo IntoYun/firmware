@@ -173,11 +173,11 @@ void HAL_Core_Enter_Bootloader(bool persist)
 static void McuRecoverSystem(void)
 {
     Set_System();
-#ifdef FIRMWARE_CONFIG_HAL_USB_CDC
+#if FIRMWARE_CONFIG_HAL_USB_CDC
     HAL_USB_USART_Initial(115200);
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_RGB && FIRMWARE_CONFIG_SYSTEM_BUTTON
+#if FIRMWARE_CONFIG_SYSTEM_RGB && FIRMWARE_CONFIG_SYSTEM_BUTTON
     HAL_UI_Initial(); //初始化三色灯
 #endif
 }

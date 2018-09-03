@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_WIFI
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include "wiring_wifi.h"
 #include "wiring_ticks.h"

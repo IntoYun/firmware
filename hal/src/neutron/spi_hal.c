@@ -21,7 +21,7 @@
 #include "hw_config.h"
 #include "spi_hal.h"
 
-#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI
 //#define useDMASPI
 
 typedef enum SPI_Num_Def {

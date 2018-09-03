@@ -92,7 +92,7 @@ extern "C" void HAL_SysTick_Handler(void)
         _sysTickHandler();
     }
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_BUTTON
+#if FIRMWARE_CONFIG_SYSTEM_BUTTON
 
 #if PLATFORM_ID == PLATFORM_ATOM || PLATFORM_ID == PLATFORM_NEUTRON || PLATFORM_ID == PLATFORM_NUT || PLATFORM_ID == PLATFORM_FIG
 #define TIMING_MODE_CONFIG_IMLINK_SERIAL           3000    //进入imlink配置模式判断时间
@@ -248,7 +248,7 @@ void app_setup_and_loop_initial(bool *threaded)
 
     MOLMC_LOGD(TAG, "---------------welcome from IntoRobot!-----------------");
 #if defined (START_DFU_FLASHER_SERIAL_SPEED) || defined (START_YMODEM_FLASHER_SERIAL_SPEED)
-#ifdef FIRMWARE_CONFIG_HAL_USB_CDC
+#if FIRMWARE_CONFIG_HAL_USB_CDC
     HAL_USB_USART_LineCoding_BitRate_Handler(system_lineCodingBitRateHandler);
 #endif
 #endif
@@ -271,7 +271,7 @@ void app_setup_and_loop_initial(bool *threaded)
     MOLMC_LOGD(TAG, "product_secret = %s", buffer);
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_SETUP
+#if FIRMWARE_CONFIG_SYSTEM_SETUP
     system_config_setup();
     //nut 调用连接直接进入imlink模式，配置不了。如果进入配置模式，不初始化连接   chenkaiyao 2016-12-16
     if(SYSTEM_CONFIG_TYPE_NONE == get_system_config_type()) {

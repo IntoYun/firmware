@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "md5_builder.h"
 #include "system_update.h"

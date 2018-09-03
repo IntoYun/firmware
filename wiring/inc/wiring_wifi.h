@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_WIRING_WIFI
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include <string.h>
 #include "wiring_network.h"

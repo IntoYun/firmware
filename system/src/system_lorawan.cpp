@@ -39,7 +39,7 @@ const static char *TAG = "sys-lorawan";
 
 using namespace intorobot;
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #define LORAWAN_PUBLIC_NETWORK                  true
 #define LORAWAN_NETWORK_ID                      ( uint32_t )0

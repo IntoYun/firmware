@@ -30,7 +30,7 @@
 #include "pinmap_impl.h"
 #include "gpio_hal.h"
 
-#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
 
 #define USART_QUEUE_SIZE           2048
 

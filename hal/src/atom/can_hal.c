@@ -33,7 +33,7 @@ extern "C" {
 /*******************************************************************************
  * HAL interface functions for CAN
  *******************************************************************************/
-#define TOTAL_CAN_NUM FIRMWARE_CONFIG_WIRING_CAN_NUM
+#define TOTAL_CAN_NUM FIRMWARE_CONFIG_WIRING_CAN
 
 /*******************************************************************************
    Name:           HAL_CAN_Init

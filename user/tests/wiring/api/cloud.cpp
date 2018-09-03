@@ -23,7 +23,7 @@
 
 #include "testapi.h"
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 
 test(api_intorobot_publish) {
     bool valueBool = 0;

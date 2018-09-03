@@ -31,7 +31,7 @@
 
 
 /* Private define ------------------------------------------------------------*/
-#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
 
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 #define EVENT_TIMEOUT   100000 // 100ms

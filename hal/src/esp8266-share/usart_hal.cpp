@@ -31,7 +31,7 @@
 #include "esp8266-hal-uart.h"
 #include "core_hal_esp8266.h"
 
-#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
 
 // Options for `config` argument of uart_init
 #define UART_NB_BIT_5         0B00000000

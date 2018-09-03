@@ -21,7 +21,7 @@
 #include "hw_config.h"
 #include "i2s_hal.h"
 
-#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S_NUM
+#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S
 
 const static char *TAG = "hal";
 

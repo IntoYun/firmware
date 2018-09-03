@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 #include "wiring_constants.h"
 #include "wiring_ipaddress.h"
 #include "wiring_tcpclient.h"

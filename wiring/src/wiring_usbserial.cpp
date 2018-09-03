@@ -18,7 +18,7 @@
 */
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
+#if FIRMWARE_CONFIG_WIRING_USB_USART
 
 #include "wiring_usbserial.h"
 

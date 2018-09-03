@@ -19,7 +19,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ipaddress.h"
 #include "wiring_print.h"
@@ -53,7 +53,7 @@ IPAddress::IPAddress(const uint8_t* address)
 
 IPAddress::operator bool()
 {
-#ifdef FIRMWARE_CONFIG_WIRING_IPV6
+#if FIRMWARE_CONFIG_WIRING_IPV6
 #error handle me!
 #else
     return address.ipv4!=0;

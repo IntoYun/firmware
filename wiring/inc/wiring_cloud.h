@@ -39,12 +39,12 @@ class CloudDatepointClass {
     public:
         //数据点自动发送设置
         static void datapointControl(dp_transmit_mode_t mode) {
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
             intorobotDatapointControl(mode, DATAPOINT_TRANSMIT_AUTOMATIC_INTERVAL);
 #endif
         }
         static void datapointControl(dp_transmit_mode_t mode, uint32_t lapse) { //控制数据点  单位为s
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
             intorobotDatapointControl(mode, lapse);
 #endif
         }
@@ -189,7 +189,7 @@ class CloudDatepointClass {
         }
 };
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 class CloudClass: public CloudDatepointClass, public Print{
     public:
         static bool publish(const char *topic, bool value) {
@@ -296,7 +296,7 @@ class CloudClass: public CloudDatepointClass, public Print{
 
 #endif
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 class CloudClass: public CloudDatepointClass {
     public:
 
@@ -337,7 +337,7 @@ class CloudClass: public CloudDatepointClass {
 };
 #endif
 
-#if (defined FIRMWARE_CONFIG_SYSTEM_CLOUD) || (defined FIRMWARE_CONFIG_SYSTEM_LORAWAN)
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD || FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 CloudClass& __fetch_global_cloud();
 #define IntoRobot __fetch_global_cloud()

@@ -23,7 +23,7 @@
 #include "pinmap_impl.h"
 #include <string.h>
 
-#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
 
 #define SERIAL_QUEUE_SIZE  128
 

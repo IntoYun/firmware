@@ -22,7 +22,7 @@
 
 #include "firmware_config.h"
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 #define CLOUD_FN(x,y) (x)
 #else
 #define CLOUD_FN(x,y) (y)
@@ -35,7 +35,7 @@
 #include <time.h>
 #include <stdint.h>
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_CLOUD
+#if FIRMWARE_CONFIG_SYSTEM_CLOUD
 
 #define MAX_CALLBACK_NUM    32
 

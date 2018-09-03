@@ -19,7 +19,7 @@
 
 #include "testapi.h"
 
-#ifdef FIRMWARE_CONFIG_WIRING_WIFI
+#if FIRMWARE_CONFIG_WIRING_WIFI
 
 test(api_wifi_config) {
     IPAddress address;

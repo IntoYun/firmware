@@ -60,27 +60,27 @@ void serialEvent() __attribute__((weak));
 __attribute__((weak)) void serialEvent() {}
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART1
+#if FIRMWARE_CONFIG_WIRING_USART > 1
 void serialEvent1() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART2
+#if FIRMWARE_CONFIG_WIRING_USART >  2
 void serialEvent2() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART3
+#if FIRMWARE_CONFIG_WIRING_USART > 3
 void serialEvent3() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART4
+#if FIRMWARE_CONFIG_WIRING_USART > 4
 void serialEvent4() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART5
+#if FIRMWARE_CONFIG_WIRING_USART > 5
 void serialEvent5() __attribute__((weak));
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
+#if FIRMWARE_CONFIG_WIRING_USB_USART > 0
 void usbSerialEvent() __attribute__((weak));
 #endif
 
@@ -95,33 +95,29 @@ void _post_loop()
  */
 void serialEventRun()
 {
-    if (serialEvent && Serial.available()>0) {
-        serialEvent();
-    }
+    if (serialEvent && Serial.available()>0) { serialEvent(); }
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART1
-    if (serialEvent1 && Serial1.available()>0) {
-        serialEvent1();
-    }
+#if FIRMWARE_CONFIG_WIRING_USART > 1
+    if (serialEvent1 && Serial1.available()>0) { serialEvent1(); }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART2
-    if (serialEventRun2) {serialEventRun2();}
+#if FIRMWARE_CONFIG_WIRING_USART > 2
+    if (serialEventRun2) { serialEventRun2(); }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART3
-    if (serialEventRun3) {serialEventRun3();}
+#if FIRMWARE_CONFIG_WIRING_USART > 3
+    if (serialEventRun3) { serialEventRun3(); }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART4
-    if (serialEventRun4) {serialEventRun4();}
+#if FIRMWARE_CONFIG_WIRING_USART > 4
+    if (serialEventRun4) { serialEventRun4(); }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USART5
-    if (serialEventRun5) {serialEventRun5();}
+#if FIRMWARE_CONFIG_WIRING_USART > 5
+    if (serialEventRun5) { serialEventRun5(); }
 #endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_USB_USART
+#if FIRMWARE_CONFIG_WIRING_USB_USART > 0
     if (usbSerialEvent && SerialUSB.available() > 0) {
         usbSerialEvent();
     }

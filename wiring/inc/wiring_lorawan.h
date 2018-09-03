@@ -3,7 +3,7 @@
 
 #include "firmware_config.h"
 #include <stdlib.h>
-#ifdef FIRMWARE_CONFIG_SYSTEM_LORAWAN
+#if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
 #include "radio/inc/radio.h"
 #include "radio/inc/sx1276.h"

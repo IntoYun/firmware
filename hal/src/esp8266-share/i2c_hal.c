@@ -30,7 +30,7 @@
 #include "hw_config.h"
 #include "pinmap_impl.h"
 
-#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
 
 const static char *TAG = "hal";
 

@@ -29,7 +29,7 @@
 #include "pinmap_impl.h"
 #include "esp32-hal-uart.h"
 
-#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
 
 #define UART0       0
 #define UART1       1

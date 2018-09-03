@@ -137,7 +137,7 @@ class aJsonStream : public Print
         int bucket;
 };
 
-#ifdef FIRMWARE_CONFIG_SYSTEM_NETWORK
+#if FIRMWARE_CONFIG_SYSTEM_NETWORK
 /* JSON stream that consumes data from a connection (usually
  * Ethernet client) until the connection is closed. */
 class aJsonClientStream : public aJsonStream {

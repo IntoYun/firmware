@@ -4,7 +4,7 @@
 #include "wiring_ex_sensor.h"
 #include "wiring_usartserial.h"
 
-#define FIRMWARE_CONFIG_WIRING_USB_USART
+#define FIRMWARE_CONFIG_WIRING_USB_USART 1
 #define SerialUSB Serial
 
 #endif

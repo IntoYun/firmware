@@ -27,7 +27,7 @@
 #include "hw_config.h"
 #include "spi_hal.h"
 
-#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI
 
 typedef enum SPI_Num_Def {
     SPI2_B13_B14_B15 = 0,

@@ -24,7 +24,7 @@
 
 /* static PDMFilter_InitStruct Filter; */
 
-#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S_NUM
+#define TOTAL_I2S_NUM FIRMWARE_CONFIG_WIRING_I2S
 
 const static char *TAG = "hal";
 

@@ -54,8 +54,8 @@ I2SClass& __fetch_global_i2s();
 #endif
 #define I2S1 __fetch_global_i2s1()
 I2SClass& __fetch_global_i2s1();
-#endif  // FIRMWARE_CONFIG_I2S1_ENABLE
+#endif
 
-#endif  // FIRMWARE_CONFIG_I2S_ENABLE
+#endif
 
 #endif

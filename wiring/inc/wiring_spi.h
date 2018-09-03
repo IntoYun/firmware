@@ -21,7 +21,7 @@
 #define WIRING_SPI_H_
 
 #include "firmware_config.h"
-#ifdef FIRMWARE_CONFIG_WIRING_SPI
+#if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include "wiring.h"
 #include "wiring_thread.h"
@@ -239,22 +239,22 @@ class SPIClass {
 extern SPIClass &__fetch_global_spi();
 #define SPI __fetch_global_spi()
 
-#ifdef FIRMWARE_CONFIG_WIRING_SPI1
+#if FIRMWARE_CONFIG_WIRING_SPI > 1
 #ifdef SPI1
 #undef SPI1
 #endif  // SPI1
 extern SPIClass &__fetch_global_spi1();
 #define SPI1 __fetch_global_spi1()
-#endif //FIRMWARE_CONFIG_WIRING_SPI1
+#endif
 
-#ifdef FIRMWARE_CONFIG_WIRING_SPI2
+#if FIRMWARE_CONFIG_WIRING_SPI > 2
 #ifdef SPI2
 #undef SPI2
 #endif  // SPI2
 extern SPIClass &__fetch_global_spi2();
 #define SPI2 __fetch_global_spi2()
-#endif //FIRMWARE_CONFIG_WIRING_SPI2
+#endif
 
-#endif //FIRMWARE_CONFIG_WIRING_SPI
+#endif
 
 #endif

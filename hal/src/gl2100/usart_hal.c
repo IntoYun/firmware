@@ -24,7 +24,7 @@
 #include "pinmap_impl.h"
 #include "sdkqueue.h"
 
-#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART_NUM
+#define TOTAL_USART_NUM FIRMWARE_CONFIG_WIRING_USART
 
 UART_HandleTypeDef UartHandle_SERIAL1;
 SDK_QUEUE Usart_Rx_Queue_SERIAL1;

@@ -42,7 +42,7 @@
 #include "soc/gpio_sig_map.h"
 #include "soc/dport_reg.h"
 
-#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI_NUM
+#define TOTAL_SPI_NUM FIRMWARE_CONFIG_WIRING_SPI
 
 struct spi_struct_t {
     spi_dev_t * dev;

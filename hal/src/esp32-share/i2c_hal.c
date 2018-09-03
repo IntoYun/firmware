@@ -38,7 +38,7 @@
 #include "soc/i2c_struct.h"
 #include "soc/dport_reg.h"
 
-#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE_NUM
+#define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
 
 #define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
 
