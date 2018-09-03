@@ -51,6 +51,7 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/portmacro.h"
 #include "nvs_flash.h"
+#include "esp_partition.h"
 }
 
 const static char *TAG = "hal-core";
@@ -89,11 +90,25 @@ static void ui_task_start(void *pvParameters)
 
 extern "C" void app_main()
 {
-    esp_log_level_set("*", (esp_log_level_t)CONFIG_LOG_DEFAULT_LEVEL);
-    nvs_flash_init();
+    esp_log_level_set("*", CONFIG_LOG_DEFAULT_LEVEL);
+    esp_err_t err = nvs_flash_init();
+    if(err == ESP_ERR_NVS_NO_FREE_PAGES) {
+        const esp_partition_t* partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+        if (partition != NULL) {
+            err = esp_partition_erase_range(partition, 0, partition->size);
+            if(!err) {
+                err = nvs_flash_init();
+            } else {
+                MOLMC_LOGD(TAG, "Failed to format the broken NVS partition!");
+            }
+        }
+    }
+    if(err) {
+        MOLMC_LOGD(TAG, "Failed to initialize NVS! Error: %u", err);
+    }
     init();
     initVariant();
-    xTaskCreatePinnedToCore(application_task_start, "app_thread", 4096, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
+    xTaskCreatePinnedToCore(application_task_start, "app_thread", 8192, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
     xTaskCreatePinnedToCore(ui_task_start, "ui_thread", 4096, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
 }
 
@@ -122,7 +137,7 @@ void HAL_Core_Config(void)
     HAL_IWDG_Initial();
     HAL_UI_Initial();
 
-    esp32_setMode(WIFI_MODE_STA);    // wifi初始化
+    esp32_enableSTA(true);
 }
 
 void HAL_Core_Load_Params(void)
@@ -132,12 +147,8 @@ void HAL_Core_Load_Params(void)
     HAL_PARAMS_Load_Boot_Params();
 
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
-        //初始化参数 保留密钥
-        MOLMC_LOGD(TAG, "init params fac");
         HAL_PARAMS_Init_Fac_System_Params();
     } else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
-        //初始化所有参数
-        MOLMC_LOGD(TAG, "init params all");
         HAL_PARAMS_Init_All_System_Params();
     }
 

@@ -30,23 +30,6 @@
 
 const static char *TAG = "hal";
 
-static volatile uint32_t wlan_timeout_start;
-static volatile uint32_t wlan_timeout_duration;
-
-inline void WLAN_TIMEOUT(uint32_t dur) {
-    wlan_timeout_start = HAL_Tick_Get_Milli_Seconds();
-    wlan_timeout_duration = dur;
-    //MOLMC_LOGD(TAG, "WLAN WD Set %d",(dur));
-}
-inline bool IS_WLAN_TIMEOUT() {
-    return wlan_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-wlan_timeout_start)>wlan_timeout_duration);
-}
-
-inline void CLR_WLAN_TIMEOUT() {
-    wlan_timeout_duration = 0;
-    //MOLMC_LOGD(TAG, "WLAN WD Cleared, was %d", wlan_timeout_duration);
-}
-
 //=======net notify===========
 static HAL_NET_Callbacks netCallbacks = { 0 };
 
@@ -312,21 +295,20 @@ static void scan_done_cb()
 {
     WiFiAccessPoint data;
     WlanApSimple apSimple;
-    wifi_ap_record_t *pScanRecords;
+    wifi_ap_record_t *pScanRecords = NULL;
     int n = 0, m = 0, j = 0;
 
     //获取ap数量
     esp_wifi_scan_get_ap_num(&(scanInfo.count));
-
-    //申请内存
-    pScanRecords = new wifi_ap_record_t[scanInfo.count];
-    if(pScanRecords) {
-        esp_wifi_scan_get_ap_records(&(scanInfo.count), pScanRecords);
-    } else {
-        scanInfo.completed = true;
-        scanInfo.count = 0;
-        return;
+    if(scanInfo.count) {
+        pScanRecords = new wifi_ap_record_t[scanInfo.count];
+        if(!pScanRecords || esp_wifi_scan_get_ap_records(&(scanInfo.count), (wifi_ap_record_t*)pScanRecords) != ESP_OK) {
+            scanInfo.count = 0;
+            return;
+        }
     }
+    esp32_setStatusBits(WIFI_SCAN_DONE_BIT);
+    esp32_clearStatusBits(WIFI_SCANNING_BIT);
 
     //申请内存
     WlanApSimple *pNode = (WlanApSimple *)malloc(sizeof(struct WlanApSimple)*scanInfo.count);
@@ -384,34 +366,31 @@ static void scan_done_cb()
 
 int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
 {
-    esp32_setMode(WIFI_MODE_STA);
+    esp32_clearStatusBits(WIFI_SCAN_DONE_BIT);
+    esp32_enableSTA(true);
     esp32_setScanDoneCb(scan_done_cb);
     memset((void *)&scanInfo, 0, sizeof(struct WlanScanInfo));
     scanInfo.callback = callback;
     scanInfo.callback_data = cookie;
     scanInfo.count = 0;
-    scanInfo.completed = false;
 
     wifi_scan_config_t config;
     config.ssid = 0;
     config.bssid = 0;
     config.channel = 0;
     config.show_hidden = false;
-    if(esp_wifi_scan_start(&config, true) == ESP_OK) {
-        WLAN_TIMEOUT(6000);
-        while(!scanInfo.completed)
-        {
-            if(IS_WLAN_TIMEOUT()) {
-                CLR_WLAN_TIMEOUT();
-                break;
-            }
+    config.scan_type = WIFI_SCAN_TYPE_ACTIVE;
+    config.scan_time.active.min = 100;
+    config.scan_time.active.max = 300;
+    if(esp_wifi_scan_start(&config, false) == ESP_OK) {
+        esp32_clearStatusBits(WIFI_SCAN_DONE_BIT);
+        esp32_setStatusBits(WIFI_SCANNING_BIT);
+        if(esp32_waitStatusBits(WIFI_SCAN_DONE_BIT, 10000)){
+            return scanInfo.count;
         }
-        return scanInfo.count;
     }
-    else
-    {
-        return -1;
-    }
+    return -1;
+
 }
 
 /**
