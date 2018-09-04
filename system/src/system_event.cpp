@@ -70,7 +70,7 @@ int system_subscribe_event(system_event_t events, system_event_handler_t* handle
 {
     size_t count = subscriptions.size();
     subscriptions.push_back(SystemEventSubscription(events, handler));
-    return subscriptions.size()==count+1 ? 0 : -1;
+    return subscriptions.size() == count+1 ? 0 : -1;
 }
 
 /**

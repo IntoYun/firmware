@@ -19,6 +19,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include "firmware_platform_config.h"
+
 #if !defined(RELEASE_BUILD) && !defined(DEBUG_BUILD)
 #warning  "Defaulting to Release Build"
 #define RELEASE_BUILD

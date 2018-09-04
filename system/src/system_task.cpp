@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #include <stdio.h>
 #include "string.h"
 #include "iwdg_hal.h"
@@ -74,14 +74,14 @@ void cloud_connection_attempt_init()
 
 void cloud_connection_failed()
 {
-    if (cloud_failed_connection_attempts<255)
+    if (cloud_failed_connection_attempts < 255)
         cloud_failed_connection_attempts++;
     cloud_backoff_start = HAL_Tick_Get_Milli_Seconds();
 }
 
 inline uint8_t in_cloud_backoff_period()
 {
-    return (HAL_Tick_Get_Milli_Seconds()-cloud_backoff_start)<backoff_period(cloud_failed_connection_attempts);
+    return (HAL_Tick_Get_Milli_Seconds() - cloud_backoff_start) < backoff_period(cloud_failed_connection_attempts);
 }
 
 #if FIRMWARE_CONFIG_SYSTEM_NETWORK
@@ -154,8 +154,7 @@ void preprocess_cloud_connection(void)
 
             AT_MODE_FLAG_TypeDef at_mode = HAL_PARAMS_Get_System_at_mode();
             //AT_MODE_FLAG_TypeDef at_mode = AT_MODE_FLAG_NONE;
-            switch(at_mode)
-            {
+            switch(at_mode) {
                 case AT_MODE_FLAG_ABP:            //已经灌好密钥
                     break;
                 case AT_MODE_FLAG_OTAA_ACTIVE:    //灌装激活码 已激活

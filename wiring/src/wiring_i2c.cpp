@@ -17,7 +17,8 @@
  ******************************************************************************
  */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
+
 #if FIRMWARE_CONFIG_WIRING_WIRE > 0
 
 #include "wiring_i2c.h"

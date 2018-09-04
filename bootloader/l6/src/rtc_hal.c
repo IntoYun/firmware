@@ -1,11 +1,3 @@
-#if 0
-
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/lora/rtc_hal.c"
-
-#else
-
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "rtc_hal.h"
@@ -179,4 +171,3 @@ void RTC_Alarm_IRQHandler(void)
     HAL_RTC_AlarmIRQHandler(&RtcHandle);
 }
 
-#endif

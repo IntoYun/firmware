@@ -20,7 +20,7 @@
 #ifndef WIRING_CELLULAR_PRINTABLE_H_
 #define WIRING_CELLULAR_PRINTABLE_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_WIRING_CELLULAR
 

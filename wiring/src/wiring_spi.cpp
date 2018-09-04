@@ -16,7 +16,7 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include <stdio.h>

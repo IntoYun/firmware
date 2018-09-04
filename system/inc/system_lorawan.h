@@ -20,7 +20,7 @@
 #ifndef SYSTEM_LORAWAN_H_
 #define SYSTEM_LORAWAN_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 #define LORAWAN_FN(x,y) (x)

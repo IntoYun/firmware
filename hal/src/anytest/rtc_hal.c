@@ -33,6 +33,7 @@
 #include "gpio_hal.h"
 #include <math.h>
 #include "rtc_hal_lora.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal";
 

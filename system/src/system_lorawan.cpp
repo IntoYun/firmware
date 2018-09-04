@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -191,8 +191,9 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         LoRaWan._buffer = (uint8_t *)malloc(LoRaWan._bufferSize);
         memcpy(LoRaWan._buffer, mcpsIndication->Buffer, mcpsIndication->BufferSize);
 
-        intorobotParseReceiveDatapoints(mcpsIndication->Buffer, mcpsIndication->BufferSize);
-        system_notify_event(event_cloud_comm, ep_cloud_comm_data, mcpsIndication->Buffer, mcpsIndication->BufferSize);
+        if(intorobotParseReceiveDatapoints(mcpsIndication->Buffer, mcpsIndication->BufferSize)) {
+            system_notify_event(event_cloud_comm, ep_cloud_comm_data, mcpsIndication->Buffer, mcpsIndication->BufferSize);
+        }
 
         LoRaWanOnEvent(LORAWAN_EVENT_RX_COMPLETE);
     }

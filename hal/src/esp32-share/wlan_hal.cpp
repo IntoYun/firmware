@@ -88,8 +88,8 @@ wlan_result_t HAL_WLAN_Deactivate(void)
 void HAL_WLAN_Setup(void)
 {
     esp32_setMode(WIFI_MODE_STA);
-    esp32_setAutoConnect(true);
-    esp32_setAutoReconnect(true);
+    esp32_setAutoConnect(false);
+    esp32_setAutoReconnect(false);
     esp32_begin();
 }
 

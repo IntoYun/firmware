@@ -17,13 +17,11 @@
  ******************************************************************************
  */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_USART > 0
 
 #include "wiring_usartserial.h"
 #include "wiring_constants.h"
-
-// Constructors ////////////////////////////////////////////////////////////////
 
 USARTSerial::USARTSerial(HAL_USART_Serial serial)
 {
@@ -32,7 +30,6 @@ USARTSerial::USARTSerial(HAL_USART_Serial serial)
     _blocking = true;
     HAL_USART_Initial(serial);
 }
-// Public Methods //////////////////////////////////////////////////////////////
 
 void USARTSerial::begin(unsigned long baud)
 {
@@ -58,7 +55,6 @@ void USARTSerial::blockOnOverrun(bool block)
 {
     _blocking = block;
 }
-
 
 int USARTSerial::availableForWrite(void)
 {

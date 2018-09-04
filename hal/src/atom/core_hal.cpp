@@ -23,6 +23,7 @@
 #include "intorobot_macros.h"
 #include "wiring_ex_bridge.h"
 #include "wiring_ex_process.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal";
 

@@ -20,7 +20,7 @@
 #ifndef WIRING_CLOUD_H_
 #define WIRING_CLOUD_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #include <stdio.h>
 #include "wiring_string.h"
 #include "system_cloud.h"

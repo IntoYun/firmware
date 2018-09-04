@@ -24,7 +24,7 @@
 #ifndef WIRING_AJSON_H_
 #define WIRING_AJSON_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #include "wiring_print.h"
 #include "wiring_stream.h"
 #include "wiring_client.h"

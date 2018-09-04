@@ -32,6 +32,7 @@
 #include "net_hal.h"
 #include "flash_map.h"
 #include "flash_storage_impl.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-modem";
 

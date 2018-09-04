@@ -21,7 +21,7 @@
 #define SYSTEM_NETWORK_CELLULAR_H
 
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_CELLULAR
 
 #include "system_network_internal.h"

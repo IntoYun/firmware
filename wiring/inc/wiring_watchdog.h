@@ -20,8 +20,6 @@
 #ifndef WIRING_WATCHDOG_H_
 #define WIRING_WATCHDOG_H_
 
-
-
 #include "wiring_thread.h"
 #include "delay_hal.h"
 #include "tick_hal.h"

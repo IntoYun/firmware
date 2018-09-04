@@ -53,6 +53,7 @@ extern "C" {
 #include "nvs_flash.h"
 #include "esp_partition.h"
 }
+#include "molmc_log.h"
 
 const static char *TAG = "hal-core";
 

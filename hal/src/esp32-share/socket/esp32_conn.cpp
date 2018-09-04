@@ -30,6 +30,7 @@ extern "C" {
 #include <lwip/sockets.h>
 #include <lwip/netdb.h>
 }
+#include "molmc_log.h"
 
 const static char *TAG = "hal-socket";
 

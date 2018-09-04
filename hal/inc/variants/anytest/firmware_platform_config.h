@@ -17,8 +17,8 @@
   ******************************************************************************
 */
 
-#ifndef FIRMWARE_CONFIG_H_
-#define FIRMWARE_CONFIG_H_
+#ifndef FIRMWARE_PLATFORM_CONFIG_H_
+#define FIRMWARE_PLATFORM_CONFIG_H_
 
 #define FIRMWARE_CONFIG_HAL_USB_CDC 1
 #define FIRMWARE_CONFIG_HAL_USB_HID 0
@@ -53,5 +53,5 @@
 
 #define FIRMWARE_CONFIG_LOG_DEFAULT_LEVEL 5
 
-#endif /* FIRMWARE_CONFIG_H */
+#endif
 

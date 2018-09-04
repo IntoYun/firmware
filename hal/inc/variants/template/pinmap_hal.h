@@ -24,7 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include <stdint.h>
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 
 #ifdef __cplusplus

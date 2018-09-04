@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/eeprom_hal.cpp"
-
-#else
-
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "eeprom_hal.h"
@@ -792,4 +785,3 @@ void HAL_EEPROM_Perform_Pending_Erase()
 {
 }
 
-#endif

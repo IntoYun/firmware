@@ -20,7 +20,7 @@
 #ifndef WIRING_I2C_H_
 #define WIRING_I2C_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_WIRE > 0
 
 #include "wiring_stream.h"

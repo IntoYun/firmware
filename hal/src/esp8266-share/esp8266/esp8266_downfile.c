@@ -25,6 +25,7 @@
 #include "hw_config.h"
 #include "esp8266_upgrade.h"
 #include "esp8266_downfile.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-download";
 

@@ -31,6 +31,7 @@
 #include "concurrent_hal.h"
 #include "net_hal.h"
 #include "intorobot_macros.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-modem";
 

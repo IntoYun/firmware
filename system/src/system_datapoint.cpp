@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -410,8 +410,9 @@ static double _pow(double base, int exponent)
     return result;
 }
 
-void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
+bool intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 {
+    bool ok = true;
     int32_t index = 0;
     uint16_t dpID = 0;
     uint8_t dataType;
@@ -419,13 +420,13 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
     int i = 0;
 
     if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
-        return;
+        goto failure;
     }
 
     //0x31 dpid(1-2 bytes)+data type(1 byte)+data len(1-2 bytes)+data(n bytes)
     //大端表示，如果最高位是1，则表示两个字节，否则是一个字节
     if((payload[0] != 0x31 ) || (len == 0)) {
-        return;
+        goto failure;
     }
 
     index++;
@@ -440,7 +441,7 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
 
         i = intorobotDiscoverProperty(dpID);
         if((i == -1) || (DP_PERMISSION_UP_ONLY == properties[i]->permission)) {
-            return;
+            goto failure;
         }
         dataType = payload[index++];
         switch(dataType) {
@@ -451,7 +452,6 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                     if(DATA_TYPE_BOOL == properties[i]->dataType) {
                         String valueString = String(valueBool);
                         intorobotWriteDatapoint(dpID, (uint8_t *)valueString.c_str(), valueString.length(), 0);
-                        MOLMC_LOGD(TAG, "bool = %d", valueBool);
                     }
                     break;
                 }
@@ -536,9 +536,17 @@ void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
     if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_RESET, dpReset)) {
         system_notify_event(event_reset, 0);
         HAL_Core_System_Reset();
-    } else if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, dpGetAllDatapoint)) {
-        intorobotSendAllDatapoint();
+        ok = false;
     }
+
+    if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_GETALLDATAPOINT, dpGetAllDatapoint)) {
+        intorobotSendAllDatapoint();
+        ok = false;
+    }
+    return ok;
+
+failure:
+    return false;
 }
 
 static uint16_t intorobotFormSingleDatapoint(int property_index, uint8_t* buffer, uint16_t len)

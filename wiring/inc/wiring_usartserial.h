@@ -20,7 +20,8 @@
 #ifndef WIRING_USARTSERIAL_H_
 #define WIRING_USARTSERIAL_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
+
 #if FIRMWARE_CONFIG_WIRING_USART > 0
 
 #include "wiring_stream.h"
@@ -31,6 +32,7 @@ class USARTSerial : public Stream
     private:
         HAL_USART_Serial _serial;
         bool _blocking;
+
     public:
         USARTSerial(HAL_USART_Serial serial);
         virtual ~USARTSerial() {};
@@ -111,3 +113,4 @@ extern USARTSerial &__fetch_global_serial2();
 #endif
 
 #endif
+

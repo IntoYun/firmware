@@ -20,7 +20,7 @@
 #ifndef SYSTEM_NETWORK_WIFI_H
 #define	SYSTEM_NETWORK_WIFI_H
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include "system_network_internal.h"

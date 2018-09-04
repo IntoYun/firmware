@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/esp8266-share/params_impl.h"
-
-#else
-
 #ifndef PARAMS_IMPL_H_
 #define PARAMS_IMPL_H_
 
@@ -56,4 +49,3 @@ typedef struct
 
 #endif /*SYSTEM_PARAMS_H_*/
 
-#endif

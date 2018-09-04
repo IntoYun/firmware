@@ -17,7 +17,7 @@
  ******************************************************************************
  */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #include "stream_string.h"
 #include "system_update.h"
 #include "system_cloud.h"

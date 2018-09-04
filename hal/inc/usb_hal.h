@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_HAL_USB_CDC
 

@@ -206,27 +206,25 @@ int esp32_waitStatusBits(int bits, uint32_t timeout_ms)
         timeout_ms / portTICK_PERIOD_MS ) & bits; // Wait a maximum of 100ms for either bit to be set.
 }
 
-#ifdef HAL_WIFI_DEBUG
 const char * system_event_reasons[] = { "UNSPECIFIED", "AUTH_EXPIRE", "AUTH_LEAVE", "ASSOC_EXPIRE", "ASSOC_TOOMANY", "NOT_AUTHED", "NOT_ASSOCED", "ASSOC_LEAVE", "ASSOC_NOT_AUTHED", "DISASSOC_PWRCAP_BAD", "DISASSOC_SUPCHAN_BAD", "IE_INVALID", "MIC_FAILURE", "4WAY_HANDSHAKE_TIMEOUT", "GROUP_KEY_UPDATE_TIMEOUT", "IE_IN_4WAY_DIFFERS", "GROUP_CIPHER_INVALID", "PAIRWISE_CIPHER_INVALID", "AKMP_INVALID", "UNSUPP_RSN_IE_VERSION", "INVALID_RSN_IE_CAP", "802_1X_AUTH_FAILED", "CIPHER_SUITE_REJECTED", "BEACON_TIMEOUT", "NO_AP_FOUND", "AUTH_FAIL", "ASSOC_FAIL", "HANDSHAKE_TIMEOUT" };
 #define reason2str(r) ((r>176)?system_event_reasons[r-176]:system_event_reasons[r-1])
-#endif
 
 static esp_err_t _eventCallback(void *arg, system_event_t *event)
 {
     if(event->event_id == SYSTEM_EVENT_SCAN_DONE) {
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_SCAN_DONE\r\n");
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_SCAN_DONE");
         _scanDoneCb();
     } else if(event->event_id == SYSTEM_EVENT_STA_START) {
-        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_START\r\n");
+        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_START");
         esp32_setStatusBits(STA_STARTED_BIT);
     } else if(event->event_id == SYSTEM_EVENT_STA_STOP) {
-        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_STOP\r\n");
+        //MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_STOP");
         esp32_clearStatusBits(STA_STARTED_BIT | STA_CONNECTED_BIT | STA_HAS_IP_BIT | STA_HAS_IP6_BIT);
     } else if(event->event_id == SYSTEM_EVENT_STA_CONNECTED) {
         esp32_setStatusBits(STA_CONNECTED_BIT);
     } else if(event->event_id == SYSTEM_EVENT_STA_DISCONNECTED) {
         uint8_t reason = event->event_info.disconnected.reason;
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_DISCONNECTED reason = %u - %s\r\n", reason, reason2str(reason));
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_DISCONNECTED reason = %u - %s", reason, reason2str(reason));
         if(reason == WIFI_REASON_NO_AP_FOUND) {
         } else if(reason == WIFI_REASON_AUTH_FAIL || reason == WIFI_REASON_ASSOC_FAIL) {
         } else if(reason == WIFI_REASON_BEACON_TIMEOUT || reason == WIFI_REASON_HANDSHAKE_TIMEOUT) {
@@ -244,7 +242,7 @@ static esp_err_t _eventCallback(void *arg, system_event_t *event)
         }
         HAL_NET_notify_disconnected();
     } else if(event->event_id == SYSTEM_EVENT_STA_GOT_IP) {
-        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_GOT_IP\r\n");
+        MOLMC_LOGD(TAG, "SYSTEM_EVENT_STA_GOT_IP");
         esp32_setStatusBits(STA_HAS_IP_BIT | STA_CONNECTED_BIT);
         HAL_NET_notify_dhcp(true);
         HAL_NET_notify_connected();
@@ -538,11 +536,11 @@ static bool _smartConfigDone = false;
 static void smartConfigCallback(uint32_t st, void *result)
 {
     smartconfig_status_t status = (smartconfig_status_t) st;
-    MOLMC_LOGD(TAG, "beginSmartConfig status = %d\r\n", status);
+    MOLMC_LOGD(TAG, "beginSmartConfig status = %d", status);
     if (status == SC_STATUS_LINK) {
         wifi_sta_config_t *sta_conf = (wifi_sta_config_t *)result;
-        MOLMC_LOGD(TAG, "ssid     = %s\r\n", sta_conf->ssid);
-        MOLMC_LOGD(TAG, "password = %s\r\n", sta_conf->password);
+        MOLMC_LOGD(TAG, "ssid     = %s", sta_conf->ssid);
+        MOLMC_LOGD(TAG, "password = %s", sta_conf->password);
         esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t *)sta_conf);
         esp_wifi_connect();
     } else if (status == SC_STATUS_LINK_OVER) {
@@ -552,7 +550,7 @@ static void smartConfigCallback(uint32_t st, void *result)
 
 bool esp32_beginSmartConfig(void)
 {
-    MOLMC_LOGD(TAG, "esp32_beginSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp32_beginSmartConfig");
     if (_smartConfigStarted) {
         return false;
     }
@@ -575,7 +573,7 @@ bool esp32_beginSmartConfig(void)
 
 bool esp32_stopSmartConfig(void)
 {
-    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig\r\n");
+    MOLMC_LOGD(TAG, "esp8266_stopSmartConfig");
     if (!_smartConfigStarted) {
         return true;
     }

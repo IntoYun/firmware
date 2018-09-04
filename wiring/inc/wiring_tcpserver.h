@@ -20,7 +20,7 @@
 #ifndef WIRING_TCPSERVER_H_
 #define WIRING_TCPSERVER_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_NETWORK
 

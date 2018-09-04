@@ -152,12 +152,8 @@ void HAL_Core_Load_params(void)
     HAL_PARAMS_Load_System_Params();
 
     if(INITPARAM_FLAG_FACTORY_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
-        //初始化参数 保留密钥
-        MOLMC_LOGD(TAG, "init params fac");
         HAL_PARAMS_Init_Fac_System_Params();
     } else if(INITPARAM_FLAG_ALL_RESET == HAL_PARAMS_Get_Boot_initparam_flag()) {
-        //初始化所有参数
-        MOLMC_LOGD(TAG, "init params all");
         HAL_PARAMS_Init_All_System_Params();
     }
 

@@ -20,7 +20,7 @@
 #ifndef WIRING_USBSERIAL_H_
 #define WIRING_USBSERIAL_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_WIRING_USB_USART
 

@@ -49,7 +49,6 @@ extern "C" {
 #if defined(HAS_SERIAL_FLASH)
 #include "spi_flash.h"
 #endif
-#include "molmc_log.h"
 
 
 /* Exported types ------------------------------------------------------------*/

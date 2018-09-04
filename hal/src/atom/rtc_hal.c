@@ -27,6 +27,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "hw_config.h"
 #include "rtc_hal.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal";
 

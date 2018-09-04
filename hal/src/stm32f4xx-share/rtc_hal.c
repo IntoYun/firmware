@@ -21,6 +21,7 @@
 #include "hw_config.h"
 #include "rtc_hal.h"
 #include "gpio_hal.h"
+#include "molmc_log.h"
 
 RTC_HandleTypeDef RtcHandle;
 

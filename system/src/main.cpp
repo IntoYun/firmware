@@ -50,13 +50,13 @@
 #include "system_utilities.h"
 #include "system_product.h"
 #include "system_config.h"
-#include "molmc_log.h"
 #include "platforms.h"
 #include "system_lorawan.h"
 #include "system_datapoint.h"
 #include "malloc.h"
 #include "wiring_time.h"
 #include "system_timer.h"
+#include "molmc_log.h"
 
 using namespace intorobot;
 
@@ -67,7 +67,7 @@ using namespace intorobot;
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-const static char *TAG = "system-main";
+const static char *TAG = "sys-main";
 
 typedef enum
 {
