@@ -418,6 +418,8 @@ bool intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
     uint8_t dataType;
     uint16_t dataLength=0;
     int i = 0;
+    bool dpReset = false;
+    bool dpGetAllDatapoint = false;
 
     if(!System.featureEnabled(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED)) {
         goto failure;
@@ -531,8 +533,7 @@ bool intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len)
                 break;
         }
     }
-    bool dpReset = false;
-    bool dpGetAllDatapoint = false;
+
     if (RESULT_DATAPOINT_NEW == intorobotReadDatapointBool(DPID_DEFAULT_BOOL_RESET, dpReset)) {
         system_notify_event(event_reset, 0);
         HAL_Core_System_Reset();

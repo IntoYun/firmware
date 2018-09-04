@@ -88,7 +88,6 @@ static void __modem_unlock(void)
 }
 
 #ifdef MDM_DEBUG
-
 void dumpAtCmd(const char* buf, int len)
 {
     MOLMC_LOGD_TEXT(TAG, "(%3d): \"", len);
@@ -141,9 +140,6 @@ MDMParser::MDMParser(void)
     memset(_sockets, 0, sizeof(_sockets));
     for (int socket = 0; socket < NUMSOCKETS; socket ++)
         _sockets[socket].handle = MDM_SOCKET_ERROR;
-#ifdef MDM_DEBUG
-    _debugLevel = 3;
-#endif
 }
 
 void MDMParser::cancel(void) {
@@ -159,7 +155,7 @@ void MDMParser::resume(void) {
 int MDMParser::send(const char* buf, int len)
 {
 #ifdef MDM_DEBUG
-    if (_debugLevel >= 3) {
+    if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
         MOLMC_LOGD_HEADER(TAG);
         MOLMC_LOGD_TEXT(TAG, "AT Send ");
         dumpAtCmd(buf, len);
@@ -190,21 +186,23 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     do {
         int ret = getLine(buf, sizeof(buf));
 #ifdef MDM_DEBUG
-        if ((_debugLevel >= 3) && (ret != WAIT) && (ret != NOT_FOUND))
-        {
-            int len = LENGTH(ret);
-            int type = TYPE(ret);
-            const char* s = (type == TYPE_UNKNOWN)? "UNK":
-                (type == TYPE_OK   )  ? "OK ":
-                (type == TYPE_ERROR)  ? "ERR":
-                (type == TYPE_ABORTED) ? "ABT":
-                (type == TYPE_PLUS)   ? " + ":
-                (type == TYPE_PROMPT) ? " > ":
-                "..." ;
-            MOLMC_LOGD_HEADER(TAG);
-            MOLMC_LOGD_TEXT(TAG, "AT Read ");
-            dumpAtCmd(buf, len);
-            (void)s;
+        if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
+            if ((ret != WAIT) && (ret != NOT_FOUND))
+            {
+                int len = LENGTH(ret);
+                int type = TYPE(ret);
+                const char* s = (type == TYPE_UNKNOWN)? "UNK":
+                    (type == TYPE_OK   )  ? "OK ":
+                    (type == TYPE_ERROR)  ? "ERR":
+                    (type == TYPE_ABORTED) ? "ABT":
+                    (type == TYPE_PLUS)   ? " + ":
+                    (type == TYPE_PROMPT) ? " > ":
+                    "..." ;
+                MOLMC_LOGD_HEADER(TAG);
+                MOLMC_LOGD_TEXT(TAG, "AT Read ");
+                dumpAtCmd(buf, len);
+                (void)s;
+            }
         }
 #endif
         if ((ret != WAIT) && (ret != NOT_FOUND))
@@ -646,37 +644,6 @@ int MDMParser::_cbApScan(int type, const char* buf, int len, wifi_ap_t *aps)
             memcpy(aps[_aplistindex].bssid, bssid, 6);
             _aplistindex++;
         }
-        //以下这种方法不知道为什么获取ssid和rssi错误，后续需要查找原因。
-        /*
-           char ssid[32] = "";
-           char bssid_str[32] = "";
-           uint8_t bssid[6];
-           uint8_t security;
-           uint8_t channel;
-           int rssi;        // when scanning
-
-           if (sscanf(buf, "+CWLAP:(%d,\"%32[^\"]\",%d,\"" MACSTR "\",%d)", &security, ssid, &rssi, &bssid[0],\
-           &bssid[1], &bssid[2], &bssid[3], &bssid[4], &bssid[5], &channel) == 10)
-           {
-           if(_aplistindex < _aplisttotalcount)
-           {
-           strcpy(aps[_aplistindex].ssid, ssid);
-           aps[_aplistindex].ssid_len = strlen(ssid);
-           memcpy(aps[_aplistindex].bssid, bssid, 6);
-           aps[_aplistindex].security = security;
-           aps[_aplistindex].channel = channel;
-           aps[_aplistindex].rssi = rssi;
-           MOLMC_LOGD(TAG, "aps[%d].ssid = %s ", _aplistindex, ssid);
-           MOLMC_LOGD(TAG, "aps[%d].ssidLength = %d ", _aplistindex, aps[_aplistindex].ssid_len);
-           MOLMC_LOGD(TAG, "aps[%d].bssid = %02x:%02x:%02x:%02x:%02x:%02x", _aplistindex, aps[_aplistindex].bssid[0],\
-           aps[_aplistindex].bssid[1],aps[_aplistindex].bssid[2],aps[_aplistindex].bssid[3],aps[_aplistindex].bssid[4],aps[_aplistindex].bssid[5]);
-           MOLMC_LOGD(TAG, "aps[%d].security = %d ", _aplistindex, aps[_aplistindex].security);
-           MOLMC_LOGD(TAG, "aps[%d].channel = %d ", _aplistindex, aps[_aplistindex].channel);
-           MOLMC_LOGD(TAG, "aps[%d].rssi = %d ", _aplistindex, aps[_aplistindex].rssi);
-           _aplistindex++;
-           }
-           }
-           */
     }
     return WAIT;
 }
@@ -1293,26 +1260,6 @@ bool MDMParser::getBootloader(void)
 }
 
 // ----------------------------------------------------------------
-bool MDMParser::setDebug(int level)
-{
-#ifdef MDM_DEBUG
-    if ((_debugLevel >= -1) && (level >= -1) &&
-            (_debugLevel <=  3) && (level <=  3)) {
-        _debugLevel = level;
-        return true;
-    }
-#endif
-    return false;
-}
-
-void MDMParser::dumpIp(MDM_IP ip)
-{
-    if (ip != NOIP) {
-        MOLMC_LOGD(TAG, "[ Modem:IP " IPSTR " ] = = = = = = = = = = = = = =", IPNUM(ip));
-    }
-}
-
-// ----------------------------------------------------------------
 int MDMParser::_parseMatch(Pipe<char>* pipe, int len, const char* sta, const char* end)
 {
     int o = 0;
@@ -1460,10 +1407,6 @@ int MDMParser::_getLine(Pipe<char>* pipe, char* buf, int len)
 MDMEsp8266Serial::MDMEsp8266Serial(int rxSize /*= 256*/, int txSize /*= 256*/) :
     Esp8266SerialPipe(rxSize, txSize)
 {
-#ifdef MDM_DEBUG
-    _debugLevel = -1;
-#endif
-
     // Important to set _dev.lpm = LPM_ENABLED; when HW FLOW CONTROL enabled.
 }
 

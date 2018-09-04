@@ -64,12 +64,12 @@ i2c_err_t i2cAddQueueRead(i2c_t *i2c, uint16_t i2cDeviceAddr, uint8_t *dataPtr, 
 
 //stickbreaker debug support
 uint32_t i2cDebug(i2c_t *, uint32_t setBits, uint32_t resetBits);
-//  Debug actions have 3 currently defined locus 
-// 0xXX------ : at entry of ProcQueue 
+//  Debug actions have 3 currently defined locus
+// 0xXX------ : at entry of ProcQueue
 // 0x--XX---- : at exit of ProcQueue
 // 0x------XX : at entry of Flush
-// 
-// bit 0 causes DumpI2c to execute 
+//
+// bit 0 causes DumpI2c to execute
 // bit 1 causes DumpInts to execute
 // bit 2 causes DumpCmdqueue to execute
 // bit 3 causes DumpStatus to execute

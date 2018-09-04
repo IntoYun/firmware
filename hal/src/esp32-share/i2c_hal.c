@@ -37,10 +37,13 @@
 #include "soc/i2c_reg.h"
 #include "soc/i2c_struct.h"
 #include "soc/dport_reg.h"
+#include "molmc_log.h"
+
+const static char *TAG = "hal-i2c";
 
 #define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
 
-#define BUFFER_LENGTH   (I2C_BUFFER_LENGTH)
+#define I2C_BUFFER_LENGTH   128
 
 // default pin
 // I2C SDA D0 GPIO21
@@ -58,12 +61,12 @@ typedef struct ESP32_I2C_Info {
 
     bool I2C_Enabled;
     i2c_t* i2c;
-    uint8_t rxBuffer[BUFFER_LENGTH];
+    uint8_t rxBuffer[I2C_BUFFER_LENGTH];
     uint16_t rxIndex;
     uint16_t rxLength;
     uint16_t rxQueued; //@stickBreaker
 
-    uint8_t txBuffer[BUFFER_LENGTH];
+    uint8_t txBuffer[I2C_BUFFER_LENGTH];
     uint16_t txIndex;
     uint16_t txLength;
     uint16_t txAddress;
@@ -87,7 +90,11 @@ ESP32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C p
 
 void HAL_I2C_Initial(HAL_I2C_Interface i2c, void* reserved)
 {
-    i2cMap[i2c] = &I2C_MAP[i2c];
+    if(i2c == HAL_I2C_INTERFACE1) {
+        i2cMap[i2c] = &I2C_MAP[I2C_0];
+    } else if(i2c == HAL_I2C_INTERFACE2) {
+        i2cMap[i2c] = &I2C_MAP[I2C_1];
+    }
 
     i2cMap[i2c]->I2C_Enabled = false;
     i2cMap[i2c]->transmitting = 0;
@@ -114,18 +121,23 @@ void HAL_I2C_Begin(HAL_I2C_Interface i2c, I2C_Mode mode, uint8_t address, void* 
     i2cMap[i2c]->i2c = i2cInit(i2c,
             PIN_MAP[i2cMap[i2c]->I2C_SDA_Pin].gpio_pin, PIN_MAP[i2cMap[i2c]->I2C_SCL_Pin].gpio_pin, 100000);
     HAL_I2C_Flush_Data(i2c, NULL);
+
+    i2cMap[i2c]->I2C_Enabled = true;
 }
 
 void HAL_I2C_End(HAL_I2C_Interface i2c, void* reserved)
 {
-    // xxx: To be done
+    if(i2cMap[i2c]->I2C_Enabled != false) {
+        i2cRelease(i2cMap[i2c]->i2c);
+        i2cMap[i2c]->I2C_Enabled = false;
+    }
 }
 
 uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t quantity, uint8_t stop, void* reserved)
 {
     //use internal Wire rxBuffer, multiple requestFrom()'s may be pending, try to share rxBuffer
     uint32_t cnt = i2cMap[i2c]->rxQueued; // currently queued reads, next available position in rxBuffer
-    if(cnt < (BUFFER_LENGTH-1) && (quantity + cnt) <= BUFFER_LENGTH) { // any room left in rxBuffer
+    if(cnt < (I2C_BUFFER_LENGTH - 1) && (quantity + cnt) <= I2C_BUFFER_LENGTH) { // any room left in rxBuffer
         i2cMap[i2c]->rxQueued += quantity;
     } else { // no room to receive more!
         cnt = 0;
@@ -156,7 +168,7 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* rese
 {
     if (i2cMap[i2c]->transmitting) {
         if(I2C_ERROR_CONTINUE != i2cWrite(i2cMap[i2c]->i2c, i2cMap[i2c]->txAddress, \
-                    i2cMap[i2c]->txBuffer[i2cMap[i2c]->txQueued], i2cMap[i2c]->txLength - i2cMap[i2c]->txQueued, stop, 50)) {
+                    &i2cMap[i2c]->txBuffer[i2cMap[i2c]->txQueued], i2cMap[i2c]->txLength - i2cMap[i2c]->txQueued, stop, 50)) {
             i2cMap[i2c]->rxIndex = 0;
             i2cMap[i2c]->rxLength = i2cMap[i2c]->rxQueued;
             i2cMap[i2c]->rxQueued = 0;
@@ -177,7 +189,7 @@ uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* rese
 uint32_t HAL_I2C_Write_Data(HAL_I2C_Interface i2c, uint8_t data, void* reserved)
 {
     if (i2cMap[i2c]->transmitting) {
-        if (i2cMap[i2c]->txLength >= BUFFER_LENGTH) {
+        if (i2cMap[i2c]->txLength >= I2C_BUFFER_LENGTH) {
             return 0;
         }
         i2cMap[i2c]->txBuffer[i2cMap[i2c]->txIndex++] = data;

@@ -24,6 +24,7 @@
 #include "soc/i2c_struct.h"
 #include "soc/dport_reg.h"
 #include "esp_attr.h"
+#include "delay_hal.h"
 
 //#define I2C_DEV(i)   (volatile i2c_dev_t *)((i)?DR_REG_I2C1_EXT_BASE:DR_REG_I2C_EXT_BASE)
 //#define I2C_DEV(i)   ((i2c_dev_t *)(REG_I2C_BASE(i)))
@@ -220,47 +221,6 @@ static i2c_t _i2c_bus_array[2] = {
  */
 static void IRAM_ATTR i2cDumpCmdQueue(i2c_t *i2c)
 {
-}
-
-/* Stickbreaker ISR mode debug support
- */
-static void i2cDumpDqData(i2c_t * i2c)
-{
-}
-
-static void i2cDumpI2c(i2c_t * i2c)
-{
-    //log_e("i2c=%p",i2c);
-    log_i("dev=%p date=%p",i2c->dev,i2c->dev->date);
-#if !CONFIG_DISABLE_HAL_LOCKS
-    log_i("lock=%p",i2c->lock);
-#endif
-    log_i("num=%d",i2c->num);
-    log_i("mode=%d",i2c->mode);
-    log_i("stage=%d",i2c->stage);
-    log_i("error=%d",i2c->error);
-    log_i("event=%p bits=%x",i2c->i2c_event,(i2c->i2c_event)?xEventGroupGetBits(i2c->i2c_event):0);
-    log_i("intr_handle=%p",i2c->intr_handle);
-    log_i("dq=%p",i2c->dq);
-    log_i("queueCount=%d",i2c->queueCount);
-    log_i("queuePos=%d",i2c->queuePos);
-    log_i("errorByteCnt=%d",i2c->errorByteCnt);
-    log_i("errorQueue=%d",i2c->errorQueue);
-    log_i("debugFlags=0x%08X",i2c->debugFlags);
-    if(i2c->dq) {
-        i2cDumpDqData(i2c);
-    }
-}
-
-static void i2cDumpInts(uint8_t num)
-{
-    log_i("Debug Buffer not Enabled");
-}
-
-static void IRAM_ATTR i2cDumpStatus(i2c_t * i2c){
-}
-
-static void i2cDumpFifo(i2c_t * i2c){
 }
 
 static void IRAM_ATTR i2cTriggerDumps(i2c_t * i2c, uint8_t trigger, const char locus[]){
@@ -876,7 +836,7 @@ i2c_err_t i2cProcQueue(i2c_t * i2c, uint32_t *readCount, uint16_t timeOutMillis)
         }
         if(i2c->dev->status_reg.bus_busy){ // still busy, so die
              */
-        log_i("Bus busy, reinit");
+        //log_i("Bus busy, reinit");
         return I2C_ERROR_BUSY;
     }
 
@@ -1117,9 +1077,9 @@ static bool i2cCheckLineState(int8_t sda, int8_t scl){
         //log_w("invalid state sda(%d)=%d, scl(%d)=%d", sda, __digitalRead(sda), scl, __digitalRead(scl));
         __digitalWrite(scl, HIGH);
         for(uint8_t a=0; a<9; a++) {
-            delayMicroseconds(5);
+            HAL_Delay_Microseconds(5);
             __digitalWrite(scl, LOW);
-            delayMicroseconds(5);
+            HAL_Delay_Microseconds(5);
             __digitalWrite(scl, HIGH);
             if(__digitalRead(sda)){ // bus recovered
                 //log_d("Recovered after %d Cycles",a+1);
@@ -1303,7 +1263,7 @@ i2c_err_t i2cFlush(i2c_t * i2c)
     // what out if ISR is running?
     i2c_err_t rc=I2C_ERROR_OK;
     if(i2c->dq!=NULL) {
-        //  log_i("free");
+        // log_i("free");
         // what about EventHandle?
         free(i2c->dq);
         i2c->dq = NULL;
