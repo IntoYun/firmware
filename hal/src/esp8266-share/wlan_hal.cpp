@@ -93,12 +93,12 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 }
 
 //=======wifi activate/deactivate===========
-wlan_result_t HAL_WLAN_Activate(void)
+wlan_result_t HAL_WLAN_On(void)
 {
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Deactivate(void)
+wlan_result_t HAL_WLAN_Off(void)
 {
     return 0;
 }
@@ -113,17 +113,12 @@ void HAL_WLAN_Setup(void)
 }
 
 //=======wifi connect===========
-int HAL_WLAN_Connect_Init(void)
+wlan_result_t HAL_WLAN_Connect(void)
 {
     return esp8266_connect();
 }
 
-wlan_result_t HAL_WLAN_Connect_Finalize(void)
-{
-    return 0;
-}
-
-wlan_result_t HAL_WLAN_Disconnect_Now(void)
+wlan_result_t HAL_WLAN_Disconnect(void)
 {
     return esp8266_disconnect();
 }
@@ -138,7 +133,7 @@ int HAL_WLAN_Connected_Rssi(void)
     return esp8266_getRSSI();
 }
 
-void HAL_WLAN_Drive_Now(void)
+void HAL_WLAN_Drive(void)
 {
     optimistic_yield(1000);
 }

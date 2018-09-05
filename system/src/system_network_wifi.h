@@ -35,28 +35,25 @@ void network_notify_dhcp(bool dhcp);
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
 protected:
-    void connect_init() override
-    {
-        HAL_WLAN_Connect_Init();
-    }
+    void connect_init() override {}
 
     void connect_finalize() override
     {
-        HAL_WLAN_Connect_Finalize();
+        HAL_WLAN_Connect();
     }
 
     void disconnect_now() override
     {
-        HAL_WLAN_Disconnect_Now();
+        HAL_WLAN_Disconnect();
     }
 
     void drive_now() override
     {
-        HAL_WLAN_Drive_Now();
+        HAL_WLAN_Drive();
     }
 
-    void on_now() override { HAL_WLAN_Activate(); }
-    void off_now() override { HAL_WLAN_Deactivate(); }
+    void on_now() override { HAL_WLAN_On(); }
+    void off_now() override { HAL_WLAN_Off(); }
 
 public:
 

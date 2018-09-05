@@ -67,12 +67,12 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 }
 
 //=======wifi activate/deactivate===========
-wlan_result_t HAL_WLAN_Activate(void)
+wlan_result_t HAL_WLAN_On(void)
 {
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Deactivate(void)
+wlan_result_t HAL_WLAN_Off(void)
 {
     return 0;
 }
@@ -84,24 +84,18 @@ void HAL_WLAN_Setup(void)
 }
 
 //=======wifi connect===========
-int HAL_WLAN_Connect_Init(void)
+wlan_result_t HAL_WLAN_Connect(void)
 {
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Connect_Finalize(void)
-{
-    return 0;
-}
-
-wlan_result_t HAL_WLAN_Disconnect_Now(void)
+wlan_result_t HAL_WLAN_Disconnect(void)
 {
     return 0;
 }
 
 void HAL_WLAN_Connect_Cancel(bool called_from_isr)
 {
-
 }
 
 int HAL_WLAN_Connected_Rssi(void)
@@ -114,7 +108,7 @@ int HAL_WLAN_Connected_Rssi(void)
     return 0;
 }
 
-void HAL_WLAN_Drive_Now(void)
+void HAL_WLAN_Drive(void)
 {
     esp8266MDM.drive();
 }
@@ -218,8 +212,7 @@ void HAL_WLAN_Set_Ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* ne
 
 WLanSecurityType toSecurityType(uint8_t security)
 {
-    switch(security)
-    {
+    switch(security) {
         case 0: //AUTH_OPEN
             return WLAN_SEC_UNSEC;
             break;
@@ -234,15 +227,14 @@ WLanSecurityType toSecurityType(uint8_t security)
             return WLAN_SEC_WPA2;
             break;
         default:
-            return WLAN_SEC_NOT_SET;
             break;
     }
+    return WLAN_SEC_NOT_SET;
 }
 
 WLanSecurityCipher toCipherType(uint8_t security)
 {
-    switch(security)
-    {
+    switch(security) {
         case 1: //AUTH_WEP
             return WLAN_CIPHER_AES;
             break;
@@ -268,8 +260,7 @@ int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
     //填充ap 列表
     if(result) {
         WiFiAccessPoint data;
-        for(int n = 0; n < result; n++)
-        {
+        for(int n = 0; n < result; n++) {
             memset(&data, 0, sizeof(WiFiAccessPoint));
             memcpy(data.ssid, aps[n].ssid, aps[n].ssid_len);
             data.ssidLength = aps[n].ssid_len;
@@ -283,14 +274,6 @@ int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
     }
     free(aps);
     return result;
-}
-
-/**
- * wifi set station and ap mac addr
- */
-int wlan_set_macaddr(uint8_t *stamacaddr, uint8_t *apmacaddr)
-{
-    return 0;
 }
 
 /**
