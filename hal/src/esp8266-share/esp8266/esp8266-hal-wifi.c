@@ -23,8 +23,6 @@
  */
 
 #include "esp8266-hal-wifi.h"
-
-extern "C" {
 #include "c_types.h"
 #include "ets_sys.h"
 #include "os_type.h"
@@ -34,16 +32,12 @@ extern "C" {
 #include "smartconfig.h"
 #include "lwip/err.h"
 #include "lwip/dns.h"
-}
-
 #include "tick_hal.h"
 #include "net_hal.h"
-#include "molmc_log.h"
 #include "core_hal_esp8266.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-wifi";
-
-volatile uint8_t _dns_founded=0;
 
 static volatile uint32_t esp8266_wifi_timeout_start;
 static volatile uint32_t esp8266_wifi_timeout_duration;
@@ -51,21 +45,20 @@ static volatile uint32_t esp8266_wifi_timeout_duration;
 inline void ARM_WIFI_TIMEOUT(uint32_t dur) {
     esp8266_wifi_timeout_start = HAL_Tick_Get_Milli_Seconds();
     esp8266_wifi_timeout_duration = dur;
-    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Set %d",(dur));
+    MOLMC_LOGD(TAG, "HAL WIFI WD Set %d",(dur));
 }
-inline bool IS_WIFI_TIMEOUT() {
+inline bool IS_WIFI_TIMEOUT(void) {
     return esp8266_wifi_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-esp8266_wifi_timeout_start)>esp8266_wifi_timeout_duration);
 }
 
-inline void CLR_WIFI_TIMEOUT() {
+inline void CLR_WIFI_TIMEOUT(void) {
     esp8266_wifi_timeout_duration = 0;
-    //MOLMC_LOGD(TAG, "esp8266 WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
+    MOLMC_LOGD(TAG, "HAL WIFI WD Cleared, was %d", esp8266_wifi_timeout_duration);
 }
 
 static void _eventCallback(System_Event_t * evt)
 {
-    switch (evt->event)
-    {
+    switch (evt->event) {
         case EVENT_STAMODE_CONNECTED:
             MOLMC_LOGD(TAG, "EVENT_STAMODE_CONNECTED");
             break;
@@ -123,7 +116,7 @@ bool esp8266_setMode(WiFiMode_t m)
  * get WiFi mode
  * @return WiFiMode
  */
-WiFiMode_t esp8266_getMode()
+WiFiMode_t esp8266_getMode(void)
 {
     return (WiFiMode_t) wifi_get_opmode();
 }
@@ -213,7 +206,7 @@ bool esp8266_setAutoConnect(bool autoConnect)
  * automatically or not when it is powered on.
  * @return auto connect
  */
-bool esp8266_getAutoConnect()
+bool esp8266_getAutoConnect(void)
 {
     return (wifi_station_get_auto_connect() != 0);
 }
@@ -237,9 +230,24 @@ int32_t esp8266_getRSSI(void)
     return wifi_station_get_rssi();
 }
 
+int esp8266_connect(void)
+{
+    ETS_UART_INTR_DISABLE();
+    wifi_station_connect();
+    ETS_UART_INTR_ENABLE();
+    return 0;
+}
 
-bool _smartConfigStarted = false;
-bool _smartConfigDone = false;
+int esp8266_disconnect(void)
+{
+    ETS_UART_INTR_DISABLE();
+    wifi_station_disconnect();
+    ETS_UART_INTR_ENABLE();
+    return 0;
+}
+
+static bool _smartConfigStarted = false;
+static bool _smartConfigDone = false;
 
 /**
  * _smartConfigCallback
@@ -252,7 +260,7 @@ void smartConfigCallback(uint32_t st, void* result)
 
     MOLMC_LOGD(TAG, "beginSmartConfig status = %d", status);
     if(status == SC_STATUS_LINK) {
-        station_config* sta_conf = reinterpret_cast<station_config*>(result);
+        struct station_config* sta_conf = (struct station_config*)(result);
         MOLMC_LOGD(TAG, "ssid     = %s", sta_conf->ssid);
         MOLMC_LOGD(TAG, "password = %s", sta_conf->password);
         wifi_station_set_config(sta_conf);
@@ -266,7 +274,7 @@ void smartConfigCallback(uint32_t st, void* result)
 /**
  * Start SmartConfig
  */
-bool esp8266_beginSmartConfig()
+bool esp8266_beginSmartConfig(void)
 {
     if(_smartConfigStarted) {
         return false;
@@ -278,7 +286,7 @@ bool esp8266_beginSmartConfig()
         return false;
     }
 
-    if(smartconfig_start(reinterpret_cast<sc_callback_t>(&smartConfigCallback), 0)) {
+    if(smartconfig_start((sc_callback_t)(&smartConfigCallback), 0)) {
         _smartConfigStarted = true;
         _smartConfigDone = false;
         return true;
@@ -289,7 +297,7 @@ bool esp8266_beginSmartConfig()
 /**
  *  Stop SmartConfig
  */
-bool esp8266_stopSmartConfig()
+bool esp8266_stopSmartConfig(void)
 {
     if(!_smartConfigStarted) {
         return true;
@@ -307,7 +315,7 @@ bool esp8266_stopSmartConfig()
  * Query SmartConfig status, to decide when stop config
  * @return smartConfig Done
  */
-bool esp8266_smartConfigDone()
+bool esp8266_smartConfigDone(void)
 {
     if(!_smartConfigStarted) {
         return false;
@@ -316,35 +324,35 @@ bool esp8266_smartConfigDone()
     return _smartConfigDone;
 }
 
+volatile uint8_t _dns_founded=0;
+
 void wifi_dns_found_callback(const char *name, ip_addr_t *ipaddr, void *callback_arg)
 {
     if(ipaddr) {
-        (*reinterpret_cast<uint32_t*>(callback_arg)) = ipaddr->addr;
+        (*(uint32_t*)(callback_arg)) = ipaddr->addr;
     }
     _dns_founded = 1;
 }
 
-int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &ip_addr)
+int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t *ip_addr)
 {
     ip_addr_t addr;
 
-    if(!strcmp(hostname, "255.255.255.255"))
-    {
-        ip_addr = IPADDR_NONE;
+    if(!strcmp(hostname, "255.255.255.255")) {
+        *ip_addr = IPADDR_NONE;
         return 0;
     }
 
     addr.addr = ipaddr_addr(hostname);
-    if (addr.addr != IPADDR_NONE)
-    {
-        ip_addr = addr.addr;
+    if (addr.addr != IPADDR_NONE) {
+        *ip_addr = addr.addr;
         return 0;
     }
 
-    ip_addr = 0;
-    err_t err = dns_gethostbyname(hostname, &addr, &wifi_dns_found_callback, &ip_addr);
+    *ip_addr = 0;
+    err_t err = dns_gethostbyname(hostname, &addr, &wifi_dns_found_callback, ip_addr);
     if(err == ERR_OK) {
-        ip_addr = addr.addr;
+        *ip_addr = addr.addr;
     } else if(err == ERR_INPROGRESS) {
         ARM_WIFI_TIMEOUT(2000);
         _dns_founded =0;
@@ -356,43 +364,10 @@ int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &
             }
         }
         // will return here when dns_found_callback fires
-        if(ip_addr != 0) {
+        if(*ip_addr != 0) {
             err = ERR_OK;
         }
     }
     return (err == ERR_OK) ? 0 : 1;
 }
 
-int esp8266_connect()
-{
-    ETS_UART_INTR_DISABLE();
-    wifi_station_connect();
-    ETS_UART_INTR_ENABLE();
-    return 0;
-}
-
-int esp8266_disconnect()
-{
-    ETS_UART_INTR_DISABLE();
-    wifi_station_disconnect();
-    ETS_UART_INTR_ENABLE();
-    return 0;
-}
-
-wl_status_t esp8266_status()
-{
-    station_status_t status = wifi_station_get_connect_status();
-    switch(status) {
-        case STATION_GOT_IP:
-            return WL_CONNECTED;
-        case STATION_NO_AP_FOUND:
-            return WL_NO_SSID_AVAIL;
-        case STATION_CONNECT_FAIL:
-        case STATION_WRONG_PASSWORD:
-            return WL_CONNECT_FAILED;
-        case STATION_IDLE:
-            return WL_IDLE_STATUS;
-        default:
-            return WL_DISCONNECTED;
-    }
-}
