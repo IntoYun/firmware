@@ -89,8 +89,6 @@ extern void app_setup_and_loop(void);
 extern void app_setup_and_loop_initial(bool *threaded);
 extern void app_loop(bool threaded);
 extern void HAL_SysTick_Handler(void);
-//Externally defined function that is called before user constructors.
-extern void module_user_init_hook(void);
 
 #ifdef __cplusplus
 }

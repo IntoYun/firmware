@@ -20,6 +20,10 @@
 #ifndef WIRING_I2S_H_
 #define WIRING_I2S_H_
 
+#include "firmware_platform_config.h"
+
+#if FIRMWARE_CONFIG_WIRING_I2S > 0
+
 #include "wiring.h"
 #include "i2s_hal.h"
 
@@ -40,7 +44,6 @@ class I2SClass {
 };
 
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef FIRMWARE_CONFIG_I2S_ENABLE
 #ifdef I2S
 #undef I2S
 #endif
@@ -48,14 +51,17 @@ class I2SClass {
 #define I2S __fetch_global_i2s()
 I2SClass& __fetch_global_i2s();
 
-#ifdef FIRMWARE_CONFIG_I2S1_ENABLE
+#endif
+
+#if FIRMWARE_CONFIG_WIRING_I2S > 1
+
 #ifdef I2S1
 #undef I2S1
 #endif
 #define I2S1 __fetch_global_i2s1()
 I2SClass& __fetch_global_i2s1();
-#endif
 
 #endif
 
 #endif
+

@@ -17,13 +17,12 @@
   ******************************************************************************
 */
 
-#include "system_user.h"
 #include <stddef.h>
 #include <string.h>
+#include "system_user.h"
 #include "wiring_usbserial.h"
 #include "wiring_usartserial.h"
 #include "wiring_watchdog.h"
-#include "rng_hal.h"
 
 
 /**
@@ -33,12 +32,9 @@
 void setup() __attribute((weak));
 void loop() __attribute((weak));
 
-// needed on ARM GCC
-#if PLATFORM_ID != 208001
 /**
  * Declare weak setup/loop implementations so that they are always defined.
  */
-
 void setup()
 {
 }
@@ -46,43 +42,12 @@ void setup()
 void loop()
 {
 }
-#endif
 
 /**
  * Allow the application to override this to avoid processing
  * overhead when serial events are not required.
  */
 void serialEventRun() __attribute__((weak));
-void serialEvent() __attribute__((weak));
-
-#if PLATFORM_ID==208001
-// gcc doesn't allow weak functions to not exist, so they must be defined.
-__attribute__((weak)) void serialEvent() {}
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 1
-void serialEvent1() __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART >  2
-void serialEvent2() __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 3
-void serialEvent3() __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 4
-void serialEvent4() __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 5
-void serialEvent5() __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USB_USART > 0
-void usbSerialEvent() __attribute__((weak));
-#endif
 
 void _post_loop()
 {
@@ -95,26 +60,28 @@ void _post_loop()
  */
 void serialEventRun()
 {
+#if FIRMWARE_CONFIG_WIRING_USART > 1
     if (serialEvent && Serial.available()>0) { serialEvent(); }
+#endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 1
     if (serialEvent1 && Serial1.available()>0) { serialEvent1(); }
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 2
-    if (serialEventRun2) { serialEventRun2(); }
+    if (serialEvent2 && Serial2.available()>0) { serialEvent2(); }
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 3
-    if (serialEventRun3) { serialEventRun3(); }
+    if (serialEvent3 && Serial3.available()>0) { serialEvent3(); }
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 4
-    if (serialEventRun4) { serialEventRun4(); }
+    if (serialEvent4 && Serial4.available()>0) { serialEvent4(); }
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 5
-    if (serialEventRun5) { serialEventRun5(); }
+    if (serialEvent5 && Serial5.available()>0) { serialEvent5(); }
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USB_USART > 0
@@ -124,61 +91,3 @@ void serialEventRun()
 #endif
 }
 
-#if defined(STM32F2XX)
-#define PLATFORM_BACKUP_RAM 1
-#else
-#define PLATFORM_BACKUP_RAM 0
-#endif
-
-#if PLATFORM_BACKUP_RAM
-extern char link_global_retained_initial_values;
-extern char link_global_retained_start;
-extern char link_global_retained_end;
-
-/**
- * Initializes the user region of the backup ram.
- * This is provided here so it can be called from the monolithic firmware or from
- * the dynamically linked application module.
- */
-void system_initialize_user_backup_ram()
-{
-    size_t len = &link_global_retained_end-&link_global_retained_start;
-    memcpy(&link_global_retained_start, &link_global_retained_initial_values, len);
-}
-
-#include "platform_headers.h"
-
-static retained volatile uint32_t __backup_sram_signature;
-static bool backup_ram_was_valid_ = false;
-const uint32_t signature = 0x9A271C1E;
-
-bool __backup_ram_was_valid() {return backup_ram_was_valid_;}
-
-#else
-
-bool __backup_ram_was_valid() {return false;}
-
-#endif
-
-
-void module_user_init_hook()
-{
-#if PLATFORM_BACKUP_RAM
-    backup_ram_was_valid_ =  __backup_sram_signature==signature;
-    if (!backup_ram_was_valid_) {
-        system_initialize_user_backup_ram();
-        __backup_sram_signature = signature;
-    }
-#endif
-
-    /* for dynamically linked user part, set the random seed if the user
-     * app defines random_seed_from_cloud.
-     */
-// todo - add a RNG define for that capability
-#if defined(STM32F2XX)
-    if (random_seed_from_cloud) {
-        uint32_t seed = HAL_RNG_GetRandomNumber();
-        random_seed_from_cloud(seed);
-    }
-#endif
-}

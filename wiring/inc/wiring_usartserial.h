@@ -63,53 +63,46 @@ class USARTSerial : public Stream
         bool isEnabled(void);
 };
 
-#if FIRMWARE_CONFIG_WIRING_USART > 1
-void serialEventRun1(void) __attribute__((weak));
-void serialEvent1(void) __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 2
-void serialEventRun2(void) __attribute__((weak));
-void serialEvent2(void) __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 3
-void serialEventRun3(void) __attribute__((weak));
-void serialEvent3(void) __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 4
-void serialEventRun4(void) __attribute__((weak));
-void serialEvent4(void) __attribute__((weak));
-#endif
-
-#if FIRMWARE_CONFIG_WIRING_USART > 5
-void serialEventRun5(void) __attribute__((weak));
-void serialEvent5(void) __attribute__((weak));
-#endif
-
-inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void)) __attribute__((always_inline));
-
-inline void __handleSerialEvent(USARTSerial& serial, void (*handler)(void))
-{
-    if (handler && serial.isEnabled() && serial.available()>0)
-        handler();
-}
-
 // 不要改成类 为了保证类构造函数使用时，已经初始化
 extern USARTSerial &__fetch_global_serial();
 #define Serial __fetch_global_serial()
 
+void serialEvent() __attribute__((weak));
+#endif
+
 #if FIRMWARE_CONFIG_WIRING_USART > 1
 extern USARTSerial &__fetch_global_serial1();
 #define Serial1 __fetch_global_serial1()
+
+void serialEvent1(void) __attribute__((weak));
 #endif
 
 #if FIRMWARE_CONFIG_WIRING_USART > 2
 extern USARTSerial &__fetch_global_serial2();
 #define Serial2 __fetch_global_serial2()
+
+void serialEvent2(void) __attribute__((weak));
 #endif
 
+#if FIRMWARE_CONFIG_WIRING_USART > 3
+extern USARTSerial &__fetch_global_serial3();
+#define Serial3 __fetch_global_serial3()
+
+void serialEvent3(void) __attribute__((weak));
+#endif
+
+#if FIRMWARE_CONFIG_WIRING_USART > 4
+extern USARTSerial &__fetch_global_serial4();
+#define Serial4 __fetch_global_serial4()
+
+void serialEvent4(void) __attribute__((weak));
+#endif
+
+#if FIRMWARE_CONFIG_WIRING_USART > 5
+extern USARTSerial &__fetch_global_serial5();
+#define Serial5 __fetch_global_serial5()
+
+void serialEvent5(void) __attribute__((weak));
 #endif
 
 #endif

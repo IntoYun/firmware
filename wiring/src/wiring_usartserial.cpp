@@ -18,6 +18,7 @@
  */
 
 #include "firmware_platform_config.h"
+
 #if FIRMWARE_CONFIG_WIRING_USART > 0
 
 #include "wiring_usartserial.h"
@@ -111,6 +112,8 @@ USARTSerial &__fetch_global_serial()
     return serial;
 }
 
+#endif
+
 #if FIRMWARE_CONFIG_WIRING_USART > 1
 USARTSerial &__fetch_global_serial1()
 {
@@ -127,5 +130,19 @@ USARTSerial &__fetch_global_serial2()
 }
 #endif
 
+#if FIRMWARE_CONFIG_WIRING_USART > 3
+USARTSerial &__fetch_global_serial3()
+{
+    static USARTSerial serial3(HAL_USART_SERIAL4);
+    return serial3;
+}
+#endif
+
+#if FIRMWARE_CONFIG_WIRING_USART > 4
+USARTSerial &__fetch_global_serial4()
+{
+    static USARTSerial serial4(HAL_USART_SERIAL5);
+    return serial4;
+}
 #endif
 
