@@ -44,6 +44,7 @@ extern "C" {
 #include "rom/spi_flash.h"
 #include "esp_spi_flash.h"
 #include "esp_err.h"
+#include "esp_attr.h"
 #ifdef __cplusplus
 }
 #endif

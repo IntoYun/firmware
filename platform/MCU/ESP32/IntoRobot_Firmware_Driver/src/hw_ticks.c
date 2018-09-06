@@ -32,7 +32,7 @@
  */
 system_tick_t IRAM_ATTR GetSystem1MsTick()
 {
-    return xTaskGetTickCount() * portTICK_PERIOD_MS;
+    return (system_tick_t)(esp_timer_get_time() / 1000);
 }
 
 /**
@@ -41,8 +41,6 @@ system_tick_t IRAM_ATTR GetSystem1MsTick()
  */
 system_tick_t IRAM_ATTR GetSystem1UsTick()
 {
-    uint32_t ccount;
-    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-    return ccount / CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ;
+    return (system_tick_t)esp_timer_get_time();
 }
 

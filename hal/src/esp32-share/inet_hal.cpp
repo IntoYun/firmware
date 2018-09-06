@@ -43,3 +43,4 @@ int inet_ping(const HAL_IPAddress* address, network_interface_t nif, uint8_t nTr
 {
     return 0;
 }
+

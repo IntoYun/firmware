@@ -17,14 +17,11 @@
  ******************************************************************************
  */
 #include <stdio.h>
-
 #include <string.h>
-#include "esp_system.h"
 #include "esp_log.h"
-#include "esp_wifi.h"
-#include "esp_event_loop.h"
-#include "esp32-hal-timer.h"
-#include "esp32-hal-wifi.h"
+#include "esp_timer.h"
+#include "esp_bt.h"
+#include "esp32-hal.h"
 
 #include "hw_config.h"
 #include "core_hal.h"
@@ -41,8 +38,6 @@
 #include "params_hal.h"
 #include "bkpreg_hal.h"
 #include "flash_map.h"
-#include "driver/timer.h"
-#include "esp_attr.h"
 #include "eeprom_hal.h"
 
 extern "C" {
@@ -51,6 +46,7 @@ extern "C" {
 #include "freertos/event_groups.h"
 #include "freertos/portmacro.h"
 #include "nvs_flash.h"
+#include "nvs.h"
 #include "esp_partition.h"
 }
 #include "molmc_log.h"
@@ -83,6 +79,12 @@ static void ui_task_start(void *pvParameters)
     }
 }
 
+#ifdef CONFIG_BT_ENABLED
+//overwritten in esp32-hal-bt.c
+bool btInUse() __attribute__((weak));
+bool btInUse(){ return false; }
+#endif
+
 #if CONFIG_FREERTOS_UNICORE
 #define ARDUINO_RUNNING_CORE 0
 #else
@@ -91,6 +93,9 @@ static void ui_task_start(void *pvParameters)
 
 extern "C" void app_main()
 {
+#if CONFIG_SPIRAM_SUPPORT
+    psramInit();
+#endif
     esp_log_level_set("*", CONFIG_LOG_DEFAULT_LEVEL);
     esp_err_t err = nvs_flash_init();
     if(err == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -107,6 +112,11 @@ extern "C" void app_main()
     if(err) {
         MOLMC_LOGD(TAG, "Failed to initialize NVS! Error: %u", err);
     }
+#ifdef CONFIG_BT_ENABLED
+    if(!btInUse()){
+        esp_bt_controller_mem_release(ESP_BT_MODE_BTDM);
+    }
+#endif
     init();
     initVariant();
     xTaskCreatePinnedToCore(application_task_start, "app_thread", 8192, NULL, 1, NULL, ARDUINO_RUNNING_CORE);
@@ -234,3 +244,4 @@ void HAL_Core_Enter_Config(void)
 void HAL_Core_Exit_Config(void)
 {
 }
+

@@ -25,18 +25,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "i2c_hal.h"
-#include "gpio_hal.h"
 #include "pinmap_impl.h"
-
 #include "esp32-hal-i2c.h"
-#include "esp32-hal.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
-#include "rom/ets_sys.h"
-#include "soc/i2c_reg.h"
-#include "soc/i2c_struct.h"
-#include "soc/dport_reg.h"
 #include "molmc_log.h"
 
 const static char *TAG = "hal-i2c";
@@ -44,6 +34,7 @@ const static char *TAG = "hal-i2c";
 #define TOTAL_WIRE_NUM FIRMWARE_CONFIG_WIRING_WIRE
 
 #define I2C_BUFFER_LENGTH   128
+#define I2C_TIME_OUT        50
 
 // default pin
 // I2C SDA D0 GPIO21
@@ -82,8 +73,8 @@ typedef struct ESP32_I2C_Info {
  */
 ESP32_I2C_Info I2C_MAP[TOTAL_WIRE_NUM] =
 {
-    { SCL, SDA},    // I2C0  D0, D1
-    { SCL1, SDA1}   // I2C1  A3, A4
+    { SCL, SDA },    // I2C0  D0, D1
+    { SCL1, SDA1 }   // I2C1  A3, A4
 };
 
 ESP32_I2C_Info *i2cMap[TOTAL_WIRE_NUM]; // pointer to I2C_MAP[] containing I2C peripheral register locations (etc)
@@ -145,14 +136,13 @@ uint32_t HAL_I2C_Request_Data(HAL_I2C_Interface i2c, uint8_t address, uint8_t qu
         return cnt;
     }
 
-    if(I2C_ERROR_OK == i2cRead(i2cMap[i2c]->i2c, address, &i2cMap[i2c]->rxBuffer[cnt], quantity, stop, 50, &cnt)) {
-        i2cMap[i2c]->rxIndex = 0;
-        i2cMap[i2c]->rxLength = i2cMap[i2c]->rxQueued;
-        i2cMap[i2c]->rxQueued = 0;
-        i2cMap[i2c]->txQueued = 0; // the SendStop=true will restart all Queueing
-    } else {
+    if(I2C_ERROR_OK != i2cRead(i2cMap[i2c]->i2c, address, &i2cMap[i2c]->rxBuffer[cnt], quantity, stop, I2C_TIME_OUT, &cnt)) {
         cnt = 0;
     }
+    i2cMap[i2c]->rxIndex = 0;
+    i2cMap[i2c]->rxLength = i2cMap[i2c]->rxQueued;
+    i2cMap[i2c]->rxQueued = 0;
+    i2cMap[i2c]->txQueued = 0; // the SendStop=true will restart all Queueing
     return cnt;
 }
 
@@ -167,16 +157,15 @@ void HAL_I2C_Begin_Transmission(HAL_I2C_Interface i2c, uint8_t address,void* res
 uint8_t HAL_I2C_End_Transmission(HAL_I2C_Interface i2c, uint8_t stop, void* reserved)
 {
     if (i2cMap[i2c]->transmitting) {
-        if(I2C_ERROR_CONTINUE != i2cWrite(i2cMap[i2c]->i2c, i2cMap[i2c]->txAddress, \
-                    &i2cMap[i2c]->txBuffer[i2cMap[i2c]->txQueued], i2cMap[i2c]->txLength - i2cMap[i2c]->txQueued, stop, 50)) {
-            i2cMap[i2c]->rxIndex = 0;
-            i2cMap[i2c]->rxLength = i2cMap[i2c]->rxQueued;
-            i2cMap[i2c]->rxQueued = 0;
-            i2cMap[i2c]->txQueued = 0;
-        } else {
+        if(I2C_ERROR_CONTINUE == i2cWrite(i2cMap[i2c]->i2c, i2cMap[i2c]->txAddress, \
+                    &i2cMap[i2c]->txBuffer[i2cMap[i2c]->txQueued], i2cMap[i2c]->txLength - i2cMap[i2c]->txQueued, stop, I2C_TIME_OUT)) {
             // txlength is howmany bytes in txbuffer have been use
             i2cMap[i2c]->txQueued = i2cMap[i2c]->txLength;
         }
+        i2cMap[i2c]->rxIndex = 0;
+        i2cMap[i2c]->rxLength = i2cMap[i2c]->rxQueued;
+        i2cMap[i2c]->rxQueued = 0;
+        i2cMap[i2c]->txQueued = 0;
     } else {
         HAL_I2C_Flush_Data(i2c, NULL);
     }

@@ -42,6 +42,8 @@ extern "C" {
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 #define NOP() asm volatile ("nop")
 
+#include "sdkconfig.h"
+#include "esp32-hal-log.h"
 #include "esp32-hal-matrix.h"
 #include "esp32-hal-uart.h"
 #include "esp32-hal-gpio.h"
@@ -55,6 +57,8 @@ extern "C" {
 #include "esp32-hal-timer.h"
 #include "esp32-hal-bt.h"
 #include "esp32-hal-psram.h"
+#include "esp32-hal-wifi.h"
+
 
 #ifndef BOARD_HAS_PSRAM
 #ifdef CONFIG_SPIRAM_SUPPORT
