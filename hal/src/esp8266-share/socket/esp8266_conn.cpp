@@ -27,6 +27,7 @@
 #include "esp8266_conn.h"
 #include "tick_hal.h"
 #include "core_hal_esp8266.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-socket";
 

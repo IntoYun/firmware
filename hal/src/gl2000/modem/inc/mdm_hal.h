@@ -223,20 +223,6 @@ public:
 
     bool getBootloader(void);
 
-    // ----------------------------------------------------------------
-    // DEBUG/DUMP status to DEBUG output
-    // ----------------------------------------------------------------
-
-    /*! Set the debug level
-        \param level -1 = OFF, 0 = ERROR, 1 = INFO(default), 2 = TRACE, 3 = ATCMD,TEST
-        \return true if successful, false not possible
-    */
-    bool setDebug(int level);
-
-    /** dump the ip address to DEBUG output
-    */
-    void dumpIp(MDM_IP ip);
-
     //----------------------------------------------------------------
     // Parsing
     //----------------------------------------------------------------
@@ -403,11 +389,6 @@ protected:
     static int _aplistindex;
 
     volatile bool _cancel_all_operations;
-#ifdef MDM_DEBUG
-    int _debugLevel;
-    system_tick_t _debugTime;
-    void _debugPrint(int level, const char* color, const char* format, ...);
-#endif
 };
 
 // -----------------------------------------------------------------------

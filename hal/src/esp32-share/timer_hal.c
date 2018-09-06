@@ -26,29 +26,25 @@
 #include "timer_hal.h"
 #include "hw_config.h"
 #include "esp_timer.h"
+#include "esp_attr.h"
+#include "molmc_log.h"
+
+const static char *TAG = "hal-core";
 
 static esp_timer_handle_t _timer = NULL;
 static TimerCallback_t _timerCallback = NULL;
-uint32_t _elapsedTickStart = 0;
+static uint64_t _elapsedTickStart = 0;
 
-static uint32_t IRAM_ATTR _get_systemTick(void)
-{
-    uint32_t ccount;
-    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
-    return ccount;
-}
-
-static void _system_timer_handler(void)
+static void _system_timer_handler(void* arg)
 {
     if(_timerCallback) {
-        HAL_Timer_Stop();
         _timerCallback();
     }
 }
 
 void HAL_Timer_Start(uint32_t timeout)
 {
-    _elapsedTickStart = _get_systemTick();
+    _elapsedTickStart = esp_timer_get_time();
 
     if(timeout < 1) {
         timeout = 1;
@@ -60,10 +56,8 @@ void HAL_Timer_Start(uint32_t timeout)
     _timerConfig.dispatch_method = ESP_TIMER_TASK;
     _timerConfig.name = "Ticker";
 
-    if (_timer) {
-        esp_timer_stop(_timer);
-        esp_timer_delete(_timer);
-    }
+    HAL_Timer_Stop();
+
     esp_timer_create(&_timerConfig, &_timer);
     esp_timer_start_once(_timer, timeout * 1000);
 }
@@ -73,22 +67,21 @@ void HAL_Timer_Stop(void)
     if (_timer) {
         esp_timer_stop(_timer);
         esp_timer_delete(_timer);
-        _timer = NULL;
     }
 }
 
 uint32_t HAL_Timer_Get_ElapsedTime(void)
 {
-    uint32_t elapsedTick = 0;
-    uint32_t _elapsedTickCurrent = _get_systemTick();
+    uint64_t elapsedTick = 0;
+    uint64_t _elapsedTickCurrent = esp_timer_get_time();
 
     if (_elapsedTickCurrent < _elapsedTickStart) {
-        elapsedTick =  UINT_MAX - _elapsedTickStart + _elapsedTickCurrent;
+        elapsedTick =  UINT64_MAX - _elapsedTickStart + _elapsedTickCurrent;
     } else {
         elapsedTick = _elapsedTickCurrent - _elapsedTickStart;
     }
 
-    return elapsedTick / (SYSTEM_US_TICKS * 1000);
+    return elapsedTick / 1000;
 }
 
 void HAL_Timer_Set_Callback(TimerCallback_t callback)

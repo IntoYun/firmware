@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_SYSTEM_SETUP
 
 #include <stdio.h>
@@ -112,7 +112,7 @@ bool DeviceConfig::process(void)
     while(available()) {
         String tmp=readString();
 
-        //MOLMC_LOGD(TAG, "OK! Rev: %s", (char *)tmp.c_str());
+        MOLMC_LOGD(TAG, "OK! Rev: %s", (char *)tmp.c_str());
         root = aJson.parse((char *)tmp.c_str());
         if (root == NULL) {break;}
 
@@ -1034,7 +1034,7 @@ bool system_config_process(void)
     //执行配置初始化
     if(0 == system_config_initial_flag) {
         system_config_initial_flag = 1;
-        CLOUD_FN(cloud_disconnect(false), (void)0);
+        NEWORK_FN(network_disconnect(0, 0, NULL), (void)0);
         system_config_initial();
     }
 

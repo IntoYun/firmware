@@ -28,6 +28,8 @@
 #include "gpio_hal.h"
 #include "pinmap_hal.h"
 #include "pinmap_impl.h"
+#include "molmc_log.h"
+
 
 #define ADC_DMA_BUFFERSIZE    10
 #define ADC_SAMPLING_TIME     ADC_SAMPLETIME_4CYCLES

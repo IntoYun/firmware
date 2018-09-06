@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/lora/params_hal.cpp"
-
-#else
-
 #include <string.h>
 #include <stdio.h>
 #include "params_impl.h"
@@ -224,4 +217,3 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     return 0;
 }
 
-#endif

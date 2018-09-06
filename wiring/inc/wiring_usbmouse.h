@@ -20,9 +20,10 @@
 #ifndef WIRING_USBMOUSE_H_
 #define WIRING_USBMOUSE_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_WIRING_USBMOUSE
+
 #include "wiring.h"
 
 #define MOUSE_LEFT		0x01

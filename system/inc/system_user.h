@@ -30,7 +30,6 @@ void setup();
 void loop();
 
 void _post_loop();
-void serialEventRun();
 
 #ifdef __cplusplus
 }

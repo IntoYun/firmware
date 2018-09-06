@@ -29,7 +29,7 @@
 #define STATION_IF      0x00
 #define SOFTAP_IF       0x01
 
-const static char *TAG = "hal";
+const static char *TAG = "hal-wlan";
 
 static volatile uint32_t wlan_timeout_start;
 static volatile uint32_t wlan_timeout_duration;
@@ -37,7 +37,7 @@ static volatile uint32_t wlan_timeout_duration;
 inline void WLAN_TIMEOUT(uint32_t dur) {
     wlan_timeout_start = HAL_Tick_Get_Milli_Seconds();
     wlan_timeout_duration = dur;
-    //MOLMC_LOGD(TAG, "WLAN WD Set %d",(dur));
+    MOLMC_LOGD(TAG, "WLAN WD Set %d",(dur));
 }
 inline bool IS_WLAN_TIMEOUT() {
     return wlan_timeout_duration && ((HAL_Tick_Get_Milli_Seconds()-wlan_timeout_start)>wlan_timeout_duration);
@@ -45,7 +45,7 @@ inline bool IS_WLAN_TIMEOUT() {
 
 inline void CLR_WLAN_TIMEOUT() {
     wlan_timeout_duration = 0;
-    //MOLMC_LOGD(TAG, "WLAN WD Cleared, was %d", wlan_timeout_duration);
+    MOLMC_LOGD(TAG, "WLAN WD Cleared, was %d", wlan_timeout_duration);
 }
 
 //=======net notify===========
@@ -93,12 +93,12 @@ uint32_t HAL_NET_SetNetWatchDog(uint32_t timeOutInMS)
 }
 
 //=======wifi activate/deactivate===========
-wlan_result_t HAL_WLAN_Activate(void)
+wlan_result_t HAL_WLAN_On(void)
 {
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Deactivate(void)
+wlan_result_t HAL_WLAN_Off(void)
 {
     return 0;
 }
@@ -108,22 +108,17 @@ void HAL_WLAN_Setup(void)
     esp8266_wifiInit();
     esp8266_setMode(WIFI_STA);
     esp8266_setDHCP(true);
-    esp8266_setAutoConnect(true);
-    esp8266_setAutoReconnect(true);
+    esp8266_setAutoConnect(false);
+    esp8266_setAutoReconnect(false);
 }
 
 //=======wifi connect===========
-int HAL_WLAN_Connect_Init(void)
+wlan_result_t HAL_WLAN_Connect(void)
 {
     return esp8266_connect();
 }
 
-wlan_result_t HAL_WLAN_Connect_Finalize(void)
-{
-    return 0;
-}
-
-wlan_result_t HAL_WLAN_Disconnect_Now(void)
+wlan_result_t HAL_WLAN_Disconnect(void)
 {
     return esp8266_disconnect();
 }
@@ -138,7 +133,7 @@ int HAL_WLAN_Connected_Rssi(void)
     return esp8266_getRSSI();
 }
 
-void HAL_WLAN_Drive_Now(void)
+void HAL_WLAN_Drive(void)
 {
     optimistic_yield(1000);
 }
@@ -263,8 +258,7 @@ void HAL_WLAN_Set_Ipaddress(const HAL_IPAddress* device, const HAL_IPAddress* ne
 
 static WLanSecurityType toSecurityType(AUTH_MODE authmode)
 {
-    switch(authmode)
-    {
+    switch(authmode) {
         case AUTH_OPEN:
             return WLAN_SEC_UNSEC;
             break;
@@ -281,14 +275,15 @@ static WLanSecurityType toSecurityType(AUTH_MODE authmode)
         case AUTH_MAX:
             return WLAN_SEC_NOT_SET;
             break;
+        default:
+            break;
     }
     return WLAN_SEC_NOT_SET;
 }
 
 static WLanSecurityCipher toCipherType(AUTH_MODE authmode)
 {
-    switch(authmode)
-    {
+    switch(authmode) {
         case AUTH_WEP:
             return WLAN_CIPHER_AES;
             break;
@@ -311,8 +306,8 @@ struct WlanScanInfo
 
 struct WlanApSimple
 {
-   uint8_t bssid[6];
-   int rssi;
+    uint8_t bssid[6];
+    int rssi;
 };
 
 WlanScanInfo scanInfo;
@@ -335,18 +330,15 @@ void scan_done_cb(void *arg, STATUS status)
             return;
         }
 
-        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++)
-        {
+        for(n = 0, it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next), n++) {
             memcpy(pNode[n].bssid, it->bssid, 6);
             pNode[n].rssi = it->rssi;
         }
 
         //根据rssi排序
-        for(n = 0; n < scanInfo.count - 1; n++)
-        {
+        for(n = 0; n < scanInfo.count - 1; n++) {
             j = n;
-            for(m = n+1; m < scanInfo.count; m++)
-            {
+            for(m = n+1; m < scanInfo.count; m++) {
                 if(pNode[m].rssi > pNode[j].rssi) {
                     j = m;
                 }
@@ -359,10 +351,8 @@ void scan_done_cb(void *arg, STATUS status)
         }
 
         //填充ap 列表
-        for(n = 0; n < scanInfo.count; n++)
-        {
-            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next))
-            {
+        for(n = 0; n < scanInfo.count; n++) {
+            for(it = (bss_info*)arg; it; it = STAILQ_NEXT(it, next)) {
                 if(!memcmp(pNode[n].bssid, it->bssid, 6)) {
                     memset(&data, 0, sizeof(WiFiAccessPoint));
                     memcpy(data.ssid, it->ssid, it->ssid_len);
@@ -392,8 +382,7 @@ int HAL_WLAN_Scan(wlan_scan_result_t callback, void* cookie)
     scanInfo.completed = false;
     if(wifi_station_scan(NULL, scan_done_cb)) {
         WLAN_TIMEOUT(6000);
-        while(!scanInfo.completed)
-        {
+        while(!scanInfo.completed) {
             optimistic_yield(100);
             if(IS_WLAN_TIMEOUT()) {
                 CLR_WLAN_TIMEOUT();

@@ -20,7 +20,7 @@
 #ifndef __WIRING_IPADDRESS_H
 #define __WIRING_IPADDRESS_H
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_NETWORK
 

@@ -1,7 +1,7 @@
 #ifndef  WIRING_LORAWAN_H_
 #define  WIRING_LORAWAN_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #include <stdlib.h>
 #if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 

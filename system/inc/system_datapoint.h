@@ -20,7 +20,7 @@
 #ifndef SYSTEM_DATAPOINT_H_
 #define SYSTEM_DATAPOINT_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #include <string.h>
 #include <stdint.h>
@@ -124,7 +124,7 @@ read_datapoint_result_t intorobotReadDatapointString(const uint16_t dpID, String
 read_datapoint_result_t intorobotReadDatapointStringChar(const uint16_t dpID, char *value);
 read_datapoint_result_t intorobotReadDatapointBinary(const uint16_t dpID, uint8_t *&value, uint16_t &len);
 
-void intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len);
+bool intorobotParseReceiveDatapoints(uint8_t *payload, uint16_t len);
 void intorobotWriteDatapoint(const uint16_t dpID, const uint8_t* value, const uint16_t len, const uint8_t type );
 int intorobotSendSingleDatapoint(const uint16_t dpID, const uint8_t *value, const uint16_t len, bool confirmed, uint16_t timeout);
 int intorobotSendAllDatapoint(void);

@@ -34,12 +34,12 @@ int HAL_WLAN_Has_Credentials(void)
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Activate(void)
+wlan_result_t HAL_WLAN_On(void)
 {
     return 0;
 }
 
-wlan_result_t HAL_WLAN_Deactivate(void)
+wlan_result_t HAL_WLAN_Off(void)
 {
     return 0;
 }

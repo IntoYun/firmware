@@ -65,24 +65,19 @@ void HAL_WLAN_Setup(void);
 /**
  * Enable wifi without connecting.
  */
-wlan_result_t HAL_WLAN_Activate(void);
+wlan_result_t HAL_WLAN_On(void);
 
 /**
  * Disable wifi.
  */
-wlan_result_t HAL_WLAN_Deactivate(void);
+wlan_result_t HAL_WLAN_Off(void);
 
 /**
  * Connect start the wireless connection.
  */
-wlan_result_t  HAL_WLAN_Connect_Init(void);
+wlan_result_t  HAL_WLAN_Connect(void);
 
-/**
- * Finalize the connection by connecting to stored profiles.
- */
-wlan_result_t  HAL_WLAN_Connect_Finalize(void);
-
-wlan_result_t HAL_WLAN_Disconnect_Now(void);
+wlan_result_t HAL_WLAN_Disconnect(void);
 /**
  * Cancel a previous call to any blocking wifi connect method.
  * @param called_from_isr - set to true if this is being called from an ISR.
@@ -96,7 +91,7 @@ void HAL_WLAN_Connect_Cancel(bool called_from_isr);
  */
 int HAL_WLAN_Connected_Rssi(void);
 
-void HAL_WLAN_Drive_Now(void);
+void HAL_WLAN_Drive(void);
 
 // Provide compatibility with the original cc3000 headers.
 #ifdef WLAN_SEC_UNSEC

@@ -33,6 +33,7 @@ extern "C" {
 #include <string.h>
 #include <math.h>
 #include "sdkconfig.h"
+#include "esp_system.h"
 
 #ifndef F_CPU
 #define F_CPU (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ * 1000000U)
@@ -41,12 +42,29 @@ extern "C" {
 #define ESP_REG(addr) *((volatile uint32_t *)(addr))
 #define NOP() asm volatile ("nop")
 
+#include "sdkconfig.h"
+#include "esp32-hal-log.h"
 #include "esp32-hal-matrix.h"
 #include "esp32-hal-uart.h"
+#include "esp32-hal-gpio.h"
+#include "esp32-hal-touch.h"
 #include "esp32-hal-dac.h"
 #include "esp32-hal-adc.h"
-#include "esp_system.h"
+#include "esp32-hal-spi.h"
+#include "esp32-hal-i2c.h"
+#include "esp32-hal-ledc.h"
+#include "esp32-hal-sigmadelta.h"
+#include "esp32-hal-timer.h"
+#include "esp32-hal-bt.h"
+#include "esp32-hal-psram.h"
+#include "esp32-hal-wifi.h"
 
+
+#ifndef BOARD_HAS_PSRAM
+#ifdef CONFIG_SPIRAM_SUPPORT
+#undef CONFIG_SPIRAM_SUPPORT
+#endif
+#endif
 #ifdef __cplusplus
 }
 #endif

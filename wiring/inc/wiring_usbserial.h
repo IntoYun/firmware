@@ -20,7 +20,7 @@
 #ifndef WIRING_USBSERIAL_H_
 #define WIRING_USBSERIAL_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_WIRING_USB_USART
 
@@ -91,6 +91,7 @@ class USBSerial : public Stream
 extern USBSerial& _fetch_global_usbserial();
 #define SerialUSB _fetch_global_usbserial()
 
+void usbSerialEvent() __attribute__((weak));
 #endif
 
 #endif

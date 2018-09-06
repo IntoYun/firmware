@@ -20,7 +20,7 @@
 #ifndef SYSTEM_NETWORK_INTERNAL_H
 #define SYSTEM_NETWORK_INTERNAL_H
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_SYSTEM_NETWORK
 
 #include "wiring_ticks.h"
@@ -140,7 +140,7 @@ public:
 
     void connect(bool listen_enabled=true) override
     {
-        MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
+        //MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
         if (!ready() && !connecting()) {
             on(); // activate WiFi
 
@@ -249,6 +249,7 @@ public:
 
     void notify_disconnected()
     {
+        MOLMC_LOGD(GTAG, "notify_disconnected");
         CLOUD_FN(cloud_disconnect(), (void)0);
         if (NETWORK_CONNECTED) {
             //Breathe blue if established connection gets disconnected
@@ -256,17 +257,18 @@ public:
                 //if WiFi.disconnect called, do not enable wlan watchdog
                 MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 3");
                 ARM_NETWORK_WD(DISCONNECT_TO_RECONNECT);
+                system_notify_event(event_network_status, ep_network_status_disconnected);
+                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
             }
         }
         NETWORK_CONNECTED = 0;
         NETWORK_CONNECTING = 0;
         NETWORK_DHCP = 0;
-        system_notify_event(event_network_status, ep_network_status_disconnected);
-        system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
     }
 
     void notify_dhcp(bool dhcp)
     {
+        MOLMC_LOGD(GTAG, "notify_dhcp = %d", dhcp);
         NETWORK_CONNECTING = 0;
         if (dhcp) {
             MOLMC_LOGD(GTAG, "CLR_NETWORK_WD 1, DHCP success");

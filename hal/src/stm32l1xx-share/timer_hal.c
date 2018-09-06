@@ -29,7 +29,7 @@
 
 static TIM_HandleTypeDef TimHandle;
 static TimerCallback_t _timerCallback = NULL;
-uint32_t _elapsedTickStart = 0;
+static uint32_t _elapsedTickStart = 0;
 
 void HAL_Timer_Start(uint32_t timeout)
 {

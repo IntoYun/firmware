@@ -20,7 +20,7 @@
 #ifndef WIRING_I2C_H_
 #define WIRING_I2C_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_WIRE > 0
 
 #include "wiring_stream.h"
@@ -73,7 +73,6 @@ class TwoWire : public Stream
         void reset();
 };
 
-
 // 不要改成类 为了保证类构造函数使用时，已经初始化
 #ifdef Wire
 #undef Wire
@@ -82,13 +81,15 @@ class TwoWire : public Stream
 #define Wire __fetch_global_wire()
 TwoWire& __fetch_global_wire();
 
+#endif
+
 #if FIRMWARE_CONFIG_WIRING_WIRE > 1
+
 #ifdef Wire1
 #undef Wire1
 #endif
 #define Wire1 __fetch_global_wire1()
 TwoWire& __fetch_global_wire1();
-#endif
 
 #endif
 

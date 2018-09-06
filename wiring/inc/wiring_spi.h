@@ -20,7 +20,7 @@
 #ifndef WIRING_SPI_H_
 #define WIRING_SPI_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include "wiring.h"

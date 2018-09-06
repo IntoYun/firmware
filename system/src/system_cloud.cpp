@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -410,8 +410,9 @@ void cloud_data_receive_callback(uint8_t *payload, uint32_t len)
     MOLMC_LOGD(TAG, "OK! Rev datapoint data <%d>: ", len);
     MOLMC_LOGD_BUFFER_HEX(TAG, payload, len);
 
-    intorobotParseReceiveDatapoints(payload, len);
-    system_notify_event(event_cloud_comm, ep_cloud_comm_data, payload, len);
+    if(intorobotParseReceiveDatapoints(payload, len)) {
+        system_notify_event(event_cloud_comm, ep_cloud_comm_data, payload, len);
+    }
 }
 
 void cloud_debug_callback(uint8_t *payload, uint32_t len)

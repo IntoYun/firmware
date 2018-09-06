@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/memory_hal.cpp"
-
-#else
-
 #include "memory_hal.h"
 #include "hw_config.h"
 
@@ -99,4 +92,3 @@ HAL_Flash_StatusTypeDef HAL_FLASH_Interminal_Write(uint32_t address, uint32_t *p
     return (HAL_Flash_StatusTypeDef)flashStatus;
 }
 
-#endif

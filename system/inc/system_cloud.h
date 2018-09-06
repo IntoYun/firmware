@@ -20,7 +20,7 @@
 #ifndef SYSTEM_CLOUD_H_
 #define SYSTEM_CLOUD_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_CLOUD
 #define CLOUD_FN(x,y) (x)

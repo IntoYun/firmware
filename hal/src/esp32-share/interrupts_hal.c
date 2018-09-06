@@ -42,8 +42,7 @@ static void *exti_data = NULL;
 void HAL_CallbackExtiHandle(void)
 {
     HAL_InterruptHandler isr_handle = exti_handle;
-    if (isr_handle)
-    {
+    if (isr_handle) {
         isr_handle(exti_data);
     }
 }
@@ -57,8 +56,7 @@ void HAL_Interrupts_Attach(uint16_t pin, HAL_InterruptHandler handler, void* dat
     }
 
     uint8_t interruptMode;
-    switch(mode)
-    {
+    switch(mode) {
         case CHANGE:
             interruptMode = ESP32_CHANGE;
             break;
@@ -119,7 +117,6 @@ void HAL_EXTI_Handler(uint8_t EXTI_Line)
 {
     //fetch the user function pointer from the array
 }
-
 
 int HAL_disable_irq()
 {

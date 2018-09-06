@@ -55,3 +55,4 @@ int HAL_Updater_Flash(const uint8_t *pBuffer, uint32_t address, uint32_t length,
 {
     return FLASH_Update(pBuffer, address, length);
 }
+

@@ -25,7 +25,7 @@
 #ifndef SYSTEM_CONFIG_H_
 #define SYSTEM_CONFIG_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_SETUP
 

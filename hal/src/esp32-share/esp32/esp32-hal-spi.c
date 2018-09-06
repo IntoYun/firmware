@@ -310,9 +310,9 @@ uint8_t spiGetDataMode(spi_t * spi)
     bool outEdge = spi->dev->user.ck_out_edge;
     if(idleEdge) {
         if(outEdge) {
-            return ESP32_SPI_MODE3;
+            return ESP32_SPI_MODE2;
         }
-        return ESP32_SPI_MODE2;
+        return ESP32_SPI_MODE3;
     }
     if(outEdge) {
         return ESP32_SPI_MODE1;
@@ -714,11 +714,11 @@ void spiTransaction(spi_t * spi, uint32_t clockDiv, uint8_t dataMode, uint8_t bi
             break;
         case ESP32_SPI_MODE2:
             spi->dev->pin.ck_idle_edge = 1;
-            spi->dev->user.ck_out_edge = 0;
+            spi->dev->user.ck_out_edge = 1;
             break;
         case ESP32_SPI_MODE3:
             spi->dev->pin.ck_idle_edge = 1;
-            spi->dev->user.ck_out_edge = 1;
+            spi->dev->user.ck_out_edge = 0;
             break;
         case ESP32_SPI_MODE0:
         default:
@@ -1079,3 +1079,4 @@ uint32_t spiFrequencyToClockDiv(uint32_t freq)
     }
     return bestReg.regValue;
 }
+

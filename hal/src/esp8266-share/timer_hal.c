@@ -28,7 +28,7 @@
 
 static os_timer_t system_timer;
 static TimerCallback_t _timerCallback = NULL;
-uint32_t _elapsedTickStart = 0;
+static uint32_t _elapsedTickStart = 0;
 
 static void _system_timer_handler(void* arg)
 {

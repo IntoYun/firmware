@@ -1,10 +1,3 @@
-#if 0
-// pull in the sources from the HAL. It's a bit of a hack, but is simpler than trying to link the
-// full hal library.
-#include "../src/neutron/params_hal.cpp"
-
-#else
-
 #include <string.h>
 #include <stdio.h>
 #include "params_impl.h"
@@ -13,9 +6,6 @@
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "intorobot_macros.h"
-#include "molmc_log.h"
-
-
 
 #define EEPROM_BOOT_PARAMS_MAX_SIZE                        (512)    //参数区大小
 
@@ -218,4 +208,3 @@ int HAL_PARAMS_Set_Boot_initparam_flag(INITPARAM_FLAG_TypeDef flag) {
     return 0;
 }
 
-#endif

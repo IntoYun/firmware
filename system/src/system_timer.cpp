@@ -17,10 +17,13 @@
  ******************************************************************************
  */
 
+#include "hw_config.h"
 #include "interrupts_hal.h"
 #include "timer_hal.h"
 #include "system_timer.h"
 #include "molmc_log.h"
+
+const static char *TAG = "sys-task";
 
 /*!
  * Timers list head pointer
@@ -221,7 +224,7 @@ static void _system_timer_irq_handler( void )
         SystemTimerListHead = SystemTimerListHead->Next;
 
         if(elapsedTimer->IsOneshot == false) {
-            _system_timer_insert( elapsedTimer );
+            _system_timer_insert( elapsedTimer );  //fig调用此函数定时器读取I2C异常
         }
 
         if( elapsedTimer->Callback != NULL ) {

@@ -31,6 +31,7 @@
 #include "concurrent_hal.h"
 #include "net_hal.h"
 #include "intorobot_macros.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-modem";
 
@@ -118,6 +119,7 @@ inline void CLR_CELLULAR_TIMEOUT(void) {
     MOLMC_LOGD(TAG, "CELLULAR WD Cleared, was %d", cellular_timeout_duration);
 }
 
+#ifdef MDM_DEBUG
 void dumpAtCmd(const char* buf, int len)
 {
     MOLMC_LOGD_TEXT(TAG, "(%3d): \"", len);
@@ -141,7 +143,7 @@ void dumpAtCmd(const char* buf, int len)
     }
     MOLMC_LOGD_TEXT(TAG, "\"\r\n");
 }
-
+#endif
 /* Private variables --------------------------------------------------------*/
 
 MDMParser* MDMParser::inst;
@@ -187,11 +189,13 @@ void MDMParser::SMSreceived(int index) {
 
 int MDMParser::send(const char* buf, int len)
 {
+#ifdef MDM_DEBUG
     if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
         MOLMC_LOGD_HEADER(TAG);
         MOLMC_LOGD_TEXT(TAG, "AT Send ");
         dumpAtCmd(buf, len);
     }
+#endif
     return _send(buf, len);
 }
 
@@ -217,6 +221,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
     do {
         int ret = getLine(buf, sizeof(buf));
 
+#ifdef MDM_DEBUG
         if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
             if ((ret != WAIT) && (ret != NOT_FOUND))
             {
@@ -236,6 +241,7 @@ int MDMParser::waitFinalResp(_CALLBACKPTR cb /* = NULL*/,
                 (void)s;
             }
         }
+#endif
 
         if ((ret != WAIT) && (ret != NOT_FOUND))
         {
@@ -567,9 +573,11 @@ bool MDMParser::init(void)
     if (RESP_OK != waitFinalResp(_cbString, _dev.imsi))
         goto failure;
 
+#ifdef MDM_DEBUG
     if(MOLMC_LOGE_SHOULD_OUTPUT(TAG)) {
         dumpDevStatus(&_dev);
     }
+#endif
 
     // 设置网络参数 ---------------------------------
     // start up multi-ip connection

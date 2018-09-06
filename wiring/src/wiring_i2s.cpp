@@ -17,6 +17,10 @@
  ******************************************************************************
  */
 
+#include "firmware_platform_config.h"
+
+#if FIRMWARE_CONFIG_WIRING_I2S > 0
+
 #include <stdio.h>
 #include "wiring_i2s.h"
 #include "core_hal.h"
@@ -54,22 +58,20 @@ bool I2SClass::isEnabled()
     return HAL_I2S_Is_Enabled(_i2s);
 }
 
-
 // 不要改成类 为了保证类构造函数使用时，已经初始化
-#ifdef FIRMWARE_CONFIG_I2S_ENABLE
 I2SClass& __fetch_global_i2s()
 {
     static I2SClass i2s(HAL_I2S_INTERFACE1);
     return i2s;
 }
 
-#ifdef FIRMWARE_CONFIG_I2S1_ENABLE
+#endif
+
+#if FIRMWARE_CONFIG_WIRING_I2S > 1
 I2SClass& __fetch_global_i2s1()
 {
     static I2SClass i2s1(HAL_I2S_INTERFACE2);
     return i2s1;
 }
-#endif  // FIRMWARE_CONFIG_I2S1_ENABLE
-
-#endif  // FIRMWARE_CONFIG_I2S_ENABLE
+#endif
 

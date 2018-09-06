@@ -17,7 +17,7 @@
   ******************************************************************************
 */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_SYSTEM_CLOUD
 
 #include <stdio.h>

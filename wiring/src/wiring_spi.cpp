@@ -16,7 +16,8 @@
  License along with this library; if not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************
  */
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
+
 #if FIRMWARE_CONFIG_WIRING_SPI > 0
 
 #include <stdio.h>
@@ -244,6 +245,8 @@ SPIClass &__fetch_global_spi()
     return spi;
 }
 
+#endif
+
 #if FIRMWARE_CONFIG_WIRING_SPI > 1
 SPIClass &__fetch_global_spi1()
 {
@@ -258,7 +261,5 @@ SPIClass &__fetch_global_spi2()
     static SPIClass spi2(HAL_SPI_INTERFACE3);
     return spi2;
 }
-#endif
-
 #endif
 

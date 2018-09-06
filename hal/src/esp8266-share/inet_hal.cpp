@@ -32,7 +32,7 @@ int inet_gethostbyname(const char* hostname, uint16_t hostnameLen, HAL_IPAddress
         network_interface_t nif, void* reserved)
 {
     uint32_t ip_addr;
-    int result = esp8266_gethostbyname(hostname, hostnameLen, ip_addr);
+    int result = esp8266_gethostbyname(hostname, hostnameLen, &ip_addr);
     if(!result) {
         out_ip_addr->ipv4 = ipv4_reverse(ip_addr);
     }

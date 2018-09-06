@@ -20,7 +20,7 @@
 #ifndef WIRING_MQTTCLIENT_H_
 #define WIRING_MQTTCLIENT_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_CLOUD
 #include "wiring_constants.h"

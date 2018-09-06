@@ -20,7 +20,7 @@
 #ifndef SYSTEM_NETWORK_WIFI_H
 #define	SYSTEM_NETWORK_WIFI_H
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 #if FIRMWARE_CONFIG_WIRING_WIFI
 
 #include "system_network_internal.h"
@@ -35,28 +35,25 @@ void network_notify_dhcp(bool dhcp);
 class WiFiNetworkInterface : public ManagedIPNetworkInterface<WLanConfig, WiFiNetworkInterface>
 {
 protected:
-    void connect_init() override
-    {
-        HAL_WLAN_Connect_Init();
-    }
+    void connect_init() override {}
 
     void connect_finalize() override
     {
-        HAL_WLAN_Connect_Finalize();
+        HAL_WLAN_Connect();
     }
 
     void disconnect_now() override
     {
-        HAL_WLAN_Disconnect_Now();
+        HAL_WLAN_Disconnect();
     }
 
     void drive_now() override
     {
-        HAL_WLAN_Drive_Now();
+        HAL_WLAN_Drive();
     }
 
-    void on_now() override { HAL_WLAN_Activate(); }
-    void off_now() override { HAL_WLAN_Deactivate(); }
+    void on_now() override { HAL_WLAN_On(); }
+    void off_now() override { HAL_WLAN_Off(); }
 
 public:
 

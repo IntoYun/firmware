@@ -24,7 +24,7 @@
 #ifndef SYSTEM_NETWORK_H
 #define SYSTEM_NETWORK_H
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_SYSTEM_NETWORK
 #define NEWORK_FN(x,y) (x)

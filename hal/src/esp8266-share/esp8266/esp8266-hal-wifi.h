@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // Maximum size of a SSID
@@ -87,30 +88,30 @@ enum wl_tcp_state {
 };
 #endif
 
-typedef enum WiFiMode
-{
-    WIFI_OFF = 0, WIFI_STA = 1, WIFI_AP = 2, WIFI_AP_STA = 3
+typedef enum WiFiMode {
+    WIFI_OFF = 0,
+    WIFI_STA = 1,
+    WIFI_AP = 2,
+    WIFI_AP_STA = 3
 } WiFiMode_t;
 
 bool esp8266_wifiInit(void);
 bool esp8266_setMode(WiFiMode_t m);
-WiFiMode_t esp8266_getMode();
+WiFiMode_t esp8266_getMode(void);
 bool esp8266_enableSTA(bool enable);
 bool esp8266_enableAP(bool enable);
 uint8_t* esp8266_getMacAddress(uint8_t* mac);
 bool esp8266_setDHCP(char enable);
 bool esp8266_setAutoConnect(bool autoConnect);
+bool esp8266_getAutoConnect(void);
+bool esp8266_setAutoReconnect(bool autoReconnect);
 int32_t esp8266_getRSSI(void);
+int esp8266_connect(void);
+int esp8266_disconnect(void);
 bool esp8266_beginSmartConfig();
 bool esp8266_stopSmartConfig();
 bool esp8266_smartConfigDone();
-int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t &ip_addr);
-int esp8266_connect();
-int esp8266_disconnect();
-wl_status_t esp8266_status();
-bool esp8266_setAutoConnect(bool autoConnect);
-bool esp8266_getAutoConnect();
-bool esp8266_setAutoReconnect(bool autoReconnect);
+int esp8266_gethostbyname(const char* hostname, uint16_t hostnameLen, uint32_t *ip_addr);
 
 #ifdef __cplusplus
 }

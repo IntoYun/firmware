@@ -17,7 +17,8 @@
  ******************************************************************************
  */
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
+
 #if FIRMWARE_CONFIG_WIRING_WIRE > 0
 
 #include "wiring_i2c.h"
@@ -240,13 +241,13 @@ TwoWire& __fetch_global_wire()
     return wire;
 }
 
+#endif
+
 #if FIRMWARE_CONFIG_WIRING_WIRE > 1
 TwoWire& __fetch_global_wire1()
 {
     static TwoWire wire1(HAL_I2C_INTERFACE2);
     return wire1;
 }
-#endif
-
 #endif
 

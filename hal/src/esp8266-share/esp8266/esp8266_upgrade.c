@@ -4,6 +4,7 @@
 #include "params_hal.h"
 #include "md5_hash.h"
 #include "esp8266_downfile.h"
+#include "molmc_log.h"
 
 const static char *TAG = "hal-download";
 

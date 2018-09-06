@@ -20,9 +20,10 @@
 #ifndef WIRING_USBKEYBOARD_H_
 #define WIRING_USBKEYBOARD_H_
 
-#include "firmware_config.h"
+#include "firmware_platform_config.h"
 
 #if FIRMWARE_CONFIG_WIRING_USBKEYBOARD
+
 #include "wiring.h"
 
 #define KEY_LEFT_CTRL		0x80

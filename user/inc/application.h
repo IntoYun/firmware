@@ -43,8 +43,6 @@
 #include "wiring_cloud.h"
 #include "wiring_interrupts.h"
 #include "wiring_string.h"
-//#include "wiring_power.h"
-//#include "wiring_fuel.h"
 #include "wiring_print.h"
 #include "wiring_usartserial.h"
 #include "wiring_can.h"

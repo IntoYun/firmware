@@ -5,8 +5,6 @@
 #include "memory_hal.h"
 #include "flash_map.h"
 #include "intorobot_macros.h"
-#include "molmc_log.h"
-
 
 hal_boot_params_t intorobot_boot_params;         //bootloader参数
 hal_system_params_t intorobot_system_params;     //设备参数

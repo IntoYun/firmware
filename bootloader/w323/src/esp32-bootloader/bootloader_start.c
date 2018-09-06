@@ -140,6 +140,7 @@ void call_start_cpu0()
  */
 bool load_partition_table(bootloader_state_t* bs)
 {
+#define ESP_PARTITION_TABLE_ADDR 0x8000
     const esp_partition_info_t *partitions;
     const int ESP_PARTITION_TABLE_DATA_LEN = 0xC00; /* length of actual data (signature is appended to this) */
     char *partition_usage;
