@@ -365,16 +365,14 @@ int Esp32ConnClass::socketReadable(int socket)
 int Esp32ConnClass::socketRecv(int socket, char* buf, int len)
 {
     if (ISSOCKET(socket)) {
-//        if (_sockets[socket].connected) {  //因为数据已经下发到本地 所以连接断开也可以获取剩余数据  2016-01-12 chenkaiyao
-            int available = socketReadable(socket);
-            if (available>0)  {
-                if (len > available)    // only read up to the amount available. When 0,
-                    len = available;// skip reading and check timeout.
-                _sockets[socket].pipe->get(buf,len,false);
-                _sockets[socket].pending -= len;
-                return len;
-            }
-//        }
+        int available = socketReadable(socket);
+        if (available>0)  {
+            if (len > available)    // only read up to the amount available. When 0,
+                len = available;// skip reading and check timeout.
+            _sockets[socket].pipe->get(buf,len,false);
+            _sockets[socket].pending -= len;
+            return len;
+        }
     }
     return 0;
 }
@@ -382,18 +380,16 @@ int Esp32ConnClass::socketRecv(int socket, char* buf, int len)
 int Esp32ConnClass::socketRecvFrom(int socket, MDM_IP* ip, int* port, char* buf, int len)
 {
     if (ISSOCKET(socket)) {
-        //if (_sockets[socket].connected) {   //因为数据已经下发到本地 所以连接断开也可以获取剩余数据  2016-01-12 chenkaiyao
-            int available = socketReadable(socket);
-            if (available>0)  {
-                if (len > available)    // only read up to the amount available. When 0,
-                    len = available;// skip reading and check timeout.
-                _sockets[socket].pipe->get(buf,len,false);
-                _sockets[socket].pending -= len;
-                *ip = _sockets[socket].remote_ip;
-                *port = _sockets[socket].remote_port;
-                return len;
-            }
-        //}
+        int available = socketReadable(socket);
+        if (available>0)  {
+            if (len > available)    // only read up to the amount available. When 0,
+                len = available;// skip reading and check timeout.
+            _sockets[socket].pipe->get(buf,len,false);
+            _sockets[socket].pending -= len;
+            *ip = _sockets[socket].remote_ip;
+            *port = _sockets[socket].remote_port;
+            return len;
+        }
     }
     return 0;
 }

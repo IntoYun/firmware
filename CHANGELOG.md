@@ -1,16 +1,21 @@
-## v1.7.7
+## v1.7.7 (2018-09-06)
 
 ### 新增功能
 - 添加硬件定时器接口(#216)
-- 添加调试信息接口。WiFi/GPRS设备固件默认包括调试信息(#220)
+- 添加调试信息接口。WiFi/GPRS设备固件默认包括调试信息, LoRa设备由于空间原因默认不包含调试信息(#220)。
 
 ### 功能优化
 - GPRS设备MQTT心跳时间修改为60s。
+- 更新esp32 sdk。arduino-esp32 commit: a0f0bd930cfd2d607bf3d3288f46e2d265dd2e11。
+- esp32 HAL_Tick_Get_Micro_Seconds, HAL_Tick_Get_Milli_Seconds 使用esp_timer_get_time
+- 优化设备重连机制。
 
 ### 漏洞修复
-- 空
+- 修正ESP32 I2C BUG(#217)
 
 ### 内部调整
+- 规范HAL部分接口名称。
+- 规范设备配置文件。firmware_platform_config.h
 - HAL层timer_hal文件修改成tick_hal. timer_hal留给硬件定时器接口。
 
 

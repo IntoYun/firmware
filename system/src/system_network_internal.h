@@ -105,6 +105,7 @@ class ManagedNetworkInterface : public NetworkInterface
     volatile uint8_t NETWORK_CONNECTING;
     volatile uint8_t NETWORK_DHCP;
     volatile uint8_t NETWORK_CAN_SHUTDOWN;
+    volatile uint8_t NETWORK_LISTEN;
 
 protected:
     virtual network_interface_t network_interface() override { return 0; }
@@ -138,15 +139,18 @@ public:
         return NETWORK_CONNECTED;
     }
 
-    void connect(bool listen_enabled=true) override
+    void connect(bool listen_enabled=false) override
     {
+        if(NETWORK_LISTEN != listen_enabled) {
+            NETWORK_LISTEN = listen_enabled;
+        }
+
         //MOLMC_LOGD(GTAG, "ready(): %d; connecting(): %d", (int)ready(), (int)connecting());
         if (!ready() && !connecting()) {
             on(); // activate WiFi
 
             NETWORK_DISCONNECT = 0;
             connect_init();
-            SYSTEM_NETWORK_STARTED = 1;
 
             if (!has_credentials()) {
                 disconnect();
@@ -154,7 +158,9 @@ public:
                 NETWORK_CONNECTING = 1;
                 MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 1");
                 ARM_NETWORK_WD(CONNECT_TO_ADDRESS_MAX);    // reset the network if it doesn't connect within the timeout
-                system_notify_event(event_network_status, ep_network_status_connecting);
+                if(!NETWORK_LISTEN) {
+                    system_notify_event(event_network_status, ep_network_status_connecting);
+                }
                 connect_finalize();
             }
         }
@@ -178,10 +184,12 @@ public:
             }
             disconnect_now();
             config_clear();
-            if (was_connected || was_connecting) {
-                system_notify_event(event_network_status, ep_network_status_disconnected);
+            if(!NETWORK_LISTEN) {
+                if (was_connected || was_connecting) {
+                    system_notify_event(event_network_status, ep_network_status_disconnected);
+                }
+                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
             }
-            system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
         }
     }
 
@@ -205,7 +213,6 @@ public:
             system_notify_event(event_network_status, ep_network_status_powering_on);
             config_clear();
             on_now();
-            //update_config(true);
             SYSTEM_NETWORK_STARTED = 1;
             system_notify_event(event_network_status, ep_network_status_on);
         }
@@ -243,8 +250,11 @@ public:
             ARM_NETWORK_WD(CONNECT_TO_ADDRESS_MAX);
         }
         MOLMC_LOGD(GTAG, "notify_connected");
-        system_notify_event(event_network_status, ep_network_status_connected);
-        system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+
+        if(!NETWORK_LISTEN) {
+            system_notify_event(event_network_status, ep_network_status_connected);
+            system_rgb_blink(RGB_COLOR_BLUE, 1000);//蓝灯闪烁
+        }
     }
 
     void notify_disconnected()
@@ -257,8 +267,10 @@ public:
                 //if WiFi.disconnect called, do not enable wlan watchdog
                 MOLMC_LOGD(GTAG, "ARM_NETWORK_WD 3");
                 ARM_NETWORK_WD(DISCONNECT_TO_RECONNECT);
-                system_notify_event(event_network_status, ep_network_status_disconnected);
-                system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+                if(!NETWORK_LISTEN) {
+                    system_notify_event(event_network_status, ep_network_status_disconnected);
+                    system_rgb_blink(RGB_COLOR_GREEN, 1000);//绿灯闪烁
+                }
             }
         }
         NETWORK_CONNECTED = 0;

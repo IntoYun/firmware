@@ -25,7 +25,7 @@
 class Timer
 {
     public:
-        Timer(unsigned period, timer_callback_fn_t callback_fn, bool one_shot = false) {
+        Timer(uint32_t period, timer_callback_fn_t callback_fn, bool one_shot = false) {
             system_timer_init( &TimerObject, period, callback_fn, one_shot);
         }
 

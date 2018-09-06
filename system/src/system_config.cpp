@@ -787,6 +787,7 @@ void UdpDeviceConfig::init(void)
 {
     Udp.setTimeout(50);
     network_setup(0, 0, NULL);
+    network_connect(0, 1, 0, NULL);
     HAL_WLAN_Imlink_Start();
     UdpStep = 0;
 }
@@ -812,12 +813,11 @@ void UdpDeviceConfig::sendComfirm(int status)
 
 int UdpDeviceConfig::available(void)
 {
-    switch(UdpStep)
-    {
+    switch(UdpStep) {
         case 0:
             if( IMLINK_SUCCESS == HAL_WLAN_Imlink_Get_Status() ) {
                 HAL_WLAN_Imlink_Stop();
-                network_connect(0, 0, 0, NULL);
+                network_connect(0, 1, 0, NULL);
                 ARM_CONFIG_TIMEOUT(5000);
                 UdpStep = 1;
             }

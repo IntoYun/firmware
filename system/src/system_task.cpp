@@ -92,6 +92,7 @@ void Network_Setup(void)
     system_rgb_blink(RGB_COLOR_GREEN, 1000);
 
     network.setup();
+    network.disconnect();
     network.connect();
 
     CLOUD_FN(intorobot_cloud_init(), (void)0);

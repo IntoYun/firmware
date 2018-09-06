@@ -81,7 +81,7 @@ const void* network_config(network_handle_t network, uint32_t param, void* reser
 
 void network_connect(network_handle_t network, uint32_t flags, uint32_t param, void* reserved)
 {
-    SYSTEM_THREAD_CONTEXT_ASYNC_CALL(nif(network).connect());
+    SYSTEM_THREAD_CONTEXT_ASYNC_CALL(nif(network).connect(flags));
 }
 
 void network_disconnect(network_handle_t network, uint32_t param, void* reserved)
