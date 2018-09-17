@@ -27,7 +27,6 @@
 #define BMI160_MAG_INTERFACE_ON_PRIMARY_ON      (0x02)
 
 extern struct bmi160_t s_bmi160;
-TwoWire Wire1(HAL_I2C_INTERFACE2);
 
 int8_t BMI160_I2C_bus_read(uint8_t device_addr, uint8_t reg_addr, uint8_t *reg_data, uint8_t cnt)
 {
