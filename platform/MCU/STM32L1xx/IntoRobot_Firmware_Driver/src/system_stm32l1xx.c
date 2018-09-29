@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    system_stm32l1xx.c
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    01-July-2016
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from
@@ -23,7 +21,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -80,12 +78,12 @@
   * @{
   */
 #if !defined  (HSE_VALUE)
-  #define HSE_VALUE    ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz.
+  #define HSE_VALUE    ((uint32_t)8000000U) /*!< Default value of the External oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE    ((uint32_t)8000000) /*!< Default value of the Internal oscillator in Hz.
+  #define HSI_VALUE    ((uint32_t)8000000U) /*!< Default value of the Internal oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSI_VALUE */
 
@@ -96,7 +94,7 @@
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
 /* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x0 /*!< Vector Table base offset field.
+#define VECT_TAB_OFFSET  0x00U /*!< Vector Table base offset field.
                                   This value must be a multiple of 0x200. */
 /**
   * @}
@@ -122,9 +120,9 @@
                variable is updated automatically.
   */
 uint32_t SystemCoreClock    = 32000000;
-const uint8_t PLLMulTable[9]    = {3, 4, 6, 8, 12, 16, 24, 32, 48};
-const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
+const uint8_t PLLMulTable[9]    = {3U, 4U, 6U, 8U, 12U, 16U, 24U, 32U, 48U};
+const uint8_t AHBPrescTable[16] = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
+const uint8_t APBPrescTable[8]  = {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U};
 
 /**
   * @}
@@ -287,6 +285,25 @@ void SystemCoreClockUpdate (void)
   */
 void SystemInit_ExtMemCtl(void)
 {
+  __IO uint32_t tmpreg = 0;
+
+  /* Flash 1 wait state */
+  FLASH->ACR |= FLASH_ACR_LATENCY;
+
+  /* Power enable */
+  RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+
+  /* Delay after an RCC peripheral clock enabling */
+  tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);
+
+  /* Select the Voltage Range 1 (1.8 V) */
+  PWR->CR = PWR_CR_VOS_0;
+
+  /* Wait Until the Voltage Regulator is ready */
+  while((PWR->CSR & PWR_CSR_VOSF) != RESET)
+  {
+  }
+
 /*-- GPIOs Configuration -----------------------------------------------------*/
 /*
  +-------------------+--------------------+------------------+------------------+
@@ -309,6 +326,9 @@ void SystemInit_ExtMemCtl(void)
 
   /* Enable GPIOD, GPIOE, GPIOF and GPIOG interface clock */
   RCC->AHBENR   = 0x000080D8;
+
+  /* Delay after an RCC peripheral clock enabling */
+  tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_GPIODEN);
 
   /* Connect PDx pins to FSMC Alternate function */
   GPIOD->AFR[0]  = 0x00CC00CC;
@@ -361,6 +381,11 @@ void SystemInit_ExtMemCtl(void)
 /*-- FSMC Configuration ------------------------------------------------------*/
   /* Enable the FSMC interface clock */
   RCC->AHBENR    = 0x400080D8;
+
+  /* Delay after an RCC peripheral clock enabling */
+  tmpreg = READ_BIT(RCC->AHBENR, RCC_AHBENR_FSMCEN);
+
+  (void)(tmpreg);
 
   /* Configure and enable Bank1_SRAM3 */
   FSMC_Bank1->BTCR[4]  = 0x00001011;
