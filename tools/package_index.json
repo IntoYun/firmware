@@ -23,6 +23,13 @@
               "size": "92634781"
             },
             {
+              "host": "linux_i686",
+              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-gccarmnoneeabi/toolchain-gccarmnoneeabi-linux_x86_64-1.40903.0.tar.gz",
+              "archiveFileName": "toolchain-gccarmnoneeabi-linux_x86_64-1.40903.0.tar.gz",
+              "checksum": "SHA-256:135daab410ce4efd8f19432a6fa78472cbc6a70401d4033b2953fc3c6e6a72b0",
+              "size": "89665125"
+            },
+            {
               "host": "linux_x86_64",
               "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-gccarmnoneeabi/toolchain-gccarmnoneeabi-linux_x86_64-1.40903.0.tar.gz",
               "archiveFileName": "toolchain-gccarmnoneeabi-linux_x86_64-1.40903.0.tar.gz",
@@ -74,35 +81,35 @@
         },
         {
           "name": "toolchain-xtensa32",
-          "version": "1.50200.0",
+          "version": "2.50200.80",
           "systems": [
             {
               "host": "darwin_x86_64",
-              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-darwin_x86_64-1.50200.0.tar.gz",
-              "archiveFileName": "toolchain-xtensa32-darwin_x86_64-1.50200.0.tar.gz",
-              "checksum": "SHA-256:2a25b4dbddb8b6912b550db017682cbb836b81e491954ba69b07d692a64d9d65",
-              "size": "40486708"
+              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-darwin_x86_64-2.50200.80.tar.gz",
+              "archiveFileName": "toolchain-xtensa32-darwin_x86_64-2.50200.80.tar.gz",
+              "checksum": "SHA-256:a46c3365f015cc03e27c08711ef9e5fa10b2ea42cbd0d17087aedae19ef2408e",
+              "size": "46315172"
             },
             {
               "host": "linux_i686",
-              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-linux_i686-1.50200.0.tar.gz",
-              "archiveFileName": "toolchain-xtensa32-linux_i686-1.50200.0.tar.gz",
-              "checksum": "SHA-256:82ab0930c3f376a0294ddbac26d1ef24fd470cd08d0199f9bbe5733730134dd7",
-              "size": "40954759"
+              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-linux_i686-2.50200.80.tar.gz",
+              "archiveFileName": "toolchain-xtensa32-linux_i686-2.50200.80.tar.gz",
+              "checksum": "SHA-256:5c529ce8e659420c16320dff2cab2b47769fb980554cc112283546a2303a5775",
+              "size": "45166436"
             },
             {
               "host": "linux_x86_64",
-              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-linux_x86_64-1.50200.0.tar.gz",
-              "archiveFileName": "toolchain-xtensa32-linux_x86_64-1.50200.0.tar.gz",
-              "checksum": "SHA-256:ca04c47c22c5a765a63b1f3be506318c60c703685d80f9c7eb8c23619ab658e5",
-              "size": "37618241"
+              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-linux_x86_64-2.50200.80.tar.gz",
+              "archiveFileName": "toolchain-xtensa32-linux_x86_64-2.50200.80.tar.gz",
+              "checksum": "SHA-256:4b6c9894f4512ca29eb684454308f08d28efafbc2597e04b1a61c2944d7bdbb0",
+              "size": "43869751"
             },
             {
               "host": "windows_i686",
-              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-windows-1.50200.0.tar.gz",
-              "archiveFileName": "toolchain-xtensa32-windows-1.50200.0.tar.gz",
-              "checksum": "SHA-256:a09098694f2231d9ecd0759999ecb750b03016d0d0d8d1f180dd5ce515c8b6df",
-              "size": "75274677"
+              "url": "http://dl.intoyun.com/intoyuniot/tools/toolchain-xtensa32/toolchain-xtensa32-windows-2.50200.80.tar.gz",
+              "archiveFileName": "toolchain-xtensa32-windows-2.50200.80.tar.gz",
+              "checksum": "SHA-256:8afdb42b1997c045597c51b6198a30db0689465e4afb3aa39a60d1c3ed30bef4",
+              "size": "123087540"
             }
           ]
         },
@@ -116,6 +123,13 @@
               "archiveFileName": "dfu-util-0.9.0-osx.tar.gz",
               "size": "32809",
               "checksum": "SHA-256:44021412be7ae81da556b4d1dce660c4a438c0a986ab056cdc49344db8bf1049"
+            },
+            {
+              "host": "linux_i686",
+              "url": "http://dl.intoyun.com/tools/dfu-util-0.9.0-linux64.tar.gz",
+              "archiveFileName": "dfu-util-0.9.0-linux64.tar.gz",
+              "size": "96940",
+              "checksum": "SHA-256:ff4a1af1405603ed8940e88c61cb3440c9b870ec5f7e8646dc455f98fd7e1f45"
             },
             {
               "host": "linux_x86_64",
@@ -135,62 +149,69 @@
         },
         {
           "name": "tool-esptool8266",
-          "version": "0.4.11",
+          "version": "0.4.13",
           "systems": [
             {
               "host": "darwin_x86_64",
-              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.11-osx.tar.gz",
-              "archiveFileName": "esptool8266-0.4.11-osx.tar.gz",
-              "size": "30061",
-              "checksum": "SHA-256:3d24e1f34f9d2812e8d96f31e2166108a31a20b57b33059d43e20d7a8ebbf445"
+              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.13-osx.tar.gz",
+              "archiveFileName": "esptool8266-0.4.13-osx.tar.gz",
+              "size": "32362",
+              "checksum": "SHA-256:a24a973c3b2671992a8b66f4e7c9ffd24065972f241469f45e94a0a66d118d23"
+            },
+            {
+              "host": "linux_i686",
+              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.13-linux32.tar.gz",
+              "archiveFileName": "esptool8266-0.4.13-linux32.tar.gz",
+              "size": "14884",
+              "checksum": "SHA-256:041f661a41a2efb40c89fc34acf0059bbb5e1eb1c050efaa69af677f79c966fb"
             },
             {
               "host": "linux_x86_64",
-              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.11-linux64.tar.gz",
-              "archiveFileName": "esptool8266-0.4.11-linux64.tar.gz",
-              "size": "16040",
-              "checksum": "SHA-256:49ea4cd3a1407b0b856a05016524a2d7ea4aa8188171561a9a309e32bd847ff7"
+              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.13-linux64.tar.gz",
+              "archiveFileName": "esptool8266-0.4.13-linux64.tar.gz",
+              "size": "15743",
+              "checksum": "SHA-256:3c35f366ffdaa1328b1e96e28c9a97f60c98109095ccc18352fb5615e582a786"
             },
             {
               "host": "windows_i686",
-              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.11-win32.zip",
-              "archiveFileName": "esptool8266-0.4.11-win32.zip",
-              "size": "32953",
-              "checksum": "SHA-256:1a9025595b650562dd7325b96edfd92209f79c43ad29aefd00cf4cbe25f87729"
+              "url": "http://dl.intoyun.com/tools/esptool8266-0.4.13-win32.zip",
+              "archiveFileName": "esptool8266-0.4.13-win32.zip",
+              "size": "16660",
+              "checksum": "SHA-256:17c1035aacd8f6dbfbc04ed899f5db0ceba60820592705a9c6011476ab8d1687"
             }
           ]
         },
         {
           "name": "tool-esptool32",
-          "version": "1.0.0",
+          "version": "2.5.0",
           "systems": [
             {
               "host": "darwin_x86_64",
-              "url": "http://dl.intoyun.com/tools/esptool32-1.0.0-osx.tar.gz",
-              "archiveFileName": "esptool32-1.0.0-osx.tar.gz",
-              "size": "3805848",
-              "checksum": "SHA-256:403ed95c336c5f6b7ccadf6291d1cc5dddbb7b7131fdd140e91e21114104ba4d"
+              "url": "http://dl.intoyun.com/tools/esptool32-2.5.0-osx.tar.gz",
+              "archiveFileName": "esptool32-2.5.0-osx.tar.gz",
+              "size": "3835397",
+              "checksum": "SHA-256:2da8ba3b83d99b5d808cab955a077e3e0738ec640b51de932d047cad7fac1157"
             },
             {
               "host": "linux_i686",
-              "url": "http://dl.intoyun.com/tools/esptool32-1.0.0-linux32.tar.gz",
-              "archiveFileName": "esptool32-1.0.0-linux32.tar.gz",
-              "size": "3766882",
-              "checksum": "SHA-256:c91fc8a97ca111be434e6bfeeefeaa5522f03c2be55c07c27d6a709ce0bdfb7d"
+              "url": "http://dl.intoyun.com/tools/esptool32-2.5.0-linux.tar.gz",
+              "archiveFileName": "esptool32-2.5.0-linux.tar.gz",
+              "size": "43468",
+              "checksum": "SHA-256:34d63b9a0bf2acb9b6fdac15f91a8756f4e722065de031e8fbce4e4abc369e54"
             },
             {
               "host": "linux_x86_64",
-              "url": "http://dl.intoyun.com/tools/esptool32-1.0.0-linux64.tar.gz",
-              "archiveFileName": "esptool32-1.0.0-linux64.tar.gz",
-              "size": "3937723",
-              "checksum": "SHA-256:471b84259bb46bf27f0b29285145e75029fb81530edff3a7d9057f7cb96e8f4a"
+              "url": "http://dl.intoyun.com/tools/esptool32-2.5.0-linux.tar.gz",
+              "archiveFileName": "esptool32-2.5.0-linux.tar.gz",
+              "size": "43468",
+              "checksum": "SHA-256:34d63b9a0bf2acb9b6fdac15f91a8756f4e722065de031e8fbce4e4abc369e54"
             },
             {
               "host": "windows_i686",
-              "url": "http://dl.intoyun.com/tools/esptool32-1.0.0-win32.zip",
-              "archiveFileName": "esptool32-1.0.0-win32.zip",
-              "size": "3391151",
-              "checksum": "SHA-256:27d9213a25635b4bfc7717de4627a4b07e61f04ef5b7935e81784745c635c786"
+              "url": "http://dl.intoyun.com/tools/esptool32-2.5.0-win32.zip",
+              "archiveFileName": "esptool32-2.5.0-win32.zip",
+              "size": "3420959",
+              "checksum": "SHA-256:576b8068b577cae0e6e937566a9d32a08ff7ff82963fb60400eacb6691f2fbfb"
             }
           ]
         },
@@ -204,6 +225,13 @@
               "archiveFileName": "upload-reset-1.0.0-osx.tar.gz",
               "size": "2403",
               "checksum": "SHA-256:8da9eab8aced54df25d040f062710a65ffac9a8f40b3fc4665efb733918632b1"
+            },
+            {
+              "host": "linux_i686",
+              "url": "http://dl.intoyun.com/tools/upload-reset-1.0.0-linux64.tar.gz",
+              "archiveFileName": "upload-reset-1.0.0-linux64.tar.gz",
+              "size": "3889",
+              "checksum": "SHA-256:fe9e99226c5f8e21bbbe7b30c7bb121e8355344d52b795779ee0a59038cb6d19"
             },
             {
               "host": "linux_x86_64",
