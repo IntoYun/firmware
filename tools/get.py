@@ -45,15 +45,28 @@ def report_progress(count, blockSize, totalSize):
 
 def unpack(filename, destination, rename_to):
     dirname = ''
+    dirpath = destination
     print('Extracting {0}'.format(filename))
     if filename.endswith('tar.gz'):
         tfile = tarfile.open(filename, 'r:gz')
-        tfile.extractall(destination)
         dirname= tfile.getnames()[0]
+        file_names = tfile.getnames()
+        for file_name in file_names:
+            if file_name.find(dirname) < 0:
+                dirname = rename_to
+                dirpath = os.path.join(destination, rename_to)
+                break;
+        tfile.extractall(dirpath);
     elif filename.endswith('zip'):
         zfile = zipfile.ZipFile(filename)
-        zfile.extractall(destination)
         dirname = zfile.namelist()[0]
+        file_names = tfile.namelist()
+        for file_name in file_names:
+            if file_name.find(dirname) < 0:
+                dirname = rename_to
+                dirpath = os.path.join(destination, rename_to)
+                break;
+        zfile.extractall(dirpath)
     else:
         raise NotImplementedError('Unsupported archive type')
 

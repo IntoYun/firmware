@@ -444,11 +444,13 @@ void FLASH_WriteProtection_Enable(uint32_t FLASH_WRP_Sectors)
         OBInit.WRPPage  = FLASH_WRP_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
+#if 0
         /* Start the Option Bytes programming process */
         if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
             //Error during Option Bytes programming process
         }
+#endif
 
         /* Prevent Access to option bytes sector */
         HAL_FLASH_OB_Lock();
@@ -493,6 +495,7 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_WRP_Sectors)
         OBInit.WRPPage  = FLASH_WRP_Sectors;
         HAL_FLASHEx_OBProgram(&OBInit);
 
+#if 0
         /* Start the Option Bytes programming process */
         if (HAL_FLASH_OB_Launch() != HAL_OK)
         {
@@ -501,6 +504,7 @@ void FLASH_WriteProtection_Disable(uint32_t FLASH_WRP_Sectors)
             {
             }
         }
+#endif
 
         /* Prevent Access to option bytes sector */
         HAL_FLASH_OB_Lock();
