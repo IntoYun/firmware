@@ -19,33 +19,29 @@
 #define LORAMAC_SEND_FAIL   (-1)
 #define LORAMAC_SENDING     (1)
 
-typedef struct sLoRaWanParams{
+typedef uint8_t (*get_battery_level_cb_t)(void);
+
+typedef struct sLoRaWanParams
+{
     uint32_t devAddr;
     uint8_t  nwkSkey[16];
     uint8_t  appSkey[16];
     uint8_t  devEui[8];
     uint8_t  appEui[8];
     uint8_t  appKey[16];
-}lorawan_params_t;
+} lorawan_params_t;
 
 typedef enum
 {
     JOIN_ABP = 0,
-    JOIN_OTAA,
-}join_mode_t;
+    JOIN_OTAA
+} join_mode_t;
 
 typedef enum
 {
     PROTOCOL_LORAWAN = 0,
-    PROTOCOL_P2P,
-}protocol_mode_t;
-
-typedef enum
-{
-    LORAWAN_STANDARD = 0,           //符合官方标准LoRaWan协议
-    LORAWAN_STANDARD_EXTEND,        //符合官方标准LoRaWan协议，添加IntoYun平台特性。
-    LORAWAN_NONSTANDARD_EXTEND      //修正官方标准LoRaWan协议，添加IntoYun平台特性。
-}lorawan_protocol_t;
+    PROTOCOL_P2P
+} protocol_mode_t;
 
 class LoRaWanClass
 {
@@ -54,24 +50,24 @@ class LoRaWanClass
         int joinOTAA(uint16_t timeout);      //OTAA入网激活
         int sendConfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);    //带确认发送   true:发送成功 false:发送失败
         int sendUnconfirmed(uint8_t port, uint8_t *buffer, uint16_t len, uint16_t timeout);  //不带确认发送 true:发送成功 false:发送失败
-        int8_t sendStatus(void);
-        uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);                       //返回接收数据
-        void setProtocol(lorawan_protocol_t type);
-        void setOTAAParams(char *devEui, char *appEui, char *appKey);   //设置OTAA入网参数
-        void setABPParams(char *devAddr, char *nwkSkey, char *appSkey); //设置ABP入网参数
-        void getDeviceEUI(char *devEui, uint16_t len);    //获取deviceeui
-        void getDeviceAddr(char *devAddr, uint16_t len);  //获取device addr
-        void getAppEUI(char *appEui, uint16_t len);       //获取appeui
-        void setMacClassType(DeviceClass_t classType);    //切换class 类型
-        DeviceClass_t getMacClassType(void);              //获取class类型
-        void setTxPower(uint8_t index);                   //设置发射功率
-        uint8_t getTxPower(void);                         //获取发射功率
-        void setDataRate(uint8_t datarate);               //设置速率
-        uint8_t getDataRate(void);                        //获取速率
-        void setAdrOn(bool adrOn);                        //使能ADR自适应速率 true使能 false不使能
-        bool getAdrOn(void);                              //获取ADR自适应速率开关
-        uint16_t getDutyCyclePrescaler(void);             //获取占空比分频参数
-        void setDutyCyclePrescaler(uint16_t dutyCycle);   //设置占空比分频参数
+        int8_t sendStatus(void);                                                //获取发送状态
+        uint16_t receive(uint8_t *buffer, uint16_t length, int *rssi);          //返回接收数据
+        void setRegion(LoRaMacRegion_t region);                                 //设置频段
+        void setOTAAParams(char *devEui, char *appEui, char *appKey);           //设置OTAA入网参数
+        void setABPParams(char *devAddr, char *nwkSkey, char *appSkey);         //设置ABP入网参数
+        void getDeviceEUI(char *devEui, uint16_t len);                          //获取deviceeui
+        void getDeviceAddr(char *devAddr, uint16_t len);                        //获取device addr
+        void getAppEUI(char *appEui, uint16_t len);                             //获取appeui
+        void setMacClassType(DeviceClass_t classType);                          //切换class 类型
+        DeviceClass_t getMacClassType(void);                                    //获取class类型
+        void setTxPower(uint8_t index);                                         //设置发射功率
+        uint8_t getTxPower(void);                                               //获取发射功率
+        void setDataRate(uint8_t datarate);                                     //设置速率
+        uint8_t getDataRate(void);                                              //获取速率
+        void setAdrOn(bool adrOn);                                              //使能ADR自适应速率 true使能 false不使能
+        bool getAdrOn(void);                                                    //获取ADR自适应速率开关
+        uint16_t getDutyCyclePrescaler(void);                                   //获取占空比分频参数
+        void setDutyCyclePrescaler(uint16_t dutyCycle);                         //设置占空比分频参数
         void setChannelFreq(uint8_t channel, uint32_t freq);                    //设置通道频率
         uint32_t getChannelFreq(uint8_t channel);                               //获取通道频率
         void setChannelDRRange(uint8_t channel, uint8_t minDR, uint8_t maxDR);  //设置通道速率范围
@@ -96,30 +92,32 @@ class LoRaWanClass
         uint8_t getGatewayNumber(void);                                         //获取网关号
         uint8_t getSnr(void);                                                   //获取收到数据后的snr
         int16_t getRssi(void);                                                  //获取收到数据后的rssi
-        uint16_t getBatteryVoltage(uint16_t pin);
+        void setGetBatteryLevelCallBack(get_battery_level_cb_t fn);             //设置获取电池电量回调函数
 
     public:
-        uint8_t *_buffer = NULL;              //接收缓冲区
-        uint16_t _bufferSize;
-        bool _available = false;
-        uint8_t _macSnr;                      //接收完数据收snr值
-        int16_t _macRssi;                     //接收完数据收rssi值
-        lorawan_params_t macParams;
-        DeviceClass_t _classType = CLASS_C;   //class 类型
-        bool _adrOn = false;                  //ADR使能
-        uint8_t _confirmedNbTrials = 3;       //确认帧重发次数
-        uint8_t _unConfirmedNbTrials = 3;     //确认帧重发次数
-        uint8_t _joinNbTrials = 3;            //入网包重发次数
-        uint8_t _demodMargin = 0;
-        uint8_t _nbGateways = 0;
-        uint8_t _uplinkDatarate = 0;          //上行速率
-        uint8_t _downlinkDatarate = 0;        //下行速率
-        int8_t _txPower = 0;                  //发射功率
-        bool _ackReceived = false;            //是否收到ack
-        uint8_t _framePending = 0;
-        uint8_t _macDatarate = DR_3;          //设置发送速率
-        uint8_t _macRunStatus = 0;            //mac运行状态 内部使用处理
-        int8_t _macSendStatus = 0;            //发送状态
+        uint8_t *_buffer = NULL;                                   //接收缓冲区
+        uint16_t _bufferSize;                                      //接收缓冲区大小
+        bool _available = false;                                   //是否收到数据
+        uint8_t _macSnr;                                           //接收完数据snr值
+        int16_t _macRssi;                                          //接收完数据rssi值
+        lorawan_params_t macParams;                                //LoRaWAN参数
+        DeviceClass_t _classType = CLASS_C;                        //通讯类型
+        LoRaMacRegion_t _region = LORAMAC_REGION_EU433;            //LoRaWAN频段
+        bool _adrOn = false;                                       //ADR使能
+        uint8_t _confirmedNbTrials = 3;                            //确认帧重发次数
+        uint8_t _unConfirmedNbTrials = 3;                          //确认帧重发次数
+        uint8_t _joinNbTrials = 3;                                 //入网包重发次数
+        uint8_t _demodMargin = 0;                                  //
+        uint8_t _nbGateways = 0;                                   //
+        uint8_t _uplinkDatarate = 0;                               //上行速率
+        uint8_t _downlinkDatarate = 0;                             //下行速率
+        int8_t _txPower = 0;                                       //发射功率
+        bool _ackReceived = false;                                 //是否收到ack
+        uint8_t _framePending = 0;                                 //
+        uint8_t _macDatarate = DR_3;                               //设置发送速率
+        uint8_t _macRunStatus = 0;                                 //mac运行状态 内部使用处理
+        int8_t _macSendStatus = 0;                                 //发送状态
+        get_battery_level_cb_t _get_battery_level_callback = NULL; //获取电池电量回调函数
 
     private:
 };
@@ -131,36 +129,36 @@ class LoRaClass
         void radioStartRx(uint32_t timeout);                                //lora射频进入接收状态
         int8_t radioSendStatus(void);                                       //查询发送状态
         uint16_t radioRx(uint8_t *buffer, uint16_t length, int16_t *rssi);  //lora射频接收数据
-        bool radioCad(void);                            //完成CAD流程  true:CADDeteced false:CADDone
+        bool radioCad(void);                                  //完成CAD流程  true:CADDeteced false:CADDone
 
-        int16_t radioGetRssi(void);                     //获取rssi
-        uint8_t radioGetSnr(void);                      //获取snr
+        int16_t radioGetRssi(void);                           //获取rssi
+        uint8_t radioGetSnr(void);                            //获取snr
 
-        void radioSetSleep(void);                       //sx1278休眠
-        void radioSetFreq(uint32_t freq);               //设置频率
-        uint32_t radioGetFreq(void);                    //获取频率
-        void radioSetMaxPayloadLength(uint8_t maxLen);  //设置负载最大长度
-        uint8_t radioGetMaxPayloadLength(void);         //获取负载最大长度
-        void radioSetModem(RadioModems_t modem);        //设置模式 MODEM_FSK、MODEM_LORA
-        RadioModems_t radioGetModem(void);              //获取模式
-        void radioSetBandwidth(uint8_t bandwidth);      //设置带宽
-        uint8_t radioGetBandwidth(void);                //获取带宽
-        void radioSetSF(uint8_t sf);                    //设置扩频因子
-        uint8_t radioGetSF(void);                       //获取扩频因子
-        void radioSetCR(uint8_t coderate);              //设置纠错编码率
-        uint8_t radioGetCR(void);                       //获取纠错码率
-        void radioSetPreambleLen(uint16_t preambleLen); //设置前导码长度
-        uint16_t radioGetPreambleLen(void);             //获取前导码长度
-        void radioSetFixLenOn(bool fixLenOn);           //SF=6时包长度需固定
-        bool radioGetFixLenOn(void);                    //SF=6时包长度需固定
-        void radioSetCrcOn(bool crcOn);                 //设置crc校验
-        bool radioGetCrcOn(void);                       //获取crc是否开启 0:关闭1:开启
-        void radioSetFreqHopOn(bool FreqHopOn);         //设置跳频使能
-        bool radioGetFreqHopOn(void);                   //获取跳频使能
-        void radioSetHopPeriod(uint8_t hopPeriod);      //设置跳频周期
-        uint8_t radioGetHopPeriod(void);                //获取跳频周期
-        void radioSetIqInverted(bool iqInverted);       //设置iq翻转
-        bool radioGetIqInverted(void);                  //获取Iq是否翻转
+        void radioSetSleep(void);                             //sx1278休眠
+        void radioSetFreq(uint32_t freq);                     //设置频率
+        uint32_t radioGetFreq(void);                          //获取频率
+        void radioSetMaxPayloadLength(uint8_t maxLen);        //设置负载最大长度
+        uint8_t radioGetMaxPayloadLength(void);               //获取负载最大长度
+        void radioSetModem(RadioModems_t modem);              //设置模式 MODEM_FSK、MODEM_LORA
+        RadioModems_t radioGetModem(void);                    //获取模式
+        void radioSetBandwidth(uint8_t bandwidth);            //设置带宽
+        uint8_t radioGetBandwidth(void);                      //获取带宽
+        void radioSetSF(uint8_t sf);                          //设置扩频因子
+        uint8_t radioGetSF(void);                             //获取扩频因子
+        void radioSetCR(uint8_t coderate);                    //设置纠错编码率
+        uint8_t radioGetCR(void);                             //获取纠错码率
+        void radioSetPreambleLen(uint16_t preambleLen);       //设置前导码长度
+        uint16_t radioGetPreambleLen(void);                   //获取前导码长度
+        void radioSetFixLenOn(bool fixLenOn);                 //SF=6时包长度需固定
+        bool radioGetFixLenOn(void);                          //SF=6时包长度需固定
+        void radioSetCrcOn(bool crcOn);                       //设置crc校验
+        bool radioGetCrcOn(void);                             //获取crc是否开启 0:关闭1:开启
+        void radioSetFreqHopOn(bool FreqHopOn);               //设置跳频使能
+        bool radioGetFreqHopOn(void);                         //获取跳频使能
+        void radioSetHopPeriod(uint8_t hopPeriod);            //设置跳频周期
+        uint8_t radioGetHopPeriod(void);                      //获取跳频周期
+        void radioSetIqInverted(bool iqInverted);             //设置iq翻转
+        bool radioGetIqInverted(void);                        //获取Iq是否翻转
         void radioSetRxContinuous(bool rxContinuous);
         bool radioGetRxContinuous(void);
 

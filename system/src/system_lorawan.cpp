@@ -276,9 +276,8 @@ void os_getAppEui(uint8_t *buf)
 
     HAL_PARAMS_Get_System_appeui(appeui, sizeof(appeui));
     system_get_product_id(temp, sizeof(temp));
-    //lora产品将product_id当做appeui
-    if(strcmp(temp, appeui) != 0) {
-        strncpy(appeui,temp,strlen(temp));
+    if((strcmp(temp, appeui) != 0) && (strlen(temp) != 0)) {
+        strncpy(appeui, temp, strlen(temp));
         HAL_PARAMS_Set_System_appeui(appeui);
     }
     string2hex(appeui, buf, 8, true);
@@ -349,8 +348,8 @@ void LoRaWanResume(void)
     LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
     LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
     LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
-    LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU433);
+    LoRaMacCallbacks.GetBatteryLevel = LoRaWan._get_battery_level_callback;
+    LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LoRaWan._region);
 
     MibRequestConfirm_t mibReq;
     //设置ADR

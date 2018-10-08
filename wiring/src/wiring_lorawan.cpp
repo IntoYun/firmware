@@ -190,27 +190,6 @@ uint16_t LoRaWanClass::receive(uint8_t *buffer, uint16_t length, int *rssi)
     return 0;
 }
 
-void LoRaWanClass::setProtocol(lorawan_protocol_t type)
-{
-    switch(type){
-    case LORAWAN_STANDARD:
-        System.disableFeature(SYSTEM_FEATURE_DATA_PROTOCOL_ENABLED);   //关闭datapoint数据处理
-        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
-        break;
-
-    case LORAWAN_STANDARD_EXTEND:
-        System.enableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //运行标准协议
-        break;
-
-    case LORAWAN_NONSTANDARD_EXTEND:
-        System.disableFeature(SYSTEM_FEATURE_STANDARD_LORAWAN_ENABLED); //不运行标准协议
-        break;
-
-    default:
-        break;
-    }
-}
-
 void LoRaWanClass::setOTAAParams(char *devEUI, char *appEUI, char *appKey)
 {
     HAL_PARAMS_Set_System_device_id(devEUI);
@@ -589,9 +568,11 @@ int16_t LoRaWanClass::getRssi(void)
     return _macRssi;
 }
 
-uint16_t LoRaWanClass::getBatteryVoltage(uint16_t pin)
+void LoRaWanClass::setGetBatteryLevelCallBack(get_battery_level_cb_t fn)
 {
-    return BoardBatteryMeasureVolage(pin);
+    if(NULL != fn) {
+        _get_battery_level_callback = fn;
+    }
 }
 
 //P2P透传接口

@@ -79,27 +79,27 @@ void SX1276IoInit( void )
     SX1276.SpiNss = SX1278_NSS;
     SX1276.RxTx   = SX1278_RXTX;
 
-    pinMode(SX1276.SpiNss,OUTPUT);
-    digitalWrite(SX1276.SpiNss,1);
-    pinMode(SX1276.DIO0,INPUT_PULLUP);
-    pinMode(SX1276.DIO1,INPUT_PULLUP);
-    pinMode(SX1276.DIO2,INPUT_PULLUP);
-    pinMode(SX1276.DIO3,INPUT_PULLUP);
-    pinMode(SX1276.DIO4,INPUT_PULLUP);
-    pinMode(SX1276.DIO5,INPUT_PULLUP);
-    pinMode(SX1278_BATTERY_POWER,AN_INPUT);
+    pinMode(SX1276.SpiNss, OUTPUT);
+    digitalWrite(SX1276.SpiNss, 1);
+    pinMode(SX1276.DIO0, INPUT_PULLUP);
+    pinMode(SX1276.DIO1, INPUT_PULLUP);
+    pinMode(SX1276.DIO2, INPUT_PULLUP);
+    pinMode(SX1276.DIO3, INPUT_PULLUP);
+    pinMode(SX1276.DIO4, INPUT_PULLUP);
+    pinMode(SX1276.DIO5, INPUT_PULLUP);
+    pinMode(SX1278_BATTERY_POWER, AN_INPUT);
 }
 
 void SX1276IoDeInit( void )
 {
-    pinMode(SX1276.SpiNss,OUTPUT);
-    digitalWrite(SX1276.SpiNss,1);
-    pinMode(SX1276.DIO0,INPUT);
-    pinMode(SX1276.DIO1,INPUT);
-    pinMode(SX1276.DIO2,INPUT);
-    pinMode(SX1276.DIO3,INPUT);
-    pinMode(SX1276.DIO4,INPUT);
-    pinMode(SX1276.DIO5,INPUT);
+    pinMode(SX1276.SpiNss, OUTPUT);
+    digitalWrite(SX1276.SpiNss, 1);
+    pinMode(SX1276.DIO0, INPUT);
+    pinMode(SX1276.DIO1, INPUT);
+    pinMode(SX1276.DIO2, INPUT);
+    pinMode(SX1276.DIO3, INPUT);
+    pinMode(SX1276.DIO4, INPUT);
+    pinMode(SX1276.DIO5, INPUT);
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -216,14 +216,14 @@ void SX1276SetAntSwLowPower( bool status )
 void SX1276AntSwInit( void )
 {
     //高收低发
-    pinMode(SX1276.RxTx,OUTPUT);
-    digitalWrite(SX1276.RxTx,1);
+    pinMode(SX1276.RxTx, OUTPUT);
+    digitalWrite(SX1276.RxTx, 1);
 }
 
 void SX1276AntSwDeInit( void )
 {
-    pinMode(SX1276.RxTx,OUTPUT);
-    digitalWrite(SX1276.RxTx,0);
+    pinMode(SX1276.RxTx, OUTPUT);
+    digitalWrite(SX1276.RxTx, 0);
 }
 
 void SX1276SetAntSw( uint8_t opMode )
@@ -231,13 +231,13 @@ void SX1276SetAntSw( uint8_t opMode )
     switch( opMode )
     {
         case RFLR_OPMODE_TRANSMITTER:
-            digitalWrite(SX1276.RxTx,0);
+            digitalWrite(SX1276.RxTx, 0);
             break;
         case RFLR_OPMODE_RECEIVER:
         case RFLR_OPMODE_RECEIVER_SINGLE:
         case RFLR_OPMODE_CAD:
         default:
-            digitalWrite(SX1276.RxTx,1);
+            digitalWrite(SX1276.RxTx, 1);
             break;
     }
 }
@@ -255,7 +255,7 @@ void SX1276BoardInit(void)
     SPI1.setDataMode(0);
     SPI1.begin();
     SX1276IoInit();
-    if(!rtcSetCallback){
+    if(!rtcSetCallback) {
         rtcSetCallback = true;
         HAL_RTC_SetCallbacks(TimerIrqHandler, NULL);
     }
@@ -263,19 +263,20 @@ void SX1276BoardInit(void)
 
 void SX1276SetReset(void)
 {
-    pinMode(SX1276.Reset,OUTPUT);
-    digitalWrite(SX1276.Reset,0);
+    pinMode(SX1276.Reset, OUTPUT);
+    digitalWrite(SX1276.Reset, 0);
     DelayMs(1);
-    pinMode(SX1276.Reset,INPUT);
+    pinMode(SX1276.Reset, INPUT);
     DelayMs(6);
 }
 
 void SX1276SpiSetNss(uint8_t val)
 {
-    digitalWrite(SX1276.SpiNss,val);
+    digitalWrite(SX1276.SpiNss, val);
 }
 
 uint8_t SX1276SpiTransfer( uint8_t outData )
 {
     SPI1.transfer(outData);
 }
+
