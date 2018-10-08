@@ -19,6 +19,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 extern "C" {
 #endif
 
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 /*!
  * \brief Timer object description
  */

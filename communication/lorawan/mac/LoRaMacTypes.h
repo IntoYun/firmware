@@ -35,6 +35,10 @@
 #ifndef __LORAMAC_TYPES_H__
 #define __LORAMAC_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "timer.h"
@@ -547,6 +551,11 @@ typedef enum eLoRaMacBatteryLevel
      */
     BAT_LEVEL_NO_MEASURE             = 0xFF,
 }LoRaMacBatteryLevel_t;
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif // __LORAMAC_TYPES_H__
 

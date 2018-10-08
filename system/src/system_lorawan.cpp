@@ -378,9 +378,9 @@ void LoRaWanJoinOTAA(void)
 
     mlmeReq.Type = MLME_JOIN;
     mlmeReq.Req.Join.DevEui = LoRaWan.macParams.devEui;
-    mlmeReq.Req.Join.AppEui = LoRaWan.macParams.appEui;
-    mlmeReq.Req.Join.AppKey = LoRaWan.macParams.appKey;
-    mlmeReq.Req.Join.NbTrials = LoRaWan._joinNbTrials;
+    mlmeReq.Req.Join.JoinEui = LoRaWan.macParams.appEui;
+    //mlmeReq.Req.Join.AppKey = LoRaWan.macParams.appKey;
+    //mlmeReq.Req.Join.NbTrials = LoRaWan._joinNbTrials;
 
     if( LoRaMacMlmeRequest( &mlmeReq ) != LORAMAC_STATUS_OK ) {
         LoRaWanOnEvent(LORAWAN_EVENT_JOIN_FAIL);
@@ -407,6 +407,7 @@ bool LoRaWanJoinABP(void)
     mibReq.Param.DevAddr = LoRaWan.macParams.devAddr;
     LoRaMacMibSetRequestConfirm(&mibReq);
 
+    /*
     mibReq.Type = MIB_NWK_SKEY;
     mibReq.Param.NwkSKey = LoRaWan.macParams.nwkSkey;
     LoRaMacMibSetRequestConfirm(&mibReq);
@@ -418,6 +419,7 @@ bool LoRaWanJoinABP(void)
     mibReq.Type = MIB_NETWORK_JOINED;
     mibReq.Param.IsNetworkJoined = true;
     LoRaMacMibSetRequestConfirm(&mibReq);
+    */
 
     INTOROBOT_LORAWAN_CONNECTED = false;
     INTOROBOT_LORAWAN_JOINED = true;
@@ -436,6 +438,7 @@ void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
         devAddr = mibReq.Param.DevAddr;
     }
 
+    /*
     mibReq.Type = MIB_NWK_SKEY;
     status = LoRaMacMibGetRequestConfirm(&mibReq);
     if(status == LORAMAC_STATUS_OK) {
@@ -447,6 +450,7 @@ void LoRaWanGetABPParams(uint32_t &devAddr, uint8_t *nwkSkey, uint8_t *appSkey)
     if(status == LORAMAC_STATUS_OK) {
         memcpy(appSkey,mibReq.Param.AppSKey,16);
     }
+    */
 }
 
 bool intorobot_lorawan_flag_connected(void)

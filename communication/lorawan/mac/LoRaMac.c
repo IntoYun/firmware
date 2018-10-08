@@ -4383,3 +4383,54 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
         MacCtx.NvmCtx->DutyCycleOn = enable;
     }
 }
+
+//lz-modify add
+void LoRaMacAbortRun(void)
+{
+    //TimerStop( &MacStateCheckTimer);
+    TimerStop( &MacCtx.TxDelayedTimer );
+    TimerStop( &MacCtx.RxWindowTimer1);
+    TimerStop( &MacCtx.RxWindowTimer2);
+    TimerStop( &MacCtx.AckTimeoutTimer);
+    //LoRaMacFlags.Value = 0;
+    MacCtx.MacState = LORAMAC_IDLE;
+    //MOLMC_LOGD(TAG, "loramac abort run!!!");
+}
+
+uint32_t LoRaMacGetChannelFreq(uint8_t id)
+{
+    //return RegionGetChannelFreq(LoRaMacRegion, id);
+    return 0;
+}
+
+void LoRaMacGetChannelDRRange(uint8_t id, uint8_t *minDR, uint8_t *maxDR)
+{
+#if 0
+    if(id > 15){
+        return;
+    }
+    RegionGetChannelDRRange(LoRaMacRegion, id, minDR, maxDR);
+#endif
+}
+
+void LoRaMacSetDutyCycle(uint16_t dutyCycle)
+{
+#if 0
+    if(dutyCycle < 65535){
+        RegionSetDutyCycle(LoRaMacRegion, dutyCycle);
+    }
+#endif
+}
+
+uint16_t LoRaMacGetDutyCycle(void)
+{
+//    return RegionGetDutyCycle(LoRaMacRegion);
+    return 0;
+}
+
+uint8_t LoRaMacGetLastTxChannel(void)
+{
+//    return LastTxChannel;
+    return 0;
+}
+//=====

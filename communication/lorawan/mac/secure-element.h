@@ -34,6 +34,10 @@
 #ifndef __SECURE_ELEMENT_H__
 #define __SECURE_ELEMENT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
 
@@ -164,5 +168,9 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
  * \retval                    - Status of the operation
  */
 SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //  __SECURE_ELEMENT_H__

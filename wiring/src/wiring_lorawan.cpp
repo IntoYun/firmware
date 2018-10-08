@@ -442,6 +442,7 @@ uint8_t LoRaWanClass::getConfirmedNbTrials(void)
 
 void LoRaWanClass::setUnconfirmedNbTrials(uint8_t trials)
 {
+#if 0
     MibRequestConfirm_t mibReq;
 
     _unConfirmedNbTrials = trials;
@@ -450,6 +451,7 @@ void LoRaWanClass::setUnconfirmedNbTrials(uint8_t trials)
         mibReq.Param.ChannelNbRep = trials;
         LoRaMacMibSetRequestConfirm( &mibReq );
     }
+#endif
 }
 
 uint8_t LoRaWanClass::getUnconfirmedNbTrials(void)
@@ -469,14 +471,17 @@ uint8_t LoRaWanClass::getJoinNbTrials(void)
 
 void LoRaWanClass::setUpCounter(uint32_t counter)
 {
+#if 0
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_UPLINK_COUNTER;
     mibReq.Param.UpLinkCounter = counter;
     LoRaMacMibSetRequestConfirm(&mibReq);
+#endif
 }
 
 uint32_t LoRaWanClass::getUpCounter(void)
 {
+#if 0
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
 
@@ -485,18 +490,23 @@ uint32_t LoRaWanClass::getUpCounter(void)
     if(status == LORAMAC_STATUS_OK) {
         return mibReq.Param.UpLinkCounter;
     }
+#endif
+    return 0;
 }
 
 void LoRaWanClass::setDownCounter(uint32_t counter)
 {
+#if 0
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_DOWNLINK_COUNTER;
     mibReq.Param.DownLinkCounter = counter;
     LoRaMacMibSetRequestConfirm(&mibReq);
+#endif
 }
 
 uint32_t LoRaWanClass::getDownCounter(void)
 {
+#if 0
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
 
@@ -505,6 +515,8 @@ uint32_t LoRaWanClass::getDownCounter(void)
     if(status == LORAMAC_STATUS_OK) {
         return mibReq.Param.DownLinkCounter;
     }
+#endif
+    return 0;
 }
 
 void LoRaWanClass::setRX2Params(uint8_t datarate, uint32_t frequency)

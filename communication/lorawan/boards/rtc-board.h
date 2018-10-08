@@ -15,6 +15,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __RTC_BOARD_H__
 #define __RTC_BOARD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \brief Timer time variable definition
  */
@@ -60,6 +64,10 @@ TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
  * \retval elapsed Time since the eventInTime
  */
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RTC_BOARD_H__
 

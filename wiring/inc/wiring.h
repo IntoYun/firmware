@@ -86,8 +86,8 @@ uint32_t pulseIn(pin_t pin, uint16_t value, uint32_t timeout = 1000000L);
 uint32_t pulseInLong(pin_t pin, uint16_t value, uint32_t timeout = 1000000L);
 void analogWrite(uint16_t pin, uint32_t value);
 void analogWrite(uint16_t pin, uint32_t value, uint32_t pwm_frequency);
-uint8_t analogWriteResolution(pin_t pin, uint8_t resolution);
 uint8_t analogWriteResolution(pin_t pin);
+uint8_t analogWriteResolution(pin_t pin, uint8_t resolution);
 uint32_t analogWriteMaxFrequency(pin_t pin);
 void setDACBufferred(pin_t pin, uint8_t state);
 

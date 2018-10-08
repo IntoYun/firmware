@@ -74,3 +74,22 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
         return( elapsedTime - eventInTime);
     }
 }
+
+uint32_t RtcGetCalendarTime( uint16_t *milliseconds )
+{
+    return 0;
+}
+
+void RtcBkupWrite( uint32_t data0, uint32_t data1 )
+{
+}
+
+void RtcBkupRead( uint32_t *data0, uint32_t *data1 )
+{
+}
+
+void RtcProcess( void )
+{
+    // Not used on this platform.
+}
+

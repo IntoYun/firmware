@@ -27,7 +27,7 @@
 #include "utilities.h"
 #include "timer.h"
 #include "radio.h"
-#include "delay.h"
+//#include "delay.h"
 #include "sx1276.h"
 #include "sx1276-board.h"
 
@@ -65,6 +65,11 @@ typedef struct
  *         default values
  */
 static void RxChainCalibration( void );
+
+/*!
+ * \brief Resets the SX1276
+ */
+void SX1276Reset( void );
 
 /*!
  * \brief Sets the SX1276 in transmission mode for the given time
@@ -1174,6 +1179,11 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
     return rssi;
 }
 
+void SX1276Reset( void )
+{
+    SX1276SetReset();
+}
+
 void SX1276SetOpMode( uint8_t opMode )
 {
 #if defined( USE_RADIO_DEBUG )
@@ -1259,35 +1269,26 @@ void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
-    //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
-
-    SpiInOut( &SX1276.Spi, addr | 0x80 );
+    SX1276SpiSetNss(0);
+    SX1276SpiTransfer( addr | 0x80 );
     for( i = 0; i < size; i++ )
     {
-        SpiInOut( &SX1276.Spi, buffer[i] );
+        SX1276SpiTransfer( buffer[i] );
     }
-
-    //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+    SX1276SpiSetNss(1);
 }
 
 void SX1276ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
-    //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
-
-    SpiInOut( &SX1276.Spi, addr & 0x7F );
-
+    SX1276SpiSetNss(0);
+    SX1276SpiTransfer( addr & 0x7F );
     for( i = 0; i < size; i++ )
     {
-        buffer[i] = SpiInOut( &SX1276.Spi, 0 );
+        buffer[i] = SX1276SpiTransfer( 0 );
     }
-
-    //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+    SX1276SpiSetNss(1);
 }
 
 void SX1276WriteFifo( uint8_t *buffer, uint8_t size )
@@ -1701,7 +1702,7 @@ void SX1276OnDio2Irq( void )
             {
             case MODEM_FSK:
                 // Checks if DIO4 is connected. If it is not PreambleDetected is set to true.
-                if( SX1276.DIO4.port == NULL )
+                if( SX1276.DIO4 == NULL )
                 {
                     SX1276.Settings.FskPacketHandler.PreambleDetected = true;
                 }

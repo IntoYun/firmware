@@ -37,6 +37,10 @@
 #ifndef __LORAMAC_MESSAGE_TYPES_H__
 #define __LORAMAC_MESSAGE_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "LoRaMacHeaderTypes.h"
 
@@ -266,7 +270,7 @@ typedef struct sLoRaMacMessageData
      */
     uint8_t* FRMPayload;
     /*!
-     * Size of frame payload (not included in LoRaMac messages) 
+     * Size of frame payload (not included in LoRaMac messages)
      */
     uint8_t FRMPayloadSize;
     /*!
@@ -323,5 +327,8 @@ typedef struct sLoRaMacMessage
 }LoRaMacMessage_t;
 
 /*! \} addtogroup LORAMAC */
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LORAMAC_MESSAGE_TYPES_H__

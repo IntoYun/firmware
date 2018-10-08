@@ -23,6 +23,10 @@
 #ifndef __SX1276_H__
 #define __SX1276_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "radio.h"
@@ -131,14 +135,15 @@ typedef struct
  */
 typedef struct SX1276_s
 {
-    Gpio_t        Reset;
-    Gpio_t        DIO0;
-    Gpio_t        DIO1;
-    Gpio_t        DIO2;
-    Gpio_t        DIO3;
-    Gpio_t        DIO4;
-    Gpio_t        DIO5;
-    Spi_t         Spi;
+    uint8_t        Reset;
+    uint8_t        DIO0;
+    uint8_t        DIO1;
+    uint8_t        DIO2;
+    uint8_t        DIO3;
+    uint8_t        DIO4;
+    uint8_t        DIO5;
+    uint8_t        SpiNss;
+    uint8_t        RxTx;
     RadioSettings_t Settings;
 }SX1276_t;
 
@@ -420,5 +425,9 @@ void SX1276SetPublicNetwork( bool enable );
  * \retval time Radio plus board wakeup time in ms.
  */
 uint32_t SX1276GetWakeupTime( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX1276_H__
