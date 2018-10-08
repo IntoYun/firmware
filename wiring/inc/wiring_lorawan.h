@@ -5,15 +5,15 @@
 #include <stdlib.h>
 #if FIRMWARE_CONFIG_SYSTEM_LORAWAN
 
-#include "radio/inc/radio.h"
-#include "radio/inc/sx1276.h"
-#include "board/inc/sx1276-board.h"
-#include "board/inc/board.h"
-#include "board/inc/utilities.h"
-#include "board/inc/timer.h"
-#include "mac/inc/LoRaMac.h"
-#include "mac/inc/LoRaMacTest.h"
-#include "mac/src/region/Region.h"
+#include "radio/radio.h"
+#include "radio/sx1276/sx1276.h"
+#include "boards/sx1276-board.h"
+#include "boards/board.h"
+#include "boards/utilities.h"
+#include "system/timer.h"
+#include "mac/LoRaMac.h"
+#include "mac/LoRaMacTest.h"
+#include "mac/region/Region.h"
 
 #define LORAMAC_SEND_OK     (0)
 #define LORAMAC_SEND_FAIL   (-1)
